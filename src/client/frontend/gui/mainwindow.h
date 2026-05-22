@@ -210,6 +210,7 @@ private slots:
     void onBackendProxySharingInfoChanged(const types::ProxySharingInfo &psi);
     void onBackendWifiSharingInfoChanged(const types::WifiSharingInfo &wsi);
     void onBackendWifiSharingFailed(WIFI_SHARING_ERROR error);
+    void onBackendProxySharingFailed(PROXY_SHARING_ERROR error);
     void onBackendRequestCustomOvpnConfigCredentials(const QString &username);
     void onBackendRequestCustomOvpnConfigPrivKeyPassword();
     void onBackendSessionDeleted();

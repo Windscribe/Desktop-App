@@ -34,6 +34,11 @@ private:
     QStringList getAppRules(const QString &comment, bool modifyForDelete, bool isIPv6);
     void removeAppRules(const QString &comment, bool isIPv6);
     QStringList getLocalAddresses(const QString iface) const;
+    // True iff `iface` has at least one non-link-local IPv6 unicast address.
+    // Used to gate the conditional v6 VPN-adapter permit in firewallOnImpl: the
+    // WireGuard server only sometimes pushes a v6 client address; OpenVPN never
+    // does. We must not punch ::/0 into the kill switch when the tunnel is v4-only.
+    bool hasIPv6Address(const QString &iface) const;
     QString getHotspotAdapter() const;
     bool hasBlockRule();
 };

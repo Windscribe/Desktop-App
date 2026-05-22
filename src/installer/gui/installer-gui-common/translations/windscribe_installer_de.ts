@@ -33,6 +33,22 @@
         <translation>Installation fehlgeschlagen</translation>
     </message>
     <message>
+        <source>The Windows Base Filtering Engine service is not running and could not be started. This core Windows service must be running to install Windscribe. Third-party security/firewall software is most often the cause of this issue.</source>
+        <translation>Der Windows Base Filtering Engine-Dienst läuft nicht und konnte nicht gestartet werden. Dieser zentrale Windows-Dienst muss laufen, um Windscribe zu installieren. Sicherheits- oder Firewall-Software von Drittanbietern ist meist die Ursache für dieses Problem.</translation>
+    </message>
+    <message>
+        <source>Windscribe is unable to connect to the Windows Base Filtering Engine service. Connecting to this core Windows service is required to install Windscribe. Third-party security/firewall software is most often the cause of this issue.</source>
+        <translation>Windscribe kann sich nicht mit dem Windows Base Filtering Engine-Service verbinden. Für die Installation von Windscribe ist eine Verbindung zu diesem Kerndienst von Windows erforderlich. Sicherheits- oder Firewall-Software von Drittanbietern ist meist die Ursache für dieses Problem.</translation>
+    </message>
+    <message>
+        <source>Windscribe is unable to install its helper service. Please manually uninstall Windscribe and try again. If this issue persists, please contact our Technical Support.</source>
+        <translation>Windscribe kann seinen Helferdienst nicht installieren. Bitte deinstalliere Windscribe manuell und versuche es erneut. Wenn dieses Problem weiterhin besteht, wenden Sie sich bitte an unseren technischen Support.</translation>
+    </message>
+    <message>
+        <source>Windscribe is unable to start its helper service. Third-party security/firewall software may be the cause. If this is not the case, please contact our Technical Support.</source>
+        <translation>Windscribe kann seinen Helferdienst nicht starten. Sicherheits- oder Firewall-Software von Drittanbietern könnte die Ursache sein. Falls dies nicht der Fall ist, wenden Sie sich bitte an unseren technischen Support.</translation>
+    </message>
+    <message>
         <source>The installation could not be completed successfully. Please contact our Technical Support.</source>
         <translation>Die Installation konnte nicht erfolgreich abgeschlossen werden. Bitte wenden Sie sich an unseren technischen Support.</translation>
     </message>

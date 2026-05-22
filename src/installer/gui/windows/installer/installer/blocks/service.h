@@ -9,5 +9,6 @@ public:
     int executeStep();
 
 private:
-    bool installWindscribeService();
+    int installWindscribeService();
+    int verifyBFEStatus();
 };

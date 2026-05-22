@@ -1,9 +1,9 @@
 #include "customconfiglocationinfo.h"
-#include "utils/ws_assert.h"
-#include "utils/ipvalidation.h"
-#include "utils/log/categories.h"
 #include "engine/customconfigs/ovpncustomconfig.h"
 #include "engine/customconfigs/wireguardcustomconfig.h"
+#include "utils/log/categories.h"
+#include "utils/networkingvalidation.h"
+#include "utils/ws_assert.h"
 
 using namespace wsnet;
 
@@ -84,11 +84,20 @@ void CustomConfigLocationInfo::resolveHostnamesForWireGuardConfig()
     const auto remotes = config->hostnames();
     for (const auto &remote : remotes)
     {
+        // IPv6 endpoint connections are not implemented yet (see also onDnsRequestFinished).
+        // Skip literal v6 endpoints with a clear warning so they don't silently break the
+        // kill-switch path.
+        if (NetworkingValidation::isIpv6(remote))
+        {
+            qCWarning(LOG_CONNECTION) << "Custom WireGuard config endpoint" << remote
+                                      << "is an IPv6 literal, skipping. IPv6 endpoint connections are not implemented yet.";
+            continue;
+        }
         RemoteDescr rd;
         rd.ipOrHostname_ = remote;
         rd.isHostname = false;
         rd.port = globalPort_;
-        if (!IpValidation::isIp(remote))
+        if (!NetworkingValidation::isIp(remote))
         {
             rd.isHostname = true;
             rd.isResolved = false;
@@ -100,7 +109,11 @@ void CustomConfigLocationInfo::resolveHostnamesForWireGuardConfig()
                     onDnsRequestFinished(hostname, result);
                 });
             };
-            WSNet::instance()->dnsResolver()->lookup(remote.toStdString(), 0, callback);
+            // Custom configs may legitimately point at v6-only or dual-stack hostnames. We must
+            // ask for both families so we can see when the resolver returns only IPv6 and warn
+            // the user clearly instead of silently failing the kill-switch path. The actual
+            // connection still uses IPv4 only — see onDnsRequestFinished().
+            WSNet::instance()->dnsResolver()->lookup(remote.toStdString(), 0, IpFamily::kBoth, callback);
         }
         remotes_ << rd;
     }
@@ -127,7 +140,14 @@ void CustomConfigLocationInfo::resolveHostnamesForOVPNConfig()
     const QVector<customconfigs::RemoteCommandLine> remotes = config->remotes();
     for (const auto &remote : remotes)
     {
-        if (IpValidation::isIp(remote.hostname))
+        // IPv6 endpoint connections are not implemented yet (see also onDnsRequestFinished).
+        if (NetworkingValidation::isIpv6(remote.hostname))
+        {
+            qCWarning(LOG_CONNECTION) << "Custom OpenVPN config remote" << remote.hostname
+                                      << "is an IPv6 literal, skipping. IPv6 endpoint connections are not implemented yet.";
+            continue;
+        }
+        if (NetworkingValidation::isIp(remote.hostname))
         {
             RemoteDescr rd;
             rd.ipOrHostname_ = remote.hostname;
@@ -160,7 +180,7 @@ void CustomConfigLocationInfo::resolveHostnamesForOVPNConfig()
                     onDnsRequestFinished(hostname, result);
                 });
             };
-            WSNet::instance()->dnsResolver()->lookup(remote.hostname.toStdString(), 0, callback);
+            WSNet::instance()->dnsResolver()->lookup(remote.hostname.toStdString(), 0, IpFamily::kBoth, callback);
         }
     }
     if (!isExistsHostnames)
@@ -300,17 +320,40 @@ QString CustomConfigLocationInfo::getLogString() const
 
 void CustomConfigLocationInfo::onDnsRequestFinished(const std::string &hostname, std::shared_ptr<WSNetDnsRequestResult> result)
 {
+    const QString qHostname = QString::fromStdString(hostname);
     for (int i = 0; i < remotes_.count(); ++i) {
-        if (remotes_[i].isHostname && remotes_[i].ipOrHostname_ == QString::fromStdString(hostname)) {
-            std::string strIps;
-            auto ips = result->ips();
-            for (const auto &ip : ips)
-            {
-                remotes_[i].ipsForHostname_ << QString::fromStdString(ip);
-                strIps += ip + "; ";
+        if (remotes_[i].isHostname && remotes_[i].ipOrHostname_ == qHostname) {
+            // We requested kBoth so we can detect v6-only / dual-stack cases explicitly. The
+            // VPN data path is still v4-only today, so we filter to v4 here. When v6 was the
+            // only answer, log a clear warning and leave ipsForHostname_ empty — that drives
+            // isExistSelectedNode()=false on this remote so doConnect() reports a real error
+            // instead of silently being killed by the firewall.
+            QStringList ipv4List;
+            QStringList ipv6List;
+            for (const auto &ip : result->ips()) {
+                const QString qip = QString::fromStdString(ip);
+                if (NetworkingValidation::isIpv4(qip)) {
+                    ipv4List << qip;
+                } else if (NetworkingValidation::isIpv6(qip)) {
+                    ipv6List << qip;
+                }
             }
+            remotes_[i].ipsForHostname_ = ipv4List;
 
-            qCInfo(LOG_CONNECTION) << "Hostname:" << QString::fromStdString(hostname) << " resolved -> " << QString::fromStdString(strIps);
+            if (!ipv4List.isEmpty()) {
+                qCInfo(LOG_CONNECTION) << "Hostname:" << qHostname << "resolved (IPv4) ->" << ipv4List.join("; ");
+                if (!ipv6List.isEmpty()) {
+                    qCInfo(LOG_CONNECTION) << "Hostname:" << qHostname
+                                           << "also has IPv6 addresses, ignored (IPv6 endpoints are not supported yet):"
+                                           << ipv6List.join("; ");
+                }
+            } else if (!ipv6List.isEmpty()) {
+                qCWarning(LOG_CONNECTION) << "Hostname:" << qHostname
+                                          << "resolved only to IPv6 addresses, skipping. IPv6 endpoint connections are not implemented yet. Addresses:"
+                                          << ipv6List.join("; ");
+            } else {
+                qCWarning(LOG_CONNECTION) << "Hostname:" << qHostname << "did not resolve to any IP";
+            }
             remotes_[i].isResolved = true;
             break;
         }

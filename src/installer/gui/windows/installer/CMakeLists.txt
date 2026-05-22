@@ -32,6 +32,7 @@ set(SOURCES
     installer/blocks/files.cpp
     installer/blocks/icons.cpp
     installer/blocks/install_openvpn_dco.cpp
+    installer/blocks/install_tap_windows6.cpp
     installer/blocks/install_splittunnel.cpp
     installer/blocks/service.cpp
     installer/blocks/uninstallprev.cpp

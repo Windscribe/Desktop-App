@@ -1,9 +1,9 @@
 #include "uniqueiplist.h"
-#include "utils/ipvalidation.h"
+#include "utils/networkingvalidation.h"
 
 void UniqueIpList::add(const QString &ip)
 {
-    if (IpValidation::isIp(ip))
+    if (NetworkingValidation::isIp(ip))
     {
         set_ << ip;
     }

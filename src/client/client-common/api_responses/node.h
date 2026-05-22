@@ -18,6 +18,7 @@ public:
     QVector<QString> ips_;   // 3 ips
     QString host_;
     int weight_;
+    bool ipv6_ = false;
 
     // internal state
     bool isValid_;
@@ -34,6 +35,7 @@ public:
     QString getHost() const;
     QString getIp(int ind) const;
     int getWeight() const;
+    bool isIpv6Support() const;
 
     bool operator== (const Node &other) const;
     bool operator!= (const Node &other) const;

@@ -618,26 +618,6 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
         <translation>Select Custom Config Folder</translation>
     </message>
     <message>
-        <source>Cannot select this directory because it is writeable for non-privileged users. Custom configs in this directory may pose a potential security risk. Please authenticate with an admin user to select this directory.</source>
-        <translation>Cannot select this directory because it is writeable for non-privileged users. Custom configs in this directory may pose a potential security risk. Please authenticate with an admin user to select this directory.</translation>
-    </message>
-    <message>
-        <source>Can&apos;t select directory</source>
-        <translation>Can&apos;t select directory</translation>
-    </message>
-    <message>
-        <source>The application is corrupted.  Please reinstall Windscribe.</source>
-        <translation>The application is corrupted.  Please reinstall Windscribe.</translation>
-    </message>
-    <message>
-        <source>Validation Error</source>
-        <translation>Validation Error</translation>
-    </message>
-    <message>
-        <source>The selected directory is writeable for non-privileged users. Custom configs in this directory may pose a potential security risk.</source>
-        <translation>The selected directory is writeable for non-privileged users. Custom configs in this directory may pose a potential security risk.</translation>
-    </message>
-    <message>
         <source>Security Risk</source>
         <translation>Security Risk</translation>
     </message>
@@ -678,6 +658,26 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
         <translation>Disconnected</translation>
     </message>
     <message>
+        <source>The selected directory is writeable for other users. Custom configs in this directory may pose a potential security risk.</source>
+        <translation>The selected directory is writeable for other users. Custom configs in this directory may pose a potential security risk.</translation>
+    </message>
+    <message>
+        <source>Proxy Gateway is unauthenticated</source>
+        <translation>Proxy Gateway is unauthenticated</translation>
+    </message>
+    <message>
+        <source>Your Proxy Gateway is enabled without authentication. Anyone on your local network, including untrusted networks like coffee-shop Wi-Fi, can route their traffic through your VPN. We strongly recommend setting credentials.</source>
+        <translation>Your Proxy Gateway is enabled without authentication. Anyone on your local network, including untrusted networks like coffee-shop Wi-Fi, can route their traffic through your VPN. We strongly recommend setting credentials.</translation>
+    </message>
+    <message>
+        <source>Go to Preferences</source>
+        <translation>Go to Preferences</translation>
+    </message>
+    <message>
+        <source>Later</source>
+        <translation>Later</translation>
+    </message>
+    <message>
         <source>Connected to </source>
         <translation>Connected to </translation>
     </message>
@@ -690,6 +690,18 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
 %1 transferred in %2</source>
         <translation>Connection to Windscribe has been terminated.
 %1 transferred in %2</translation>
+    </message>
+    <message>
+        <source>Could not start Proxy Gateway</source>
+        <translation>Could not start Proxy Gateway</translation>
+    </message>
+    <message>
+        <source>The configured port is in use. Please try a different port.</source>
+        <translation>The configured port is in use. Please try a different port.</translation>
+    </message>
+    <message>
+        <source>An unknown error occurred.</source>
+        <translation>An unknown error occurred.</translation>
     </message>
     <message>
         <source>Network Settings Interference</source>
@@ -924,14 +936,6 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>  If you are on a restrictive network, please connect the VPN before trying the download again.</source>
         <translation>  If you are on a restrictive network, please connect the VPN before trying the download again.</translation>
-    </message>
-    <message>
-        <source>Custom Config Directory Import</source>
-        <translation>Custom Config Directory Import</translation>
-    </message>
-    <message>
-        <source>A custom config directory is being imported.  Windscribe will prompt for your admin password to check for correct permissions.</source>
-        <translation>A custom config directory is being imported.  Windscribe will prompt for your admin password to check for correct permissions.</translation>
     </message>
     <message>
         <source>Your &quot;Connected DNS&quot; server is set to an OS default DNS server, which would result in a DNS leak.  It has been changed to Auto.</source>
@@ -1447,6 +1451,14 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Automatically choose the VPN protocol, or select one manually. NOTE: &quot;Preferred Protocol&quot; will override this setting.</translation>
     </message>
     <message>
+        <source>Configure egress IP stack for VPN connections.</source>
+        <translation>Configure egress IP stack for VPN connections.</translation>
+    </message>
+    <message>
+        <source>IP Stack</source>
+        <translation>IP Stack</translation>
+    </message>
+    <message>
         <source>Select the DNS server while connected to Windscribe.</source>
         <translation>Select the DNS server while connected to Windscribe.</translation>
     </message>
@@ -1517,6 +1529,13 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Anti-censorship Settings</source>
         <translation>Anti-censorship Settings</translation>
+    </message>
+</context>
+<context>
+    <name>PreferencesWindow::CopyableTextItem</name>
+    <message>
+        <source>Copied</source>
+        <translation>Copied</translation>
     </message>
 </context>
 <context>
@@ -2106,31 +2125,36 @@ Connect to a network first</translation>
         <translation>Port</translation>
     </message>
     <message>
-        <source>Unable to start proxy server</source>
-        <translation>Unable to start proxy server</translation>
+        <source>Require Authentication</source>
+        <translation>Require Authentication</translation>
     </message>
     <message>
-        <source>The proxy server couldn&apos;t be started on the requested port. Please try again with a different port.</source>
-        <translation>The proxy server couldn&apos;t be started on the requested port. Please try again with a different port.</translation>
+        <source>Without authentication, anyone on your network (e.g. coffee shop Wi-Fi) can use this proxy. Leave this on unless you know what you&apos;re doing.</source>
+        <translation>Without authentication, anyone on your network (e.g. coffee shop Wi-Fi) can use this proxy. Leave this on unless you know what you&apos;re doing.</translation>
+    </message>
+    <message>
+        <source>IP</source>
+        <translation>IP</translation>
+    </message>
+    <message>
+        <source>Username</source>
+        <translation>Username</translation>
+    </message>
+    <message>
+        <source>Password</source>
+        <translation>Password</translation>
     </message>
     <message>
         <source>Auto</source>
         <translation>Auto</translation>
     </message>
     <message>
+        <source>Unavailable</source>
+        <translation>Unavailable</translation>
+    </message>
+    <message>
         <source>Only when VPN is connected</source>
         <translation>Only when VPN is connected</translation>
-    </message>
-</context>
-<context>
-    <name>PreferencesWindow::ProxyIpAddressItem</name>
-    <message>
-        <source>IP</source>
-        <translation>IP</translation>
-    </message>
-    <message>
-        <source>Copied</source>
-        <translation>Copied</translation>
     </message>
 </context>
 <context>
@@ -2573,6 +2597,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Van Gogh</source>
         <translation>Van Gogh</translation>
+    </message>
+    <message>
+        <source>IPv4 Only</source>
+        <translation>IPv4 Only</translation>
     </message>
     <message>
         <source>Enabled</source>

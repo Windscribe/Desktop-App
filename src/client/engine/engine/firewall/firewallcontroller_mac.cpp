@@ -236,7 +236,7 @@ void FirewallController_mac::getFirewallStateFromPfctl(FirewallState &outState)
     QString output;
     bool ret;
 
-    // checking a few key rules to make sure the firewall rules is settled by our program
+    // checking a few key rules to make sure the firewall rules were set by our program
     helper_->getFirewallRules(kIpv4, "", "", output);
 
     if (output.indexOf("anchor \"" WS_PRODUCT_NAME_LOWER "_vpn_traffic\" all") != -1 &&
@@ -344,6 +344,13 @@ QString FirewallController_mac::generatePfConf(const QString &connectingIp, cons
     pf += "pass out quick proto udp from any to <" WS_PRODUCT_NAME_LOWER "_dns> port 53\n";
     pf += "pass in quick proto udp from <" WS_PRODUCT_NAME_LOWER "_dns> port 53 to any\n";
 
+    // <disallowed_dns> blocks the OS-configured system resolvers so they can't leak around the
+    // VPN-pushed DNS. `MacUtils::getOsDnsServers()` walks SystemConfiguration's `ServerAddresses`
+    // arrays (`State:/Network/Service/<UUID>/DNS` + `State:/Network/Global/DNS`), which macOS
+    // stores as a flat dual-stack list — so a host configured with e.g. `2001:4860:4860::8888`
+    // ends up in this table verbatim. The `block {out,in}` rules below have no `inet`/`inet6`
+    // selector, so a mixed v4 + v6 table covers both families (mirrors the `<windscribe_dns>`
+    // family-agnostic shape documented in `src/helper/macos/firewallcontroller.h`).
     pf += "table <disallowed_dns> persist {";
     QSet<QString> disallowedDns = MacUtils::getOsDnsServers();
     for (auto &ip : disallowedDns) {
@@ -447,6 +454,17 @@ QStringList FirewallController_mac::vpnTrafficRules(const QString &connectingIp,
         rules << "pass out quick on " + interfaceToSkip + " inet from any to any";
         rules << "pass in quick on " + interfaceToSkip + " inet from any to any";
 
+        // Conditional v6 permit on the VPN adapter. Only enabled when a non-link-local v6 address
+        // is actually present on the tunnel — gated to avoid leaks for v4-only tunnels (OpenVPN /
+        // Stunnel / Wstunnel never push v6, IKEv2's NEVPNManager doesn't expose a v6 default-route
+        // flag; only WG dual-stack ever populates a v6 address here). The v6 link-local /
+        // multicast / loopback `block` rules above stay — this permit is for ULA + GUA only.
+        if (hasIPv6Address(interfaceToSkip)) {
+            qCInfo(LOG_FIREWALL_CONTROLLER) << "IPv6 permitted on VPN adapter:" << interfaceToSkip;
+            rules << "pass out quick on " + interfaceToSkip + " inet6 from any to any";
+            rules << "pass in quick on " + interfaceToSkip + " inet6 from any to any";
+        }
+
         // allow app group to send to any address, for split tunnel extension
         rules << "pass out quick inet from any to any group " WS_PRODUCT_NAME_LOWER " flags any";
     }
@@ -497,6 +515,48 @@ QStringList FirewallController_mac::getLocalAddresses(const QString iface) const
 
     freeifaddrs(ifap);
     return addrs;
+}
+
+bool FirewallController_mac::hasIPv6Address(const QString &iface) const
+{
+    if (iface.isEmpty()) {
+        return false;
+    }
+
+    struct ifaddrs *ifap = nullptr;
+    if (getifaddrs(&ifap)) {
+        qCCritical(LOG_FIREWALL_CONTROLLER) << "FirewallController_mac::hasIPv6Address: getifaddrs failed for" << iface;
+        return false;
+    }
+
+    const QByteArray ifaceUtf8 = iface.toUtf8();
+    bool found = false;
+    for (struct ifaddrs *cur = ifap; cur != nullptr; cur = cur->ifa_next) {
+        if (cur->ifa_addr == nullptr ||
+            cur->ifa_addr->sa_family != AF_INET6 ||
+            cur->ifa_name == nullptr) {
+            continue;
+        }
+        // Exact name match — getLocalAddresses (above) uses strncmp, but that mistakenly accepts
+        // "utun4201" when looking for "utun420". For the v6 capability gate we want a strict match
+        // on interfaceToSkip_.
+        if (strcmp(cur->ifa_name, ifaceUtf8.constData()) != 0) {
+            continue;
+        }
+        const struct sockaddr_in6 *sin6 =
+            reinterpret_cast<const struct sockaddr_in6 *>(cur->ifa_addr);
+        // Skip link-local (fe80::/10): the kernel autoconfigures one on every v6-capable iface
+        // regardless of whether the WG server pushed a tunnel address. Only a globally-scoped or
+        // ULA address indicates real v6 capability.
+        if (IN6_IS_ADDR_LINKLOCAL(&sin6->sin6_addr)) {
+            continue;
+        }
+        found = true;
+        break;
+    }
+
+    freeifaddrs(ifap);
+    return found;
 }
 
 void FirewallController_mac::setPfWasEnabledState(bool b)

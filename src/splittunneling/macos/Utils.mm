@@ -1,4 +1,7 @@
 #import "Utils.h"
+#include <arpa/inet.h>
+#include <cstring>
+#include <netinet/in.h>
 #include <spdlog/spdlog.h>
 
 @implementation Utils
@@ -31,6 +34,14 @@
                              completionHandler:(void (^ _Nonnull)(NSError * _Nullable))handler
 {
     NETransparentProxyNetworkSettings *settings = [[NETransparentProxyNetworkSettings alloc] initWithTunnelRemoteAddress:@"127.0.0.1"];
+    // All-nil host + prefix 0 is Apple's documented "match everything" form for NENetworkRule,
+    // and empirically matches both AF_INET and AF_INET6 flows on macOS 13/14/15. An earlier
+    // attempt to add a second explicit `::/0` rule via `NWHostEndpoint host=:: port=0
+    // remotePrefix=0` was rejected by `setTunnelNetworkSettings:` with
+    // "Either a non-wildcard port or a non-wildcard address must be specified", which silently
+    // dropped the entire ruleset — Apple disallows wildcard host + wildcard port + prefix 0
+    // when an `NWHostEndpoint` is provided explicitly, but accepts the same shape when both
+    // endpoints are nil.
     NENetworkRule *includeRule =
         [[NENetworkRule alloc] initWithRemoteNetwork:nil
                                         remotePrefix:0
@@ -48,8 +59,20 @@
                                             protocol:NENetworkRuleProtocolAny
                                            direction:NETrafficDirectionOutbound];
 
+    // v6 sibling of the localhost exclude rule — without this, ::1 traffic would be hijacked
+    // into the proxy once the all-nil include rule starts matching v6 flows. 127.0.0.0/8
+    // doesn't cover ::1. /128 is non-wildcard so this rule is accepted by NENetworkRule.
+    NWHostEndpoint *localhostV6Endpoint = [NWHostEndpoint endpointWithHostname:@"::1" port:@"0"];
+    NENetworkRule *localhostV6Rule =
+        [[NENetworkRule alloc] initWithRemoteNetwork:localhostV6Endpoint
+                                        remotePrefix:128
+                                        localNetwork:nil
+                                         localPrefix:0
+                                            protocol:NENetworkRuleProtocolAny
+                                           direction:NETrafficDirectionOutbound];
+
     settings.includedNetworkRules = @[includeRule];
-    settings.excludedNetworkRules = @[localhostRule];
+    settings.excludedNetworkRules = @[localhostRule, localhostV6Rule];
 
     [provider setTunnelNetworkSettings:settings completionHandler:^(NSError * _Nullable error) {
         if (error) {
@@ -123,17 +146,50 @@
     }
 
     const struct sockaddr *addr = nw_endpoint_get_address(endpoint);
-    if (addr->sa_family != AF_INET) {
+    if (!addr) {
         return NO;
     }
 
-    const struct sockaddr_in *addr_in = (const struct sockaddr_in *)addr;
-    uint32_t ip = ntohl(addr_in->sin_addr.s_addr);
+    if (addr->sa_family == AF_INET) {
+        const struct sockaddr_in *addr_in = (const struct sockaddr_in *)addr;
+        uint32_t ip = ntohl(addr_in->sin_addr.s_addr);
 
-    return ((ip & 0xFF000000) == 0x0A000000) ||    // 10.0.0.0/8
-           ((ip & 0xFFFF0000) == 0xA9FE0000) ||    // 169.254.0.0/16
-           ((ip & 0xFFF00000) == 0xAC100000) ||    // 172.16.0.0/12
-           ((ip & 0xFFFF0000) == 0xC0A80000);      // 192.168.0.0/16
+        return ((ip & 0xFF000000) == 0x0A000000) ||    // 10.0.0.0/8
+               ((ip & 0xFFFF0000) == 0xA9FE0000) ||    // 169.254.0.0/16
+               ((ip & 0xFFF00000) == 0xAC100000) ||    // 172.16.0.0/12
+               ((ip & 0xFFFF0000) == 0xC0A80000);      // 192.168.0.0/16
+    }
+
+    if (addr->sa_family == AF_INET6) {
+        const struct sockaddr_in6 *addr_in6 = (const struct sockaddr_in6 *)addr;
+        const struct in6_addr *ip6 = &addr_in6->sin6_addr;
+
+        // Loopback (::1) — also excluded via the network-rule path in applyNetworkSettings, but
+        // checked here as defence in depth for the inclusive-mode flow gate.
+        if (IN6_IS_ADDR_LOOPBACK(ip6)) return YES;
+        // Link-local (fe80::/10) — never routable beyond the segment, must stay on original iface.
+        if (IN6_IS_ADDR_LINKLOCAL(ip6)) return YES;
+        // Multicast (ff00::/8) — covers mDNS (ff02::fb), SSDP (ff05::c), MLD reports, etc.
+        if (IN6_IS_ADDR_MULTICAST(ip6)) return YES;
+        // Unique Local Addresses (ULA, fc00::/7) — RFC 4193 private addressing for the user's LAN.
+        // High 7 bits == 1111110, i.e. first byte masked with 0xfe equals 0xfc.
+        if ((ip6->s6_addr[0] & 0xfe) == 0xfc) return YES;
+        // IPv4-mapped IPv6 (::ffff:0:0/96) — apply the existing v4 LAN check on the embedded
+        // octets (last 4 bytes of sin6_addr).
+        if (IN6_IS_ADDR_V4MAPPED(ip6)) {
+            uint32_t v4;
+            std::memcpy(&v4, &ip6->s6_addr[12], sizeof(v4));
+            v4 = ntohl(v4);
+            return ((v4 & 0xFF000000) == 0x0A000000) ||
+                   ((v4 & 0xFFFF0000) == 0xA9FE0000) ||
+                   ((v4 & 0xFFF00000) == 0xAC100000) ||
+                   ((v4 & 0xFFFF0000) == 0xC0A80000);
+        }
+        // Global unicast (2000::/3) and everything else — not LAN, route via split tunnel.
+        return NO;
+    }
+
+    return NO;
 }
 
 @end

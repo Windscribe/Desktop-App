@@ -29,6 +29,7 @@ inline const std::unordered_set<std::string>& allowedDirectives()
         "port",
         "remote",
         "remote-random",
+        "remote-random-hostname",
         "resolv-retry",
         "nobind",
         "float",
@@ -40,19 +41,9 @@ inline const std::unordered_set<std::string>& allowedDirectives()
         "local",
         "proto-force",
         "socket-flags",
-        "dev-node",
-        "windows-driver",
         "compat-mode",
-        "cd",
 
         // Crypto & TLS
-        "ca",
-        "cert",
-        "key",
-        "pkcs12",
-        "tls-auth",
-        "tls-crypt",
-        "tls-crypt-v2",
         "cipher",
         "data-ciphers",
         "data-ciphers-fallback",
@@ -69,6 +60,7 @@ inline const std::unordered_set<std::string>& allowedDirectives()
         "tls-groups",
         "tls-timeout",
         "tls-client",
+        "single-session",
         "auth-nocache",
         "tran-window",
         "reneg-sec",
@@ -86,6 +78,7 @@ inline const std::unordered_set<std::string>& allowedDirectives()
         "auth-retry",
         "auth-token",
         "auth-token-user",
+        "static-challenge",
 
         // Routing, DNS & network
         "route",
@@ -94,6 +87,7 @@ inline const std::unordered_set<std::string>& allowedDirectives()
         "pull",
         "pull-filter",
         "dhcp-option",
+        "dns",
         "allow-pull-fqdn",
         "topology",
         "ifconfig",
@@ -139,6 +133,11 @@ inline const std::unordered_set<std::string>& allowedDirectives()
         // Anti-censorship (Windscribe custom, patched OpenVPN)
         "udp-stuffing",
         "tcp-split-reset",
+        "i1",
+        "i2",
+        "i3",
+        "i4",
+        "i5"
     };
     return directives;
 }
@@ -159,6 +158,8 @@ inline const std::unordered_set<std::string>& ignoredDirectives()
         "management-hold",
         "http-proxy",
         "socks-proxy",
+        "dev-node",
+        "disable-dco",
     };
     return directives;
 }
@@ -238,7 +239,7 @@ inline const std::unordered_set<std::string>& allowedInlineBlockTags()
 {
     static const std::unordered_set<std::string> tags = {
         "ca", "cert", "key", "tls-auth", "tls-crypt", "tls-crypt-v2",
-        "pkcs12", "extra-certs", "auth-user-pass", "connection", "secret",
+        "pkcs12", "extra-certs", "auth-user-pass", "secret",
         "dh", "http-proxy-user-pass",
     };
     return tags;
@@ -387,10 +388,12 @@ inline bool isAllowed(const std::string &line, bool &insideInlineBlock, bool all
 // This is the main entry point for helper code. It performs:
 //   1. Balance check on inline block tags
 //   2. Line-by-line whitelist filtering with inline block context tracking
-// Blocked directives are reported via the optional callback.
+// Blocked directives are reported via onBlocked; ignored directives (those the
+// helper overrides with its own value) are reported via onIgnored.
 // Lines are newline-terminated in the output.
 inline std::string filterConfig(const std::string &config,
-    std::function<void(const std::string &)> onBlocked = nullptr)
+    std::function<void(const std::string &)> onBlocked = nullptr,
+    std::function<void(const std::string &)> onIgnored = nullptr)
 {
     const bool balancedBlocks = hasBalancedInlineBlocks(config);
 
@@ -410,11 +413,15 @@ inline std::string filterConfig(const std::string &config,
         }
 
         if (!isAllowed(line, insideInlineBlock, balancedBlocks)) {
-            // Check if this is a directive the helper overrides (silently ignore)
-            // vs an actually blocked directive (warn).
             std::string name = extractDirectiveName(line);
-            if (onBlocked && !name.empty() && ignoredDirectives().count(name) == 0) {
-                onBlocked(line);
+            if (!name.empty()) {
+                if (ignoredDirectives().count(name) > 0) {
+                    if (onIgnored) {
+                        onIgnored(name);
+                    }
+                } else if (onBlocked) {
+                    onBlocked(name);
+                }
             }
             continue;
         }

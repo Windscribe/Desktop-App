@@ -618,26 +618,6 @@ Pokud ztratíte hash účtu, je navždy pryč a podpora vám nemůže pomoci ho 
         <translation>Vyberte vlastní konfigurační složku</translation>
     </message>
     <message>
-        <source>Cannot select this directory because it is writeable for non-privileged users. Custom configs in this directory may pose a potential security risk. Please authenticate with an admin user to select this directory.</source>
-        <translation>Tento adresář nelze vybrat, protože je zapisovatelný pro neprivilegované uživatele. Vlastní konfigurace v tomto adresáři mohou představovat potenciální bezpečnostní riziko. Chcete-li vybrat tento adresář, ověřte se u uživatele s oprávněním správce.</translation>
-    </message>
-    <message>
-        <source>Can&apos;t select directory</source>
-        <translation>Nelze vybrat adresář</translation>
-    </message>
-    <message>
-        <source>The application is corrupted.  Please reinstall Windscribe.</source>
-        <translation>Aplikace je poškozena.  Přeinstalujte program Windscribe.</translation>
-    </message>
-    <message>
-        <source>Validation Error</source>
-        <translation>Chyba ověření</translation>
-    </message>
-    <message>
-        <source>The selected directory is writeable for non-privileged users. Custom configs in this directory may pose a potential security risk.</source>
-        <translation>Vybraný adresář je zapisovatelný pro neprivilegované uživatele. Vlastní konfigurace v tomto adresáři mohou představovat potenciální bezpečnostní riziko.</translation>
-    </message>
-    <message>
         <source>Security Risk</source>
         <translation>Bezpečnostní riziko</translation>
     </message>
@@ -678,6 +658,26 @@ Pokud ztratíte hash účtu, je navždy pryč a podpora vám nemůže pomoci ho 
         <translation>Nesouvislý</translation>
     </message>
     <message>
+        <source>The selected directory is writeable for other users. Custom configs in this directory may pose a potential security risk.</source>
+        <translation>Vybraný adresář je zapisovatelný pro ostatní uživatele. Vlastní konfigurace v tomto adresáři mohou představovat potenciální bezpečnostní riziko.</translation>
+    </message>
+    <message>
+        <source>Proxy Gateway is unauthenticated</source>
+        <translation>Proxy Gateway není autentizovaná</translation>
+    </message>
+    <message>
+        <source>Your Proxy Gateway is enabled without authentication. Anyone on your local network, including untrusted networks like coffee-shop Wi-Fi, can route their traffic through your VPN. We strongly recommend setting credentials.</source>
+        <translation>Vaše Proxy brána je povolena bez ověření. Kdokoli ve vaší místní síti, včetně nedůvěryhodných sítí jako je Wi-Fi v kavárnách, může směrovat svůj provoz přes vaši VPN. Důrazně doporučujeme nastavit přihlašovací údaje.</translation>
+    </message>
+    <message>
+        <source>Go to Preferences</source>
+        <translation>Přejděte na Preference</translation>
+    </message>
+    <message>
+        <source>Later</source>
+        <translation>Později</translation>
+    </message>
+    <message>
         <source>Connected to </source>
         <translation>Připojeno k </translation>
     </message>
@@ -690,6 +690,18 @@ Pokud ztratíte hash účtu, je navždy pryč a podpora vám nemůže pomoci ho 
 %1 transferred in %2</source>
         <translation>Připojení k Windscribe bylo ukončeno.
 %1 převedeno v %2</translation>
+    </message>
+    <message>
+        <source>Could not start Proxy Gateway</source>
+        <translation>Nepodařilo se spustit Proxy Gateway</translation>
+    </message>
+    <message>
+        <source>The configured port is in use. Please try a different port.</source>
+        <translation>Konfigurovaný port je v provozu. Zkuste prosím jiný port.</translation>
+    </message>
+    <message>
+        <source>An unknown error occurred.</source>
+        <translation>Došlo k neznámé chybě.</translation>
     </message>
     <message>
         <source>Network Settings Interference</source>
@@ -924,14 +936,6 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
     <message>
         <source>  If you are on a restrictive network, please connect the VPN before trying the download again.</source>
         <translation>  Pokud jste v omezující síti, připojte VPN, než se pokusíte o stažení znovu.</translation>
-    </message>
-    <message>
-        <source>Custom Config Directory Import</source>
-        <translation>Import adresáře vlastní konfigurace</translation>
-    </message>
-    <message>
-        <source>A custom config directory is being imported.  Windscribe will prompt for your admin password to check for correct permissions.</source>
-        <translation>Importuje se adresář vlastní konfigurace.  Windscribe vás vyzve k zadání hesla správce, aby zkontroloval správná oprávnění.</translation>
     </message>
     <message>
         <source>Your &quot;Connected DNS&quot; server is set to an OS default DNS server, which would result in a DNS leak.  It has been changed to Auto.</source>
@@ -1443,6 +1447,14 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
         <translation>Režim připojení</translation>
     </message>
     <message>
+        <source>Configure egress IP stack for VPN connections.</source>
+        <translation>Konfigurujte výstupní IP stack pro VPN připojení.</translation>
+    </message>
+    <message>
+        <source>IP Stack</source>
+        <translation>IP Stack</translation>
+    </message>
+    <message>
         <source>Select the DNS server while connected to Windscribe.</source>
         <translation>Vyberte server DNS při připojení k aplikaci Windscribe.</translation>
     </message>
@@ -1517,6 +1529,13 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
     <message>
         <source>Anti-censorship Settings</source>
         <translation>Prostředí proti cenzuře</translation>
+    </message>
+</context>
+<context>
+    <name>PreferencesWindow::CopyableTextItem</name>
+    <message>
+        <source>Copied</source>
+        <translation>Zkopírovaný</translation>
     </message>
 </context>
 <context>
@@ -2106,31 +2125,36 @@ Nejprve se připojte k síti</translation>
         <translation>Přístav</translation>
     </message>
     <message>
-        <source>Unable to start proxy server</source>
-        <translation>Nelze spustit proxy server</translation>
+        <source>Require Authentication</source>
+        <translation>Vyžaduje autentizaci</translation>
     </message>
     <message>
-        <source>The proxy server couldn&apos;t be started on the requested port. Please try again with a different port.</source>
-        <translation>Proxy server nelze spustit na požadovaném portu. Zkuste to prosím znovu s jiným portem.</translation>
+        <source>Without authentication, anyone on your network (e.g. coffee shop Wi-Fi) can use this proxy. Leave this on unless you know what you&apos;re doing.</source>
+        <translation>Bez autentizace může kdokoli ve vaší síti (např. Wi-Fi v kavárně) použít tento proxy. Nech to zapnuté, pokud nevíš, co děláš.</translation>
+    </message>
+    <message>
+        <source>IP</source>
+        <translation>IP</translation>
+    </message>
+    <message>
+        <source>Username</source>
+        <translation>Uživatelské jméno</translation>
+    </message>
+    <message>
+        <source>Password</source>
+        <translation>Heslo</translation>
     </message>
     <message>
         <source>Auto</source>
         <translation>Auto</translation>
     </message>
     <message>
+        <source>Unavailable</source>
+        <translation>Nedostupné</translation>
+    </message>
+    <message>
         <source>Only when VPN is connected</source>
         <translation>Pouze v případě, že je připojena VPN</translation>
-    </message>
-</context>
-<context>
-    <name>PreferencesWindow::ProxyIpAddressItem</name>
-    <message>
-        <source>IP</source>
-        <translation>IP</translation>
-    </message>
-    <message>
-        <source>Copied</source>
-        <translation>Zkopírovaný</translation>
     </message>
 </context>
 <context>
@@ -2573,6 +2597,10 @@ Pokud přeinstalace nepomůže, obraťte se na podporu Windscribe a požádejte 
     <message>
         <source>Van Gogh</source>
         <translation>Van Gogh</translation>
+    </message>
+    <message>
+        <source>IPv4 Only</source>
+        <translation>Pouze IPv4</translation>
     </message>
     <message>
         <source>Enabled</source>

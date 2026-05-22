@@ -3,7 +3,7 @@
  * Copyright (C) 2021 WireGuard LLC. All Rights Reserved.
  */
 
-// Adapted from wireguard-windows-0.5.3\.deps\src\uapi\windows\wireguard.h
+// Adapted from wireguard-windows-0.6\.deps\src\uapi\windows\wireguard.h
 // to work with MSVC++ rather than llvm-mingw, in particular, how structure
 // alignment is specified.
 
@@ -15,6 +15,11 @@
 
 #define WG_KEY_LEN 32
 
+typedef enum
+{
+    WG_IOCTL_ALLOWED_IP_REMOVE = 1 << 0
+} WG_IOCTL_ALLOWED_IP_FLAG;
+
 typedef _declspec(align(8)) struct _WG_IOCTL_ALLOWED_IP
 {
     union
@@ -24,6 +29,7 @@ typedef _declspec(align(8)) struct _WG_IOCTL_ALLOWED_IP
     } Address;
         ADDRESS_FAMILY AddressFamily;
         UCHAR Cidr;
+        WG_IOCTL_ALLOWED_IP_FLAG Flags;
 } WG_IOCTL_ALLOWED_IP;
 
 typedef enum
@@ -32,16 +38,15 @@ typedef enum
     WG_IOCTL_PEER_HAS_PRESHARED_KEY = 1 << 1,
     WG_IOCTL_PEER_HAS_PERSISTENT_KEEPALIVE = 1 << 2,
     WG_IOCTL_PEER_HAS_ENDPOINT = 1 << 3,
-    WG_IOCTL_PEER_HAS_PROTOCOL_VERSION = 1 << 4,
     WG_IOCTL_PEER_REPLACE_ALLOWED_IPS = 1 << 5,
     WG_IOCTL_PEER_REMOVE = 1 << 6,
-    WG_IOCTL_PEER_UPDATE = 1 << 7
+    WG_IOCTL_PEER_UPDATE_ONLY = 1 << 7
 } WG_IOCTL_PEER_FLAG;
 
 typedef _declspec(align(8)) struct _WG_IOCTL_PEER
 {
     WG_IOCTL_PEER_FLAG Flags;
-    ULONG ProtocolVersion; /* 0 = latest protocol, 1 = this protocol. */
+    ULONG Reserved; /* Must be zero. */
     UCHAR PublicKey[WG_KEY_LEN];
     UCHAR PresharedKey[WG_KEY_LEN];
     USHORT PersistentKeepalive;

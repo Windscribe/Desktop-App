@@ -4,9 +4,9 @@
 # ------------------------------------------------------------------------------
 
 set(WS_VERSION_MAJOR 2)
-set(WS_VERSION_MINOR 22)
-set(WS_VERSION_BUILD 10)
-set(WS_BUILD_TYPE "stable")
+set(WS_VERSION_MINOR 23)
+set(WS_VERSION_BUILD 4)
+set(WS_BUILD_TYPE "guinea_pig")
 
 # WS_APP_IDENTIFIER: Internal identifier, no spaces. Used for service names,
 #   adapter names, pipe names, and other system identifiers.
@@ -66,7 +66,6 @@ set(WS_BUNDLED_HELPER_NAMES openvpn ctrld wstunnel amneziawg)
 set(WS_SHARED_LIB_NAMES wsnet openssl)
 
 # Common directories for macOS and Linux.
-set(WS_POSIX_RUN_DIR "/var/run/windscribe")
 set(WS_POSIX_CONFIG_DIR "/etc/windscribe")
 
 ###
@@ -83,16 +82,17 @@ set(WS_WIN_CONFIG_SUBDIR "${WS_PRODUCT_NAME}")
 ###
 
 set(WS_LINUX_INSTALL_DIR "/opt/windscribe")
-set(WS_LINUX_TMP_DIR "/var/tmp/windscribe")
+set(WS_LINUX_RUN_DIR "/var/run/windscribe")
+set(WS_LINUX_TMP_DIR "/var/lib/windscribe")
 set(WS_LINUX_LOG_DIR "/var/log/windscribe")
 set(WS_LINUX_USER_GROUP "windscribe")
 
 set(WS_LINUX_APP_TARGETS
-    ${WS_APP_TARGET} ${WS_CLI_TARGET} helper ${WS_PRODUCT_NAME_LOWER}-authhelper)
+    ${WS_APP_TARGET} ${WS_CLI_TARGET} helper)
 
 # Additional subdirectories to build (beyond client and helper which are always built).
 if(UNIX AND NOT APPLE)
-    set(WS_ADDITIONAL_SUBDIRS src/windscribe-cli src/utils/linux/authhelper)
+    set(WS_ADDITIONAL_SUBDIRS src/windscribe-cli)
 endif()
 
 # Binaries that need RPATH set to ${WS_LINUX_INSTALL_DIR}/lib.
@@ -101,9 +101,8 @@ set(WS_LINUX_RPATH_BINARIES
     ${WS_APP_EXECUTABLE_NAME}
     ${WS_CLI_EXECUTABLE_NAME}
     helper
-    ${WS_PRODUCT_NAME_LOWER}-authhelper
     ${WS_PRODUCT_NAME_LOWER}openvpn
-    lib/libssl.so.3
-    lib/libcrypto.so.3
+    lib/libssl.so.4
+    lib/libcrypto.so.4
     lib/libwsnet.so
 )

@@ -9,14 +9,20 @@ if(DEFINE_USE_SIGNATURE_CHECK_MACRO)
 endif(DEFINE_USE_SIGNATURE_CHECK_MACRO)
 
 set(SOURCES
+    ../../client/client-common/types/ipaddress.cpp
+    ../../client/client-common/types/ipaddress.h
     ../../client/client-common/utils/executable_signature/executable_signature.cpp
     ../../client/client-common/utils/executable_signature/executable_signature.h
     ../../client/client-common/utils/executable_signature/executable_signature_mac.mm
     ../../client/client-common/utils/executable_signature/executable_signature.h
+    ../common/io_posix.cpp
+    ../common/io_posix.h
+    ../common/spawn_posix.cpp
+    ../common/spawn_posix.h
+    ../common/validation_posix.cpp
+    ../common/validation_posix.h
     3rdparty/pstream.h
     clear_wifi_history/clear_wifi_history.mm
-    execute_cmd.cpp
-    execute_cmd.h
     files_manager.cpp
     files_manager.h
     firewallcontroller.cpp
@@ -29,8 +35,6 @@ set(SOURCES
     installer/iinstall_block.h
     ipc/helper_security.h
     ipc/helper_security.mm
-    ipv6/ipv6manager.cpp
-    ipv6/ipv6manager.h
     macspoofingonboot.cpp
     macspoofingonboot.h
     macutils.h

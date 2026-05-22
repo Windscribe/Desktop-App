@@ -1,25 +1,20 @@
 target_sources(frontend-common PRIVATE
-    authcheckerfactory.h
-    iauthchecker.h
-    writeaccessrightschecker.cpp
-    writeaccessrightschecker.h
+    directorypermissions.h
 )
 
 if (WIN32)
     target_sources(frontend-common PRIVATE
-        authchecker_win.cpp
-        authchecker_win.h
+        directorypermissions_win.cpp
         installedantiviruses_win.cpp
         installedantiviruses_win.h
     )
-elseif(APPLE)
+    target_link_libraries(frontend-common PRIVATE authz netapi32 shlwapi)
+else()
     target_sources(frontend-common PRIVATE
-        authchecker_mac.h
-        authchecker_mac.mm
+        directorypermissions_posix.cpp
     )
-elseif(UNIX)
-    target_sources(frontend-common PRIVATE
-        authchecker_linux.cpp
-        authchecker_linux.h
-    )
+endif()
+
+if (UNIX AND NOT APPLE)
+    target_link_libraries(frontend-common PRIVATE acl)
 endif()

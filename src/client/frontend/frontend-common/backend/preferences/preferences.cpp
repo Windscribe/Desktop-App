@@ -8,12 +8,15 @@
 
 #include "../persistentstate.h"
 #include "detectlanrange.h"
+#include "types/global_consts.h"
 #include "utils/extraconfig.h"
 #include "utils/log/categories.h"
-#include "utils/utils.h"
-#include "utils/ipvalidation.h"
+#include "utils/networkingvalidation.h"
 #include "utils/simplecrypt.h"
-#include "types/global_consts.h"
+#include "utils/utils.h"
+#ifdef Q_OS_LINUX
+#include "utils/linuxutils.h"
+#endif
 
 
 Preferences::Preferences(QObject *parent) : QObject(parent)
@@ -459,6 +462,21 @@ void Preferences::setProtocolTweaksMethod(PROTOCOL_TWEAKS_METHOD_TYPE method)
     }
 }
 
+IpStack Preferences::ipStackEgress() const
+{
+    return engineSettings_.ipStackEgress();
+}
+
+void Preferences::setIpStackEgress(IpStack ipStackEgress)
+{
+    if (engineSettings_.ipStackEgress() != ipStackEgress)
+    {
+        engineSettings_.setIpStackEgress(ipStackEgress);
+        emitEngineSettingsChanged();
+        emit ipStackEgressChanged(ipStackEgress);
+    }
+}
+
 QString Preferences::amneziawgPreset() const
 {
     return engineSettings_.amneziawgPreset();
@@ -709,7 +727,9 @@ void Preferences::updateFromJson(const QJsonObject& json)
     }
 
     if (json.contains(kJsonGuiSettingsProp) && json[kJsonGuiSettingsProp].isObject()) {
-        setGuiSettings(json[kJsonGuiSettingsProp].toObject());
+        types::GuiSettings gs(json[kJsonGuiSettingsProp].toObject());
+        gs.validate();
+        setGuiSettings(gs);
     }
 
     if (json.contains(kJsonPersistentStateProp) && json[kJsonPersistentStateProp].isObject()) {
@@ -792,6 +812,7 @@ void Preferences::setEngineSettings(const types::EngineSettings &es, bool fromJs
     setNetworkPreferredProtocols(es.networkPreferredProtocols());
     setServerRoutingMethod(es.serverRoutingMethod());
     setProtocolTweaksMethod(es.protocolTweaksMethod());
+    setIpStackEgress(es.ipStackEgress());
     isSettingEngineSettings_ = false;
 }
 
@@ -873,20 +894,24 @@ void Preferences::loadGuiSettings()
         QByteArray arr = simpleCrypt.decryptToByteArray(str);
 
         QDataStream ds(&arr, QIODevice::ReadOnly);
+        // Wrap the read in a transaction so that any internal stream corruption (including
+        // nested-type version mismatches) keeps the corrupt flag set inside QList readers — see
+        // StreamStateSaver in qdatastream.h. Without this, a nested-type bump that wasn't paired
+        // with a GuiSettings bump can cause a huge QList::reserve() and crash before we get to
+        // check ds.status().
+        ds.startTransaction();
 
-        quint32 magic, version;
-        ds >> magic;
-        if (magic == magic_)
-        {
-            ds >> version;
-            if (version <= versionForSerialization_)
-            {
-                ds >> guiSettings_;
-                if (ds.status() == QDataStream::Ok)
-                {
-                    bLoaded = true;
-                }
-            }
+        quint32 magic = 0, version = 0;
+        ds >> magic >> version;
+        if (magic != magic_ || version > versionForSerialization_) {
+            ds.setStatus(QDataStream::ReadCorruptData);
+        } else {
+            ds >> guiSettings_;
+        }
+
+        if (ds.commitTransaction()) {
+            guiSettings_.validate();
+            bLoaded = true;
         }
     }
 
@@ -899,7 +924,12 @@ void Preferences::loadGuiSettings()
 #ifdef CLI_ONLY
     QSettings ini(WS_SETTINGS_ORG, WS_SETTINGS_CLI);
     guiSettings_.fromIni(ini);
+    guiSettings_.validate();
     PersistentState::instance().fromIni(ini);
+#endif
+
+#ifdef Q_OS_LINUX
+    LinuxUtils::migrateSplitTunnelingFlatpakApps(guiSettings_.splitTunneling.apps);
 #endif
 
     qCInfo(LOG_BASIC) << "GUI settings" << guiSettings_;
@@ -953,6 +983,7 @@ void Preferences::loadIni()
     setAmneziawgPreset(es.amneziawgPreset());
     setServerRoutingMethod(es.serverRoutingMethod());
     setProtocolTweaksMethod(es.protocolTweaksMethod());
+    setIpStackEgress(es.ipStackEgress());
     isSettingEngineSettings_ = false;
 
     emitEngineSettingsChanged();
@@ -967,11 +998,11 @@ void Preferences::validateAndUpdateIfNeeded()
     types::ConnectedDnsInfo cdi = engineSettings_.connectedDnsInfo();
     if (cdi.type == CONNECTED_DNS_TYPE_CUSTOM || cdi.type == CONNECTED_DNS_TYPE_CONTROLD) {
         bool bCorrect = true;
-        if (!IpValidation::isCtrldCorrectAddress(cdi.upStream1)) {
+        if (!NetworkingValidation::isCtrldCorrectAddress(cdi.upStream1)) {
             bCorrect = false;
             emit reportErrorToUser(tr("Invalid DNS Settings"), tr("'Connected DNS' was not configured with a valid Upstream 1 (IP/DNS-over-HTTPS/TLS). DNS was reverted to ROBERT (default)."));
         }
-        if (cdi.isSplitDns && !IpValidation::isCtrldCorrectAddress(cdi.upStream2)) {
+        if (cdi.isSplitDns && !NetworkingValidation::isCtrldCorrectAddress(cdi.upStream2)) {
             bCorrect = false;
             emit reportErrorToUser(tr("Invalid DNS Settings"), tr("'Connected DNS' was not configured with a valid Upstream 2 (IP/DNS-over-HTTPS/TLS). DNS was reverted to ROBERT (default)."));
         }

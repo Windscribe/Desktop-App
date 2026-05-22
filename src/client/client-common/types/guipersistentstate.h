@@ -3,6 +3,8 @@
 #include <QString>
 #include "locationid.h"
 #include "networkinterface.h"
+#include "utils/log/categories.h"
+#include "utils/networkingvalidation.h"
 
 namespace types {
 
@@ -54,6 +56,46 @@ struct GuiPersistentState
     bool operator!=(const GuiPersistentState &other) const
     {
         return !(*this == other);
+    }
+
+    void validate()
+    {
+        int tab = static_cast<int>(lastLocationTab);
+        if (tab < LOCATION_TAB_NONE || tab > LOCATION_TAB_LAST) {
+            qCWarning(LOG_BASIC) << "GuiPersistentState: invalid lastLocationTab, resetting";
+            lastLocationTab = LOCATION_TAB_ALL_LOCATIONS;
+        }
+
+        if (!lastExternalIp.isEmpty() && lastExternalIp != "---.---.---.---" &&
+            !NetworkingValidation::isIp(lastExternalIp)) {
+            qCWarning(LOG_BASIC) << "GuiPersistentState: invalid lastExternalIp, resetting";
+            lastExternalIp = "---.---.---.---";
+        }
+
+        constexpr int kMaxNetworkWhitelist = 256;
+        if (networkWhiteList.size() > kMaxNetworkWhitelist) {
+            qCWarning(LOG_BASIC) << "GuiPersistentState: networkWhiteList over cap, truncating";
+            networkWhiteList.resize(kMaxNetworkWhitelist);
+        }
+        for (auto &nif : networkWhiteList) {
+            nif.validate();
+        }
+
+        constexpr int kMaxAppGeometry = 64 * 1024;
+        if (appGeometry.size() > kMaxAppGeometry) {
+            qCWarning(LOG_BASIC) << "GuiPersistentState: appGeometry over cap, clearing";
+            appGeometry.clear();
+        }
+
+        constexpr int kMaxWindowDim = 16384;
+        if (locationsViewportHeight < 0 || locationsViewportHeight > kMaxWindowDim) {
+            qCWarning(LOG_BASIC) << "GuiPersistentState: locationsViewportHeight out of range, resetting";
+            locationsViewportHeight = 280;
+        }
+        if (preferencesWindowHeight < 0 || preferencesWindowHeight > kMaxWindowDim) {
+            qCWarning(LOG_BASIC) << "GuiPersistentState: preferencesWindowHeight out of range, resetting";
+            preferencesWindowHeight = 0;
+        }
     }
 
     friend QDataStream& operator <<(QDataStream& stream, const GuiPersistentState& o)

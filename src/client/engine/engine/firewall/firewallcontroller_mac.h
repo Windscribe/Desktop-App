@@ -62,6 +62,14 @@ private:
     void updateVpnAnchor();
     QStringList getLocalAddresses(const QString iface) const;
 
+    // True iff `iface` currently carries a non-link-local IPv6 unicast address (global / ULA).
+    // Used to gate the v6 VPN-adapter permit in `vpnTrafficRules`: leave v6 blocked for v4-only
+    // tunnels (OpenVPN/Stunnel/Wstunnel/IKEv2 — Windscribe servers don't push v6 there) and only
+    // open it once the WG server has actually provisioned a v6 client address. fe80::/10 is
+    // skipped because the kernel auto-configures one on every v6-capable iface — it's not a
+    // signal of real v6 capability.
+    bool hasIPv6Address(const QString &iface) const;
+
     // We have to save the state of pf (enabled/disabled) before enabling the firewall in order to restore it.
     // We should keep it in QSettings as we need to save it between program launches.
     void setPfWasEnabledState(bool b);

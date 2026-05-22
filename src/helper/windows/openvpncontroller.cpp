@@ -1,6 +1,7 @@
 #include "ws_branding.h"
 #include "openvpncontroller.h"
 
+#include <codecvt>
 #include <fstream>
 #include <sstream>
 #include <spdlog/spdlog.h>
@@ -13,8 +14,6 @@
 #if defined(USE_SIGNATURE_CHECK)
 #include "utils/executable_signature/executable_signature.h"
 #endif
-
-#include <codecvt>
 
 #include "../common/ovpn_directive_whitelist.h"
 
@@ -36,67 +35,48 @@ bool OpenVPNController::createAdapter(bool useDCODriver)
         return createDCOAdapter();
     }
 
-    return createWintunAdapter();
+    return createTapAdapter();
 }
 
 void OpenVPNController::removeAdapter()
 {
     if (useDCODriver_) {
         removeDCOAdapter();
-    } else {
-        removeWintunAdapter();
+    } else if (tapAdapterCreated_) {
+        removeTapAdapter();
     }
 }
 
-bool OpenVPNController::createWintunAdapter()
+bool OpenVPNController::createTapAdapter()
 {
     useDCODriver_ = false;
+    tapAdapterCreated_ = true;
 
-    wintunDLL_ = ::LoadLibraryExW(L"wintun.dll", NULL, LOAD_LIBRARY_SEARCH_APPLICATION_DIR);
-    if (!wintunDLL_) {
-        spdlog::error("Failed to load wintun.dll ({})", ::GetLastError());
-        return false;
+    std::wstringstream stream;
+    stream << L"\"" << Utils::getExePath() << L"\\tapctl.exe\"" << L" create --name " << kOpenVPNAdapterIdentifier << L" --hwid root\\tap0901";
+
+    spdlog::info(L"createTapAdapter cmd = {}", stream.str());
+    auto result = ExecuteCmd::instance().executeBlockingCmd(stream.str());
+
+    if (result.success && result.exitCode != 0) {
+        spdlog::error(L"createTapAdapter cmd failed: {}", result.output);
     }
 
-    WINTUN_CREATE_ADAPTER_FUNC *createAdapter = (WINTUN_CREATE_ADAPTER_FUNC*)::GetProcAddress(wintunDLL_, "WintunCreateAdapter");
-    if (createAdapter == NULL) {
-        spdlog::error("Failed to resolve the WintunCreateAdapter function ({})", ::GetLastError());
-        ::FreeLibrary(wintunDLL_);
-        wintunDLL_ = nullptr;
-        return false;
-    }
-
-    GUID wintunGuid = { 0xd8cf7bd4, 0x8b64, 0x4e57, { 0xb7, 0x07, 0x4c, 0x8b, 0xac, 0xbe, 0xc2, 0xc3 } };
-    adapterHandle_ = createAdapter(kOpenVPNAdapterIdentifier, WS_PRODUCT_NAME_W L" Wintun", &wintunGuid);
-    if (!adapterHandle_) {
-        spdlog::error("Failed to create the wintun adapter ({})", ::GetLastError());
-        ::FreeLibrary(wintunDLL_);
-        wintunDLL_ = nullptr;
-        return false;
-    }
-
-    return true;
+    return result.success;
 }
 
-void OpenVPNController::removeWintunAdapter()
+void OpenVPNController::removeTapAdapter()
 {
-    if (wintunDLL_ == nullptr) {
-        return;
-    }
+    tapAdapterCreated_ = false;
+    std::wstringstream stream;
+    stream << L"\"" << Utils::getExePath() << L"\\tapctl.exe\"" << L" delete " << kOpenVPNAdapterIdentifier;
 
-    if (adapterHandle_) {
-        WINTUN_CLOSE_ADAPTER_FUNC *closeAdapter = (WINTUN_CLOSE_ADAPTER_FUNC*)::GetProcAddress(wintunDLL_, "WintunCloseAdapter");
-        if (closeAdapter == NULL) {
-            spdlog::error("Failed to resolve the WintunCloseAdapter function ({})", ::GetLastError());
-        }
-        else {
-            closeAdapter(adapterHandle_);
-            adapterHandle_ = nullptr;
-        }
-    }
+    spdlog::info(L"removeTapAdapter cmd = {}", stream.str());
+    auto result = ExecuteCmd::instance().executeBlockingCmd(stream.str());
 
-    ::FreeLibrary(wintunDLL_);
-    wintunDLL_ = nullptr;
+    if (result.success && result.exitCode != 0) {
+        spdlog::error(L"removeTapAdapter cmd failed: {}", result.output);
+    }
 }
 
 bool OpenVPNController::createDCOAdapter()
@@ -147,8 +127,9 @@ ExecuteCmdResult OpenVPNController::runOpenvpn(std::wstring &config, unsigned in
     }
 #endif
 
-    std::wstring strCmd = L"\"" + ovpnExe + L"\" --config \"" + filename + L"\"";
-    return ExecuteCmd::instance().executeNonblockingCmd(strCmd, Utils::getDirPathFromFullPath(filename));
+    const std::wstring cwd = Utils::getDirPathFromFullPath(filename);
+    const std::wstring strCmd = L"\"" + ovpnExe + L"\" --config \"" + filename + L"\"";
+    return ExecuteCmd::instance().executeNonblockingCmd(strCmd, cwd);
 }
 
 bool OpenVPNController::writeOVPNFile(std::wstring &config, unsigned int port, const std::wstring &httpProxy, unsigned int httpPort,
@@ -160,7 +141,7 @@ bool OpenVPNController::writeOVPNFile(std::wstring &config, unsigned int port, c
     if (useDCODriver_) {
         // DCO driver on Windows will not accept the AES-256-CBC cipher and will drop back to using wintun if it is provided in the ciphers list.
         // TODO: implement a smarter algorithm for replacement here in case the list of ciphers received from the server API ever changes.
-        boost::replace_all(config, L":AES-256-CBC:", L":");
+        boost::ireplace_all(config, L":AES-256-CBC:", L":");
     }
 
     std::wstring filePath = Utils::getConfigPath();
@@ -181,7 +162,8 @@ bool OpenVPNController::writeOVPNFile(std::wstring &config, unsigned int port, c
     std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
     const std::string narrowConfig = converter.to_bytes(config);
     std::string filtered = OvpnDirectiveWhitelist::filterConfig(narrowConfig,
-        [](const std::string &line) { spdlog::warn("Blocked non-whitelisted OpenVPN directive: {}", line); });
+        [](const std::string &name) { spdlog::warn("Blocked non-whitelisted OpenVPN directive: {}", name); },
+        [](const std::string &name) { spdlog::info("Ignored OpenVPN directive: {}", name); });
 
     // Write filtered config (filterConfig outputs \n; Windows needs \r\n but
     // OpenVPN handles both, and the helper-appended options below use \r\n)
@@ -197,10 +179,12 @@ bool OpenVPNController::writeOVPNFile(std::wstring &config, unsigned int port, c
     // We use the --dev-node option to ensure OpenVPN will only use the DCO/wintun adapter instance we create and not possibly
     // attempt to use an adapter created by other software (e.g. the vanilla OpenVPN client app).
     file << L"dev-node " + std::wstring(kOpenVPNAdapterIdentifier) + L"\r\n";
-    if (useDCODriver_) {
-        file << L"windows-driver ovpn-dco\r\n";
-    } else {
-        file << L"windows-driver wintun\r\n";
+    // OpenVPN 2.7 removed --windows-driver; the driver is now auto-selected from DCO availability.
+    // For the non-DCO path we must explicitly disable DCO, otherwise OpenVPN picks DCO whenever the
+    // ovpn-dco-win driver is loaded on the system (e.g. left over from a prior DCO connection) and
+    // then bails with an adapter-driver-mismatch fatal against our tap-windows6 adapter.
+    if (!useDCODriver_) {
+        file << L"disable-dco\r\n";
 
         // OpenVPN requires us to use the wintun driver when specifying a proxy setting.  The app should have requested us to
         // create the appropriate driver based on the user's settings prior to requesting we start the OpenVPN daemon.
@@ -213,6 +197,12 @@ bool OpenVPNController::writeOVPNFile(std::wstring &config, unsigned int port, c
                 file << L"socks-proxy " + socksProxy + L" " + std::to_wstring(socksPort) + L"\r\n";
             }
         }
+    }
+
+    if (config.find(L"remote 127.0.0.1") != std::wstring::npos) {
+        file << L"pull-filter ignore \"redirect-gateway\"\r\n";
+        file << L"route 0.0.0.0 128.0.0.0 vpn_gateway\r\n";
+        file << L"route 128.0.0.0 128.0.0.0 vpn_gateway\r\n";
     }
 
     file.close();

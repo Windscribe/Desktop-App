@@ -45,6 +45,22 @@
         <translation>Instalasi Windscribe yang ada tidak dapat dihapus. Hapus instalan aplikasi secara manual dan coba lagi.</translation>
     </message>
     <message>
+        <source>The Windows Base Filtering Engine service is not running and could not be started. This core Windows service must be running to install Windscribe. Third-party security/firewall software is most often the cause of this issue.</source>
+        <translation>Layanan Windows Base Filtering Engine tidak berjalan dan tidak dapat dimulai. Layanan inti Windows ini harus berjalan untuk menginstal Windscribe. Perangkat lunak keamanan/firewall pihak ketiga paling sering menjadi penyebab masalah ini.</translation>
+    </message>
+    <message>
+        <source>Windscribe is unable to connect to the Windows Base Filtering Engine service. Connecting to this core Windows service is required to install Windscribe. Third-party security/firewall software is most often the cause of this issue.</source>
+        <translation>Windscribe tidak dapat terhubung ke layanan Windows Base Filtering Engine. Menghubungkan ke layanan Windows inti ini diperlukan untuk menginstal Windscribe. Perangkat lunak keamanan/firewall pihak ketiga paling sering menjadi penyebab masalah ini.</translation>
+    </message>
+    <message>
+        <source>Windscribe is unable to install its helper service. Please manually uninstall Windscribe and try again. If this issue persists, please contact our Technical Support.</source>
+        <translation>Windscribe tidak dapat menginstal layanan pembantunya. Silakan hapus instalan Windscribe secara manual dan coba lagi. Jika masalah ini berlanjut, silakan hubungi Dukungan Teknis kami.</translation>
+    </message>
+    <message>
+        <source>Windscribe is unable to start its helper service. Third-party security/firewall software may be the cause. If this is not the case, please contact our Technical Support.</source>
+        <translation>Windscribe tidak dapat memulai layanan pembantunya. Perangkat lunak keamanan/firewall pihak ketiga mungkin menjadi penyebabnya. Jika tidak demikian, silakan hubungi Dukungan Teknis kami.</translation>
+    </message>
+    <message>
         <source>The installation could not be completed successfully. Please contact our Technical Support.</source>
         <translation>Penginstalan tidak berhasil diselesaikan. Silakan hubungi Dukungan Teknis kami.</translation>
     </message>

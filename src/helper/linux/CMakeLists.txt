@@ -12,8 +12,11 @@ find_package(skyr-url CONFIG REQUIRED)
 find_package(spdlog CONFIG REQUIRED)
 
 set(SOURCES
+    ../../client/client-common/types/ipaddress.cpp
+    ../common/io_posix.cpp
+    ../common/spawn_posix.cpp
+    ../common/validation_posix.cpp
     clear_wifi_history/clear_wifi_history.cpp
-    execute_cmd.cpp
     firewallcontroller.cpp
     firewallonboot.cpp
     main.cpp

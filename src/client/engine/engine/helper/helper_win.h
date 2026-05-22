@@ -94,6 +94,9 @@ public:
 
     unsigned long ssidFromInterfaceGUID(const QString &interfaceGUID, QString &ssid);
 
+    QString installerStageAndVerify(const QString &srcPath);
+    void installerCleanupStaged();
+
 private:
     QStringList customDnsIp_;
 };

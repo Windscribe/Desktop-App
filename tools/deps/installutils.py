@@ -225,6 +225,13 @@ def CopyCustomFiles(projectname, directory):
         utl.CopyAllFiles(srcdir, directory)
 
 
+def ApplyPatch(directory, patchfile):
+    msg.Info("Applying patch: \"{}\"".format(os.path.basename(patchfile)))
+    result = subprocess.run(["git", "apply", "-p1", "--whitespace=nowarn", patchfile], cwd=directory)
+    if result.returncode != 0:
+        raise InstallError("Failed to apply patch: \"{}\"".format(patchfile))
+
+
 def InstallArtifacts(directory, filemasks, installpath, zipfilename):
     aflist = []
     msg.Verbose("InstallArtifacts: \"{}\"[{}] to \"{}\" (zip=\"{}\")".format(

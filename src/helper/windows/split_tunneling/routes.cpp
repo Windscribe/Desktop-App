@@ -4,122 +4,148 @@
 // Must be included after above includes.
 #include "routes.h"
 
+#include <cstring>
 #include <spdlog/spdlog.h>
 
 #include "ip_forward_table.h"
-#include "../ip_address/ip4_address_and_mask.h"
+
+namespace {
+
+// Fill a SOCKADDR_INET from types::IpAddress. Family is taken from ip.
+void fillSockaddrInet(SOCKADDR_INET *out, const types::IpAddress &ip)
+{
+    std::memset(out, 0, sizeof(SOCKADDR_INET));
+    if (ip.isV4()) {
+        out->Ipv4.sin_family = AF_INET;
+        std::memcpy(&out->Ipv4.sin_addr, ip.bytes(), 4);
+    } else if (ip.isV6()) {
+        out->Ipv6.sin6_family = AF_INET6;
+        std::memcpy(&out->Ipv6.sin6_addr, ip.bytes(), 16);
+    }
+}
+
+// Byte-compare the address portion of two SOCKADDR_INET values assumed to have the same family.
+bool sameAddrBytes(const SOCKADDR_INET &a, const SOCKADDR_INET &b)
+{
+    if (a.si_family != b.si_family)
+        return false;
+    if (a.si_family == AF_INET)
+        return std::memcmp(&a.Ipv4.sin_addr, &b.Ipv4.sin_addr, sizeof(a.Ipv4.sin_addr)) == 0;
+    if (a.si_family == AF_INET6)
+        return std::memcmp(&a.Ipv6.sin6_addr, &b.Ipv6.sin6_addr, sizeof(a.Ipv6.sin6_addr)) == 0;
+    return false;
+}
+
+} // namespace
+
 
 Routes::Routes()
 {
 }
 
-void Routes::deleteRoute(const IpForwardTable &curRouteTable, const std::string &destIp, const std::string &maskIp, const std::string &gatewayIp, unsigned long ifIndex)
+void Routes::deleteRoute(const IpForwardTable &curRouteTable,
+                         const types::IpAddress &destIp, UINT8 prefixLength,
+                         const types::IpAddress &gatewayIp, unsigned long ifIndex)
 {
-    std::string log = "Routes::deleteRoute(), destIp=" + destIp + ", maskIp=" + maskIp + ", gatewayIp=" + gatewayIp;
-    spdlog::debug("{}", log);
-    Ip4AddressAndMask dest(destIp.c_str());
-    Ip4AddressAndMask mask(maskIp.c_str());
-    Ip4AddressAndMask gateway(gatewayIp.c_str());
-    for (DWORD i = 0; i < curRouteTable.count(); ++i)
-    {
-        const MIB_IPFORWARDROW *row = curRouteTable.getByIndex(i);
-        if (row)
-        {
-            if (row->dwForwardDest == dest.ipNetworkOrder() && row->dwForwardMask == mask.ipNetworkOrder() && row->dwForwardNextHop == gateway.ipNetworkOrder()
-                && row->dwForwardIfIndex == ifIndex)
-            {
-                MIB_IPFORWARDROW rowCopy = *row;
-                DWORD dwErr = DeleteIpForwardEntry(&rowCopy);
-                if (dwErr == NO_ERROR)
-                {
-                    deletedRoutes_.push_back(*row);
-                }
-                else
-                {
-                    spdlog::error("Routes::deleteRoute(), DeleteIpForwardEntry failed with error: {}", dwErr);
-                }
-            }
+    spdlog::debug("Routes::deleteRoute(), destIp={}, prefixLength={}, gatewayIp={}",
+                  destIp.toString(), prefixLength, gatewayIp.toString());
+
+    if (!destIp.isValid() || !gatewayIp.isValid() || destIp.family() != gatewayIp.family()) {
+        spdlog::error("Routes::deleteRoute(): destIp/gatewayIp invalid or family mismatch");
+        return;
+    }
+
+    SOCKADDR_INET destSockaddr;
+    fillSockaddrInet(&destSockaddr, destIp);
+    SOCKADDR_INET gatewaySockaddr;
+    fillSockaddrInet(&gatewaySockaddr, gatewayIp);
+
+    for (ULONG i = 0; i < curRouteTable.count(); ++i) {
+        const MIB_IPFORWARD_ROW2 *row = curRouteTable.getByIndex(i);
+        if (!row)
+            continue;
+        if (row->DestinationPrefix.Prefix.si_family != destSockaddr.si_family)
+            continue;
+        if (row->NextHop.si_family != gatewaySockaddr.si_family)
+            continue;
+        if (row->DestinationPrefix.PrefixLength != prefixLength)
+            continue;
+        if (row->InterfaceIndex != ifIndex)
+            continue;
+        if (!sameAddrBytes(row->DestinationPrefix.Prefix, destSockaddr))
+            continue;
+        if (!sameAddrBytes(row->NextHop, gatewaySockaddr))
+            continue;
+
+        MIB_IPFORWARD_ROW2 rowCopy = *row;
+        DWORD dwErr = DeleteIpForwardEntry2(&rowCopy);
+        if (dwErr == NO_ERROR) {
+            deletedRoutes_.push_back(*row);
+        } else {
+            spdlog::error("Routes::deleteRoute(), DeleteIpForwardEntry2 failed with error: {}", dwErr);
         }
     }
-
 }
-void Routes::addRoute(const IpForwardTable &curRouteTable, const std::string &destIp, const std::string &maskIp, const std::string &gatewayIp, unsigned long ifIndex, bool useMaxMetric)
+
+void Routes::addRoute(const IpForwardTable &curRouteTable,
+                      const types::IpAddress &destIp, UINT8 prefixLength,
+                      const types::IpAddress &gatewayIp, unsigned long ifIndex,
+                      bool useMaxMetric)
 {
-    std::string log = "Routes::addRoute(), destIp=" + destIp + ", maskIp=" + maskIp + ", gatewayIp=" + gatewayIp;
-    spdlog::debug("{}", log);
-    Ip4AddressAndMask dest(destIp.c_str());
-    Ip4AddressAndMask mask(maskIp.c_str());
-    Ip4AddressAndMask gateway(gatewayIp.c_str());
+    spdlog::debug("Routes::addRoute(), destIp={}, prefixLength={}, gatewayIp={}",
+                  destIp.toString(), prefixLength, gatewayIp.toString());
+
+    if (!destIp.isValid() || !gatewayIp.isValid() || destIp.family() != gatewayIp.family()) {
+        spdlog::error("Routes::addRoute(): destIp/gatewayIp invalid or family mismatch");
+        return;
+    }
 
     ULONG metric;
-    if (useMaxMetric)
-    {
+    if (useMaxMetric) {
         metric = curRouteTable.getMaxMetric() + 1;
-    }
-    else
-    {
-        // get metric for interface with ifIndex
+    } else {
         MIB_IPINTERFACE_ROW interfaceRow;
-        memset(&interfaceRow, 0, sizeof(interfaceRow));
-        interfaceRow.Family = AF_INET;
+        std::memset(&interfaceRow, 0, sizeof(interfaceRow));
+        interfaceRow.Family = destIp.isV6() ? AF_INET6 : AF_INET;
         interfaceRow.InterfaceIndex = ifIndex;
         DWORD dwErr = GetIpInterfaceEntry(&interfaceRow);
-        if (dwErr != NO_ERROR)
-        {
+        if (dwErr != NO_ERROR) {
             spdlog::error("Routes::addRoute(), GetIpInterfaceEntry failed with error: {}", dwErr);
             return;
         }
         metric = interfaceRow.Metric;
     }
 
-    MIB_IPFORWARDROW row;
-    memset(&row, 0, sizeof(row));
-    row.dwForwardProto = MIB_IPPROTO_NETMGMT;
-    row.dwForwardDest = dest.ipNetworkOrder();
-    row.dwForwardMask = mask.ipNetworkOrder();
-    row.dwForwardNextHop = gateway.ipNetworkOrder();
-    row.dwForwardMetric1 = metric;
+    MIB_IPFORWARD_ROW2 row;
+    InitializeIpForwardEntry(&row);
+    row.InterfaceIndex = ifIndex;
+    row.DestinationPrefix.PrefixLength = prefixLength;
+    fillSockaddrInet(&row.DestinationPrefix.Prefix, destIp);
+    fillSockaddrInet(&row.NextHop, gatewayIp);
+    row.Protocol = MIB_IPPROTO_NETMGMT;
+    row.Metric = metric;
 
-    row.dwForwardIfIndex = ifIndex;
-
-    DWORD dwErr = CreateIpForwardEntry(&row);
-    if (dwErr == NO_ERROR)
-    {
+    DWORD dwErr = CreateIpForwardEntry2(&row);
+    if (dwErr == NO_ERROR) {
         addedRoutes_.push_back(row);
-    }
-    else
-    {
-        spdlog::error("Routes::addRoute(), CreateIpForwardEntry failed with error: {}", dwErr);
+    } else {
+        spdlog::error("Routes::addRoute(), CreateIpForwardEntry2 failed with error: {}", dwErr);
     }
 }
 
 void Routes::revertRoutes()
 {
-    for (MIB_IPFORWARDROW &row : deletedRoutes_)
-    {
-        DWORD dwErr = CreateIpForwardEntry(&row);
+    for (MIB_IPFORWARD_ROW2 &row : deletedRoutes_) {
+        DWORD dwErr = CreateIpForwardEntry2(&row);
         if (dwErr != NO_ERROR)
-        {
-            spdlog::error("Routes::revertRoutes(), CreateIpForwardEntry failed with error: {}", dwErr);
-        }
+            spdlog::error("Routes::revertRoutes(), CreateIpForwardEntry2 failed with error: {}", dwErr);
     }
     deletedRoutes_.clear();
 
-    for (MIB_IPFORWARDROW &row : addedRoutes_)
-    {
-        MIB_IPFORWARDROW delRow;
-        memset(&delRow, 0, sizeof(delRow));
-        delRow.dwForwardDest = row.dwForwardDest;
-        delRow.dwForwardIfIndex = row.dwForwardIfIndex;
-        delRow.dwForwardMask = row.dwForwardMask;
-        delRow.dwForwardNextHop = row.dwForwardNextHop;
-        delRow.dwForwardProto = row.dwForwardProto;
-
-        DWORD dwErr = DeleteIpForwardEntry(&delRow);
+    for (MIB_IPFORWARD_ROW2 &row : addedRoutes_) {
+        DWORD dwErr = DeleteIpForwardEntry2(&row);
         if (dwErr != NO_ERROR)
-        {
-            spdlog::error("Routes::revertRoutes(), DeleteIpForwardEntry failed with error: {}", dwErr);
-        }
+            spdlog::error("Routes::revertRoutes(), DeleteIpForwardEntry2 failed with error: {}", dwErr);
     }
     addedRoutes_.clear();
 }

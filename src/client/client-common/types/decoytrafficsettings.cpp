@@ -56,6 +56,14 @@ DecoyTrafficVolume DecoyTrafficSettings::volume() const
     return volume_;
 }
 
+void DecoyTrafficSettings::validate()
+{
+    int v = static_cast<int>(volume_);
+    if (v < static_cast<int>(DecoyTrafficVolume::kLow) || v > static_cast<int>(DecoyTrafficVolume::kHigh)) {
+        volume_ = DecoyTrafficVolume::kLow;
+    }
+}
+
 QJsonObject DecoyTrafficSettings::toJson() const
 {
     QJsonObject json;

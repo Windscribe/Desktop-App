@@ -360,13 +360,32 @@ GUID guidFromString(const std::wstring &str)
 
 bool addFilterV4(HANDLE engineHandle, std::vector<UINT64> *filterId, FWP_ACTION_TYPE type, UINT8 weight,
                  GUID subLayerKey, wchar_t *subLayerName, PNET_LUID pluid,
-                 const std::vector<Ip4AddressAndMask> *ranges,
+                 const std::vector<types::IpAddressRange> *ranges,
                  uint16_t localPort, uint16_t remotePort, AppsIds *appsIds, bool persistent)
 {
     UINT64 id = 0;
     bool success = true;
     DWORD dwFwApiRetCode = 0;
-    std::vector<FWP_V4_ADDR_AND_MASK> addrMasks(ranges ? ranges->size() : 0);
+    // FWPM v4 filter conditions take FWP_V4_ADDR_AND_MASK by pointer; we have to keep the storage
+    // alive until FwpmFilterAdd0 returns. Reserve up to one slot per range; non-V4 entries are
+    // skipped (they have no V4 mask), so we don't pre-size to ranges->size() exactly.
+    std::vector<FWP_V4_ADDR_AND_MASK> addrMasks;
+    if (ranges) {
+        addrMasks.reserve(ranges->size());
+    }
+    // Dual-stack guard: if a caller passes a non-empty range vector containing only non-v4
+    // entries, treat it as "no v4 ranges to match" and skip filter creation. Without this guard
+    // we'd register a filter with no IP condition, i.e. permit/block ALL v4 traffic — clearly
+    // not what the caller intended.
+    if (ranges && !ranges->empty()) {
+        bool anyV4 = false;
+        for (const auto &r : *ranges) {
+            if (r.isV4()) { anyV4 = true; break; }
+        }
+        if (!anyV4) {
+            return true;
+        }
+    }
     GUID guids[2] = {FWPM_LAYER_ALE_AUTH_CONNECT_V4, FWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V4};
 
     for (int i = 0; i < 2; i++) {
@@ -389,16 +408,22 @@ bool addFilterV4(HANDLE engineHandle, std::vector<UINT64> *filterId, FWP_ACTION_
         filter.weight.uint8 = weight;
 
         if (ranges) {
-            for (int j = 0; j < (*ranges).size(); j++) {
+            // Reset masks for the second pass so we don't keep both layers' entries.
+            addrMasks.clear();
+            for (const auto &r : *ranges) {
+                if (!r.isV4()) {
+                    continue;
+                }
+                FWP_V4_ADDR_AND_MASK m;
+                m.addr = r.address().ipv4HostOrder();
+                m.mask = r.ipv4MaskHostOrder();
+                addrMasks.push_back(m);
+
                 FWPM_FILTER_CONDITION0 condition;
                 condition.fieldKey = FWPM_CONDITION_IP_REMOTE_ADDRESS;
                 condition.matchType = FWP_MATCH_EQUAL;
                 condition.conditionValue.type = FWP_V4_ADDR_MASK;
-                condition.conditionValue.v4AddrMask = &addrMasks[j];
-
-                addrMasks[j].addr = (*ranges)[j].ipHostOrder();
-                addrMasks[j].mask = (*ranges)[j].maskHostOrder();
-
+                condition.conditionValue.v4AddrMask = &addrMasks.back();
                 conditions.push_back(condition);
             }
         }
@@ -441,15 +466,16 @@ bool addFilterV4(HANDLE engineHandle, std::vector<UINT64> *filterId, FWP_ACTION_
             }
         }
 
-        filter.filterCondition = &conditions[0];
+        filter.filterCondition = conditions.data();
         filter.numFilterConditions = conditions.size();
 
         dwFwApiRetCode = FwpmFilterAdd0(engineHandle, &filter, NULL, &id);
         if (dwFwApiRetCode != ERROR_SUCCESS) {
             spdlog::error("Error adding filter: {}", dwFwApiRetCode);
             success = false;
-        }
-        if (filterId) {
+        } else if (filterId) {
+            // Only record the id on success: on failure FwpmFilterAdd0 leaves it undefined and
+            // a stale value would be picked up later by cleanup paths trying to delete filters.
             (*filterId).push_back(id);
         }
     }
@@ -458,12 +484,27 @@ bool addFilterV4(HANDLE engineHandle, std::vector<UINT64> *filterId, FWP_ACTION_
 
 bool addFilterV6(HANDLE engineHandle, std::vector<UINT64> *filterId, FWP_ACTION_TYPE type, UINT8 weight,
                  GUID subLayerKey, wchar_t *subLayerName, PNET_LUID pluid,
-                 const std::vector<Ip6AddressAndPrefix> *ranges, bool persistent)
+                 const std::vector<types::IpAddressRange> *ranges,
+                 uint16_t localPort, uint16_t remotePort, AppsIds *appsIds, bool persistent)
 {
     UINT64 id = 0;
     bool success = true;
     DWORD dwFwApiRetCode = 0;
-    std::vector<FWP_V6_ADDR_AND_MASK> addrMasks(ranges ? ranges->size() : 0);
+    std::vector<FWP_V6_ADDR_AND_MASK> addrMasks;
+    if (ranges) {
+        addrMasks.reserve(ranges->size());
+    }
+    // See addFilterV4 for rationale: if ranges are present but contain no v6 entries,
+    // skip filter creation rather than registering an "all v6 traffic" rule.
+    if (ranges && !ranges->empty()) {
+        bool anyV6 = false;
+        for (const auto &r : *ranges) {
+            if (r.isV6()) { anyV6 = true; break; }
+        }
+        if (!anyV6) {
+            return true;
+        }
+    }
     GUID guids[2] = {FWPM_LAYER_ALE_AUTH_CONNECT_V6, FWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V6};
 
     for (int i = 0; i < 2; i++) {
@@ -486,15 +527,21 @@ bool addFilterV6(HANDLE engineHandle, std::vector<UINT64> *filterId, FWP_ACTION_
         filter.weight.uint8 = weight;
 
         if (ranges) {
-            for (int j = 0; j < (*ranges).size(); j++) {
+            addrMasks.clear();
+            for (const auto &r : *ranges) {
+                if (!r.isV6()) {
+                    continue;
+                }
+                FWP_V6_ADDR_AND_MASK m;
+                CopyMemory(m.addr, r.address().bytes(), 16);
+                m.prefixLength = r.prefixLength();
+                addrMasks.push_back(m);
+
                 FWPM_FILTER_CONDITION0 condition;
                 condition.fieldKey = FWPM_CONDITION_IP_REMOTE_ADDRESS;
                 condition.matchType = FWP_MATCH_EQUAL;
                 condition.conditionValue.type = FWP_V6_ADDR_MASK;
-                condition.conditionValue.v6AddrMask = &addrMasks[j];
-
-                CopyMemory(addrMasks[j].addr, (*ranges)[j].ip(), 16);
-                addrMasks[j].prefixLength = (*ranges)[j].prefixLength();
+                condition.conditionValue.v6AddrMask = &addrMasks.back();
                 conditions.push_back(condition);
             }
         }
@@ -508,7 +555,36 @@ bool addFilterV6(HANDLE engineHandle, std::vector<UINT64> *filterId, FWP_ACTION_
             conditions.push_back(condition);
         }
 
-        filter.filterCondition = &conditions[0];
+        if (localPort != 0) {
+            FWPM_FILTER_CONDITION0 condition;
+            condition.fieldKey = FWPM_CONDITION_IP_LOCAL_PORT;
+            condition.matchType = FWP_MATCH_EQUAL;
+            condition.conditionValue.type = FWP_UINT16;
+            condition.conditionValue.uint16 = localPort;
+            conditions.push_back(condition);
+        }
+
+        if (remotePort != 0) {
+            FWPM_FILTER_CONDITION0 condition;
+            condition.fieldKey = FWPM_CONDITION_IP_REMOTE_PORT;
+            condition.matchType = FWP_MATCH_EQUAL;
+            condition.conditionValue.type = FWP_UINT16;
+            condition.conditionValue.uint16 = remotePort;
+            conditions.push_back(condition);
+        }
+
+        if (appsIds != nullptr) {
+            for (size_t i = 0; i < (*appsIds).count(); ++i) {
+                FWPM_FILTER_CONDITION0 condition;
+                condition.fieldKey = FWPM_CONDITION_ALE_APP_ID;
+                condition.matchType = FWP_MATCH_EQUAL;
+                condition.conditionValue.type = FWP_BYTE_BLOB_TYPE;
+                condition.conditionValue.byteBlob = (FWP_BYTE_BLOB *)(*appsIds).getAppId(i);
+                conditions.push_back(condition);
+            }
+        }
+
+        filter.filterCondition = conditions.data();
         filter.numFilterConditions = conditions.size();
 
         dwFwApiRetCode = FwpmFilterAdd0(engineHandle, &filter, NULL, &id);
@@ -516,6 +592,8 @@ bool addFilterV6(HANDLE engineHandle, std::vector<UINT64> *filterId, FWP_ACTION_
             spdlog::error("Error adding filter: {}", dwFwApiRetCode);
             success = false;
         } else if (filterId) {
+            // Only record the id on success: on failure FwpmFilterAdd0 leaves it undefined and
+            // a stale value would be picked up later by cleanup paths trying to delete filters.
             (*filterId).push_back(id);
         }
     }
@@ -530,7 +608,6 @@ std::wstring getConfigPath()
     HRESULT hr = SHGetKnownFolderPath(FOLDERID_ProgramFiles, 0, NULL, &programFilesPath);
     if (FAILED(hr)) {
         spdlog::error("Failed to get Program Files dir");
-        CoTaskMemFree(programFilesPath);
         return L"";
     }
 
@@ -542,6 +619,32 @@ std::wstring getConfigPath()
     if (ret != ERROR_SUCCESS && ret != ERROR_ALREADY_EXISTS) {
         spdlog::error("Failed to create config dir");
         return L"";
+    }
+
+    return filePath.str();
+}
+
+std::wstring getUpdatePath(bool create)
+{
+    // To prevent shenanigans with various TOCTOU exploits, the staged installer should be in Program Files,
+    // which is only writable by administrators
+    wchar_t* programFilesPath = NULL;
+    HRESULT hr = SHGetKnownFolderPath(FOLDERID_ProgramFiles, 0, NULL, &programFilesPath);
+    if (FAILED(hr)) {
+        spdlog::error("Failed to get Program Files dir");
+        return L"";
+    }
+
+    std::wstringstream filePath;
+    filePath << programFilesPath;
+    CoTaskMemFree(programFilesPath);
+    filePath << L"\\" WS_WIN_CONFIG_SUBDIR_W L"\\update";
+    if (create) {
+        int ret = SHCreateDirectoryEx(NULL, filePath.str().c_str(), NULL);
+        if (ret != ERROR_SUCCESS && ret != ERROR_ALREADY_EXISTS) {
+            spdlog::error("Failed to create update dir");
+            return L"";
+        }
     }
 
     return filePath.str();

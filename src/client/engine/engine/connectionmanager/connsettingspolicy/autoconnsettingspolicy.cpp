@@ -3,8 +3,8 @@
 #include <QDataStream>
 #include <QSettings>
 #include "utils/extraconfig.h"
-#include "utils/ipvalidation.h"
 #include "utils/log/categories.h"
+#include "utils/networkingvalidation.h"
 #include "utils/ws_assert.h"
 
 #ifdef Q_OS_MACOS
@@ -54,7 +54,7 @@ AutoConnSettingsPolicy::AutoConnSettingsPolicy(QSharedPointer<locationsmodel::Ba
     }
 
     QString remoteOverride = ExtraConfig::instance().getRemoteIpFromExtraConfig();
-    if (IpValidation::isIp(remoteOverride) && attempts_.size() > 0 && attempts_[0].protocol == types::Protocol::WIREGUARD && !remoteOverride.isEmpty()) {
+    if (NetworkingValidation::isIp(remoteOverride) && attempts_.size() > 0 && attempts_[0].protocol == types::Protocol::WIREGUARD && !remoteOverride.isEmpty()) {
         locationInfo_->selectNodeByIp(remoteOverride);
     } else if (!preferredNodeHostname.isEmpty()) {
         qCInfo(LOG_CONNECTION) << "Selecting preferred node by hostname: " << preferredNodeHostname;
@@ -86,7 +86,7 @@ void AutoConnSettingsPolicy::putFailedConnection()
         curAttempt_++;
         if (attempts_[curAttempt_].changeNode) {
             QString remoteOverride = ExtraConfig::instance().getRemoteIpFromExtraConfig();
-            if (IpValidation::isIp(remoteOverride) && attempts_[curAttempt_].protocol == types::Protocol::WIREGUARD) {
+            if (NetworkingValidation::isIp(remoteOverride) && attempts_[curAttempt_].protocol == types::Protocol::WIREGUARD) {
                 locationInfo_->selectNodeByIp(remoteOverride);
             } else if (!preferredNodeHostname_.isEmpty()) {
                 qCInfo(LOG_CONNECTION) << "Selecting preferred node by hostname on retry: " << preferredNodeHostname_;
@@ -135,6 +135,7 @@ CurrentConnectionDescr AutoConnSettingsPolicy::getCurrentConnectionSettings() co
     ccd.dnsHostName = locationInfo_->getDnsName();
     ccd.wgPeerPublicKey = locationInfo_->getWgPubKeyForSelectedNode();
     ccd.verifyX509name = locationInfo_->getVerifyX509name();
+    ccd.isIpv6Support = locationInfo_->isIpv6SupportForSelectedNode();
 
     // for static IP set additional fields
     if (locationInfo_->locationId().isStaticIpsLocation()) {

@@ -173,24 +173,32 @@ QString extractExeName(const QString &execLine)
             }
         }
 
-        if (isFlatpak && block.startsWith("--command=")) {
-            return block.mid(10);
-        }
-
         if (isSnap && block.startsWith("/snap/bin/")) {
             return block;
         }
 
-        // ignore other lines with '='; they either set environment variables or are arguments
-        // ignore 'env', since this is often used to set environement variables before the actual command
+        // ignore env-var assignments and 'env'; this also filters --branch=, --command=, etc.
         if (block.contains("=") || block == "env") {
+            continue;
+        }
+
+        // skip Exec field codes (%U, %F, ...) and Flatpak file-forwarding markers (@@, @@u, ...)
+        if (block.startsWith("%") || block.startsWith("@@")) {
+            continue;
+        }
+
+        if (isFlatpak) {
+            // After 'flatpak run', the first reverse-DNS-shaped positional is the app ID
+            // (e.g. org.mozilla.firefox). 'run' itself has no dot, so it's skipped here.
+            if (block.contains(".")) {
+                return block;
+            }
             continue;
         }
 
         path = convertToAbsolutePath(block);
         if (!path.isEmpty()) {
             if (QFileInfo(QFile(path)).fileName() == "flatpak") {
-                // This is a flatpak application.  Instead of passing the flatpak binary, get the actual command name.
                 isFlatpak = true;
                 continue;
             }
@@ -204,6 +212,107 @@ QString extractExeName(const QString &execLine)
 
     // If we got here, we didn't find an exe
     return QString();
+}
+
+// Walks all .desktop files reachable via XDG and, for every Flatpak entry, builds a mapping from
+// keys a legacy stored entry might have (the basename of --command=, the .desktop filename stem)
+// to the Flatpak app ID. Used by migrateSplitTunnelingFlatpakApps.
+static QHash<QString, QString> enumerateFlatpakCommandMap()
+{
+    QHash<QString, QString> result;
+
+    QByteArray xdgDataDirs = qgetenv("XDG_DATA_DIRS");
+    if (xdgDataDirs.isEmpty()) {
+        xdgDataDirs = "/usr/local/share/:/usr/share/";
+    }
+    QStringList dirs = QString::fromLocal8Bit(xdgDataDirs).split(":");
+    QByteArray xdgDataHome = qgetenv("XDG_DATA_HOME");
+    if (xdgDataHome.isEmpty()) {
+        dirs.prepend(QDir::homePath() + "/.local/share");
+    } else {
+        dirs.prepend(QString::fromLocal8Bit(xdgDataHome));
+    }
+
+    for (auto dir : dirs) {
+        for (auto filename : QDir(dir + "/applications").entryList(QStringList("*.desktop"), QDir::Files)) {
+            QString file = dir + "/applications/" + filename;
+
+            QFile f(file);
+            if (!f.open(QFile::ReadOnly | QFile::Text)) {
+                continue;
+            }
+            QTextStream in(&f);
+            QStringList contents = in.readAll().split(QRegularExpression("[\r\n]"), Qt::SkipEmptyParts);
+
+            int execIdx = contents.indexOf(QRegularExpression("^Exec=.*"));
+            if (execIdx == -1) {
+                continue;
+            }
+            QString execLine = contents[execIdx].mid(5);
+
+            QString appId = extractExeName(execLine);
+            if (appId.isEmpty() || !appId.contains(".") || appId.contains("/")) {
+                continue;  // not a Flatpak entry
+            }
+
+            // Map any --command=<value> basename to the app ID — this is what older clients stored.
+            QRegularExpression cmdRe("--command=(\\S+)");
+            auto m = cmdRe.match(execLine);
+            if (m.hasMatch()) {
+                QString cmdBasename = QFileInfo(m.captured(1)).fileName();
+                if (!cmdBasename.isEmpty()) {
+                    result.insert(cmdBasename, appId);
+                }
+            }
+
+            // Also map the .desktop filename stem, in case a stored entry came from there.
+            QString stem = filename;
+            if (stem.endsWith(".desktop")) {
+                stem.chop(QStringLiteral(".desktop").size());
+            }
+            if (!stem.isEmpty()) {
+                result.insert(stem, appId);
+            }
+        }
+    }
+
+    return result;
+}
+
+void migrateSplitTunnelingFlatpakApps(QVector<types::SplitTunnelingApp> &apps)
+{
+    QHash<QString, QString> commandToId;
+    bool scanned = false;
+
+    for (auto &app : apps) {
+        if (app.fullName.isEmpty()) continue;
+
+        // Pick the key to look up in the basename-keyed map.
+        //   "/app/bin/chrome"   -> "chrome"   (legacy Flatpak sandbox path from --command=/app/bin/chrome)
+        //   "chrome"            -> "chrome"   (legacy bare basename from --command=chrome)
+        //   "/usr/bin/firefox"  -> skip       (genuine host path; not a Flatpak entry)
+        QString lookupKey;
+        if (app.fullName.startsWith(QLatin1String("/app/"))) {
+            lookupKey = QFileInfo(app.fullName).fileName();
+            if (lookupKey.isEmpty()) continue;
+        } else if (!app.fullName.startsWith('/')) {
+            lookupKey = app.fullName;
+        } else {
+            continue;
+        }
+
+        if (!scanned) {
+            commandToId = enumerateFlatpakCommandMap();
+            scanned = true;
+        }
+
+        auto it = commandToId.find(lookupKey);
+        if (it == commandToId.end()) continue;
+        if (*it == app.fullName) continue;  // already migrated (mapped via .desktop stem to itself)
+
+        qCDebug(LOG_BASIC) << "Migrating split-tunneling Flatpak entry:" << app.fullName << "->" << *it;
+        app.fullName = *it;
+    }
 }
 
 QString unescape(const QString &in)

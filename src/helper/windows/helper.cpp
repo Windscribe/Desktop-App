@@ -200,16 +200,34 @@ void Helper::processClientRequests()
             break;
         }
 
-        std::string strData;
-        if (sizeOfBuf > 0) {
-            std::vector<char> buffer(sizeOfBuf);
-            if (!IOUtils::readAll(clientPipe_.getHandle(), ioCompletedEvent.getHandle(), buffer.data(), sizeOfBuf)) {
-                break;
-            }
-            strData = std::string(buffer.begin(), buffer.end());
+        // Reject oversized frames before any size-derived allocation. Disconnecting
+        // the client (break out of the request loop) is the safe response to any
+        // local caller — authorized or otherwise — that produces a malformed frame.
+        if (sizeOfBuf > kMaxHelperFrameSize) {
+            spdlog::error("Helper IPC: rejecting frame with invalid length {}", sizeOfBuf);
+            break;
         }
 
-        auto result = processCommand((HelperCommand)cmdId, strData);
+        std::string strData;
+        if (sizeOfBuf > 0) {
+            try {
+                std::vector<char> buffer(sizeOfBuf);
+                if (!IOUtils::readAll(clientPipe_.getHandle(), ioCompletedEvent.getHandle(), buffer.data(), sizeOfBuf)) {
+                    break;
+                }
+                strData = std::string(buffer.begin(), buffer.end());
+            } catch (const std::bad_alloc &) {
+                spdlog::error("Helper IPC: bad_alloc for frame size {}", sizeOfBuf);
+                break;
+            }
+        }
+
+        std::string result;
+        try {
+            result = processCommand((HelperCommand)cmdId, strData);
+        } catch (const std::exception &ex) {
+            spdlog::error("Helper IPC: processCommand({}) exception: {}", cmdId, ex.what());
+        }
         sendRequestResult(ioCompletedEvent.getHandle(), result);
         ::FlushFileBuffers(clientPipe_.getHandle());
     }

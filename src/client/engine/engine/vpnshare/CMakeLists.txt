@@ -1,6 +1,8 @@
 target_sources(engine PRIVATE
         connecteduserscounter.cpp
         connecteduserscounter.h
+        proxydestinationfilter.cpp
+        proxydestinationfilter.h
         httpproxyserver/httpproxyconnection.cpp
         httpproxyserver/httpproxyconnection.h
         httpproxyserver/httpproxyconnectionmanager.cpp

@@ -4,6 +4,7 @@
 
 #include <QCoreApplication>
 #include <QDir>
+#include <QHostAddress>
 #include <QScopeGuard>
 
 #include <libproc.h>
@@ -358,5 +359,25 @@ QSet<QString> MacUtils::getOsDnsServers()
     servers << getOsDnsServersFromPath(globalPath);
     CFRelease(globalPath);
 
-    return QSet<QString>(servers.begin(), servers.end());
+    QSet<QString> result(servers.begin(), servers.end());
+
+    // Diagnostic: split v4/v6 counts so a misclassified or missing IPv6 system resolver shows up
+    // in logs. `MacUtils::getOsDnsServers()` feeds `firewallcontroller_mac.cpp`'s `<disallowed_dns>`
+    // pf table — if a host configured with a v6 ISP DNS server logs `ipv6=0` here, the kill-switch
+    // cannot block it and a v6 DNS leak is possible. macOS stores both families in a single flat
+    // `ServerAddresses` array, so dual-stack hosts should always show non-zero on both counters.
+    int v4Count = 0;
+    int v6Count = 0;
+    for (const QString &s : std::as_const(result)) {
+        QHostAddress addr(s);
+        if (addr.protocol() == QAbstractSocket::IPv6Protocol) {
+            ++v6Count;
+        } else if (addr.protocol() == QAbstractSocket::IPv4Protocol) {
+            ++v4Count;
+        }
+    }
+    qCDebug(LOG_BASIC) << "getOsDnsServers - found" << result.size()
+                       << "OS DNS resolver(s):" << v4Count << "IPv4," << v6Count << "IPv6";
+
+    return result;
 }

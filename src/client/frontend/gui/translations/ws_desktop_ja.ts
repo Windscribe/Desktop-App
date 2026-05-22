@@ -618,26 +618,6 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
         <translation>カスタム構成フォルダの選択</translation>
     </message>
     <message>
-        <source>Cannot select this directory because it is writeable for non-privileged users. Custom configs in this directory may pose a potential security risk. Please authenticate with an admin user to select this directory.</source>
-        <translation>このディレクトリは、非特権ユーザーに対して書き込み可能であるため、選択できません。このディレクトリ内のカスタム構成は、潜在的なセキュリティリスクをもたらす可能性があります。このディレクトリを選択するには、管理者ユーザーで認証してください。</translation>
-    </message>
-    <message>
-        <source>Can&apos;t select directory</source>
-        <translation>ディレクトリを選択できません</translation>
-    </message>
-    <message>
-        <source>The application is corrupted.  Please reinstall Windscribe.</source>
-        <translation>アプリケーションが壊れています。 Windscribeを再インストールしてください。</translation>
-    </message>
-    <message>
-        <source>Validation Error</source>
-        <translation>検証エラー</translation>
-    </message>
-    <message>
-        <source>The selected directory is writeable for non-privileged users. Custom configs in this directory may pose a potential security risk.</source>
-        <translation>選択したディレクトリは、非特権ユーザーが書き込み可能です。このディレクトリ内のカスタム構成は、潜在的なセキュリティリスクをもたらす可能性があります。</translation>
-    </message>
-    <message>
         <source>Security Risk</source>
         <translation>セキュリティリスク</translation>
     </message>
@@ -678,6 +658,26 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
         <translation>未接続</translation>
     </message>
     <message>
+        <source>The selected directory is writeable for other users. Custom configs in this directory may pose a potential security risk.</source>
+        <translation>選択したディレクトリは他のユーザーのために書き込むことができます。このディレクトリ内のカスタム設定は潜在的なセキュリティリスクをもたらす可能性があります。</translation>
+    </message>
+    <message>
+        <source>Proxy Gateway is unauthenticated</source>
+        <translation>プロキシゲートウェイは認証されていません</translation>
+    </message>
+    <message>
+        <source>Your Proxy Gateway is enabled without authentication. Anyone on your local network, including untrusted networks like coffee-shop Wi-Fi, can route their traffic through your VPN. We strongly recommend setting credentials.</source>
+        <translation>プロキシゲートウェイは認証なしで有効化されています。ローカルネットワーク上の誰でも、カフェのWi-Fiのような信頼できないネットワークも含めて、VPN経由でトラフィックをルーティングできます。認証情報の設定を強くお勧めします。</translation>
+    </message>
+    <message>
+        <source>Go to Preferences</source>
+        <translation>設定へ</translation>
+    </message>
+    <message>
+        <source>Later</source>
+        <translation>後で</translation>
+    </message>
+    <message>
         <source>Connected to </source>
         <translation>接続先：</translation>
     </message>
@@ -690,6 +690,18 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
 %1 transferred in %2</source>
         <translation>Windscribe への接続が終了しました。
 %2 に %1 が転送されました</translation>
+    </message>
+    <message>
+        <source>Could not start Proxy Gateway</source>
+        <translation>プロキシゲートウェイを起動できませんでした</translation>
+    </message>
+    <message>
+        <source>The configured port is in use. Please try a different port.</source>
+        <translation>設定済みポートは使用中です。別のポートを試してください。</translation>
+    </message>
+    <message>
+        <source>An unknown error occurred.</source>
+        <translation>未知のエラーが発生しました。</translation>
     </message>
     <message>
         <source>Network Settings Interference</source>
@@ -924,14 +936,6 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>  If you are on a restrictive network, please connect the VPN before trying the download again.</source>
         <translation>制限の厳しいネットワークを使用している場合は、ダウンロードを再試行する前にVPNに接続してください。</translation>
-    </message>
-    <message>
-        <source>Custom Config Directory Import</source>
-        <translation>カスタム設定ディレクトリのインポート</translation>
-    </message>
-    <message>
-        <source>A custom config directory is being imported.  Windscribe will prompt for your admin password to check for correct permissions.</source>
-        <translation>カスタム設定ディレクトリをインポートしています。 Windscribeは、正しい権限を確認するために管理者パスワードの入力を求めます。</translation>
     </message>
     <message>
         <source>Your &quot;Connected DNS&quot; server is set to an OS default DNS server, which would result in a DNS leak.  It has been changed to Auto.</source>
@@ -1447,6 +1451,14 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>VPN プロトコルを自動的に選択するか、手動で選択します。注: &quot;優先プロトコル&quot; はこの設定よりも優先されます。</translation>
     </message>
     <message>
+        <source>Configure egress IP stack for VPN connections.</source>
+        <translation>VPN接続用の出口IPスタックを設定してください。</translation>
+    </message>
+    <message>
+        <source>IP Stack</source>
+        <translation>IPスタック</translation>
+    </message>
+    <message>
         <source>Select the DNS server while connected to Windscribe.</source>
         <translation>Windscribe に接続しているときに DNS サーバーを選択します。</translation>
     </message>
@@ -1517,6 +1529,13 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Anti-censorship Settings</source>
         <translation>反検閲の設定</translation>
+    </message>
+</context>
+<context>
+    <name>PreferencesWindow::CopyableTextItem</name>
+    <message>
+        <source>Copied</source>
+        <translation>コピー</translation>
     </message>
 </context>
 <context>
@@ -2106,31 +2125,36 @@ Connect to a network first</source>
         <translation>ポート</translation>
     </message>
     <message>
-        <source>Unable to start proxy server</source>
-        <translation>プロキシ サーバーを起動できません</translation>
+        <source>Require Authentication</source>
+        <translation>認証を必須</translation>
     </message>
     <message>
-        <source>The proxy server couldn&apos;t be started on the requested port. Please try again with a different port.</source>
-        <translation>要求されたポートでプロキシ サーバーを開始できませんでした。別のポートで再試行してください。</translation>
+        <source>Without authentication, anyone on your network (e.g. coffee shop Wi-Fi) can use this proxy. Leave this on unless you know what you&apos;re doing.</source>
+        <translation>認証なしでは、ネットワーク上の誰でも(例えばカフェのWi-Fi)がこのプロキシを使うことができます。何をしているか分かっていなければ、これをつけたままにしておいてください。</translation>
+    </message>
+    <message>
+        <source>IP</source>
+        <translation>IPアドレス</translation>
+    </message>
+    <message>
+        <source>Username</source>
+        <translation>ユーザー名</translation>
+    </message>
+    <message>
+        <source>Password</source>
+        <translation>パスワード</translation>
     </message>
     <message>
         <source>Auto</source>
         <translation>自動</translation>
     </message>
     <message>
+        <source>Unavailable</source>
+        <translation>利用不可</translation>
+    </message>
+    <message>
         <source>Only when VPN is connected</source>
         <translation>VPN接続時のみ</translation>
-    </message>
-</context>
-<context>
-    <name>PreferencesWindow::ProxyIpAddressItem</name>
-    <message>
-        <source>IP</source>
-        <translation>IPアドレス</translation>
-    </message>
-    <message>
-        <source>Copied</source>
-        <translation>コピー</translation>
     </message>
 </context>
 <context>
@@ -2573,6 +2597,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Van Gogh</source>
         <translation>Van Gogh</translation>
+    </message>
+    <message>
+        <source>IPv4 Only</source>
+        <translation>IPv4専用</translation>
     </message>
     <message>
         <source>Enabled</source>

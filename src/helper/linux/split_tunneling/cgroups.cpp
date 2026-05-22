@@ -19,16 +19,25 @@ bool CGroups::enable(const ConnectStatus &connectStatus, bool isAllowLanTraffic,
 
     std::string out;
 
+    // IpAddress fields are converted to strings at the script-argument boundary; mark_ /
+    // netClassId_ / "allow"|"disallow" / "exclusive"|"inclusive" are family-agnostic.
+    // The two trailing args carry the v6 default-gateway and v6 VPN-gateway when the
+    // server pushed dual-stack addresses; both are empty strings when no v6 is
+    // configured (the cgroups-up shell script treats those as a sentinel and skips the
+    // ip6tables block).
     int ret = Utils::executeCommand(WS_LINUX_INSTALL_DIR "/scripts/cgroups-up",
-                                    { mark_.c_str(),
-                                      connectStatus.defaultAdapter.gatewayIp,
+                                    { mark_,
+                                      connectStatus.defaultAdapter.gatewayIp.toString(),
                                       connectStatus.defaultAdapter.adapterName,
-                                      connectStatus.vpnAdapter.gatewayIp,
+                                      connectStatus.vpnAdapter.gatewayIp.toString(),
                                       connectStatus.vpnAdapter.adapterName,
-                                      connectStatus.remoteIp,
-                                      netClassId_.c_str(),
-                                      isAllowLanTraffic ? "allow": "disallow",
-                                      isExclude ? "exclusive": "inclusive"},
+                                      connectStatus.remoteIp.toString(),
+                                      netClassId_,
+                                      isAllowLanTraffic ? "allow" : "disallow",
+                                      isExclude ? "exclusive" : "inclusive",
+                                      // v6 args (empty when no v6 is configured).
+                                      connectStatus.defaultAdapter.gatewayIpV6.toString(),
+                                      connectStatus.vpnAdapter.gatewayIpV6.toString() },
                                     &out);
     if (ret != 0) {
         spdlog::error("cgroups-up script failed: {}", out);

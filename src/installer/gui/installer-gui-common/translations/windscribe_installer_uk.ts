@@ -45,6 +45,22 @@
         <translation>Існуючу інсталяцію Windscribe не вдалося видалити. Будь ласка, видаліть програму вручну та повторіть спробу.</translation>
     </message>
     <message>
+        <source>The Windows Base Filtering Engine service is not running and could not be started. This core Windows service must be running to install Windscribe. Third-party security/firewall software is most often the cause of this issue.</source>
+        <translation>Сервіс Windows Base Filtering Engine не працює і не може бути запущений. Цей основний сервіс Windows має працювати, щоб встановити Windscribe. Найчастіше причиною цієї проблеми є стороннє програмне забезпечення безпеки/фаєрволу.</translation>
+    </message>
+    <message>
+        <source>Windscribe is unable to connect to the Windows Base Filtering Engine service. Connecting to this core Windows service is required to install Windscribe. Third-party security/firewall software is most often the cause of this issue.</source>
+        <translation>Windscribe не може підключитися до сервісу Windows Base Filtering Engine. Для встановлення Windscribe необхідно підключитися до цього основного сервісу Windows. Найчастіше причиною цієї проблеми є стороннє програмне забезпечення безпеки/фаєрволу.</translation>
+    </message>
+    <message>
+        <source>Windscribe is unable to install its helper service. Please manually uninstall Windscribe and try again. If this issue persists, please contact our Technical Support.</source>
+        <translation>Windscribe не може встановити свою допоміжну службу. Будь ласка, видаліть Windscribe вручну і спробуйте знову. Якщо ця проблема збережеться, будь ласка, зверніться до нашої технічної підтримки.</translation>
+    </message>
+    <message>
+        <source>Windscribe is unable to start its helper service. Third-party security/firewall software may be the cause. If this is not the case, please contact our Technical Support.</source>
+        <translation>Windscribe не може запустити свою допоміжну службу. Причиною може бути стороннє програмне забезпечення для безпеки/фаєрволу. Якщо це не так, будь ласка, зверніться до нашої технічної підтримки.</translation>
+    </message>
+    <message>
         <source>The installation could not be completed successfully. Please contact our Technical Support.</source>
         <translation>Інсталяцію не вдалося завершити. Будь ласка, зв&apos;яжіться з нашою технічною підтримкою.</translation>
     </message>

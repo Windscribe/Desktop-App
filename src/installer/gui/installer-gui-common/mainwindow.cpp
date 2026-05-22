@@ -243,6 +243,14 @@ void MainWindow::onInstallerCallback()
             errorMsg = tr("The custom installation folder is not empty. As a security precaution, Windscribe can only be installed to an empty folder. Please delete all files from the folder and try again.");
         } else if (error == wsl::ERROR_DELETE_CUSTOM_DIR) {
             errorMsg = tr("The custom installation folder could not be deleted. Please uninstall the application manually, ensure no applications are accessing the custom folder, and try again.");
+        } else if (error == wsl::ERROR_BFE_SERVICE_NOT_RUNNING) {
+            errorMsg = tr("The Windows Base Filtering Engine service is not running and could not be started. This core Windows service must be running to install Windscribe. Third-party security/firewall software is most often the cause of this issue.");
+        } else if (error == wsl::ERROR_BFE_SERVICE_CONNECTION) {
+            errorMsg = tr("Windscribe is unable to connect to the Windows Base Filtering Engine service. Connecting to this core Windows service is required to install Windscribe. Third-party security/firewall software is most often the cause of this issue.");
+        } else if (error == wsl::ERROR_HELPER_INSTALL) {
+            errorMsg = tr("Windscribe is unable to install its helper service. Please manually uninstall Windscribe and try again. If this issue persists, please contact our Technical Support.");
+        } else if (error == wsl::ERROR_HELPER_START) {
+            errorMsg = tr("Windscribe is unable to start its helper service. Third-party security/firewall software may be the cause. If this is not the case, please contact our Technical Support.");
         } else {
             errorMsg = tr("The installation could not be completed successfully. Please contact our Technical Support.");
         }

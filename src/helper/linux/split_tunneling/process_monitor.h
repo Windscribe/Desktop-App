@@ -1,5 +1,6 @@
 #pragma once
 
+#include <optional>
 #include <string>
 #include <thread>
 #include <vector>
@@ -34,6 +35,7 @@ private:
     void removeApp(const std::string &exe);
     std::vector<pid_t> findPids(const std::string &exe);
     std::string getCmdByPid(pid_t pid);
+    std::optional<std::string> getFlatpakAppIdByPid(pid_t pid);
 
     void selfTest();
     bool prepareMonitoring();

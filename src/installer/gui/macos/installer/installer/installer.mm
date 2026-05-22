@@ -1,5 +1,7 @@
 #import "installer.h"
 #import <Cocoa/Cocoa.h>
+#include <filesystem>
+#include <system_error>
 #include <spdlog/spdlog.h>
 #include "helperbackend_mac.h"
 #include "../string_utils.h"
@@ -238,11 +240,13 @@
 
         NSMutableString *path = [NSMutableString stringWithString:NSHomeDirectory()];
         [path appendString:@"/Library/Application Support/windscribe_extra.conf"];
-        [self runProcess:@"/bin/rm" args:@[path]];
+        std::error_code extraConfEc;
+        std::filesystem::remove([path UTF8String], extraConfEc);
 
         [path setString:NSHomeDirectory()];
         [path appendString:@"/Library/Application Support/Windscribe/Windscribe2"];
-        [self runProcess:@"/bin/rm" args:@[@"-r", path]];
+        std::error_code prefsEc;
+        std::filesystem::remove_all([path UTF8String], prefsEc);
     }
 
     spdlog::info("Extracting and installing Windscribe app");

@@ -187,6 +187,14 @@
         <translation>알 수 없는 상태</translation>
     </message>
     <message>
+        <source>VPN IP: %1</source>
+        <translation>VPN IP: %1</translation>
+    </message>
+    <message>
+        <source>Public IP: %1</source>
+        <translation>공개 IP: %1</translation>
+    </message>
+    <message>
         <source>Protocol: %1:%2</source>
         <translation>프로토콜: %1:%2</translation>
     </message>

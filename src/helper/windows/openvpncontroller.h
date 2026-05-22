@@ -1,6 +1,5 @@
 #pragma once
 
-#include "wintun.h"
 #include "executecmd.h"
 
 class OpenVPNController final
@@ -24,14 +23,13 @@ private:
     explicit OpenVPNController();
 
     bool useDCODriver_ = false;
-    HMODULE wintunDLL_ = nullptr;
-    WINTUN_ADAPTER_HANDLE adapterHandle_ = nullptr;
+    bool tapAdapterCreated_ = false;
 
     bool createDCOAdapter();
     void removeDCOAdapter();
 
-    bool createWintunAdapter();
-    void removeWintunAdapter();
+    bool createTapAdapter();
+    void removeTapAdapter();
 
     bool writeOVPNFile(std::wstring &config, unsigned int port, const std::wstring &httpProxy, unsigned int httpPort,
                        const std::wstring &socksProxy, unsigned int socksPort, std::wstring &filename);

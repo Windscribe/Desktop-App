@@ -187,6 +187,14 @@
         <translation>अज्ञात अवस्था</translation>
     </message>
     <message>
+        <source>VPN IP: %1</source>
+        <translation>वीपीएन आईपी: %1</translation>
+    </message>
+    <message>
+        <source>Public IP: %1</source>
+        <translation>सार्वजनिक आईपी: %1</translation>
+    </message>
+    <message>
         <source>Protocol: %1:%2</source>
         <translation>प्रोटोकॉल: %1:%2</translation>
     </message>

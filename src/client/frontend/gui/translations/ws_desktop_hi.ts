@@ -618,14 +618,6 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
         <translation>कस्टम कॉन्फ़िगरेशन फ़ोल्डर का चयन करें</translation>
     </message>
     <message>
-        <source>Cannot select this directory because it is writeable for non-privileged users. Custom configs in this directory may pose a potential security risk. Please authenticate with an admin user to select this directory.</source>
-        <translation>इस निर्देशिका का चयन नहीं कर सकता क्योंकि यह गैर-विशेषाधिकार प्राप्त उपयोगकर्ताओं के लिए लिखने योग्य है. इस निर्देशिका में कस्टम कॉन्फ़िगरेशन एक संभावित सुरक्षा जोखिम पैदा कर सकते हैं। कृपया इस निर्देशिका का चयन करने के लिए व्यवस्थापक उपयोगकर्ता के साथ प्रमाणित करें.</translation>
-    </message>
-    <message>
-        <source>The application is corrupted.  Please reinstall Windscribe.</source>
-        <translation>अनुप्रयोग दूषित है.  कृपया विंडस्क्राइब को पुनर्स्थापित करें।</translation>
-    </message>
-    <message>
         <source>Could not start &apos;Base Filtering Engine&apos; service.  Please enable this service manually in Windows Services.</source>
         <translation>&apos;बेस फ़िल्टरिंग इंजन&apos; सेवा प्रारंभ नहीं कर सका.  कृपया इस सेवा को Windows सेवाओं में मैन्युअल रूप से सक्षम करें.</translation>
     </message>
@@ -662,18 +654,6 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
         <translation>VPN कनेक्शन स्थापित करने में कोई अनपेक्षित त्रुटि आई (त्रुटि %1).  यदि यह त्रुटि बनी रहती है, तो किसी भिन्न प्रोटोकॉल या संपर्क समर्थन का उपयोग करने का प्रयास करें.</translation>
     </message>
     <message>
-        <source>Can&apos;t select directory</source>
-        <translation>निर्देशिका का चयन नहीं कर सकता</translation>
-    </message>
-    <message>
-        <source>Validation Error</source>
-        <translation>सत्यापन त्रुटि</translation>
-    </message>
-    <message>
-        <source>The selected directory is writeable for non-privileged users. Custom configs in this directory may pose a potential security risk.</source>
-        <translation>चयनित निर्देशिका गैर-विशेषाधिकार प्राप्त उपयोगकर्ताओं के लिए लिखने योग्य है। इस निर्देशिका में कस्टम कॉन्फ़िगरेशन एक संभावित सुरक्षा जोखिम पैदा कर सकते हैं।</translation>
-    </message>
-    <message>
         <source>Security Risk</source>
         <translation>सुरक्षा जोखिम</translation>
     </message>
@@ -706,6 +686,26 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
         <translation>डिस्कनेक्ट</translation>
     </message>
     <message>
+        <source>The selected directory is writeable for other users. Custom configs in this directory may pose a potential security risk.</source>
+        <translation>चयनित निर्देशिका अन्य उपयोगकर्ताओं के लिए लिखने योग्य है। इस निर्देशिका में कस्टम कॉन्फ़िगरेशन एक संभावित सुरक्षा जोखिम पैदा कर सकता है।</translation>
+    </message>
+    <message>
+        <source>Proxy Gateway is unauthenticated</source>
+        <translation>प्रॉक्सी गेटवे अप्रमाणित है</translation>
+    </message>
+    <message>
+        <source>Your Proxy Gateway is enabled without authentication. Anyone on your local network, including untrusted networks like coffee-shop Wi-Fi, can route their traffic through your VPN. We strongly recommend setting credentials.</source>
+        <translation>आपका प्रॉक्सी गेटवे प्रमाणीकरण के बिना सक्षम है। आपके स्थानीय नेटवर्क पर कोई भी, जिसमें कॉफी-शॉप वाई-फाई जैसे अविश्वसनीय नेटवर्क शामिल हैं, आपके वीपीएन के माध्यम से अपने ट्रैफ़िक को रूट कर सकते हैं। हम क्रेडेंशियल सेट करने की पुरजोर अनुशंसा करते हैं।</translation>
+    </message>
+    <message>
+        <source>Go to Preferences</source>
+        <translation>प्राथमिकताएँ पर जाएँ</translation>
+    </message>
+    <message>
+        <source>Later</source>
+        <translation>बाद में</translation>
+    </message>
+    <message>
         <source>Connected to </source>
         <translation>से कनेक्ट डे </translation>
     </message>
@@ -718,6 +718,18 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
 %1 transferred in %2</source>
         <translation>विंडस्क्राइब से कनेक्शन समाप्त कर दिया गया है.
 %1 को %2 में स्थानांतरित किया गया</translation>
+    </message>
+    <message>
+        <source>Could not start Proxy Gateway</source>
+        <translation>प्रॉक्सी गेटवे प्रारंभ नहीं किया जा सका</translation>
+    </message>
+    <message>
+        <source>The configured port is in use. Please try a different port.</source>
+        <translation>कॉन्फ़िगर किया गया पोर्ट उपयोग में है। कृपया किसी भिन्न पोर्ट का प्रयास करें।</translation>
+    </message>
+    <message>
+        <source>An unknown error occurred.</source>
+        <translation>कोई अज्ञात त्रुटि उत्पन्न हुई।</translation>
     </message>
     <message>
         <source>Network Settings Interference</source>
@@ -924,14 +936,6 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>  If you are on a restrictive network, please connect the VPN before trying the download again.</source>
         <translation>  यदि आप एक प्रतिबंधात्मक नेटवर्क पर हैं, तो कृपया फिर से डाउनलोड करने का प्रयास करने से पहले वीपीएन कनेक्ट करें।</translation>
-    </message>
-    <message>
-        <source>Custom Config Directory Import</source>
-        <translation>कस्टम कॉन्फ़िग निर्देशिका आयात</translation>
-    </message>
-    <message>
-        <source>A custom config directory is being imported.  Windscribe will prompt for your admin password to check for correct permissions.</source>
-        <translation>कस्टम कॉन्फ़िग निर्देशिका आयात की जा रही है.  Windscribe सही अनुमतियों की जांच के लिए आपके व्यवस्थापक पासवर्ड के लिए संकेत देगा।</translation>
     </message>
     <message>
         <source>Your &quot;Connected DNS&quot; server is set to an OS default DNS server, which would result in a DNS leak.  It has been changed to Auto.</source>
@@ -1443,6 +1447,14 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>कनेक्शन मोड</translation>
     </message>
     <message>
+        <source>Configure egress IP stack for VPN connections.</source>
+        <translation>वीपीएन कनेक्शन के लिए निकास आईपी स्टैक कॉन्फ़िगर करें।</translation>
+    </message>
+    <message>
+        <source>IP Stack</source>
+        <translation>आईपी स्टैक</translation>
+    </message>
+    <message>
         <source>Select the DNS server while connected to Windscribe.</source>
         <translation>विंडस्क्राइब से कनेक्ट करते समय DNS सर्वर का चयन करें।</translation>
     </message>
@@ -1517,6 +1529,13 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Anti-censorship Settings</source>
         <translation>सेंसरशिप विरोधी सेटिंग्स</translation>
+    </message>
+</context>
+<context>
+    <name>PreferencesWindow::CopyableTextItem</name>
+    <message>
+        <source>Copied</source>
+        <translation>प्रतिलिपि</translation>
     </message>
 </context>
 <context>
@@ -2106,31 +2125,36 @@ Connect to a network first</source>
         <translation>बंदरगाह</translation>
     </message>
     <message>
-        <source>Unable to start proxy server</source>
-        <translation>प्रॉक्सी सर्वर प्रारंभ करने में असमर्थ</translation>
+        <source>Require Authentication</source>
+        <translation>प्रमाणीकरण की आवश्यकता है</translation>
     </message>
     <message>
-        <source>The proxy server couldn&apos;t be started on the requested port. Please try again with a different port.</source>
-        <translation>प्रॉक्सी सर्वर अनुरोधित पोर्ट पर प्रारंभ नहीं किया जा सका। कृपया किसी भिन्न पोर्ट के साथ पुन: प्रयास करें.</translation>
+        <source>Without authentication, anyone on your network (e.g. coffee shop Wi-Fi) can use this proxy. Leave this on unless you know what you&apos;re doing.</source>
+        <translation>प्रमाणीकरण के बिना, आपके नेटवर्क पर कोई भी व्यक्ति (जैसे कॉफ़ी शॉप वाई-फ़ाई) इस प्रॉक्सी का उपयोग कर सकता है। इसे तब तक छोड़ दें जब तक आप नहीं जानते कि आप क्या कर रहे हैं।</translation>
+    </message>
+    <message>
+        <source>IP</source>
+        <translation>IP</translation>
+    </message>
+    <message>
+        <source>Username</source>
+        <translation>उपयोगकर्ता नाम</translation>
+    </message>
+    <message>
+        <source>Password</source>
+        <translation>पासवर्ड</translation>
     </message>
     <message>
         <source>Auto</source>
         <translation>ऑटो</translation>
     </message>
     <message>
+        <source>Unavailable</source>
+        <translation>अनुपलब्ध</translation>
+    </message>
+    <message>
         <source>Only when VPN is connected</source>
         <translation>केवल जब वीपीएन जुड़ा हुआ है</translation>
-    </message>
-</context>
-<context>
-    <name>PreferencesWindow::ProxyIpAddressItem</name>
-    <message>
-        <source>IP</source>
-        <translation>IP</translation>
-    </message>
-    <message>
-        <source>Copied</source>
-        <translation>प्रतिलिपि</translation>
     </message>
 </context>
 <context>
@@ -2573,6 +2597,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Van Gogh</source>
         <translation>वान गाग</translation>
+    </message>
+    <message>
+        <source>IPv4 Only</source>
+        <translation>केवल IPv4</translation>
     </message>
     <message>
         <source>Enabled</source>

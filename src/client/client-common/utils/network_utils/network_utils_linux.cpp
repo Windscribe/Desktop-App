@@ -7,9 +7,11 @@
 
 #include <net/if.h>
 #include <arpa/inet.h>
+#include <ifaddrs.h>
 #include <linux/if_arp.h>
 #include <linux/rtnetlink.h>
 #include <linux/wireless.h>
+#include <netinet/in.h>
 #include <sys/socket.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
@@ -78,9 +80,120 @@ static QList<RoutingTableEntry> getRoutingTableAsList()
     return entries;
 }
 
+void getAdapterIpAndPrefix(const QString &interfaceName, QString &outIp, int &outPrefix)
+{
+    outIp.clear();
+    outPrefix = 0;
+
+    if (interfaceName.isEmpty()) {
+        return;
+    }
+
+    struct ifaddrs *ifaddr = nullptr;
+    if (getifaddrs(&ifaddr) == -1) {
+        return;
+    }
+
+    auto guard = qScopeGuard([&] { freeifaddrs(ifaddr); });
+
+    const QByteArray nameBytes = interfaceName.toUtf8();
+    for (struct ifaddrs *ifa = ifaddr; ifa != nullptr; ifa = ifa->ifa_next) {
+        if (ifa->ifa_addr == nullptr || ifa->ifa_addr->sa_family != AF_INET) {
+            continue;
+        }
+        if (qstrcmp(ifa->ifa_name, nameBytes.constData()) != 0) {
+            continue;
+        }
+        // Require both IFF_UP and IFF_RUNNING so we don't return a stale cached IP for an interface whose link is
+        // gone (cable yanked, Wi-Fi dropped) but whose admin state is still up.
+        if ((ifa->ifa_flags & (IFF_UP | IFF_RUNNING)) != (IFF_UP | IFF_RUNNING)) {
+            continue;
+        }
+
+        const sockaddr_in *addrIn = reinterpret_cast<const sockaddr_in *>(ifa->ifa_addr);
+        outIp = QHostAddress(ntohl(addrIn->sin_addr.s_addr)).toString();
+
+        if (ifa->ifa_netmask != nullptr) {
+            const sockaddr_in *maskIn = reinterpret_cast<const sockaddr_in *>(ifa->ifa_netmask);
+            outPrefix = qPopulationCount(static_cast<quint32>(maskIn->sin_addr.s_addr));
+        }
+        return;
+    }
+}
+
 static QString getAdapterIp(QString interface)
 {
-    return Utils::execCmd(QString("ip -br -4 addr show %1 | grep UP | awk '{print $3}' | cut -d '/' -f 1").arg(interface)).trimmed();
+    QString ip;
+    int prefix = 0;
+    getAdapterIpAndPrefix(interface, ip, prefix);
+    return ip;
+}
+
+// Internal helper for getAdapterIpV6 (defined below). Not exported: the engine's only
+// v6 consumer is the AdapterGatewayInfo population path, which only needs the address
+// string — see getAdapterIpV6.
+static void getAdapterIpAndPrefixV6(const QString &interfaceName, QString &outIp, int &outPrefix)
+{
+    outIp.clear();
+    outPrefix = 0;
+
+    if (interfaceName.isEmpty()) {
+        return;
+    }
+
+    struct ifaddrs *ifaddr = nullptr;
+    if (getifaddrs(&ifaddr) == -1) {
+        return;
+    }
+
+    auto guard = qScopeGuard([&] { freeifaddrs(ifaddr); });
+
+    const QByteArray nameBytes = interfaceName.toUtf8();
+    for (struct ifaddrs *ifa = ifaddr; ifa != nullptr; ifa = ifa->ifa_next) {
+        if (ifa->ifa_addr == nullptr || ifa->ifa_addr->sa_family != AF_INET6) {
+            continue;
+        }
+        if (qstrcmp(ifa->ifa_name, nameBytes.constData()) != 0) {
+            continue;
+        }
+        if ((ifa->ifa_flags & (IFF_UP | IFF_RUNNING)) != (IFF_UP | IFF_RUNNING)) {
+            continue;
+        }
+
+        const sockaddr_in6 *addrIn = reinterpret_cast<const sockaddr_in6 *>(ifa->ifa_addr);
+        // Skip link-local (fe80::/10), loopback (::1), multicast, and unspecified — none of these
+        // is the "primary" global/ULA v6 address the engine wants to advertise to the helper.
+        if (IN6_IS_ADDR_LINKLOCAL(&addrIn->sin6_addr) ||
+            IN6_IS_ADDR_LOOPBACK(&addrIn->sin6_addr) ||
+            IN6_IS_ADDR_MULTICAST(&addrIn->sin6_addr) ||
+            IN6_IS_ADDR_UNSPECIFIED(&addrIn->sin6_addr)) {
+            continue;
+        }
+
+        char buf[INET6_ADDRSTRLEN] = {0};
+        if (inet_ntop(AF_INET6, &addrIn->sin6_addr, buf, sizeof(buf)) == nullptr) {
+            continue;
+        }
+        outIp = QString::fromLatin1(buf);
+
+        if (ifa->ifa_netmask != nullptr) {
+            const sockaddr_in6 *maskIn = reinterpret_cast<const sockaddr_in6 *>(ifa->ifa_netmask);
+            int prefix = 0;
+            for (int i = 0; i < 16; ++i) {
+                prefix += qPopulationCount(static_cast<quint8>(maskIn->sin6_addr.s6_addr[i]));
+            }
+            outPrefix = prefix;
+        }
+        return;
+    }
+}
+
+static QString getAdapterIpV6(const QString &interface)
+{
+    QString ip;
+    int prefix = 0;
+    getAdapterIpAndPrefixV6(interface, ip, prefix);
+    return ip;
 }
 
 void getDefaultRoute(QString &outGatewayIp, QString &outInterfaceName, QString &outAdapterIp, bool ignoreTun)
@@ -105,6 +218,107 @@ void getDefaultRoute(QString &outGatewayIp, QString &outInterfaceName, QString &
             outInterfaceName = entry.interface;
             outAdapterIp = getAdapterIp(entry.interface);
             outGatewayIp = entry.gateway;
+        }
+    }
+}
+
+// Convert 32 hex digits (no separators) — the form used by /proc/net/ipv6_route — into a textual
+// IPv6 address via inet_ntop. Returns an empty string on malformed input.
+static QString hexToIpV6String(const QString &hex32)
+{
+    if (hex32.length() != 32) {
+        return QString();
+    }
+    struct in6_addr addr;
+    memset(&addr, 0, sizeof(addr));
+    for (int i = 0; i < 16; ++i) {
+        bool ok = false;
+        const uint b = hex32.mid(i * 2, 2).toUInt(&ok, 16);
+        if (!ok) {
+            return QString();
+        }
+        addr.s6_addr[i] = static_cast<uint8_t>(b);
+    }
+    char buf[INET6_ADDRSTRLEN] = {0};
+    if (inet_ntop(AF_INET6, &addr, buf, sizeof(buf)) == nullptr) {
+        return QString();
+    }
+    return QString::fromLatin1(buf);
+}
+
+void getDefaultRouteV6(QString &outGatewayIp, QString &outInterfaceName, QString &outAdapterIp, bool ignoreTun)
+{
+    outInterfaceName.clear();
+    outGatewayIp.clear();
+    outAdapterIp.clear();
+
+    // /proc/net/ipv6_route line layout (space-separated, 16-byte address fields are 32 hex chars
+    // without colons):
+    //   dst dst_prefix src src_prefix nexthop metric refcnt usecnt flags ifname
+    // Flags come from include/uapi/linux/route.h (shared with v4); we care about:
+    //   RTF_UP      = 0x0001
+    //   RTF_GATEWAY = 0x0002
+    constexpr int kRtfUp = 0x0001;
+    constexpr int kRtfGateway = 0x0002;
+
+    FILE *f = fopen("/proc/net/ipv6_route", "r");
+    if (f == nullptr) {
+        // IPv6 may be disabled on the host (/proc/net/ipv6_route absent). Not an error.
+        return;
+    }
+    auto exitGuard = qScopeGuard([&] { fclose(f); });
+
+    uint32_t lowestMetric = UINT32_MAX;
+
+    char buf[1024];
+    while (fgets(buf, sizeof(buf), f) != nullptr) {
+        const QStringList split = QString::fromLatin1(buf).trimmed()
+                                  .split(QChar(' '), Qt::SkipEmptyParts);
+        if (split.size() < 10) {
+            continue;
+        }
+
+        const QString interface = split[9];
+        if (ignoreTun && (interface.startsWith("tun") || interface.startsWith("utun"))) {
+            continue;
+        }
+
+        bool ok = false;
+        const int prefixLength = split[1].toInt(&ok, 16);
+        if (!ok || prefixLength != 0) {
+            continue;
+        }
+        const QString destination = hexToIpV6String(split[0]);
+        if (destination.isEmpty() || destination != QStringLiteral("::")) {
+            continue;
+        }
+
+        // Kernel writes flags and metric as %08x — full 32-bit unsigned fields. Use
+        // toUInt to avoid silently rejecting values with the high bit set (toInt
+        // would treat them as out-of-range for int32_t). Real-world values stay
+        // well below 0x80000000, but the unsigned parse matches the source format.
+        const uint32_t flags = split[8].toUInt(&ok, 16);
+        if (!ok || (flags & (kRtfUp | kRtfGateway)) != (kRtfUp | kRtfGateway)) {
+            continue;
+        }
+
+        const QString gateway = hexToIpV6String(split[4]);
+        if (gateway.isEmpty() || gateway == QStringLiteral("::")) {
+            continue;
+        }
+
+        const uint32_t metric = split[5].toUInt(&ok, 16);
+        if (!ok) {
+            continue;
+        }
+
+        // Same rationale as the v4 default-route pick: pick lowest metric to avoid stale
+        // not-yet-connectivity-checked routes that NetworkManager bumps by +20000.
+        if (metric < lowestMetric) {
+            lowestMetric = metric;
+            outInterfaceName = interface;
+            outGatewayIp = gateway;
+            outAdapterIp = getAdapterIpV6(interface);
         }
     }
 }

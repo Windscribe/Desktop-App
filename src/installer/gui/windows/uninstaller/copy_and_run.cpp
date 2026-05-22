@@ -1,6 +1,5 @@
 #include "copy_and_run.h"
 
-#include <aclapi.h>
 #include <shlobj.h>
 #include <shlwapi.h>
 
@@ -10,110 +9,43 @@
 
 #include "remove_directory.h"
 #include "../utils/applicationinfo.h"
+#include "../utils/secure_dir.h"
 #include "../utils/utils.h"
 #include "wsscopeguard.h"
-
-static bool setFolderPermissions(const std::filesystem::path &folder)
-{
-    SECURITY_DESCRIPTOR sd;
-    ::ZeroMemory(&sd, sizeof(sd));
-
-    BOOL result = ::InitializeSecurityDescriptor(&sd, SECURITY_DESCRIPTOR_REVISION);
-    if (!result) {
-        spdlog::error(L"setFolderPermissions InitializeSecurityDescriptor failed: {}", ::GetLastError());
-        return false;
-    }
-
-    // Create a SID for the BUILTIN\Administrators group
-    SID_IDENTIFIER_AUTHORITY SIDAuthNT = SECURITY_NT_AUTHORITY;
-    PSID sidAdmin = NULL;
-    result = ::AllocateAndInitializeSid(&SIDAuthNT, 2, SECURITY_BUILTIN_DOMAIN_RID, DOMAIN_ALIAS_RID_ADMINS, 0, 0, 0, 0, 0, 0, &sidAdmin);
-    if (!result) {
-        spdlog::error(L"setFolderPermissions AllocateAndInitializeSid failed: {}", ::GetLastError());
-        return false;
-    }
-
-    PACL pACL = NULL;
-    auto exitGuard = wsl::wsScopeGuard([&] {
-        if (pACL) {
-            ::LocalFree(pACL);
-        }
-
-        if (sidAdmin) {
-            ::FreeSid(sidAdmin);
-        }
-    });
-
-    // Set up an EXPLICIT_ACCESS structure for the Administrators group.
-    EXPLICIT_ACCESS ea;
-    ::ZeroMemory(&ea, sizeof(ea));
-    ea.grfAccessPermissions = GENERIC_ALL;
-    ea.grfAccessMode = SET_ACCESS;
-    ea.grfInheritance = SUB_CONTAINERS_AND_OBJECTS_INHERIT;
-    ea.Trustee.TrusteeForm = TRUSTEE_IS_SID;
-    ea.Trustee.TrusteeType = TRUSTEE_IS_GROUP;
-    ea.Trustee.ptstrName = reinterpret_cast<LPTSTR>(sidAdmin);
-
-    // Create a new ACL with these permissions.
-    result = ::SetEntriesInAcl(1, &ea, NULL, &pACL);
-    if (result != ERROR_SUCCESS) {
-        spdlog::error(L"setFolderPermissions SetEntriesInAcl failed: {}", result);
-        return false;
-    }
-
-    result = ::SetSecurityDescriptorDacl(&sd, TRUE, pACL, FALSE);
-    if (!result) {
-        spdlog::error(L"setFolderPermissions SetSecurityDescriptorDacl failed: {}", ::GetLastError());
-        return false;
-    }
-
-    SECURITY_ATTRIBUTES sa;
-    ::ZeroMemory(&sa, sizeof(sa));
-    sa.nLength = sizeof(SECURITY_ATTRIBUTES);
-    sa.lpSecurityDescriptor = &sd;
-    sa.bInheritHandle = FALSE;
-
-    // Apply the security descriptor to the directory
-    result = ::SetFileSecurity(folder.c_str(), DACL_SECURITY_INFORMATION, &sd);
-    if (!result) {
-        spdlog::error(L"setFolderPermissions SetFileSecurity failed: {}", ::GetLastError());
-        return false;
-    }
-
-    return true;
-}
 
 unsigned long CopyAndRun::runFirstPhase(const std::wstring& uninstExeFile, const char *lpszCmdParam)
 {
     wchar_t *windowsPath = NULL;
+    auto memFree = wsl::wsScopeGuard([&] {
+        ::CoTaskMemFree(windowsPath);
+    });
+
     HRESULT hr = ::SHGetKnownFolderPath(FOLDERID_Windows, 0, NULL, &windowsPath);
     if (FAILED(hr)) {
         spdlog::error(L"SHGetKnownFolderPath failed to locate Windows directory: {}", HRESULT_CODE(hr));
         return MAXDWORD;
     }
 
-    srand(time(NULL));
-    std::filesystem::path tempUninstallerPath(windowsPath);
-    ::CoTaskMemFree(windowsPath);
-    tempUninstallerPath.append(L"Temp");
-    tempUninstallerPath.append(L"WindscribeUninstaller" + std::to_wstring(rand()));
-
-    std::error_code ec;
-    if (std::filesystem::exists(tempUninstallerPath, ec)) {
-        spdlog::error(L"The randomly selected temporary uninstall folder already exists.  This is highly unusual and may indicate"
-                      L" an attack on your system.  The uninstaller is aborting to protect the integrity of your system."
-                      L" The folder is: {}", tempUninstallerPath.c_str());
+    auto randomSuffix = wsl::generateRandomSuffix();
+    if (!randomSuffix) {
+        spdlog::error(L"Failed to generate secure random suffix for uninstaller directory.");
         return MAXDWORD;
-    } else if (ec) {
-        spdlog::warn("Windscribe uninstaller failed to check if temp uninstall folder exists ({})", ec.message());
     }
 
-    // Create the target directory and set its permissions to restrict access to only members of the
-    // built-in Administrators group.
+    std::filesystem::path tempUninstallerPath(windowsPath);
+    tempUninstallerPath.append(L"Temp");
+    tempUninstallerPath.append(L"WindscribeUninstaller" + *randomSuffix);
+
+    // Atomically create the uninstaller temp directory with a DACL granting access to Administrators
+    // and SYSTEM only, so there is no window in which a lower-privileged process can place files
+    // (including DLLs that the spawned uninstaller might load from its working directory) inside it.
     spdlog::info(L"Creating temporary uninstaller directory '{}'", tempUninstallerPath.c_str());
-    std::filesystem::create_directories(tempUninstallerPath, ec);
-    if (ec) {
-        spdlog::error("Failed to create the temporary uninstaller directory: {}", ec.message());
+    auto logFn = [](const std::wstring &msg) {
+        spdlog::error(L"{}", msg);
+    };
+    DWORD createErr = wsl::createAdminOnlyDirectory(tempUninstallerPath, logFn);
+    if (createErr != ERROR_SUCCESS) {
+        spdlog::error(L"Failed to create uninstaller directory '{}' ({})", tempUninstallerPath.c_str(), createErr);
         return MAXDWORD;
     }
 
@@ -122,10 +54,6 @@ unsigned long CopyAndRun::runFirstPhase(const std::wstring& uninstExeFile, const
             RemoveDir::DelTree(tempUninstallerPath.c_str(), true, true, true, false);
         }
     });
-
-    if (!setFolderPermissions(tempUninstallerPath)) {
-        return MAXDWORD;
-    }
 
     std::filesystem::path tempUninstaller(tempUninstallerPath);
     tempUninstaller.append(ApplicationInfo::uninstaller());

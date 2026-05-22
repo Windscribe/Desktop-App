@@ -618,26 +618,6 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
         <translation>选择自定义配置文件夹</translation>
     </message>
     <message>
-        <source>Cannot select this directory because it is writeable for non-privileged users. Custom configs in this directory may pose a potential security risk. Please authenticate with an admin user to select this directory.</source>
-        <translation>无法选择此目录，因为它对非管理员用户是可写的。此目录中的自定义配置可能会带来潜在的安全风险。请选择仅允许管理员用户编辑的目录。</translation>
-    </message>
-    <message>
-        <source>Can&apos;t select directory</source>
-        <translation>无法选择目录</translation>
-    </message>
-    <message>
-        <source>The application is corrupted.  Please reinstall Windscribe.</source>
-        <translation>应用程序已损坏，请重新安装 Windscribe。</translation>
-    </message>
-    <message>
-        <source>Validation Error</source>
-        <translation>验证错误</translation>
-    </message>
-    <message>
-        <source>The selected directory is writeable for non-privileged users. Custom configs in this directory may pose a potential security risk.</source>
-        <translation>所选目录对非管理员用户是可写的。此目录中的自定义配置可能会带来潜在的安全风险。</translation>
-    </message>
-    <message>
         <source>Security Risk</source>
         <translation>安全风险</translation>
     </message>
@@ -678,6 +658,26 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
         <translation>断开</translation>
     </message>
     <message>
+        <source>The selected directory is writeable for other users. Custom configs in this directory may pose a potential security risk.</source>
+        <translation>所选目录可写入其他用户。该目录中的自定义配置可能构成潜在的安全风险。</translation>
+    </message>
+    <message>
+        <source>Proxy Gateway is unauthenticated</source>
+        <translation>代理网关未认证</translation>
+    </message>
+    <message>
+        <source>Your Proxy Gateway is enabled without authentication. Anyone on your local network, including untrusted networks like coffee-shop Wi-Fi, can route their traffic through your VPN. We strongly recommend setting credentials.</source>
+        <translation>你的代理网关在没有身份验证的情况下被启用。你本地网络上的任何人，包括像咖啡店Wi-Fi这样不受信任的网络，都可以通过你的VPN路由流量。我们强烈建议设置凭证。</translation>
+    </message>
+    <message>
+        <source>Go to Preferences</source>
+        <translation>前往偏好设置</translation>
+    </message>
+    <message>
+        <source>Later</source>
+        <translation>后续</translation>
+    </message>
+    <message>
         <source>Connected to </source>
         <translation>已连接到</translation>
     </message>
@@ -690,6 +690,18 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
 %1 transferred in %2</source>
         <translation>与 Windscribe 的连接已终止。
 %1 在 %2 中转移</translation>
+    </message>
+    <message>
+        <source>Could not start Proxy Gateway</source>
+        <translation>无法启动代理网关</translation>
+    </message>
+    <message>
+        <source>The configured port is in use. Please try a different port.</source>
+        <translation>配置好的端口正在使用中。请试试换个端口。</translation>
+    </message>
+    <message>
+        <source>An unknown error occurred.</source>
+        <translation>发生了一个未知的错误。</translation>
     </message>
     <message>
         <source>Network Settings Interference</source>
@@ -924,14 +936,6 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>  If you are on a restrictive network, please connect the VPN before trying the download again.</source>
         <translation>如果您使用的是受限网络，请先连接 VPN，然后再次尝试下载。</translation>
-    </message>
-    <message>
-        <source>Custom Config Directory Import</source>
-        <translation>导入自定义配置目录</translation>
-    </message>
-    <message>
-        <source>A custom config directory is being imported.  Windscribe will prompt for your admin password to check for correct permissions.</source>
-        <translation>正在导入自定义配置目录。Windscribe 将提示您输入管理员密码以验证权限是否正确。</translation>
     </message>
     <message>
         <source>Your &quot;Connected DNS&quot; server is set to an OS default DNS server, which would result in a DNS leak.  It has been changed to Auto.</source>
@@ -1443,6 +1447,14 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>连接模式</translation>
     </message>
     <message>
+        <source>Configure egress IP stack for VPN connections.</source>
+        <translation>配置VPN连接的出口IP栈。</translation>
+    </message>
+    <message>
+        <source>IP Stack</source>
+        <translation>IP协议栈</translation>
+    </message>
+    <message>
         <source>Select the DNS server while connected to Windscribe.</source>
         <translation>在连接到 Windscribe 时选择的 DNS 服务器。</translation>
     </message>
@@ -1517,6 +1529,13 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Anti-censorship Settings</source>
         <translation>反审查设定</translation>
+    </message>
+</context>
+<context>
+    <name>PreferencesWindow::CopyableTextItem</name>
+    <message>
+        <source>Copied</source>
+        <translation>已复制</translation>
     </message>
 </context>
 <context>
@@ -2106,31 +2125,36 @@ Connect to a network first</source>
         <translation>港口</translation>
     </message>
     <message>
-        <source>Unable to start proxy server</source>
-        <translation>无法启动代理服务器</translation>
+        <source>Require Authentication</source>
+        <translation>要求认证</translation>
     </message>
     <message>
-        <source>The proxy server couldn&apos;t be started on the requested port. Please try again with a different port.</source>
-        <translation>无法在请求的端口上启动代理服务器。请使用其他端口重试。</translation>
+        <source>Without authentication, anyone on your network (e.g. coffee shop Wi-Fi) can use this proxy. Leave this on unless you know what you&apos;re doing.</source>
+        <translation>没有身份验证，网络上的任何人（例如咖啡店的Wi-Fi）都可以使用这个代理。除非你知道自己在做什么，否则先开着这个。</translation>
+    </message>
+    <message>
+        <source>IP</source>
+        <translation>IP</translation>
+    </message>
+    <message>
+        <source>Username</source>
+        <translation>用户名</translation>
+    </message>
+    <message>
+        <source>Password</source>
+        <translation>密码</translation>
     </message>
     <message>
         <source>Auto</source>
         <translation>自动</translation>
     </message>
     <message>
+        <source>Unavailable</source>
+        <translation>不可用</translation>
+    </message>
+    <message>
         <source>Only when VPN is connected</source>
         <translation>仅当已连接 VPN 时</translation>
-    </message>
-</context>
-<context>
-    <name>PreferencesWindow::ProxyIpAddressItem</name>
-    <message>
-        <source>IP</source>
-        <translation>IP</translation>
-    </message>
-    <message>
-        <source>Copied</source>
-        <translation>已复制</translation>
     </message>
 </context>
 <context>
@@ -2573,6 +2597,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Van Gogh</source>
         <translation>Van Gogh</translation>
+    </message>
+    <message>
+        <source>IPv4 Only</source>
+        <translation>仅支持 IPv4</translation>
     </message>
     <message>
         <source>Enabled</source>

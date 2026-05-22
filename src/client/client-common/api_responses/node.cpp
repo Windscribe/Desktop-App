@@ -12,6 +12,7 @@ void Node::initFromWsnet(const wsnet::ServerNode &src)
                 QString::fromStdString(src.ip3) };
     d->host_ = QString::fromStdString(src.host);
     d->weight_   = src.weight;
+    d->ipv6_ = (src.ipv6 != 0);
     d->isValid_  = true;
 }
 
@@ -35,11 +36,17 @@ int Node::getWeight() const
     return d->weight_;
 }
 
+bool Node::isIpv6Support() const
+{
+    return d->ipv6_;
+}
+
 bool Node::operator==(const Node &other) const
 {
     return d->ips_ == other.d->ips_ &&
            d->host_ == other.d->host_ &&
            d->weight_ == other.d->weight_ &&
+           d->ipv6_ == other.d->ipv6_ &&
            d->isValid_ == other.d->isValid_;
 }
 

@@ -5,6 +5,11 @@
 
 namespace Utils
 {
+    // Root-owned location where installerStageAndVerify drops the verified installer.app
+    // and where installerCleanupStaged / deleteSelf wipe it from. Hoisted into a shared
+    // constant so a branding rename touches one site instead of three.
+    inline constexpr const char *kInstallerStageDir = "/Library/Application Support/Windscribe/update";
+
     // execute cmd with args and return output from stdout and stderror to pOutputStr (if pOutputStr != NULL)
     int executeCommand(const std::string &cmd,
                        const std::vector<std::string> &args = std::vector<std::string>(),
@@ -16,9 +21,9 @@ namespace Utils
 
     bool isFileExists(const std::string &name);
 
-    // combine exe path, exe, and arguments
-    std::string getFullCommand(const std::string &exePath, const std::string &executable, const std::string &arguments);
-    std::string getFullCommandAsUser(const std::string &user, const std::string &exePath, const std::string &executable, const std::string &arguments);
+    // Canonicalize exePath and append `executable`, validating the result lives inside the
+    // app bundle. Returns true on success and writes the absolute path to outPath.
+    bool resolveExePath(const std::string &exePath, const std::string &executable, std::string &outPath);
 
     // get list of openvpn exe names from package
     std::vector<std::string> getOpenVpnExeNames();
@@ -36,17 +41,6 @@ namespace Utils
 
     // get root path for app utils
     std::string getExePath();
-
-    // check if a string is a valid address
-    std::string normalizeAddress(const std::string &address);
-    bool isValidIpAddress(const std::string &address);
-    bool isValidDomain(const std::string &address);
-
-    // check if a string is a valid network interface name
-    bool isValidInterfaceName(const std::string &interfaceName);
-
-    // check if a string is a valid MAC address
-    bool isValidMacAddress(const std::string &macAddress);
 
     // check if a string is a canonical SCDynamicStore DNS entry of the form
     // (State|Setup):/Network/Service/<id>/DNS, where <id> is alphanumeric/._-

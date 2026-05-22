@@ -24,7 +24,12 @@ private:
     bool isSplitTunnelActive_;
     bool isExcludeMode_;
 
+    // Two BoundRoute instances — one per family — so dual-stack tunnels can pin v4 and v6
+    // default-route overrides independently. The v6 one stays dormant on connections that
+    // don't fill connectStatus.vpnAdapter.gatewayIpV6 (everything except a future v6-capable
+    // OpenVPN config; WG handles v6 default-route bypass inside WireGuardAdapter).
     BoundRoute boundRoute_;
+    BoundRoute boundRouteV6_;
     Routes dnsServersRoutes_;
     Routes vpnRoutes_;
     Routes lanMulticastRoutes_;

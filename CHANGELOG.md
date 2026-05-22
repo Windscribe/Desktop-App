@@ -1,7 +1,67 @@
-2.22.10 (21/05/2026)
+2.23.4 (21/05/2026)
 All:
-   * Fixed application blocked by TLS fingerprinting in Russia. #1822
-   * Fixed AmneziaWG custom configs with valid H1-H4 ranges rejected by the security validator. #1823
+   * Added IPv6 connection modes for WireGuard locations that support IPv6. #1687
+   * Improved dependency build tooling security by using safe YAML config loading. #1809
+   * Improved OpenVPN custom config filtering for connection blocks and unsafe custom config paths. #1810
+   * Improved connection manager connector internals for maintainability without changing connection behavior. #1813
+   * Fixed VPN sharing proxy relay buffering that could duplicate queued socket data or grow memory usage with slow peers. #1819
+   * Updated Qt to 6.11.1. #1825
+Windows:
+   * Fixed helper IPC frame parsing to reject malformed or oversized messages safely. #1812
+   * Fixed possible local privilege escalation in the bootstrapper temporary extraction flow. #1816
+   * Fixed possible local privilege escalation in the auto-updater signature verification and launch flow. #1817
+macOS:
+   * Fixed possible local privilege escalation in the auto-updater signature verification and launch flow. #1817
+Linux:
+   * Added OpenVPN DCO support when the ovpn-dco-v2 module is available. #1814
+   * Fixed helper IPC frame parsing to reject malformed or oversized messages safely. #1812
+   * Fixed exported preferences not preserving the DNS Manager option. #1821
+
+
+2.23.3 (13/05/2026)
+All:
+   * Improved validation for settings. #1793
+   * Fixed some OpenVPN custom configs being rejected. #1719
+   * Fixed HTTP Proxy Gateway forwarding proxy authentication credentials to destination websites. #1805
+   * Fixed a possible crash when downgrading from 2.23.2 to an older version. #1806
+macOS:
+   * Improved helper file handling and permissions. #1799
+   * Improved helper reliability when reporting system errors. #1808
+Linux:
+   * Improved helper file handling and permissions. #1799
+   * Improved helper reliability when reporting system errors. #1808
+   * Fixed migration of legacy Flatpak split tunneling entries so existing rules continue to work. #1789
+
+
+2.23.2 (08/05/2026)
+macOS:
+   * Fixed path validation logic error introduced by last minute change in 2.23.1. #1793
+Linux:
+   * Fixed path validation logic error introduced by last minute change in 2.23.1. #1793
+
+
+2.23.1 (08/05/2026)
+All:
+   * Improved OpenVPN anti-censorship support by replacing the custom junk packet implementation with Amnezia-compatible Junk and I packet options. #1732
+   * Improved Proxy Gateway security by blocking proxied connections to localhost, LAN, and link-local destinations, and adding authentication for shared proxy access. #1779
+   * Improved custom config directory security checks to run without elevation and correctly detect directories writable by other users. #1771
+   * Improved JSON/INI import consistency for proxy sharing and MAC spoofing settings. #1795
+   * Fixed auth token parse failures logging the raw API response, which could expose session token data in debug logs. #1798
+   * Fixed HTTP Proxy Gateway request parsing allowing unbounded pre-authentication input before authentication challenge. #1801
+   * Updated OpenVPN to 2.7 with handling for management output changes, Windows DCO/TAP behavior, and Stealth/WStunnel disconnect behavior. #1719
+   * Updated OpenSSL to 4.0. #1754
+   * Updated bundled wstunnel binaries to the latest available release. #1791
+Windows:
+   * Improved Windows installer handling when the Base Filtering Engine service is stopped, unavailable, or blocked by security software. #1750
+   * Updated WireGuard for Windows to the latest 1.0 release. #1767
+macOS:
+   * Fixed generated OpenVPN config files and runtime directories using overly broad permissions that could expose VPN key material to local users. #1799
+   * Fixed stunnel/wstunnel relay listeners binding to all interfaces instead of loopback only. #1800
+Linux:
+   * Added public IP address to `windscribe-cli status` output, including split tunnel mode. #1773
+   * Improved Flatpak app split tunneling by matching Flatpak app IDs instead of relying only on executable/command name matching. #1789
+   * Fixed generated OpenVPN config files and runtime directories using overly broad permissions that could expose VPN key material to local users. #1799
+   * Fixed stunnel/wstunnel relay listeners binding to all interfaces instead of loopback only. #1800
 
 
 2.22.9 (06/05/2026)

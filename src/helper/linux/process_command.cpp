@@ -6,15 +6,14 @@
 #include <stdlib.h>
 #include <spdlog/spdlog.h>
 #include "clear_wifi_history/clear_wifi_history.h"
-#include "execute_cmd.h"
 #include "firewallcontroller.h"
 #include "firewallonboot.h"
 #include "ovpn.h"
 #include "split_tunneling/split_tunneling.h"
 #include "utils.h"
 #include "wireguard/wireguardcontroller.h"
-#include "../common/ip_validation.h"
-#include "../common/shellquote.h"
+#include "../common/spawn_posix.h"
+#include "../common/validation_posix.h"
 
 std::string processCommand(HelperCommand cmdId, const std::string &pars)
 {
@@ -38,7 +37,7 @@ std::string setSplitTunnelingSettings(const std::string &pars)
     deserializePars(pars, isActive, isExclude, isAllowLanTraffic, files, ips, hosts);
 
     for (const auto &ip : ips) {
-        if (!IpValidation::isValidIpCidr(ip)) {
+        if (!Validation::isValidIpCidr(ip)) {
             spdlog::error("setSplitTunnelingSettings: invalid IP \"{}\", rejecting", ip);
             return std::string();
         }
@@ -53,25 +52,19 @@ std::string sendConnectStatus(const std::string &pars)
     ConnectStatus cs;
     deserializePars(pars, cs.isConnected, cs.protocol, cs.defaultAdapter, cs.vpnAdapter, cs.connectedIp, cs.remoteIp);
 
-    auto checkIp = [](const std::string &ip, const char *label) {
-        if (!ip.empty() && !IpValidation::isValidIpAddress(ip)) {
-            spdlog::error("sendConnectStatus: invalid {} \"{}\", rejecting", label, ip);
-            return false;
-        }
-        return true;
-    };
+    // IP fields are types::IpAddress; deserialization already yields either a valid address
+    // or one with valid_ == false. Downstream code handles invalid addresses gracefully,
+    // so no explicit IP validation is needed here. Interface-name validation is still
+    // required to guard against shell injection in code paths that pass adapter names
+    // to shell commands.
     auto checkIface = [](const std::string &name, const char *label) {
-        if (!name.empty() && !Utils::isValidInterfaceName(name)) {
+        if (!name.empty() && !Validation::isValidInterfaceName(name)) {
             spdlog::error("sendConnectStatus: invalid {} \"{}\", rejecting", label, name);
             return false;
         }
         return true;
     };
-    if (!checkIp(cs.remoteIp, "remoteIp") ||
-        !checkIp(cs.defaultAdapter.gatewayIp, "defaultAdapter.gatewayIp") ||
-        !checkIp(cs.vpnAdapter.gatewayIp, "vpnAdapter.gatewayIp") ||
-        !checkIp(cs.vpnAdapter.adapterIp, "vpnAdapter.adapterIp") ||
-        !checkIface(cs.defaultAdapter.adapterName, "defaultAdapter.adapterName") ||
+    if (!checkIface(cs.defaultAdapter.adapterName, "defaultAdapter.adapterName") ||
         !checkIface(cs.vpnAdapter.adapterName, "vpnAdapter.adapterName")) {
         return serializeResult(false);
     }
@@ -86,7 +79,7 @@ std::string changeMtu(const std::string &pars)
     int mtu;
     deserializePars(pars, adapterName, mtu);
 
-    if (!Utils::isValidInterfaceName(adapterName)) {
+    if (!Validation::isValidInterfaceName(adapterName)) {
         spdlog::error("Invalid interface name: {}", adapterName);
         return std::string();
     }
@@ -122,15 +115,25 @@ std::string executeOpenVPN(const std::string &pars)
         return serializeResult(false);
     }
 
-    std::string fullCmd = Utils::getFullCommand(Utils::getExePath(), WS_PRODUCT_NAME_LOWER "openvpn", "--config " WS_POSIX_RUN_DIR "/config.ovpn");
-    if (fullCmd.empty()) {
-        // Something wrong with the command
+    std::string ovpnPath;
+    if (!Utils::resolveExePath(Utils::getExePath(), WS_PRODUCT_NAME_LOWER "openvpn", ovpnPath)) {
         return serializeResult(false);
     }
 
-    setenv("OPENSSL_CONF", "/dev/null", 1);
-    ExecuteCmd::instance().execute(fullCmd, WS_LINUX_INSTALL_DIR);
-    return serializeResult(true);
+    Spawn::Options opts;
+    opts.extraEnv = {{"OPENSSL_CONF", "/dev/null"}};
+    opts.cwd = WS_LINUX_INSTALL_DIR;
+    std::vector<std::string> args = {"--mark", "20310", "--config", WS_LINUX_RUN_DIR "/config.ovpn"};
+    return serializeResult(Spawn::spawnDetached(ovpnPath, args, opts));
+}
+
+std::string setOpenVpnDcoMode(const std::string &pars)
+{
+    bool useDco;
+    deserializePars(pars, useDco);
+    OVPN::setUseDco(useDco);
+    spdlog::info("OpenVPN DCO mode: {}", useDco);
+    return std::string();
 }
 
 std::string executeTaskKill(const std::string &pars)
@@ -152,6 +155,7 @@ std::string executeTaskKill(const std::string &pars)
         for (const auto &exe : exes) {
             Utils::executeCommand("pkill", {"-f", exe.c_str()});
         }
+        OVPN::setUseDco(true);
         success = true;
     } else if (target == kTargetStunnel) {
         spdlog::info("Killing Stunnel processes");
@@ -210,7 +214,7 @@ std::string configureWireGuard(const std::string &pars)
                 break;
             }
 
-            if (!IpValidation::validateWireGuardConfig(clientIpAddress, clientDnsAddressList, allowed_ips_vector, peerEndpoint)) {
+            if (!Validation::validateWireGuardConfig(clientIpAddress, clientDnsAddressList, allowed_ips_vector, peerEndpoint)) {
                 spdlog::error("WireGuard: IP validation failed, rejecting config");
                 break;
             }
@@ -267,46 +271,42 @@ std::string startCtrld(const std::string &pars)
     spdlog::debug("Starting ctrld");
 
     // Validate URLs
-    if (upstream1.empty() || Utils::normalizeAddress(upstream1).empty() || (!upstream2.empty() && Utils::normalizeAddress(upstream2).empty())) {
+    if (upstream1.empty() || Validation::normalizeAddress(upstream1).empty() || (!upstream2.empty() && Validation::normalizeAddress(upstream2).empty())) {
         spdlog::error("Invalid upstream URL(s)");
         return serializeResult(false);
     }
     for (const auto &domain: domains) {
-        if (!Utils::isValidDomain(domain)) {
+        if (!Validation::isValidDomain(domain)) {
             spdlog::error("Invalid domain: {}", domain);
             return serializeResult(false);
         }
     }
 
-    std::stringstream arguments;
-    arguments << "run";
-    arguments << " --daemon";
-    arguments << " --listen=127.0.0.1:53";
-    arguments << " --primary_upstream=" + ShellQuote::quote(upstream1);
-    if (!upstream2.empty()) {
-        arguments << " --secondary_upstream=" + ShellQuote::quote(upstream2);
-        if (!domains.empty()) {
-            std::stringstream domainsStream;
-            std::copy(domains.begin(), domains.end(), std::ostream_iterator<std::string>(domainsStream, ","));
-
-            std::string domainsStr = domainsStream.str();
-            domainsStr.erase(domainsStr.length() - 1); // remove last comma
-
-            arguments << " --domains=" + ShellQuote::quote(domainsStr);
-        }
-    }
-    if (isCreateLog) {
-        arguments << " --log " WS_LINUX_LOG_DIR "/ctrld.log";
-        arguments << " -vv";
-    }
-
-    std::string fullCmd = Utils::getFullCommand(Utils::getExePath(), WS_PRODUCT_NAME_LOWER "ctrld", arguments.str());
-    if (fullCmd.empty()) {
-        // Something wrong with the command
+    std::string ctrldPath;
+    if (!Utils::resolveExePath(Utils::getExePath(), WS_PRODUCT_NAME_LOWER "ctrld", ctrldPath)) {
         return serializeResult(false);
     }
 
-    bool executed = Utils::executeCommand(fullCmd) == 0;
+    std::vector<std::string> args = {"run", "--daemon", "--listen=127.0.0.1:53",
+                                     "--primary_upstream=" + upstream1};
+    if (!upstream2.empty()) {
+        args.push_back("--secondary_upstream=" + upstream2);
+        if (!domains.empty()) {
+            std::string domainsStr;
+            for (size_t i = 0; i < domains.size(); ++i) {
+                if (i > 0) domainsStr += ",";
+                domainsStr += domains[i];
+            }
+            args.push_back("--domains=" + domainsStr);
+        }
+    }
+    if (isCreateLog) {
+        args.push_back("--log");
+        args.push_back(WS_LINUX_LOG_DIR "/ctrld.log");
+        args.push_back("-vv");
+    }
+
+    bool executed = Utils::executeCommand(ctrldPath, args) == 0;
     return serializeResult(executed);
 }
 
@@ -366,27 +366,29 @@ std::string startStunnel(const std::string &pars)
 
     spdlog::debug("Starting stunnel");
 
-    if (!Utils::isValidIpAddress(hostname)) {
+    if (!Validation::isValidIpv4Address(hostname)) {
         return serializeResult(false);
     }
 
-    std::stringstream arguments;
-    arguments << "--listenAddress :" << localPort;
-    arguments << " --remoteAddress https://" << hostname << ":" << port;
-    arguments << " --logFilePath \"\"";
+    std::string wstunnelPath;
+    if (!Utils::resolveExePath(Utils::getExePath(), WS_PRODUCT_NAME_LOWER "wstunnel", wstunnelPath)) {
+        return serializeResult(false);
+    }
+
+    std::vector<std::string> args = {
+        "--listenAddress", "127.0.0.1:" + std::to_string(localPort),
+        "--remoteAddress", "https://" + hostname + ":" + std::to_string(port),
+        "--logFilePath", "",
+    };
     if (extraPadding) {
-        arguments << " --extraTlsPadding";
+        args.push_back("--extraTlsPadding");
     }
-    arguments << " --tunnelType 2";
-    //arguments << " --dev"; // enables verbose logging when necessary
-    std::string fullCmd = Utils::getFullCommandAsUser(WS_PRODUCT_NAME_LOWER, Utils::getExePath(), WS_PRODUCT_NAME_LOWER "wstunnel", arguments.str());
-    if (fullCmd.empty()) {
-        // Something wrong with the command
-        return serializeResult(false);
-    }
+    args.push_back("--tunnelType");
+    args.push_back("2");
 
-    ExecuteCmd::instance().execute(fullCmd);
-    return serializeResult(true);
+    Spawn::Options opts;
+    opts.runAsUser = WS_PRODUCT_NAME_LOWER;
+    return serializeResult(Spawn::spawnDetached(wstunnelPath, args, opts));
 }
 
 std::string startWstunnel(const std::string &pars)
@@ -397,23 +399,24 @@ std::string startWstunnel(const std::string &pars)
 
     spdlog::debug("Starting wstunnel");
 
-    if (!Utils::isValidIpAddress(hostname)) {
+    if (!Validation::isValidIpv4Address(hostname)) {
         return serializeResult(false);
     }
 
-    std::stringstream arguments;
-    arguments << "--listenAddress :" << localPort;
-    arguments << " --remoteAddress wss://" << hostname << ":" << port << "/tcp/127.0.0.1/1194";
-    arguments << " --logFilePath \"\"";
-    //arguments << " --dev"; // enables verbose logging when necessary
-    std::string fullCmd = Utils::getFullCommandAsUser(WS_PRODUCT_NAME_LOWER, Utils::getExePath(), WS_PRODUCT_NAME_LOWER "wstunnel", arguments.str());
-    if (fullCmd.empty()) {
-        // Something wrong with the command
+    std::string wstunnelPath;
+    if (!Utils::resolveExePath(Utils::getExePath(), WS_PRODUCT_NAME_LOWER "wstunnel", wstunnelPath)) {
         return serializeResult(false);
     }
 
-    ExecuteCmd::instance().execute(fullCmd);
-    return serializeResult(true);
+    std::vector<std::string> args = {
+        "--listenAddress", "127.0.0.1:" + std::to_string(localPort),
+        "--remoteAddress", "wss://" + hostname + ":" + std::to_string(port) + "/tcp/127.0.0.1/1194",
+        "--logFilePath", "",
+    };
+
+    Spawn::Options opts;
+    opts.runAsUser = WS_PRODUCT_NAME_LOWER;
+    return serializeResult(Spawn::spawnDetached(wstunnelPath, args, opts));
 }
 
 std::string setMacAddress(const std::string &pars)
@@ -422,12 +425,12 @@ std::string setMacAddress(const std::string &pars)
     bool isWifi;
     deserializePars(pars, interface, macAddress, network, isWifi);
 
-    if (!Utils::isValidInterfaceName(interface)) {
+    if (!Validation::isValidInterfaceName(interface)) {
         spdlog::error("Invalid interface name: {}", interface);
         return serializeResult(false);
     }
 
-    if (!Utils::isValidMacAddress(macAddress)) {
+    if (!Validation::isValidMacAddress(macAddress)) {
         spdlog::error("Invalid MAC address: {}", macAddress);
         return serializeResult(false);
     }

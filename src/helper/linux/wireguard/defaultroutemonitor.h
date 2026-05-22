@@ -3,6 +3,7 @@
 #include <atomic>
 #include <string>
 #include <thread>
+#include <vector>
 
 class DefaultRouteMonitor final
 {
@@ -16,7 +17,7 @@ public:
     bool isActive() const { return !doStopThread_; }
 
 private:
-    bool executeCommandWithLogging(const std::string &command) const;
+    bool executeCommandWithLogging(const std::string &program, const std::vector<std::string> &args) const;
     std::string getDefaultGateway() const;
     bool setEndpointDirectRoute();
     void unsetEndpointDirectRoute();

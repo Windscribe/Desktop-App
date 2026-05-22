@@ -1,52 +1,38 @@
 #include "ip_forward_table.h"
 
-IpForwardTable::IpForwardTable(): maxMetric_(0)
+#include <spdlog/spdlog.h>
+
+IpForwardTable::IpForwardTable() : pIpForwardTable_(nullptr), maxMetric_(0)
 {
-    ULONG ulSize = sizeof(MIB_IPFORWARDROW) * 32;
-    ipForwardVector_.resize(ulSize);
-
-    DWORD dwStatus = 0;
-    dwStatus = GetIpForwardTable((MIB_IPFORWARDTABLE *)&ipForwardVector_[0], &ulSize, FALSE);
-
-    if (dwStatus == ERROR_INSUFFICIENT_BUFFER)
-    {
-        ipForwardVector_.resize(ulSize);
-        dwStatus = GetIpForwardTable((MIB_IPFORWARDTABLE *)&ipForwardVector_[0], &ulSize, FALSE);
+    DWORD dwStatus = GetIpForwardTable2(AF_UNSPEC, &pIpForwardTable_);
+    if (dwStatus != NO_ERROR) {
+        spdlog::error("IpForwardTable: GetIpForwardTable2 failed with error: {}", dwStatus);
+        pIpForwardTable_ = nullptr;
+        return;
     }
 
-    if (dwStatus != ERROR_SUCCESS)
-    {
-        ipForwardVector_.clear();
-        pIpForwardTable = nullptr;
-    }
-    else
-    {
-        pIpForwardTable = (MIB_IPFORWARDTABLE *)&ipForwardVector_[0];
-
-        for (DWORD ind = 0; ind < pIpForwardTable->dwNumEntries; ++ind)
-        {
-            if (pIpForwardTable->table[ind].dwForwardMetric1 > maxMetric_)
-            {
-                maxMetric_ = pIpForwardTable->table[ind].dwForwardMetric1;
-            }
-        }
+    for (ULONG i = 0; i < pIpForwardTable_->NumEntries; ++i) {
+        if (pIpForwardTable_->Table[i].Metric > maxMetric_)
+            maxMetric_ = pIpForwardTable_->Table[i].Metric;
     }
 }
 
-DWORD IpForwardTable::count() const
+IpForwardTable::~IpForwardTable()
 {
-    if (pIpForwardTable)
-    {
-        return pIpForwardTable->dwNumEntries;
+    if (pIpForwardTable_) {
+        FreeMibTable(pIpForwardTable_);
+        pIpForwardTable_ = nullptr;
     }
-    return 0;
 }
 
-const MIB_IPFORWARDROW *IpForwardTable::getByIndex(DWORD ind) const
+ULONG IpForwardTable::count() const
 {
-    if (pIpForwardTable && ind >= 0 && ind < pIpForwardTable->dwNumEntries)
-    {
-        return &pIpForwardTable->table[ind];
-    }
+    return pIpForwardTable_ ? pIpForwardTable_->NumEntries : 0;
+}
+
+const MIB_IPFORWARD_ROW2 *IpForwardTable::getByIndex(ULONG ind) const
+{
+    if (pIpForwardTable_ && ind < pIpForwardTable_->NumEntries)
+        return &pIpForwardTable_->Table[ind];
     return nullptr;
 }

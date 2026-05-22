@@ -618,14 +618,6 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
         <translation>Выберите папку пользовательской конфигурации</translation>
     </message>
     <message>
-        <source>Cannot select this directory because it is writeable for non-privileged users. Custom configs in this directory may pose a potential security risk. Please authenticate with an admin user to select this directory.</source>
-        <translation>Не удается выбрать этот каталог, так как он доступен на запись для непривилегированных пользователей. Пользовательские конфигурации в этом каталоге могут представлять потенциальную угрозу безопасности. Пожалуйста, аутентифицируйтесь под администратором для выбора этого каталога.</translation>
-    </message>
-    <message>
-        <source>The application is corrupted.  Please reinstall Windscribe.</source>
-        <translation>Приложение повреждено.  Пожалуйста, переустановите Windscribe.</translation>
-    </message>
-    <message>
         <source>Could not start &apos;Base Filtering Engine&apos; service.  Please enable this service manually in Windows Services.</source>
         <translation>Не удалось запустить службу &apos;Base Filtering Engine&apos;. Включите эту службу вручную в службах Windows.</translation>
     </message>
@@ -662,18 +654,6 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
         <translation>При установке VPN-подключения произошла непредвиденная ошибка (ошибка %1).  Если ошибка повторяется, попробуйте использовать другой протокол или обратитесь в службу поддержки.</translation>
     </message>
     <message>
-        <source>Can&apos;t select directory</source>
-        <translation>Не удается выбрать каталог</translation>
-    </message>
-    <message>
-        <source>Validation Error</source>
-        <translation>Ошибка валидации</translation>
-    </message>
-    <message>
-        <source>The selected directory is writeable for non-privileged users. Custom configs in this directory may pose a potential security risk.</source>
-        <translation>Выбранный каталог доступен на запись для непривилегированных пользователей. Пользовательские конфигурации в этом каталоге могут представлять потенциальную угрозу безопасности.</translation>
-    </message>
-    <message>
         <source>Security Risk</source>
         <translation>Угроза безопасности</translation>
     </message>
@@ -706,6 +686,26 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
         <translation>Отключено</translation>
     </message>
     <message>
+        <source>The selected directory is writeable for other users. Custom configs in this directory may pose a potential security risk.</source>
+        <translation>Выбранный каталог можно писать для других пользователей. Пользовательские конфигурации в этом каталоге могут представлять потенциальную угрозу безопасности.</translation>
+    </message>
+    <message>
+        <source>Proxy Gateway is unauthenticated</source>
+        <translation>Прокси-шлюз не аутентифицирован</translation>
+    </message>
+    <message>
+        <source>Your Proxy Gateway is enabled without authentication. Anyone on your local network, including untrusted networks like coffee-shop Wi-Fi, can route their traffic through your VPN. We strongly recommend setting credentials.</source>
+        <translation>Ваш прокси-шлюз активирован без аутентификации. Любой человек в вашей локальной сети, включая ненадёжные сети, такие как Wi-Fi в кофейнях, может направлять свой трафик через ваш VPN. Мы настоятельно рекомендуем устанавливать учетные данные.</translation>
+    </message>
+    <message>
+        <source>Go to Preferences</source>
+        <translation>Перейдите в настройки</translation>
+    </message>
+    <message>
+        <source>Later</source>
+        <translation>Позже</translation>
+    </message>
+    <message>
         <source>Connected to </source>
         <translation>Подключено к </translation>
     </message>
@@ -718,6 +718,18 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
 %1 transferred in %2</source>
         <translation>Соединение с Windscribe было прервано.
 %1 передано за %2</translation>
+    </message>
+    <message>
+        <source>Could not start Proxy Gateway</source>
+        <translation>Не удалось запустить Proxy Gateway</translation>
+    </message>
+    <message>
+        <source>The configured port is in use. Please try a different port.</source>
+        <translation>Настроенный порт используется. Пожалуйста, попробуйте другой порт.</translation>
+    </message>
+    <message>
+        <source>An unknown error occurred.</source>
+        <translation>Произошла неизвестная ошибка.</translation>
     </message>
     <message>
         <source>Network Settings Interference</source>
@@ -924,14 +936,6 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>  If you are on a restrictive network, please connect the VPN before trying the download again.</source>
         <translation>  Если вы подключены к сети с ограничениями, подключите VPN, прежде чем пытаться загрузить его снова.</translation>
-    </message>
-    <message>
-        <source>Custom Config Directory Import</source>
-        <translation>Импорт пользовательской директории конфигурации</translation>
-    </message>
-    <message>
-        <source>A custom config directory is being imported.  Windscribe will prompt for your admin password to check for correct permissions.</source>
-        <translation>Импортируется пользовательский каталог конфигурации.  Windscribe попросит вас ввести пароль администратора, чтобы проверить правильность разрешений.</translation>
     </message>
     <message>
         <source>Your &quot;Connected DNS&quot; server is set to an OS default DNS server, which would result in a DNS leak.  It has been changed to Auto.</source>
@@ -1443,6 +1447,14 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Режим подключения</translation>
     </message>
     <message>
+        <source>Configure egress IP stack for VPN connections.</source>
+        <translation>Настройте стек IP-выхода для VPN-соединений.</translation>
+    </message>
+    <message>
+        <source>IP Stack</source>
+        <translation>IP Stack</translation>
+    </message>
+    <message>
         <source>Select the DNS server while connected to Windscribe.</source>
         <translation>Выберите DNS-сервер при подключении к Windscribe.</translation>
     </message>
@@ -1517,6 +1529,13 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Anti-censorship Settings</source>
         <translation>Антицензурные настройки</translation>
+    </message>
+</context>
+<context>
+    <name>PreferencesWindow::CopyableTextItem</name>
+    <message>
+        <source>Copied</source>
+        <translation>Скопировано</translation>
     </message>
 </context>
 <context>
@@ -2106,31 +2125,36 @@ Connect to a network first</source>
         <translation>Порт</translation>
     </message>
     <message>
-        <source>Unable to start proxy server</source>
-        <translation>Не удается запустить прокси-сервер</translation>
+        <source>Require Authentication</source>
+        <translation>Требуется аутентификация</translation>
     </message>
     <message>
-        <source>The proxy server couldn&apos;t be started on the requested port. Please try again with a different port.</source>
-        <translation>Не удалось запустить прокси-сервер на запрошенном порту. Пожалуйста, повторите попытку с другим портом.</translation>
+        <source>Without authentication, anyone on your network (e.g. coffee shop Wi-Fi) can use this proxy. Leave this on unless you know what you&apos;re doing.</source>
+        <translation>Без аутентификации любой человек в вашей сети (например, Wi-Fi кофейни) может использовать этот прокси. Оставьте это включённым, если не знаете, что делаете.</translation>
+    </message>
+    <message>
+        <source>IP</source>
+        <translation>IP</translation>
+    </message>
+    <message>
+        <source>Username</source>
+        <translation>Имя пользователя</translation>
+    </message>
+    <message>
+        <source>Password</source>
+        <translation>Пароль</translation>
     </message>
     <message>
         <source>Auto</source>
         <translation>Авто</translation>
     </message>
     <message>
+        <source>Unavailable</source>
+        <translation>Недоступно</translation>
+    </message>
+    <message>
         <source>Only when VPN is connected</source>
         <translation>Только при подключении к VPN</translation>
-    </message>
-</context>
-<context>
-    <name>PreferencesWindow::ProxyIpAddressItem</name>
-    <message>
-        <source>IP</source>
-        <translation>IP</translation>
-    </message>
-    <message>
-        <source>Copied</source>
-        <translation>Скопировано</translation>
     </message>
 </context>
 <context>
@@ -2573,6 +2597,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Van Gogh</source>
         <translation>Ван Гог</translation>
+    </message>
+    <message>
+        <source>IPv4 Only</source>
+        <translation>Только IPv4</translation>
     </message>
     <message>
         <source>Enabled</source>

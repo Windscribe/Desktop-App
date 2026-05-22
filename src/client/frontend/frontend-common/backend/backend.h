@@ -12,6 +12,7 @@
 #include "types/locationid.h"
 #include "types/protocolstatus.h"
 #include "types/proxysharinginfo.h"
+#include "types/shareproxygateway.h"
 #include "types/splittunneling.h"
 #include "types/upgrademodetype.h"
 #include "types/wifisharinginfo.h"
@@ -61,7 +62,7 @@ public:
 
     void startWifiSharing(const QString &ssid, const QString &password);
     void stopWifiSharing();
-    void startProxySharing(PROXY_SHARING_TYPE proxySharingMode, uint port, bool whileConnected);
+    void startProxySharing(const types::ShareProxyGateway &settings);
     void stopProxySharing();
 
     void gotoCustomOvpnConfigMode();
@@ -229,6 +230,7 @@ signals:
     void proxySharingInfoChanged(const types::ProxySharingInfo &psi);
     void wifiSharingInfoChanged(const types::WifiSharingInfo &wsi);
     void wifiSharingFailed(WIFI_SHARING_ERROR error);
+    void proxySharingFailed(PROXY_SHARING_ERROR error);
 
     void webSessionTokenForManageAccount(const QString &temp_session_token);
     void webSessionTokenForAddEmail(const QString &temp_session_token);

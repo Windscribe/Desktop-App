@@ -65,7 +65,7 @@ void DnsResolver::onTimer(const boost::system::error_code &error)
             for (const auto &it: results_) {
                 if (it.second.error) {
                     using namespace std::placeholders;
-                    auto request = WSNet::instance()->dnsResolver()->lookup(it.first, curRequestId_, std::bind(&DnsResolver::onDnsResolved, this, _1, _2, _3));
+                    auto request = WSNet::instance()->dnsResolver()->lookup(it.first, curRequestId_, IpFamily::kBoth, std::bind(&DnsResolver::onDnsResolved, this, _1, _2, _3));
                     activeRequests_.insert(std::make_pair(curRequestId_, request));
                 }
             }
@@ -82,7 +82,7 @@ void DnsResolver::resolveDomains(const std::vector<std::string> &hostnames)
         startTime_ = std::chrono::steady_clock::now();
         for (const auto &hostname : hostnames) {
             using namespace std::placeholders;
-            auto request = WSNet::instance()->dnsResolver()->lookup(hostname, curRequestId_, std::bind(&DnsResolver::onDnsResolved, this, _1, _2, _3));
+            auto request = WSNet::instance()->dnsResolver()->lookup(hostname, curRequestId_, IpFamily::kBoth, std::bind(&DnsResolver::onDnsResolved, this, _1, _2, _3));
             activeRequests_.insert(std::make_pair(curRequestId_, request));
             curRequestId_++;
         }

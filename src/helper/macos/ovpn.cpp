@@ -4,6 +4,7 @@
 #include <string>
 #include <unistd.h>
 
+#include "../common/io_posix.h"
 #include "../common/ovpn_directive_whitelist.h"
 
 namespace OVPN
@@ -12,18 +13,20 @@ namespace OVPN
 bool writeOVPNFile(const std::string &dnsScript, unsigned int port, const std::string &config, const std::string &httpProxy,
                    unsigned int httpPort, const std::string &socksProxy, unsigned int socksPort)
 {
-    int fd = open(WS_POSIX_CONFIG_DIR "/config.ovpn", O_CREAT | O_WRONLY | O_TRUNC, S_IRWXU | S_IRGRP | S_IROTH);
+    // open()'s mode is ignored on pre-existing files; unlink first to force the intended perms
+    unlink(WS_POSIX_CONFIG_DIR "/config.ovpn");
+    int fd = open(WS_POSIX_CONFIG_DIR "/config.ovpn", O_CREAT | O_WRONLY | O_TRUNC, S_IRUSR | S_IWUSR);
     if (fd < 0) {
         spdlog::error("Could not open config for writing");
         return false;
     }
 
     std::string filtered = OvpnDirectiveWhitelist::filterConfig(config,
-        [](const std::string &line) { spdlog::warn("Blocked non-whitelisted OpenVPN directive: {}", line); });
+        [](const std::string &name) { spdlog::warn("Blocked non-whitelisted OpenVPN directive: {}", name); },
+        [](const std::string &name) { spdlog::info("Ignored OpenVPN directive: {}", name); });
 
-    int bytes = static_cast<int>(write(fd, filtered.c_str(), filtered.length()));
-    if (bytes <= 0) {
-        spdlog::error("Could not write openvpn config");
+    if (!IO::writeAll(fd, filtered)) {
+        spdlog::error("Could not write openvpn config: {}", IO::strerror(errno));
         close(fd);
         return false;
     }
@@ -32,7 +35,11 @@ bool writeOVPNFile(const std::string &dnsScript, unsigned int port, const std::s
     const std::string upScript = \
         "--script-security 2\n" \
         "up \"" + dnsScript + " -up\"\n";
-    (void)write(fd, upScript.c_str(), upScript.length());
+    if (!IO::writeAll(fd, upScript)) {
+        spdlog::error("Could not write openvpn up script: {}", IO::strerror(errno));
+        close(fd);
+        return false;
+    }
 
     // add management and other options
     std::string opts = \
@@ -47,9 +54,8 @@ bool writeOVPNFile(const std::string &dnsScript, unsigned int port, const std::s
         opts += "socks-proxy " + socksProxy + " " + std::to_string(socksPort) + "\n";
     }
 
-    bytes = static_cast<int>(write(fd, opts.c_str(), opts.length()));
-    if (bytes <= 0) {
-        spdlog::error("Could not write additional options");
+    if (!IO::writeAll(fd, opts)) {
+        spdlog::error("Could not write additional options: {}", IO::strerror(errno));
         close(fd);
         return false;
     }

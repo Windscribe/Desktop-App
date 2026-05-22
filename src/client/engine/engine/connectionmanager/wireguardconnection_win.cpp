@@ -47,24 +47,12 @@ WireGuardConnection::~WireGuardConnection()
     }
 }
 
-void WireGuardConnection::startConnect(const QString &configPathOrUrl, const QString &ip,
-                                       const QString &dnsHostName, const QString &username,
-                                       const QString &password, const types::ProxySettings &proxySettings,
-                                       const WireGuardConfig *wireGuardConfig,
-                                       bool isEnableIkev2Compression, bool isCustomConfig,
-                                       const QString &overrideDnsIp)
+void WireGuardConnection::startConnect(const StartConnectParams &params)
 {
-    Q_UNUSED(configPathOrUrl);
-    Q_UNUSED(ip);
-    Q_UNUSED(dnsHostName);
-    Q_UNUSED(username);
-    Q_UNUSED(password);
-    Q_UNUSED(proxySettings);
-    Q_UNUSED(isEnableIkev2Compression);
-    Q_UNUSED(isCustomConfig);
+    const auto &p = std::get<WireGuardStartParams>(params);
 
     WS_ASSERT(helper_ != nullptr);
-    WS_ASSERT(wireGuardConfig != nullptr);
+    WS_ASSERT(p.wireGuardConfig != nullptr);
     WS_ASSERT(stopThreadEvent_.isValid());
 
     if (isRunning()) {
@@ -73,11 +61,11 @@ void WireGuardConnection::startConnect(const QString &configPathOrUrl, const QSt
     }
 
     connectedSignalEmited_ = false;
-    wireGuardConfig_ = *wireGuardConfig;
+    wireGuardConfig_ = *p.wireGuardConfig;
 
     // override the DNS if we are using custom
-    if (!overrideDnsIp.isEmpty()) {
-        wireGuardConfig_.setClientDnsAddress(overrideDnsIp);
+    if (!p.overrideDnsIp.isEmpty()) {
+        wireGuardConfig_.setClientDnsAddress(p.overrideDnsIp);
     }
 
     ::ResetEvent(stopThreadEvent_.getHandle());

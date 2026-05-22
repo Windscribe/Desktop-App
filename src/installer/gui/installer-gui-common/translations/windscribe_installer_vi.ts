@@ -45,6 +45,22 @@
         <translation>Không thể gỡ bỏ cài đặt Windscribe hiện có. Vui lòng gỡ cài đặt ứng dụng theo cách thủ công và thử lại.</translation>
     </message>
     <message>
+        <source>The Windows Base Filtering Engine service is not running and could not be started. This core Windows service must be running to install Windscribe. Third-party security/firewall software is most often the cause of this issue.</source>
+        <translation>Dịch vụ Windows Base Filtering Engine không chạy và không thể khởi động. Dịch vụ Windows cốt lõi này phải chạy để cài đặt Windscribe. Phần mềm tường lửa/bảo mật của bên thứ ba thường là nguyên nhân gây ra sự cố này.</translation>
+    </message>
+    <message>
+        <source>Windscribe is unable to connect to the Windows Base Filtering Engine service. Connecting to this core Windows service is required to install Windscribe. Third-party security/firewall software is most often the cause of this issue.</source>
+        <translation>Windscribe không thể kết nối với dịch vụ Windows Base Filtering Engine. Cần kết nối với dịch vụ Windows cốt lõi này để cài đặt Windscribe. Phần mềm tường lửa/bảo mật của bên thứ ba thường là nguyên nhân gây ra sự cố này.</translation>
+    </message>
+    <message>
+        <source>Windscribe is unable to install its helper service. Please manually uninstall Windscribe and try again. If this issue persists, please contact our Technical Support.</source>
+        <translation>Windscribe không thể cài đặt dịch vụ trợ giúp của nó. Vui lòng gỡ cài đặt Windscribe theo cách thủ công và thử lại. Nếu sự cố này vẫn tiếp diễn, vui lòng liên hệ với bộ phận Hỗ trợ kỹ thuật của chúng tôi.</translation>
+    </message>
+    <message>
+        <source>Windscribe is unable to start its helper service. Third-party security/firewall software may be the cause. If this is not the case, please contact our Technical Support.</source>
+        <translation>Windscribe không thể bắt đầu dịch vụ trợ giúp. Phần mềm tường lửa/bảo mật của bên thứ ba có thể là nguyên nhân. Nếu không đúng như vậy, vui lòng liên hệ với bộ phận Hỗ trợ kỹ thuật của chúng tôi.</translation>
+    </message>
+    <message>
         <source>The installation could not be completed successfully. Please contact our Technical Support.</source>
         <translation>Quá trình cài đặt không thể hoàn tất thành công. Vui lòng liên hệ với bộ phận Hỗ trợ Kỹ thuật của chúng tôi.</translation>
     </message>

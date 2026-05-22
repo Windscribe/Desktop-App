@@ -492,14 +492,15 @@ bool ClearWiFiHistory::deleteFileSafely(const std::string &filePath)
         spdlog::debug("File does not exist, skipping: {}", filePath);
         return true;
     }
-    
-    int result = Utils::executeCommand("rm", {"-f", filePath});
-    
-    if (result == 0) {
+
+    std::error_code ec;
+    std::filesystem::remove(filePath, ec);
+
+    if (!ec) {
         spdlog::debug("Successfully deleted: {}", filePath);
         return true;
     } else {
-        spdlog::error("Failed to delete: {}", filePath);
+        spdlog::error("Failed to delete: {}: {}", filePath, ec.message());
         return false;
     }
 }

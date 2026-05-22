@@ -171,8 +171,8 @@ elseif (APPLE)
         # Fix openssl dynamic link paths in helpers that link against openssl
         foreach(_helper ${WS_MAC_RPATH_BINARIES})
             add_custom_command(TARGET ${WS_APP_TARGET} POST_BUILD
-                COMMAND bash -c [[OLD=$(otool -L ${0} | grep ${1} | uniq | sed s/.dylib.*/.dylib/ | awk '{$1=$1;print}'); install_name_tool -change ${OLD} @executable_path/../Frameworks/${1}.3.dylib ${0}]] $<TARGET_FILE_DIR:${WS_APP_TARGET}>/../Helpers/${WS_PRODUCT_NAME_LOWER}${_helper} libssl
-                COMMAND bash -c [[OLD=$(otool -L ${0} | grep ${1} | uniq | sed s/.dylib.*/.dylib/ | awk '{$1=$1;print}'); install_name_tool -change ${OLD} @executable_path/../Frameworks/${1}.3.dylib ${0}]] $<TARGET_FILE_DIR:${WS_APP_TARGET}>/../Helpers/${WS_PRODUCT_NAME_LOWER}${_helper} libcrypto
+                COMMAND bash -c [[OLD=$(otool -L ${0} | grep ${1} | uniq | sed s/.dylib.*/.dylib/ | awk '{$1=$1;print}'); install_name_tool -change ${OLD} @executable_path/../Frameworks/${1}.4.dylib ${0}]] $<TARGET_FILE_DIR:${WS_APP_TARGET}>/../Helpers/${WS_PRODUCT_NAME_LOWER}${_helper} libssl
+                COMMAND bash -c [[OLD=$(otool -L ${0} | grep ${1} | uniq | sed s/.dylib.*/.dylib/ | awk '{$1=$1;print}'); install_name_tool -change ${OLD} @executable_path/../Frameworks/${1}.4.dylib ${0}]] $<TARGET_FILE_DIR:${WS_APP_TARGET}>/../Helpers/${WS_PRODUCT_NAME_LOWER}${_helper} libcrypto
                 VERBATIM
             )
         endforeach()
@@ -257,8 +257,8 @@ if (APPLE)
         LIBRARY DESTINATION "${WS_PRODUCT_NAME}.app/Contents/Frameworks"
         BUNDLE DESTINATION .
     )
-    install(FILES ${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/libcrypto.3.dylib DESTINATION "${WS_PRODUCT_NAME}.app/Contents/Frameworks")
-    install(FILES ${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/libssl.3.dylib DESTINATION "${WS_PRODUCT_NAME}.app/Contents/Frameworks")
+    install(FILES ${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/libcrypto.4.dylib DESTINATION "${WS_PRODUCT_NAME}.app/Contents/Frameworks")
+    install(FILES ${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/libssl.4.dylib DESTINATION "${WS_PRODUCT_NAME}.app/Contents/Frameworks")
 else()
     install(TARGETS ${WS_APP_TARGET}
         RUNTIME DESTINATION .
@@ -282,6 +282,6 @@ endif()
 
 if(UNIX AND (NOT APPLE))
     install(IMPORTED_RUNTIME_ARTIFACTS wsnet DESTINATION lib)
-    install(FILES ${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/libcrypto.so.3 DESTINATION lib)
-    install(FILES ${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/libssl.so.3 DESTINATION lib)
+    install(FILES ${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/libcrypto.so.4 DESTINATION lib)
+    install(FILES ${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/libssl.so.4 DESTINATION lib)
 endif()

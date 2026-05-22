@@ -93,7 +93,7 @@ if(BUILD_DEB)
                 "${DEB_PACKAGE_DIR}/${DEB_PACKAGE_NAME}/DEBIAN/control"
     )
 
-    # Copy common files (systemd services, scripts, polkit policy, etc.)
+    # Copy common files (systemd services, scripts, etc.)
     add_custom_command(TARGET package-deb PRE_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory
                 "${INSTALLER_LINUX_COMMON_DIR}"

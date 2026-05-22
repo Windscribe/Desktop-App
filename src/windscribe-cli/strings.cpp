@@ -103,6 +103,14 @@ QString connectStateString(types::ConnectState state, LocationID location, TUNNE
     }
 }
 
+QString ipString(const QString &ip, bool isConnected)
+{
+    if (ip.isEmpty()) {
+        return QString();
+    }
+    return isConnected ? QObject::tr("VPN IP: %1").arg(ip) : QObject::tr("Public IP: %1").arg(ip);
+}
+
 QString protocolString(types::Protocol protocol, uint port)
 {
     return QObject::tr("Protocol: %1:%2").arg(protocol.toLongString()).arg(port);

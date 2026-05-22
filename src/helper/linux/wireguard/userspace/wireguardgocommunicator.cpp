@@ -1,5 +1,6 @@
 #include "wireguardgocommunicator.h"
 
+#include <filesystem>
 #include <regex>
 #include <type_traits>
 #include <boost/algorithm/string/trim.hpp>
@@ -9,7 +10,7 @@
 #include <sys/un.h>
 #include <spdlog/spdlog.h>
 
-#include "../../execute_cmd.h"
+#include "../../../common/spawn_posix.h"
 #include "../../utils.h"
 
 static const std::string kExecutableName = WS_PRODUCT_NAME_LOWER "amneziawg";
@@ -150,20 +151,27 @@ bool WireGuardGoCommunicator::start(const std::string &deviceName, bool verboseL
 {
     assert(!deviceName.empty());
 
-    Utils::executeCommand("rm", {"-f", (kControlSocketFolder + deviceName + ".sock").c_str()});
+    std::error_code ec;
+    std::filesystem::remove(kControlSocketFolder + deviceName + ".sock", ec);
+    if (ec) {
+        spdlog::warn("Failed to remove WireGuard control socket: {}", ec.message());
+    }
 
-    const std::string fullCmd = Utils::getFullCommand(Utils::getExePath(), kExecutableName, "-f " + deviceName);
-    if (fullCmd.empty()) {
+    std::string wgPath;
+    if (!Utils::resolveExePath(Utils::getExePath(), kExecutableName, wgPath)) {
         spdlog::error("Invalid WireGuard command");
         return false;
     }
 
+    Spawn::Options opts;
     if (verboseLogging) {
         // Enable verbose logging in the AmneziaWG daemon.
-        setenv("LOG_LEVEL", "debug", 1);
+        opts.extraEnv.emplace_back("LOG_LEVEL", "debug");
     }
 
-    ExecuteCmd::instance().execute(fullCmd);
+    if (!Spawn::spawnDetached(wgPath, {"-f", deviceName}, opts)) {
+        return false;
+    }
     deviceName_ = deviceName;
     verboseLogging_ = verboseLogging;
     return true;
@@ -181,7 +189,11 @@ bool WireGuardGoCommunicator::stop()
 // static
 bool WireGuardGoCommunicator::forceStop(const std::string &deviceName)
 {
-    Utils::executeCommand("rm", {"-f", (kControlSocketFolder + deviceName + ".sock").c_str()});
+    std::error_code ec;
+    std::filesystem::remove(kControlSocketFolder + deviceName + ".sock", ec);
+    if (ec) {
+        spdlog::warn("Failed to remove WireGuard control socket: {}", ec.message());
+    }
     Utils::executeCommand("pkill", {"-f", kExecutableName});
     return true;
 }

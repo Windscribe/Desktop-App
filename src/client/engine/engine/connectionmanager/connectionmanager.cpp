@@ -25,7 +25,7 @@
 #include "utils/ws_assert.h"
 #include "utils/utils.h"
 #include "utils/extraconfig.h"
-#include "utils/ipvalidation.h"
+#include "utils/networkingvalidation.h"
 
 // Had to move this here to prevent a compile error with boost already including winsock.h
 #include "connectionmanager.h"
@@ -54,7 +54,6 @@ ConnectionManager::ConnectionManager(QObject *parent, Helper *helper, INetworkDe
     stunnelManager_(nullptr),
     wstunnelManager_(nullptr),
     ctrldManager_(nullptr),
-    bEmitAuthError_(false),
     makeOVPNFile_(nullptr),
     makeOVPNFileFromCustom_(nullptr),
     testVPNTunnel_(nullptr),
@@ -112,29 +111,11 @@ ConnectionManager::~ConnectionManager()
     SAFE_DELETE(getWireGuardConfig_);
 }
 
-void ConnectionManager::clickConnect(const QString &ovpnConfig,
-                                     const api_responses::ServerCredentials &serverCredentialsOpenVpn,
-                                     const api_responses::ServerCredentials &serverCredentialsIkev2,
-                                     QSharedPointer<locationsmodel::BaseLocationInfo> bli,
-                                     const types::ConnectionSettings &connectionSettings,
-                                     const api_responses::PortMap &portMap, const types::ProxySettings &proxySettings,
-                                     bool bEmitAuthError, const QString &customConfigPath,
-                                     const api_responses::AmneziawgUnblockParams &amneziawgParams, const QString &amneziawgPreset,
-                                     const QString &preferredNodeHostname)
+void ConnectionManager::clickConnect(const ConnectRequest &req)
 {
     WS_ASSERT(state_ == STATE_DISCONNECTED);
 
-    lastOvpnConfig_ = ovpnConfig;
-    lastServerCredentialsOpenVpn_ = serverCredentialsOpenVpn;
-    lastServerCredentialsIkev2_ = serverCredentialsIkev2;
-    lastProxySettings_ = proxySettings;
-    bEmitAuthError_ = bEmitAuthError;
-    customConfigPath_ = customConfigPath;
-    isProtocolTweaksEnabled_ = !amneziawgPreset.isEmpty();
-    amneziawgParams_ = amneziawgParams;
-    amneziawgPreset_ = amneziawgPreset;
-    bli_ = bli;
-    preferredNodeHostname_ = preferredNodeHostname;
+    lastRequest_ = req;
 
     bWasSuccessfullyConnectionAttempt_ = false;
 
@@ -150,7 +131,7 @@ void ConnectionManager::clickConnect(const QString &ovpnConfig,
         SAFE_DELETE(connector_);
     }
 
-    updateConnectionSettingsPolicy(connectionSettings, portMap, proxySettings);
+    updateConnectionSettingsPolicy(req.connectionSettings, req.portMap, req.proxySettings);
 
     connSettingsPolicy_->debugLocationInfoToLog();
     doConnect();
@@ -346,12 +327,11 @@ void ConnectionManager::onConnectionConnected(const AdapterGatewayInfo &connecti
     // override the DNS if we are using custom
     if (connectedDnsInfo_.type == CONNECTED_DNS_TYPE_CUSTOM || connectedDnsInfo_.type == CONNECTED_DNS_TYPE_CONTROLD) {
         QString customDnsIp = dnsServersFromConnectedDnsInfo();
-        vpnAdapterInfo_.setDnsServers(QStringList() << customDnsIp);
+        vpnAdapterInfo_.setDnsServers({types::IpAddress(customDnsIp.toStdString())});
         qCInfo(LOG_CONNECTION) << "Custom DNS detected, will override with: " << customDnsIp;
     } else if (connectedDnsInfo_.type == CONNECTED_DNS_TYPE_LOCAL) {
-        QString localDnsIp = "127.0.0.1";
-        vpnAdapterInfo_.setDnsServers(QStringList() << localDnsIp);
-        qCInfo(LOG_CONNECTION) << "Local DNS detected, will override with: " << localDnsIp;
+        vpnAdapterInfo_.setDnsServers({types::IpAddress("127.0.0.1")});
+        qCInfo(LOG_CONNECTION) << "Local DNS detected, will override with: 127.0.0.1";
     }
 
     if (state_ == STATE_DISCONNECTING_FROM_USER_CLICK) {
@@ -556,12 +536,12 @@ void ConnectionManager::onConnectionError(CONNECT_ERROR err)
     qCInfo(LOG_CONNECTION) << "ConnectionManager::onConnectionError(), state_ =" << state_ << ", error =" << (int)err;
     testVPNTunnel_->stopTests();
 
-    if ((err == CONNECT_ERROR::AUTH_ERROR && bEmitAuthError_)
+    if ((err == CONNECT_ERROR::AUTH_ERROR && lastRequest_.bEmitAuthError)
             || err == CONNECT_ERROR::NO_OPENVPN_SOCKET
             || err == CONNECT_ERROR::NO_INSTALLED_TUN_TAP
             || (!connSettingsPolicy_->isAutomaticMode() && err == CONNECT_ERROR::WIREGUARD_CONNECTION_ERROR)
             || (!connSettingsPolicy_->isAutomaticMode() && err == CONNECT_ERROR::WIREGUARD_ADAPTER_SETUP_FAILED)
-            || err == CONNECT_ERROR::WINTUN_FATAL_ERROR
+            || err == CONNECT_ERROR::TAP_FATAL_ERROR
             || err == CONNECT_ERROR::PRIV_KEY_PASSWORD_ERROR)
     {
         // emit error in disconnected event
@@ -586,7 +566,6 @@ void ConnectionManager::onConnectionError(CONNECT_ERROR err)
     else if (err == CONNECT_ERROR::UDP_CANT_ASSIGN
              || err == CONNECT_ERROR::UDP_NO_BUFFER_SPACE
              || err == CONNECT_ERROR::UDP_NETWORK_DOWN
-             || err == CONNECT_ERROR::WINTUN_OVER_CAPACITY
              || err == CONNECT_ERROR::TCP_ERROR
              || err == CONNECT_ERROR::CONNECTED_ERROR
              || err == CONNECT_ERROR::INITIALIZATION_SEQUENCE_COMPLETED_WITH_ERRORS
@@ -601,7 +580,7 @@ void ConnectionManager::onConnectionError(CONNECT_ERROR err)
                                                             || err == CONNECT_ERROR::IKEV_FAILED_START_MAC
                                                             || err == CONNECT_ERROR::IKEV_FAILED_LOAD_PREFERENCES_MAC
                                                             || err == CONNECT_ERROR::IKEV_FAILED_SAVE_PREFERENCES_MAC))
-             || (err == CONNECT_ERROR::AUTH_ERROR && !bEmitAuthError_))
+             || (err == CONNECT_ERROR::AUTH_ERROR && !lastRequest_.bEmitAuthError))
     {
         // bIgnoreConnectionErrorsForOpenVpn_ need to prevent handle multiple error messages from openvpn
         if (!bIgnoreConnectionErrorsForOpenVpn_)
@@ -919,8 +898,8 @@ void ConnectionManager::doConnectPart2()
     }
 
     qCInfo(LOG_CONNECTION) << "Connecting to IP:" << currentConnectionDescr_.ip << " protocol:" << currentConnectionDescr_.protocol.toLongString() << " port:" << currentConnectionDescr_.port;
-    if (isProtocolTweaksEnabled_) {
-        qCInfo(LOG_CONNECTION) << "Using protocol tweaks, preset:" << amneziawgPreset_;
+    if (!lastRequest_.amneziawgPreset.isEmpty()) {
+        qCInfo(LOG_CONNECTION) << "Using protocol tweaks, preset:" << lastRequest_.amneziawgPreset;
     }
     emit protocolPortChanged(currentConnectionDescr_.protocol, currentConnectionDescr_.port);
 
@@ -948,7 +927,7 @@ void ConnectionManager::doConnectPart2()
         // we need to exclude these DNS-addresses from DNS leak protection on Windows
         QStringList dnsIps;
         dnsIps << ctrldManager_->listenIp();
-        if (IpValidation::isIp(connectedDnsInfo_.upStream1)) {
+        if (NetworkingValidation::isIp(connectedDnsInfo_.upStream1)) {
             dnsIps << connectedDnsInfo_.upStream1;
         }
         helper_->setCustomDnsIps(dnsIps);
@@ -1000,10 +979,10 @@ void ConnectionManager::doConnectPart2()
             }
 
             const bool bOvpnSuccess = makeOVPNFile_->generate(
-                lastOvpnConfig_, currentConnectionDescr_.ip, currentConnectionDescr_.protocol,
-                currentConnectionDescr_.port, localPort, mss, defaultAdapterInfo_.gateway(),
+                lastRequest_.ovpnConfig, currentConnectionDescr_.ip, currentConnectionDescr_.protocol,
+                currentConnectionDescr_.port, localPort, mss, QString::fromStdString(defaultAdapterInfo_.gatewayV4().toString()),
                 currentConnectionDescr_.verifyX509name,
-                dnsServersFromConnectedDnsInfo(), isProtocolTweaksEnabled_, false);
+                dnsServersFromConnectedDnsInfo(), !lastRequest_.amneziawgPreset.isEmpty(), lastRequest_.amneziawgPreset, false);
             if (!bOvpnSuccess) {
                 qCCritical(LOG_CONNECTION) << "Failed create ovpn config";
                 WS_ASSERT(false);
@@ -1012,7 +991,7 @@ void ConnectionManager::doConnectPart2()
 
             if (currentConnectionDescr_.protocol == types::Protocol::STUNNEL) {
                 if (!stunnelManager_->runProcess(currentConnectionDescr_.ip, currentConnectionDescr_.port,
-                                                 ExtraConfig::instance().getStealthExtraTLSPadding() || isProtocolTweaksEnabled_)) {
+                                                 ExtraConfig::instance().getStealthExtraTLSPadding() || !lastRequest_.amneziawgPreset.isEmpty())) {
                     disconnect();
                     emit errorDuringConnection(CONNECT_ERROR::EXE_SUBPROCESS_FAILED);
                     return;
@@ -1032,11 +1011,11 @@ void ConnectionManager::doConnectPart2()
         else if (currentConnectionDescr_.protocol.isIkev2Protocol())
         {
             QString remoteHostname = ExtraConfig::instance().getRemoteIpFromExtraConfig();
-            if (IpValidation::isDomain(remoteHostname))
+            if (NetworkingValidation::isDomain(remoteHostname))
             {
                 currentConnectionDescr_.hostname = remoteHostname;
                 currentConnectionDescr_.ip = ExtraConfig::instance().getDetectedIp();
-                currentConnectionDescr_.dnsHostName = IpValidation::getRemoteIdFromDomain(remoteHostname);
+                currentConnectionDescr_.dnsHostName = NetworkingValidation::getRemoteIdFromDomain(remoteHostname);
                 qCInfo(LOG_CONNECTION) << "Use data from extra config: hostname=" << currentConnectionDescr_.hostname << ", ip=" << currentConnectionDescr_.ip << ", remoteId=" << currentConnectionDescr_.dnsHostName;
 
             }
@@ -1050,7 +1029,7 @@ void ConnectionManager::doConnectPart2()
                 disconnect();
                 emit errorDuringConnection(WIREGUARD_COULD_NOT_RETRIEVE_CONFIG);
             } else {
-                qCInfo(LOG_CONNECTION) << "Requesting WireGuard config for hostname =" << currentConnectionDescr_.hostname;
+                qCInfo(LOG_CONNECTION) << "Requesting WireGuard config for hostname =" << currentConnectionDescr_.hostname << "isIpv6Support = " << currentConnectionDescr_.isIpv6Support;
                 getWireGuardConfig(currentConnectionDescr_.hostname, false);
             }
             return;
@@ -1059,7 +1038,7 @@ void ConnectionManager::doConnectPart2()
     else if (currentConnectionDescr_.connectionNodeType == CONNECTION_NODE_CUSTOM_CONFIG)
     {
         if (currentConnectionDescr_.protocol.isOpenVpnProtocol()) {
-            bool bOvpnSuccess = makeOVPNFileFromCustom_->generate(customConfigPath_,
+            bool bOvpnSuccess = makeOVPNFileFromCustom_->generate(
                 currentConnectionDescr_.ovpnData, currentConnectionDescr_.ip,
                 currentConnectionDescr_.remoteCmdLine, dnsServersFromConnectedDnsInfo());
             if (!bOvpnSuccess)
@@ -1092,6 +1071,18 @@ void ConnectionManager::doConnectPart2()
 
 void ConnectionManager::doConnectPart3()
 {
+    // For WireGuard custom configs we honour the "IP Stack" preference here. API-based WG
+    // is already filtered earlier in onGetWireGuardConfigAnswer(). If the user picked
+    // IPv4 Only, strip every v6 entry from the custom config so the resulting WireGuard
+    // tunnel never carries IPv6 traffic even if the .conf file is dual-stack.
+    if (currentConnectionDescr_.connectionNodeType == CONNECTION_NODE_CUSTOM_CONFIG &&
+        currentConnectionDescr_.protocol.isWireGuardProtocol() &&
+        currentConnectionDescr_.wgCustomConfig != nullptr &&
+        lastRequest_.ipStackEgress == IpStack::kIPv4Only) {
+        currentConnectionDescr_.wgCustomConfig = QSharedPointer<WireGuardConfig>::create(
+            currentConnectionDescr_.wgCustomConfig->stripIpv6Addresses());
+    }
+
     if (currentConnectionDescr_.protocol.isWireGuardProtocol())
     {
         WireGuardConfig* pConfig = (currentConnectionDescr_.connectionNodeType == CONNECTION_NODE_CUSTOM_CONFIG ? currentConnectionDescr_.wgCustomConfig.get() : &wireGuardConfig_);
@@ -1106,7 +1097,7 @@ void ConnectionManager::doConnectPart3()
         } else if (connectedDnsInfo_.isCustomIPv4Address()) {
             dnsIps << connectedDnsInfo_.upStream1;
         } else {
-            if (IpValidation::isIp(connectedDnsInfo_.upStream1)) {
+            if (NetworkingValidation::isIp(connectedDnsInfo_.upStream1)) {
                 dnsIps << connectedDnsInfo_.upStream1;
             }
             dnsIps << ctrldManager_->listenIp();
@@ -1118,20 +1109,28 @@ void ConnectionManager::doConnectPart3()
         emit connectingToHostname(currentConnectionDescr_.hostname, currentConnectionDescr_.ip, QStringList());
     }
 
-    if (lastProxySettings_.isProxyEnabled() && currentConnectionDescr_.protocol != types::Protocol::OPENVPN_TCP) {
+    if (lastRequest_.proxySettings.isProxyEnabled() && currentConnectionDescr_.protocol != types::Protocol::OPENVPN_TCP) {
         qCWarning(LOG_CONNECTION) << "WARNING: LAN proxy setting ignored because the connection protocol is not TCP.";
     }
 
     if (currentConnectionDescr_.connectionNodeType == CONNECTION_NODE_CUSTOM_CONFIG)
     {
-        if (currentConnectionDescr_.protocol.isWireGuardProtocol())
+        if (currentConnectionDescr_.protocol.isWireGuardProtocol()) {
             recreateConnector(types::Protocol::WIREGUARD);
-        else
+            connector_->startConnect(WireGuardStartParams{
+                currentConnectionDescr_.wgCustomConfig.get(),
+                dnsServersFromConnectedDnsInfo()
+            });
+        } else {
             recreateConnector(types::Protocol::OPENVPN_UDP);
-
-        connector_->startConnect(makeOVPNFileFromCustom_->config(), "", "", usernameForCustomOvpn_,
-                                 passwordForCustomOvpn_, lastProxySettings_, currentConnectionDescr_.wgCustomConfig.get(),
-                                 false, true, dnsServersFromConnectedDnsInfo());
+            OpenVpnStartParams p;
+            p.config = makeOVPNFileFromCustom_->config();
+            p.username = usernameForCustomOvpn_;
+            p.password = passwordForCustomOvpn_;
+            p.proxySettings = lastRequest_.proxySettings;
+            p.isCustomConfig = true;
+            connector_->startConnect(p);
+        }
     }
     else
     {
@@ -1145,8 +1144,8 @@ void ConnectionManager::doConnectPart3()
             }
             else
             {
-                username = lastServerCredentialsOpenVpn_.username();
-                password = lastServerCredentialsOpenVpn_.password();
+                username = lastRequest_.serverCredentialsOpenVpn.username();
+                password = lastRequest_.serverCredentialsOpenVpn.password();
             }
 
             recreateConnector(types::Protocol::OPENVPN_UDP);
@@ -1154,8 +1153,12 @@ void ConnectionManager::doConnectPart3()
             if (ovpnConnector) {
                 // The connector needs to know which ovpn protocol we're using when creating the adapter on Windows.
                 ovpnConnector->setProtocol(currentConnectionDescr_.protocol);
-                ovpnConnector->startConnect(makeOVPNFile_->config(), "", "", username, password, lastProxySettings_, nullptr,
-                                            false, false, dnsServersFromConnectedDnsInfo());
+                OpenVpnStartParams p;
+                p.config = makeOVPNFile_->config();
+                p.username = username;
+                p.password = password;
+                p.proxySettings = lastRequest_.proxySettings;
+                ovpnConnector->startConnect(p);
             } else {
                 WS_ASSERT(false);
             }
@@ -1170,13 +1173,20 @@ void ConnectionManager::doConnectPart3()
             }
             else
             {
-                username = lastServerCredentialsIkev2_.username();
-                password = lastServerCredentialsIkev2_.password();
+                username = lastRequest_.serverCredentialsIkev2.username();
+                password = lastRequest_.serverCredentialsIkev2.password();
             }
 
             recreateConnector(types::Protocol::IKEV2);
-            connector_->startConnect(currentConnectionDescr_.hostname, currentConnectionDescr_.ip, currentConnectionDescr_.hostname, username, password, lastProxySettings_,
-                                     nullptr, ExtraConfig::instance().isUseIkev2Compression(), false, dnsServersFromConnectedDnsInfo());
+            Ikev2StartParams p;
+            p.hostname = currentConnectionDescr_.hostname;
+            p.ip = currentConnectionDescr_.ip;
+            p.dnsHostName = currentConnectionDescr_.hostname;
+            p.username = username;
+            p.password = password;
+            p.isEnableCompression = ExtraConfig::instance().isUseIkev2Compression();
+            p.overrideDnsIp = dnsServersFromConnectedDnsInfo();
+            connector_->startConnect(p);
         }
         else if (currentConnectionDescr_.protocol.isWireGuardProtocol())
         {
@@ -1184,15 +1194,17 @@ void ConnectionManager::doConnectPart3()
             wireGuardConfig_.setPeerPublicKey(currentConnectionDescr_.wgPeerPublicKey);
             wireGuardConfig_.setPeerEndpoint(endpointAndPort);
 
-            if (isProtocolTweaksEnabled_) {
-                wireGuardConfig_.setAmneziawgParam(amneziawgParams_.getUnblockParamForPreset(amneziawgPreset_));
+            if (!lastRequest_.amneziawgPreset.isEmpty()) {
+                wireGuardConfig_.setAmneziawgParam(lastRequest_.amneziawgParams.getUnblockParamForPreset(lastRequest_.amneziawgPreset));
             } else {
                 wireGuardConfig_.setAmneziawgParam(api_responses::AmneziawgUnblockParam());
             }
 
             recreateConnector(types::Protocol::WIREGUARD);
-            connector_->startConnect(QString(), currentConnectionDescr_.ip, currentConnectionDescr_.dnsHostName, QString(), QString(), lastProxySettings_,
-                                     &wireGuardConfig_, false, false, dnsServersFromConnectedDnsInfo());
+            connector_->startConnect(WireGuardStartParams{
+                &wireGuardConfig_,
+                dnsServersFromConnectedDnsInfo()
+            });
         }
         else
         {
@@ -1220,7 +1232,7 @@ void ConnectionManager::doMacRestoreProcedures()
     if (connection_type == ConnectionType::OPENVPN)
     {
         Helper_mac *helper_mac = dynamic_cast<Helper_mac *>(helper_);
-        helper_mac->deleteRoute(lastIp_, 32, defaultAdapterInfo_.gateway());
+        helper_mac->deleteRoute(lastIp_, 32, QString::fromStdString(defaultAdapterInfo_.gatewayV4().toString()));
     }
     if (connection_type == ConnectionType::OPENVPN || connection_type == ConnectionType::WIREGUARD)
     {
@@ -1392,7 +1404,16 @@ void ConnectionManager::onGetWireGuardConfigAnswer(WireGuardConfigRetCode retCod
     }
     else if (retCode == WireGuardConfigRetCode::kSuccess)
     {
-        wireGuardConfig_ = config;
+        // Dual-stack tunnel only when the selected node advertises IPv6 *and* the user has
+        // not forced IPv4-only via the "IP Stack" preference. Auto leaves the v6 portion
+        // intact (server-supplied client v6 address + ::/0 in AllowedIPs); IPv4 Only strips
+        // every v6 entry from Address, DNS and AllowedIPs.
+        const bool dualStack = settings.isIpv6Support && lastRequest_.ipStackEgress == IpStack::kAuto;
+        if (dualStack) {
+            wireGuardConfig_ = config;
+        } else {
+            wireGuardConfig_ = config.stripIpv6Addresses();
+        }
         // If the protocol has been changed, do nothing.
         if (!currentConnectionDescr_.protocol.isWireGuardProtocol())
         {
@@ -1515,15 +1536,15 @@ void ConnectionManager::updateConnectionSettingsPolicy(const types::ConnectionSe
                                                        const api_responses::PortMap &portMap,
                                                        const types::ProxySettings &proxySettings)
 {
-    if (!bli_) {
+    if (!lastRequest_.bli) {
         // no active connection in progress
         return;
     }
 
-    if (bli_->locationId().isCustomConfigsLocation()) {
-        connSettingsPolicy_.reset(new CustomConfigConnSettingsPolicy(bli_));
+    if (lastRequest_.bli->locationId().isCustomConfigsLocation()) {
+        connSettingsPolicy_.reset(new CustomConfigConnSettingsPolicy(lastRequest_.bli));
     } else if (connectionSettings.isAutomatic()) {
-        connSettingsPolicy_.reset(new AutoConnSettingsPolicy(bli_, portMap, proxySettings.isProxyEnabled(), isFirewallAlwaysOnPlusEnabled_, preferredNodeHostname_));
+        connSettingsPolicy_.reset(new AutoConnSettingsPolicy(lastRequest_.bli, portMap, proxySettings.isProxyEnabled(), isFirewallAlwaysOnPlusEnabled_, lastRequest_.preferredNodeHostname));
     } else {
         // override WireGuard protocol to ikev2 if Firewal is Awlays On+ mode enabled
         types::ConnectionSettings overrideConnectionSettings = connectionSettings;
@@ -1539,7 +1560,7 @@ void ConnectionManager::updateConnectionSettingsPolicy(const types::ConnectionSe
                     overrideConnectionSettings = types::ConnectionSettings(it->protocol, it->ports[0], false);
             }
         }
-        connSettingsPolicy_.reset(new ManualConnSettingsPolicy(bli_, overrideConnectionSettings, portMap, preferredNodeHostname_));
+        connSettingsPolicy_.reset(new ManualConnSettingsPolicy(lastRequest_.bli, overrideConnectionSettings, portMap, lastRequest_.preferredNodeHostname));
     }
     connSettingsPolicy_->start();
     connect(connSettingsPolicy_.data(), &BaseConnSettingsPolicy::hostnamesResolved, this, &ConnectionManager::onHostnamesResolved);

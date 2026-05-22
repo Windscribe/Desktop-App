@@ -211,7 +211,6 @@ void EmergencyController::onConnectionError(CONNECT_ERROR err)
     else if (err == CONNECT_ERROR::UDP_CANT_ASSIGN
              || err == CONNECT_ERROR::UDP_NO_BUFFER_SPACE
              || err == CONNECT_ERROR::UDP_NETWORK_DOWN
-             || err == CONNECT_ERROR::WINTUN_OVER_CAPACITY
              || err == CONNECT_ERROR::TCP_ERROR
              || err == CONNECT_ERROR::CONNECTED_ERROR
              || err == CONNECT_ERROR::INITIALIZATION_SEQUENCE_COMPLETED_WITH_ERRORS)
@@ -280,7 +279,7 @@ void EmergencyController::doConnect()
     WS_ASSERT(!ovpnConfig.isEmpty());
 
     bool bOvpnSuccess = makeOVPNFile_->generate(ovpnConfig, QString::fromStdString(endpoint->ip()), types::Protocol::fromString(protocol),
-                                                endpoint->port(), 0, mss, defaultAdapterInfo_.gateway(), "", "", isAntiCensorship_, true);
+                                                endpoint->port(), 0, mss, QString::fromStdString(defaultAdapterInfo_.gatewayV4().toString()), "", "", isAntiCensorship_, "", true);
     if (!bOvpnSuccess )
     {
         qCCritical(LOG_EMERGENCY_CONNECT) << "Failed create ovpn config";
@@ -295,7 +294,12 @@ void EmergencyController::doConnect()
 
     if (!username.isEmpty() && !password.isEmpty()) {
         static_cast<OpenVPNConnection *>(connector_)->setIsEmergencyConnect(true);
-        connector_->startConnect(makeOVPNFile_->config(), "", "", username, password, proxySettings_, nullptr, false, false, QString());
+        OpenVpnStartParams p;
+        p.config = makeOVPNFile_->config();
+        p.username = username;
+        p.password = password;
+        p.proxySettings = proxySettings_;
+        connector_->startConnect(p);
         lastIp_ = QString::fromStdString(endpoint->ip());
     } else {
         qCCritical(LOG_EMERGENCY_CONNECT) << "Emergency credentials are empty";
@@ -307,7 +311,7 @@ void EmergencyController::doConnect()
 void EmergencyController::doMacRestoreProcedures()
 {
 #ifdef Q_OS_MACOS
-    helper_->deleteRoute(lastIp_, 32, defaultAdapterInfo_.gateway());
+    helper_->deleteRoute(lastIp_, 32, QString::fromStdString(defaultAdapterInfo_.gatewayV4().toString()));
     RestoreDNSManager_mac::restoreState(helper_);
 #endif
 }

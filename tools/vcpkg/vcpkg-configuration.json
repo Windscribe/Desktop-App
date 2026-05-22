@@ -9,7 +9,7 @@
       {
         "kind": "git",
         "repository": "https://github.com/Windscribe/ws-vcpkg-registry",
-        "baseline": "1146b5a4b6bb626a9ce094adad1c064bf4a56386",
+        "baseline": "ff6e7a6020171219a68681a00fc77ba0324b2712",
         "packages": [
           "7zip",
           "boost-context",
@@ -30,7 +30,8 @@
           "scapix",
           "scapix-bin",
           "skyr-url",
-          "spdlog"
+          "spdlog",
+          "tap-windows6-driver"
         ]
       }
     ]

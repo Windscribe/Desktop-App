@@ -36,7 +36,7 @@ const QString WS_STEALTH_EXTRA_TLS_PADDING = WS_PREFIX + "stealth-extra-tls-padd
 
 const QString WS_SERVERLIST_COUNTRY_OVERRIDE = WS_PREFIX + "serverlist-country-override";
 
-const QString WS_USE_OPENVPN_WINTUN = WS_PREFIX + "use-openvpn-wintun";
+const QString WS_USE_OPENVPN_TUN_TAP = WS_PREFIX + "use-openvpn-tun-tap";
 
 const QString WS_LOG_CTRLD = WS_PREFIX + "log-ctrld";
 const QString WS_LOG_PINGS = WS_PREFIX + "log-pings";
@@ -332,7 +332,7 @@ QString ExtraConfig::assetsRootOverride()
 
 bool ExtraConfig::useOpenVpnDCO()
 {
-    bool useDCO = !getFlag(WS_USE_OPENVPN_WINTUN);
+    bool useDCO = !getFlag(WS_USE_OPENVPN_TUN_TAP);
 #if defined (Q_OS_WIN)
     if (useDCO) {
         if (WinUtils::getOSBuildNumber() < kMinWindowsBuildNumberForOpenVPNDCO) {

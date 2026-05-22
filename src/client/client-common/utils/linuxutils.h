@@ -1,7 +1,11 @@
 #pragma once
 
+#include <QHash>
 #include <QString>
 #include <QStringList>
+#include <QVector>
+
+#include "types/splittunneling.h"
 
 namespace LinuxUtils
 {
@@ -34,4 +38,9 @@ namespace LinuxUtils
     QString extractExeName(const QString &execLine);
     QString unescape(const QString &in);
     QString convertToAbsolutePath(const QString &in);
+
+    // Migrate stored split-tunneling app entries that came from older clients (where Flatpak entries
+    // stored a binary basename like "firefox") to the Flatpak app ID (e.g. "org.mozilla.firefox"),
+    // which is what the helper now matches against via cgroup. Idempotent.
+    void migrateSplitTunnelingFlatpakApps(QVector<types::SplitTunnelingApp> &apps);
 }

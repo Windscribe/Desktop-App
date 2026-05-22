@@ -43,7 +43,7 @@ void InstallServiceCommand::execute()
 
         scm.installService(serviceName.c_str(), serviceCmdLine.c_str(),
                            WS_PRODUCT_NAME_W L" Service", L"Manages the firewall and controls the VPN tunnel",
-                           SERVICE_WIN32_OWN_PROCESS, SERVICE_AUTO_START, L"Nsi\0TcpIp\0", true);
+                           SERVICE_WIN32_OWN_PROCESS, SERVICE_AUTO_START, L"BFE\0Nsi\0TcpIp\0", true);
         scm.setServiceSIDType(SERVICE_SID_TYPE_UNRESTRICTED);
         scm.openService(serviceName.c_str(), SERVICE_QUERY_STATUS | SERVICE_START);
         scm.startService();
@@ -51,6 +51,6 @@ void InstallServiceCommand::execute()
         logger_->outStr(L"Reinstalled service");
     }
     catch (system_error& ex) {
-        logger_->outStr(L"WARNING: failed to reinstall service - %s", ex.what());
+        logger_->outStr(L"WARNING: failed to reinstall service - %hs", ex.what());
     }
 }

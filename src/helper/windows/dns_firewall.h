@@ -1,10 +1,11 @@
 #pragma once
 
+#include <set>
 #include <string>
-#include <unordered_set>
 #include <vector>
 
 #include "fwpm_wrapper.h"
+#include "types/ipaddress.h"
 
 class DnsFirewall
 {
@@ -26,9 +27,9 @@ private:
     bool bCurrentState_;
     GUID subLayerGUID_;
     FwpmWrapper &fwmpWrapper_;
-    std::unordered_set<std::wstring> excludeIps_;
+    std::set<types::IpAddress> excludeIps_;
 
     explicit DnsFirewall(FwpmWrapper &fwmpWrapper);
     void addFilters(HANDLE engineHandle);
-    std::vector<std::wstring> getDnsServers();
+    std::vector<types::IpAddress> getDnsServers();
 };

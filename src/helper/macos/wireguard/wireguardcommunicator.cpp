@@ -1,9 +1,10 @@
 #include "wireguardcommunicator.h"
 #include "../../common/helper_commands.h"
-#include "../execute_cmd.h"
+#include "../../common/spawn_posix.h"
 #include "utils/executable_signature/executable_signature.h"
 #include "../utils.h"
 #include <spdlog/spdlog.h>
+#include <filesystem>
 #include <regex>
 #include <type_traits>
 
@@ -152,28 +153,33 @@ bool WireGuardCommunicator::start(const std::string &deviceName, bool verboseLog
 {
     assert(!deviceName.empty());
 
-    std::string exePath = Utils::getExePath();
+    std::error_code ec;
+    std::filesystem::remove(kControlSocketFolder + deviceName + ".sock", ec);
+    if (ec) {
+        spdlog::warn("Failed to remove WireGuard control socket: {}", ec.message());
+    }
 
-    Utils::executeCommand("rm", {"-f", (kControlSocketFolder + deviceName + ".sock").c_str()});
-    const std::string fullCmd = Utils::getFullCommand(exePath, kExecutableName, "-f " + deviceName);
-    if (fullCmd.empty()) {
+    std::string wgPath;
+    if (!Utils::resolveExePath(Utils::getExePath(), kExecutableName, wgPath)) {
         spdlog::error("Invalid WireGuard command");
         return false;
     }
 
-    const std::string fullPath = exePath + "/" + kExecutableName;
     ExecutableSignature sigCheck;
-    if (!sigCheck.verify(fullPath)) {
+    if (!sigCheck.verify(wgPath)) {
         spdlog::error("WireGuard executable signature incorrect: {}", sigCheck.lastError());
         return false;
     }
 
+    Spawn::Options opts;
     if (verboseLogging) {
         // Enable verbose logging in the AmneziaWG daemon.
-        setenv("LOG_LEVEL", "debug", 1);
+        opts.extraEnv.emplace_back("LOG_LEVEL", "debug");
     }
 
-    ExecuteCmd::instance().execute(fullCmd);
+    if (!Spawn::spawnDetached(wgPath, {"-f", deviceName}, opts)) {
+        return false;
+    }
     deviceName_ = deviceName;
     verboseLogging_ = verboseLogging;
     return true;
@@ -191,7 +197,11 @@ bool WireGuardCommunicator::stop()
 // static
 bool WireGuardCommunicator::forceStop(const std::string &deviceName)
 {
-    Utils::executeCommand("rm", {"-f", (kControlSocketFolder + deviceName + ".sock").c_str()});
+    std::error_code ec;
+    std::filesystem::remove(kControlSocketFolder + deviceName + ".sock", ec);
+    if (ec) {
+        spdlog::warn("Failed to remove WireGuard control socket: {}", ec.message());
+    }
     Utils::executeCommand("pkill", {"-f", kExecutableName});
     return true;
 }

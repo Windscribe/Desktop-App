@@ -8,38 +8,27 @@ SocketWriteAll::SocketWriteAll(QObject *parent, QTcpSocket *socket) : QObject(pa
 
 void SocketWriteAll::write(const QByteArray &arr)
 {
-    if (arr_.isEmpty())
-    {
-        arr_ = arr;
-        socket_->write(arr_);
+    if (arr.isEmpty()) {
+        return;
     }
-    else
-    {
-        arr_.append(arr);
+    const qint64 n = socket_->write(arr);
+    if (n < 0) {
+        return;
     }
+    Q_ASSERT(n == arr.size());
 }
 
 void SocketWriteAll::setEmitAllDataWritten()
 {
-    if (arr_.isEmpty())
-    {
+    bEmitAllDataWritten_ = true;
+    if (socket_->bytesToWrite() == 0) {
         emit allDataWriteFinished();
     }
-    bEmitAllDataWritten_ = true;
 }
 
-void SocketWriteAll::onBytesWritten(qint64 bytes)
+void SocketWriteAll::onBytesWritten(qint64 /*bytes*/)
 {
-    arr_.remove(0, bytes);
-    if (!arr_.isEmpty())
-    {
-        socket_->write(arr_);
-    }
-    else
-    {
-        if (bEmitAllDataWritten_)
-        {
-            emit allDataWriteFinished();
-        }
+    if (bEmitAllDataWritten_ && socket_->bytesToWrite() == 0) {
+        emit allDataWriteFinished();
     }
 }

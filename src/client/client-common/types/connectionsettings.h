@@ -38,10 +38,12 @@ struct ConnectionSettings
     void fromIni(QSettings &settings, const QString &key = "");
     void toIni(QSettings &settings, const QString &key = "") const;
 
+    void validate();
+
     friend QDataStream& operator <<(QDataStream &stream, const ConnectionSettings &o);
     friend QDataStream& operator >>(QDataStream &stream, ConnectionSettings &o);
 
-    // if the currently settled protocol is not supported on this OS, then replace it.
+    // if the currently selected protocol is not supported on this OS, then replace it.
     void checkForUnavailableProtocolAndFix();
 
 private:

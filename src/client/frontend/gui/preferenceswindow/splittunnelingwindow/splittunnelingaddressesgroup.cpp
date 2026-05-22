@@ -1,9 +1,9 @@
 #include "splittunnelingaddressesgroup.h"
 
 #include <QPainter>
-#include "preferenceswindow/preferencegroup.h"
-#include "utils/ipvalidation.h"
 #include "addressitem.h"
+#include "preferenceswindow/preferencegroup.h"
+#include "utils/networkingvalidation.h"
 
 namespace PreferencesWindow {
 
@@ -44,7 +44,7 @@ void SplitTunnelingAddressesGroup::addAddress(types::SplitTunnelingNetworkRoute 
 
 void SplitTunnelingAddressesGroup::addAddressInternal(types::SplitTunnelingNetworkRoute &address)
 {
-    if (IpValidation::isDomain(address.name)) {
+    if (NetworkingValidation::isDomain(address.name)) {
         if (numDomains_ >= kMaxDomains) {
             emit setError(tr("There are too many hostnames in the list. Please remove some before adding more."));
             return;
@@ -78,7 +78,7 @@ void SplitTunnelingAddressesGroup::onAddClicked(QString address)
     switch(code) {
     case OK:
         type = SPLIT_TUNNELING_NETWORK_ROUTE_TYPE_HOSTNAME;
-        if (IpValidation::isIpCidr(address) || !IpValidation::isValidIpForCidr(address)) {
+        if (NetworkingValidation::isIpCidr(address) || !NetworkingValidation::isValidIpForCidr(address)) {
             type = SPLIT_TUNNELING_NETWORK_ROUTE_TYPE_IP;
         }
 
@@ -101,7 +101,7 @@ void SplitTunnelingAddressesGroup::onAddClicked(QString address)
 void SplitTunnelingAddressesGroup::onDeleteClicked()
 {
     AddressItem *item = static_cast<AddressItem *>(sender());
-    if (IpValidation::isDomain(item->getAddressText())) {
+    if (NetworkingValidation::isDomain(item->getAddressText())) {
         numDomains_--;
     }
     addresses_.remove(item);
@@ -111,7 +111,7 @@ void SplitTunnelingAddressesGroup::onDeleteClicked()
 
 SplitTunnelingAddressesGroup::ValidationCode SplitTunnelingAddressesGroup::validate(QString &address)
 {
-    if (!IpValidation::isIpCidrOrDomain(address)) {
+    if (!NetworkingValidation::isIpCidrOrDomain(address)) {
         return ValidationCode::ERROR_INVALID;
     }
 
@@ -119,11 +119,11 @@ SplitTunnelingAddressesGroup::ValidationCode SplitTunnelingAddressesGroup::valid
         return ValidationCode::ERROR_EXISTS;
     }
 
-    if (!IpValidation::isValidIpForCidr(address)) {
+    if (!NetworkingValidation::isValidIpForCidr(address)) {
         return ValidationCode::ERROR_INVALID;
     }
 
-    if (IpValidation::isReservedIp(address)) {
+    if (NetworkingValidation::isReservedIp(address)) {
         return ValidationCode::ERROR_RESERVED;
     }
 

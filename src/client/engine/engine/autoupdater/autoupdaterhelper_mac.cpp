@@ -6,7 +6,6 @@
 #include <QRegularExpression>
 #include "utils/log/categories.h"
 #include "utils/utils.h"
-#include "utils/executable_signature/executable_signature.h"
 #include <boost/process/v1/io.hpp>
 #include <boost/process/v1/child.hpp>
 
@@ -80,19 +79,11 @@ bool AutoUpdaterHelper_mac::verifyAndRun(const QString &tempInstallerFilename,
         return false;
     }
 
-    // verify installer
-    qCDebug(LOG_AUTO_UPDATER) << "Verifying signature and certificate of installer: " << tempInstallerFilename;
-    ExecutableSignature sigCheck;
-    if (!sigCheck.verify(tempInstallerFilename.toStdWString()))
-    {
-        qCCritical(LOG_AUTO_UPDATER) << "Failed to verify signature and certificate of downloaded installer: " << QString::fromStdString(sigCheck.lastError());
-        Utils::removeDirectory(tempInstallerFilename);
-        error_ = UPDATE_VERSION_ERROR_SIGN_FAIL;
-        return false;
-    }
-
+    // Signature verification already happened in the privileged helper on the staged copy
+    // at /Library/Application Support/Windscribe/update. That location is root:wheel and not
+    // user-writable, so re-verifying here would be redundant — the bytes can't have changed.
     QString appFolder = QCoreApplication::applicationDirPath();
-    qCDebug(LOG_AUTO_UPDATER) << "Verified signature and certificate of downloaded installer -- starting with install location: " << appFolder;
+    qCDebug(LOG_AUTO_UPDATER) << "Starting installer with install location: " << appFolder;
 
     // start installer
     // use non-static start detached to prevent output from polluting cli

@@ -33,6 +33,22 @@
         <translation>Error en la instalación</translation>
     </message>
     <message>
+        <source>The Windows Base Filtering Engine service is not running and could not be started. This core Windows service must be running to install Windscribe. Third-party security/firewall software is most often the cause of this issue.</source>
+        <translation>El servicio del Motor de Filtrado de Windows Base no está funcionando y no pudo iniciarse. Este servicio central de Windows debe estar ejecutándose para instalar Windscribe. El software de seguridad o firewall de terceros suele ser la causa de este problema.</translation>
+    </message>
+    <message>
+        <source>Windscribe is unable to connect to the Windows Base Filtering Engine service. Connecting to this core Windows service is required to install Windscribe. Third-party security/firewall software is most often the cause of this issue.</source>
+        <translation>Windscribe no puede conectarse al servicio Windows Base Filtering Engine. Es necesario conectarse a este servicio central de Windows para instalar Windscribe. El software de seguridad o firewall de terceros suele ser la causa de este problema.</translation>
+    </message>
+    <message>
+        <source>Windscribe is unable to install its helper service. Please manually uninstall Windscribe and try again. If this issue persists, please contact our Technical Support.</source>
+        <translation>Windscribe no puede instalar su servicio auxiliar. Por favor, desinstala manualmente Windscribe e inténtalo de nuevo. Si este problema persiste, por favor contacte con nuestro Soporte Técnico.</translation>
+    </message>
+    <message>
+        <source>Windscribe is unable to start its helper service. Third-party security/firewall software may be the cause. If this is not the case, please contact our Technical Support.</source>
+        <translation>Windscribe no puede poner en marcha su servicio de asistencia. El software de seguridad o cortafuegos de terceros puede ser la causa. Si no es así, por favor contacta con nuestro Soporte Técnico.</translation>
+    </message>
+    <message>
         <source>The installation could not be completed successfully. Please contact our Technical Support.</source>
         <translation>La instalación no se ha podido completar correctamente. Ponte en contacto con nuestro soporte técnico.</translation>
     </message>

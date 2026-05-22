@@ -5,6 +5,8 @@
 #include <QString>
 
 #include "enums.h"
+#include "utils/log/categories.h"
+#include "utils/networkingvalidation.h"
 #include "utils/utils.h"
 
 namespace types {
@@ -100,6 +102,39 @@ struct NetworkInterface
     bool isValid() const
     {
         return (interfaceIndex != -1 && !physicalAddress.isEmpty()) || isNoNetworkInterface();
+    }
+
+    void validate()
+    {
+        interfaceType = NETWORK_INTERFACE_TYPE_fromInt(static_cast<int>(interfaceType));
+        trustType = NETWORK_TRUST_TYPE_fromInt(static_cast<int>(trustType));
+
+        constexpr int kMaxStringLen = 256;
+        if (!interfaceName.isEmpty() && !isNoNetworkInterface() &&
+            !NetworkingValidation::isValidInterfaceName(interfaceName)) {
+            qCWarning(LOG_BASIC) << "NetworkInterface: invalid interfaceName, clearing";
+            interfaceName.clear();
+        }
+        if (networkOrSsid.size() > kMaxStringLen || networkOrSsid.contains(QChar(0))) {
+            qCWarning(LOG_BASIC) << "NetworkInterface: invalid networkOrSsid, clearing";
+            networkOrSsid.clear();
+        }
+        if (friendlyName.size() > kMaxStringLen || friendlyName.contains(QChar(0))) {
+            qCWarning(LOG_BASIC) << "NetworkInterface: invalid friendlyName, clearing";
+            friendlyName.clear();
+        }
+        if (interfaceGuid.size() > kMaxStringLen || interfaceGuid.contains(QChar(0))) {
+            qCWarning(LOG_BASIC) << "NetworkInterface: invalid interfaceGuid, clearing";
+            interfaceGuid.clear();
+        }
+        if (!physicalAddress.isEmpty() && !NetworkingValidation::isValidMacAddress(physicalAddress)) {
+            qCWarning(LOG_BASIC) << "NetworkInterface: invalid physicalAddress, clearing";
+            physicalAddress.clear();
+        }
+        if (mtu != -1 && (mtu < 68 || mtu >= 65536)) {
+            qCWarning(LOG_BASIC) << "NetworkInterface: invalid mtu, resetting";
+            mtu = 1470;
+        }
     }
 
     static NetworkInterface noNetworkInterface()

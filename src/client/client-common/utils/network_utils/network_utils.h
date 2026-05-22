@@ -1,5 +1,6 @@
 #pragma once
 
+#include <QHostAddress>
 #include <QString>
 #include <QVector>
 
@@ -19,6 +20,11 @@ namespace NetworkUtils
 
     bool pingWithMtu(const QString &url, int mtu);
     QString getLocalIP();
+
+    // Resolves the IPv4 address and prefix length of a specific interface known to the engine.
+    // outIp is left null and outPrefixLength is left at 0 if the interface has no IPv4 or no
+    // longer exists. Dispatches to the canonical per-platform helper.
+    void getInterfaceAddress(const types::NetworkInterface &iface, QHostAddress &outIp, int &outPrefixLength);
 
     QString getRoutingTable();
 }

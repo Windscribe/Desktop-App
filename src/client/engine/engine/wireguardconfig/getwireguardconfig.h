@@ -46,6 +46,7 @@ private:
 
     void submitWireGuardInitRequest(bool generateKeyPair);
     QString generateClientAddress(const QString &cidr);
+    QString generateClientIpv6Address(const QString &cidr);
 
     void setWireGuardKeyPair(const QString &publicKey, const QString &privateKey);
     WireGuardConfig readWireGuardConfigFromSettings();

@@ -28,6 +28,7 @@ std::string setDnsLeakProtectEnabled(const std::string &pars);
 std::string setGaiIpv4PriorityEnabled(const std::string &pars);
 std::string resetMacAddresses(const std::string &pars);
 std::string clearWifiHistoryData(const std::string &pars);
+std::string setOpenVpnDcoMode(const std::string &pars);
 
 static const std::map<const HelperCommand, std::function<std::string(const std::string &)>> kCommands = {
     { HelperCommand::getHelperVersion, getHelperVersion },
@@ -52,7 +53,8 @@ static const std::map<const HelperCommand, std::function<std::string(const std::
     { HelperCommand::setDnsLeakProtectEnabled, setDnsLeakProtectEnabled },
     { HelperCommand::setGaiIpv4PriorityEnabled, setGaiIpv4PriorityEnabled },
     { HelperCommand::resetMacAddresses, resetMacAddresses },
-    { HelperCommand::clearWifiHistoryData, clearWifiHistoryData }
+    { HelperCommand::clearWifiHistoryData, clearWifiHistoryData },
+    { HelperCommand::setOpenVpnDcoMode, setOpenVpnDcoMode }
 };
 
 std::string processCommand(HelperCommand cmdId, const std::string &pars);

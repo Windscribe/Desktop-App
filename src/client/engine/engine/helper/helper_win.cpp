@@ -37,12 +37,14 @@ bool Helper_win::sendConnectStatus(bool isConnected, bool isTerminateSocket, boo
 {
     auto fillAdapterInfo = [](const AdapterGatewayInfo &a, ADAPTER_GATEWAY_INFO &out) {
         out.adapterName = a.adapterName().toStdString();
-        out.adapterIp = a.adapterIp().toStdString();
-        out.gatewayIp = a.gateway().toStdString();
-        out.ifIndex = a.ifIndex();
-        const QStringList dns = a.dnsServers();
-        for(const auto &ip : dns) {
-            out.dnsServers.push_back(ip.toStdString());
+        out.adapterIp   = a.adapterIpV4();
+        out.adapterIpV6 = a.adapterIpV6();
+        out.gatewayIp   = a.gatewayV4();
+        out.gatewayIpV6 = a.gatewayV6();
+        out.ifIndex     = a.ifIndex();
+        const auto dns = a.dnsServers();
+        for (const auto &ip : dns) {
+            out.dnsServers.push_back(ip);
         }
     };
 
@@ -65,7 +67,7 @@ bool Helper_win::sendConnectStatus(bool isConnected, bool isTerminateSocket, boo
 
     fillAdapterInfo(defaultAdapter, defaultAdapterInfo);
     sendCommand(HelperCommand::sendConnectStatus, isConnected, isTerminateSocket, isKeepLocalSocket, cmdProtocol, defaultAdapterInfo, vpnAdapterInfo,
-                connectedIp.toStdString(), vpnAdapter.remoteIp().toStdString());
+                types::IpAddress(connectedIp.toStdString()), vpnAdapter.remoteIp());
 
     return true;
 }
@@ -410,4 +412,21 @@ unsigned long Helper_win::ssidFromInterfaceGUID(const QString &interfaceGUID, QS
         return 0;
     }
     return exitCode;
+}
+
+QString Helper_win::installerStageAndVerify(const QString &srcPath)
+{
+    auto result = sendCommand(HelperCommand::installerStageAndVerify, srcPath.toStdWString());
+    std::wstring stagedPath;
+    bool success = false;
+    deserializeAnswer(result, stagedPath, success);
+    if (!success) {
+        return QString();
+    }
+    return QString::fromStdWString(stagedPath);
+}
+
+void Helper_win::installerCleanupStaged()
+{
+    sendCommand(HelperCommand::installerCleanupStaged);
 }

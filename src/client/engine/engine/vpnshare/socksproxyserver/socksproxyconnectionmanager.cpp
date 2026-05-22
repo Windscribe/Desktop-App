@@ -10,15 +10,14 @@ SocksProxyConnectionManager::SocksProxyConnectionManager(QObject *parent, int th
     usersCounter_(usersCounter)
 {
     WS_ASSERT(threadsCount > 0);
-    for (int i = 0; i < threadsCount; i++)
-    {
+    for (int i = 0; i < threadsCount; i++) {
         QThread *thread = new QThread(this);
         threads_[thread] = 0;
         thread->start(QThread::LowPriority);
     }
 }
 
-void SocksProxyConnectionManager::newConnection(qintptr socketDescriptor)
+void SocksProxyConnectionManager::newConnection(qintptr socketDescriptor, const ProxyAuth::Config &auth)
 {
 #ifdef Q_OS_WIN
     SOCKADDR_IN  addr = {0};
@@ -32,27 +31,24 @@ void SocksProxyConnectionManager::newConnection(qintptr socketDescriptor)
     usersCounter_->newUserConnected(ip);
 
     QThread *thread = getLessBusyThread();
-    SocksProxyConnection *connection = new SocksProxyConnection(socketDescriptor, ip);
+    SocksProxyConnection *connection = new SocksProxyConnection(socketDescriptor, ip, auth);
     connect(connection, &SocksProxyConnection::finished, this, &SocksProxyConnectionManager::onConnectionFinished);
     addConnectionToThread(thread, connection);
 }
 
 void SocksProxyConnectionManager::closeAllConnections()
 {
-    for(auto c : connections_.keys())
-    {
+    for (auto c : connections_.keys()) {
         QMetaObject::invokeMethod(c, "forceClose", Qt::QueuedConnection);
     }
 }
 
 void SocksProxyConnectionManager::stop()
 {
-    for(auto thread : threads_.keys())
-    {
+    for (auto thread : threads_.keys()) {
         thread->exit();
     }
-    for(auto thread : threads_.keys())
-    {
+    for (auto thread : threads_.keys()) {
         thread->wait();
     }
 }
@@ -78,10 +74,8 @@ QThread *SocksProxyConnectionManager::getLessBusyThread()
     WS_ASSERT(threads_.count() > 0);
     quint32 min = threads_.begin().value();
     QThread *thread = threads_.begin().key();
-    for (QMap<QThread *, quint32>::iterator it = threads_.begin(); it != threads_.end(); ++it)
-    {
-        if (it.value() < min)
-        {
+    for (QMap<QThread *, quint32>::iterator it = threads_.begin(); it != threads_.end(); ++it) {
+        if (it.value() < min) {
             min = it.value();
             thread = it.key();
         }

@@ -1,6 +1,7 @@
 #import <Foundation/Foundation.h>
 #import <SystemConfiguration/SystemConfiguration.h>
 #import <Security/Security.h>
+#include <filesystem>
 #include <spdlog/spdlog.h>
 #include <sstream>
 #include "clear_wifi_history.h"
@@ -42,26 +43,14 @@ bool ClearWiFiHistory::clear()
 std::string ClearWiFiHistory::getCurrentConnectedSSID()
 {
     std::string currentSSID;
-    
-    // First, get the WiFi interface name
-    std::string wifiInterface;
-    int ifaceResult = Utils::executeCommand("sh",
-        {"-c", "networksetup -listallhardwareports | awk '/Wi-Fi|AirPort/{getline; print $NF}'"},
-        &wifiInterface);
-    
-    if (ifaceResult != 0 || wifiInterface.empty()) {
-        spdlog::warn("Failed to determine WiFi interface");
-        return currentSSID;
-    }
-    
-    // Trim whitespace from interface name
-    wifiInterface.erase(wifiInterface.find_last_not_of(" \n\r\t") + 1);
-    
-    if (wifiInterface.empty()) {
+
+    auto ifaces = getWiFiInterfaces();
+    if (ifaces.empty()) {
         spdlog::warn("No WiFi interface found");
         return currentSSID;
     }
-    
+    const std::string &wifiInterface = ifaces.front();
+
     // Get SSID using ipconfig getsummary
     std::string ipconfigOutput;
     std::vector<std::string> args = {"getsummary", wifiInterface};
@@ -212,95 +201,99 @@ std::vector<std::string> ClearWiFiHistory::getWiFiInterfaces()
 bool ClearWiFiHistory::clearWiFiPasswordsFromKeychain(const std::string &currentSSID)
 {
     spdlog::debug("Clearing WiFi passwords from keychain except current");
-    
-    // Get list of all WiFi network SSIDs from all keychains
-    // Note: WiFi passwords are typically stored in System.keychain, but we search all keychains
-    std::string dumpOutput;
-    int dumpResult = Utils::executeCommand("sh",
-        {"-c", "security dump-keychain 2>&1 | "
-               "grep -B 5 'AirPort network password' | "
-               "grep '\"acct\"' | "
-               "sed 's/.*\"acct\"<blob>=\"\\(.*\\)\"/\\1/' | "
-               "sort -u"},
-        &dumpOutput);
-    
-    if (dumpResult != 0) {
-        spdlog::warn("Failed to list WiFi passwords from keychain");
-        return false;
-    }
-    
-    if (dumpOutput.empty()) {
+
+    // Enumerate generic-password keychain items with description "AirPort network password"
+    // — that's the canonical macOS storage label for stored Wi-Fi passwords. The Account
+    // attribute holds the SSID. Dedup via NSSet since the same SSID can appear multiple times.
+    NSDictionary *query = @{
+        (__bridge id)kSecClass: (__bridge id)kSecClassGenericPassword,
+        (__bridge id)kSecAttrDescription: @"AirPort network password",
+        (__bridge id)kSecMatchLimit: (__bridge id)kSecMatchLimitAll,
+        (__bridge id)kSecReturnAttributes: @YES,
+    };
+
+    CFTypeRef result = NULL;
+    OSStatus status = SecItemCopyMatching((__bridge CFDictionaryRef)query, &result);
+    if (status == errSecItemNotFound) {
         spdlog::debug("No WiFi passwords found in keychain");
         return true;
     }
-    
-    // Parse SSIDs from output (one per line)
-    std::istringstream stream(dumpOutput);
-    std::string ssid;
+    if (status != errSecSuccess) {
+        spdlog::warn("SecItemCopyMatching failed: {}", (int)status);
+        return false;
+    }
+
+    NSArray *items = (__bridge_transfer NSArray *)result;
+    NSMutableSet *ssids = [NSMutableSet set];
+    for (NSDictionary *item in items) {
+        NSString *acct = item[(__bridge id)kSecAttrAccount];
+        if ([acct isKindOfClass:[NSString class]] && acct.length > 0) {
+            [ssids addObject:acct];
+        }
+    }
+
     int deletedCount = 0;
     int skippedCount = 0;
-    
-    while (std::getline(stream, ssid)) {
-        // Trim whitespace
-        ssid.erase(ssid.find_last_not_of(" \n\r\t") + 1);
-        size_t firstNonSpace = ssid.find_first_not_of(" \t");
-        if (firstNonSpace != std::string::npos) {
-            ssid = ssid.substr(firstNonSpace);
-        }
-        
-        if (ssid.empty()) {
-            continue;
-        }
-        
-        // Skip if this is the current connected network
+    for (NSString *nsSsid in ssids) {
+        std::string ssid([nsSsid UTF8String]);
+
         if (!currentSSID.empty() && ssid == currentSSID) {
             spdlog::debug("Skipping password for current network: {}", ssid);
             skippedCount++;
             continue;
         }
-        
-        // Delete this password from all keychains
-        // By not specifying a keychain, security will search in all available keychains
-        int result = Utils::executeCommand("security",
+
+        int rc = Utils::executeCommand("security",
             {"delete-generic-password",
              "-D", "AirPort network password",
              "-a", ssid},
             nullptr);
-        
-        if (result == 0) {
+
+        if (rc == 0) {
             deletedCount++;
             spdlog::debug("Successfully deleted password for: {}", ssid);
         } else {
             spdlog::warn("Failed to delete password for: {}", ssid);
         }
     }
-    
+
     spdlog::debug("Deleted {} WiFi password(s), kept {} password(s)", deletedCount, skippedCount);
-    
     return true;
 }
 
 bool ClearWiFiHistory::clearWiFiDiagnosticLogs()
 {
     spdlog::debug("Clearing WiFi diagnostic logs");
-    
-    bool success = true;
-    
-    // Clear various log locations using shell for wildcard expansion
-    std::vector<std::string> logCommands = {
-        "rm -rf /var/log/wifi.log* 2>/dev/null || true",
-        "rm -rf /Library/Logs/DiagnosticReports/WiFi* 2>/dev/null || true",
-        "rm -rf /private/var/log/wifi-* 2>/dev/null || true"
+
+    struct LogPath {
+        std::filesystem::path dir;
+        std::string prefix;
     };
-    
-    for (const auto &cmd : logCommands) {
-        int result = Utils::executeCommand("sh", {"-c", cmd});
-        if (result == 0) {
-            spdlog::debug("Cleared log path with command: {}", cmd);
-        } else {
-            spdlog::debug("Command completed (files may not exist): {}", cmd);
+    const std::vector<LogPath> logPaths = {
+        {"/var/log", "wifi.log"},
+        {"/Library/Logs/DiagnosticReports", "WiFi"},
+        {"/private/var/log", "wifi-"},
+    };
+
+    for (const auto &lp : logPaths) {
+        std::error_code ec;
+        if (!std::filesystem::exists(lp.dir, ec)) {
+            continue;
+        }
+        for (std::filesystem::directory_iterator it(lp.dir, ec), end; !ec && it != end; it.increment(ec)) {
+            const std::string name = it->path().filename().string();
+            if (name.rfind(lp.prefix, 0) != 0) {
+                continue;
+            }
+            std::error_code rmEc;
+            std::filesystem::remove_all(it->path(), rmEc);
+            if (rmEc) {
+                spdlog::debug("Failed to remove {}: {}", it->path().string(), rmEc.message());
+            } else {
+                spdlog::debug("Removed {}", it->path().string());
+            }
         }
     }
-    
-    return success;
+
+    return true;
 }

@@ -34,12 +34,14 @@ bool Helper_posix::sendConnectStatus(bool isConnected, bool isTerminateSocket, b
 {
     auto fillAdapterInfo = [](const AdapterGatewayInfo &a, ADAPTER_GATEWAY_INFO &out) {
         out.adapterName = a.adapterName().toStdString();
-        out.adapterIp = a.adapterIp().toStdString();
-        out.gatewayIp = a.gateway().toStdString();
-        out.ifIndex = a.ifIndex();
-        const QStringList dns = a.dnsServers();
-        for(const auto &ip : dns) {
-            out.dnsServers.push_back(ip.toStdString());
+        out.adapterIp   = a.adapterIpV4();
+        out.adapterIpV6 = a.adapterIpV6();
+        out.gatewayIp   = a.gatewayV4();
+        out.gatewayIpV6 = a.gatewayV6();
+        out.ifIndex     = a.ifIndex();
+        const auto dns = a.dnsServers();
+        for (const auto &ip : dns) {
+            out.dnsServers.push_back(ip);
         }
     };
 
@@ -62,7 +64,7 @@ bool Helper_posix::sendConnectStatus(bool isConnected, bool isTerminateSocket, b
 
     fillAdapterInfo(defaultAdapter, defaultAdapterInfo);
     auto result = sendCommand(HelperCommand::sendConnectStatus, isConnected, cmdProtocol, defaultAdapterInfo, vpnAdapterInfo,
-                connectedIp.toStdString(), vpnAdapter.remoteIp().toStdString());
+                types::IpAddress(connectedIp.toStdString()), vpnAdapter.remoteIp());
     bool success = false;
     deserializeAnswer(result, success);
     return success;
@@ -286,5 +288,10 @@ bool Helper_posix::clearWifiHistoryData()
     bool success = false;
     deserializeAnswer(result, success);
     return success;
+}
+
+void Helper_posix::installerCleanupStaged()
+{
+    sendCommand(HelperCommand::installerCleanupStaged);
 }
 

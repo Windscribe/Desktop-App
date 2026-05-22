@@ -45,6 +45,22 @@
         <translation>기존에 설치된 Windscribe 버전을 제거할 수 없습니다. 응용 프로그램을 수동으로 제거하고 다시 시도하십시오.</translation>
     </message>
     <message>
+        <source>The Windows Base Filtering Engine service is not running and could not be started. This core Windows service must be running to install Windscribe. Third-party security/firewall software is most often the cause of this issue.</source>
+        <translation>Windows 기본 필터링 엔진 서비스가 실행되지 않고 시작할 수 없습니다. Windscribe를 설치하려면 이 핵심 Windows 서비스가 반드시 실행 중이어야 합니다. 이 문제의 원인은 대부분 서드파티 보안/방화벽 소프트웨어입니다.</translation>
+    </message>
+    <message>
+        <source>Windscribe is unable to connect to the Windows Base Filtering Engine service. Connecting to this core Windows service is required to install Windscribe. Third-party security/firewall software is most often the cause of this issue.</source>
+        <translation>Windscribe는 Windows 기본 필터링 엔진 서비스에 연결할 수 없습니다. Windscribe를 설치하려면 이 핵심 Windows 서비스에 연결해야 합니다. 이 문제의 원인은 대부분 서드파티 보안/방화벽 소프트웨어입니다.</translation>
+    </message>
+    <message>
+        <source>Windscribe is unable to install its helper service. Please manually uninstall Windscribe and try again. If this issue persists, please contact our Technical Support.</source>
+        <translation>Windscribe는 보조 서비스를 설치할 수 없습니다. Windscribe를 수동으로 삭제하고 다시 시도해 주세요. 이 문제가 계속되면 기술 지원팀에 연락해 주세요.</translation>
+    </message>
+    <message>
+        <source>Windscribe is unable to start its helper service. Third-party security/firewall software may be the cause. If this is not the case, please contact our Technical Support.</source>
+        <translation>Windscribe는 보조 서비스를 시작할 수 없습니다. 서드파티 보안/방화벽 소프트웨어가 원인일 수 있습니다. 그렇지 않다면 기술 지원팀에 연락해 주시기 바랍니다.</translation>
+    </message>
+    <message>
         <source>The installation could not be completed successfully. Please contact our Technical Support.</source>
         <translation>설치를 완료할 수 없습니다. 기술 지원에 문의하십시오.</translation>
     </message>

@@ -44,6 +44,7 @@ Requires:	psmisc
 Requires:	coreutils
 Requires:	libgthread-2_0-0
 Requires:	desktop-file-utils
+Requires:	libacl1
 
 %description
 Windscribe client.
@@ -85,21 +86,16 @@ if [ $1 -eq 0 ]; then
     groupdel -f windscribe || true
     rm -f /usr/bin/windscribe-cli
     rm -rf /var/log/windscribe
+    rm -rf /var/lib/windscribe
     rm -rf /etc/windscribe
     rm -rf /opt/windscribe
 else
-    rm -rf /etc/windscribe/stunnel.conf
-    rm -rf /etc/windscribe/config.ovpn
-    mkdir -p /var/tmp/windscribe
-    if [ -d "/etc/windscribe/windscribe_servers" ]; then
-        mv -f /etc/windscribe/windscribe_servers /var/tmp/windscribe
-    fi
+    rm -rf /etc/windscribe/stunnel.conf /etc/windscribe/config.ovpn /etc/windscribe/windscribe_servers
 fi
 
 %files
 %config /etc/windscribe/autostart/windscribe.desktop
 /opt/windscribe/*
-/usr/polkit-1/actions/com.windscribe.authhelper.policy
 /usr/lib/systemd/system-preset/69-windscribe-helper.preset
 /usr/lib/systemd/system/windscribe-helper.service
 /usr/share/applications/windscribe.desktop

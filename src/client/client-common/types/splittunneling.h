@@ -7,8 +7,8 @@
 #include <QVector>
 
 #include "types/enums.h"
-#include "utils/ipvalidation.h"
 #include "utils/log/categories.h"
+#include "utils/networkingvalidation.h"
 
 namespace types {
 
@@ -72,6 +72,11 @@ struct SplitTunnelingSettings
         return stream;
     }
 
+    void validate()
+    {
+        mode = SPLIT_TUNNELING_MODE_fromInt(static_cast<int>(mode));
+    }
+
 private:
     static const inline QString kJsonActiveProp = "active";
     static const inline QString kJsonModeProp = "mode";
@@ -94,10 +99,7 @@ struct SplitTunnelingNetworkRoute
         }
 
         if (json.contains(kJsonNameProp) && json[kJsonNameProp].isString()) {
-            QString str = json[kJsonNameProp].toString();
-            if (IpValidation::isIpCidrOrDomain(str)) {
-                name = str;
-            }
+            name = json[kJsonNameProp].toString();
         }
 
         if (json.contains(kJsonActiveProp) && json[kJsonActiveProp].isBool()) {
@@ -153,6 +155,16 @@ struct SplitTunnelingNetworkRoute
         return stream;
     }
 
+    bool isValidName() const
+    {
+        return NetworkingValidation::isIpCidrOrDomain(name);
+    }
+
+    void validate()
+    {
+        type = SPLIT_TUNNELING_NETWORK_ROUTE_TYPE_fromInt(static_cast<int>(type));
+    }
+
 private:
     static const inline QString kJsonTypeProp = "type";
     static const inline QString kJsonNameProp = "name";
@@ -178,9 +190,15 @@ struct SplitTunnelingApp
 
         if (json.contains(kJsonFullNameProp) && json[kJsonFullNameProp].isString()) {
             QString path = json[kJsonFullNameProp].toString();
-            std::error_code ec;
-            if (std::filesystem::exists(path.toStdString(), ec)) {
+            // Linux Flatpak entries store the app ID (e.g. org.mozilla.firefox) here, which has no
+            // on-disk path. Only run the existence check for path-shaped values.
+            if (!path.startsWith('/')) {
                 fullName = path;
+            } else {
+                std::error_code ec;
+                if (std::filesystem::exists(path.toStdString(), ec)) {
+                    fullName = path;
+                }
             }
         }
 
@@ -226,8 +244,8 @@ struct SplitTunnelingApp
         json[kJsonNameProp] = name;
         json[kJsonTypeProp] = static_cast<int>(type);
         if (isForDebugLog) {
-            json["fullNameDesc"] = fullName.isEmpty() ? "empty" : "settled";
-            json["iconDesc"] = icon.isEmpty() ? "empty" : "settled";
+            json["fullNameDesc"] = fullName.isEmpty() ? "empty" : "set";
+            json["iconDesc"] = icon.isEmpty() ? "empty" : "set";
         } else {
             json[kJsonFullNameProp] = fullName;
             json[kJsonIconProp] = icon;
@@ -258,6 +276,11 @@ struct SplitTunnelingApp
         return stream;
     }
 
+    void validate()
+    {
+        type = SPLIT_TUNNELING_APP_TYPE_fromInt(static_cast<int>(type));
+    }
+
 private:
     static const inline QString kJsonActiveProp = "active";
     static const inline QString kJsonFullNameProp = "fullName";
@@ -285,12 +308,7 @@ struct SplitTunneling
             apps.reserve(appsArray.size());
             for (const QJsonValue &appValue : appsArray) {
                 if (appValue.isObject()) {
-                    SplitTunnelingApp app = SplitTunnelingApp(appValue.toObject());
-                    if (app.fullName.isEmpty()) {
-                        // App not found on this system, skip this entry
-                        continue;
-                    }
-                    apps.append(app);
+                    apps.append(SplitTunnelingApp(appValue.toObject()));
                 }
             }
         }
@@ -301,12 +319,7 @@ struct SplitTunneling
             networkRoutes.reserve(networkRoutesArray.size());
             for (const QJsonValue &routeValue : networkRoutesArray) {
                 if (routeValue.isObject()) {
-                    SplitTunnelingNetworkRoute route = SplitTunnelingNetworkRoute(routeValue.toObject());
-                    if (route.name.isEmpty()) {
-                        // Invalid route, skip this entry
-                        continue;
-                    }
-                    networkRoutes.append(route);
+                    networkRoutes.append(SplitTunnelingNetworkRoute(routeValue.toObject()));
                 }
             }
         }
@@ -338,15 +351,19 @@ struct SplitTunneling
             QStringList appsList;
             appsList = s.value(kIniSplitTunnelingAppsProp).toStringList();
             for (auto appPath : appsList) {
-                std::error_code ec;
-                std::filesystem::path path(appPath.toStdString());
-                if (path.empty()) {
+                if (appPath.isEmpty()) {
                     continue;
                 }
-                bool exists = std::filesystem::exists(path, ec);
-                if (ec || !exists) {
-                    qCDebug(LOG_BASIC) << "Skipping non-existent split tunneling app '" << appPath << "'";
-                    continue;
+                // Linux Flatpak entries store the app ID (e.g. org.mozilla.firefox) here, which has
+                // no on-disk path. Only run the existence check for path-shaped values.
+                if (appPath.startsWith('/')) {
+                    std::error_code ec;
+                    std::filesystem::path path(appPath.toStdString());
+                    bool exists = std::filesystem::exists(path, ec);
+                    if (ec || !exists) {
+                        qCDebug(LOG_BASIC) << "Skipping non-existent split tunneling app '" << appPath << "'";
+                        continue;
+                    }
                 }
 
                 SplitTunnelingApp a;
@@ -369,13 +386,10 @@ struct SplitTunneling
                 }
                 SplitTunnelingNetworkRoute r;
                 r.name = route;
-                if (IpValidation::isIpCidr(route)) {
+                if (NetworkingValidation::isIpCidr(route)) {
                     r.type = SPLIT_TUNNELING_NETWORK_ROUTE_TYPE_IP;
-                } else if (IpValidation::isDomain(route)) {
-                    r.type = SPLIT_TUNNELING_NETWORK_ROUTE_TYPE_HOSTNAME;
                 } else {
-                    qCDebug(LOG_BASIC) << "Skipping unrecognized split tunneling route type";
-                    continue;
+                    r.type = SPLIT_TUNNELING_NETWORK_ROUTE_TYPE_HOSTNAME;
                 }
                 networkRoutes << r;
             }
@@ -449,6 +463,52 @@ struct SplitTunneling
         }
         stream >> o.settings >> o.apps >> o.networkRoutes;
         return stream;
+    }
+
+    void validate()
+    {
+        settings.validate();
+
+        constexpr int kMaxApps = 1024;
+        constexpr int kMaxRoutes = 1024;
+        constexpr int kMaxStringLen = 4096;
+
+        if (apps.size() > kMaxApps) {
+            qCWarning(LOG_BASIC) << "SplitTunneling: apps over cap, truncating";
+            apps.resize(kMaxApps);
+        }
+        QVector<SplitTunnelingApp> filteredApps;
+        filteredApps.reserve(apps.size());
+        for (SplitTunnelingApp &app : apps) {
+            if (app.fullName.isEmpty()) {
+                // App not found on this system (file existence check in constructor)
+                continue;
+            }
+            if (app.fullName.size() > kMaxStringLen || app.name.size() > kMaxStringLen ||
+                app.fullName.contains(QChar(0)) || app.name.contains(QChar(0))) {
+                qCWarning(LOG_BASIC) << "SplitTunneling: dropping app with invalid path";
+                continue;
+            }
+            app.validate();
+            filteredApps.append(app);
+        }
+        apps = filteredApps;
+
+        if (networkRoutes.size() > kMaxRoutes) {
+            qCWarning(LOG_BASIC) << "SplitTunneling: networkRoutes over cap, truncating";
+            networkRoutes.resize(kMaxRoutes);
+        }
+        QVector<SplitTunnelingNetworkRoute> filteredRoutes;
+        filteredRoutes.reserve(networkRoutes.size());
+        for (SplitTunnelingNetworkRoute &r : networkRoutes) {
+            if (!r.isValidName()) {
+                qCWarning(LOG_BASIC) << "SplitTunneling: dropping route with invalid name";
+                continue;
+            }
+            r.validate();
+            filteredRoutes.append(r);
+        }
+        networkRoutes = filteredRoutes;
     }
 
 private:

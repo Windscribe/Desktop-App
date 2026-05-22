@@ -75,6 +75,7 @@ private slots:
     void onIsExternalConfigModeChanged(bool bIsExternalConfigMode);
     void onTerminateSocketsPreferencesChanged(bool b);
     void onIsAutoConnectPreferencesChanged(bool b);
+    void onIpStackPreferencesChanged(IpStack ipStackEgress);
 
     // slots for changes made by user
     void onFirewallPreferencesChangedByUser(const types::FirewallSettings &fm);
@@ -88,6 +89,7 @@ private slots:
     void onProxyGatewayPreferencesChangedByUser(const types::ShareProxyGateway &sp);
     void onTerminateSocketsPreferencesChangedByUser(bool isChecked);
     void onIsAutoConnectPreferencesChangedByUser(bool b);
+    void onIpStackComboBoxItemChanged(QVariant o);
 
     void onUpdateIsSecureHotspotSupported();
     void onClearWifiHistoryClick();
@@ -108,6 +110,10 @@ private:
     FirewallGroup *firewallGroup_;
     ProtocolGroup *connectionModeGroup_;
     PacketSizeGroup *packetSizeGroup_;
+
+    PreferenceGroup *ipStackGroup_;
+    ComboBoxItem *comboBoxIpStack_;
+
     MacSpoofingGroup *macSpoofingGroup_;
     PreferenceGroup *allowLanTrafficGroup_;
     PreferenceGroup *autoConnectGroup_;

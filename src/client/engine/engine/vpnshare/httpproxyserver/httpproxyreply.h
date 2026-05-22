@@ -24,6 +24,7 @@ public:
         unauthorized = 401,
         forbidden = 403,
         not_found = 404,
+        proxy_authentication_required = 407,
         internal_server_error = 500,
         not_implemented = 501,
         bad_gateway = 502,

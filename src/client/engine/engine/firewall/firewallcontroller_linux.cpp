@@ -101,6 +101,21 @@ bool FirewallController_linux::firewallOnImpl(const QString &connectingIp, const
         rules << ":" WS_PRODUCT_NAME_LOWER "_output - [0:0]\n";
         rules << ":" WS_PRODUCT_NAME_LOWER "_block - [0:0]\n";
 
+        // The helper invokes `iptables-restore -n`, which (unlike the default) does
+        // NOT flush existing chains — a `:CHAIN - [0:0]` header under -n only
+        // creates the chain if absent and zeros its counters; existing rules stay.
+        // Without explicit -F, every reinvocation of firewallOnImpl (state change
+        // or forceUpdateInterfaceToSkip_ path, both of which run without an
+        // intervening firewallOff) would append a fresh copy of the entire rule
+        // set on top of the previous one. Concrete failure mode: adapter wgN→wgN+1
+        // leaves a stale `-i wgN -j ACCEPT` next to the freshly-added `-i wgN+1
+        // -j ACCEPT`, and the chain grows unboundedly across reconnects. Flushing
+        // here makes the blob authoritative for its own chains while leaving
+        // INPUT/OUTPUT jumps and any third-party rules intact (-F is chain-scoped).
+        rules << "-F " WS_PRODUCT_NAME_LOWER "_input\n";
+        rules << "-F " WS_PRODUCT_NAME_LOWER "_output\n";
+        rules << "-F " WS_PRODUCT_NAME_LOWER "_block\n";
+
         if (!bExists) {
             rules << "-I INPUT -j " WS_PRODUCT_NAME_LOWER "_input -m comment --comment \"" + comment_ + "\"\n";
             rules << "-I OUTPUT -j " WS_PRODUCT_NAME_LOWER "_output -m comment --comment \"" + comment_ + "\"\n";
@@ -163,6 +178,7 @@ bool FirewallController_linux::firewallOnImpl(const QString &connectingIp, const
             // Allow marked packets.  These packets are marked by the wireguard adapter code.
             // This is necessary because wg packets have uid/gid of the app that created the packet, not wg itself.
             rules << "-A " WS_PRODUCT_NAME_LOWER "_output -d " + connectingIp + "/32 -j ACCEPT -m mark --mark 51820 -m comment --comment \"" + comment_ + "\"\n";
+            rules << "-A " WS_PRODUCT_NAME_LOWER "_output -d " + connectingIp + "/32 -j ACCEPT -m mark --mark 20310 -m comment --comment \"" + comment_ + "\"\n";
         }
 
         for (const auto &i : ips) {
@@ -210,13 +226,22 @@ bool FirewallController_linux::firewallOnImpl(const QString &connectingIp, const
         }
     }
 
-    // rules for IPv6 (disable IPv6)
+    // rules for IPv6 — v6 is blocked by default; permitted on the VPN adapter
+    // only when the WG server pushed a global v6 client address (probed via
+    // hasIPv6Address).
     {
         QStringList rules;
 
         rules << "*filter\n";
         rules << ":" WS_PRODUCT_NAME_LOWER "_input - [0:0]\n";
         rules << ":" WS_PRODUCT_NAME_LOWER "_output - [0:0]\n";
+
+        // See the v4 block above: `ip6tables-restore -n` does not flush chains
+        // declared via `:CHAIN`, so we have to flush explicitly to keep
+        // reinvocation idempotent (no rule duplication across reconnects /
+        // interface-skip refreshes).
+        rules << "-F " WS_PRODUCT_NAME_LOWER "_input\n";
+        rules << "-F " WS_PRODUCT_NAME_LOWER "_output\n";
 
         if (!bExists) {
             rules << "-I INPUT -j " WS_PRODUCT_NAME_LOWER "_input -m comment --comment \"" + comment_ + "\"\n";
@@ -231,10 +256,43 @@ bool FirewallController_linux::firewallOnImpl(const QString &connectingIp, const
         rules << "-A " WS_PRODUCT_NAME_LOWER "_input -s fe80::/10 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
         rules << "-A " WS_PRODUCT_NAME_LOWER "_output -d fe80::/10 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
 
-        // IPv6 multicast (controlled by Allow LAN traffic setting)
+        // DHCPv6 (RFC 8415): client uses port 546, server uses port 547. Allowed
+        // unconditionally so the host can renew addresses on a v6 LAN segment —
+        // mirrors the unconditional DHCPv4 permit at lines ~117–118.
+        rules << "-A " WS_PRODUCT_NAME_LOWER "_input -p udp --sport 547 --dport 546 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
+        rules << "-A " WS_PRODUCT_NAME_LOWER "_output -p udp --sport 546 --dport 547 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
+
+        // ICMPv6 NDP/MLD (RFC 4890): NS/NA/RS/RA/Redirect and MLD reports use
+        // multicast destinations (solicited-node ff02::1:ff…/104, all-routers
+        // ff02::2) that fall under the ff00::/8 rule below. Without this
+        // carve-out, allowLanTraffic=false would kill neighbor resolution and
+        // any v6 traffic — including via the VPN adapter once an off-link v6
+        // peer needs MAC resolution upstream of the host. IPv4 doesn't need an
+        // equivalent because ARP is L2 and bypasses iptables. Parity with
+        // firewallonboot.cpp.
+        for (int icmpv6Type : {130, 131, 132, 133, 134, 135, 136, 137, 143}) {
+            const QString t = QString::number(icmpv6Type);
+            rules << "-A " WS_PRODUCT_NAME_LOWER "_input -p ipv6-icmp --icmpv6-type " + t + " -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
+            rules << "-A " WS_PRODUCT_NAME_LOWER "_output -p ipv6-icmp --icmpv6-type " + t + " -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
+        }
+
+        // IPv6 application-layer multicast (mDNS, SSDP, LLMNR, etc.) per
+        // allowLanTraffic / custom config. NDP/MLD already carved out above so
+        // the DROP branch only restricts user-visible LAN multicast, not
+        // protocol-level address resolution.
         QString actionV6 = (bAllowLanTraffic || bIsCustomConfig) ? "ACCEPT" : "DROP";
         rules << "-A " WS_PRODUCT_NAME_LOWER "_input -s ff00::/8 -j " + actionV6 + " -m comment --comment \"" + comment_ + "\"\n";
         rules << "-A " WS_PRODUCT_NAME_LOWER "_output -d ff00::/8 -j " + actionV6 + " -m comment --comment \"" + comment_ + "\"\n";
+
+        // Conditional VPN-adapter permit. Only enabled when a v6 unicast address
+        // is actually present on the tunnel — gated to avoid leaks for v4-only
+        // tunnels (OpenVPN/Stunnel/Wstunnel never push v6, and WG only pushes v6
+        // when the server is configured to do so).
+        if (!interfaceToSkip_.isEmpty() && hasIPv6Address(interfaceToSkip_)) {
+            qCInfo(LOG_FIREWALL_CONTROLLER) << "IPv6 permitted on VPN adapter:" << interfaceToSkip_;
+            rules << "-A " WS_PRODUCT_NAME_LOWER "_input -i " + interfaceToSkip_ + " -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
+            rules << "-A " WS_PRODUCT_NAME_LOWER "_output -o " + interfaceToSkip_ + " -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
+        }
 
         rules << "-A " WS_PRODUCT_NAME_LOWER "_input -j DROP -m comment --comment \"" + comment_ + "\"\n";
         rules << "-A " WS_PRODUCT_NAME_LOWER "_output -j DROP -m comment --comment \"" + comment_ + "\"\n";
@@ -343,6 +401,48 @@ QStringList FirewallController_linux::getLocalAddresses(const QString iface) con
 
     freeifaddrs(ifap);
     return addrs;
+}
+
+bool FirewallController_linux::hasIPv6Address(const QString &iface) const
+{
+    if (iface.isEmpty()) {
+        return false;
+    }
+
+    struct ifaddrs *ifap = nullptr;
+    if (getifaddrs(&ifap)) {
+        qCCritical(LOG_FIREWALL_CONTROLLER) << "FirewallController_linux::hasIPv6Address: getifaddrs failed for" << iface;
+        return false;
+    }
+
+    const QByteArray ifaceUtf8 = iface.toUtf8();
+    bool found = false;
+    for (struct ifaddrs *cur = ifap; cur != nullptr; cur = cur->ifa_next) {
+        if (cur->ifa_addr == nullptr ||
+            cur->ifa_addr->sa_family != AF_INET6 ||
+            cur->ifa_name == nullptr) {
+            continue;
+        }
+        // Exact name match — getLocalAddresses uses strncmp, but that mistakenly
+        // accepts "wg01" when looking for "wg0". For the v6 capability gate we
+        // want a strict match on interfaceToSkip_.
+        if (strcmp(cur->ifa_name, ifaceUtf8.constData()) != 0) {
+            continue;
+        }
+        const struct sockaddr_in6 *sin6 =
+            reinterpret_cast<const struct sockaddr_in6 *>(cur->ifa_addr);
+        // Skip link-local (fe80::/10): the kernel autoconfigures one on every
+        // v6-capable iface regardless of whether the WG server pushed a tunnel
+        // address. Only a globally-scoped or ULA address indicates real v6 capability.
+        if (IN6_IS_ADDR_LINKLOCAL(&sin6->sin6_addr)) {
+            continue;
+        }
+        found = true;
+        break;
+    }
+
+    freeifaddrs(ifap);
+    return found;
 }
 
 // Return hotspot adapter name, or empty string if hotspot adapter not found on not connected

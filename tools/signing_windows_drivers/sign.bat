@@ -7,7 +7,7 @@ set CONTAINER_NAME=%3
 set SIGNING_TOKEN_PASSWORD=%4
 set VSCOMNTOOLS="C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvarsall.bat"
 set INF2CAT_TOOL_PATH="C:\Program Files (x86)\Windows Kits\10\bin\x86\inf2cat.exe"
-set AMD_64_OS_LIST=7_X64,8_X64,6_3_X64,10_X64,10_AU_X64,10_RS2_X64,10_RS3_X64,10_RS4_X64,10_RS5_X64,10_19H1_X64,10_VB_X64,Server2008R2_X64,Server8_X64,Server6_3_X64,Server10_X64,Server2016_X64,ServerRS5_X64
+set AMD_64_OS_LIST=6_3_X64,10_X64,10_AU_X64,10_RS2_X64,10_RS3_X64,10_RS4_X64,10_RS5_X64,10_19H1_X64,10_VB_X64,Server6_3_X64,Server10_X64,Server2016_X64,ServerRS5_X64
 set ARM_64_OS_LIST=10_RS3_ARM64,10_RS4_ARM64,10_RS5_ARM64,10_19H1_ARM64,10_VB_ARM64,Server10_ARM64,ServerRS5_ARM64
 
 if NOT exist %VSCOMNTOOLS% (
@@ -41,14 +41,6 @@ if %errorlevel% equ 0 (
 ) ELSE (
     goto :end
 )
-echo Signing %ARCH_PAR% driver with SHA-1...
-call signtool.exe sign /v /as /tr http://timestamp.digicert.com /td sha1 /fd sha1 /f code_signing.der /csp "eToken Base Cryptographic Provider" /kc "[{{%SIGNING_TOKEN_PASSWORD%}}]=%CONTAINER_NAME%" /n "Windscribe Limited" "%curpath%\%ARCH_PAR%\%FILE_TO_SIGN%.sys"
-if %errorlevel% equ 0 (
-    echo Driver successfully signed.
-) ELSE (
-    goto :end
-)
-
 
 IF "%ARCH_PAR%"=="amd64" (
     %INF2CAT_TOOL_PATH% /driver:%curpath%/%ARCH_PAR% /os:%AMD_64_OS_LIST%
@@ -59,13 +51,6 @@ IF "%ARCH_PAR%"=="arm64" (
 
 echo Signing %ARCH_PAR% catalog file with SHA-256...
 call signtool.exe sign /v /tr http://timestamp.digicert.com /td sha256 /fd sha256 /f code_signing.der /csp "eToken Base Cryptographic Provider" /kc "[{{%SIGNING_TOKEN_PASSWORD%}}]=%CONTAINER_NAME%" /n "Windscribe Limited" "%curpath%\%ARCH_PAR%\%FILE_TO_SIGN%.cat"
-if %errorlevel% equ 0 (
-    echo Driver successfully signed.
-) ELSE (
-    goto :end
-)
-echo Signing %ARCH_PAR% catalog file with SHA-1...
-call signtool.exe sign /v /as /tr http://timestamp.digicert.com /td sha1 /fd sha1 /f code_signing.der /csp "eToken Base Cryptographic Provider" /kc "[{{%SIGNING_TOKEN_PASSWORD%}}]=%CONTAINER_NAME%" /n "Windscribe Limited" "%curpath%\%ARCH_PAR%\%FILE_TO_SIGN%.cat"
 if %errorlevel% equ 0 (
     echo Driver successfully signed.
 ) ELSE (

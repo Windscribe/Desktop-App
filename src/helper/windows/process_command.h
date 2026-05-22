@@ -52,6 +52,8 @@ std::string removeOpenVpnAdapter(const std::string &pars);
 std::string disableDohSettings(const std::string &pars);
 std::string enableDohSettings(const std::string &pars);
 std::string ssidFromInterfaceGUID(const std::string &pars);
+std::string installerStageAndVerify(const std::string &pars);
+std::string installerCleanupStaged(const std::string &pars);
 
 static const std::map<const HelperCommand, std::function<std::string(const std::string &)>> kCommands = {
     { HelperCommand::setSplitTunnelingSettings, setSplitTunnelingSettings },
@@ -101,6 +103,8 @@ static const std::map<const HelperCommand, std::function<std::string(const std::
     { HelperCommand::disableDohSettings, disableDohSettings },
     { HelperCommand::enableDohSettings, enableDohSettings },
     { HelperCommand::ssidFromInterfaceGUID, ssidFromInterfaceGUID },
+    { HelperCommand::installerStageAndVerify, installerStageAndVerify },
+    { HelperCommand::installerCleanupStaged, installerCleanupStaged },
 };
 
 std::string processCommand(HelperCommand cmdId, const std::string &pars);

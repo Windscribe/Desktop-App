@@ -45,6 +45,22 @@
         <translation>نصب موجود Windscribe را نمی توان حذف کرد. لطفا برنامه را به صورت دستی حذف کنید و دوباره امتحان کنید.</translation>
     </message>
     <message>
+        <source>The Windows Base Filtering Engine service is not running and could not be started. This core Windows service must be running to install Windscribe. Third-party security/firewall software is most often the cause of this issue.</source>
+        <translation>سرویس Windows Base Filtering Engine در حال اجرا نیست و قابل اجرا نیست. این سرویس اصلی ویندوز باید در حال اجرا باشد تا Windscribe نصب شود. نرم افزارهای امنیتی یا فایروال شخص ثالث اغلب علت این مشکل هستند.</translation>
+    </message>
+    <message>
+        <source>Windscribe is unable to connect to the Windows Base Filtering Engine service. Connecting to this core Windows service is required to install Windscribe. Third-party security/firewall software is most often the cause of this issue.</source>
+        <translation>Windscribe قادر به اتصال به سرویس Windows Base Filtering Engine نیست. اتصال به این سرویس اصلی ویندوز برای نصب Windscribe ضروری است. نرم افزارهای امنیتی یا فایروال شخص ثالث اغلب علت این مشکل هستند.</translation>
+    </message>
+    <message>
+        <source>Windscribe is unable to install its helper service. Please manually uninstall Windscribe and try again. If this issue persists, please contact our Technical Support.</source>
+        <translation>Windscribe قادر به نصب سرویس کمکی خود نیست. لطفا Windscribe را دستی حذف نصب کنید و دوباره امتحان کنید. اگر این مشکل ادامه داشت، لطفا با پشتیبانی فنی ما تماس بگیرید.</translation>
+    </message>
+    <message>
+        <source>Windscribe is unable to start its helper service. Third-party security/firewall software may be the cause. If this is not the case, please contact our Technical Support.</source>
+        <translation>Windscribe قادر به راه اندازی سرویس کمکی خود نیست. نرم افزارهای امنیتی یا فایروال شخص ثالث ممکن است علت این مشکل باشند. اگر اینطور نیست، لطفا با پشتیبانی فنی ما تماس بگیرید.</translation>
+    </message>
+    <message>
         <source>The installation could not be completed successfully. Please contact our Technical Support.</source>
         <translation>نصب با موفقیت انجام نشد. لطفا با پشتیبانی فنی ما تماس بگیرید.</translation>
     </message>

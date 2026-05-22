@@ -49,4 +49,6 @@ public:
     bool setMacAddress(const QString &interface, const QString &macAddress, const QString &network = "", bool isWifi = false);
 
     bool clearWifiHistoryData();
+
+    void installerCleanupStaged();
 };

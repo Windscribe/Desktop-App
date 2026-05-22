@@ -108,8 +108,6 @@ Standalone CLI that can communicate with GUI or run independently:
   - `wireguard_service/` - WireGuard service management
 - **`macos/`** - macOS utilities
   - `launcher/` - Launch helper
-- **`linux/`** - Linux utilities
-  - `authhelper/` - PAM authentication helper
 
 #### Split Tunneling (`src/splittunneling/`)
 - **`windows/`** - WMI filter driver

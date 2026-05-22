@@ -1,7 +1,7 @@
 #include "testvpntunnel.h"
-#include "utils/log/categories.h"
-#include "utils/ipvalidation.h"
 #include "utils/extraconfig.h"
+#include "utils/log/categories.h"
+#include "utils/networkingvalidation.h"
 #include "utils/ws_assert.h"
 
 using namespace wsnet;
@@ -125,7 +125,7 @@ void TestVPNTunnel::onPingTestAnswer(wsnet::ServerApiRetCode serverApiRetCode, c
 
     if (bRunning_) {
         const QString trimmedData = QString::fromStdString(ipAddress).trimmed();
-        if (serverApiRetCode == ServerApiRetCode::kSuccess && IpValidation::isIp(trimmedData)) {
+        if (serverApiRetCode == ServerApiRetCode::kSuccess && NetworkingValidation::isIp(trimmedData)) {
             qCInfo(LOG_CONNECTION) << "Tunnel test " << QString::number(curTest_) << "successfully finished with IP:" << trimmedData << ", total test time =" << elapsedOverallTimer_.elapsed();
             bRunning_ = false;
             emit testsFinished(true, trimmedData);

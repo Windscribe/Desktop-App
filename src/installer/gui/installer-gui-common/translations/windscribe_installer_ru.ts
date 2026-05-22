@@ -33,6 +33,22 @@
         <translation>Сбой установки</translation>
     </message>
     <message>
+        <source>The Windows Base Filtering Engine service is not running and could not be started. This core Windows service must be running to install Windscribe. Third-party security/firewall software is most often the cause of this issue.</source>
+        <translation>Сервис Windows Base Filtering Engine не работает и не может быть запущен. Этот основной сервис Windows должен работать для установки Windscribe. Чаще всего причиной этой проблемы является стороннее программное обеспечение безопасности и файрвола.</translation>
+    </message>
+    <message>
+        <source>Windscribe is unable to connect to the Windows Base Filtering Engine service. Connecting to this core Windows service is required to install Windscribe. Third-party security/firewall software is most often the cause of this issue.</source>
+        <translation>Windscribe не может подключиться к сервису Windows Base Filtering Engine. Для установки Windscribe требуется подключение к этому основному сервису Windows. Чаще всего причиной этой проблемы является стороннее программное обеспечение безопасности и файрвола.</translation>
+    </message>
+    <message>
+        <source>Windscribe is unable to install its helper service. Please manually uninstall Windscribe and try again. If this issue persists, please contact our Technical Support.</source>
+        <translation>Windscribe не может установить свою вспомогательную службу. Пожалуйста, удалите Windscribe вручную и попробуйте снова. Если проблема сохраняется, пожалуйста, свяжитесь с нашей технической поддержкой.</translation>
+    </message>
+    <message>
+        <source>Windscribe is unable to start its helper service. Third-party security/firewall software may be the cause. If this is not the case, please contact our Technical Support.</source>
+        <translation>Windscribe не может запустить свою вспомогательную службу. Причиной может быть стороннее программное обеспечение для безопасности и файрвола. Если это не так, пожалуйста, свяжитесь с нашей технической поддержкой.</translation>
+    </message>
+    <message>
         <source>The installation could not be completed successfully. Please contact our Technical Support.</source>
         <translation>Установка не может быть успешно завершена. Пожалуйста, свяжитесь с нашей службой технической поддержки.</translation>
     </message>

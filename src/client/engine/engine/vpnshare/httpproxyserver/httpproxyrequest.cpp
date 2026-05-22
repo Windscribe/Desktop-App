@@ -312,6 +312,12 @@ bool HttpProxyRequest::shouldSkipHeader(const std::string &headerName)
         return true;
     if (boost::iequals(headerName,"upgrade"))
         return true;
+    // Proxy auth headers are hop-by-hop; consume them locally and don't leak to the origin. proxy-authenticate is normally
+    // response-only, but strip defensively in case a misbehaving client includes it.
+    if (boost::iequals(headerName,"proxy-authorization"))
+        return true;
+    if (boost::iequals(headerName,"proxy-authenticate"))
+        return true;
 
     return false;
 }

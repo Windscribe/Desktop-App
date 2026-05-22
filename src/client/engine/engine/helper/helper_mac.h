@@ -11,6 +11,6 @@ public:
     void setDnsScriptEnabled(bool bEnabled);
     void enableMacSpoofingOnBoot(bool bEnabled, const QString &interfaceName, const QString &macAddress);
     bool setDnsOfDynamicStoreEntry(const QString &ipAddress, const QString &entry);
-    void setIpv6Enabled(bool bEnabled);
     void deleteRoute(const QString &range, int mask, const QString &gateway);
+    QString installerStageAndVerify(const QString &srcBundlePath);
 };

@@ -122,24 +122,12 @@ WireGuardConnection::~WireGuardConnection()
     wait();
 }
 
-void WireGuardConnection::startConnect(const QString &configPathOrUrl, const QString &ip,
-                                       const QString &dnsHostName, const QString &username,
-                                       const QString &password, const types::ProxySettings &proxySettings,
-                                       const WireGuardConfig *wireGuardConfig,
-                                       bool isEnableIkev2Compression, bool isCustomConfig,
-                                       const QString &overrideDnsIp)
+void WireGuardConnection::startConnect(const StartConnectParams &params)
 {
-    Q_UNUSED(configPathOrUrl);
-    Q_UNUSED(ip);
-    Q_UNUSED(dnsHostName);
-    Q_UNUSED(username);
-    Q_UNUSED(password);
-    Q_UNUSED(proxySettings);
-    Q_UNUSED(isEnableIkev2Compression);
-    Q_UNUSED(isCustomConfig);
+    const auto &p = std::get<WireGuardStartParams>(params);
 
-    if (wireGuardConfig->haveAmneziawgParam()) {
-        qCDebug(LOG_CONNECTION) << "Starting Amnezia WireGuard daemon with config:" << wireGuardConfig->amneziawgParamTitle();
+    if (p.wireGuardConfig->haveAmneziawgParam()) {
+        qCDebug(LOG_CONNECTION) << "Starting Amnezia WireGuard daemon with config:" << p.wireGuardConfig->amneziawgParamTitle();
     } else {
         qCDebug(LOG_CONNECTION) << "Starting WireGuard daemon";
     }
@@ -148,20 +136,41 @@ void WireGuardConnection::startConnect(const QString &configPathOrUrl, const QSt
     wait();
     do_stop_thread_ = false;
 
-    pimpl_->setConfig(wireGuardConfig, overrideDnsIp);
+    pimpl_->setConfig(p.wireGuardConfig, p.overrideDnsIp);
 
-    // note: route gateway not used for WireGuard in AdapterGatewayInfo
     adapterGatewayInfo_.clear();
     adapterGatewayInfo_.setAdapterName(pimpl_->getAdapterName());
-    QStringList address_and_cidr = wireGuardConfig->clientIpAddress().split('/');
-    if (address_and_cidr.size() >= 1) {
-        adapterGatewayInfo_.setAdapterIp(address_and_cidr[0]);
+
+    // clientIpAddress may be a comma-separated dual-stack CIDR list (e.g.
+    // "10.245.6.78/32, fd00:abcd::1/128"). Each segment is parsed and stored
+    // both as adapter IP and as gateway IP: WG is point-to-point and has no
+    // separate gateway, so the client IP itself serves as the "via" target
+    // for downstream routing consumers.
+    const QStringList ipEntries = p.wireGuardConfig->clientIpAddress().split(',', Qt::SkipEmptyParts);
+    for (const QString &entry : ipEntries) {
+        const QString ipPart = entry.section('/', 0, 0).trimmed();
+        if (ipPart.isEmpty()) {
+            continue;
+        }
+        types::IpAddress ip(ipPart.toStdString());
+        if (ip.isValid()) {
+            adapterGatewayInfo_.addAdapterIp(ip);
+            adapterGatewayInfo_.addGatewayIp(ip);
+        }
     }
-    adapterGatewayInfo_.setDnsServers(QStringList() << wireGuardConfig->clientDnsAddress());
+
+    // clientDnsAddress is also a comma-separated list (may be dual-stack).
+    const QStringList dnsEntries = p.wireGuardConfig->clientDnsAddress().split(',', Qt::SkipEmptyParts);
+    for (const QString &dns : dnsEntries) {
+        types::IpAddress ip(dns.trimmed().toStdString());
+        if (ip.isValid()) {
+            adapterGatewayInfo_.addDnsServer(ip);
+        }
+    }
 
     setCurrentState(ConnectionState::CONNECTING);
     start(LowPriority);
- }
+}
 
 void WireGuardConnection::startDisconnect()
 {

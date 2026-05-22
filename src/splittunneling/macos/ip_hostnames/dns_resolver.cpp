@@ -79,17 +79,31 @@ void DnsResolver::resolveDomains(const std::vector<std::string> &hostnames)
             return;
         }
 
+        // Pre-populate the in-progress set with one (hostname, family) pair per request we'll
+        // issue below. We deliberately do this in a separate loop so the all-resolved gate in
+        // aresLookupFinishedCallback is only true once every request has had a chance to land:
+        // racing pre-population with dispatch could let an early v4 answer fire the gate before
+        // the v6 entry was inserted.
         for (auto &hostname : hostnames)
         {
-            hostnamesInProgress_.insert(hostname);
+            hostnamesInProgress_.insert({hostname, AF_INET});
+            hostnamesInProgress_.insert({hostname, AF_INET6});
         }
 
-        // filter for unique hostnames and execute request
+        // Discrete v4 + v6 calls (rather than a single AF_UNSPEC call) keep per-family failure
+        // modes visible to the callback — e.g. a v6-disabled host returning ARES_ENODATA on the
+        // v6 leg shouldn't suppress the v4 answer, and vice versa.
         for (auto &hostname : hostnames)
         {
-            USER_ARG *userArg = new USER_ARG();
-            userArg->hostname = hostname;
-            ares_gethostbyname(channel_, hostname.c_str(), AF_INET, aresLookupFinishedCallback, userArg);
+            USER_ARG *userArgV4 = new USER_ARG();
+            userArgV4->hostname = hostname;
+            userArgV4->family = AF_INET;
+            ares_gethostbyname(channel_, hostname.c_str(), AF_INET, aresLookupFinishedCallback, userArgV4);
+
+            USER_ARG *userArgV6 = new USER_ARG();
+            userArgV6->hostname = hostname;
+            userArgV6->family = AF_INET6;
+            ares_gethostbyname(channel_, hostname.c_str(), AF_INET6, aresLookupFinishedCallback, userArgV6);
         }
     }
 
@@ -121,15 +135,22 @@ void DnsResolver::aresLookupFinishedCallback(void * arg, int status, int /*timeo
         return;
     }
 
-    HostInfo hostInfo;
-    hostInfo.hostname = userArg->hostname;
-
-    if (status != ARES_SUCCESS)
+    // Merge into the existing per-hostname HostInfo entry so the v4 leg's addresses survive when
+    // the v6 leg lands (and vice versa). We treat the merged entry as non-error if either family
+    // succeeded — `error == true` only when *both* families failed.
+    auto it = this_->hostinfoResults_.find(userArg->hostname);
+    if (it == this_->hostinfoResults_.end())
     {
-        hostInfo.error = true;
+        HostInfo seed;
+        seed.hostname = userArg->hostname;
+        seed.error = true;     // flipped to false below if any family resolves successfully.
+        it = this_->hostinfoResults_.emplace(userArg->hostname, std::move(seed)).first;
     }
-    else
+    HostInfo &hostInfo = it->second;
+
+    if (status == ARES_SUCCESS)
     {
+        hostInfo.error = false;
         // add ips
         for (char **p = host->h_addr_list; *p; p++)
         {
@@ -138,9 +159,10 @@ void DnsResolver::aresLookupFinishedCallback(void * arg, int status, int /*timeo
             hostInfo.addresses.push_back(std::string(addr_buf));
         }
     }
+    // If status != ARES_SUCCESS we leave hostInfo.error as-is: a prior successful family clears it,
+    // and a not-yet-completed-but-pending family will get its own chance to flip it.
 
-    this_->hostinfoResults_[hostInfo.hostname] = hostInfo;
-    this_->hostnamesInProgress_.erase(userArg->hostname);
+    this_->hostnamesInProgress_.erase({userArg->hostname, userArg->family});
 
     if (this_->hostnamesInProgress_.empty())
     {

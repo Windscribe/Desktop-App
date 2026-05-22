@@ -98,15 +98,10 @@ IKEv2Connection_mac::~IKEv2Connection_mac()
 
 }
 
-void IKEv2Connection_mac::startConnect(const QString &configOrUrl, const QString &ip, const QString &dnsHostName, const QString &username,
-                                       const QString &password, const types::ProxySettings &proxySettings, const WireGuardConfig *wireGuardConfig,
-                                       bool isEnableIkev2Compression, bool isCustomConfig, const QString &overrideDnsIp)
+void IKEv2Connection_mac::startConnect(const StartConnectParams &params)
 {
-    Q_UNUSED(configOrUrl);
-    Q_UNUSED(proxySettings);
-    Q_UNUSED(wireGuardConfig);
-    Q_UNUSED(isEnableIkev2Compression);
-    Q_UNUSED(isCustomConfig);
+    const auto &p = std::get<Ikev2StartParams>(params);
+
     QMutexLocker locker(&mutex_);
 
     static QWaitCondition waitConditionLocal;
@@ -121,9 +116,9 @@ void IKEv2Connection_mac::startConnect(const QString &configOrUrl, const QString
     isPrevConnectionStatusInitialized_ = false;
     state_ = STATE_START_CONNECT;
     startConnect_ = QDateTime::currentDateTime();
-    overrideDnsIp_ = overrideDnsIp;
+    overrideDnsIp_ = p.overrideDnsIp;
 
-    if (!setKeyChain(username, password))
+    if (!setKeyChain(p.username, p.password))
     {
         state_ = STATE_DISCONNECTED;
         emit error(IKEV_FAILED_SET_KEYCHAIN_MAC);
@@ -133,9 +128,9 @@ void IKEv2Connection_mac::startConnect(const QString &configOrUrl, const QString
 
     NEVPNManager *manager = [NEVPNManager sharedManager];
 
-    NSString *nsUsername = username.toNSString();
-    NSString *nsIp = ip.toNSString();
-    NSString *nsRemoteId = dnsHostName.toNSString();
+    NSString *nsUsername = p.username.toNSString();
+    NSString *nsIp = p.ip.toNSString();
+    NSString *nsRemoteId = p.dnsHostName.toNSString();
 
     [manager loadFromPreferencesWithCompletionHandler:^(NSError *err)
     {
@@ -395,12 +390,31 @@ void IKEv2Connection_mac::handleNotificationImpl(int status)
         qCInfo(LOG_IKEV2) << "Connection status changed: NEVPNStatusConnected";
         state_ = STATE_CONNECTED;
 
-        // note: route gateway not used for ikev2 in AdapterGatewayInfo
+        // note: route gateway not used for ikev2 in AdapterGatewayInfo. IKEv2 is v4-only on
+        // macOS (Windscribe server doesn't push a v6 client address, NEVPNManager has no
+        // v6-default-route flag), so we only populate v4 here — any v6 traffic on the IKEv2
+        // adapter is blocked by the v6 conditional kill-switch.
         AdapterGatewayInfo cai;
         ipsecAdapterName_ = NetworkUtils_mac::lastConnectedNetworkInterfaceName();
         cai.setAdapterName(ipsecAdapterName_);
-        cai.setAdapterIp(NetworkUtils_mac::ipAddressByInterfaceName(ipsecAdapterName_));
-        cai.setDnsServers(NetworkUtils_mac::getDnsServersForInterface(ipsecAdapterName_));
+        const QString ipStr = NetworkUtils_mac::ipAddressByInterfaceName(ipsecAdapterName_);
+        cai.addAdapterIp(types::IpAddress(ipStr.toStdString()));
+
+        // Runtime canary: if Windscribe's IKEv2 endpoints ever start pushing a v6 client
+        // address, the v4-only assumption above silently rots — the adapter would have a
+        // global v6 the AdapterGatewayInfo never learns about, and the v6 conditional
+        // kill-switch is the only thing keeping it from leaking. Log loudly so the drift
+        // shows up in support bundles before it becomes a bug report.
+        const QString ipV6Str = NetworkUtils_mac::ipAddressByInterfaceNameV6(ipsecAdapterName_);
+        if (!ipV6Str.isEmpty()) {
+            qCWarning(LOG_IKEV2) << "Unexpected IPv6 address" << ipV6Str << "on IKEv2 interface"
+                                 << ipsecAdapterName_
+                                 << "— v4-only assumption no longer holds, update AdapterGatewayInfo population";
+        }
+
+        for (const QString &dns : NetworkUtils_mac::getDnsServersForInterface(ipsecAdapterName_)) {
+            cai.addDnsServer(types::IpAddress(dns.toStdString()));
+        }
 
         emit connected(cai);
         statisticsTimer_.start(STATISTICS_UPDATE_PERIOD);

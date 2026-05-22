@@ -29,6 +29,8 @@ struct ConnectedDnsInfo
     void fromIni(const QSettings &settings);
     void toIni(QSettings &settings) const;
 
+    void validate();
+
     bool isCustomIPv4Address() const;
 
     friend QDataStream& operator <<(QDataStream &stream, const ConnectedDnsInfo &o);

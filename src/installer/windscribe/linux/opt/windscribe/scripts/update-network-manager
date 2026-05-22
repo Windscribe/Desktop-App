@@ -14,16 +14,17 @@
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 DNS_LEAK_SCRIPT=$SCRIPT_DIR/dns-leak-protect
-CACHE_NAMESERVER_DIR="/var/tmp/windscribe/windscribe_nameservers"
+CACHE_NAMESERVER_DIR="/var/lib/windscribe/windscribe_nameservers"
 CACHE_NAMESERVER_FILE="$CACHE_NAMESERVER_DIR/$DEV.nameserver"
+RESOLV_TMP_FILE="/var/lib/windscribe/resolv.conf"
 PATH="$PATH:/usr/local/sbin:/usr/sbin:/sbin"
 
 case "$script_type" in
   up)
-    if [ ! -d $CACHE_NAMESERVER_DIR ]; then
-        mkdir $CACHE_NAMESERVER_DIR
+    if [ ! -d "$CACHE_NAMESERVER_DIR" ]; then
+        mkdir "$CACHE_NAMESERVER_DIR"
     fi
-    echo -n "" > $CACHE_NAMESERVER_FILE
+    echo -n "" > "$CACHE_NAMESERVER_FILE"
 
     servers=()
 
@@ -36,20 +37,20 @@ case "$script_type" in
                 cp -a /etc/resolv.conf /etc/resolv.conf.default
             fi
 
-            cat /etc/resolv.conf | grep -v ^# | grep -v ^nameserver > /tmp/resolv.conf
-            echo "nameserver $dns" >> /tmp/resolv.conf
-            echo $dns >> $CACHE_NAMESERVER_FILE
-            cat /etc/resolv.conf | grep -v ^# | grep -v "nameserver $dns" | grep nameserver >> /tmp/resolv.conf
+            cat /etc/resolv.conf | grep -v ^# | grep -v ^nameserver > "$RESOLV_TMP_FILE"
+            echo "nameserver $dns" >> "$RESOLV_TMP_FILE"
+            echo "$dns" >> "$CACHE_NAMESERVER_FILE"
+            cat /etc/resolv.conf | grep -v ^# | grep -v "nameserver $dns" | grep nameserver >> "$RESOLV_TMP_FILE"
             RESOLV_TARGET=$(readlink -f /etc/resolv.conf)
-            mv /tmp/resolv.conf "$RESOLV_TARGET"
+            mv "$RESOLV_TMP_FILE" "$RESOLV_TARGET"
             command -v restorecon >/dev/null 2>&1 && restorecon -F "$RESOLV_TARGET" 2>/dev/null || true
             chattr +i "$RESOLV_TARGET"
 
-            servers+=(${dns})
+            servers+=("$dns")
         fi
     done
 
-    "$DNS_LEAK_SCRIPT" "up" ${servers[@]}
+    "$DNS_LEAK_SCRIPT" "up" "${servers[@]}"
 
     # Prioritize IPv4 to avoid delays when IPv6 is blocked
     GAI_SCRIPT=$SCRIPT_DIR/gai-ipv4-priority
@@ -57,15 +58,15 @@ case "$script_type" in
     ;;
   down)
 
-    echo $CACHE_NAMESERVER_FILE
+    echo "$CACHE_NAMESERVER_FILE"
 
-    if [ -f $CACHE_NAMESERVER_FILE ]; then
-        for ns in `cat $CACHE_NAMESERVER_FILE`; do
+    if [ -f "$CACHE_NAMESERVER_FILE" ]; then
+        for ns in `cat "$CACHE_NAMESERVER_FILE"`; do
             echo "Removing $ns from /etc/resolv.conf"
-            cat /etc/resolv.conf | grep -v "nameserver $ns" > /tmp/resolv.conf
+            cat /etc/resolv.conf | grep -v "nameserver $ns" > "$RESOLV_TMP_FILE"
             RESOLV_TARGET=$(readlink -f /etc/resolv.conf)
             chattr -i "$RESOLV_TARGET"
-            mv /tmp/resolv.conf "$RESOLV_TARGET"
+            mv "$RESOLV_TMP_FILE" "$RESOLV_TARGET"
             command -v restorecon >/dev/null 2>&1 && restorecon -F "$RESOLV_TARGET" 2>/dev/null || true
         done
     fi

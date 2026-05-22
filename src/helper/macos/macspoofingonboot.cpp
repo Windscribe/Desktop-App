@@ -1,9 +1,12 @@
 #include "macspoofingonboot.h"
+#include <filesystem>
 #include <sstream>
 #include <fcntl.h>
 #include <stdio.h>
 #include <unistd.h>
 #include <spdlog/spdlog.h>
+#include "../common/io_posix.h"
+#include "../common/validation_posix.h"
 #include "utils.h"
 
 MacSpoofingOnBootManager::MacSpoofingOnBootManager()
@@ -24,6 +27,18 @@ bool MacSpoofingOnBootManager::setEnabled(bool bEnabled, const std::string &inte
 
 bool MacSpoofingOnBootManager::enable(const std::string &interface, const std::string &macAddress)
 {
+    // The boot script runs as root via launchd; both inputs are interpolated unescaped into shell
+    // command lines, so reject anything outside the allowlist as defense in depth against the IPC
+    // layer ever passing through unsanitized values.
+    if (!Validation::isValidInterfaceName(interface)) {
+        spdlog::error("MacSpoofingOnBootManager::enable: invalid interface name");
+        return false;
+    }
+    if (!Validation::isValidMacAddress(macAddress)) {
+        spdlog::error("MacSpoofingOnBootManager::enable: invalid MAC address");
+        return false;
+    }
+
     // write script
     std::stringstream script;
 
@@ -45,15 +60,21 @@ bool MacSpoofingOnBootManager::enable(const std::string &interface, const std::s
     script << "/sbin/ifconfig " << interface << " up\n";
     script << "fi\n";
 
-    int fd = open(WS_POSIX_CONFIG_DIR "/boot_macspoofing.sh", O_CREAT | O_WRONLY | O_TRUNC, 0744);
+    // open()'s mode is ignored on pre-existing files; unlink first to force the intended perms
+    unlink(WS_POSIX_CONFIG_DIR "/boot_macspoofing.sh");
+    int fd = open(WS_POSIX_CONFIG_DIR "/boot_macspoofing.sh", O_CREAT | O_WRONLY | O_TRUNC, 0700);
     if (fd < 0) {
         spdlog::error("Could not open boot script for writing");
         return false;
     }
 
-    write(fd, script.str().c_str(), script.str().length());
+    if (!IO::writeAll(fd, script.str())) {
+        spdlog::error("Failed to write boot_macspoofing.sh: {}", IO::strerror(errno));
+        close(fd);
+        unlink(WS_POSIX_CONFIG_DIR "/boot_macspoofing.sh");
+        return false;
+    }
     close(fd);
-    Utils::executeCommand("chmod", {"+x", WS_POSIX_CONFIG_DIR "/boot_macspoofing.sh"});
 
     // write plist
     std::stringstream plist;
@@ -81,12 +102,19 @@ bool MacSpoofingOnBootManager::enable(const std::string &interface, const std::s
     plist << "</dict>\n";
     plist << "</plist>\n";
 
+    // open()'s mode is ignored on pre-existing files; unlink first to force the intended perms
+    unlink("/Library/LaunchDaemons/com.aaa." WS_PRODUCT_NAME_LOWER ".macspoofing_on.plist");
     fd = open("/Library/LaunchDaemons/com.aaa." WS_PRODUCT_NAME_LOWER ".macspoofing_on.plist", O_CREAT | O_WRONLY | O_TRUNC, 0644);
     if (fd < 0) {
         spdlog::error("Could not open boot plist for writing");
         return false;
     }
-    write(fd, plist.str().c_str(), plist.str().length());
+    if (!IO::writeAll(fd, plist.str())) {
+        spdlog::error("Failed to write macspoofing_on.plist: {}", IO::strerror(errno));
+        close(fd);
+        unlink("/Library/LaunchDaemons/com.aaa." WS_PRODUCT_NAME_LOWER ".macspoofing_on.plist");
+        return false;
+    }
     close(fd);
     Utils::executeCommand("launchctl", {"load", "-w", "/Library/LaunchDaemons/com.aaa." WS_PRODUCT_NAME_LOWER ".macspoofing_on.plist"});
 
@@ -96,7 +124,14 @@ bool MacSpoofingOnBootManager::enable(const std::string &interface, const std::s
 bool MacSpoofingOnBootManager::disable()
 {
     Utils::executeCommand("launchctl", {"unload", "/Library/LaunchDaemons/com.aaa." WS_PRODUCT_NAME_LOWER ".macspoofing_on.plist"});
-    Utils::executeCommand("rm", {"-f", "/Library/LaunchDaemons/com.aaa." WS_PRODUCT_NAME_LOWER ".macspoofing_on.plist"});
-    Utils::executeCommand("rm", {"-f", WS_POSIX_CONFIG_DIR "/boot_macspoofing.sh"});
+    std::error_code ec;
+    std::filesystem::remove("/Library/LaunchDaemons/com.aaa." WS_PRODUCT_NAME_LOWER ".macspoofing_on.plist", ec);
+    if (ec) {
+        spdlog::warn("Failed to remove macspoofing plist: {}", ec.message());
+    }
+    std::filesystem::remove(WS_POSIX_CONFIG_DIR "/boot_macspoofing.sh", ec);
+    if (ec) {
+        spdlog::warn("Failed to remove boot_macspoofing.sh: {}", ec.message());
+    }
     return true;
 }

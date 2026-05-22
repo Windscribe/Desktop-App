@@ -155,8 +155,8 @@ void WireguardCustomConfig::loadFromFile(const QString &filepath)
     }
     file.beginGroup("Interface");
     privateKey_ = file.value("PrivateKey").toString();
-    ipAddress_ = WireGuardConfig::stripIpv6Address(file.value("Address").toStringList());
-    dnsAddress_ = WireGuardConfig::stripIpv6Address(file.value("DNS").toStringList());
+    ipAddress_ = file.value("Address").toStringList().join(",");
+    dnsAddress_ = file.value("DNS").toStringList().join(",");
 
     obfuscationParams_ = api_responses::AmneziawgUnblockParam();
     if (file.contains("Jc"))
@@ -201,8 +201,7 @@ void WireguardCustomConfig::loadFromFile(const QString &filepath)
     file.beginGroup("Peer");
     publicKey_ = file.value("PublicKey").toString();
     presharedKey_ = file.value("PresharedKey").toString();
-    allowedIps_ =
-        WireGuardConfig::stripIpv6Address(file.value("AllowedIPs", "0.0.0.0/0").toStringList());
+    allowedIps_ = file.value("AllowedIPs", "0.0.0.0/0").toStringList().join(",");
     if (!allowedIps_.contains("/0"))
         isAllowFirewallAfterConnection_ = false;
     QStringList endpointParts = file.value("Endpoint").toString().split(":");

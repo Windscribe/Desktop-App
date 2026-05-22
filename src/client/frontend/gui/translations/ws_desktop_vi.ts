@@ -618,26 +618,6 @@ Nếu bạn mất hàm băm tài khoản của mình, nó sẽ biến mất vĩn
         <translation>Chọn thư mục cấu hình tùy chỉnh</translation>
     </message>
     <message>
-        <source>Cannot select this directory because it is writeable for non-privileged users. Custom configs in this directory may pose a potential security risk. Please authenticate with an admin user to select this directory.</source>
-        <translation>Không thể chọn thư mục này vì nó có thể ghi được cho người dùng không có đặc quyền. Cấu hình tùy chỉnh trong thư mục này có thể gây ra rủi ro bảo mật tiềm ẩn. Vui lòng xác thực với người dùng quản trị để chọn thư mục này.</translation>
-    </message>
-    <message>
-        <source>Can&apos;t select directory</source>
-        <translation>Không thể chọn thư mục</translation>
-    </message>
-    <message>
-        <source>The application is corrupted.  Please reinstall Windscribe.</source>
-        <translation>Ứng dụng bị hỏng.  Vui lòng cài đặt lại Windscribe.</translation>
-    </message>
-    <message>
-        <source>Validation Error</source>
-        <translation>Lỗi xác thực</translation>
-    </message>
-    <message>
-        <source>The selected directory is writeable for non-privileged users. Custom configs in this directory may pose a potential security risk.</source>
-        <translation>Thư mục đã chọn có thể ghi được cho người dùng không có đặc quyền. Cấu hình tùy chỉnh trong thư mục này có thể gây ra rủi ro bảo mật tiềm ẩn.</translation>
-    </message>
-    <message>
         <source>Security Risk</source>
         <translation>Rủi ro bảo mật</translation>
     </message>
@@ -678,6 +658,26 @@ Nếu bạn mất hàm băm tài khoản của mình, nó sẽ biến mất vĩn
         <translation>Rời rạc</translation>
     </message>
     <message>
+        <source>The selected directory is writeable for other users. Custom configs in this directory may pose a potential security risk.</source>
+        <translation>Thư mục đã chọn có thể ghi được cho những người dùng khác. Cấu hình tùy chỉnh trong thư mục này có thể gây ra rủi ro bảo mật tiềm ẩn.</translation>
+    </message>
+    <message>
+        <source>Proxy Gateway is unauthenticated</source>
+        <translation>Proxy Gateway chưa được xác thực</translation>
+    </message>
+    <message>
+        <source>Your Proxy Gateway is enabled without authentication. Anyone on your local network, including untrusted networks like coffee-shop Wi-Fi, can route their traffic through your VPN. We strongly recommend setting credentials.</source>
+        <translation>Cổng proxy của bạn được bật mà không cần xác thực. Bất kỳ ai trên mạng cục bộ của bạn, bao gồm cả các mạng không đáng tin cậy như Wi-Fi quán cà phê, đều có thể định tuyến lưu lượng truy cập của họ thông qua VPN của bạn. Chúng tôi thực sự khuyên bạn nên đặt thông tin đăng nhập.</translation>
+    </message>
+    <message>
+        <source>Go to Preferences</source>
+        <translation>Đi tới Tùy chọn</translation>
+    </message>
+    <message>
+        <source>Later</source>
+        <translation>Sau này</translation>
+    </message>
+    <message>
         <source>Connected to </source>
         <translation>Đã kết nối với </translation>
     </message>
@@ -690,6 +690,18 @@ Nếu bạn mất hàm băm tài khoản của mình, nó sẽ biến mất vĩn
 %1 transferred in %2</source>
         <translation>Kết nối với Windscribe đã bị ngắt.
 %1 được chuyển trong %2</translation>
+    </message>
+    <message>
+        <source>Could not start Proxy Gateway</source>
+        <translation>Không thể khởi động Proxy Gateway</translation>
+    </message>
+    <message>
+        <source>The configured port is in use. Please try a different port.</source>
+        <translation>Cổng đã định cấu hình đang được sử dụng. Vui lòng thử một cổng khác.</translation>
+    </message>
+    <message>
+        <source>An unknown error occurred.</source>
+        <translation>Đã xảy ra lỗi không xác định.</translation>
     </message>
     <message>
         <source>Network Settings Interference</source>
@@ -924,14 +936,6 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
     <message>
         <source>  If you are on a restrictive network, please connect the VPN before trying the download again.</source>
         <translation>  Nếu bạn đang sử dụng mạng hạn chế, vui lòng kết nối VPN trước khi thử tải xuống lại.</translation>
-    </message>
-    <message>
-        <source>Custom Config Directory Import</source>
-        <translation>Nhập thư mục cấu hình tùy chỉnh</translation>
-    </message>
-    <message>
-        <source>A custom config directory is being imported.  Windscribe will prompt for your admin password to check for correct permissions.</source>
-        <translation>Một thư mục cấu hình tùy chỉnh đang được nhập.  Windscribe sẽ nhắc nhập mật khẩu quản trị viên của bạn để kiểm tra các quyền chính xác.</translation>
     </message>
     <message>
         <source>Your &quot;Connected DNS&quot; server is set to an OS default DNS server, which would result in a DNS leak.  It has been changed to Auto.</source>
@@ -1447,6 +1451,14 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
         <translation>Tự động chọn giao thức VPN hoặc chọn một giao thức theo cách thủ công. LƯU Ý: &quot;Giao thức Ưu tiên&quot; sẽ ghi đè cài đặt này.</translation>
     </message>
     <message>
+        <source>Configure egress IP stack for VPN connections.</source>
+        <translation>Định cấu hình ngăn xếp IP đầu ra cho các kết nối VPN.</translation>
+    </message>
+    <message>
+        <source>IP Stack</source>
+        <translation>Ngăn xếp IP</translation>
+    </message>
+    <message>
         <source>Select the DNS server while connected to Windscribe.</source>
         <translation>Chọn máy chủ DNS trong khi kết nối với Windscribe.</translation>
     </message>
@@ -1517,6 +1529,13 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
     <message>
         <source>Anti-censorship Settings</source>
         <translation>Cài đặt chống kiểm duyệt</translation>
+    </message>
+</context>
+<context>
+    <name>PreferencesWindow::CopyableTextItem</name>
+    <message>
+        <source>Copied</source>
+        <translation>Sao chép</translation>
     </message>
 </context>
 <context>
@@ -2106,31 +2125,36 @@ Kết nối với mạng trước</translation>
         <translation>Cảng</translation>
     </message>
     <message>
-        <source>Unable to start proxy server</source>
-        <translation>Không thể khởi động máy chủ proxy</translation>
+        <source>Require Authentication</source>
+        <translation>Yêu cầu xác thực</translation>
     </message>
     <message>
-        <source>The proxy server couldn&apos;t be started on the requested port. Please try again with a different port.</source>
-        <translation>Không thể khởi động máy chủ proxy trên cổng được yêu cầu. Vui lòng thử lại với một cổng khác.</translation>
+        <source>Without authentication, anyone on your network (e.g. coffee shop Wi-Fi) can use this proxy. Leave this on unless you know what you&apos;re doing.</source>
+        <translation>Nếu không xác thực, bất kỳ ai trên mạng của bạn (ví dụ: Wi-Fi của quán cà phê) đều có thể sử dụng proxy này. Hãy để điều này trừ khi bạn biết mình đang làm gì.</translation>
+    </message>
+    <message>
+        <source>IP</source>
+        <translation>IP</translation>
+    </message>
+    <message>
+        <source>Username</source>
+        <translation>Tên đăng nhập</translation>
+    </message>
+    <message>
+        <source>Password</source>
+        <translation>Mật khẩu</translation>
     </message>
     <message>
         <source>Auto</source>
         <translation>Xe ô tô</translation>
     </message>
     <message>
+        <source>Unavailable</source>
+        <translation>Không có sẵn</translation>
+    </message>
+    <message>
         <source>Only when VPN is connected</source>
         <translation>Chỉ khi VPN được kết nối</translation>
-    </message>
-</context>
-<context>
-    <name>PreferencesWindow::ProxyIpAddressItem</name>
-    <message>
-        <source>IP</source>
-        <translation>IP</translation>
-    </message>
-    <message>
-        <source>Copied</source>
-        <translation>Sao chép</translation>
     </message>
 </context>
 <context>
@@ -2573,6 +2597,10 @@ Nếu việc cài đặt lại không hiệu quả, vui lòng liên hệ với b
     <message>
         <source>Van Gogh</source>
         <translation>Van Gogh</translation>
+    </message>
+    <message>
+        <source>IPv4 Only</source>
+        <translation>Chỉ IPv4</translation>
     </message>
     <message>
         <source>Enabled</source>

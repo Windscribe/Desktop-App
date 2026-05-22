@@ -180,7 +180,7 @@ void WireGuardController::getKernelDriverStatus(ULONG64& lastHandshake, ULONG64&
 {
     wsl::Win32Handle hDriver(getKernelInterfaceHandle());
 
-    // Look at kernel_get_device() in wireguard-windows-0.5.3\.deps\src\ipc-windows.h for
+    // Look at kernel_get_device() in wireguard-windows-0.6\.deps\src\ipc-windows.h for
     // sample code showing how to parse the structures returned from the wireguard-nt
     // kernel driver when we send it the WG_IOCTL_GET io control command.
 

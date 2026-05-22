@@ -1,8 +1,8 @@
 #include "proxysettings.h"
-#include "utils/ws_assert.h"
-#include "utils/ipvalidation.h"
 #include "utils/log/categories.h"
+#include "utils/networkingvalidation.h"
 #include "utils/utils.h"
+#include "utils/ws_assert.h"
 
 const int typeIdProxySettings = qRegisterMetaType<types::ProxySettings>("types::ProxySettings");
 
@@ -25,24 +25,14 @@ ProxySettings::ProxySettings(const QJsonObject &json) : option_(PROXY_OPTION_NON
 {
     if (json.contains(kJsonOptionProp) && json[kJsonOptionProp].isDouble()) {
         option_ = PROXY_OPTION_fromInt(json[kJsonOptionProp].toInt());
-        // Auto-detect and SOCKS are not supported
-        if (option_ == PROXY_OPTION_AUTODETECT || option_ == PROXY_OPTION_SOCKS) {
-            option_ = PROXY_OPTION_NONE;
-        }
     }
 
     if (json.contains(kJsonAddressProp) && json[kJsonAddressProp].isString()) {
-        QString str = json[kJsonAddressProp].toString();
-        if (IpValidation::isIp(str)) {
-            address_ = str;
-        }
+        address_ = json[kJsonAddressProp].toString();
     }
 
     if (json.contains(kJsonPortProp) && json[kJsonPortProp].isDouble()) {
-        uint port = static_cast<uint>(json[kJsonPortProp].toInt());
-        if (port < 65536) {
-            port_ = port;
-        }
+        port_ = static_cast<uint>(json[kJsonPortProp].toInt());
     }
 
     if (json.contains(kJsonUsernameProp) && json[kJsonUsernameProp].isString()) {
@@ -57,20 +47,8 @@ ProxySettings::ProxySettings(const QJsonObject &json) : option_(PROXY_OPTION_NON
 void ProxySettings::fromIni(const QSettings &settings)
 {
     option_ = PROXY_OPTION_fromString(settings.value(kIniOptionProp, PROXY_OPTION_toString(option_)).toString());
-    // Auto-detect and SOCKS are not supported
-    if (option_ == PROXY_OPTION_AUTODETECT || option_ == PROXY_OPTION_SOCKS) {
-        option_ = PROXY_OPTION_NONE;
-    }
-
-    QString address = settings.value(kIniAddressProp).toString();
-    if (IpValidation::isIpOrDomain(address)) {
-        address_ = address;
-    }
-
-    uint port = settings.value(kIniPortProp, 0).toUInt();
-    if (port < 65536) {
-        port_ = port;
-    }
+    address_ = settings.value(kIniAddressProp).toString();
+    port_ = settings.value(kIniPortProp, 0).toUInt();
     username_ = settings.value(kIniUsernameProp).toString();
     password_ = settings.value(kIniPasswordProp).toString();
 }
@@ -200,6 +178,41 @@ QNetworkProxy ProxySettings::getNetworkProxy() const
 bool ProxySettings::isProxyEnabled() const
 {
     return (option_ == PROXY_OPTION_HTTP || option_ == PROXY_OPTION_SOCKS);
+}
+
+void ProxySettings::validate()
+{
+    option_ = PROXY_OPTION_fromInt(static_cast<int>(option_));
+    if (option_ == PROXY_OPTION_AUTODETECT || option_ == PROXY_OPTION_SOCKS) {
+        qCWarning(LOG_BASIC) << "ProxySettings: unsupported proxy option, resetting";
+        option_ = PROXY_OPTION_NONE;
+    }
+
+    bool needsReset = false;
+    if (option_ == PROXY_OPTION_HTTP) {
+        if (!NetworkingValidation::isIp(address_) && !NetworkingValidation::isDomain(address_)) {
+            qCWarning(LOG_BASIC) << "ProxySettings: invalid address, disabling proxy";
+            needsReset = true;
+        } else if (!NetworkingValidation::isValidPort(static_cast<int>(port_))) {
+            qCWarning(LOG_BASIC) << "ProxySettings: invalid port, disabling proxy";
+            needsReset = true;
+        }
+    }
+
+    constexpr int kMaxCredentialLen = 255;
+    if (username_.size() > kMaxCredentialLen || username_.contains(QChar(0)) ||
+        password_.size() > kMaxCredentialLen || password_.contains(QChar(0))) {
+        qCWarning(LOG_BASIC) << "ProxySettings: credentials out of bounds, disabling proxy";
+        needsReset = true;
+    }
+
+    if (needsReset) {
+        option_ = PROXY_OPTION_NONE;
+        address_.clear();
+        port_ = 0;
+        username_.clear();
+        password_.clear();
+    }
 }
 
 QDataStream& operator <<(QDataStream &stream, const ProxySettings &o)

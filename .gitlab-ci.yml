@@ -1,3 +1,14 @@
+include:
+  - project: 'shared/strix-ci-template'
+    file: 'strix-scan.yml'
+
+strix-scan-quick:
+  stage: Test
+strix-scan-standard:
+  stage: Test
+strix-scan-mr-diff:
+  stage: Test
+
 stages:
   - Build
   - Test
@@ -12,7 +23,7 @@ variables:
   BUILD_LINUX_CLI: 'y'
   GIT_DEPTH: 5 # Only grab the last 5 commits when cloning
   NEXUS_PATH_ROOT: 'https://nexus.int.windscribe.com/repository/client-desktop/client-desktop'
-  NEXUS_PATH_DEPS: '$NEXUS_PATH_ROOT/dependencies/2.22'
+  NEXUS_PATH_DEPS: '$NEXUS_PATH_ROOT/dependencies/current'
   NEXUS_PATH_VCPKG_CACHE: '$NEXUS_PATH_ROOT/vcpkg_cache/current'
   NEXUS_PATH_BRANCH_UPLOAD: '${NEXUS_PATH_ROOT}/branches/${CI_COMMIT_BRANCH}'
   NEXUS_PATH_TAGGED_UPLOAD: '${NEXUS_PATH_ROOT}/tagged-builds'
@@ -985,6 +996,9 @@ build:nightly:win:
     - 'IF(Test-Path .\$BUILD_LIBS_FOLDER\) {Get-ChildItem .\$BUILD_LIBS_FOLDER\*.zip | Foreach {.\tools\bin\7z.exe x $_.FullName -o"$BUILD_LIBS_FOLDER\"}}'
     - tools/build_all --ci-mode --build-tests
     - .\build\locationsmodel.test.exe
+    - .\build\networkingvalidation.test.exe
+    - .\build\ovpncredentialinliner.test.exe
+    - .\build\settingsvalidation.test.exe
     - .\build\wireguardcustomconfig.test.exe
   artifacts:
     paths:
@@ -1003,6 +1017,9 @@ build:nightly:mac:
     - !reference [.build_mac_installer_common, script]
     - tools/build_all --ci-mode --build-tests
     - QT_QPA_PLATFORM=offscreen ./build/locationsmodel.test
+    - QT_QPA_PLATFORM=offscreen ./build/networkingvalidation.test
+    - QT_QPA_PLATFORM=offscreen ./build/ovpncredentialinliner.test
+    - QT_QPA_PLATFORM=offscreen ./build/settingsvalidation.test
     - QT_QPA_PLATFORM=offscreen ./build/wireguardcustomconfig.test
   artifacts:
     paths:
@@ -1022,7 +1039,9 @@ build:nightly:rhel:
     - python3 -m pip install "clang-tidy<21"
     - tools/build_all --ci-mode --static-analysis --build-tests
     - QT_QPA_PLATFORM=offscreen ./build/locationsmodel.test
+    - QT_QPA_PLATFORM=offscreen ./build/networkingvalidation.test
+    - QT_QPA_PLATFORM=offscreen ./build/ovpncredentialinliner.test
+    - QT_QPA_PLATFORM=offscreen ./build/settingsvalidation.test
     - QT_QPA_PLATFORM=offscreen ./build/wireguardcustomconfig.test
   rules:
     - if: $BUILD_LINUX == "y" && $NIGHTLY_TEST_BUILD == "y"
-

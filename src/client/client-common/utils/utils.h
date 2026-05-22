@@ -27,6 +27,9 @@ namespace Utils {
     double generateDoubleRandom(const double &min, const double &max);
     int generateIntegerRandom(const int &min, const int &max);
 
+    // Returns an alphanumeric string of `length` chars.
+    QString generateSecureCredential(int length);
+
     template<typename T>
     T randomizeList(const T &list)
     {

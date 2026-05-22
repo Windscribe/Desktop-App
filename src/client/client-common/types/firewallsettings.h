@@ -65,6 +65,12 @@ struct FirewallSettings
         settings.setValue(kIniWhenProp, FIREWALL_WHEN_toString(when));
     }
 
+    void validate()
+    {
+        mode = FIREWALL_MODE_fromInt(static_cast<int>(mode));
+        when = FIREWALL_WHEN_fromInt(static_cast<int>(when));
+    }
+
     friend QDataStream& operator <<(QDataStream &stream, const FirewallSettings &o)
     {
         stream << versionForSerialization_;

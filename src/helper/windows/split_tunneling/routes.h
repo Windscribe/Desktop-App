@@ -1,25 +1,36 @@
 #pragma once
 
+#include <WinSock2.h>
+#include <ws2ipdef.h>
 #include <windows.h>
 #include <iphlpapi.h>
+#include <netioapi.h>
 
-#include <string>
 #include <vector>
+
+#include "types/ipaddress.h"
 
 class IpForwardTable;
 
-// functions for add/delete routes and revert back all operations
+// Dual-stack (IPv4 + IPv6) route add/delete with revert-on-demand.
+// Uses the modern netioapi.h API (MIB_IPFORWARD_ROW2 / *IpForwardEntry2).
 class Routes
 {
 public:
     Routes();
 
-    void deleteRoute(const IpForwardTable &curRouteTable, const std::string &destIp, const std::string &maskIp, const std::string &gatewayIp, unsigned long ifIndex);
-    void addRoute(const IpForwardTable &curRouteTable, const std::string &destIp, const std::string &maskIp, const std::string &gatewayIp, unsigned long ifIndex, bool useMaxMetric);
+    void deleteRoute(const IpForwardTable &curRouteTable,
+                     const types::IpAddress &destIp, UINT8 prefixLength,
+                     const types::IpAddress &gatewayIp, unsigned long ifIndex);
+
+    void addRoute(const IpForwardTable &curRouteTable,
+                  const types::IpAddress &destIp, UINT8 prefixLength,
+                  const types::IpAddress &gatewayIp, unsigned long ifIndex,
+                  bool useMaxMetric);
 
     void revertRoutes();
 
 private:
-    std::vector<MIB_IPFORWARDROW> deletedRoutes_;
-    std::vector<MIB_IPFORWARDROW> addedRoutes_;
+    std::vector<MIB_IPFORWARD_ROW2> deletedRoutes_;
+    std::vector<MIB_IPFORWARD_ROW2> addedRoutes_;
 };

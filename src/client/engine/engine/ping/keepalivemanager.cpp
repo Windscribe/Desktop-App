@@ -93,5 +93,5 @@ void KeepAliveManager::doDnsRequest()
             onDnsRequestFinished(requestId, hostname, result);
         });
     };
-    WSNet::instance()->dnsResolver()->lookup(HardcodedSettings::instance().windscribeServerUrl().toStdString(), 0, callback);
+    WSNet::instance()->dnsResolver()->lookup(HardcodedSettings::instance().windscribeServerUrl().toStdString(), 0, IpFamily::kIpv4, callback);
 }

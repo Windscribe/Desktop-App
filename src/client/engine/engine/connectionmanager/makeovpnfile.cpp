@@ -5,6 +5,8 @@
 #include "utils/extraconfig.h"
 #include "utils/log/categories.h"
 #include "utils/ws_assert.h"
+#include "api_responses/amneziawgunblockparams.h"
+#include <wsnet/WSNet.h>
 
 MakeOVPNFile::MakeOVPNFile()
 {
@@ -17,7 +19,7 @@ MakeOVPNFile::~MakeOVPNFile()
 bool MakeOVPNFile::generate(const QString &ovpnData, const QString &ip, types::Protocol protocol, uint port,
                             uint portForStunnelOrWStunnel, int mss, const QString &defaultGateway,
                             const QString &openVpnX509, const QString &customDns, bool isAntiCensorship,
-                            bool isEmergencyConnect)
+                            const QString &awgPreset, bool isEmergencyConnect)
 {
 #ifdef Q_OS_WIN
     Q_UNUSED(defaultGateway);
@@ -81,6 +83,39 @@ bool MakeOVPNFile::generate(const QString &ovpnData, const QString &ip, types::P
     if (isAntiCensorship) {
         config_ += "udp-stuffing\n";
         config_ += "tcp-split-reset\n";
+
+        // Add I1-I5 parameters if available
+        // NOTE: Emergency connect supplies empty string here
+        if (!awgPreset.isEmpty()) {
+            api_responses::AmneziawgUnblockParams unblockParams(
+                wsnet::WSNet::instance()->apiResourcersManager()->amneziawgUnblockParams());
+
+            if (unblockParams.isValid()) {
+                api_responses::AmneziawgUnblockParam param =
+                    unblockParams.getUnblockParamForPreset(awgPreset);
+
+                // Add I1-I5 parameters (in order, only if they exist)
+                for (int i = 0; i < param.iValues.size() && i < 5; ++i) {
+                    if (!param.iValues[i].isEmpty()) {
+                        // Sanitize iValue: allow only alphanumeric, space, digits, and angle brackets
+                        // Strip newlines and other special characters
+                        QString sanitizedValue;
+                        for (const QChar &ch : param.iValues[i]) {
+                            if (ch.isLetterOrNumber() || ch.isSpace() || ch == '<' || ch == '>') {
+                                sanitizedValue += ch;
+                            }
+                        }
+                        config_ += QString("i%1 \"%2\"\n").arg(i + 1).arg(sanitizedValue);
+                    }
+                }
+
+                if (!param.iValues.isEmpty()) {
+                    qCInfo(LOG_CONNECTION) << "Added" << param.iValues.size()
+                                        << "I-parameters to OpenVPN config from preset:"
+                                        << awgPreset;
+                }
+            }
+        }
     }
 
     return true;

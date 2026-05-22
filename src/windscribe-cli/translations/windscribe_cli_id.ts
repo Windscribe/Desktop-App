@@ -187,6 +187,14 @@
         <translation>Status tidak diketahui</translation>
     </message>
     <message>
+        <source>VPN IP: %1</source>
+        <translation>IP VPN: %1</translation>
+    </message>
+    <message>
+        <source>Public IP: %1</source>
+        <translation>IP Publik: %1</translation>
+    </message>
+    <message>
         <source>Protocol: %1:%2</source>
         <translation>Protokol: %1:%2</translation>
     </message>

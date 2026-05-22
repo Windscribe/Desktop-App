@@ -39,8 +39,7 @@ public:
     bool haveKeyPair() const;
     void setKeyPair(const QString& publicKey, const QString& privateKey);
 
-    static QString stripIpv6Address(const QStringList &addressList);
-    static QString stripIpv6Address(const QString &addressList);
+    WireGuardConfig stripIpv6Addresses() const;
 
     friend QDataStream& operator <<(QDataStream &stream, const WireGuardConfig &c);
     friend QDataStream& operator >>(QDataStream &stream, WireGuardConfig &c);

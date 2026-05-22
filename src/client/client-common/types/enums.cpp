@@ -23,8 +23,7 @@ DNS_POLICY_TYPE DNS_POLICY_TYPE_fromInt(int t)
     else if (t == 3) return DNS_TYPE_GOOGLE;
     else if (t == 4) return DNS_TYPE_CONTROLD;
     else {
-        WS_ASSERT(false);
-        return DNS_TYPE_OS_DEFAULT;
+        return DNS_TYPE_CLOUDFLARE;
     }
 }
 
@@ -69,7 +68,6 @@ PROXY_SHARING_TYPE PROXY_SHARING_TYPE_fromInt(int t)
     if (t == 0) return PROXY_SHARING_HTTP;
     else if (t == 1) return PROXY_SHARING_SOCKS;
     else {
-        WS_ASSERT(false);
         return PROXY_SHARING_HTTP;
     }
 }
@@ -100,7 +98,6 @@ ORDER_LOCATION_TYPE ORDER_LOCATION_TYPE_fromInt(int t)
     else if (t == 1) return ORDER_LOCATION_BY_ALPHABETICALLY;
     else if (t == 2) return ORDER_LOCATION_BY_LATENCY;
     else {
-        WS_ASSERT(false);
         return ORDER_LOCATION_BY_GEOGRAPHY;
     }
 }
@@ -123,7 +120,6 @@ BACKGROUND_TYPE BACKGROUND_TYPE_fromInt(int t)
     else if (t == 2) return BACKGROUND_TYPE_CUSTOM;
     else if (t == 3) return BACKGROUND_TYPE_BUNDLED;
     else {
-        WS_ASSERT(false);
         return BACKGROUND_TYPE_NONE;
     }
 }
@@ -134,7 +130,6 @@ SOUND_NOTIFICATION_TYPE SOUND_NOTIFICATION_TYPE_fromInt(int t)
     else if (t == 1) return SOUND_NOTIFICATION_TYPE_BUNDLED;
     else if (t == 2) return SOUND_NOTIFICATION_TYPE_CUSTOM;
     else {
-        WS_ASSERT(false);
         return SOUND_NOTIFICATION_TYPE_NONE;
     }
 }
@@ -142,7 +137,7 @@ SOUND_NOTIFICATION_TYPE SOUND_NOTIFICATION_TYPE_fromInt(int t)
 QString TAP_ADAPTER_TYPE_toString(TAP_ADAPTER_TYPE t)
 {
     if (t == DCO_ADAPTER) return "DCO";
-    else if (t == WINTUN_ADAPTER) return "Wintun";
+    else if (t == TAP_ADAPTER) return "TAP";
     else {
         WS_ASSERT(false);
         return QObject::tr("UNKNOWN");
@@ -156,7 +151,6 @@ FIREWALL_MODE FIREWALL_MODE_fromInt(int t)
     else if (t == 2) return FIREWALL_MODE_ALWAYS_ON;
     else if (t == 3) return FIREWALL_MODE_ALWAYS_ON_PLUS;
     else {
-        WS_ASSERT(false);
         return FIREWALL_MODE_AUTOMATIC;
     }
 
@@ -201,7 +195,6 @@ FIREWALL_WHEN FIREWALL_WHEN_fromInt(int t)
     if (t == 0) return FIREWALL_WHEN_BEFORE_CONNECTION;
     else if (t == 1) return FIREWALL_WHEN_AFTER_CONNECTION;
     else {
-        WS_ASSERT(false);
         return FIREWALL_WHEN_BEFORE_CONNECTION;
     }
 }
@@ -233,7 +226,6 @@ NETWORK_INTERFACE_TYPE NETWORK_INTERFACE_TYPE_fromInt(int t)
     else if (t == 2) return NETWORK_INTERFACE_WIFI;
     else if (t == 3) return NETWORK_INTERFACE_PPP;
     else {
-        WS_ASSERT(false);
         return NETWORK_INTERFACE_NONE;
     }
 }
@@ -244,7 +236,6 @@ NETWORK_TRUST_TYPE NETWORK_TRUST_TYPE_fromInt(int t)
     else if (t == 1) return NETWORK_TRUST_UNSECURED;
     else {
         // NETWORK_TRUST_FORGET is a transitory state and should never be here
-        WS_ASSERT(false);
         return NETWORK_TRUST_SECURED;
     }
 }
@@ -294,7 +285,6 @@ PROXY_OPTION PROXY_OPTION_fromInt(int t)
     else if (t == 2) return PROXY_OPTION_HTTP;
     else if (t == 3) return PROXY_OPTION_SOCKS;
     else {
-        WS_ASSERT(false);
         return PROXY_OPTION_NONE;
     }
 }
@@ -362,7 +352,6 @@ UPDATE_CHANNEL UPDATE_CHANNEL_fromInt(int t)
     else if (t == 2) return UPDATE_CHANNEL_GUINEA_PIG;
     else if (t == 3) return UPDATE_CHANNEL_INTERNAL;
     else {
-        WS_ASSERT(false);
         return UPDATE_CHANNEL_RELEASE;
     }
 }
@@ -408,7 +397,6 @@ DNS_MANAGER_TYPE DNS_MANAGER_TYPE_fromInt(int t)
     else if (t == 2) return DNS_MANAGER_SYSTEMD_RESOLVED;
     else if (t == 3) return DNS_MANAGER_NETWORK_MANAGER;
     else {
-        WS_ASSERT(false);
         return DNS_MANAGER_AUTOMATIC;
     }
 }
@@ -456,7 +444,6 @@ CONNECTED_DNS_TYPE CONNECTED_DNS_TYPE_fromInt(int t)
     else if (t == 3) return CONNECTED_DNS_TYPE_LOCAL;
     else if (t == 4) return CONNECTED_DNS_TYPE_CONTROLD;
     else {
-        WS_ASSERT(false);
         return CONNECTED_DNS_TYPE_AUTO;
     }
 }
@@ -512,7 +499,6 @@ SPLIT_TUNNELING_MODE SPLIT_TUNNELING_MODE_fromInt(int t)
     if (t == 0) return SPLIT_TUNNELING_MODE_EXCLUDE;
     else if (t == 1) return SPLIT_TUNNELING_MODE_INCLUDE;
     else {
-        WS_ASSERT(false);
         return SPLIT_TUNNELING_MODE_EXCLUDE;
     }
 }
@@ -550,7 +536,6 @@ SPLIT_TUNNELING_NETWORK_ROUTE_TYPE SPLIT_TUNNELING_NETWORK_ROUTE_TYPE_fromInt(in
     if (t == 0) return SPLIT_TUNNELING_NETWORK_ROUTE_TYPE_IP;
     else if (t == 1) return SPLIT_TUNNELING_NETWORK_ROUTE_TYPE_HOSTNAME;
     else {
-        WS_ASSERT(false);
         return SPLIT_TUNNELING_NETWORK_ROUTE_TYPE_IP;
     }
 }
@@ -560,7 +545,6 @@ SPLIT_TUNNELING_APP_TYPE SPLIT_TUNNELING_APP_TYPE_fromInt(int t)
     if (t == 0) return SPLIT_TUNNELING_APP_TYPE_USER;
     else if (t == 1) return SPLIT_TUNNELING_APP_TYPE_SYSTEM;
     else {
-        WS_ASSERT(false);
         return SPLIT_TUNNELING_APP_TYPE_USER;
     }
 }
@@ -570,7 +554,6 @@ APP_SKIN APP_SKIN_fromInt(int t)
     if (t == 0) return APP_SKIN_ALPHA;
     else if (t == 1) return APP_SKIN_VAN_GOGH;
     else {
-        WS_ASSERT(false);
         return APP_SKIN_ALPHA;
     }
 }
@@ -618,7 +601,6 @@ TRAY_ICON_COLOR TRAY_ICON_COLOR_fromInt(int t)
         return TRAY_ICON_COLOR_OS_THEME;
 #endif
     } else {
-        WS_ASSERT(false);
         return TRAY_ICON_COLOR_default();
     }
 }
@@ -684,7 +666,6 @@ MULTI_DESKTOP_BEHAVIOR MULTI_DESKTOP_BEHAVIOR_fromInt(int t)
     else if (t == 2) return MULTI_DESKTOP_MOVE_SPACES;
     else if (t == 3) return MULTI_DESKTOP_MOVE_WINDOW;
     else {
-        WS_ASSERT(false);
         return MULTI_DESKTOP_AUTO;
     }
 }
@@ -721,7 +702,6 @@ ASPECT_RATIO_MODE ASPECT_RATIO_MODE_fromInt(int t)
     else if (t == 1) return ASPECT_RATIO_MODE_FILL;
     else if (t == 2) return ASPECT_RATIO_MODE_TILE;
     else {
-        WS_ASSERT(false);
         return ASPECT_RATIO_MODE_STRETCH;
     }
 }
@@ -775,9 +755,42 @@ SERVER_ROUTING_METHOD_TYPE SERVER_ROUTING_METHOD_TYPE_fromInt(int t)
     else if (t == 1) return SERVER_ROUTING_METHOD_REGULAR;
     else if (t == 2) return SERVER_ROUTING_METHOD_ALTERNATIVE;
     else {
-        WS_ASSERT(false);
         return SERVER_ROUTING_METHOD_AUTO;
     }
+}
+
+IpStack ipStackFromInt(int t)
+{
+    switch (t) {
+        case 0:
+            return IpStack::kAuto;
+        case 1:
+            return IpStack::kIPv4Only;
+        default:
+            WS_ASSERT(false);
+            return IpStack::kAuto;
+    }
+}
+
+QString ipStackToString(IpStack s)
+{
+    switch (s) {
+        case IpStack::kAuto:
+            return QObject::tr("Auto");
+        case IpStack::kIPv4Only:
+            return QObject::tr("IPv4 Only");
+        default:
+            WS_ASSERT(false);
+            return QObject::tr("UNKNOWN");
+    }
+}
+
+QList<QPair<QString, QVariant> > ipStackToList()
+{
+    QList<QPair<QString, QVariant>> l;
+    l << qMakePair(ipStackToString(IpStack::kAuto), (int)IpStack::kAuto);
+    l << qMakePair(ipStackToString(IpStack::kIPv4Only), (int)IpStack::kIPv4Only);
+    return l;
 }
 
 QList<QPair<QString, QVariant> > PROTOCOL_TWEAKS_METHOD_TYPE_toList()
@@ -806,7 +819,6 @@ PROTOCOL_TWEAKS_METHOD_TYPE PROTOCOL_TWEAKS_METHOD_TYPE_fromInt(int t)
     else if (t == 1) return PROTOCOL_TWEAKS_METHOD_ENABLED;
     else if (t == 2) return PROTOCOL_TWEAKS_METHOD_DISABLED;
     else {
-        WS_ASSERT(false);
         return PROTOCOL_TWEAKS_METHOD_AUTO;
     }
 }

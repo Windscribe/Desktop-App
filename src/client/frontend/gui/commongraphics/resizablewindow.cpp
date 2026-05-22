@@ -76,7 +76,7 @@ void ResizableWindow::setMaximumHeight(int height)
 
     maxHeight_ = height;
 
-    if (curHeight_ > maxHeight_) {
+    if (curHeight_ > maxHeight_*G_SCALE) {
         setHeight(maxHeight_*G_SCALE);
         emit sizeChanged(this);
     }

@@ -83,39 +83,74 @@ void RoutesManager::clearAllRoutes()
 
 void RoutesManager::doActionsForInclusiveModeOpenVpn(const ConnectStatus &connectStatus)
 {
-    // delete openvpn default routes
     IpForwardTable table;
-    //openVpnRoutes_.deleteRoute(table, connectStatus.remoteIp, "255.255.255.255", connectStatus.defaultAdapter.gatewayIp, connectStatus.defaultAdapter.ifIndex);
-    openVpnRoutes_.deleteRoute(table, "0.0.0.0", "128.0.0.0", connectStatus.vpnAdapter.gatewayIp, connectStatus.vpnAdapter.ifIndex);
-    openVpnRoutes_.deleteRoute(table, "128.0.0.0", "128.0.0.0", connectStatus.vpnAdapter.gatewayIp, connectStatus.vpnAdapter.ifIndex);
-    // add bound route
-    boundRoute_.addRoute(table, "0.0.0.0", "0.0.0.0", connectStatus.vpnAdapter.gatewayIp, connectStatus.vpnAdapter.ifIndex, true);
+    const auto &vpn = connectStatus.vpnAdapter;
+
+    // IPv4: remove openvpn --redirect-gateway def1 halves, add bound default at max metric.
+    openVpnRoutes_.deleteRoute(table, types::IpAddress("0.0.0.0"),   1, vpn.gatewayIp, vpn.ifIndex);
+    openVpnRoutes_.deleteRoute(table, types::IpAddress("128.0.0.0"), 1, vpn.gatewayIp, vpn.ifIndex);
+    boundRoute_.addRoute(table, types::IpAddress("0.0.0.0"), 0, vpn.gatewayIp, vpn.ifIndex, true);
+
+    // IPv6 mirror — only if the server handed us a v6 gateway on the VPN adapter.
+    // OpenVPN with `--redirect-gateway ipv6 def1` installs ::/1 + 8000::/1.
+    if (vpn.gatewayIpV6.isValid()) {
+        openVpnRoutes_.deleteRoute(table, types::IpAddress("::"),     1, vpn.gatewayIpV6, vpn.ifIndex);
+        openVpnRoutes_.deleteRoute(table, types::IpAddress("8000::"), 1, vpn.gatewayIpV6, vpn.ifIndex);
+        boundRoute_.addRoute(table, types::IpAddress("::"), 0, vpn.gatewayIpV6, vpn.ifIndex, true);
+    }
 }
 
 void RoutesManager::doActionsForInclusiveModeWireGuard(const ConnectStatus &connectStatus)
 {
-    // delete wireguard default route
     IpForwardTable table;
-    wgRoutes_.deleteRoute(table, "0.0.0.0", "128.0.0.0", connectStatus.vpnAdapter.adapterIp, connectStatus.vpnAdapter.ifIndex);
-    wgRoutes_.deleteRoute(table, "128.0.0.0", "128.0.0.0", connectStatus.vpnAdapter.adapterIp, connectStatus.vpnAdapter.ifIndex);
-    // add bound route
-    boundRoute_.addRoute(table, "0.0.0.0", "0.0.0.0", connectStatus.vpnAdapter.adapterIp, connectStatus.vpnAdapter.ifIndex, true);
+    const auto &vpn = connectStatus.vpnAdapter;
+
+    // wireguard-windows installs AllowedIPs routes with NextHop = 0.0.0.0 / :: (on-link), see
+    // tools/deps/custom_amneziawg-windows/addressconfig.go (`route.NextHop = net.IPv4zero`).
+    // Routes::deleteRoute matches byte-exact on NextHop, so we must pass the same on-link
+    // sentinel here — using vpn.adapterIp would silently fail to delete the /1 routes,
+    // leaving them in place and forcing all v4 traffic through the tunnel even in inclusive
+    // mode. The bound /0 we add is a regular helper-managed route and uses vpn.adapterIp as
+    // its NextHop (this is what shows up in `route print` per test plan 7.2).
+    wgRoutes_.deleteRoute(table, types::IpAddress("0.0.0.0"),   1, types::IpAddress("0.0.0.0"), vpn.ifIndex);
+    wgRoutes_.deleteRoute(table, types::IpAddress("128.0.0.0"), 1, types::IpAddress("0.0.0.0"), vpn.ifIndex);
+    boundRoute_.addRoute(table, types::IpAddress("0.0.0.0"), 0, vpn.adapterIp, vpn.ifIndex, true);
+
+    if (vpn.adapterIpV6.isValid()) {
+        wgRoutes_.deleteRoute(table, types::IpAddress("::"),     1, types::IpAddress("::"), vpn.ifIndex);
+        wgRoutes_.deleteRoute(table, types::IpAddress("8000::"), 1, types::IpAddress("::"), vpn.ifIndex);
+        boundRoute_.addRoute(table, types::IpAddress("::"), 0, vpn.adapterIpV6, vpn.ifIndex, true);
+    }
 }
 
 void RoutesManager::doActionsForInclusiveModeIkev2(const ConnectStatus &connectStatus)
 {
-    // delete ikev2 default route
     IpForwardTable table;
-    ikev2Routes_.deleteRoute(table, "0.0.0.0", "0.0.0.0", connectStatus.vpnAdapter.adapterIp, connectStatus.vpnAdapter.ifIndex);
-    // add bound route
-    boundRoute_.addRoute(table, "0.0.0.0", "0.0.0.0", connectStatus.vpnAdapter.adapterIp, connectStatus.vpnAdapter.ifIndex, true);
+    const auto &vpn = connectStatus.vpnAdapter;
+
+    ikev2Routes_.deleteRoute(table, types::IpAddress("0.0.0.0"), 0, vpn.adapterIp, vpn.ifIndex);
+    boundRoute_.addRoute(table, types::IpAddress("0.0.0.0"), 0, vpn.adapterIp, vpn.ifIndex, true);
+
+    // IKEv2 is typically v4-only, but handle a v6 default route on the adapter if present.
+    if (vpn.adapterIpV6.isValid()) {
+        ikev2Routes_.deleteRoute(table, types::IpAddress("::"), 0, vpn.adapterIpV6, vpn.ifIndex);
+        boundRoute_.addRoute(table, types::IpAddress("::"), 0, vpn.adapterIpV6, vpn.ifIndex, true);
+    }
 }
 
 void RoutesManager::addDnsRoutes(const ConnectStatus &connectStatus)
 {
     IpForwardTable table;
+    const auto &vpn = connectStatus.vpnAdapter;
 
     // 10.255.255.0/24 contains the default DNS servers, on-node APIs, decoy traffic servers, etc
-    // and always goes through the tunnel.
-    dnsServersRoutes_.addRoute(table, "10.255.255.0", "255.255.255.0", connectStatus.vpnAdapter.gatewayIp, connectStatus.vpnAdapter.ifIndex, false);
+    // and always goes through the tunnel. No IPv6 analog in Windscribe DNS infrastructure.
+    //
+    // OpenVPN (TAP/Wintun) gets a real DHCP gateway in vpn.gatewayIp; WireGuard and IKEv2 are
+    // point-to-point and FirstGatewayAddress is empty, so vpn.gatewayIp is invalid for them.
+    // Fall back to the adapter address — for a P2P interface that is the only meaningful
+    // next-hop and Windows resolves it on-link via the same interface. If both are invalid,
+    // Routes::addRoute will reject the call and log the error itself.
+    const types::IpAddress &nextHop = vpn.gatewayIp.isValid() ? vpn.gatewayIp : vpn.adapterIp;
+    dnsServersRoutes_.addRoute(table, types::IpAddress("10.255.255.0"), 24, nextHop, vpn.ifIndex, false);
 }

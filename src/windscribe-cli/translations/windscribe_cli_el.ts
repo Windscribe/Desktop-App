@@ -291,6 +291,14 @@
         <translation>Άγνωστη κατάσταση</translation>
     </message>
     <message>
+        <source>VPN IP: %1</source>
+        <translation>IP VPN: %1</translation>
+    </message>
+    <message>
+        <source>Public IP: %1</source>
+        <translation>Δημόσια ΠΕ: %1</translation>
+    </message>
+    <message>
         <source>Protocol: %1:%2</source>
         <translation>Πρωτόκολλο: %1:%2</translation>
     </message>

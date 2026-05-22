@@ -14,5 +14,4 @@ private:
     // if byIfIndex == true, then find by ifIndex
     // overwise by product name in description
     static AdapterGatewayInfo getAdapterInfo(bool byIfIndex, unsigned long ifIndex, const QString &adapterIdentifier);
-    static void getAdapterIpAndGateway(unsigned long ifIndex, QString &outIp, QString &outGateway);
 };

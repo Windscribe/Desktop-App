@@ -15,8 +15,8 @@
 #include "languagecontroller.h"
 #include "strings.h"
 #include "utils.h"
-#include "utils/ipvalidation.h"
 #include "utils/log/categories.h"
+#include "utils/networkingvalidation.h"
 #include "utils/utils.h"
 
 
@@ -328,7 +328,7 @@ void BackendCommander::sendCommand(IPC::CliCommands::State *state)
             return;
         }
         QString ipAddress = cliArgs_.ipAddress();
-        if (!IpValidation::isIp(ipAddress)) {
+        if (!NetworkingValidation::isIp(ipAddress)) {
             emit finished(1, QObject::tr("Invalid IP address"));
             return;
         }
@@ -366,6 +366,12 @@ void BackendCommander::onStateResponse(IPC::Command *command)
 
     if (cmd->connectState_.connectState != CONNECT_STATE_DISCONNECTED && cmd->protocol_.isValid()) {
         msg += "\n" + protocolString(cmd->protocol_, cmd->port_);
+    }
+
+    if (!cmd->myIp_.isEmpty()) {
+        bool isVpnIp = cmd->connectState_.connectState == CONNECT_STATE_CONNECTED &&
+                       cmd->tunnelTestState_ == TUNNEL_TEST_STATE_SUCCESS;
+        msg += "\n" + ipString(cmd->myIp_, isVpnIp);
     }
 
     if (cmd->loginState_ == LOGIN_STATE_LOGGED_IN) {
@@ -412,7 +418,7 @@ void BackendCommander::onUpdateStateResponse(IPC::Command *command)
         std::cout << std::endl;
 
         // Update has been downloaded, run it now
-        int ret = QProcess::execute("/opt/windscribe/scripts/install-update", {cmd->updatePath_});
+        int ret = QProcess::execute(WS_LINUX_INSTALL_DIR "/scripts/install-update", {cmd->updatePath_});
         std::error_code ec;
         std::filesystem::remove(cmd->updatePath_.toStdString(), ec);
 

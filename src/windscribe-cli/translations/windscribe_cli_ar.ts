@@ -187,6 +187,14 @@
         <translation>حالة غير معروفة</translation>
     </message>
     <message>
+        <source>VPN IP: %1</source>
+        <translation>عنوان IP VPN: ٪1</translation>
+    </message>
+    <message>
+        <source>Public IP: %1</source>
+        <translation>الملكية الفكرية العامة: ٪1</translation>
+    </message>
+    <message>
         <source>Protocol: %1:%2</source>
         <translation>البروتوكول: %1:%2</translation>
     </message>

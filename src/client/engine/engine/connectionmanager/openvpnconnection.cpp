@@ -1,18 +1,22 @@
 #include "openvpnconnection.h"
-#include "utils/ws_assert.h"
+#include "availableport.h"
+#include "types/enums.h"
 #include "utils/crashhandler.h"
 #include "utils/log/categories.h"
-#include "utils/utils.h"
-#include "types/enums.h"
-#include "availableport.h"
+#include "utils/networkingvalidation.h"
 #include "utils/openvpnversioncontroller.h"
-#include "utils/ipvalidation.h"
+#include "utils/utils.h"
+#include "utils/ws_assert.h"
 
 #ifdef Q_OS_WIN
     #include "adapterutils_win.h"
     #include "types/global_consts.h"
     #include "utils/extraconfig.h"
-#elif defined (Q_OS_MACOS) || defined (Q_OS_LINUX)
+#elif defined (Q_OS_LINUX)
+    #include "engine/helper/helper_posix.h"
+    #include "engine/helper/helper_linux.h"
+    #include "utils/extraconfig.h"
+#elif defined (Q_OS_MACOS)
     #include "engine/helper/helper_posix.h"
 #endif
 
@@ -29,15 +33,9 @@ OpenVPNConnection::~OpenVPNConnection()
     wait();
 }
 
-void OpenVPNConnection::startConnect(const QString &config, const QString &ip, const QString &dnsHostName, const QString &username, const QString &password,
-                                     const types::ProxySettings &proxySettings, const WireGuardConfig *wireGuardConfig, bool isEnableIkev2Compression, bool isCustomConfig,
-                                     const QString &overrideDnsIp)
+void OpenVPNConnection::startConnect(const StartConnectParams &params)
 {
-    Q_UNUSED(ip);
-    Q_UNUSED(dnsHostName);
-    Q_UNUSED(wireGuardConfig);
-    Q_UNUSED(isEnableIkev2Compression);
-    Q_UNUSED(overrideDnsIp);
+    const auto &p = std::get<OpenVpnStartParams>(params);
     WS_ASSERT(getCurrentState() == STATUS_DISCONNECTED);
 
     qCDebug(LOG_CONNECTION) << "connectOVPN";
@@ -47,12 +45,12 @@ void OpenVPNConnection::startConnect(const QString &config, const QString &ip, c
     bStopThread_ = false;
 
     setCurrentState(STATUS_CONNECTING);
-    config_ = config;
-    username_ = username;
-    password_ = password;
-    proxySettings_ = proxySettings;
+    config_ = p.config;
+    username_ = p.username;
+    password_ = p.password;
+    proxySettings_ = p.proxySettings;
     isAllowFirewallAfterCustomConfigConnection_ = false;
-    isCustomConfig_ = isCustomConfig;
+    isCustomConfig_ = p.isCustomConfig;
 
     stateVariables_.reset();
     connectionAdapterInfo_.clear();
@@ -164,13 +162,14 @@ void OpenVPNConnection::run()
 {
     BIND_CRASH_HANDLER_FOR_THREAD();
 #ifdef Q_OS_WIN
-    // NOTE:
-    // - The emergency connect OpenVPN server is old-old and generates data packets not supported by the DCO driver.
-    // - OpenVPN requires us to use the wintun driver if the LAN proxy setting is enabled, and will only allow
-    //   said proxy setting if the protocol is TCP.
+    // NOTE: The emergency connect OpenVPN server is old-old and generates data packets not supported by the DCO driver.
     const bool useDCODriver = !isCustomConfig_ && !isEmergencyConnect_ && ExtraConfig::instance().useOpenVpnDCO() && !(proxySettings_.isProxyEnabled() && protocol_ == types::Protocol::OPENVPN_TCP);
     helper_->createOpenVpnAdapter(useDCODriver);
     helper_->enableDnsLeaksProtection();
+#elif defined (Q_OS_LINUX)
+    // NOTE: The emergency connect OpenVPN server is old-old and generates data packets not supported by the DCO driver.
+    const bool useDCODriver = !isEmergencyConnect_ && ExtraConfig::instance().useOpenVpnDCO() && !(proxySettings_.isProxyEnabled() && protocol_ == types::Protocol::OPENVPN_TCP);
+    helper_->setOpenVpnDcoMode(useDCODriver);
 #endif
 
     io_context_.restart();
@@ -385,8 +384,7 @@ void OpenVPNConnection::handleRead(const boost::system::error_code &err, size_t 
                 stateVariables_.bSigTermSent = true;
             }
         }
-        else if (serverReply.contains("There are no TAP-Windows", Qt::CaseInsensitive) && serverReply.contains("Wintun",Qt::CaseInsensitive) &&
-                 serverReply.contains("adapters on this system.",Qt::CaseInsensitive))
+        else if (serverReply.contains("There are no TAP-Windows", Qt::CaseInsensitive) && serverReply.contains("adapters on this system", Qt::CaseInsensitive))
         {
             if (!stateVariables_.bTapErrorEmited)
             {
@@ -433,13 +431,12 @@ void OpenVPNConnection::handleRead(const boost::system::error_code &err, size_t 
                 AdapterGatewayInfo vpnAdapter = AdapterUtils_win::getConnectedAdapterInfo(QString::fromWCharArray(kOpenVPNAdapterIdentifier));
                 if (!vpnAdapter.isEmpty())
                 {
-                    if (connectionAdapterInfo_.adapterIp() != vpnAdapter.adapterIp())
+                    if (connectionAdapterInfo_.adapterIpV4() != vpnAdapter.adapterIpV4())
                     {
                         qCCritical(LOG_CONNECTION) << "Error: Adapter IP detected from openvpn log not equal to the adapter IP from AdapterUtils_win::getConnectedAdapterInfo()";
                         WS_ASSERT(false);
                     }
                     connectionAdapterInfo_.setAdapterName(vpnAdapter.adapterName());
-                    connectionAdapterInfo_.setAdapterIp(vpnAdapter.adapterIp());
                     connectionAdapterInfo_.setDnsServers(vpnAdapter.dnsServers());
                     connectionAdapterInfo_.setIfIndex(vpnAdapter.ifIndex());
                 }
@@ -452,7 +449,7 @@ void OpenVPNConnection::handleRead(const boost::system::error_code &err, size_t 
                 QString remoteIp;
                 if (parseConnectedSuccessReply(serverReply, remoteIp))
                 {
-                    connectionAdapterInfo_.setRemoteIp(remoteIp);
+                    connectionAdapterInfo_.setRemoteIp(types::IpAddress(remoteIp.toStdString()));
                 }
                 else
                 {
@@ -497,10 +494,6 @@ void OpenVPNConnection::handleRead(const boost::system::error_code &err, size_t 
             {
                 emit error(CONNECT_ERROR::UDP_NETWORK_DOWN);
             }
-            else if (serverReply.contains("write_wintun", Qt::CaseInsensitive) && serverReply.contains("head/tail value is over capacity", Qt::CaseInsensitive))
-            {
-                emit error(CONNECT_ERROR::WINTUN_OVER_CAPACITY);
-            }
             else if (serverReply.contains("TCP:", Qt::CaseInsensitive) && serverReply.contains("failed", Qt::CaseInsensitive))
             {
                 emit error(CONNECT_ERROR::TCP_ERROR);
@@ -518,8 +511,12 @@ void OpenVPNConnection::handleRead(const boost::system::error_code &err, size_t 
             {
                 emit error(CONNECT_ERROR::INITIALIZATION_SEQUENCE_COMPLETED_WITH_ERRORS);
             }
+#if defined (Q_OS_MACOS)
+            else if (serverReply.contains("Opened") && serverReply.contains("device"))
+#elif defined (Q_OS_LINUX)
+            else if (serverReply.contains("TUN/TAP device") || serverReply.contains("DCO device"))
+#endif
 #if defined (Q_OS_MACOS) || defined (Q_OS_LINUX)
-            else if (serverReply.contains("device", Qt::CaseInsensitive) && serverReply.contains("opened", Qt::CaseInsensitive))
             {
                 QString deviceName;
                 if (parseDeviceOpenedReply(serverReply, deviceName))
@@ -547,11 +544,6 @@ void OpenVPNConnection::handleRead(const boost::system::error_code &err, size_t 
                 setCurrentStateAndEmitDisconnected(STATUS_DISCONNECTED);
             }
         }
-        else if (serverReply.contains(">FATAL:All wintun adapters on this system are currently in use", Qt::CaseInsensitive))
-        {
-            emit error(CONNECT_ERROR::WINTUN_FATAL_ERROR);
-        }
-
         checkErrorAndContinue(write_error, true);
     }
     else
@@ -686,14 +678,14 @@ bool OpenVPNConnection::parsePushReply(const QString &reply, AdapterGatewayInfo 
             else
             {
                 const QString ipStr = v[1];
-                if (!IpValidation::isIp(ipStr))
+                if (!NetworkingValidation::isIp(ipStr))
                 {
                     qCCritical(LOG_CONNECTION) << "Can't parse route-gateway message (incorrect IPv4 address)";
                     return false;
                 }
                 else
                 {
-                    outConnectionAdapterInfo.setGateway(ipStr);
+                    outConnectionAdapterInfo.addGatewayIp(types::IpAddress(ipStr.toStdString()));
                 }
             }
         }
@@ -708,14 +700,14 @@ bool OpenVPNConnection::parsePushReply(const QString &reply, AdapterGatewayInfo 
             else
             {
                 const QString ipStr = v[1];
-                if (!IpValidation::isIp(ipStr))
+                if (!NetworkingValidation::isIp(ipStr))
                 {
                     qCCritical(LOG_CONNECTION) << "Can't parse ifconfig message (incorrect IPv4 address)";
                     return false;
                 }
                 else
                 {
-                    outConnectionAdapterInfo.setAdapterIp(ipStr);
+                    outConnectionAdapterInfo.addAdapterIp(types::IpAddress(ipStr.toStdString()));
                 }
             }
         }
@@ -732,14 +724,14 @@ bool OpenVPNConnection::parsePushReply(const QString &reply, AdapterGatewayInfo 
                 if (v[1] == QLatin1String("DNS"))
                 {
                     const QString ipStr = v[2];
-                    if (!IpValidation::isIp(ipStr))
+                    if (!NetworkingValidation::isIp(ipStr))
                     {
                         qCCritical(LOG_CONNECTION) << "Can't parse dhcp-option DNS message (incorrect IPv4 address)";
                         return false;
                     }
                     else
                     {
-                        outConnectionAdapterInfo.addDnsServer(ipStr);
+                        outConnectionAdapterInfo.addDnsServer(types::IpAddress(ipStr.toStdString()));
                     }
                 }
             }
@@ -751,22 +743,22 @@ bool OpenVPNConnection::parsePushReply(const QString &reply, AdapterGatewayInfo 
 bool OpenVPNConnection::parseDeviceOpenedReply(const QString &reply, QString &outDeviceName)
 {
     const QStringList v = reply.split(',');
-    if (v.count() != 3)
+    if (v.count() < 3)
     {
         qCCritical(LOG_CONNECTION) << "Can't parse opened device message";
         return false;
     }
-    const QStringList v2 = v.last().split(' ');
-    if (v2.count() != 4)
+    const QStringList words = v.last().split(' ');
+    int deviceIdx = words.indexOf("device");
+    if (deviceIdx < 0) {
+        deviceIdx = words.indexOf("Device");
+    }
+    if (deviceIdx < 0 || deviceIdx + 1 >= words.count())
     {
-        qCCritical(LOG_CONNECTION) << "Can't parse opened device message (divide into 4 strings)";
+        qCCritical(LOG_CONNECTION) << "Can't find 'device' keyword in opened device message";
         return false;
     }
-#ifdef Q_OS_MACOS
-    outDeviceName = v2[3];
-#elif defined (Q_OS_LINUX)
-    outDeviceName = v2[2];
-#endif
+    outDeviceName = words[deviceIdx + 1];
 
     WS_ASSERT(outDeviceName.contains("tun"));
     return !outDeviceName.isEmpty();
@@ -775,9 +767,9 @@ bool OpenVPNConnection::parseDeviceOpenedReply(const QString &reply, QString &ou
 bool OpenVPNConnection::parseConnectedSuccessReply(const QString &reply, QString &outRemoteIp)
 {
     const QStringList v = reply.split(',');
-    if (v.count() != 8)
+    if (v.count() < 5)
     {
-        qCCritical(LOG_CONNECTION) << "Can't parse CONNECT SUCCESS message (inccorect number of words)";
+        qCCritical(LOG_CONNECTION) << "Can't parse CONNECT SUCCESS message (incorrect number of fields:" << v.count() << ")";
         return false;
     }
     else

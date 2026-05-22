@@ -33,6 +33,22 @@
         <translation>Błąd instalacji</translation>
     </message>
     <message>
+        <source>The Windows Base Filtering Engine service is not running and could not be started. This core Windows service must be running to install Windscribe. Third-party security/firewall software is most often the cause of this issue.</source>
+        <translation>Usługa Windows Base Filtering Engine nie działa i nie można jej było uruchomić. Ta podstawowa usługa Windows musi być uruchomiona, aby zainstalować Windscribe. Najczęściej za przyczyną tego problemu jest oprogramowanie zewnętrzne firm trzecich lub zapory.</translation>
+    </message>
+    <message>
+        <source>Windscribe is unable to connect to the Windows Base Filtering Engine service. Connecting to this core Windows service is required to install Windscribe. Third-party security/firewall software is most often the cause of this issue.</source>
+        <translation>Windscribe nie może połączyć się z usługą Windows Base Filtering Engine. Do zainstalowania Windscribe wymagane jest połączenie z tą główną usługą Windows. Najczęściej za przyczyną tego problemu jest oprogramowanie zewnętrzne firm trzecich lub zapory.</translation>
+    </message>
+    <message>
+        <source>Windscribe is unable to install its helper service. Please manually uninstall Windscribe and try again. If this issue persists, please contact our Technical Support.</source>
+        <translation>Windscribe nie jest w stanie zainstalować swojej usługi pomocniczej. Proszę, ręcznie odinstaluj Windscribe i spróbuj ponownie. Jeśli problem się utrzymuje, prosimy o kontakt z naszym Wsparciem Technicznym.</translation>
+    </message>
+    <message>
+        <source>Windscribe is unable to start its helper service. Third-party security/firewall software may be the cause. If this is not the case, please contact our Technical Support.</source>
+        <translation>Windscribe nie jest w stanie uruchomić swojej usługi pomocnika. Za to może być oprogramowanie zabezpieczające lub firewall firm trzecich. Jeśli tak nie jest, prosimy o kontakt z naszym Wsparciem Technicznym.</translation>
+    </message>
+    <message>
         <source>The installation could not be completed successfully. Please contact our Technical Support.</source>
         <translation>Instalacja zakończona niepowodzeniem. Skontaktuj się z naszym działem pomocy technicznej.</translation>
     </message>

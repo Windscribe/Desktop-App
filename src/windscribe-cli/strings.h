@@ -7,6 +7,7 @@
 QString connectivityString(bool connectivity);
 QString loginStateString(LOGIN_STATE state, wsnet::LoginResult loginError, const QString &loginErrorMessage, bool showPrefix = true);
 QString connectStateString(types::ConnectState state, LocationID location, TUNNEL_TEST_STATE tunnelTest, bool showPrefix = true);
+QString ipString(const QString &ip, bool isConnected);
 QString protocolString(types::Protocol protocol, uint port);
 QString firewallStateString(bool isFirewallOn, bool isFirewallAlwaysOn);
 QString dataString(const QString &language, qint64 data);

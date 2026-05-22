@@ -1,6 +1,7 @@
 #include "utils.h"
 
 #include <QDir>
+#include <QRandomGenerator>
 
 #include <thread>
 #include <time.h>
@@ -129,6 +130,21 @@ int Utils::generateIntegerRandom(const int &min, const int &max)
         if (!generator) generator = new std::mt19937(clock() + std::hash<std::thread::id>()(std::this_thread::get_id()));
         return distribution(*generator);
     #endif
+}
+
+QString Utils::generateSecureCredential(int length)
+{
+    Q_ASSERT(length > 0);
+    static const char alphabet[] =
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    constexpr int kAlphabetSize = sizeof(alphabet) - 1;
+    QString out;
+    out.reserve(length);
+    auto *gen = QRandomGenerator::system();
+    for (int i = 0; i < length; ++i) {
+        out.append(QChar::fromLatin1(alphabet[gen->bounded(kAlphabetSize)]));
+    }
+    return out;
 }
 
 bool Utils::isSubdomainsEqual(const QString &hostname1, const QString &hostname2)

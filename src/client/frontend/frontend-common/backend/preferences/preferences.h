@@ -105,6 +105,9 @@ public:
     PROTOCOL_TWEAKS_METHOD_TYPE protocolTweaksMethod() const;
     void setProtocolTweaksMethod(PROTOCOL_TWEAKS_METHOD_TYPE method);
 
+    IpStack ipStackEgress() const;
+    void setIpStackEgress(IpStack ipStackEgress);
+
     const types::ShareSecureHotspot &shareSecureHotspot() const;
     void setShareSecureHotspot(const types::ShareSecureHotspot &ss);
 
@@ -205,6 +208,7 @@ signals:
     void isAPIAntiCensorshipChanged(bool b);
     void serverRoutingMethodChanged(SERVER_ROUTING_METHOD_TYPE method);
     void protocolTweaksMethodChanged(PROTOCOL_TWEAKS_METHOD_TYPE method);
+    void ipStackEgressChanged(IpStack ipStackEgress);
     void hideFromDockChanged(bool b);
     void shareSecureHotspotChanged(const types::ShareSecureHotspot &ss);
     void shareProxyGatewayChanged(const types::ShareProxyGateway &sp);

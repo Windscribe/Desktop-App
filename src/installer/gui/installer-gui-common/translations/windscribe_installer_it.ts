@@ -45,6 +45,22 @@
         <translation>Impossibile rimuovere un&apos;installazione esistente di Windscribe. Disinstallare l&apos;applicazione manualmente e riprovare.</translation>
     </message>
     <message>
+        <source>The Windows Base Filtering Engine service is not running and could not be started. This core Windows service must be running to install Windscribe. Third-party security/firewall software is most often the cause of this issue.</source>
+        <translation>Il servizio Windows Base Filtering Engine non è in esecuzione e non è stato avviato. Questo servizio core di Windows deve essere in esecuzione per installare Windscribe. Il software di sicurezza/firewall di terze parti è più spesso la causa di questo problema.</translation>
+    </message>
+    <message>
+        <source>Windscribe is unable to connect to the Windows Base Filtering Engine service. Connecting to this core Windows service is required to install Windscribe. Third-party security/firewall software is most often the cause of this issue.</source>
+        <translation>Windscribe non riesce a connettersi al servizio Windows Base Filtering Engine. È necessario collegarsi a questo servizio principale di Windows per installare Windscribe. Il software di sicurezza/firewall di terze parti è più spesso la causa di questo problema.</translation>
+    </message>
+    <message>
+        <source>Windscribe is unable to install its helper service. Please manually uninstall Windscribe and try again. If this issue persists, please contact our Technical Support.</source>
+        <translation>Windscribe non riesce a installare il suo servizio di assistenza. Per favore, disinstalla manualmente Windscribe e riprova. Se questo problema persiste, vi preghiamo di contattare il nostro Supporto Tecnico.</translation>
+    </message>
+    <message>
+        <source>Windscribe is unable to start its helper service. Third-party security/firewall software may be the cause. If this is not the case, please contact our Technical Support.</source>
+        <translation>Windscribe non riesce ad avviare il servizio di assistenza. Il software di sicurezza o firewall di terze parti potrebbe essere la causa. Se non è così, contatta il nostro Supporto Tecnico.</translation>
+    </message>
+    <message>
         <source>The installation could not be completed successfully. Please contact our Technical Support.</source>
         <translation>Impossibile completare correttamente l&apos;installazione. Si prega di contattare il nostro supporto tecnico.</translation>
     </message>

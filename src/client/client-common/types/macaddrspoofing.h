@@ -3,11 +3,16 @@
 #include <QJsonArray>
 #include <QString>
 #include "networkinterface.h"
+#include "utils/log/categories.h"
 #include "utils/network_utils/network_utils.h"
+#include "utils/networkingvalidation.h"
 #ifdef Q_OS_MACOS
 #include "utils/macutils.h"
+#include "utils/network_utils/network_utils_mac.h"
 #elif defined(Q_OS_LINUX)
 #include "utils/network_utils/network_utils_linux.h"
+#elif defined(Q_OS_WIN)
+#include "utils/network_utils/network_utils_win.h"
 #endif
 
 namespace types {
@@ -29,10 +34,7 @@ struct MacAddrSpoofing
         }
 
         if (json.contains(kJsonMacAddressProp) && json[kJsonMacAddressProp].isString()) {
-            QString str = json[kJsonMacAddressProp].toString();
-            if (NetworkUtils::isValidMacAddress(str)) {
-                macAddress = NetworkUtils::normalizeMacAddress(str);
-            }
+            macAddress = NetworkUtils::normalizeMacAddress(json[kJsonMacAddressProp].toString());
         }
 
         if (json.contains(kJsonIsAutoRotateProp) && json[kJsonIsAutoRotateProp].isBool()) {
@@ -53,6 +55,26 @@ struct MacAddrSpoofing
                 }
             }
         }
+
+#if defined(Q_OS_LINUX)
+        selectedNetworkInterface = NetworkUtils_linux::networkInterfaceByName(selectedNetworkInterface.interfaceName);
+        if (NetworkInterface::isNoNetworkInterface(selectedNetworkInterface.interfaceIndex)) {
+            isEnabled = false;
+        }
+#elif defined(Q_OS_WIN)
+        bool resolved = false;
+        types::NetworkInterface live = NetworkUtils_win::interfaceByIndex(selectedNetworkInterface.interfaceIndex, resolved);
+        if (resolved) {
+            selectedNetworkInterface = live;
+        } else {
+            isEnabled = false;
+        }
+#elif defined(Q_OS_MACOS)
+        if (selectedNetworkInterface.interfaceName.isEmpty() ||
+            NetworkUtils_mac::macAddressFromInterfaceName(selectedNetworkInterface.interfaceName).isEmpty()) {
+            isEnabled = false;
+        }
+#endif
     }
 
     bool isEnabled = false;
@@ -118,12 +140,7 @@ struct MacAddrSpoofing
     void fromIni(const QSettings &settings)
     {
         isEnabled = settings.value(kIniIsEnabledProp, false).toBool();
-
-        QString mac = settings.value(kIniMacAddressProp).toString();
-        if (NetworkUtils::isValidMacAddress(mac)) {
-            macAddress = NetworkUtils::normalizeMacAddress(mac);
-        }
-
+        macAddress = NetworkUtils::normalizeMacAddress(settings.value(kIniMacAddressProp).toString());
         isAutoRotate = settings.value(kIniIsAutoRotateProp, false).toBool();
 
 #ifdef Q_OS_LINUX
@@ -141,6 +158,31 @@ struct MacAddrSpoofing
         settings.setValue(kIniMacAddressProp, macAddress);
         settings.setValue(kIniIsAutoRotateProp, isAutoRotate);
         settings.setValue(kIniInterfaceProp, selectedNetworkInterface.interfaceName);
+    }
+
+    void validate()
+    {
+        if (!macAddress.isEmpty() && !NetworkingValidation::isValidMacAddress(macAddress)) {
+            qCWarning(LOG_BASIC) << "MacAddrSpoofing: invalid MAC address, disabling spoofing";
+            macAddress.clear();
+            isEnabled = false;
+        }
+        if (!selectedNetworkInterface.interfaceName.isEmpty() &&
+            !selectedNetworkInterface.isNoNetworkInterface() &&
+            !NetworkingValidation::isValidInterfaceName(selectedNetworkInterface.interfaceName)) {
+            qCWarning(LOG_BASIC) << "MacAddrSpoofing: invalid interface name, disabling spoofing";
+            selectedNetworkInterface = NetworkInterface();
+            isEnabled = false;
+        }
+        selectedNetworkInterface.validate();
+        constexpr int kMaxNetworkInterfaces = 64;
+        if (networkInterfaces.size() > kMaxNetworkInterfaces) {
+            qCWarning(LOG_BASIC) << "MacAddrSpoofing: networkInterfaces over cap, truncating";
+            networkInterfaces.resize(kMaxNetworkInterfaces);
+        }
+        for (auto &nif : networkInterfaces) {
+            nif.validate();
+        }
     }
 
 private:

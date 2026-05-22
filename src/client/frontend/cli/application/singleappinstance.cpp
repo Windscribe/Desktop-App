@@ -15,7 +15,8 @@ bool SingleAppInstance::isRunning()
 {
 #if defined(Q_OS_LINUX)
     if (lockFile_.isNull()) {
-        lockFile_.reset(new QLockFile("/var/run/windscribe/windscribe.lock"));
+        const QString runtimeDir = QStandardPaths::writableLocation(QStandardPaths::RuntimeLocation);
+        lockFile_.reset(new QLockFile(runtimeDir + "/" WS_PRODUCT_NAME_LOWER ".lock"));
         lockFile_->setStaleLockTime(0);
         lockFile_->tryLock();
 

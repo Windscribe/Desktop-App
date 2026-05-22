@@ -80,9 +80,8 @@ void ProcessMonitor::monitorWorker(void *ctx)
                     }
                     break;
                 case 0x80000000: // PROC_EVENT_EXIT:
-                    if (compareCmd(ev->event_data.exit.process_pid, apps_)) {
-                        CGroups::instance().removeApp(ev->event_data.exit.process_pid);
-                    }
+                    // Kernel auto-removes the task from its cgroup on exit; no work needed.
+                    // (The previous compareCmd-gated removeApp was a no-op either way.)
                     break;
                 default:
                     break;
@@ -216,10 +215,25 @@ std::vector<pid_t> ProcessMonitor::findPids(const std::string &exe)
 
 bool ProcessMonitor::compareCmd(pid_t pid, const std::vector<std::string> &exes) {
     std::string cmd = getCmdByPid(pid);
+    std::optional<std::string> flatpakId;
+    bool flatpakIdComputed = false;
 
     for (auto exe : exes) {
         if (cmd == exe) {
             return true;
+        }
+
+        // Flatpak app ID match: stored value looks like reverse-DNS (no slashes, has a dot).
+        // Resolve the running process's Flatpak app ID lazily via cgroup, only when we actually
+        // have an app-ID-shaped rule to match against.
+        if (!exe.empty() && exe.find('/') == std::string::npos && exe.find('.') != std::string::npos) {
+            if (!flatpakIdComputed) {
+                flatpakId = getFlatpakAppIdByPid(pid);
+                flatpakIdComputed = true;
+            }
+            if (flatpakId && *flatpakId == exe) {
+                return true;
+            }
         }
 
         // handle snap
@@ -231,17 +245,46 @@ bool ProcessMonitor::compareCmd(pid_t pid, const std::vector<std::string> &exes)
                 return true;
             }
         }
-
-        // handle flatpak
-        if (cmd.rfind("/app/", 0) == 0 && exe.rfind("/app/", 0) == 0) {
-            std::string suffix = exe.substr(exe.rfind("/"));
-            if (cmd.find(suffix, cmd.size() - suffix.length()) == cmd.size() - suffix.length()) {
-                return true;
-            }
-        }
     }
 
     return false;
+}
+
+std::optional<std::string> ProcessMonitor::getFlatpakAppIdByPid(pid_t pid)
+{
+    std::ifstream f("/proc/" + std::to_string(pid) + "/cgroup");
+    if (!f.is_open()) {
+        return std::nullopt;
+    }
+
+    const std::string marker = "app-flatpak-";
+    const std::string scopeSuffix = ".scope";
+
+    std::string line;
+    while (std::getline(f, line)) {
+        size_t mpos = line.find(marker);
+        if (mpos == std::string::npos) continue;
+
+        size_t spos = line.find(scopeSuffix, mpos);
+        if (spos == std::string::npos) continue;
+
+        // Token is "<app-id>-<launcher-pid>" between marker and ".scope".
+        size_t tokStart = mpos + marker.size();
+        std::string token = line.substr(tokStart, spos - tokStart);
+
+        size_t dashPos = token.rfind('-');
+        if (dashPos == std::string::npos || dashPos == 0) continue;
+
+        // Trailing component must be all digits (the launcher PID).
+        bool allDigits = (dashPos + 1 < token.size());
+        for (size_t i = dashPos + 1; i < token.size() && allDigits; i++) {
+            if (token[i] < '0' || token[i] > '9') allDigits = false;
+        }
+        if (!allDigits) continue;
+
+        return token.substr(0, dashPos);
+    }
+    return std::nullopt;
 }
 
 std::string ProcessMonitor::getCmdByPid(pid_t pid)

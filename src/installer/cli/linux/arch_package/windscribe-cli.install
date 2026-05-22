@@ -41,12 +41,7 @@ pre_upgrade() {
 
 post_upgrade() {
         post_install
-        rm -rf /etc/windscribe/stunnel.conf
-        rm -rf /etc/windscribe/config.ovpn
-        mkdir -p /var/tmp/windscribe
-        if [ -d "/etc/windscribe/windscribe_servers" ]; then
-            mv -f /etc/windscribe/windscribe_servers /var/tmp/windscribe
-        fi
+        rm -rf /etc/windscribe/stunnel.conf /etc/windscribe/config.ovpn /etc/windscribe/windscribe_servers
 }
 
 pre_remove() {
@@ -60,5 +55,6 @@ pre_remove() {
         groupdel -f windscribe || true
         rm -rf /etc/windscribe
         rm -rf /var/log/windscribe
+        rm -rf /var/lib/windscribe
         rm -f /usr/bin/windscribe-cli
 }

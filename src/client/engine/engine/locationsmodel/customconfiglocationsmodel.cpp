@@ -3,11 +3,12 @@
 #include <QFile>
 #include <QTextStream>
 
+#include "customconfiglocationinfo.h"
 #include "engine/customconfigs/ovpncustomconfig.h"
 #include "engine/customconfigs/wireguardcustomconfig.h"
+#include "utils/log/categories.h"
+#include "utils/networkingvalidation.h"
 #include "utils/ws_assert.h"
-#include "utils/ipvalidation.h"
-#include "customconfiglocationinfo.h"
 
 namespace locationsmodel {
 
@@ -37,9 +38,19 @@ void CustomConfigLocationsModel::setCustomConfigs(const QVector<QSharedPointer<c
         const QStringList hostnames = config->hostnames();
         for (const auto &hostname : hostnames)
         {
+            // IPv6 endpoint connections are not implemented yet — skip literal v6 endpoints so
+            // we don't ping/whitelist addresses we'll never connect to. Hostnames that *resolve*
+            // to v6-only are handled in onDnsRequestFinished.
+            if (NetworkingValidation::isIpv6(hostname))
+            {
+                qCWarning(LOG_BASIC) << "Custom config endpoint" << hostname
+                                     << "is an IPv6 literal, skipping. IPv6 endpoint connections are not implemented yet.";
+                continue;
+            }
+
             RemoteItem ri;
             ri.ipOrHostname.ip = hostname;
-            ri.isHostname = !IpValidation::isIp(hostname);
+            ri.isHostname = !NetworkingValidation::isIp(hostname);
 
             if (!ri.isHostname)
             {
@@ -74,7 +85,10 @@ void CustomConfigLocationsModel::setCustomConfigs(const QVector<QSharedPointer<c
     {
         for (const QString &hostname : hostnamesForResolve)
         {
-            WSNet::instance()->dnsResolver()->lookup(hostname.toStdString(), 0, callback);
+            // Custom configs may legitimately point at v6-only or dual-stack hostnames. Ask for
+            // both families so we can surface a clear warning when only IPv6 is returned; the
+            // VPN data path is still IPv4-only — see onDnsRequestFinished().
+            WSNet::instance()->dnsResolver()->lookup(hostname.toStdString(), 0, IpFamily::kBoth, callback);
         }
     }
 }
@@ -116,6 +130,31 @@ void CustomConfigLocationsModel::onPingInfoChanged(const QString &ip, int timems
 
 void CustomConfigLocationsModel::onDnsRequestFinished(const QString &hostname, std::shared_ptr<wsnet::WSNetDnsRequestResult> result)
 {
+    // We request kBoth (see setCustomConfigs) so v6-only hostnames don't silently look like a
+    // DNS failure. The VPN data path is still IPv4-only today, so keep only v4 results here and
+    // log a clear warning when only IPv6 came back — that's the actionable signal for users
+    // pointing custom configs at v6-only endpoints.
+    QStringList ipv4Strings;
+    QStringList ipv6Strings;
+    for (const auto &ip : result->ips()) {
+        const QString qip = QString::fromStdString(ip);
+        if (NetworkingValidation::isIpv4(qip)) {
+            ipv4Strings << qip;
+        } else if (NetworkingValidation::isIpv6(qip)) {
+            ipv6Strings << qip;
+        }
+    }
+
+    if (ipv4Strings.isEmpty() && !ipv6Strings.isEmpty()) {
+        qCWarning(LOG_BASIC) << "Custom config hostname:" << hostname
+                             << "resolved only to IPv6 addresses, skipping. IPv6 endpoint connections are not implemented yet. Addresses:"
+                             << ipv6Strings.join("; ");
+    } else if (!ipv6Strings.isEmpty()) {
+        qCInfo(LOG_BASIC) << "Custom config hostname:" << hostname
+                          << "also has IPv6 addresses, ignored (IPv6 endpoints are not supported yet):"
+                          << ipv6Strings.join("; ");
+    }
+
     for (auto it = pingInfos_.begin(); it != pingInfos_.end(); ++it)
     {
         for (auto remoteIt = it->remotes.begin(); remoteIt != it->remotes.end(); ++remoteIt)
@@ -125,11 +164,10 @@ void CustomConfigLocationsModel::onDnsRequestFinished(const QString &hostname, s
                 remoteIt->isResolved = true;
                 remoteIt->ips.clear();
 
-                const auto &ips = result->ips();
-                for (const auto &ip : ips)
+                for (const QString &ip : ipv4Strings)
                 {
                     IpItem ipItem;
-                    ipItem.ip = QString::fromStdString(ip);
+                    ipItem.ip = ip;
                     ipItem.pingTime = pingManager_.getPing(ipItem.ip);
                     remoteIt->ips << ipItem;
 

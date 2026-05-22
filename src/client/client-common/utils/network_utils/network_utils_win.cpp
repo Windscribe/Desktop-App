@@ -1,5 +1,6 @@
 #include "network_utils_win.h"
 
+#include <QHostAddress>
 #include <QList>
 
 #include <Windows.h>
@@ -459,6 +460,41 @@ bool NetworkUtils_win::pingWithMtu(const QString &url, int mtu)
         return true;
     }
     return false;
+}
+
+void NetworkUtils_win::getAdapterIpAndPrefix(unsigned long ifIndex, QString &outIp, int &outPrefix)
+{
+    outIp.clear();
+    outPrefix = 0;
+
+    ULONG bufSize = sizeof(IP_ADAPTER_ADDRESSES_LH) * 32;
+    QByteArray buf(bufSize, Qt::Uninitialized);
+
+    ULONG result = ::GetAdaptersAddresses(AF_INET, GAA_FLAG_INCLUDE_PREFIX, NULL,
+                                          (PIP_ADAPTER_ADDRESSES)buf.data(), &bufSize);
+    if (result == ERROR_BUFFER_OVERFLOW) {
+        buf.resize(bufSize);
+        result = ::GetAdaptersAddresses(AF_INET, GAA_FLAG_INCLUDE_PREFIX, NULL,
+                                        (PIP_ADAPTER_ADDRESSES)buf.data(), &bufSize);
+    }
+    if (result != NO_ERROR) {
+        return;
+    }
+
+    for (PIP_ADAPTER_ADDRESSES aa = (PIP_ADAPTER_ADDRESSES)buf.data(); aa != nullptr; aa = aa->Next) {
+        if (aa->IfIndex != ifIndex) {
+            continue;
+        }
+        for (PIP_ADAPTER_UNICAST_ADDRESS_LH ua = aa->FirstUnicastAddress; ua != nullptr; ua = ua->Next) {
+            if (ua->Address.lpSockaddr == nullptr || ua->Address.lpSockaddr->sa_family != AF_INET) {
+                continue;
+            }
+            const sockaddr_in *addrIn = reinterpret_cast<const sockaddr_in *>(ua->Address.lpSockaddr);
+            outIp = QHostAddress(ntohl(addrIn->sin_addr.s_addr)).toString();
+            outPrefix = ua->OnLinkPrefixLength;
+            return;
+        }
+    }
 }
 
 QString NetworkUtils_win::getLocalIP()

@@ -1,6 +1,5 @@
 #include <Windows.h>
 
-#include <aclapi.h>
 #include <fileapi.h>
 #include <filesystem>
 #include <optional>
@@ -11,6 +10,7 @@
 #include <versionhelpers.h>
 
 #include "../utils/archive.h"
+#include "../utils/secure_dir.h"
 #include "global_consts.h"
 #include "wsscopeguard.h"
 #include "win32handle.h"
@@ -141,76 +141,6 @@ static bool isOSCompatible()
     return (rtlOsVer.dwBuildNumber >= kMinWindowsBuildNumber);
 }
 
-static bool setFolderPermissions(const std::filesystem::path &folder)
-{
-    SECURITY_DESCRIPTOR sd;
-    ::ZeroMemory(&sd, sizeof(sd));
-
-    BOOL result = ::InitializeSecurityDescriptor(&sd, SECURITY_DESCRIPTOR_REVISION);
-    if (!result) {
-        debugMessage(_T("setFolderPermissions InitializeSecurityDescriptor failed: %lu"), ::GetLastError());
-        return false;
-    }
-
-    // Create a SID for the BUILTIN\Administrators group
-    SID_IDENTIFIER_AUTHORITY SIDAuthNT = SECURITY_NT_AUTHORITY;
-    PSID sidAdmin = NULL;
-    result = ::AllocateAndInitializeSid(&SIDAuthNT, 2, SECURITY_BUILTIN_DOMAIN_RID, DOMAIN_ALIAS_RID_ADMINS, 0, 0, 0, 0, 0, 0, &sidAdmin);
-    if (!result) {
-        debugMessage(_T("setFolderPermissions AllocateAndInitializeSid failed: %lu"), ::GetLastError());
-        return false;
-    }
-
-    PACL pACL = NULL;
-    auto exitGuard = wsl::wsScopeGuard([&] {
-        if (pACL) {
-            ::LocalFree(pACL);
-        }
-
-        if (sidAdmin) {
-            ::FreeSid(sidAdmin);
-        }
-    });
-
-    // Set up an EXPLICIT_ACCESS structure for the Administrators group.
-    EXPLICIT_ACCESS ea;
-    ::ZeroMemory(&ea, sizeof(ea));
-    ea.grfAccessPermissions = GENERIC_ALL;
-    ea.grfAccessMode = SET_ACCESS;
-    ea.grfInheritance = SUB_CONTAINERS_AND_OBJECTS_INHERIT;
-    ea.Trustee.TrusteeForm = TRUSTEE_IS_SID;
-    ea.Trustee.TrusteeType = TRUSTEE_IS_GROUP;
-    ea.Trustee.ptstrName = reinterpret_cast<LPTSTR>(sidAdmin);
-
-    // Create a new ACL with these permissions.
-    result = ::SetEntriesInAcl(1, &ea, NULL, &pACL);
-    if (result != ERROR_SUCCESS) {
-        debugMessage(_T("setFolderPermissions SetEntriesInAcl failed: %lu"), result);
-        return false;
-    }
-
-    result = ::SetSecurityDescriptorDacl(&sd, TRUE, pACL, FALSE);
-    if (!result) {
-        debugMessage(_T("setFolderPermissions SetSecurityDescriptorDacl failed: %lu"), ::GetLastError());
-        return false;
-    }
-
-    SECURITY_ATTRIBUTES sa;
-    ::ZeroMemory(&sa, sizeof(sa));
-    sa.nLength = sizeof(SECURITY_ATTRIBUTES);
-    sa.lpSecurityDescriptor = &sd;
-    sa.bInheritHandle = FALSE;
-
-    // Apply the security descriptor to the directory
-    result = ::SetFileSecurity(folder.c_str(), DACL_SECURITY_INFORMATION, &sd);
-    if (!result) {
-        debugMessage(_T("setFolderPermissions SetFileSecurity failed: %lu"), ::GetLastError());
-        return false;
-    }
-
-    return true;
-}
-
 int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpszCmdParam, int nCmdShow)
 {
     if (!IsWindows10OrGreater()) {
@@ -231,8 +161,6 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpszC
         deleteFolder(installPath);
     });
 
-    srand(time(NULL)); // Doesn't have to be cryptographically secure, just random
-
     if (!isAdmin.value()) {
         if (!isOSCompatible()) {
             auto response = showMessageBox(NULL, _T("Windscribe Installer"), MB_YESNO | MB_ICONWARNING,
@@ -246,7 +174,8 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpszC
         // Attempt to run this program as admin
         TCHAR buf[MAX_PATH];
         DWORD result = GetModuleFileName(NULL, buf, MAX_PATH);
-        if (result == NO_ERROR) {
+        if (result == 0 || result == MAX_PATH) {
+            // 0 == failure; MAX_PATH == truncated (GetLastError() == ERROR_INSUFFICIENT_BUFFER) - reject either.
             showMessageBox(NULL, _T("Windscribe Installer"), MB_OK | MB_ICONSTOP,
                            _T("Couldn't get own exe path."));
             return -1;
@@ -256,27 +185,29 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpszC
         if (result == NO_ERROR) {
             // Elevated process is running, exit this process
             return 0;
-        } else if (result != ERROR_CANCELLED) {
-            // Some error occurred launching the elevated process
+        } else if (result == ERROR_CANCELLED) {
+            // User declined the UAC prompt; the installer cannot proceed without elevation, and we
+            // intentionally do not extract anything to a Users-writable temp directory in this case.
+            showMessageBox(NULL, _T("Windscribe Installer"), MB_OK | MB_ICONSTOP,
+                           _T("The Windscribe installer requires administrator privileges to run."));
+            return -1;
+        } else {
+            // Some other error occurred launching the elevated process
             showMessageBox(NULL, _T("Windscribe Installer"), MB_OK | MB_ICONSTOP,
                            _T("Couldn't run installer as administrator."));
             return -1;
         }
+    }
 
-        // Otherwise, UAC prompt was cancelled, continue unelevated so we can show the error
+    // Elevated path: place the installer under C:\Windows\Temp in an Administrators+SYSTEM-only directory.
+    auto randomSuffix = wsl::generateRandomSuffix();
+    if (!randomSuffix) {
+        showMessageBox(NULL, _T("Windscribe Installer"), MB_OK | MB_ICONSTOP,
+                       _T("Failed to generate a secure random suffix for the installer directory."));
+        return -1;
+    }
 
-        // Find the temporary dir
-        wchar_t tempPath[MAX_PATH];
-        result = GetTempPath(MAX_PATH, tempPath);
-        if (result == 0) {
-            showMessageBox(NULL, _T("Windscribe Installer"), MB_OK | MB_ICONSTOP,
-                           _T("Couldn't locate Windows temporary directory (%lu)"), GetLastError());
-            return -1;
-        }
-        installPath = tempPath;
-        installPath.append(L"WindscribeInstaller" + std::to_wstring(rand()));
-    } else {
-        // Find the Windows dir
+    {
         wchar_t *windowsPath = NULL;
         auto memFree = wsl::wsScopeGuard([&] {
             ::CoTaskMemFree(windowsPath);
@@ -291,31 +222,26 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpszC
 
         installPath = windowsPath;
         installPath.append(L"Temp");
-        installPath.append(L"WindscribeInstaller" + std::to_wstring(rand()));
+        installPath.append(L"WindscribeInstaller" + *randomSuffix);
 
-        std::error_code ec;
-        if (std::filesystem::exists(installPath, ec)) {
+        // Atomically create the install directory with a DACL granting access to Administrators and
+        // SYSTEM only, so there is no window in which a lower-privileged process can place files in it.
+        // Fails if the directory already exists (with 128 bits of randomness, a collision means the
+        // path leaked or RNG is broken).
+        auto logFn = [](const std::wstring &msg) {
+            ::OutputDebugStringW(msg.c_str());
+        };
+        DWORD err = wsl::createAdminOnlyDirectory(installPath, logFn);
+        if (err == ERROR_ALREADY_EXISTS) {
             showMessageBox(NULL, _T("Windscribe Installer"), MB_OK | MB_ICONSTOP,
-                           _T("The randomly selected temporary install folder already exists.  This is highly unusual and may indicate")
-                           _T(" an attack on your system.  The installer is aborting to protect the integrity of your system.")
-                           _T("\n\nThe folder is: %s"), installPath.c_str());
-            return -1;
-        } else if (ec) {
-            debugMessage(L"Windscribe bootstrapper failed to check if temp install folder exists (%hs)", ec.message().c_str());
-        }
-
-        // Create the target directory and set its permissions to restrict access to only members of the
-        // built-in Administrators group.
-        std::filesystem::create_directories(installPath, ec);
-        if (ec) {
-            showMessageBox(NULL, _T("Windscribe Installer"), MB_OK | MB_ICONSTOP,
-                           _T("Failed to create the installer directory '%s' (%hs)"), installPath.c_str(), ec.message().c_str());
+                           _T("The installer directory '%s' already exists.  This is unexpected and may indicate")
+                           _T(" a tampering attempt.  Please reboot and try again, and contact Windscribe support")
+                           _T(" if the problem persists."), installPath.c_str());
             return -1;
         }
-
-        if (!setFolderPermissions(installPath)) {
+        if (err != ERROR_SUCCESS) {
             showMessageBox(NULL, _T("Windscribe Installer"), MB_OK | MB_ICONSTOP,
-                           _T("Failed to set permissions on installer directory '%s'"), installPath.c_str());
+                           _T("Failed to create the installer directory '%s' (%lu)."), installPath.c_str(), err);
             return -1;
         }
     }
@@ -327,6 +253,12 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpszC
     archive.setLogFunction([](const std::wstring &str) {
         debugMessage(str.c_str());
     });
+
+    if (!archive.extractDecompressor(installPath)) {
+        showMessageBox(NULL, _T("Windscribe Installer"), MB_OK | MB_ICONSTOP,
+                       _T("Failed to extract the Windscribe decompressor."));
+        return -1;
+    }
 
     if (!archive.extract(L"Installer", L"windscribeinstaller.7z", installPath, installPath)) {
         showMessageBox(NULL, _T("Windscribe Installer"), MB_OK | MB_ICONSTOP,

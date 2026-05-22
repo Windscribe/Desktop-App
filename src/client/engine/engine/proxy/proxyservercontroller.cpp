@@ -4,7 +4,7 @@
 #elif defined Q_OS_MACOS
     #include "autodetectproxy_mac.h"
 #endif
-#include "utils/ipvalidation.h"
+#include "utils/networkingvalidation.h"
 #include "utils/ws_assert.h"
 
 bool ProxyServerController::updateProxySettings(const types::ProxySettings &proxySettings)
@@ -31,7 +31,7 @@ bool ProxyServerController::updateProxySettings(const types::ProxySettings &prox
             newProxySettings = autoProxySettings;
         }
     } else if (proxySettings.option() == PROXY_OPTION_HTTP || proxySettings.option() == PROXY_OPTION_SOCKS) {
-        if (!IpValidation::isIp(proxySettings.address())) {
+        if (!NetworkingValidation::isIp(proxySettings.address())) {
             newProxySettings.setOption(PROXY_OPTION_NONE);
             newProxySettings.setAddress("");
             newProxySettings.setPassword("");

@@ -10,12 +10,10 @@
 #include <unistd.h>
 #include <spdlog/spdlog.h>
 
-#include "execute_cmd.h"
 #include "files_manager.h"
 #include "firewallcontroller.h"
 #include "firewallonboot.h"
 #include "ipc/helper_security.h"
-#include "ipv6/ipv6manager.h"
 #include "macspoofingonboot.h"
 #include "macutils.h"
 #include "ovpn.h"
@@ -24,8 +22,9 @@
 #include "utils/executable_signature/executable_signature.h"
 #include "utils/wsscopeguard.h"
 #include "wireguard/wireguardcontroller.h"
-#include "../common/ip_validation.h"
-#include "../common/shellquote.h"
+#include "../common/io_posix.h"
+#include "../common/spawn_posix.h"
+#include "../common/validation_posix.h"
 #include "clear_wifi_history/clear_wifi_history.h"
 
 std::string processCommand(HelperCommand cmdId, const std::string &pars)
@@ -57,38 +56,28 @@ std::string sendConnectStatus(const std::string &pars)
     ConnectStatus cs;
     deserializePars(pars, cs.isConnected, cs.protocol, cs.defaultAdapter, cs.vpnAdapter, cs.connectedIp, cs.remoteIp);
 
-    auto checkIp = [](const std::string &ip, const char *label) {
-        if (!ip.empty() && !IpValidation::isValidIpAddress(ip)) {
-            spdlog::error("sendConnectStatus: invalid {} \"{}\", rejecting", label, ip);
-            return false;
-        }
-        return true;
-    };
+    // IP fields are types::IpAddress; deserialization already yields either a valid address
+    // or one with valid_ == false. Downstream code (RoutesManager / FirewallController) handles
+    // invalid addresses gracefully, so no explicit IP validation is needed here. Interface-name
+    // validation is still required to guard against shell injection in code paths that pass
+    // adapter names to shell commands (ifconfig, route, pfctl).
     auto checkIface = [](const std::string &name, const char *label) {
-        if (!name.empty() && !Utils::isValidInterfaceName(name)) {
+        if (!name.empty() && !Validation::isValidInterfaceName(name)) {
             spdlog::error("sendConnectStatus: invalid {} \"{}\", rejecting", label, name);
             return false;
         }
         return true;
     };
-    if (!checkIp(cs.remoteIp, "remoteIp") ||
-        !checkIp(cs.defaultAdapter.gatewayIp, "defaultAdapter.gatewayIp") ||
-        !checkIp(cs.vpnAdapter.gatewayIp, "vpnAdapter.gatewayIp") ||
-        !checkIface(cs.vpnAdapter.adapterName, "vpnAdapter.adapterName") ||
+    if (!checkIface(cs.vpnAdapter.adapterName, "vpnAdapter.adapterName") ||
         !checkIface(cs.defaultAdapter.adapterName, "defaultAdapter.adapterName")) {
         return serializeResult(false);
     }
-    for (const auto &dns : cs.vpnAdapter.dnsServers) {
-        if (!IpValidation::isValidIpAddress(dns)) {
-            spdlog::error("sendConnectStatus: invalid vpnAdapter.dnsServers entry \"{}\", rejecting", dns);
-            return serializeResult(false);
-        }
-    }
 
-    const std::string vpnDns = (cs.isConnected && !cs.vpnAdapter.dnsServers.empty())
-        ? cs.vpnAdapter.dnsServers.front()
-        : "";
-    FirewallController::instance().setVpnDns(vpnDns);
+    // Forward the full dual-stack DNS list to the kill-switch pf table. setVpnDns drops
+    // invalid entries internally; an empty list (disconnected, or all entries invalid) flushes
+    // <windscribe_dns> back to "no DNS permitted through the kill-switch".
+    FirewallController::instance().setVpnDns(
+        cs.isConnected ? cs.vpnAdapter.dnsServers : std::vector<types::IpAddress>{});
     RoutesManager::instance().setConnectStatus(cs);
     return serializeResult(true);
 }
@@ -99,7 +88,7 @@ std::string changeMtu(const std::string &pars)
     int mtu;
     deserializePars(pars, adapterName, mtu);
 
-    if (!Utils::isValidInterfaceName(adapterName)) {
+    if (!Validation::isValidInterfaceName(adapterName)) {
         spdlog::error("Invalid interface name: {}", adapterName);
         return std::string();
     }
@@ -129,21 +118,21 @@ std::string executeOpenVPN(const std::string &pars)
         return serializeResult(false);
     }
 
-    std::string fullCmd = Utils::getFullCommand(Utils::getExePath(), WS_PRODUCT_NAME_LOWER "openvpn", "--config " WS_POSIX_CONFIG_DIR "/config.ovpn");
-    if (fullCmd.empty()) {
-        // Something wrong with the command
+    std::string ovpnPath;
+    if (!Utils::resolveExePath(Utils::getExePath(), WS_PRODUCT_NAME_LOWER "openvpn", ovpnPath)) {
         return serializeResult(false);
     }
 
-    const std::string fullPath = Utils::getExePath() + "/" WS_PRODUCT_NAME_LOWER "openvpn";
     ExecutableSignature sigCheck;
-    if (!sigCheck.verify(fullPath)) {
+    if (!sigCheck.verify(ovpnPath)) {
         spdlog::error("OpenVPN executable signature incorrect: {}", sigCheck.lastError());
         return serializeResult(false);
-    } else {
-        ExecuteCmd::instance().execute(fullCmd, WS_POSIX_CONFIG_DIR);
-        return serializeResult(true);
     }
+
+    Spawn::Options opts;
+    opts.cwd = WS_POSIX_CONFIG_DIR;
+    std::vector<std::string> args = {"--config", WS_POSIX_CONFIG_DIR "/config.ovpn"};
+    return serializeResult(Spawn::spawnDetached(ovpnPath, args, opts));
 }
 
 std::string executeTaskKill(const std::string &pars)
@@ -222,7 +211,7 @@ std::string configureWireGuard(const std::string &pars)
                 break;
             }
 
-            if (!IpValidation::validateWireGuardConfig(clientIpAddress, clientDnsAddressList, allowed_ips_vector, peerEndpoint)) {
+            if (!Validation::validateWireGuardConfig(clientIpAddress, clientDnsAddressList, allowed_ips_vector, peerEndpoint)) {
                 spdlog::error("WireGuard: IP validation failed, rejecting config");
                 break;
             }
@@ -268,53 +257,48 @@ std::string startCtrld(const std::string &pars)
     deserializePars(pars, upstream1, upstream2, domains, isCreateLog);
 
     // Validate URLs
-    if (upstream1.empty() || Utils::normalizeAddress(upstream1).empty() || (!upstream2.empty() && Utils::normalizeAddress(upstream2).empty())) {
+    if (upstream1.empty() || Validation::normalizeAddress(upstream1).empty() || (!upstream2.empty() && Validation::normalizeAddress(upstream2).empty())) {
         spdlog::error("Invalid upstream URL(s)");
         return serializeResult(false);
     }
     for (const auto &domain: domains) {
-        if (!Utils::isValidDomain(domain)) {
+        if (!Validation::isValidDomain(domain)) {
             spdlog::error("Invalid domain: {}", domain);
             return serializeResult(false);
         }
     }
 
-    std::stringstream arguments;
-    arguments << "run";
-    arguments << " --daemon";
-    arguments << " --listen=127.0.0.1:53";
-    arguments << " --primary_upstream=" + ShellQuote::quote(upstream1);
-    if (!upstream2.empty()) {
-        arguments << " --secondary_upstream=" + ShellQuote::quote(upstream2);
-        if (!domains.empty()) {
-            std::stringstream domainsStream;
-            std::copy(domains.begin(), domains.end(), std::ostream_iterator<std::string>(domainsStream, ","));
-
-            std::string domainsStr = domainsStream.str();
-            domainsStr.erase(domainsStr.length() - 1); // remove last comma
-
-            arguments << " --domains=" + ShellQuote::quote(domainsStr);
-        }
-    }
-    if (isCreateLog) {
-        arguments << " --log /Library/Logs/" WS_MAC_HELPER_BUNDLE_ID "/ctrld.log";
-        arguments << " -vv";
-    }
-
-    std::string fullCmd = Utils::getFullCommand(Utils::getExePath(), WS_PRODUCT_NAME_LOWER "ctrld", arguments.str());
-    if (fullCmd.empty()) {
-        // Something wrong with the command
+    std::string ctrldPath;
+    if (!Utils::resolveExePath(Utils::getExePath(), WS_PRODUCT_NAME_LOWER "ctrld", ctrldPath)) {
         return serializeResult(false);
     }
 
-    const std::string fullPath = Utils::getExePath() + "/" WS_PRODUCT_NAME_LOWER "ctrld";
     ExecutableSignature sigCheck;
-    if (!sigCheck.verify(fullPath)) {
+    if (!sigCheck.verify(ctrldPath)) {
         spdlog::error("ctrld executable signature incorrect: {}", sigCheck.lastError());
         return serializeResult(false);
     }
 
-    bool executed = Utils::executeCommand(fullCmd) == 0;
+    std::vector<std::string> args = {"run", "--daemon", "--listen=127.0.0.1:53",
+                                     "--primary_upstream=" + upstream1};
+    if (!upstream2.empty()) {
+        args.push_back("--secondary_upstream=" + upstream2);
+        if (!domains.empty()) {
+            std::string domainsStr;
+            for (size_t i = 0; i < domains.size(); ++i) {
+                if (i > 0) domainsStr += ",";
+                domainsStr += domains[i];
+            }
+            args.push_back("--domains=" + domainsStr);
+        }
+    }
+    if (isCreateLog) {
+        args.push_back("--log");
+        args.push_back("/Library/Logs/" WS_MAC_HELPER_BUNDLE_ID "/ctrld.log");
+        args.push_back("-vv");
+    }
+
+    bool executed = Utils::executeCommand(ctrldPath, args) == 0;
     return serializeResult(executed);
 }
 
@@ -375,33 +359,37 @@ std::string startStunnel(const std::string &pars)
 
     spdlog::info("Starting stunnel");
 
-    if (!Utils::isValidIpAddress(hostname)) {
+    if (!Validation::isValidIpv4Address(hostname)) {
         return serializeResult(false);
     }
 
-    std::stringstream arguments;
-    arguments << "--listenAddress :" << localPort;
-    arguments << " --remoteAddress https://" << hostname << ":" << port;
-    arguments << " --logFilePath \"\"";
-    if (extraPadding) {
-        arguments << " --extraTlsPadding";
-    }
-    arguments << " --tunnelType 2";
-    //arguments << " --dev"; // enables verbose logging when necessary
-    std::string fullCmd = Utils::getFullCommandAsUser(WS_PRODUCT_NAME_LOWER, Utils::getExePath(), WS_PRODUCT_NAME_LOWER "wstunnel", arguments.str());
-    if (fullCmd.empty()) {
-        // Something wrong with the command
+    std::string wstunnelPath;
+    if (!Utils::resolveExePath(Utils::getExePath(), WS_PRODUCT_NAME_LOWER "wstunnel", wstunnelPath)) {
         return serializeResult(false);
     }
 
-    const std::string fullPath = Utils::getExePath() + "/" WS_PRODUCT_NAME_LOWER "wstunnel";
     ExecutableSignature sigCheck;
-    if (!sigCheck.verify(fullPath)) {
+    if (!sigCheck.verify(wstunnelPath)) {
         spdlog::error("stunnel executable signature incorrect: {}", sigCheck.lastError());
         return serializeResult(false);
     }
 
-    ExecuteCmd::instance().execute(fullCmd);
+    std::vector<std::string> args = {
+        "--listenAddress", "127.0.0.1:" + std::to_string(localPort),
+        "--remoteAddress", "https://" + hostname + ":" + std::to_string(port),
+        "--logFilePath", "",
+    };
+    if (extraPadding) {
+        args.push_back("--extraTlsPadding");
+    }
+    args.push_back("--tunnelType");
+    args.push_back("2");
+
+    Spawn::Options opts;
+    opts.runAsUser = WS_PRODUCT_NAME_LOWER;
+    if (!Spawn::spawnDetached(wstunnelPath, args, opts)) {
+        return serializeResult(false);
+    }
 
     if (!Utils::isPortListening(localPort)) {
         spdlog::error("stunnel failed to bind to port {}", localPort);
@@ -419,29 +407,32 @@ std::string startWstunnel(const std::string &pars)
 
     spdlog::info("Starting wstunnel");
 
-    if (!Utils::isValidIpAddress(hostname)) {
+    if (!Validation::isValidIpv4Address(hostname)) {
         return serializeResult(false);
     }
 
-    std::stringstream arguments;
-    arguments << "--listenAddress :" << localPort;
-    arguments << " --remoteAddress wss://" << hostname << ":" << port << "/tcp/127.0.0.1/1194";
-    arguments << " --logFilePath \"\"";
-    //arguments << " --dev"; // enables verbose logging when necessary
-    std::string fullCmd = Utils::getFullCommandAsUser(WS_PRODUCT_NAME_LOWER, Utils::getExePath(), WS_PRODUCT_NAME_LOWER "wstunnel", arguments.str());
-    if (fullCmd.empty()) {
-        // Something wrong with the command
+    std::string wstunnelPath;
+    if (!Utils::resolveExePath(Utils::getExePath(), WS_PRODUCT_NAME_LOWER "wstunnel", wstunnelPath)) {
         return serializeResult(false);
     }
 
-    const std::string fullPath = Utils::getExePath() + "/" WS_PRODUCT_NAME_LOWER "wstunnel";
     ExecutableSignature sigCheck;
-    if (!sigCheck.verify(fullPath)) {
+    if (!sigCheck.verify(wstunnelPath)) {
         spdlog::error("wstunnel executable signature incorrect: {}", sigCheck.lastError());
         return serializeResult(false);
     }
 
-    ExecuteCmd::instance().execute(fullCmd);
+    std::vector<std::string> args = {
+        "--listenAddress", "127.0.0.1:" + std::to_string(localPort),
+        "--remoteAddress", "wss://" + hostname + ":" + std::to_string(port) + "/tcp/127.0.0.1/1194",
+        "--logFilePath", "",
+    };
+
+    Spawn::Options opts;
+    opts.runAsUser = WS_PRODUCT_NAME_LOWER;
+    if (!Spawn::spawnDetached(wstunnelPath, args, opts)) {
+        return serializeResult(false);
+    }
 
     if (!Utils::isPortListening(localPort)) {
         spdlog::error("wstunnel failed to bind to port {}", localPort);
@@ -457,12 +448,12 @@ std::string setMacAddress(const std::string &pars)
     bool isWifi;
     deserializePars(pars, interface, macAddress, network, isWifi);
 
-    if (!Utils::isValidInterfaceName(interface)) {
+    if (!Validation::isValidInterfaceName(interface)) {
         spdlog::error("Invalid interface name: {}", interface);
         return serializeResult(false);
     }
 
-    if (!Utils::isValidMacAddress(macAddress)) {
+    if (!Validation::isValidMacAddress(macAddress)) {
         spdlog::error("Invalid MAC address: {}", macAddress);
         return serializeResult(false);
     }
@@ -496,11 +487,11 @@ std::string enableMacSpoofingOnBoot(const std::string &pars)
     deserializePars(pars, enabled, interface, macAddress);
 
     if (enabled) {
-        if (!Utils::isValidInterfaceName(interface)) {
+        if (!Validation::isValidInterfaceName(interface)) {
             spdlog::error("enableMacSpoofingOnBoot: invalid interface \"{}\", rejecting", interface);
             return std::string();
         }
-        if (!Utils::isValidMacAddress(macAddress)) {
+        if (!Validation::isValidMacAddress(macAddress)) {
             spdlog::error("enableMacSpoofingOnBoot: invalid MAC address \"{}\", rejecting", macAddress);
             return std::string();
         }
@@ -516,7 +507,7 @@ std::string setDnsOfDynamicStoreEntry(const std::string &pars)
     std::string ipAddress, networkService;
     deserializePars(pars, ipAddress, networkService);
 
-    if (!IpValidation::isValidIpAddress(ipAddress)) {
+    if (!Validation::isValidIpAddress(ipAddress)) {
         spdlog::error("setDnsOfDynamicStoreEntry: invalid DNS IP \"{}\", rejecting", ipAddress);
         return serializeResult(false);
     }
@@ -528,12 +519,15 @@ std::string setDnsOfDynamicStoreEntry(const std::string &pars)
     return serializeResult(MacUtils::setDnsOfDynamicStoreEntry(ipAddress, networkService));
 }
 
+// Deprecated since the macOS IPv6 rewrite (Ipv6Manager removed): system-wide v6 toggling via
+// networksetup is replaced by per-interface pf rules in firewallcontroller_mac. The wire-format
+// slot stays so an older client (built before the rewrite) talking to a newer helper doesn't
+// hit "unknown command id" — we just no-op-and-log instead.
 std::string setIpv6Enabled(const std::string &pars)
 {
     bool enabled;
     deserializePars(pars, enabled);
-    spdlog::debug("Set IPv6: {}", enabled ? "enabled" : "disabled");
-    Ipv6Manager::instance().setEnabled(enabled);
+    spdlog::warn("setIpv6Enabled (enabled={}) is a no-op since the macOS IPv6 rewrite", enabled);
     return std::string();
 }
 
@@ -543,12 +537,12 @@ std::string deleteRoute(const std::string &pars)
     int mask;
     deserializePars(pars, range, mask, gateway);
 
-    if (!Utils::isValidIpAddress(range)) {
+    if (!Validation::isValidIpv4Address(range)) {
         spdlog::error("Invalid IP address range: {}", range);
         return std::string();
     }
 
-    if (!Utils::isValidIpAddress(gateway)) {
+    if (!Validation::isValidIpv4Address(gateway)) {
         spdlog::error("Invalid gateway IP address: {}", gateway);
         return std::string();
     }
@@ -576,7 +570,12 @@ std::string removeOldInstall(const std::string &pars)
     const char *binaryPath = WS_MAC_APP_DIR "/Contents/MacOS/" WS_APP_EXECUTABLE_NAME;
     if (access(binaryPath, F_OK) == 0) {
         spdlog::info("Remove old install: " WS_MAC_APP_DIR);
-        Utils::executeCommand("rm", {"-rf", WS_MAC_APP_DIR});
+        std::error_code ec;
+        std::filesystem::remove_all(WS_MAC_APP_DIR, ec);
+        if (ec) {
+            spdlog::error("Failed to remove old install: {}", ec.message());
+            return serializeResult(false);
+        }
         return serializeResult(true);
     } else {
         spdlog::error("Old install at " WS_MAC_APP_DIR " not removed");
@@ -614,7 +613,7 @@ static bool stageArchiveFromCallerBundle(std::string &outTempPath)
 
     int srcFd = open(archivePath.c_str(), O_RDONLY | O_NOFOLLOW | O_CLOEXEC);
     if (srcFd < 0) {
-        spdlog::error("setInstallerPaths: open archive at \"{}\" failed: {}", archivePath, strerror(errno));
+        spdlog::error("setInstallerPaths: open archive at \"{}\" failed: {}", archivePath, IO::strerror(errno));
         return false;
     }
     auto srcGuard = wsl::wsScopeGuard([srcFd]{ close(srcFd); });
@@ -639,7 +638,7 @@ static bool stageArchiveFromCallerBundle(std::string &outTempPath)
     char tmpl[] = "/private/var/root/.windscribe-installer/wsinstaller-XXXXXX.tar.lzma";
     int dstFd = mkstemps(tmpl, /* suffix length of ".tar.lzma" */ 9);
     if (dstFd < 0) {
-        spdlog::error("setInstallerPaths: mkstemps failed: {}", strerror(errno));
+        spdlog::error("setInstallerPaths: mkstemps failed: {}", IO::strerror(errno));
         return false;
     }
     fchmod(dstFd, S_IRUSR | S_IWUSR);
@@ -649,7 +648,7 @@ static bool stageArchiveFromCallerBundle(std::string &outTempPath)
     close(dstFd);
 
     if (rc != 0) {
-        spdlog::error("setInstallerPaths: fcopyfile failed: {}", strerror(errno));
+        spdlog::error("setInstallerPaths: fcopyfile failed: {}", IO::strerror(errno));
         unlink(tmpl);
         return false;
     }
@@ -716,7 +715,7 @@ std::string createCliSymlink(const std::string &pars)
         }
         int rc = chown("/usr/local/bin", uid, grp->gr_gid);
         if (rc != 0) {
-            spdlog::error("Failed to set owner: {}", strerror(errno));
+            spdlog::error("Failed to set owner: {}", IO::strerror(errno));
             return serializeResult(false);
         }
         std::filesystem::permissions("/usr/local/bin",
@@ -751,4 +750,154 @@ std::string clearWifiHistoryData(const std::string &pars)
 {
     bool success = ClearWiFiHistory::clear();
     return serializeResult(success);
+}
+
+std::string installerStageAndVerify(const std::string &pars)
+{
+    std::string srcPath;
+    deserializePars(pars, srcPath);
+
+    if (srcPath.empty()) {
+        spdlog::error("installerStageAndVerify: empty source path");
+        return serializeResult(std::string(), false);
+    }
+
+    // Reject anything that isn't a real .app bundle. is_directory() follows symlinks, so we
+    // use symlink_status() explicitly on each path component — a bundle whose Contents or
+    // Contents/MacOS is a symlink would get its symlinks preserved by std::filesystem::copy
+    // (with copy_symlinks) and the staged copy could escape kStageDir via the symlink target.
+    // Rejecting up front gives a clearer error than waiting for signature verification to fail.
+    std::error_code ec;
+    auto isRealDir = [](const std::string &p) {
+        std::error_code lec;
+        auto st = std::filesystem::symlink_status(p, lec);
+        return !lec && std::filesystem::is_directory(st) && !std::filesystem::is_symlink(st);
+    };
+    if (!isRealDir(srcPath) ||
+        !isRealDir(srcPath + "/Contents") ||
+        !isRealDir(srcPath + "/Contents/MacOS")) {
+        spdlog::error("installerStageAndVerify: source \"{}\" is not a real .app bundle", srcPath);
+        return serializeResult(std::string(), false);
+    }
+
+    // Staging in a root-owned directory closes the TOCTOU window: a same-user attacker
+    // cannot replace the verified bundle between signature check and posix_spawn since
+    // the directory is root-owned and 0711 (traverse-only) for everyone else. The
+    // verification is done on the *staged* copy for the same reason.
+    static const std::string kStageDir = Utils::kInstallerStageDir;
+    static const std::string kStagedBundle = kStageDir + "/installer.app";
+
+    // Clear any prior staging state — symmetric with installerCleanupStaged below.
+    // Wipes the entire stage dir (not just installer.app) so any debris from a
+    // previous run can't survive into a new stage.
+    std::filesystem::remove_all(kStageDir, ec);
+
+    std::filesystem::create_directories(kStageDir, ec);
+    if (ec) {
+        spdlog::error("installerStageAndVerify: create_directories failed: {}", ec.message());
+        return serializeResult(std::string(), false);
+    }
+    if (chown(kStageDir.c_str(), 0, 0) != 0) {
+        spdlog::error("installerStageAndVerify: chown stage dir failed: {}", IO::strerror(errno));
+        return serializeResult(std::string(), false);
+    }
+    // 0711: root can write, everyone else can only traverse (no listing). The GUI runs as
+    // the user and only needs +x on each path component to posix_spawn the inner binary;
+    // it does not need to readdir() the staging dir.
+    if (chmod(kStageDir.c_str(), S_IRWXU | S_IXGRP | S_IXOTH) != 0) {
+        spdlog::error("installerStageAndVerify: chmod stage dir failed: {}", IO::strerror(errno));
+        return serializeResult(std::string(), false);
+    }
+
+    // Pre-create the staged bundle root with root-only (0700) perms so the bundle is never
+    // user-accessible during the copy or verification windows. A malicious source bundle can
+    // contain hard links to root-only-readable files (e.g. another user's ssh keys); the
+    // recursive copy reads those bytes as root and writes regular files into the staged
+    // bundle. If the bundle were user-traversable during the verify window (which includes
+    // a full re-hash of the bundle by SecStaticCodeCheckValidity), an attacker could open
+    // the leaked path and read the contents. 0700 on the bundle root makes that impossible.
+    if (mkdir(kStagedBundle.c_str(), S_IRWXU) != 0) {
+        spdlog::error("installerStageAndVerify: mkdir staged bundle failed: {}", IO::strerror(errno));
+        std::filesystem::remove_all(kStagedBundle, ec);
+        return serializeResult(std::string(), false);
+    }
+
+    // copy_symlinks (rather than the default follow-symlinks) is important: app bundles
+    // contain internal symlinks (notably inside .framework Versions) that must be preserved
+    // as symlinks rather than dereferenced into duplicate copies. With a pre-existing dst
+    // directory, std::filesystem::copy descends into srcPath and copies the contents into
+    // our 0700-locked kStagedBundle.
+    std::filesystem::copy(srcPath, kStagedBundle,
+                          std::filesystem::copy_options::recursive |
+                          std::filesystem::copy_options::copy_symlinks,
+                          ec);
+    if (ec) {
+        spdlog::error("installerStageAndVerify: copy failed: {}", ec.message());
+        std::filesystem::remove_all(kStagedBundle, ec);
+        return serializeResult(std::string(), false);
+    }
+
+    // Belt-and-braces: even if libcxx's copy explicitly chmod()s the bundle root from the
+    // source's mode, re-lock to 0700 before verification.
+    if (chmod(kStagedBundle.c_str(), S_IRWXU) != 0) {
+        spdlog::error("installerStageAndVerify: chmod staged bundle failed: {}", IO::strerror(errno));
+        std::filesystem::remove_all(kStagedBundle, ec);
+        return serializeResult(std::string(), false);
+    }
+
+    ExecutableSignature sigCheck;
+    if (!sigCheck.verify(kStagedBundle)) {
+        spdlog::error("installerStageAndVerify: signature verify failed: {}", sigCheck.lastError());
+        std::filesystem::remove_all(kStagedBundle, ec);
+        return serializeResult(std::string(), false);
+    }
+
+    // Verification succeeded — the bundle is the genuine Windscribe installer. Widen perms
+    // so the GUI (running as the user) can posix_spawn the inner Mach-O. Walk the *destination*
+    // tree (root-owned, no race with the user-writable source) and apply each entry's source
+    // mode with go-w stripped. If the source disappeared meanwhile, fall back to sensible
+    // defaults — the dest is root-owned regardless, so we still control everything.
+    auto stripGoWrite = [](std::filesystem::perms p) {
+        return p & ~(std::filesystem::perms::group_write | std::filesystem::perms::others_write);
+    };
+    auto applyFinalMode = [&](const std::filesystem::path &src, const std::filesystem::path &dst) {
+        std::error_code permEc;
+        auto dstStatus = std::filesystem::symlink_status(dst, permEc);
+        if (permEc || std::filesystem::is_symlink(dstStatus)) {
+            return;
+        }
+        std::filesystem::perms perms;
+        auto srcStatus = std::filesystem::symlink_status(src, permEc);
+        if (!permEc && !std::filesystem::is_symlink(srcStatus)) {
+            perms = srcStatus.permissions();
+        } else if (std::filesystem::is_directory(dstStatus)) {
+            perms = std::filesystem::perms::owner_all
+                  | std::filesystem::perms::group_read | std::filesystem::perms::group_exec
+                  | std::filesystem::perms::others_read | std::filesystem::perms::others_exec;
+        } else {
+            perms = std::filesystem::perms::owner_read | std::filesystem::perms::owner_write
+                  | std::filesystem::perms::group_read
+                  | std::filesystem::perms::others_read;
+        }
+        std::filesystem::permissions(dst, stripGoWrite(perms),
+                                     std::filesystem::perm_options::replace, permEc);
+    };
+    applyFinalMode(srcPath, kStagedBundle);
+    for (auto it = std::filesystem::recursive_directory_iterator(kStagedBundle, ec);
+         !ec && it != std::filesystem::recursive_directory_iterator(); it.increment(ec)) {
+        applyFinalMode(std::filesystem::path(srcPath) / it->path().lexically_relative(kStagedBundle),
+                       it->path());
+    }
+
+    return serializeResult(kStagedBundle, true);
+}
+
+std::string installerCleanupStaged(const std::string &pars)
+{
+    std::error_code ec;
+    std::filesystem::remove_all(Utils::kInstallerStageDir, ec);
+    if (ec) {
+        spdlog::info("installerCleanupStaged: {}", ec.message());
+    }
+    return std::string();
 }

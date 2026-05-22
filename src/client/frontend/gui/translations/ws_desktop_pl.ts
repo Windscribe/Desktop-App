@@ -618,26 +618,6 @@ Jeśli stracisz hash konta, znika na zawsze i wsparcie nie pomoże ci go odzyska
         <translation>Wybierz niestandardowy folder konfiguracji</translation>
     </message>
     <message>
-        <source>Cannot select this directory because it is writeable for non-privileged users. Custom configs in this directory may pose a potential security risk. Please authenticate with an admin user to select this directory.</source>
-        <translation>Nie można wybrać tego katalogu, ponieważ jest on zapisywalny dla użytkowników nieuprzywilejowanych. Niestandardowe konfiguracje w tym katalogu mogą stanowić potencjalne zagrożenie bezpieczeństwa. Uwierzytelnij się u administratora, aby wybrać ten katalog.</translation>
-    </message>
-    <message>
-        <source>Can&apos;t select directory</source>
-        <translation>Nie można wybrać katalogu</translation>
-    </message>
-    <message>
-        <source>The application is corrupted.  Please reinstall Windscribe.</source>
-        <translation>Aplikacja jest uszkodzona.  Zainstaluj ponownie Windscribe.</translation>
-    </message>
-    <message>
-        <source>Validation Error</source>
-        <translation>Błąd sprawdzania poprawności</translation>
-    </message>
-    <message>
-        <source>The selected directory is writeable for non-privileged users. Custom configs in this directory may pose a potential security risk.</source>
-        <translation>Wybrany katalog jest zapisywalny dla użytkowników nieuprzywilejowanych. Niestandardowe pliki konfiguracyjne w tym katalogu mogą stanowić niebezpieczeństwo.</translation>
-    </message>
-    <message>
         <source>Security Risk</source>
         <translation>Zagrożenie bezpieczeństwa</translation>
     </message>
@@ -678,6 +658,26 @@ Jeśli stracisz hash konta, znika na zawsze i wsparcie nie pomoże ci go odzyska
         <translation>Rozłączono</translation>
     </message>
     <message>
+        <source>The selected directory is writeable for other users. Custom configs in this directory may pose a potential security risk.</source>
+        <translation>Wybrany katalog jest zapisywalny dla innych użytkowników. Niestandardowe konfiguracje w tym katalogu mogą stanowić potencjalne zagrożenie dla bezpieczeństwa.</translation>
+    </message>
+    <message>
+        <source>Proxy Gateway is unauthenticated</source>
+        <translation>Brama Proxy jest nieuwierzytelniona</translation>
+    </message>
+    <message>
+        <source>Your Proxy Gateway is enabled without authentication. Anyone on your local network, including untrusted networks like coffee-shop Wi-Fi, can route their traffic through your VPN. We strongly recommend setting credentials.</source>
+        <translation>Twoja brama Proxy jest włączona bez uwierzytelniania. Każdy w Twojej sieci lokalnej, w tym nieufne sieci takie jak Wi-Fi w kawiarniach, może kierować swój ruch przez VPN. Zdecydowanie zalecamy ustawianie danych uwierzytelniających.</translation>
+    </message>
+    <message>
+        <source>Go to Preferences</source>
+        <translation>Przejdź do Preferencji</translation>
+    </message>
+    <message>
+        <source>Later</source>
+        <translation>Później</translation>
+    </message>
+    <message>
         <source>Connected to </source>
         <translation>Połączono z </translation>
     </message>
@@ -690,6 +690,18 @@ Jeśli stracisz hash konta, znika na zawsze i wsparcie nie pomoże ci go odzyska
 %1 transferred in %2</source>
         <translation>Połączenie z Windscribe zostało przerwane.
 %1 przesłano w %2</translation>
+    </message>
+    <message>
+        <source>Could not start Proxy Gateway</source>
+        <translation>Nie udało się uruchomić Bramy Proxy</translation>
+    </message>
+    <message>
+        <source>The configured port is in use. Please try a different port.</source>
+        <translation>Skonfigurowany port jest już używany. Proszę, spróbuj innego portu.</translation>
+    </message>
+    <message>
+        <source>An unknown error occurred.</source>
+        <translation>Wystąpił nieznany błąd.</translation>
     </message>
     <message>
         <source>Network Settings Interference</source>
@@ -924,14 +936,6 @@ Jeśli problem nadal występuje po ponownym uruchomieniu, wyślij dziennik debug
     <message>
         <source>  If you are on a restrictive network, please connect the VPN before trying the download again.</source>
         <translation>  Jeśli korzystasz z sieci podlegającej restrykcjom, połącz się z VPN przed ponowną próbą pobrania.</translation>
-    </message>
-    <message>
-        <source>Custom Config Directory Import</source>
-        <translation>Importowanie niestandardowego katalogu konfiguracji</translation>
-    </message>
-    <message>
-        <source>A custom config directory is being imported.  Windscribe will prompt for your admin password to check for correct permissions.</source>
-        <translation>Importowany jest niestandardowy katalog konfiguracyjny.  Windscribe poprosi o podanie hasła administratora, aby sprawdzić, czy uprawnienia są poprawne.</translation>
     </message>
     <message>
         <source>Your &quot;Connected DNS&quot; server is set to an OS default DNS server, which would result in a DNS leak.  It has been changed to Auto.</source>
@@ -1447,6 +1451,14 @@ Jeśli problem nadal występuje po ponownym uruchomieniu, wyślij dziennik debug
         <translation>Automatycznie wybierz protokół VPN lub wybierz go ręcznie. UWAGA: &quot;Preferowany protokół&quot; nadpisze to ustawienie.</translation>
     </message>
     <message>
+        <source>Configure egress IP stack for VPN connections.</source>
+        <translation>Konfiguruj stos IP egress dla połączeń VPN.</translation>
+    </message>
+    <message>
+        <source>IP Stack</source>
+        <translation>Stos IP</translation>
+    </message>
+    <message>
         <source>Select the DNS server while connected to Windscribe.</source>
         <translation>Wybierz serwer DNS w trakcie połączenia z Windscribe.</translation>
     </message>
@@ -1517,6 +1529,13 @@ Jeśli problem nadal występuje po ponownym uruchomieniu, wyślij dziennik debug
     <message>
         <source>Anti-censorship Settings</source>
         <translation>Ustawienia antycenzury</translation>
+    </message>
+</context>
+<context>
+    <name>PreferencesWindow::CopyableTextItem</name>
+    <message>
+        <source>Copied</source>
+        <translation>Skopiowano</translation>
     </message>
 </context>
 <context>
@@ -2106,31 +2125,36 @@ Najpierw połącz się z siecią</translation>
         <translation>Port</translation>
     </message>
     <message>
-        <source>Unable to start proxy server</source>
-        <translation>Nie można uruchomić serwera proxy</translation>
+        <source>Require Authentication</source>
+        <translation>Wymagaj uwierzytelnienia</translation>
     </message>
     <message>
-        <source>The proxy server couldn&apos;t be started on the requested port. Please try again with a different port.</source>
-        <translation>Nie można uruchomić serwera proxy na żądanym porcie. Spróbuj ponownie z innym portem.</translation>
+        <source>Without authentication, anyone on your network (e.g. coffee shop Wi-Fi) can use this proxy. Leave this on unless you know what you&apos;re doing.</source>
+        <translation>Bez uwierzytelniania każdy w Twojej sieci (np. Wi-Fi w kawiarni) może korzystać z tego proxy. Zostaw to, chyba że wiesz, co robisz.</translation>
+    </message>
+    <message>
+        <source>IP</source>
+        <translation>IP</translation>
+    </message>
+    <message>
+        <source>Username</source>
+        <translation>Nazwa użytkownika</translation>
+    </message>
+    <message>
+        <source>Password</source>
+        <translation>Hasło</translation>
     </message>
     <message>
         <source>Auto</source>
         <translation>Automatycznie</translation>
     </message>
     <message>
+        <source>Unavailable</source>
+        <translation>Niedostępne</translation>
+    </message>
+    <message>
         <source>Only when VPN is connected</source>
         <translation>Tylko wtedy, gdy VPN jest podłączony</translation>
-    </message>
-</context>
-<context>
-    <name>PreferencesWindow::ProxyIpAddressItem</name>
-    <message>
-        <source>IP</source>
-        <translation>IP</translation>
-    </message>
-    <message>
-        <source>Copied</source>
-        <translation>Skopiowano</translation>
     </message>
 </context>
 <context>
@@ -2573,6 +2597,10 @@ Jeśli ponowna instalacja nie pomoże, skontaktuj się z pomocą techniczną Win
     <message>
         <source>Van Gogh</source>
         <translation>Van Gogh</translation>
+    </message>
+    <message>
+        <source>IPv4 Only</source>
+        <translation>Tylko IPv4</translation>
     </message>
     <message>
         <source>Enabled</source>

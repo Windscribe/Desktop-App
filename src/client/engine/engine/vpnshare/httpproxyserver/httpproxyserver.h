@@ -2,7 +2,9 @@
 
 #include "httpproxyconnectionmanager.h"
 #include "../connecteduserscounter.h"
+#include "../proxyauthconfig.h"
 
+#include <QHostAddress>
 #include <QTcpServer>
 
 namespace HttpProxyServer {
@@ -14,7 +16,7 @@ public:
     explicit HttpProxyServer(QObject *parent);
     virtual ~HttpProxyServer();
 
-    bool startServer(quint16 port);
+    bool startServer(const QHostAddress &bindAddress, int prefixLength, quint16 port, const ProxyAuth::Config &auth);
     void stopServer();
 
     int getConnectedUsersCount();
@@ -30,6 +32,9 @@ protected:
 private:
     HttpProxyConnectionManager *connectionManager_;
     ConnectedUsersCounter *usersCounter_;
+    ProxyAuth::Config auth_;
+    QHostAddress bindAddress_;
+    int prefixLength_ = 0;
 };
 
 } // namespace HttpProxyServer

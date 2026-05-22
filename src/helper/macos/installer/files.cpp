@@ -1,6 +1,7 @@
 #include "files.h"
 
 #include <filesystem>
+#include <sys/xattr.h>
 #include <spdlog/spdlog.h>
 
 #include "../utils.h"
@@ -35,9 +36,10 @@ int Files::executeStep()
         }
     }
 
-    std::error_code mkEc;
-    if (!std::filesystem::create_directory(installPath, mkEc) || mkEc) {
-        spdlog::error("Files: failed to create the app bundle folder: {}", mkEc.message());
+    std::filesystem::create_directory(installPath, ec);
+    if (ec) {
+        lastError_ = ec.message();
+        spdlog::error("Files: failed to create the app bundle folder: {}", lastError_);
         return -1;
     }
 
@@ -47,7 +49,23 @@ int Files::executeStep()
         return -1;
     }
 
-    Utils::executeCommand("xattr", {"-r", "-d", "com.apple.quarantine", installPath.c_str()});
+    // Strip com.apple.quarantine from every entry in the install tree. Equivalent to
+    // `xattr -r -d com.apple.quarantine <installPath>` done in-process. XATTR_NOFOLLOW
+    // operates on symlinks themselves (not their targets), so symlinked content outside
+    // the bundle can't be touched. ENOATTR on entries that never had the attr is fine
+    // and is the common case — per-call errors are ignored. A walk error (couldn't
+    // descend into a directory) is logged so it doesn't disappear silently.
+    ::removexattr(installPath.c_str(), "com.apple.quarantine", XATTR_NOFOLLOW);
+    std::error_code walkEc;
+    auto walkEnd = std::filesystem::recursive_directory_iterator();
+    for (auto it = std::filesystem::recursive_directory_iterator(installPath, walkEc);
+         !walkEc && it != walkEnd;
+         it.increment(walkEc)) {
+        ::removexattr(it->path().c_str(), "com.apple.quarantine", XATTR_NOFOLLOW);
+    }
+    if (walkEc) {
+        spdlog::warn("Files: quarantine strip walk stopped early: {}", walkEc.message());
+    }
 
     return 1;
 }

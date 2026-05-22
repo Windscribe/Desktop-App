@@ -1,6 +1,7 @@
 #include "ovpncustomconfig.h"
 #include "utils/log/categories.h"
 #include "utils/log/clean_sensitive_info.h"
+#include "ovpncredentialinliner.h"
 #include "parseovpnconfigline.h"
 
 #include <QFileInfo>
@@ -229,7 +230,16 @@ void OvpnCustomConfig::process()
             isCorrect_ = false;
             errMessage_ = "Connection protocol is not valid";
         } else {
-            nick_ = remotes_[0].hostname;
+            QString baseDir = QFileInfo(filepath_).absolutePath();
+            OvpnCredentialInliner::Result inlineResult = OvpnCredentialInliner::process(ovpnData_, baseDir);
+            if (!inlineResult.success) {
+                qDebug(LOG_CUSTOM_OVPN) << "Ovpn config file" << Utils::cleanSensitiveInfo(filepath_) << "could not inline credential file references:" << Utils::cleanSensitiveInfo(inlineResult.errorMessage);
+                isCorrect_ = false;
+                errMessage_ = inlineResult.errorMessage;
+            } else {
+                ovpnData_ = inlineResult.config;
+                nick_ = remotes_[0].hostname;
+            }
         }
     } else {
         qDebug(LOG_CUSTOM_OVPN) << "Failed to open file" << Utils::cleanSensitiveInfo(filepath_);

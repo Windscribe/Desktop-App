@@ -20,6 +20,5 @@ private slots:
 
 private:
     QTcpSocket *socket_;
-    QByteArray arr_;
     bool bEmitAllDataWritten_;
 };

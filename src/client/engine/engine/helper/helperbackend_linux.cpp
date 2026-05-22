@@ -1,8 +1,9 @@
 #include "helperbackend_linux.h"
 #include <QMutexLocker>
+#include "../../../../helper/common/helper_commands.h"
 #include "utils/log/categories.h"
 
-#define SOCK_PATH WS_POSIX_RUN_DIR "/helper.sock"
+#define SOCK_PATH WS_LINUX_RUN_DIR "/helper.sock"
 
 HelperBackend_linux::HelperBackend_linux(QObject *parent) :
     IHelperBackend(parent),
@@ -109,14 +110,31 @@ bool HelperBackend_linux::readAnswer(std::string &answer)
     if (ec) {
         logError(ec);
         return false;
-    } else {
+    }
+
+    // Reject malformed or oversized lengths before allocation. Defends the engine
+    // against a compromised/spoofed helper sending a bogus reply length.
+    if (length < 0 || static_cast<size_t>(length) > kMaxHelperFrameSize) {
+        qCWarning(LOG_BASIC) << "HelperBackend_linux::readAnswer, invalid length:" << length;
+        return false;
+    }
+
+    if (length == 0) {
+        answer.clear();
+        return true;
+    }
+
+    try {
         std::vector<char> buff(length);
-        ec = safeRead(&buff[0], length);
+        ec = safeRead(buff.data(), length);
         if (ec) {
             logError(ec);
             return false;
         }
         answer = std::string(buff.begin(), buff.end());
+    } catch (const std::bad_alloc &) {
+        qCWarning(LOG_BASIC) << "HelperBackend_linux::readAnswer, bad_alloc for length:" << length;
+        return false;
     }
     return true;
 }

@@ -112,7 +112,7 @@ public:
     bool isWifiSharingSupported();
     void startWifiSharing(const QString &ssid, const QString &password);
     void stopWifiSharing();
-    void startProxySharing(PROXY_SHARING_TYPE proxySharingType, uint port, bool whileConnected);
+    void startProxySharing(const types::ShareProxyGateway &settings);
     void stopProxySharing();
     QString getProxySharingAddress();
     QString getSharingCaption();
@@ -181,6 +181,7 @@ signals:
     void proxySharingStateChanged(bool bEnabled, PROXY_SHARING_TYPE proxySharingType, const QString &address, int usersCount);
     void wifiSharingStateChanged(bool bEnabled, const QString &ssid, int usersCount);
     void wifiSharingFailed(WIFI_SHARING_ERROR error);
+    void proxySharingFailed(PROXY_SHARING_ERROR error);
 
     void logoutFinished();
 
@@ -247,7 +248,7 @@ private slots:
     void firewallOffImpl();
     void speedRatingImpl(int rating, const QString &localExternalIp);
     void setSettingsImpl(const types::EngineSettings &engineSettings);
-    void startProxySharingImpl(PROXY_SHARING_TYPE proxySharingType, uint port, bool whileConnected);
+    void startProxySharingImpl(const types::ShareProxyGateway &settings);
     void stopProxySharingImpl();
 
     void startWifiSharingImpl(const QString &ssid, const QString &password);

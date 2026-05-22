@@ -6,7 +6,7 @@
 
 #include "ikev2route.h"
 #include "adapters_info.h"
-#include "ip_address/ip4_address_and_mask.h"
+#include "types/ipaddress.h"
 
 bool IKEv2Route::addRouteForIKEv2()
 {
@@ -26,7 +26,7 @@ bool IKEv2Route::addRouteForIKEv2()
             row.dwForwardDest = 0;
             row.dwForwardMask = 0;
             row.dwForwardPolicy = 0;
-            row.dwForwardNextHop = Ip4AddressAndMask(ip.c_str()).ipNetworkOrder();
+            row.dwForwardNextHop = types::IpAddress(ip).ipv4NetworkOrder();
             row.dwForwardIfIndex = ifIndex;
             row.dwForwardType = MIB_IPROUTE_TYPE_INDIRECT;
             row.dwForwardProto = MIB_IPPROTO_NETMGMT;

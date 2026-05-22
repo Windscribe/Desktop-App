@@ -76,12 +76,12 @@ function(ws_resolve_shared_libs)
         elseif(_lib STREQUAL "openssl")
             if(APPLE)
                 list(APPEND _libs
-                    "${_vcpkg_lib}/libssl.3.dylib|libssl.3.dylib"
-                    "${_vcpkg_lib}/libcrypto.3.dylib|libcrypto.3.dylib")
+                    "${_vcpkg_lib}/libssl.4.dylib|libssl.4.dylib"
+                    "${_vcpkg_lib}/libcrypto.4.dylib|libcrypto.4.dylib")
             elseif(UNIX)
                 list(APPEND _libs
-                    "${_vcpkg_lib}/libssl.so.3|libssl.so.3"
-                    "${_vcpkg_lib}/libcrypto.so.3|libcrypto.so.3")
+                    "${_vcpkg_lib}/libssl.so.4|libssl.so.4"
+                    "${_vcpkg_lib}/libcrypto.so.4|libcrypto.so.4")
             endif()
         else()
             message(FATAL_ERROR "Unknown shared library: ${_lib}")

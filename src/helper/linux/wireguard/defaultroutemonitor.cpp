@@ -92,10 +92,10 @@ bool DefaultRouteMonitor::checkDefaultRoutes()
     return setEndpointDirectRoute();
 }
 
-bool DefaultRouteMonitor::executeCommandWithLogging(const std::string &command) const
+bool DefaultRouteMonitor::executeCommandWithLogging(const std::string &program, const std::vector<std::string> &args) const
 {
     std::string output;
-    const auto status = Utils::executeCommand(command, {}, &output);
+    const auto status = Utils::executeCommand(program, args, &output);
     if (!output.empty())
         spdlog::info(output);
     return status == 0;
@@ -121,8 +121,7 @@ bool DefaultRouteMonitor::setEndpointDirectRoute()
 {
     if (endpoint_.empty() || lastGateway_.empty())
         return false;
-    if (!executeCommandWithLogging(
-        "ip route add " + endpoint_ + "/32 via " + lastGateway_))
+    if (!executeCommandWithLogging("ip", {"route", "add", endpoint_ + "/32", "via", lastGateway_}))
         return false;
     return true;
 }
@@ -131,5 +130,5 @@ void DefaultRouteMonitor::unsetEndpointDirectRoute()
 {
     if (endpoint_.empty())
         return;
-    executeCommandWithLogging("ip route del " + endpoint_);
+    executeCommandWithLogging("ip", {"route", "del", endpoint_});
 }

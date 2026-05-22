@@ -17,6 +17,8 @@ target_sources(gui PRIVATE
     connectionwindow/connecteddnsgroup.h
     connectionwindow/connectionwindowitem.cpp
     connectionwindow/connectionwindowitem.h
+    connectionwindow/copyabletextitem.cpp
+    connectionwindow/copyabletextitem.h
     connectionwindow/decoytrafficgroup.cpp
     connectionwindow/decoytrafficgroup.h
     connectionwindow/firewallgroup.cpp
@@ -31,8 +33,6 @@ target_sources(gui PRIVATE
     connectionwindow/packetsizegroup.h
     connectionwindow/proxygatewaygroup.cpp
     connectionwindow/proxygatewaygroup.h
-    connectionwindow/proxyipaddressitem.cpp
-    connectionwindow/proxyipaddressitem.h
     connectionwindow/securehotspotgroup.cpp
     connectionwindow/securehotspotgroup.h
     dnsdomainswindow/dnsdomainaddressitem.cpp

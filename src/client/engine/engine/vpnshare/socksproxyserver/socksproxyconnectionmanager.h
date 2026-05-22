@@ -4,6 +4,7 @@
 #include <QMap>
 #include "socksproxyconnection.h"
 #include "../connecteduserscounter.h"
+#include "../proxyauthconfig.h"
 
 namespace SocksProxyServer {
 
@@ -14,7 +15,7 @@ public:
     explicit SocksProxyConnectionManager(QObject *parent, int threadsCount, ConnectedUsersCounter *usersCounter);
 
 public:
-    void newConnection(qintptr socketDescriptor);
+    void newConnection(qintptr socketDescriptor, const ProxyAuth::Config &auth);
     void closeAllConnections();
     void stop();
 

@@ -94,7 +94,7 @@ void Ipv6Firewall::addFilters(HANDLE engineHandle)
     }
 
     // add permit filter for ipv6 localhost address
-    const std::vector<Ip6AddressAndPrefix> localhost = Ip6AddressAndPrefix::fromVector({L"::1/128"});
+    const std::vector<types::IpAddressRange> localhost = { types::IpAddressRange("::1/128") };
     ret = Utils::addFilterV6(engineHandle, nullptr, FWP_ACTION_PERMIT, 4, subLayerGUID_, FIREWALL_SUBLAYER_IPV6_NAMEW, nullptr, &localhost);
     if (!ret) {
         spdlog::error("Could not add IPv6 LAN traffic allow filter");

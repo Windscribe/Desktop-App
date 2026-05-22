@@ -40,7 +40,7 @@ QString PreferencesHelper::getProxyGatewayAddress() const
 
 QVector<TAP_ADAPTER_TYPE> PreferencesHelper::getAvailableTapAdapters(const QString & /*openVpnVersion*/)
 {
-    return QVector<TAP_ADAPTER_TYPE>() << DCO_ADAPTER << WINTUN_ADAPTER;
+    return QVector<TAP_ADAPTER_TYPE>() << DCO_ADAPTER << TAP_ADAPTER;
 }
 
 void PreferencesHelper::setPortMap(const api_responses::PortMap &portMap)

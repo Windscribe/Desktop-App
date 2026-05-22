@@ -13,6 +13,14 @@ ip route flush table windscribe 2>/dev/null
 ip rule flush table windscribe_include 2>/dev/null
 ip route flush table windscribe_include 2>/dev/null
 
+# IPv6 sibling — always attempted (the script takes no args, and missing v6
+# rules are a no-op once stderr is swallowed). Matches the v4 block above.
+ip -6 rule del priority 16383 table main suppress_prefixlength 1 2>/dev/null
+ip -6 rule flush table windscribe 2>/dev/null
+ip -6 route flush table windscribe 2>/dev/null
+ip -6 rule flush table windscribe_include 2>/dev/null
+ip -6 route flush table windscribe_include 2>/dev/null
+
 # Clear net_cls id
 for i in `cat "$net_cls_root/windscribe/cgroup.procs"`; do
     echo $i > "$net_cls_root/cgroup.procs" 2>/dev/null

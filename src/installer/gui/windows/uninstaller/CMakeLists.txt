@@ -21,6 +21,7 @@ set(SOURCES
     ../../../../client/client-common/utils/servicecontrolmanager.cpp
     ../utils/applicationinfo.cpp
     ../utils/path.cpp
+    ../utils/secure_dir.cpp
     ../utils/utils.cpp
     uninstall.rc
 )
@@ -38,6 +39,7 @@ target_include_directories(uninstall
 
 target_link_libraries(uninstall
                       PRIVATE
+                      bcrypt
                       delayimp
                       shlwapi
                       fmt::fmt-header-only

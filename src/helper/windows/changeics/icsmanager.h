@@ -31,7 +31,7 @@ private:
 
     CComPtr<INetSharingManager> pNSM_;
 
-    // current settled private and public configurations or null if not settled
+    // current configured private and public configurations, or null if not configured
     CComPtr<INetSharingConfiguration> pNetConfigurationPrivate_;
     CComPtr<INetSharingConfiguration> pNetConfigurationPublic_;
 

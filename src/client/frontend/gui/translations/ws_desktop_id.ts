@@ -618,26 +618,6 @@ Jika Anda kehilangan hash akun, itu akan hilang selamanya dan dukungan tidak dap
         <translation>Pilih Folder Konfigurasi Kustom</translation>
     </message>
     <message>
-        <source>Cannot select this directory because it is writeable for non-privileged users. Custom configs in this directory may pose a potential security risk. Please authenticate with an admin user to select this directory.</source>
-        <translation>Tidak dapat memilih direktori ini karena dapat ditulis untuk pengguna yang tidak memiliki hak istimewa. Konfigurasi kustom dalam direktori ini dapat menimbulkan risiko keamanan potensial. Harap otentikasi dengan pengguna admin untuk memilih direktori ini.</translation>
-    </message>
-    <message>
-        <source>Can&apos;t select directory</source>
-        <translation>Tidak dapat memilih direktori</translation>
-    </message>
-    <message>
-        <source>The application is corrupted.  Please reinstall Windscribe.</source>
-        <translation>Aplikasi rusak.  Silakan instal ulang Windscribe.</translation>
-    </message>
-    <message>
-        <source>Validation Error</source>
-        <translation>Kesalahan Validasi</translation>
-    </message>
-    <message>
-        <source>The selected directory is writeable for non-privileged users. Custom configs in this directory may pose a potential security risk.</source>
-        <translation>Direktori yang dipilih dapat ditulis untuk pengguna yang tidak memiliki hak istimewa. Konfigurasi kustom dalam direktori ini dapat menimbulkan risiko keamanan potensial.</translation>
-    </message>
-    <message>
         <source>Security Risk</source>
         <translation>Risiko Keamanan</translation>
     </message>
@@ -678,6 +658,26 @@ Jika Anda kehilangan hash akun, itu akan hilang selamanya dan dukungan tidak dap
         <translation>Terputus</translation>
     </message>
     <message>
+        <source>The selected directory is writeable for other users. Custom configs in this directory may pose a potential security risk.</source>
+        <translation>Direktori yang dipilih dapat ditulis untuk pengguna lain. Konfigurasi kustom di direktori ini dapat menimbulkan potensi risiko keamanan.</translation>
+    </message>
+    <message>
+        <source>Proxy Gateway is unauthenticated</source>
+        <translation>Gateway Proxy tidak diautentikasi</translation>
+    </message>
+    <message>
+        <source>Your Proxy Gateway is enabled without authentication. Anyone on your local network, including untrusted networks like coffee-shop Wi-Fi, can route their traffic through your VPN. We strongly recommend setting credentials.</source>
+        <translation>Gateway Proxy Anda diaktifkan tanpa autentikasi. Siapa pun di jaringan lokal Anda, termasuk jaringan yang tidak tepercaya seperti Wi-Fi kedai kopi, dapat merutekan lalu lintas mereka melalui VPN Anda. Kami sangat menyarankan untuk mengatur kredensial.</translation>
+    </message>
+    <message>
+        <source>Go to Preferences</source>
+        <translation>Buka Preferensi</translation>
+    </message>
+    <message>
+        <source>Later</source>
+        <translation>Nanti</translation>
+    </message>
+    <message>
         <source>Connected to </source>
         <translation>Terhubung ke </translation>
     </message>
@@ -690,6 +690,18 @@ Jika Anda kehilangan hash akun, itu akan hilang selamanya dan dukungan tidak dap
 %1 transferred in %2</source>
         <translation>Koneksi ke Windscribe telah dihentikan.
 %1 ditransfer dalam %2</translation>
+    </message>
+    <message>
+        <source>Could not start Proxy Gateway</source>
+        <translation>Tidak dapat memulai Proxy Gateway</translation>
+    </message>
+    <message>
+        <source>The configured port is in use. Please try a different port.</source>
+        <translation>Port yang dikonfigurasi sedang digunakan. Silakan coba port lain.</translation>
+    </message>
+    <message>
+        <source>An unknown error occurred.</source>
+        <translation>Terjadi kesalahan yang tidak diketahui.</translation>
     </message>
     <message>
         <source>Network Settings Interference</source>
@@ -924,14 +936,6 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
     <message>
         <source>  If you are on a restrictive network, please connect the VPN before trying the download again.</source>
         <translation>  Jika Anda berada di jaringan yang terbatas, harap sambungkan VPN sebelum mencoba mengunduh lagi.</translation>
-    </message>
-    <message>
-        <source>Custom Config Directory Import</source>
-        <translation>Impor Direktori Konfigurasi Kustom</translation>
-    </message>
-    <message>
-        <source>A custom config directory is being imported.  Windscribe will prompt for your admin password to check for correct permissions.</source>
-        <translation>Direktori konfigurasi kustom sedang diimpor.  Windscribe akan meminta kata sandi admin Anda untuk memeriksa izin yang benar.</translation>
     </message>
     <message>
         <source>Your &quot;Connected DNS&quot; server is set to an OS default DNS server, which would result in a DNS leak.  It has been changed to Auto.</source>
@@ -1447,6 +1451,14 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
         <translation>Pilih protokol VPN secara otomatis, atau pilih secara manual. CATATAN: &quot;Protokol Pilihan&quot; akan mengganti pengaturan ini.</translation>
     </message>
     <message>
+        <source>Configure egress IP stack for VPN connections.</source>
+        <translation>Konfigurasikan tumpukan IP keluar untuk koneksi VPN.</translation>
+    </message>
+    <message>
+        <source>IP Stack</source>
+        <translation>Tumpukan IP</translation>
+    </message>
+    <message>
         <source>Select the DNS server while connected to Windscribe.</source>
         <translation>Pilih server DNS saat terhubung ke Windscribe.</translation>
     </message>
@@ -1517,6 +1529,13 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
     <message>
         <source>Anti-censorship Settings</source>
         <translation>Pengaturan anti-sensor</translation>
+    </message>
+</context>
+<context>
+    <name>PreferencesWindow::CopyableTextItem</name>
+    <message>
+        <source>Copied</source>
+        <translation>Disalin</translation>
     </message>
 </context>
 <context>
@@ -2106,31 +2125,36 @@ Menyambungkan ke jaringan terlebih dahulu</translation>
         <translation>Pelabuhan</translation>
     </message>
     <message>
-        <source>Unable to start proxy server</source>
-        <translation>Tidak dapat memulai server proxy</translation>
+        <source>Require Authentication</source>
+        <translation>Memerlukan Autentikasi</translation>
     </message>
     <message>
-        <source>The proxy server couldn&apos;t be started on the requested port. Please try again with a different port.</source>
-        <translation>Server proxy tidak dapat dimulai pada port yang diminta. Silakan coba lagi dengan port lain.</translation>
+        <source>Without authentication, anyone on your network (e.g. coffee shop Wi-Fi) can use this proxy. Leave this on unless you know what you&apos;re doing.</source>
+        <translation>Tanpa autentikasi, siapa pun di jaringan Anda (misalnya Wi-Fi kedai kopi) dapat menggunakan proxy ini. Biarkan ini menyala kecuali Anda tahu apa yang Anda lakukan.</translation>
+    </message>
+    <message>
+        <source>IP</source>
+        <translation>IP</translation>
+    </message>
+    <message>
+        <source>Username</source>
+        <translation>Nama pengguna</translation>
+    </message>
+    <message>
+        <source>Password</source>
+        <translation>Kata sandi</translation>
     </message>
     <message>
         <source>Auto</source>
         <translation>Auto</translation>
     </message>
     <message>
+        <source>Unavailable</source>
+        <translation>Tidak tersedia</translation>
+    </message>
+    <message>
         <source>Only when VPN is connected</source>
         <translation>Hanya ketika VPN terhubung</translation>
-    </message>
-</context>
-<context>
-    <name>PreferencesWindow::ProxyIpAddressItem</name>
-    <message>
-        <source>IP</source>
-        <translation>IP</translation>
-    </message>
-    <message>
-        <source>Copied</source>
-        <translation>Disalin</translation>
     </message>
 </context>
 <context>
@@ -2573,6 +2597,10 @@ Jika penginstalan ulang tidak membantu, hubungi dukungan Windscribe untuk mendap
     <message>
         <source>Van Gogh</source>
         <translation>Van Gogh</translation>
+    </message>
+    <message>
+        <source>IPv4 Only</source>
+        <translation>Hanya IPv4</translation>
     </message>
     <message>
         <source>Enabled</source>

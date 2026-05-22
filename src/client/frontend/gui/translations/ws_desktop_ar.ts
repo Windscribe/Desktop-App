@@ -618,14 +618,6 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
         <translation>حدد مجلد التكوين المخصص</translation>
     </message>
     <message>
-        <source>Cannot select this directory because it is writeable for non-privileged users. Custom configs in this directory may pose a potential security risk. Please authenticate with an admin user to select this directory.</source>
-        <translation>لا يمكن تحديد هذا الدليل لأنه قابل للكتابة للمستخدمين غير المتميزين. قد تشكل التكوينات المخصصة في هذا الدليل خطرا أمنيا محتملا. يرجى المصادقة مع مستخدم مسؤول لتحديد هذا الدليل.</translation>
-    </message>
-    <message>
-        <source>The application is corrupted.  Please reinstall Windscribe.</source>
-        <translation>التطبيق تالف.  الرجاء إعادة تثبيت Windscribe.</translation>
-    </message>
-    <message>
         <source>Could not start &apos;Base Filtering Engine&apos; service.  Please enable this service manually in Windows Services.</source>
         <translation>تعذر بدء تشغيل خدمة &quot;محرك التصفية الأساسي&quot;.  الرجاء تمكين هذه الخدمة يدويا في خدمات Windows.</translation>
     </message>
@@ -662,18 +654,6 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
         <translation>حدث خطأ غير متوقع أثناء تأسيس اتصال VPN (خطأ %1).  إذا استمر هذا الخطأ، فحاول استخدام بروتوكول مختلف أو اتصل بالدعم.</translation>
     </message>
     <message>
-        <source>Can&apos;t select directory</source>
-        <translation>لا يمكن تحديد الدليل</translation>
-    </message>
-    <message>
-        <source>Validation Error</source>
-        <translation>خطأ في التحقق من الصحة</translation>
-    </message>
-    <message>
-        <source>The selected directory is writeable for non-privileged users. Custom configs in this directory may pose a potential security risk.</source>
-        <translation>الدليل المحدد قابل للكتابة للمستخدمين غير المتميزين. قد تشكل التكوينات المخصصة في هذا الدليل خطرا أمنيا محتملا.</translation>
-    </message>
-    <message>
         <source>Security Risk</source>
         <translation>المخاطر الأمنية</translation>
     </message>
@@ -706,6 +686,26 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
         <translation>قطع اتصال</translation>
     </message>
     <message>
+        <source>The selected directory is writeable for other users. Custom configs in this directory may pose a potential security risk.</source>
+        <translation>الدليل المختار قابل للكتابة للمستخدمين الآخرين. قد تشكل التكوينات المخصصة في هذا الدليل خطرا أمنيا محتملا.</translation>
+    </message>
+    <message>
+        <source>Proxy Gateway is unauthenticated</source>
+        <translation>بوابة الوكيل غير مصادقة</translation>
+    </message>
+    <message>
+        <source>Your Proxy Gateway is enabled without authentication. Anyone on your local network, including untrusted networks like coffee-shop Wi-Fi, can route their traffic through your VPN. We strongly recommend setting credentials.</source>
+        <translation>بوابة الوكيل الخاصة بك مفعلة بدون مصادقة. أي شخص على شبكتك المحلية، بما في ذلك الشبكات غير الموثوقة مثل الواي فاي في المقاهي، يمكنه توجيه حركة المرور عبر شبكة VPN الخاصة بك. نوصي بشدة بإعداد المؤهلات.</translation>
+    </message>
+    <message>
+        <source>Go to Preferences</source>
+        <translation>اذهب إلى التفضيلات</translation>
+    </message>
+    <message>
+        <source>Later</source>
+        <translation>لاحقا</translation>
+    </message>
+    <message>
         <source>Connected to </source>
         <translation>متصل ب </translation>
     </message>
@@ -718,6 +718,18 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
 %1 transferred in %2</source>
         <translation>تم إنهاء الاتصال ب Windscribe.
 %1 محولة في %2</translation>
+    </message>
+    <message>
+        <source>Could not start Proxy Gateway</source>
+        <translation>لم أتمكن من تشغيل بوابة الوكيل</translation>
+    </message>
+    <message>
+        <source>The configured port is in use. Please try a different port.</source>
+        <translation>المنفذ المكون قيد الاستخدام. يرجى تجربة منفذ مختلف.</translation>
+    </message>
+    <message>
+        <source>An unknown error occurred.</source>
+        <translation>حدث خطأ مجهول.</translation>
     </message>
     <message>
         <source>Network Settings Interference</source>
@@ -924,14 +936,6 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>  If you are on a restrictive network, please connect the VPN before trying the download again.</source>
         <translation>  إذا كنت تستخدم شبكة مقيدة ، فيرجى توصيل VPN قبل محاولة التنزيل مرة أخرى.</translation>
-    </message>
-    <message>
-        <source>Custom Config Directory Import</source>
-        <translation>استيراد دليل التكوين المخصص</translation>
-    </message>
-    <message>
-        <source>A custom config directory is being imported.  Windscribe will prompt for your admin password to check for correct permissions.</source>
-        <translation>يتم استيراد دليل تكوين مخصص.  سيطالب Windscribe بكلمة مرور المسؤول الخاصة بك للتحقق من الأذونات الصحيحة.</translation>
     </message>
     <message>
         <source>Your &quot;Connected DNS&quot; server is set to an OS default DNS server, which would result in a DNS leak.  It has been changed to Auto.</source>
@@ -1443,6 +1447,14 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>وضع الاتصال</translation>
     </message>
     <message>
+        <source>Configure egress IP stack for VPN connections.</source>
+        <translation>قم بتكوين بروتوكول IP مخرج لاتصالات VPN.</translation>
+    </message>
+    <message>
+        <source>IP Stack</source>
+        <translation>مكدس IP</translation>
+    </message>
+    <message>
         <source>Select the DNS server while connected to Windscribe.</source>
         <translation>حدد خادم DNS أثناء الاتصال ب Windscribe.</translation>
     </message>
@@ -1517,6 +1529,13 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Anti-censorship Settings</source>
         <translation>إعدادات مكافحة الرقابة</translation>
+    </message>
+</context>
+<context>
+    <name>PreferencesWindow::CopyableTextItem</name>
+    <message>
+        <source>Copied</source>
+        <translation>نسخ</translation>
     </message>
 </context>
 <context>
@@ -2106,31 +2125,36 @@ Connect to a network first</source>
         <translation>ميناء</translation>
     </message>
     <message>
-        <source>Unable to start proxy server</source>
-        <translation>غير قادر على بدء تشغيل الخادم الوكيل</translation>
+        <source>Require Authentication</source>
+        <translation>يتطلب المصادقة</translation>
     </message>
     <message>
-        <source>The proxy server couldn&apos;t be started on the requested port. Please try again with a different port.</source>
-        <translation>تعذر بدء تشغيل الخادم الوكيل على المنفذ المطلوب. يرجى المحاولة مرة أخرى باستخدام منفذ مختلف.</translation>
+        <source>Without authentication, anyone on your network (e.g. coffee shop Wi-Fi) can use this proxy. Leave this on unless you know what you&apos;re doing.</source>
+        <translation>بدون المصادقة، يمكن لأي شخص على شبكتك (مثل واي فاي المقاهي) استخدام هذا الوكيل. اترك هذا يعمل إلا إذا كنت تعرف ما تفعله.</translation>
+    </message>
+    <message>
+        <source>IP</source>
+        <translation>آي بي</translation>
+    </message>
+    <message>
+        <source>Username</source>
+        <translation>اسم المستخدم</translation>
+    </message>
+    <message>
+        <source>Password</source>
+        <translation>كلمة المرور</translation>
     </message>
     <message>
         <source>Auto</source>
         <translation>تلقائي</translation>
     </message>
     <message>
+        <source>Unavailable</source>
+        <translation>غير متوفر</translation>
+    </message>
+    <message>
         <source>Only when VPN is connected</source>
         <translation>فقط عندما تكون VPN متصلة</translation>
-    </message>
-</context>
-<context>
-    <name>PreferencesWindow::ProxyIpAddressItem</name>
-    <message>
-        <source>IP</source>
-        <translation>آي بي</translation>
-    </message>
-    <message>
-        <source>Copied</source>
-        <translation>نسخ</translation>
     </message>
 </context>
 <context>
@@ -2573,6 +2597,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Van Gogh</source>
         <translation>فان جوخ</translation>
+    </message>
+    <message>
+        <source>IPv4 Only</source>
+        <translation>IPv4 فقط</translation>
     </message>
     <message>
         <source>Enabled</source>

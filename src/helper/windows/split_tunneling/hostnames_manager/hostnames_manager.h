@@ -1,25 +1,39 @@
 #pragma once
 
 #include <map>
+#include <mutex>
 #include <string>
 #include <vector>
 
 #include "dns_resolver.h"
 #include "ip_routes.h"
 
-#include "../../ip_address/ip4_address_and_mask.h"
+#include "types/ipaddress.h"
+
+class CalloutFilter;
 
 class HostnamesManager
 {
 public:
-    explicit HostnamesManager();
+    // calloutFilter is optional: when set, whitelist IP updates are mirrored to it so
+    // the v6 inclusive-mode anti-leak BLOCK can be bypassed for hostname-routed v6
+    // destinations regardless of which app issues the connection. Owner outlives this.
+    explicit HostnamesManager(CalloutFilter *calloutFilter = nullptr);
     ~HostnamesManager();
 
-    void enable(const std::string &gatewayIp, unsigned long ifIndex);
+    // gatewayIp / gatewayIpV6 — default gateways for the active adapter (either may be invalid).
+    void enable(const types::IpAddress &gatewayIp,
+                const types::IpAddress &gatewayIpV6,
+                unsigned long ifIndex);
     void disable();
-    void setSettings(bool isExclude, const std::vector<Ip4AddressAndMask> &ips, const std::vector<std::string> &hosts);
+
+    // Dual-stack: ips holds IPv4 and/or IPv6 ranges; family is dispatched by isV4()/isV6().
+    void setSettings(bool isExclude,
+                     const std::vector<types::IpAddressRange> &ips,
+                     const std::vector<std::string> &hosts);
 
 private:
+    CalloutFilter *calloutFilter_;
     DnsResolver dnsResolver_;
     IpRoutes ipRoutes_;
 
@@ -28,11 +42,12 @@ private:
 
     bool isExcludeMode_;
 
-    // latest ips and hosts list
-    std::vector<Ip4AddressAndMask> ipsLatest_;
+    // Latest IPs (dual-stack) and hosts list configured via setSettings().
+    std::vector<types::IpAddressRange> ipsLatest_;
     std::vector<std::string> hostsLatest_;
 
-    std::string gatewayIp_;
+    types::IpAddress gatewayIp_;
+    types::IpAddress gatewayIpV6_;
     unsigned long ifIndex_;
 
     void dnsResolverCallback(std::map<std::string, DnsResolver::HostInfo> hostInfos);

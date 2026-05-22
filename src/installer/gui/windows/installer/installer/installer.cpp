@@ -8,6 +8,7 @@
 #include "blocks/files.h"
 #include "blocks/icons.h"
 #include "blocks/install_openvpn_dco.h"
+#include "blocks/install_tap_windows6.h"
 #include "blocks/install_splittunnel.h"
 #include "blocks/service.h"
 #include "blocks/uninstall_info.h"
@@ -34,6 +35,7 @@ void Installer::startImpl()
     blocks_.push_back(new Files(40));
     blocks_.push_back(new Service(10));
     blocks_.push_back(new InstallOpenVPNDCO(10));
+    blocks_.push_back(new InstallTapWindows6(10));
     blocks_.push_back(new InstallSplitTunnel(10));
     blocks_.push_back(new UninstallInfo(5));
     blocks_.push_back(new Icons(Settings::instance().getCreateShortcut(), 5));

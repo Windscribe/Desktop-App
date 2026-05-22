@@ -45,6 +45,22 @@
         <translation>Mevcut bir Windscribe yüklemesi kaldırılamadı. Lütfen uygulamayı manuel olarak kaldırın ve tekrar deneyin.</translation>
     </message>
     <message>
+        <source>The Windows Base Filtering Engine service is not running and could not be started. This core Windows service must be running to install Windscribe. Third-party security/firewall software is most often the cause of this issue.</source>
+        <translation>Windows Temel Filtreleme Motoru hizmeti çalışmıyor ve başlatılamadı. Windscribe&apos;ı kurmak için bu temel Windows servisi çalışıyor olmalı. Bu sorunun en çok nedeni üçüncü parti güvenlik/güvenlik duvarı yazılımıdır.</translation>
+    </message>
+    <message>
+        <source>Windscribe is unable to connect to the Windows Base Filtering Engine service. Connecting to this core Windows service is required to install Windscribe. Third-party security/firewall software is most often the cause of this issue.</source>
+        <translation>Windscribe, Windows Base Filtering Engine hizmetine bağlanamıyor. Windscribe&apos;ı kurmak için bu temel Windows hizmetine bağlanmak gereklidir. Bu sorunun en çok nedeni üçüncü parti güvenlik/güvenlik duvarı yazılımıdır.</translation>
+    </message>
+    <message>
+        <source>Windscribe is unable to install its helper service. Please manually uninstall Windscribe and try again. If this issue persists, please contact our Technical Support.</source>
+        <translation>Windscribe yardımcı hizmetini kuramıyor. Lütfen Windscribe&apos;ı manuel olarak kaldırın ve tekrar deneyin. Bu sorun devam ederse, lütfen Teknik Destek ekibimizle iletişime geçin.</translation>
+    </message>
+    <message>
+        <source>Windscribe is unable to start its helper service. Third-party security/firewall software may be the cause. If this is not the case, please contact our Technical Support.</source>
+        <translation>Windscribe yardımcı hizmetini başlatamıyor. Üçüncü parti güvenlik/güvenlik duvarı yazılımları bunun nedeni olabilir. Eğer durum böyle değilse, lütfen Teknik Destek ekibimizle iletişime geçin.</translation>
+    </message>
+    <message>
         <source>The installation could not be completed successfully. Please contact our Technical Support.</source>
         <translation>Yükleme başarıyla tamamlanamadı. Lütfen Teknik Desteğimizle iletişime geçin.</translation>
     </message>

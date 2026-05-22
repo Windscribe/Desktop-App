@@ -33,6 +33,22 @@
         <translation>فشل التثبيت</translation>
     </message>
     <message>
+        <source>The Windows Base Filtering Engine service is not running and could not be started. This core Windows service must be running to install Windscribe. Third-party security/firewall software is most often the cause of this issue.</source>
+        <translation>خدمة محرك التصفية الأساسية في ويندوز غير تعمل ولم يكن بالإمكان تشغيلها. يجب أن تكون هذه الخدمة الأساسية لويندوز تعمل لتثبيت Windscribe. غالبا ما تكون برامج الأمان/جدار الحماية من طرف ثالث هي السبب الرئيسي لهذه المشكلة.</translation>
+    </message>
+    <message>
+        <source>Windscribe is unable to connect to the Windows Base Filtering Engine service. Connecting to this core Windows service is required to install Windscribe. Third-party security/firewall software is most often the cause of this issue.</source>
+        <translation>لا يستطيع ويندوسكرايب الاتصال بخدمة محرك تصفية القاعدة في ويندوز. يتطلب تثبيت Windscribe الاتصال بهذه الخدمة الأساسية لويندوز. غالبا ما تكون برامج الأمان/جدار الحماية من طرف ثالث هي السبب الرئيسي لهذه المشكلة.</translation>
+    </message>
+    <message>
+        <source>Windscribe is unable to install its helper service. Please manually uninstall Windscribe and try again. If this issue persists, please contact our Technical Support.</source>
+        <translation>لم تتمكن Windscribe من تثبيت خدمة المساعدة الخاصة بها. يرجى إلغاء تثبيت ويندوسكرايب يدويا والمحاولة مرة أخرى. إذا استمرت هذه المشكلة، يرجى التواصل مع الدعم الفني لدينا.</translation>
+    </message>
+    <message>
+        <source>Windscribe is unable to start its helper service. Third-party security/firewall software may be the cause. If this is not the case, please contact our Technical Support.</source>
+        <translation>لم تتمكن Windscribe من بدء خدمة المساعدة الخاصة بها. قد يكون برنامج الأمان أو الجدار الناري من طرف ثالث هو السبب. إذا لم يكن هذا هو الحال، يرجى التواصل مع الدعم الفني لدينا.</translation>
+    </message>
+    <message>
         <source>The installation could not be completed successfully. Please contact our Technical Support.</source>
         <translation>تعذر إكمال التثبيت بنجاح. يرجى الاتصال بالدعم الفني لدينا.</translation>
     </message>

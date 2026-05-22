@@ -2,11 +2,11 @@
 #include <spdlog/spdlog.h>
 
 #include <WinSock2.h>
+#include <WS2tcpip.h>
 #include <Fwpmu.h>
 #include <iphlpapi.h>
 
 #include "dns_firewall.h"
-#include "ip_address/ip4_address_and_mask.h"
 #include "utils.h"
 
 #define FIREWALL_SUBLAYER_DNS_NAMEW WS_APP_IDENTIFIER_W L"DnsFirewallSublayer"
@@ -80,33 +80,49 @@ void DnsFirewall::enable()
 
 void DnsFirewall::setExcludeIps(const std::vector<std::wstring>& ips)
 {
-    excludeIps_ = std::unordered_set<std::wstring>(ips.cbegin(), ips.cend());
-}
-
-void DnsFirewall::addFilters(HANDLE engineHandle)
-{
-    std::vector<std::wstring> dnsServers = getDnsServers();
-    // add block filter for DNS ips for protocol UDP port 53
-    for (size_t i = 0; i < dnsServers.size(); ++i) {
-        if (excludeIps_.find(dnsServers[i]) != excludeIps_.cend()) {
-            spdlog::debug(L"DnsFirewall::addFilters(), ip excluded: {}", dnsServers[i]);
-            continue;
-        }
-
-        const std::vector<Ip4AddressAndMask> addr = Ip4AddressAndMask::fromVector({dnsServers[i].c_str()});
-        // Rule weight must be greater than the LAN allow rule (4)
-        bool ret = Utils::addFilterV4(engineHandle, nullptr, FWP_ACTION_BLOCK, 6, subLayerGUID_, (wchar_t*)FIREWALL_SUBLAYER_DNS_NAMEW, nullptr, &addr, 0, 53, nullptr, false);
-        if (!ret) {
-            spdlog::error(L"Could not add DNS filter for {}", dnsServers[i]);
-        } else {
-            spdlog::debug(L"Added DNS filter for {}", dnsServers[i]);
+    excludeIps_.clear();
+    for (const auto &w : ips) {
+        types::IpAddress addr(w);
+        if (addr.isValid()) {
+            excludeIps_.insert(addr);
         }
     }
 }
 
-std::vector<std::wstring> DnsFirewall::getDnsServers()
+void DnsFirewall::addFilters(HANDLE engineHandle)
 {
-    std::vector<std::wstring> dnsServers;
+    const std::vector<types::IpAddress> dnsServers = getDnsServers();
+
+    // add block filter for each DNS ip on protocol UDP/TCP port 53.
+    // Rule weight must be greater than the LAN allow rule (4).
+    for (const auto &ip : dnsServers) {
+        if (excludeIps_.count(ip) > 0) {
+            spdlog::debug("DnsFirewall::addFilters(), ip excluded: {}", ip.toString());
+            continue;
+        }
+
+        // Wrap the single host as a dual-stack range; addFilterV4/V6 dispatch by family
+        // (the wrong-family call is a no-op).
+        const uint8_t prefix = ip.isV4() ? 32 : 128;
+        const std::vector<types::IpAddressRange> addr = { types::IpAddressRange(ip, prefix) };
+        bool ret = false;
+        if (ip.isV4()) {
+            ret = Utils::addFilterV4(engineHandle, nullptr, FWP_ACTION_BLOCK, 6, subLayerGUID_, (wchar_t*)FIREWALL_SUBLAYER_DNS_NAMEW, nullptr, &addr, 0, 53, nullptr, false);
+        } else if (ip.isV6()) {
+            ret = Utils::addFilterV6(engineHandle, nullptr, FWP_ACTION_BLOCK, 6, subLayerGUID_, (wchar_t*)FIREWALL_SUBLAYER_DNS_NAMEW, nullptr, &addr, 0, 53, nullptr, false);
+        }
+
+        if (!ret) {
+            spdlog::error("Could not add DNS filter for {}", ip.toString());
+        } else {
+            spdlog::debug("Added DNS filter for {}", ip.toString());
+        }
+    }
+}
+
+std::vector<types::IpAddress> DnsFirewall::getDnsServers()
+{
+    std::vector<types::IpAddress> dnsServers;
 
     DWORD dwRetVal = 0;
     ULONG outBufLen = 0;
@@ -144,15 +160,23 @@ std::vector<std::wstring> DnsFirewall::getDnsServers()
             PIP_ADAPTER_DNS_SERVER_ADDRESS dnsServerAddress = pCurrAddresses->FirstDnsServerAddress;
             while (dnsServerAddress)
             {
-                if (dnsServerAddress->Address.lpSockaddr->sa_family == AF_INET)
+                const auto family = dnsServerAddress->Address.lpSockaddr->sa_family;
+                if (family == AF_INET)
                 {
-                    const int BUF_LEN = 256;
-                    WCHAR szBuf[BUF_LEN];
-                    DWORD bufSize = BUF_LEN;
-                    int ret = WSAAddressToString(dnsServerAddress->Address.lpSockaddr, dnsServerAddress->Address.iSockaddrLength, NULL, szBuf, &bufSize);
-                    if (ret == 0)  // ok
-                    {
-                        dnsServers.push_back(std::wstring(szBuf));
+                    const auto *sin = reinterpret_cast<const sockaddr_in *>(dnsServerAddress->Address.lpSockaddr);
+                    types::IpAddress addr(types::IpAddress::IPv4,
+                                          reinterpret_cast<const uint8_t *>(&sin->sin_addr), 4);
+                    if (addr.isValid()) {
+                        dnsServers.push_back(std::move(addr));
+                    }
+                }
+                else if (family == AF_INET6)
+                {
+                    const auto *sin6 = reinterpret_cast<const sockaddr_in6 *>(dnsServerAddress->Address.lpSockaddr);
+                    types::IpAddress addr(types::IpAddress::IPv6,
+                                          reinterpret_cast<const uint8_t *>(&sin6->sin6_addr), 16);
+                    if (addr.isValid()) {
+                        dnsServers.push_back(std::move(addr));
                     }
                 }
                 dnsServerAddress = dnsServerAddress->Next;

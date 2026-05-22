@@ -1,6 +1,9 @@
 #pragma once
 
+#include <QString>
 #include <QStringList>
+#include <QVector>
+#include "types/ipaddress.h"
 
 class AdapterGatewayInfo
 {
@@ -10,26 +13,33 @@ public:
 public:
     explicit AdapterGatewayInfo();
     void setAdapterName(const QString &name) { adapterName_ = name; }
-    void setAdapterIp(const QString &ip) { adapterIp_ = ip; }
-    void setGateway(const QString &ip) { gateway_ = ip; }
-    void setDnsServers(const QStringList &ips) { dnsServers_ = ips; }
-    void addDnsServer(const QString &ip) { dnsServers_ << ip; }
-    void setRemoteIp(const QString &ip) { remoteIp_ = ip; }
-    void setIfIndex(unsigned long ifIndex) { ifIndex_ = ifIndex; }
 
+    void addAdapterIp(const types::IpAddress &ip);
+    void addGatewayIp(const types::IpAddress &ip);
+    void setDnsServers(const QVector<types::IpAddress> &ips) { dnsServers_ = ips; }
+    // Mirrors addAdapterIp / addGatewayIp: silently drops invalid entries so callers
+    // don't have to pre-filter.
+    void addDnsServer(const types::IpAddress &ip);
+    void setRemoteIp(const types::IpAddress &ip) { remoteIp_ = ip; }
+    void setIfIndex(unsigned long ifIndex) { ifIndex_ = ifIndex; }
     QString adapterName() const { return adapterName_; }
-    QString adapterIp() const { return adapterIp_; }
-    QString gateway() const { return gateway_; }
-    QStringList dnsServers() const { return dnsServers_; }
-    QString remoteIp() const { return remoteIp_; }
+
+    types::IpAddress adapterIpV4() const;
+    types::IpAddress adapterIpV6() const;
+    types::IpAddress gatewayV4() const;
+    types::IpAddress gatewayV6() const;
+
+    QVector<types::IpAddress> dnsServers() const { return dnsServers_; }
+    QStringList dnsServersAsStringList() const;
+    types::IpAddress remoteIp() const { return remoteIp_; }
     unsigned long ifIndex() const { return ifIndex_; }
 
     void clear() {
         adapterName_.clear();
-        adapterIp_.clear();
-        gateway_.clear();
+        adapterIps_.clear();
+        gatewayIps_.clear();
         dnsServers_.clear();
-        remoteIp_.clear();
+        remoteIp_ = types::IpAddress();
     }
 
     bool isEmpty() const;
@@ -38,12 +48,12 @@ public:
 
 private:
     QString adapterName_;
-    QString adapterIp_;
-    QString gateway_;
-    QStringList dnsServers_;
+    QVector<types::IpAddress> adapterIps_;
+    QVector<types::IpAddress> gatewayIps_;
+    QVector<types::IpAddress> dnsServers_;
 
     // used only for openvpn connection
-    QString remoteIp_;
+    types::IpAddress remoteIp_;
 
     unsigned long ifIndex_; // used only for Windows
 };

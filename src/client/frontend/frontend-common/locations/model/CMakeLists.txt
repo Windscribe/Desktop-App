@@ -24,21 +24,3 @@ target_sources(frontend-common PRIVATE
     selectedlocation.cpp
     selectedlocation.h
 )
-
-# unit tests
-if(DEFINED IS_BUILD_TESTS)
-    set(TEST_SOURCES
-        locationsmodel.test.cpp
-        locationsmodel.test.h
-        locationsmodel.test.qrc
-    )
-
-    add_executable (locationsmodel.test ${TEST_SOURCES})
-    target_link_libraries(locationsmodel.test PRIVATE Qt6::Test frontend-common engine client-common spdlog::spdlog ${OS_SPECIFIC_LIBRARIES})
-    target_include_directories(locationsmodel.test PRIVATE
-        ${PROJECT_DIRECTORY}/frontend/frontend-common
-        ${PROJECT_DIRECTORY}/client-common
-    )
-    set_target_properties(locationsmodel.test PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
-
-endif(DEFINED IS_BUILD_TESTS)

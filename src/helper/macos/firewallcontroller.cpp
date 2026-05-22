@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <spdlog/spdlog.h>
 
+#include "../common/io_posix.h"
 #include "utils.h"
 
 FirewallController::FirewallController() : enabled_(false)
@@ -21,13 +22,20 @@ FirewallController::~FirewallController()
 
 bool FirewallController::enable(const std::string &rules, const std::string &table, const std::string &group)
 {
-    int fd = open(WS_POSIX_CONFIG_DIR "/pf.conf", O_CREAT | O_WRONLY | O_TRUNC, 0644);
+    // open()'s mode is ignored on pre-existing files; unlink first to force the intended perms
+    unlink(WS_POSIX_CONFIG_DIR "/pf.conf");
+    int fd = open(WS_POSIX_CONFIG_DIR "/pf.conf", O_CREAT | O_WRONLY | O_TRUNC, 0600);
     if (fd < 0) {
         spdlog::error("Could not open firewall rules for writing");
         return false;
     }
 
-    write(fd, rules.c_str(), rules.length());
+    if (!IO::writeAll(fd, rules)) {
+        spdlog::error("Could not write rules: {}", IO::strerror(errno));
+        close(fd);
+        unlink(WS_POSIX_CONFIG_DIR "/pf.conf");
+        return false;
+    }
     close(fd);
 
     enabled_ = true;
@@ -73,17 +81,47 @@ bool FirewallController::enabled()
     return (output.find("Status: Enabled") != std::string::npos);
 }
 
-void FirewallController::setVpnDns(const std::string &dns)
+void FirewallController::setVpnDns(const std::vector<types::IpAddress> &dnsList)
 {
-    spdlog::info("Setting VPN dns: {}", dns.empty() ? "empty" : dns);
-    vpnDns_ = dns;
+    // Drop invalid entries (deserialised IpAddress with valid_ == false) so the pf table
+    // never ends up with stray spaces or empty tokens. Stay in types::IpAddress form here —
+    // string conversion happens once at the pf-config boundary in updateDns(), matching the
+    // helper-internal convention from routes_manager / bound_route.
+    vpnDns_.clear();
+    vpnDns_.reserve(dnsList.size());
+    for (const auto &dns : dnsList) {
+        if (dns.isValid()) {
+            vpnDns_.push_back(dns);
+        }
+    }
+
+    if (vpnDns_.empty()) {
+        spdlog::info("Setting VPN dns: empty");
+    } else {
+        std::string joined;
+        for (const auto &dns : vpnDns_) {
+            if (!joined.empty()) joined += ", ";
+            joined += dns.toString();
+        }
+        spdlog::info("Setting VPN dns: {}", joined);
+    }
+
     updateDns();
 }
 
 void FirewallController::updateDns()
 {
     if (enabled_ && !vpnDns_.empty()) {
-        std::string rules = "table <" WS_PRODUCT_NAME_LOWER "_dns> persist { " + vpnDns_ + "}\n";
+        // pf tables accept space-separated dual-stack entries inside `{ ... }`, e.g.
+        // `table <windscribe_dns> persist { 10.255.255.1 fd00:abcd::1 }`. The pass/block
+        // rules referring to <windscribe_dns> in firewallcontroller_mac.cpp are family-agnostic
+        // (no `inet`/`inet6` selector), so a mixed table covers both v4 and v6 DNS lookups.
+        std::string entries;
+        for (const auto &dns : vpnDns_) {
+            if (!entries.empty()) entries += " ";
+            entries += dns.toString();
+        }
+        std::string rules = "table <" WS_PRODUCT_NAME_LOWER "_dns> persist { " + entries + " }\n";
         enable(rules, WS_PRODUCT_NAME_LOWER "_dns", "");
     } else {
         Utils::executeCommand("/sbin/pfctl", {"-T", WS_PRODUCT_NAME_LOWER "_dns", "flush"});

@@ -40,6 +40,18 @@ std::wstring Archive::extractor(const std::wstring &folder) const
     return extractorUtility;
 }
 
+bool Archive::extractDecompressor(const std::wstring &extractFolder)
+{
+    try {
+        extractArchiveFromResource(L"7zExtractor", L"7zr.exe", extractFolder);
+        return true;
+    }
+    catch (std::system_error &ex) {
+        log(to_wstring(ex.what()));
+        return false;
+    }
+}
+
 bool Archive::extract(const std::wstring &resourceName, const std::wstring &archiveName,
                       const std::wstring &extractFolder, const std::wstring &targetFolder)
 {
@@ -47,7 +59,8 @@ bool Archive::extract(const std::wstring &resourceName, const std::wstring &arch
 
     try {
         if (!std::filesystem::exists(extractor(extractFolder))) {
-            extractArchiveFromResource(L"7zExtractor", L"7zr.exe", extractFolder);
+            log(L"The extraction utility was not found in " + extractFolder);
+            return false;
         }
 
         extractArchiveFromResource(resourceName, archiveName, extractFolder);
@@ -143,7 +156,7 @@ void Archive::extractFile(const std::wstring &archiveName, const std::wstring &e
     std::wostringstream cmd;
     cmd << L"\"" << extractor(extractFolder) << L"\" e -y -bb3 -bd -o\"" << targetFolder << "\" \"" << archive.c_str() << L"\" " << filename;
 
-    executeCmd(cmd.str());
+    executeCmd(cmd.str(), extractFolder);
 }
 
 void Archive::extractFiles(const std::wstring &archiveName, const std::wstring &extractFolder, const std::wstring &targetFolder)
@@ -156,10 +169,10 @@ void Archive::extractFiles(const std::wstring &archiveName, const std::wstring &
     std::wostringstream cmd;
     cmd << L"\"" << extractor(extractFolder) << L"\" x -y -bb3 -bd -o\"" << targetFolder << "\" \"" << archive.c_str() << L"\"";
 
-    executeCmd(cmd.str());
+    executeCmd(cmd.str(), extractFolder);
 }
 
-void Archive::executeCmd(const std::wstring &cmd)
+void Archive::executeCmd(const std::wstring &cmd, const std::wstring &workingDir)
 {
     SECURITY_ATTRIBUTES sa;
     ::ZeroMemory(&sa, sizeof(sa));
@@ -191,7 +204,10 @@ void Archive::executeCmd(const std::wstring &cmd)
 
     PROCESS_INFORMATION pi;
     ::ZeroMemory(&pi, sizeof(pi));
-    auto result = ::CreateProcess(NULL, exec.get(), NULL, NULL, TRUE, CREATE_NO_WINDOW | NORMAL_PRIORITY_CLASS, NULL, NULL, &si, &pi);
+    // Explicitly pass the trusted (admin-only) workingDir as the child's CWD; otherwise 7zr.exe would
+    // inherit the bootstrap's CWD (e.g. the user's Downloads folder), which is a DLL-planting vector.
+    LPCWSTR cwd = workingDir.empty() ? NULL : workingDir.c_str();
+    auto result = ::CreateProcess(NULL, exec.get(), NULL, NULL, TRUE, CREATE_NO_WINDOW | NORMAL_PRIORITY_CLASS, NULL, cwd, &si, &pi);
 
     if (result == FALSE) {
         throw std::system_error(::GetLastError(), std::system_category(), "executeCmd CreateProcess failed");

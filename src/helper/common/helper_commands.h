@@ -1,12 +1,24 @@
 #pragma once
 
+#include <cstddef>
 #include <string>
 #include <vector>
 #include <sstream>
 #include <spdlog/spdlog.h>
 #include <boost/archive/binary_oarchive.hpp>
 #include <boost/archive/binary_iarchive.hpp>
+#include <boost/serialization/split_free.hpp>
 #include <boost/serialization/vector.hpp>
+
+#include "types/ipaddress.h"
+
+// Upper bound on a single IPC frame's payload, used by the helper-side frame
+// parsers to reject malformed/oversized lengths before any allocation. Set well
+// above the largest legitimate command (executeOpenVPN with an embedded custom
+// config containing full PEM cert chains is the practical maximum, ~100KB) but
+// small enough that a malicious local client cannot use a single frame to
+// exhaust memory in the privileged helper process.
+inline constexpr std::size_t kMaxHelperFrameSize = 4 * 1024 * 1024;
 
 enum class HelperCommand {
     // Common
@@ -76,7 +88,8 @@ enum class HelperCommand {
     setDnsScriptEnabled,
     enableMacSpoofingOnBoot,
     setDnsOfDynamicStoreEntry,
-    setIpv6Enabled,
+    setIpv6Enabled,  // deprecated: no-op since the macOS IPv6 rewrite (per-interface pf rules);
+                     // slot kept so older clients don't get "unknown command id" from a newer helper.
     deleteRoute,
 
     // Mac Installer
@@ -88,7 +101,10 @@ enum class HelperCommand {
     // Linux
     setDnsLeakProtectEnabled,
     setGaiIpv4PriorityEnabled,
-    resetMacAddresses
+    resetMacAddresses,
+    setOpenVpnDcoMode,
+    installerStageAndVerify,
+    installerCleanupStaged
 };
 
 
@@ -115,10 +131,12 @@ enum CmdDnsManager {
 struct ADAPTER_GATEWAY_INFO
 {
     std::string adapterName;
-    std::string adapterIp;
-    std::string gatewayIp;
-    std::vector<std::string> dnsServers;
-    unsigned long ifIndex;
+    types::IpAddress adapterIp;
+    types::IpAddress adapterIpV6;
+    types::IpAddress gatewayIp;
+    types::IpAddress gatewayIpV6;
+    std::vector<types::IpAddress> dnsServers;
+    unsigned long ifIndex = 0;
 };
 
 enum CmdProtocolType {
@@ -145,8 +163,8 @@ struct ConnectStatus {
     ADAPTER_GATEWAY_INFO vpnAdapter;
 
     // need for stunnel/wstunnel/openvpn routing
-    std::string connectedIp;
-    std::string remoteIp;
+    types::IpAddress connectedIp;
+    types::IpAddress remoteIp;
 
     // Windows only
     bool isTerminateSocket;
@@ -181,12 +199,56 @@ struct AmneziawgConfig
 
 namespace boost {
 namespace serialization {
+
+template<class Archive>
+void save(Archive &ar, const types::IpAddress &ip, const unsigned int /*version*/)
+{
+    uint8_t family = static_cast<uint8_t>(ip.family());
+    bool valid = ip.isValid();
+    ar & family;
+    ar & valid;
+    if (valid) {
+        std::size_t sz = ip.bytesSize();
+        for (std::size_t i = 0; i < sz; ++i) {
+            uint8_t b = ip.bytes()[i];
+            ar & b;
+        }
+    }
+}
+
+template<class Archive>
+void load(Archive &ar, types::IpAddress &ip, const unsigned int /*version*/)
+{
+    uint8_t family;
+    bool valid;
+    ar & family;
+    ar & valid;
+    if (valid) {
+        auto f = static_cast<types::IpAddress::Family>(family);
+        std::size_t sz = (f == types::IpAddress::IPv6) ? 16 : 4;
+        uint8_t buf[16] = {};
+        for (std::size_t i = 0; i < sz; ++i)
+            ar & buf[i];
+        ip = types::IpAddress(f, buf, sz);
+    } else {
+        ip = types::IpAddress();
+    }
+}
+
+template<class Archive>
+void serialize(Archive &ar, types::IpAddress &ip, const unsigned int version)
+{
+    boost::serialization::split_free(ar, ip, version);
+}
+
 template<class Archive>
 void serialize(Archive &ar, ADAPTER_GATEWAY_INFO &a, const unsigned int /*version*/)
 {
     ar & a.adapterName;
     ar & a.adapterIp;
+    ar & a.adapterIpV6;
     ar & a.gatewayIp;
+    ar & a.gatewayIpV6;
     ar & a.dnsServers;
     ar & a.ifIndex;
 }

@@ -618,26 +618,6 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
         <translation>Абярыце каталёґ з уласнымі канфіґурацыямі</translation>
     </message>
     <message>
-        <source>Cannot select this directory because it is writeable for non-privileged users. Custom configs in this directory may pose a potential security risk. Please authenticate with an admin user to select this directory.</source>
-        <translation>Немагчыма абраць гэты каталёґ, бо ў яго могуць запісваць непрывілеяваныя карыстальнікі. Карыстальніцкія канфіґурацыі ў гэтым каталёґу могуць прадстаўляць пагрозу бясьпецы. Каб абраць гэты каталёґ, прайдзіце аўтэнтыфікацыю з дазволамі адміністратара.</translation>
-    </message>
-    <message>
-        <source>Can&apos;t select directory</source>
-        <translation>Немагчыма абраць каталёґ</translation>
-    </message>
-    <message>
-        <source>The application is corrupted.  Please reinstall Windscribe.</source>
-        <translation>Праґрама пашкоджана. Пераўсталюйце Windscribe.</translation>
-    </message>
-    <message>
-        <source>Validation Error</source>
-        <translation>Памылка праверкі спраўнасьці</translation>
-    </message>
-    <message>
-        <source>The selected directory is writeable for non-privileged users. Custom configs in this directory may pose a potential security risk.</source>
-        <translation>Абраны каталёґ даступны для запісу непрывілеяванымі карыстальнікамі. Карыстальніцкія канфіґурацыі ў гэтым каталёґу могуць прадстаўляць пагрозу бясьпецы.</translation>
-    </message>
-    <message>
         <source>Security Risk</source>
         <translation>Рызыка бясьпекі</translation>
     </message>
@@ -678,6 +658,26 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
         <translation>Адлучана</translation>
     </message>
     <message>
+        <source>The selected directory is writeable for other users. Custom configs in this directory may pose a potential security risk.</source>
+        <translation>Выбраны каталог можна пісаць для іншых карыстальнікаў. Карыстальніцкія канфігурацыі ў гэтым каталогу могуць ствараць патэнцыйную пагрозу бяспецы.</translation>
+    </message>
+    <message>
+        <source>Proxy Gateway is unauthenticated</source>
+        <translation>Proxy Gateway не аўтэнтыфікаваны</translation>
+    </message>
+    <message>
+        <source>Your Proxy Gateway is enabled without authentication. Anyone on your local network, including untrusted networks like coffee-shop Wi-Fi, can route their traffic through your VPN. We strongly recommend setting credentials.</source>
+        <translation>Ваш Proxy Gateway уключаны без аўтэнтыфікацыі. Любы карыстальнік вашай лакальнай сеткі, уключаючы ненадзейныя сеткі, такія як Wi-Fi у кавярнях, можа накіроўваць свой трафік праз ваш VPN. Мы настойліва рэкамендуем усталяваць уліковыя дадзеныя.</translation>
+    </message>
+    <message>
+        <source>Go to Preferences</source>
+        <translation>Перайсці ў налады</translation>
+    </message>
+    <message>
+        <source>Later</source>
+        <translation>Пазней</translation>
+    </message>
+    <message>
         <source>Connected to </source>
         <translation>Падлучана да </translation>
     </message>
@@ -690,6 +690,18 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
 %1 transferred in %2</source>
         <translation>Падлучэньне да Windscribe спынена.
 %1 перададзена за %2</translation>
+    </message>
+    <message>
+        <source>Could not start Proxy Gateway</source>
+        <translation>Не ўдалося запусціць Proxy Gateway</translation>
+    </message>
+    <message>
+        <source>The configured port is in use. Please try a different port.</source>
+        <translation>Настроены порт выкарыстоўваецца. Калі ласка, паспрабуйце іншы порт.</translation>
+    </message>
+    <message>
+        <source>An unknown error occurred.</source>
+        <translation>Адбылася невядомая памылка.</translation>
     </message>
     <message>
         <source>Network Settings Interference</source>
@@ -924,14 +936,6 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>  If you are on a restrictive network, please connect the VPN before trying the download again.</source>
         <translation>  Калі вы карыстаецеся сеткай з абмежаваным доступам, падлучыцеся да VPN, перш чым паўтарыць спробу запампоўкі.</translation>
-    </message>
-    <message>
-        <source>Custom Config Directory Import</source>
-        <translation>Імпарт каталяґа ўласных канфіґурацыяў</translation>
-    </message>
-    <message>
-        <source>A custom config directory is being imported.  Windscribe will prompt for your admin password to check for correct permissions.</source>
-        <translation>Імпартуецца каталёґ уласных канфіґурацыяў.  Windscribe запытае пароль адміністратара, каб праверыць, ці маюцца патрэбныя дазволы.</translation>
     </message>
     <message>
         <source>Your &quot;Connected DNS&quot; server is set to an OS default DNS server, which would result in a DNS leak.  It has been changed to Auto.</source>
@@ -1447,6 +1451,14 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Аўтаматычны альбо ручны выбар VPN-пратакола. Заўвага: &quot;Пераважны пратакол&quot; будзе мець прыярытэт над гэтай наладай.</translation>
     </message>
     <message>
+        <source>Configure egress IP stack for VPN connections.</source>
+        <translation>Наладзіць IP-стэк выходу для VPN-злучэнняў.</translation>
+    </message>
+    <message>
+        <source>IP Stack</source>
+        <translation>IP Stack</translation>
+    </message>
+    <message>
         <source>Select the DNS server while connected to Windscribe.</source>
         <translation>Абярыце DNS-сэрвэр падчас злучэньня з Windscribe.</translation>
     </message>
@@ -1517,6 +1529,13 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Anti-censorship Settings</source>
         <translation>Налады антыцэнзуры</translation>
+    </message>
+</context>
+<context>
+    <name>PreferencesWindow::CopyableTextItem</name>
+    <message>
+        <source>Copied</source>
+        <translation>Скапіявана</translation>
     </message>
 </context>
 <context>
@@ -2106,31 +2125,36 @@ Connect to a network first</source>
         <translation>Порт</translation>
     </message>
     <message>
-        <source>Unable to start proxy server</source>
-        <translation>Немагчыма запусціць проксі-сэрвэр</translation>
+        <source>Require Authentication</source>
+        <translation>Патрабуецца аўтэнтыфікацыя</translation>
     </message>
     <message>
-        <source>The proxy server couldn&apos;t be started on the requested port. Please try again with a different port.</source>
-        <translation>Не ўдалося запусціць проксі-сэрвэр на запытанным порце. Паспрабуйце яшчэ раз зь іншым портам.</translation>
+        <source>Without authentication, anyone on your network (e.g. coffee shop Wi-Fi) can use this proxy. Leave this on unless you know what you&apos;re doing.</source>
+        <translation>Без аўтэнтыфікацыі любы чалавек у вашай сетцы (напрыклад, Wi-Fi у кавярні) можа выкарыстоўваць гэты проксі. Пакінь гэта, калі не ведаеш, што робіш.</translation>
+    </message>
+    <message>
+        <source>IP</source>
+        <translation>IP-адрас</translation>
+    </message>
+    <message>
+        <source>Username</source>
+        <translation>Імя карыстальніка</translation>
+    </message>
+    <message>
+        <source>Password</source>
+        <translation>Пароль</translation>
     </message>
     <message>
         <source>Auto</source>
         <translation>Аўта</translation>
     </message>
     <message>
+        <source>Unavailable</source>
+        <translation>Недаступна</translation>
+    </message>
+    <message>
         <source>Only when VPN is connected</source>
         <translation>Толькі з VPN</translation>
-    </message>
-</context>
-<context>
-    <name>PreferencesWindow::ProxyIpAddressItem</name>
-    <message>
-        <source>IP</source>
-        <translation>IP-адрас</translation>
-    </message>
-    <message>
-        <source>Copied</source>
-        <translation>Скапіявана</translation>
     </message>
 </context>
 <context>
@@ -2573,6 +2597,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Van Gogh</source>
         <translation>Ван Гог</translation>
+    </message>
+    <message>
+        <source>IPv4 Only</source>
+        <translation>Толькі IPv4</translation>
     </message>
     <message>
         <source>Enabled</source>

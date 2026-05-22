@@ -1,10 +1,10 @@
 #pragma once
 
+#include "copyabletextitem.h"
 #include "preferenceswindow/comboboxitem.h"
 #include "preferenceswindow/editboxitem.h"
 #include "preferenceswindow/preferencegroup.h"
 #include "preferenceswindow/toggleitem.h"
-#include "proxyipaddressitem.h"
 #include "types/shareproxygateway.h"
 
 namespace PreferencesWindow {
@@ -32,6 +32,8 @@ private slots:
     void onPortEditClicked();
     void onPortCancelClicked();
     void onWhileConnectedStateChanged(bool isChecked);
+    void onRequireAuthStateChanged(bool isChecked);
+    void onRegeneratePasswordClicked();
 
     void onLanguageChanged();
 
@@ -42,14 +44,18 @@ private:
     ToggleItem *checkBoxEnable_;
     EditBoxItem *editBoxPort_;
     ComboBoxItem *comboBoxProxyType_;
-    ProxyIpAddressItem *proxyIpAddressItem_;
+    CopyableTextItem *proxyIpAddressItem_;
     ToggleItem *checkBoxWhileConnected_;
+    ToggleItem *checkBoxRequireAuth_;
+    CopyableTextItem *usernameItem_;
+    CopyableTextItem *passwordItem_;
 
     types::ShareProxyGateway settings_;
 
     QString desc_;
 
     void updateMode();
+    void ensureCredentials();
 };
 
 } // namespace PreferencesWindow

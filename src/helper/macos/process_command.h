@@ -35,6 +35,8 @@ std::string removeOldInstall(const std::string &pars);
 std::string setInstallerPaths(const std::string &pars);
 std::string executeFilesStep(const std::string &pars);
 std::string createCliSymlink(const std::string &pars);
+std::string installerStageAndVerify(const std::string &pars);
+std::string installerCleanupStaged(const std::string &pars);
 
 static const std::map<const HelperCommand, std::function<std::string(const std::string &)>> kCommands = {
     { HelperCommand::getHelperVersion, getHelperVersion },
@@ -65,7 +67,9 @@ static const std::map<const HelperCommand, std::function<std::string(const std::
     { HelperCommand::setInstallerPaths, setInstallerPaths },
     { HelperCommand::executeFilesStep, executeFilesStep },
     { HelperCommand::createCliSymlink, createCliSymlink },
-    { HelperCommand::clearWifiHistoryData, clearWifiHistoryData }
+    { HelperCommand::clearWifiHistoryData, clearWifiHistoryData },
+    { HelperCommand::installerStageAndVerify, installerStageAndVerify },
+    { HelperCommand::installerCleanupStaged, installerCleanupStaged }
 };
 
 std::string processCommand(HelperCommand cmdId, const std::string &pars);

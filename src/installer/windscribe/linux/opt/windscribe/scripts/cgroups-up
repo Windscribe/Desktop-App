@@ -9,6 +9,10 @@ remote_ip=$6
 netclass=$7
 allow_lan=$8
 mode=$9
+# v6 default-gateway and v6 VPN-gateway. Empty when no IPv6 is configured;
+# the v6 blocks below are gated on these being non-empty.
+def_gateway_v6=${10}
+vpn_gateway_v6=${11}
 
 net_cls_root="`mount -l -t cgroup | grep "net_cls on" | cut -d ' ' -f 3 | head -n 1`"
 if [ ! -f "$net_cls_root/windscribe/net_cls.classid" ]; then
@@ -60,6 +64,22 @@ if [ ! -f "$net_cls_root/windscribe/net_cls.classid" ]; then
     ip route add default via "$vpn_gateway" dev "$vpn_interface" table windscribe_include
     ip route add "$remote_ip" dev "$def_interface" table windscribe_include
 
+    # IPv6 sibling of the rules above. 10.255.255.0/24 and $remote_ip are v4-only
+    # and have no v6 counterpart.
+    if [ -n "$def_gateway_v6" ] || [ -n "$vpn_gateway_v6" ]; then
+        ip -6 rule add fwmark "$mark" priority 16384 table windscribe
+    fi
+    if [ -n "$def_gateway_v6" ]; then
+        ip -6 route add default via "$def_gateway_v6" dev "$def_interface" table windscribe
+    elif [ -n "$vpn_gateway_v6" ]; then
+        # v4-only host with a dual-stack VPN: terminate marked v6 packets here so
+        # they don't fall through to the WG 'not fwmark' rule and leak into the tunnel.
+        ip -6 route add unreachable default table windscribe
+    fi
+    if [ -n "$vpn_gateway_v6" ]; then
+        ip -6 route add default via "$vpn_gateway_v6" dev "$vpn_interface" table windscribe_include
+    fi
+
     # Create net_cls id
     mkdir "$net_cls_root/windscribe"
     echo "$netclass" > "$net_cls_root/windscribe/net_cls.classid"
@@ -74,6 +94,17 @@ if [ -n "$priority" ]; then
 else
     # For non-WG protocols, remove rule forcing other traffic into the tunnel
     ip rule del priority 16385 table windscribe_include
+fi
+
+# IPv6 sibling of the priority adjust above.
+if [ -n "$def_gateway_v6" ] || [ -n "$vpn_gateway_v6" ]; then
+    ip -6 rule add priority 16383 table main suppress_prefixlength 1
+    priority_v6="`ip -6 rule show | grep 51820 | cut -d ":" -f1`"
+    if [ -n "$priority_v6" ]; then
+        ip -6 rule add priority $((priority_v6 - 1)) table main suppress_prefixlength 0
+    else
+        ip -6 rule del priority 16385 table windscribe_include
+    fi
 fi
 
 # make sure to exit with code 0 since an above command may fail if we are adding a duplicate rule or

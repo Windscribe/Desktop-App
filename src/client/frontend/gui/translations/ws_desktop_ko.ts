@@ -618,26 +618,6 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
         <translation>사용자 지정 구성 폴더 선택</translation>
     </message>
     <message>
-        <source>Cannot select this directory because it is writeable for non-privileged users. Custom configs in this directory may pose a potential security risk. Please authenticate with an admin user to select this directory.</source>
-        <translation>이 디렉토리는 일반 사용자가 쓸 수 있으므로 선택할 수 없습니다. 이 디렉터리를 사용자 지정 구성으로 사용하는 것은 잠재적인 보안 위험을 초래할 수 있습니다. 이 디렉토리를 선택하려면 관리자로 인증하세요.</translation>
-    </message>
-    <message>
-        <source>Can&apos;t select directory</source>
-        <translation>디렉터리를 선택할 수 없습니다.</translation>
-    </message>
-    <message>
-        <source>The application is corrupted.  Please reinstall Windscribe.</source>
-        <translation>응용 프로그램이 손상되었습니다.  Windscribe를 다시 설치하세요.</translation>
-    </message>
-    <message>
-        <source>Validation Error</source>
-        <translation>유효성 검사 오류</translation>
-    </message>
-    <message>
-        <source>The selected directory is writeable for non-privileged users. Custom configs in this directory may pose a potential security risk.</source>
-        <translation>선택한 디렉토리는일반 사용자가 쓸 수 있으므로 선택할 수 없습니다. 이 디렉터리를 사용자 지정 구성으로 사용하는 것은 잠재적인 보안 위험을 초래할 수 있습니다.</translation>
-    </message>
-    <message>
         <source>Security Risk</source>
         <translation>보안 위험</translation>
     </message>
@@ -678,6 +658,26 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
         <translation>연결 끊김</translation>
     </message>
     <message>
+        <source>The selected directory is writeable for other users. Custom configs in this directory may pose a potential security risk.</source>
+        <translation>선택된 디렉터리는 다른 사용자들을 위해 쓸 수 있습니다. 이 디렉터리의 사용자 지정 설정은 잠재적인 보안 위험을 초래할 수 있습니다.</translation>
+    </message>
+    <message>
+        <source>Proxy Gateway is unauthenticated</source>
+        <translation>프록시 게이트웨이는 인증되지 않았습니다</translation>
+    </message>
+    <message>
+        <source>Your Proxy Gateway is enabled without authentication. Anyone on your local network, including untrusted networks like coffee-shop Wi-Fi, can route their traffic through your VPN. We strongly recommend setting credentials.</source>
+        <translation>프록시 게이트웨이는 인증 없이 활성화되어 있습니다. 로컬 네트워크에 있는 누구든, 심지어 커피숍 Wi-Fi 같은 신뢰할 수 없는 네트워크도 VPN을 통해 트래픽을 라우팅할 수 있습니다. 자격 증명을 설정하는 것을 강력히 권장합니다.</translation>
+    </message>
+    <message>
+        <source>Go to Preferences</source>
+        <translation>환경설정으로 이동</translation>
+    </message>
+    <message>
+        <source>Later</source>
+        <translation>나중에</translation>
+    </message>
+    <message>
         <source>Connected to </source>
         <translation>에 연결됨 </translation>
     </message>
@@ -690,6 +690,18 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
 %1 transferred in %2</source>
         <translation>Windscribe에 대한 연결이 종료되었습니다.
 %2에서 %1이(가) 전송되었습니다.</translation>
+    </message>
+    <message>
+        <source>Could not start Proxy Gateway</source>
+        <translation>프록시 게이트웨이를 실행할 수 없었습니다.</translation>
+    </message>
+    <message>
+        <source>The configured port is in use. Please try a different port.</source>
+        <translation>설정된 포트가 사용 중입니다. 다른 포트를 시도해 보세요.</translation>
+    </message>
+    <message>
+        <source>An unknown error occurred.</source>
+        <translation>알 수 없는 오류가 발생했습니다.</translation>
     </message>
     <message>
         <source>Network Settings Interference</source>
@@ -924,14 +936,6 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>  If you are on a restrictive network, please connect the VPN before trying the download again.</source>
         <translation>  제한적인 네트워크에 있는 경우 다운로드를 다시 시도하기 전에 VPN을 연결하세요.</translation>
-    </message>
-    <message>
-        <source>Custom Config Directory Import</source>
-        <translation>사용자 지정 Config 디렉터리 가져오기</translation>
-    </message>
-    <message>
-        <source>A custom config directory is being imported.  Windscribe will prompt for your admin password to check for correct permissions.</source>
-        <translation>사용자 지정 구성 디렉토리를 가져오는 중입니다.  Windscribe는 올바른 권한을 확인하기 위해 관리자 암호를 묻는 메시지를 표시합니다.</translation>
     </message>
     <message>
         <source>Your &quot;Connected DNS&quot; server is set to an OS default DNS server, which would result in a DNS leak.  It has been changed to Auto.</source>
@@ -1447,6 +1451,14 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>VPN 프로토콜을 자동으로 선택하거나 수동으로 선택합니다. 참고: &quot;기본 설정 프로토콜&quot;은 이 설정을 무시합니다.</translation>
     </message>
     <message>
+        <source>Configure egress IP stack for VPN connections.</source>
+        <translation>VPN 연결을 위한 이그레스 IP 스택을 설정하세요.</translation>
+    </message>
+    <message>
+        <source>IP Stack</source>
+        <translation>IP 스택</translation>
+    </message>
+    <message>
         <source>Select the DNS server while connected to Windscribe.</source>
         <translation>Windscribe에 연결된 상태에서 DNS 서버를 선택합니다.</translation>
     </message>
@@ -1517,6 +1529,13 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Anti-censorship Settings</source>
         <translation>검열 방지 설정</translation>
+    </message>
+</context>
+<context>
+    <name>PreferencesWindow::CopyableTextItem</name>
+    <message>
+        <source>Copied</source>
+        <translation>복사</translation>
     </message>
 </context>
 <context>
@@ -2106,31 +2125,36 @@ Connect to a network first</source>
         <translation>포트</translation>
     </message>
     <message>
-        <source>Unable to start proxy server</source>
-        <translation>프록시 서버를 시작할 수 없습니다.</translation>
+        <source>Require Authentication</source>
+        <translation>인증 요구</translation>
     </message>
     <message>
-        <source>The proxy server couldn&apos;t be started on the requested port. Please try again with a different port.</source>
-        <translation>요청된 포트에서 프록시 서버를 시작할 수 없습니다. 다른 포트로 다시 시도하십시오.</translation>
+        <source>Without authentication, anyone on your network (e.g. coffee shop Wi-Fi) can use this proxy. Leave this on unless you know what you&apos;re doing.</source>
+        <translation>인증이 없으면 네트워크 내 누구든(예: 커피숍 Wi-Fi)이 이 프록시를 사용할 수 있습니다. 이걸 켜두세요, 뭘 하는지 모르면 말이죠.</translation>
+    </message>
+    <message>
+        <source>IP</source>
+        <translation>IP</translation>
+    </message>
+    <message>
+        <source>Username</source>
+        <translation>사용자 이름</translation>
+    </message>
+    <message>
+        <source>Password</source>
+        <translation>비밀번호</translation>
     </message>
     <message>
         <source>Auto</source>
         <translation>자동</translation>
     </message>
     <message>
+        <source>Unavailable</source>
+        <translation>사용 불가</translation>
+    </message>
+    <message>
         <source>Only when VPN is connected</source>
         <translation>VPN이 연결된 경우에만</translation>
-    </message>
-</context>
-<context>
-    <name>PreferencesWindow::ProxyIpAddressItem</name>
-    <message>
-        <source>IP</source>
-        <translation>IP</translation>
-    </message>
-    <message>
-        <source>Copied</source>
-        <translation>복사</translation>
     </message>
 </context>
 <context>
@@ -2573,6 +2597,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Van Gogh</source>
         <translation>반 고흐</translation>
+    </message>
+    <message>
+        <source>IPv4 Only</source>
+        <translation>IPv4 전용</translation>
     </message>
     <message>
         <source>Enabled</source>

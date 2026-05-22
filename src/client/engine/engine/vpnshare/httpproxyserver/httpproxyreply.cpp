@@ -29,6 +29,8 @@ const std::string forbidden =
   "HTTP/1.0 403 Forbidden\r\n";
 const std::string not_found =
   "HTTP/1.0 404 Not Found\r\n";
+const std::string proxy_authentication_required =
+  "HTTP/1.0 407 Proxy Authentication Required\r\n";
 const std::string internal_server_error =
   "HTTP/1.0 500 Internal Server Error\r\n";
 const std::string not_implemented =
@@ -40,8 +42,7 @@ const std::string service_unavailable =
 
 QByteArray to_buffer(HttpProxyReply::status_type status)
 {
-    switch (status)
-    {
+    switch (status) {
     case HttpProxyReply::ok:
         return QByteArray(ok.c_str(), ok.length());
     case HttpProxyReply::created:
@@ -66,6 +67,8 @@ QByteArray to_buffer(HttpProxyReply::status_type status)
         return QByteArray(forbidden.c_str(), forbidden.length());
     case HttpProxyReply::not_found:
         return QByteArray(not_found.c_str(), not_found.length());
+    case HttpProxyReply::proxy_authentication_required:
+        return QByteArray(proxy_authentication_required.c_str(), proxy_authentication_required.length());
     case HttpProxyReply::internal_server_error:
         return QByteArray(internal_server_error.c_str(), internal_server_error.length());
     case HttpProxyReply::not_implemented:
@@ -92,8 +95,7 @@ QByteArray HttpProxyReply::toBuffer()
 {
     QByteArray arr;
     arr.append(status_strings::to_buffer(status));
-    for (std::size_t i = 0; i < headers.size(); ++i)
-    {
+    for (std::size_t i = 0; i < headers.size(); ++i) {
         HttpProxyHeader &h = headers[i];
         arr.append(h.name.c_str(), h.name.length());
         arr.append(misc_strings::name_value_separator, sizeof(misc_strings::name_value_separator));
@@ -167,6 +169,11 @@ const char not_found[] =
   "<head><title>Not Found</title></head>"
   "<body><h1>404 Not Found</h1></body>"
   "</html>";
+const char proxy_authentication_required[] =
+  "<html>"
+  "<head><title>Proxy Authentication Required</title></head>"
+  "<body><h1>407 Proxy Authentication Required</h1></body>"
+  "</html>";
 const char internal_server_error[] =
   "<html>"
   "<head><title>Internal Server Error</title></head>"
@@ -190,8 +197,7 @@ const char service_unavailable[] =
 
 std::string to_string(HttpProxyReply::status_type status)
 {
-  switch (status)
-  {
+  switch (status) {
   case HttpProxyReply::ok:
     return ok;
   case HttpProxyReply::created:
@@ -216,6 +222,8 @@ std::string to_string(HttpProxyReply::status_type status)
     return forbidden;
   case HttpProxyReply::not_found:
     return not_found;
+  case HttpProxyReply::proxy_authentication_required:
+    return proxy_authentication_required;
   case HttpProxyReply::internal_server_error:
     return internal_server_error;
   case HttpProxyReply::not_implemented:

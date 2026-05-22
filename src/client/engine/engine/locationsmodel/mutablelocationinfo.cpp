@@ -2,7 +2,7 @@
 
 #include "utils/ws_assert.h"
 #include "utils/log/categories.h"
-#include "utils/ipvalidation.h"
+#include "utils/networkingvalidation.h"
 #include "utils/utils.h"
 #include "nodeselectionalgorithm.h"
 
@@ -109,7 +109,7 @@ void MutableLocationInfo::selectNextNode()
 
 void MutableLocationInfo::selectNodeByIp(const QString &addr)
 {
-    WS_ASSERT(IpValidation::isIp(addr));
+    WS_ASSERT(NetworkingValidation::isIp(addr));
     for (int i = 0; i < nodes_.count(); i++) {
         for (int j = 0; j < 3; j++) {
             if (nodes_[i]->getIp(j) == addr) {
@@ -158,6 +158,12 @@ QString MutableLocationInfo::getWgIpForSelectedNode() const
     WS_ASSERT(locationId_.isStaticIpsLocation());
     WS_ASSERT(selectedNode_ >= 0 && selectedNode_ < nodes_.count());
     return nodes_[selectedNode_]->getWgIp();
+}
+
+bool MutableLocationInfo::isIpv6SupportForSelectedNode() const
+{
+    WS_ASSERT(selectedNode_ >= 0 && selectedNode_ < nodes_.count());
+    return nodes_[selectedNode_]->isIpv6Support();
 }
 
 QString MutableLocationInfo::getStaticIpUsername() const

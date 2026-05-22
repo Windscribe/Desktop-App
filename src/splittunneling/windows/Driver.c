@@ -9,6 +9,8 @@ WDFDEVICE wdfDevice = NULL;
 // Variable for the run-time callout identifier
 UINT32 NonTcpCalloutId = 0;
 UINT32 TcpCalloutId = 0;
+UINT32 NonTcpCalloutV6Id = 0;
+UINT32 TcpCalloutV6Id = 0;
 
 EVT_WDF_DRIVER_UNLOAD UnloadFunc;
 
@@ -25,6 +27,8 @@ DriverEntry(
     PDEVICE_OBJECT deviceObject = NULL;
     FWPS_CALLOUT1 nonTcpCallout = { 0 };
     FWPS_CALLOUT1 tcpCallout = { 0 };
+    FWPS_CALLOUT1 nonTcpCalloutV6 = { 0 };
+    FWPS_CALLOUT1 tcpCalloutV6 = { 0 };
 
     // Initialize the driver configuration object
     WDF_DRIVER_CONFIG_INIT(&config, WDF_NO_EVENT_CALLBACK);
@@ -94,6 +98,28 @@ DriverEntry(
         return status;
     }
 
+    nonTcpCalloutV6.calloutKey = WINDSCRIBE_BIND_CALLOUT_V6_GUID;
+    nonTcpCalloutV6.classifyFn = ClassifyFnV6;
+    nonTcpCalloutV6.notifyFn = NotifyFn;
+
+    status = FwpsCalloutRegister1(deviceObject, &nonTcpCalloutV6, &NonTcpCalloutV6Id);
+    if (status != STATUS_SUCCESS)
+    {
+        KdPrintEx((DPFLTR_IHVDRIVER_ID, DPFLTR_INFO_LEVEL, "WindscribeSplitTunnel: FwpsCalloutRegister1 (bind v6) failed\n"));
+        return status;
+    }
+
+    tcpCalloutV6.calloutKey = WINDSCRIBE_TCP_CALLOUT_V6_GUID;
+    tcpCalloutV6.classifyFn = ClassifyFnV6;
+    tcpCalloutV6.notifyFn = NotifyFn;
+
+    status = FwpsCalloutRegister1(deviceObject, &tcpCalloutV6, &TcpCalloutV6Id);
+    if (status != STATUS_SUCCESS)
+    {
+        KdPrintEx((DPFLTR_IHVDRIVER_ID, DPFLTR_INFO_LEVEL, "WindscribeSplitTunnel: FwpsCalloutRegister1 (TCP v6) failed\n"));
+        return status;
+    }
+
     KdPrintEx((DPFLTR_IHVDRIVER_ID, DPFLTR_INFO_LEVEL, "WindscribeSplitTunnel: DriverEntry successfully\n"));
     return status;
 }
@@ -113,6 +139,16 @@ VOID UnloadFunc(_In_ WDFDRIVER Driver)
     if (status != STATUS_SUCCESS)
     {
         KdPrintEx((DPFLTR_IHVDRIVER_ID, DPFLTR_INFO_LEVEL, "WindscribeSplitTunnel: FwpsCalloutUnregisterById0 failed\n"));
+    }
+    status = FwpsCalloutUnregisterById0(NonTcpCalloutV6Id);
+    if (status != STATUS_SUCCESS)
+    {
+        KdPrintEx((DPFLTR_IHVDRIVER_ID, DPFLTR_INFO_LEVEL, "WindscribeSplitTunnel: FwpsCalloutUnregisterById0 (bind v6) failed\n"));
+    }
+    status = FwpsCalloutUnregisterById0(TcpCalloutV6Id);
+    if (status != STATUS_SUCCESS)
+    {
+        KdPrintEx((DPFLTR_IHVDRIVER_ID, DPFLTR_INFO_LEVEL, "WindscribeSplitTunnel: FwpsCalloutUnregisterById0 (TCP v6) failed\n"));
     }
 
     // Delete the framework device object

@@ -358,7 +358,7 @@ void MainService::onPreferencesFirewallSettingsChanged(const types::FirewallSett
 void MainService::onPreferencesShareProxyGatewayChanged(const types::ShareProxyGateway &sp)
 {
     if (sp.isEnabled) {
-        backend_->startProxySharing((PROXY_SHARING_TYPE)sp.proxySharingMode, sp.port, sp.whileConnected);
+        backend_->startProxySharing(sp);
     } else {
         backend_->stopProxySharing();
     }

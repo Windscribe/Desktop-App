@@ -2,8 +2,8 @@
 
 #include "backend/persistentstate.h"
 #include "ipc/server.h"
-#include "utils/ipvalidation.h"
 #include "utils/log/categories.h"
+#include "utils/networkingvalidation.h"
 #include "utils/utils.h"
 #include "utils/ws_assert.h"
 
@@ -24,6 +24,9 @@ LocalIPCServer::LocalIPCServer(Backend *backend, QObject *parent) : QObject(pare
     connect(backend_, &Backend::connectionIdChanged, this, &LocalIPCServer::onBackendConnectionIdChanged);
     connect(backend_, &Backend::bridgeApiAvailabilityChanged, this, &LocalIPCServer::onBackendBridgeApiAvailabilityChanged);
     connect(backend_, &Backend::ipRotateResult, this, &LocalIPCServer::onBackendIpRotateResult);
+    connect(backend_, &Backend::myIpChanged, this, &LocalIPCServer::onBackendMyIpChanged);
+
+    myIp_ = PersistentState::instance().lastExternalIp();
 
     connect(backend_->locationsModelManager(), &gui_locations::LocationsModelManager::deviceNameChanged, this, &LocalIPCServer::onLocationsModelManagerDeviceNameChanged);
 }
@@ -197,7 +200,7 @@ void LocalIPCServer::onConnectionCommandCallback(IPC::Command *command, IPC::Con
         emit pinIp();
     } else if (command->getStringId() == IPC::CliCommands::UnfavIp::getCommandStringId()) {
         IPC::CliCommands::UnfavIp *cmd = static_cast<IPC::CliCommands::UnfavIp *>(command);
-        if (!IpValidation::isIp(cmd->ip_)) {
+        if (!NetworkingValidation::isIp(cmd->ip_)) {
             IPC::CliCommands::Acknowledge ack;
             ack.code_ = 2;
             ack.message_ = "Invalid IP address";
@@ -291,6 +294,7 @@ void LocalIPCServer::sendState()
     cmd.updateAvailable_ = updateAvailable_;
     cmd.trafficUsed_ = backend_->getAccountInfo()->trafficUsed();
     cmd.trafficMax_ = backend_->getAccountInfo()->plan();
+    cmd.myIp_ = myIp_;
     sendCommand(cmd);
 }
 
@@ -333,6 +337,11 @@ void LocalIPCServer::onBackendProtocolPortChanged(const types::Protocol &protoco
 void LocalIPCServer::onBackendInternetConnectivityChanged(bool connectivity)
 {
     connectivity_ = connectivity;
+}
+
+void LocalIPCServer::onBackendMyIpChanged(const QString &ip, bool /*isFromDisconnectedState*/)
+{
+    myIp_ = ip;
 }
 
 void LocalIPCServer::onBackendTestTunnelResult(bool success)

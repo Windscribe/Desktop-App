@@ -42,6 +42,7 @@ private slots:
     void onBackendCheckUpdateChanged(const api_responses::CheckUpdate &checkUpdate);
     void onBackendConnectStateChanged(const types::ConnectState &state);
     void onBackendInternetConnectivityChanged(bool connectivity);
+    void onBackendMyIpChanged(const QString &ip, bool isFromDisconnectedState);
     void onBackendLoginFinished();
     void onBackendCaptchaRequired(bool isAsciiCaptcha, const QString &asciiArt, const QString &background, const QString &slider, int top);
     void onBackendLoginError(wsnet::LoginResult code, const QString &msg);
@@ -86,6 +87,7 @@ private:
     bool isBridgeApiAvailable_ = false;
     bool awaitingIpRotateResult_ = false;
     QDateTime lastIpRotateResultTime_;
+    QString myIp_;
 
     void sendState();
     void sendCommand(const IPC::Command &command);

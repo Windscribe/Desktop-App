@@ -34,8 +34,6 @@ set(SOURCES
     ikev2route.cpp
     ioutils.cpp
     ipv6_firewall.cpp
-    ip_address/ip4_address_and_mask.cpp
-    ip_address/ip6_address_and_prefix.cpp
     macaddressspoof.cpp
     main.cpp
     openvpncontroller.cpp
@@ -63,6 +61,7 @@ set(SOURCES
     ../../client/client-common/utils/crashhandler.cpp
     ../../client/client-common/utils/executable_signature/executable_signature.cpp
     ../../client/client-common/utils/executable_signature/executable_signature_win.cpp
+    ../../client/client-common/types/ipaddress.cpp
     ../../client/client-common/utils/servicecontrolmanager.cpp
 )
 
@@ -95,7 +94,6 @@ target_link_libraries(${WS_APP_IDENTIFIER}Service
 )
 
 target_include_directories(${WS_APP_IDENTIFIER}Service PRIVATE
-                           ${WINDSCRIBE_BUILD_LIBS_PATH}/wintun/include
                            ../../client/client-common
                            ${WINREG_INCLUDE_DIRS}
 )

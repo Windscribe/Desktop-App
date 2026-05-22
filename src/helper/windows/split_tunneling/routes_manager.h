@@ -16,6 +16,7 @@ private:
     bool isSplitTunnelActive_;
     bool isExcludeMode_;
 
+    // Routes is dual-stack (IPv4 + IPv6). One instance per logical group.
     Routes openVpnRoutes_;
     Routes ikev2Routes_;
     Routes wgRoutes_;

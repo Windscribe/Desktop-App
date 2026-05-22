@@ -8,7 +8,7 @@ public:
     MakeOVPNFileFromCustom();
     virtual ~MakeOVPNFileFromCustom();
 
-    bool generate(const QString &customConfigPath, const QString &ovpnData, const QString &ip, const QString &remoteCommand, const QString &customDns);
+    bool generate(const QString &ovpnData, const QString &ip, const QString &remoteCommand, const QString &customDns);
     QString config() const { return config_; }
 
 private:

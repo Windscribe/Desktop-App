@@ -2,6 +2,7 @@
 #include "helperbackend_win.h"
 #include <QCoreApplication>
 #include <QMutexLocker>
+#include "../../../../helper/common/helper_commands.h"
 #include "utils/executable_signature/executable_signature.h"
 #include "utils/log/categories.h"
 #include "installhelper_win.h"
@@ -123,6 +124,13 @@ std::string HelperBackend_win::sendCmd(int cmdId, const std::string &data)
             throw 1;
         }
 
+        // Reject malformed or oversized lengths before allocation. Defends the engine
+        // against a compromised/spoofed helper sending a bogus reply length.
+        if (sizeOfBuf > kMaxHelperFrameSize) {
+            qCCritical(LOG_BASIC) << "HelperBackend_win::sendCmd, invalid length:" << sizeOfBuf;
+            throw 1;
+        }
+
         if (sizeOfBuf > 0) {
             QScopedArrayPointer<char> buf(new char[sizeOfBuf]);
             if (!readAllFromPipe(helperPipe_.getHandle(), buf.data(), sizeOfBuf)) {
@@ -162,7 +170,7 @@ bool HelperBackend_win::readAllFromPipe(HANDLE hPipe, char *buf, DWORD len)
         ptr += dwRead;
         lenCopy -= dwRead;
     }
-    return true;
+    return result;
 }
 
 bool HelperBackend_win::writeAllToPipe(HANDLE hPipe, const char *buf, DWORD len)
@@ -179,7 +187,7 @@ bool HelperBackend_win::writeAllToPipe(HANDLE hPipe, const char *buf, DWORD len)
         ptr += dwWrite;
         len -= dwWrite;
     }
-    return true;
+    return result;
 }
 
 bool HelperBackend_win::connectToHelper()

@@ -1,6 +1,7 @@
 #include "connectionsettings.h"
 #include "types/enums.h"
 #include "utils/log/categories.h"
+#include "utils/networkingvalidation.h"
 #include "utils/ws_assert.h"
 
 const int typeIdConnectionSettings = qRegisterMetaType<types::ConnectionSettings>("types::ConnectionSettings");
@@ -121,6 +122,15 @@ void ConnectionSettings::toIni(QSettings &settings, const QString &key) const
 
     if (!key.isEmpty()) {
         settings.endGroup();
+    }
+}
+
+void ConnectionSettings::validate()
+{
+    checkForUnavailableProtocolAndFix();
+    if (port_ >= 65536) {
+        qCWarning(LOG_BASIC) << "ConnectionSettings: port out of range, resetting to protocol default";
+        port_ = Protocol::defaultPortForProtocol(protocol_);
     }
 }
 

@@ -341,7 +341,7 @@ public:
             >> connectState_ >> isCaptchaRequired_ >> asciiArt_ >> connectId_ >> protocol_ >> port_ >> tunnelTestState_ >> location_
            >> isFirewallOn_ >> isFirewallAlwaysOn_
            >> updateState_ >> updateError_ >> updateProgress_ >> updatePath_ >> updateAvailable_
-           >> trafficUsed_ >> trafficMax_;
+           >> trafficUsed_ >> trafficMax_ >> myIp_;
     }
 
     std::vector<char> getData() const override
@@ -352,7 +352,7 @@ public:
            << connectState_ << isCaptchaRequired_ << asciiArt_ << connectId_ << protocol_ << port_ << tunnelTestState_ << location_
            << isFirewallOn_ << isFirewallAlwaysOn_
            << updateState_ << updateError_ << updateProgress_ << updatePath_ << updateAvailable_
-           << trafficUsed_ << trafficMax_;
+           << trafficUsed_ << trafficMax_ << myIp_;
         return std::vector<char>(arr.begin(), arr.end());
     }
 
@@ -385,6 +385,7 @@ public:
     QString updateAvailable_;
     qint64 trafficUsed_;
     qint64 trafficMax_;
+    QString myIp_;
 };
 
 class Update : public Command

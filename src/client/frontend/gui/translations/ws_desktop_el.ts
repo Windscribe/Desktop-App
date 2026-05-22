@@ -658,34 +658,6 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
         <translation>Επιλέξτε Custom Config Folder</translation>
     </message>
     <message>
-        <source>Custom Config Directory Import</source>
-        <translation>Εισαγωγή καταλόγου προσαρμοσμένης διαμόρφωσης</translation>
-    </message>
-    <message>
-        <source>A custom config directory is being imported.  Windscribe will prompt for your admin password to check for correct permissions.</source>
-        <translation>Εισάγεται ένας προσαρμοσμένος κατάλογος ρυθμίσεων.  Το Windscribe θα σας ζητήσει τον κωδικό πρόσβασης διαχειριστή για να ελέγξει για τα σωστά δικαιώματα.</translation>
-    </message>
-    <message>
-        <source>Cannot select this directory because it is writeable for non-privileged users. Custom configs in this directory may pose a potential security risk. Please authenticate with an admin user to select this directory.</source>
-        <translation>Δεν είναι δυνατή η επιλογή αυτού του καταλόγου επειδή είναι εγγράψιμος για μη προνομιούχους χρήστες. Οι προσαρμοσμένες ρυθμίσεις παραμέτρων σε αυτόν τον κατάλογο ενδέχεται να αποτελούν πιθανό κίνδυνο για την ασφάλεια. Πραγματοποιήστε έλεγχο ταυτότητας με έναν χρήστη διαχειριστή για να επιλέξετε αυτόν τον κατάλογο.</translation>
-    </message>
-    <message>
-        <source>Can&apos;t select directory</source>
-        <translation>Δεν είναι δυνατή η επιλογή καταλόγου</translation>
-    </message>
-    <message>
-        <source>The application is corrupted.  Please reinstall Windscribe.</source>
-        <translation>Η εφαρμογή είναι κατεστραμμένη.  Εγκαταστήστε ξανά το Windscrib.</translation>
-    </message>
-    <message>
-        <source>Validation Error</source>
-        <translation>Σφάλμα επικύρωσης</translation>
-    </message>
-    <message>
-        <source>The selected directory is writeable for non-privileged users. Custom configs in this directory may pose a potential security risk.</source>
-        <translation>Ο επιλεγμένος κατάλογος είναι εγγράψιμος για μη προνομιούχους χρήστες. Οι προσαρμοσμένες ρυθμίσεις παραμέτρων σε αυτόν τον κατάλογο ενδέχεται να αποτελούν πιθανό κίνδυνο για την ασφάλεια.</translation>
-    </message>
-    <message>
         <source>Security Risk</source>
         <translation>Κίνδυνος ασφάλειας</translation>
     </message>
@@ -738,6 +710,26 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
         <translation>Αποσυνδεθεί</translation>
     </message>
     <message>
+        <source>The selected directory is writeable for other users. Custom configs in this directory may pose a potential security risk.</source>
+        <translation>Ο επιλεγμένος κατάλογος είναι εγγράψιμος για άλλους χρήστες. Οι προσαρμοσμένες ρυθμίσεις παραμέτρων σε αυτόν τον κατάλογο ενδέχεται να αποτελούν πιθανό κίνδυνο για την ασφάλεια.</translation>
+    </message>
+    <message>
+        <source>Proxy Gateway is unauthenticated</source>
+        <translation>Η πύλη διακομιστή μεσολάβησης δεν έχει υποβληθεί σε έλεγχο ταυτότητας</translation>
+    </message>
+    <message>
+        <source>Your Proxy Gateway is enabled without authentication. Anyone on your local network, including untrusted networks like coffee-shop Wi-Fi, can route their traffic through your VPN. We strongly recommend setting credentials.</source>
+        <translation>Η πύλη διακομιστή μεσολάβησης είναι ενεργοποιημένη χωρίς έλεγχο ταυτότητας. Οποιοσδήποτε στο τοπικό σας δίκτυο, συμπεριλαμβανομένων μη αξιόπιστων δικτύων όπως το Wi-Fi καφετέριας, μπορεί να δρομολογήσει την επισκεψιμότητά του μέσω του VPN σας. Συνιστούμε ανεπιφύλακτα να ορίσετε διαπιστευτήρια.</translation>
+    </message>
+    <message>
+        <source>Go to Preferences</source>
+        <translation>Μεταβείτε στις Προτιμήσεις</translation>
+    </message>
+    <message>
+        <source>Later</source>
+        <translation>Αργότερα</translation>
+    </message>
+    <message>
         <source>Connected to </source>
         <translation>Συνδεδεμένο με </translation>
     </message>
@@ -766,6 +758,18 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
     <message>
         <source>Your network adapter may not support this feature. It has been disabled in preferences.</source>
         <translation>Ο προσαρμογέας δικτύου σας ενδέχεται να μην υποστηρίζει αυτήν τη δυνατότητα. Έχει απενεργοποιηθεί στις προτιμήσεις.</translation>
+    </message>
+    <message>
+        <source>Could not start Proxy Gateway</source>
+        <translation>Δεν ήταν δυνατή η εκκίνηση της πύλης διακομιστή μεσολάβησης</translation>
+    </message>
+    <message>
+        <source>The configured port is in use. Please try a different port.</source>
+        <translation>Η διαμορφωμένη θύρα χρησιμοποιείται. Δοκιμάστε μια διαφορετική θύρα.</translation>
+    </message>
+    <message>
+        <source>An unknown error occurred.</source>
+        <translation>Παρουσιάστηκε άγνωστο σφάλμα.</translation>
     </message>
     <message>
         <source>Enter Connection Credentials</source>
@@ -1459,6 +1463,14 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Προσδιορίστε αυτόματα την MTU για τη σύνδεσή σας ή παρακάμψτε χειροκίνητα.  Αυτό δεν έχει καμία επίδραση στα πρωτόκολλα που βασίζονται σε TCP.</translation>
     </message>
     <message>
+        <source>Configure egress IP stack for VPN connections.</source>
+        <translation>Διαμορφώστε τη στοίβα IP εξόδου για συνδέσεις VPN.</translation>
+    </message>
+    <message>
+        <source>IP Stack</source>
+        <translation>Στοίβα IP</translation>
+    </message>
+    <message>
         <source>Select the DNS server while connected to Windscribe.</source>
         <translation>Επιλέξτε τον διακομιστή DNS ενώ είστε συνδεδεμένοι στο Windscrib.</translation>
     </message>
@@ -1517,6 +1529,13 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Anti-censorship Settings</source>
         <translation>Ρυθμίσεις κατά της λογοκρισίας</translation>
+    </message>
+</context>
+<context>
+    <name>PreferencesWindow::CopyableTextItem</name>
+    <message>
+        <source>Copied</source>
+        <translation>Αντιγραφεί</translation>
     </message>
 </context>
 <context>
@@ -2098,12 +2117,8 @@ Connect to a network first</source>
         <translation>Αυτο</translation>
     </message>
     <message>
-        <source>Unable to start proxy server</source>
-        <translation>Δεν είναι δυνατή η εκκίνηση του διακομιστή μεσολάβησης</translation>
-    </message>
-    <message>
-        <source>The proxy server couldn&apos;t be started on the requested port. Please try again with a different port.</source>
-        <translation>Δεν ήταν δυνατή η εκκίνηση του διακομιστή μεσολάβησης στη θύρα που ζητήθηκε. Δοκιμάστε ξανά με διαφορετική θύρα.</translation>
+        <source>Unavailable</source>
+        <translation>Μη διαθέσιμο</translation>
     </message>
     <message>
         <source>Proxy Gateway</source>
@@ -2121,16 +2136,25 @@ Connect to a network first</source>
         <source>Port</source>
         <translation>Λιμάνι</translation>
     </message>
-</context>
-<context>
-    <name>PreferencesWindow::ProxyIpAddressItem</name>
     <message>
-        <source>IP</source>
-        <translation>ΠΕ</translation>
+        <source>Require Authentication</source>
+        <translation>Απαιτείται έλεγχος ταυτότητας</translation>
     </message>
     <message>
-        <source>Copied</source>
-        <translation>Αντιγραφεί</translation>
+        <source>Without authentication, anyone on your network (e.g. coffee shop Wi-Fi) can use this proxy. Leave this on unless you know what you&apos;re doing.</source>
+        <translation>Χωρίς έλεγχο ταυτότητας, οποιοσδήποτε στο δίκτυό σας (π.χ. Wi-Fi καφετέριας) μπορεί να χρησιμοποιήσει αυτόν τον διακομιστή μεσολάβησης. Αφήστε το αν δεν ξέρετε τι κάνετε.</translation>
+    </message>
+    <message>
+        <source>IP</source>
+        <translation>IP</translation>
+    </message>
+    <message>
+        <source>Username</source>
+        <translation>Όνομα χρήστη</translation>
+    </message>
+    <message>
+        <source>Password</source>
+        <translation>Κωδικός πρόσβασης</translation>
     </message>
 </context>
 <context>
@@ -2625,6 +2649,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Tile</source>
         <translation>Πλακάκι</translation>
+    </message>
+    <message>
+        <source>IPv4 Only</source>
+        <translation>Μόνο IPv4</translation>
     </message>
     <message>
         <source>Enabled</source>

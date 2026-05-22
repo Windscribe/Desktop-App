@@ -187,6 +187,14 @@
         <translation>Unknown state</translation>
     </message>
     <message>
+        <source>VPN IP: %1</source>
+        <translation>VPN IP: %1</translation>
+    </message>
+    <message>
+        <source>Public IP: %1</source>
+        <translation>Public IP: %1</translation>
+    </message>
+    <message>
         <source>Protocol: %1:%2</source>
         <translation>Protocol: %1:%2</translation>
     </message>

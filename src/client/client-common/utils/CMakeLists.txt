@@ -8,8 +8,8 @@ target_sources(client-common PRIVATE
     extraconfig.h
     hardcodedsettings.cpp
     hardcodedsettings.h
-    ipvalidation.cpp
-    ipvalidation.h
+    networkingvalidation.cpp
+    networkingvalidation.h
     languagesutil.cpp
     languagesutil.h
     log/categories.cpp

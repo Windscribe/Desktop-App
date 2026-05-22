@@ -9,6 +9,54 @@
 #include "utils/log/categories.h"
 #include "utils/openssl_utils.h"
 
+namespace {
+
+QString stripIpv6Address(const QStringList &addressList)
+{
+    // The regex is anchored at the start, so any leading whitespace (which
+    // QString::split keeps intact after the comma in lists like
+    // "0.0.0.0/0, 10.255.255.0/24") would cause the entry to be dropped along
+    // with real IPv6 addresses. Trim each entry before matching so v4 entries
+    // are kept regardless of the input's whitespace style.
+    static const QRegularExpression rx("^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}(.*)$");
+    QStringList trimmed;
+    for (const QString &s : addressList) {
+        const QString t = s.trimmed();
+        if (!t.isEmpty()) {
+            trimmed << t;
+        }
+    }
+    return trimmed.filter(rx).join(",");
+}
+
+QString stripIpv6Address(const QString &addressList)
+{
+    return stripIpv6Address(addressList.split(",", Qt::SkipEmptyParts));
+}
+
+// wireguard-windows (tunnel.dll) activates its own WFP kill-switch when AllowedIPs
+// contains any /0 entry. Replace catch-all /0 with equivalent /1 pairs so the
+// kill-switch stays off and our helper manages the firewall instead.
+// https://git.zx2c4.com/wireguard-windows/about/docs/netquirk.md
+QString expandCatchAllRoutes(const QString &allowedIps)
+{
+    QStringList result;
+    const QStringList entries = allowedIps.split(",", Qt::SkipEmptyParts);
+    for (const QString &entry : entries) {
+        const QString trimmed = entry.trimmed();
+        if (trimmed == QLatin1String("0.0.0.0/0")) {
+            result << QStringLiteral("0.0.0.0/1") << QStringLiteral("128.0.0.0/1");
+        } else if (trimmed == QLatin1String("::/0")) {
+            result << QStringLiteral("::/1") << QStringLiteral("8000::/1");
+        } else {
+            result << trimmed;
+        }
+    }
+    return result.join(", ");
+}
+
+}
+
 WireGuardConfig::WireGuardConfig()
 {
 }
@@ -25,20 +73,6 @@ WireGuardConfig::WireGuardConfig(const QString &privateKey, const QString &ipAdd
     peer_.presharedKey = presharedKey;
     peer_.endpoint = endpoint;
     peer_.allowedIps = allowedIps;
-}
-
-// static
-QString WireGuardConfig::stripIpv6Address(const QStringList &addressList)
-{
-    const QRegularExpression rx("^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}(.*)$");
-    QString s = addressList.filter(rx).join(",");
-    return s;
-}
-
-// static
-QString WireGuardConfig::stripIpv6Address(const QString &addressList)
-{
-    return stripIpv6Address(addressList.split(",", Qt::SkipEmptyParts));
 }
 
 QString WireGuardConfig::generateConfigFile() const
@@ -112,15 +146,8 @@ QString WireGuardConfig::generateConfigFile() const
         ts << "PresharedKey = " << peer_.presharedKey << '\n';
     }
 
-    // wireguard-windows implements its own 'kill switch' if we pass it 0.0.0.0/0.
-    // https://git.zx2c4.com/wireguard-windows/about/docs/netquirk.md
-    // We're letting our helper implement that functionality.
-    if (peer_.allowedIps.compare("0.0.0.0/0") == 0) {
-        ts << "AllowedIPs = 0.0.0.0/1, 128.0.0.0/1\n";
-    }
-    else {
-        ts << "AllowedIPs = " << peer_.allowedIps << '\n';
-    }
+    ts << "AllowedIPs = " << expandCatchAllRoutes(peer_.allowedIps) << '\n';
+
     // PersistentKeepalive is needed to force handshake right after
     // the interface is configured. Otherwise, Wireguard waits for any incoming
     // packet to the network interface, which interfere with the blocking firewall.
@@ -206,6 +233,15 @@ void WireGuardConfig::setKeyPair(const QString &publicKey, const QString &privat
 {
     client_.publicKey  = publicKey;
     client_.privateKey = privateKey;
+}
+
+WireGuardConfig WireGuardConfig::stripIpv6Addresses() const
+{
+    WireGuardConfig cfg = *this;
+    cfg.peer_.allowedIps = stripIpv6Address(cfg.peer_.allowedIps);
+    cfg.client_.ipAddress = stripIpv6Address(cfg.client_.ipAddress);
+    cfg.client_.dnsAddress = stripIpv6Address(cfg.client_.dnsAddress);
+    return cfg;
 }
 
 bool WireGuardConfig::haveServerGeneratedPeerParams() const

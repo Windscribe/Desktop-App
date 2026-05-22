@@ -45,6 +45,22 @@
         <translation>無法刪除Windscribe的現有安裝。請手動卸載應用程式，然後重試。</translation>
     </message>
     <message>
+        <source>The Windows Base Filtering Engine service is not running and could not be started. This core Windows service must be running to install Windscribe. Third-party security/firewall software is most often the cause of this issue.</source>
+        <translation>Windows 基礎過濾引擎服務未執行，無法啟動。安裝 Windscribe 必須執行這個核心 Windows 服務。第三方安全/防火牆軟體通常是造成此問題的原因。</translation>
+    </message>
+    <message>
+        <source>Windscribe is unable to connect to the Windows Base Filtering Engine service. Connecting to this core Windows service is required to install Windscribe. Third-party security/firewall software is most often the cause of this issue.</source>
+        <translation>Windscribe 無法連接到 Windows 基礎過濾引擎服務。安裝 Windscribe 必須連接這個核心 Windows 服務。第三方安全/防火牆軟體通常是造成此問題的原因。</translation>
+    </message>
+    <message>
+        <source>Windscribe is unable to install its helper service. Please manually uninstall Windscribe and try again. If this issue persists, please contact our Technical Support.</source>
+        <translation>Windscribe 無法安裝其輔助服務。請手動卸載 Windscribe 並重新嘗試。若問題持續，請聯絡我們的技術支援。</translation>
+    </message>
+    <message>
+        <source>Windscribe is unable to start its helper service. Third-party security/firewall software may be the cause. If this is not the case, please contact our Technical Support.</source>
+        <translation>Windscribe 無法啟動其輔助服務。第三方的安全或防火牆軟體可能是原因。若非如此，請聯絡我們的技術支援。</translation>
+    </message>
+    <message>
         <source>The installation could not be completed successfully. Please contact our Technical Support.</source>
         <translation>無法成功完成安裝。請聯繫我們的技術支援。</translation>
     </message>

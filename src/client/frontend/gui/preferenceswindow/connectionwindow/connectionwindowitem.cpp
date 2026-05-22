@@ -43,6 +43,7 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
     connect(preferencesHelper, &PreferencesHelper::currentProtocolChanged, this, &ConnectionWindowItem::onPreferencesHelperCurrentProtocolChanged);
     connect(preferences, &Preferences::isTerminateSocketsChanged, this, &ConnectionWindowItem::onTerminateSocketsPreferencesChanged);
     connect(preferences, &Preferences::isAutoConnectChanged, this, &ConnectionWindowItem::onIsAutoConnectPreferencesChanged);
+    connect(preferences, &Preferences::ipStackEgressChanged, this, &ConnectionWindowItem::onIpStackPreferencesChanged);
 
     subpagesGroup_ = new PreferenceGroup(this);
 
@@ -92,6 +93,13 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
     connect(packetSizeGroup_, &PacketSizeGroup::packetSizeChanged, this, &ConnectionWindowItem::onPacketSizePreferencesChangedByUser);
     connect(packetSizeGroup_, &PacketSizeGroup::detectPacketSize, this, &ConnectionWindowItem::detectPacketSize);
     addItem(packetSizeGroup_);
+
+    ipStackGroup_ = new PreferenceGroup(this);
+    comboBoxIpStack_ = new ComboBoxItem(ipStackGroup_);
+    comboBoxIpStack_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/IP_STACK"));
+    connect(comboBoxIpStack_, &ComboBoxItem::currentItemChanged, this, &ConnectionWindowItem::onIpStackComboBoxItemChanged);
+    ipStackGroup_->addItem(comboBoxIpStack_);
+    addItem(ipStackGroup_);
 
     connectedDnsGroup_ = new ConnectedDnsGroup(this);
     connectedDnsGroup_->setConnectedDnsInfo(preferences->connectedDnsInfo());
@@ -360,6 +368,13 @@ void ConnectionWindowItem::onLanguageChanged()
                                          QString("https://%1/features/flexible-connectivity").arg(HardcodedSettings::instance().windscribeServerUrl()));
     packetSizeGroup_->setDescription(tr("Automatically determine the MTU for your connection, or manually override.  This has no effect on TCP-based protocols."),
                                      QString("https://%1/features/packet-size").arg(HardcodedSettings::instance().windscribeServerUrl()));
+
+    ipStackGroup_->setDescription(tr("Configure egress IP stack for VPN connections."),
+                                  QString("https://%1/features/ipv6").arg(HardcodedSettings::instance().windscribeServerUrl()));
+
+    comboBoxIpStack_->setLabelCaption(tr("IP Stack"));
+    comboBoxIpStack_->setItems(ipStackToList(), (int)preferences_->ipStackEgress());
+
     connectedDnsGroup_->setDescription(tr("Select the DNS server while connected to Windscribe."),
                                        QString("https://%1/features/flexible-dns").arg(HardcodedSettings::instance().windscribeServerUrl()));
     checkBoxAllowLanTraffic_->setDescription(tr("Allow access to local services and printers while connected to Windscribe."),
@@ -564,9 +579,19 @@ void ConnectionWindowItem::onIsAutoConnectPreferencesChangedByUser(bool on)
     preferences_->setAutoConnect(on);
 }
 
+void ConnectionWindowItem::onIpStackComboBoxItemChanged(QVariant o)
+{
+    preferences_->setIpStackEgress(ipStackFromInt(o.toInt()));
+}
+
 void ConnectionWindowItem::onIsAutoConnectPreferencesChanged(bool b)
 {
     checkBoxAutoConnect_->setState(b);
+}
+
+void ConnectionWindowItem::onIpStackPreferencesChanged(IpStack ipStackEgress)
+{
+    comboBoxIpStack_->setCurrentItem((int)ipStackEgress);
 }
 
 } // namespace PreferencesWindow

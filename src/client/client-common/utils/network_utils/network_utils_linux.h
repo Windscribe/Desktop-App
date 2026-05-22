@@ -21,10 +21,21 @@ public:
 };
 
 void getDefaultRoute(QString &outGatewayIp, QString &outInterfaceName, QString &outAdapterIp, bool ignoreTun = false);
+
+// IPv6 sibling of getDefaultRoute: parses /proc/net/ipv6_route to find the lowest-metric ::/0
+// route with RTF_GATEWAY set, then fills outAdapterIp with a global/ULA v6 address on that
+// interface (link-local addresses are intentionally skipped). All three out-params are left empty
+// if no v6 default route exists (IPv6 disabled, no upstream router advertisement, etc.).
+void getDefaultRouteV6(QString &outGatewayIp, QString &outInterfaceName, QString &outAdapterIp, bool ignoreTun = false);
+
 bool pingWithMtu(const QString &url, int mtu);
 QString getLocalIP();
 QString getRoutingTable();
 QList<types::NetworkInterface> currentNetworkInterfaces(bool includeNoInterface);
 types::NetworkInterface networkInterfaceByName(const QString &name);
+
+// Resolves the IPv4 address and prefix length of a specific interface by name. outIp is left empty
+// and outPrefix is left at 0 if the interface has no IPv4 or no longer exists.
+void getAdapterIpAndPrefix(const QString &interfaceName, QString &outIp, int &outPrefix);
 
 } // namespace NetworkUtils_linux

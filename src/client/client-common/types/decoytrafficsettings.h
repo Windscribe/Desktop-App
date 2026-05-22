@@ -37,6 +37,8 @@ public:
     void fromIni(const QSettings &settings);
     void toIni(QSettings &settings) const;
 
+    void validate();
+
     friend QDataStream& operator <<(QDataStream &stream, const DecoyTrafficSettings &o);
     friend QDataStream& operator >>(QDataStream &stream, DecoyTrafficSettings &o);
 

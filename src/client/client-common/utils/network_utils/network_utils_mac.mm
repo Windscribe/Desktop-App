@@ -6,12 +6,14 @@
 #include <QCoreApplication>
 #include <QDir>
 #include <QFile>
+#include <QHostAddress>
 #include <QRegularExpression>
+#include <QtAlgorithms>
 
 #include <arpa/inet.h>
 #include <ifaddrs.h>
 #include <libproc.h>
-#include <netdb.h>
+#include <net/if.h>
 #include <netinet/in.h>
 #include <semaphore.h>
 #include <unistd.h>
@@ -134,45 +136,157 @@ void NetworkUtils_mac::getDefaultRoute(QString &outGatewayIp, QString &outInterf
     }
 }
 
-QString NetworkUtils_mac::ipAddressByInterfaceName(const QString &interfaceName)
+// TODO: use sysctl(CTL_NET, PF_ROUTE, ..., AF_INET6, NET_RT_DUMP, ...) instead of shelling out to
+// netstat — same caveat as the v4 sibling above. Kept text-parsing for now to mirror the existing
+// v4 helper one-for-one; switching both to PF_ROUTE is a separate cleanup.
+void NetworkUtils_mac::getDefaultRouteV6(QString &outGatewayIp, QString &outInterfaceName)
 {
-    struct ifaddrs *ifaddr, *ifa;
-    char host[NI_MAXHOST];
-
-    if (getifaddrs(&ifaddr) == -1)
+    QString command = "netstat -nr -f inet6 | sed '1,3 d' | awk 'NR==1 { for (i=1; i<=NF; i++) { f[$i] = i  } } NR>1 && $(f[\"Destination\"])==\"default\" { print $(f[\"Gateway\"]), $(f[\"Netif\"]) ; exit }'";
+    QString strReply = Utils::execCmd(command);
+    QStringList result = strReply.split(' ');
+    if (result.count() == 2)
     {
-        return "";
+        outGatewayIp = result.first().trimmed();
+        outInterfaceName = result.last().trimmed();
+
+        // Strip the `%<iface>` scope suffix from link-local gateways (e.g. `fe80::1%en0` →
+        // `fe80::1`). The macOS netstat output bakes the scope into the address text for
+        // link-local entries; without stripping it, `types::IpAddress(gateway.toStdString())`
+        // returns invalid because inet_pton rejects the `%`-form. The interface name is reported
+        // in the Netif column already, so dropping the scope here is lossless.
+        const int scopePos = outGatewayIp.indexOf('%');
+        if (scopePos >= 0) {
+            outGatewayIp = outGatewayIp.left(scopePos);
+        }
+
+        // Reject `::` / empty gateways — defence in depth, parallels the Linux v6 helper. The awk
+        // filter already requires a Gateway column, so this is unlikely, but cheap to check.
+        if (outGatewayIp.isEmpty() || outGatewayIp == QStringLiteral("::"))
+        {
+            outGatewayIp.clear();
+            outInterfaceName.clear();
+        }
+    }
+    else
+    {
+        outGatewayIp.clear();
+        outInterfaceName.clear();
+    }
+}
+
+void NetworkUtils_mac::interfaceAddressByName(const QString &interfaceName, QString &outIp, int &outPrefix)
+{
+    outIp.clear();
+    outPrefix = 0;
+
+    if (interfaceName.isEmpty()) {
+        return;
     }
 
-    for (ifa = ifaddr; ifa != NULL; ifa = ifa->ifa_next)
-    {
-        if (ifa->ifa_addr == NULL)
-        {
+    struct ifaddrs *ifaddr = NULL;
+    if (getifaddrs(&ifaddr) == -1) {
+        return;
+    }
+
+    for (struct ifaddrs *ifa = ifaddr; ifa != NULL; ifa = ifa->ifa_next) {
+        if (ifa->ifa_addr == NULL || ifa->ifa_addr->sa_family != AF_INET) {
             continue;
         }
-        int family = ifa->ifa_addr->sa_family;
-        QString iname = QString::fromStdString(ifa->ifa_name);
-
-        if (family == AF_INET && iname == interfaceName)
-        {
-            int s = getnameinfo(ifa->ifa_addr,
-                            (family == AF_INET) ? sizeof(struct sockaddr_in) :
-                                                  sizeof(struct sockaddr_in6),
-                            host, NI_MAXHOST,
-                            NULL, 0, NI_NUMERICHOST);
-            if (s != 0)
-            {
-                continue;
-            }
-
-            freeifaddrs(ifaddr);
-            return QString::fromStdString(host);
+        if (QString::fromStdString(ifa->ifa_name) != interfaceName) {
+            continue;
         }
+        // Require both IFF_UP and IFF_RUNNING so we don't return a stale cached IP for an interface whose link is
+        // gone (cable yanked, Wi-Fi dropped) but whose admin state is still up.
+        if ((ifa->ifa_flags & (IFF_UP | IFF_RUNNING)) != (IFF_UP | IFF_RUNNING)) {
+            continue;
+        }
+
+        const struct sockaddr_in *addrIn = reinterpret_cast<const struct sockaddr_in *>(ifa->ifa_addr);
+        outIp = QHostAddress(ntohl(addrIn->sin_addr.s_addr)).toString();
+
+        if (ifa->ifa_netmask != NULL) {
+            const struct sockaddr_in *maskIn = reinterpret_cast<const struct sockaddr_in *>(ifa->ifa_netmask);
+            outPrefix = qPopulationCount(static_cast<quint32>(maskIn->sin_addr.s_addr));
+        }
+        break;
     }
 
     freeifaddrs(ifaddr);
-    return "";
 }
+
+QString NetworkUtils_mac::ipAddressByInterfaceName(const QString &interfaceName)
+{
+    QString ip;
+    int prefix = 0;
+    interfaceAddressByName(interfaceName, ip, prefix);
+    return ip;
+}
+
+void NetworkUtils_mac::interfaceAddressByNameV6(const QString &interfaceName, QString &outIp, int &outPrefix)
+{
+    outIp.clear();
+    outPrefix = 0;
+
+    if (interfaceName.isEmpty()) {
+        return;
+    }
+
+    struct ifaddrs *ifaddr = NULL;
+    if (getifaddrs(&ifaddr) == -1) {
+        return;
+    }
+
+    const QByteArray nameBytes = interfaceName.toUtf8();
+    for (struct ifaddrs *ifa = ifaddr; ifa != NULL; ifa = ifa->ifa_next) {
+        if (ifa->ifa_addr == NULL || ifa->ifa_addr->sa_family != AF_INET6) {
+            continue;
+        }
+        if (qstrcmp(ifa->ifa_name, nameBytes.constData()) != 0) {
+            continue;
+        }
+        // Same staleness guard as the v4 sibling: require both IFF_UP and IFF_RUNNING.
+        if ((ifa->ifa_flags & (IFF_UP | IFF_RUNNING)) != (IFF_UP | IFF_RUNNING)) {
+            continue;
+        }
+
+        const struct sockaddr_in6 *addrIn = reinterpret_cast<const struct sockaddr_in6 *>(ifa->ifa_addr);
+        // Skip link-local (fe80::/10), loopback (::1), multicast, and unspecified — none of these
+        // is the "primary" global/ULA v6 address the engine wants to advertise to the helper.
+        if (IN6_IS_ADDR_LINKLOCAL(&addrIn->sin6_addr) ||
+            IN6_IS_ADDR_LOOPBACK(&addrIn->sin6_addr) ||
+            IN6_IS_ADDR_MULTICAST(&addrIn->sin6_addr) ||
+            IN6_IS_ADDR_UNSPECIFIED(&addrIn->sin6_addr)) {
+            continue;
+        }
+
+        char buf[INET6_ADDRSTRLEN] = {0};
+        if (inet_ntop(AF_INET6, &addrIn->sin6_addr, buf, sizeof(buf)) == NULL) {
+            continue;
+        }
+        outIp = QString::fromLatin1(buf);
+
+        if (ifa->ifa_netmask != NULL) {
+            const struct sockaddr_in6 *maskIn = reinterpret_cast<const struct sockaddr_in6 *>(ifa->ifa_netmask);
+            int prefix = 0;
+            for (int i = 0; i < 16; ++i) {
+                prefix += qPopulationCount(static_cast<quint8>(maskIn->sin6_addr.s6_addr[i]));
+            }
+            outPrefix = prefix;
+        }
+        break;
+    }
+
+    freeifaddrs(ifaddr);
+}
+
+QString NetworkUtils_mac::ipAddressByInterfaceNameV6(const QString &interfaceName)
+{
+    QString ip;
+    int prefix = 0;
+    interfaceAddressByNameV6(interfaceName, ip, prefix);
+    return ip;
+}
+
 
 // parse lines, like this:
 // resolver #1

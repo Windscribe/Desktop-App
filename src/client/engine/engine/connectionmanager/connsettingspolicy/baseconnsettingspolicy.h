@@ -24,6 +24,7 @@ struct CurrentConnectionDescr
     QString hostname;
     QString dnsHostName;
     QString verifyX509name;
+    bool isIpv6Support = false;
 
     // fields for CONNECTION_NODE_CUSTOM_CONFIG
     QString ovpnData;

@@ -1,13 +1,28 @@
 #include "server.h"
 
 #include <assert.h>
+#include <filesystem>
+#include <grp.h>
 #include <sstream>
+#include <sys/stat.h>
+#include <unistd.h>
 
 #include <spdlog/spdlog.h>
+#include "../common/io_posix.h"
 #include "firewallcontroller.h"
 #include "ipc/helper_security.h"
 #include "process_command.h"
 #include "utils.h"
+
+namespace {
+// Scope-local umask override. Restores the previous umask in the destructor so an exception during the guarded
+// operation can't leave the process-wide umask in an unexpected state.
+struct UmaskGuard {
+    explicit UmaskGuard(mode_t mask) : prev_(umask(mask)) {}
+    ~UmaskGuard() { umask(prev_); }
+    mode_t prev_;
+};
+} // namespace
 
 Server::Server() : listener_(nullptr)
 {
@@ -96,8 +111,27 @@ void Server::run()
 
     Utils::createAppUserAndGroup();
 
-    system("mkdir -p " WS_POSIX_RUN_DIR " && chown :" WS_PRODUCT_NAME_LOWER " " WS_POSIX_RUN_DIR " && chmod 777 " WS_POSIX_RUN_DIR);
-    system("mkdir -p " WS_POSIX_CONFIG_DIR);
+    std::error_code ec;
+    {
+        UmaskGuard guard(022);
+        std::filesystem::create_directories(WS_POSIX_CONFIG_DIR, ec);
+    }
+    if (ec) {
+        spdlog::error("Failed to create " WS_POSIX_CONFIG_DIR ": {}", ec.message());
+    }
+    // Enforce ownership before mode so that, if the dir pre-existed with a wrong owner, the chmod
+    // doesn't first hand owner-write to that wrong owner during the window between calls.
+    if (::lchown(WS_POSIX_CONFIG_DIR, 0, 0) != 0) {
+        spdlog::error("Failed to chown " WS_POSIX_CONFIG_DIR ": {}", IO::strerror(errno));
+    }
+    std::filesystem::permissions(WS_POSIX_CONFIG_DIR,
+        std::filesystem::perms::owner_all
+            | std::filesystem::perms::group_read | std::filesystem::perms::group_exec
+            | std::filesystem::perms::others_read | std::filesystem::perms::others_exec,
+        ec);
+    if (ec) {
+        spdlog::error("Failed to set permissions on " WS_POSIX_CONFIG_DIR ": {}", ec.message());
+    }
 
     xpc_connection_t listener = xpc_connection_create_mach_service(WS_MAC_HELPER_BUNDLE_ID, NULL, XPC_CONNECTION_MACH_SERVICE_LISTENER);
     if (!listener) {

@@ -2,8 +2,8 @@
 
 #include "ws_branding.h"
 #include "apps_ids.h"
-#include "ip_address/ip4_address_and_mask.h"
 #include "fwpm_wrapper.h"
+#include "types/ipaddress.h"
 
 #define UUID_LAYER L"367016b3-3af8-4966-8442-d8bb6435f4a0"
 #define FIREWALL_SUBLAYER_NAMEW WS_APP_IDENTIFIER_W L"Firewall"
@@ -28,7 +28,9 @@ public:
     void setSplitTunnelingDisabled();
 
     void setSplitTunnelingAppsIds(const AppsIds &appsIds);
-    void setSplitTunnelingWhitelistIps(const std::vector<Ip4AddressAndMask> &ips);
+    // Dual-stack: ips holds IPv4 and/or IPv6 ranges; family is dispatched in
+    // addPermitFilterForSplitRoutingWhitelistIps via isV4()/isV6().
+    void setSplitTunnelingWhitelistIps(const std::vector<types::IpAddressRange> &ips);
     void setVpnAppsIds(const AppsIds &appsIds);
 
 private:
@@ -61,7 +63,7 @@ private:
     bool isSplitTunnelingExclusiveMode_;
     AppsIds appsIds_;
     AppsIds vpnAppsIds_;
-    std::vector<Ip4AddressAndMask> splitRoutingIps_;
+    std::vector<types::IpAddressRange> splitRoutingIps_;
 
     std::vector<UINT64> filterIdsApps_;
     std::vector<UINT64> filterIdsSplitRoutingIps_;

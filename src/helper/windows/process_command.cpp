@@ -2,11 +2,13 @@
 #include "process_command.h"
 
 #include <codecvt>
+#include <filesystem>
 #include <locale>
 #include <spdlog/spdlog.h>
 #include <sstream>
 
 #include "active_processes.h"
+#include "utils/executable_signature/executable_signature.h"
 #include "changeics/icsmanager.h"
 #include "clear_wifi_history/clear_wifi_history.h"
 #include "close_tcp_connections.h"
@@ -539,7 +541,7 @@ std::string createOpenVpnAdapter(const std::string &pars)
     bool useDCODriver;
     deserializePars(pars, useDCODriver);
 
-    spdlog::debug(L"createOpenVpnAdapter: creating '{}' adapter", (useDCODriver ? L"ovpn-dco" : L"wintun"));
+    spdlog::debug(L"createOpenVpnAdapter: creating '{}' adapter", (useDCODriver ? L"ovpn-dco" : L"tap-windows6"));
     OpenVPNController::instance().createAdapter(useDCODriver);
     return std::string();
 }
@@ -588,4 +590,80 @@ std::string ssidFromInterfaceGUID(const std::string &pars)
     }
 
     return serializeResult(success, exitCode, output);
+}
+
+std::string installerStageAndVerify(const std::string &pars)
+{
+    std::wstring srcPath;
+    deserializePars(pars, srcPath);
+
+    // Reject reparse points (symlinks, junctions). CopyFileW follows reparse points on the
+    // source side, so without this check a caller could redirect the helper into reading
+    // an arbitrary path the helper has access to as SYSTEM.
+    const DWORD srcAttrs = ::GetFileAttributesW(srcPath.c_str());
+    if (srcAttrs == INVALID_FILE_ATTRIBUTES) {
+        spdlog::error("installerStageAndVerify: GetFileAttributes failed ({})", ::GetLastError());
+        return serializeResult(std::wstring(), false);
+    }
+    if (srcAttrs & FILE_ATTRIBUTE_REPARSE_POINT) {
+        spdlog::error("installerStageAndVerify: refusing reparse-point source");
+        return serializeResult(std::wstring(), false);
+    }
+    if (srcAttrs & FILE_ATTRIBUTE_DIRECTORY) {
+        spdlog::error("installerStageAndVerify: refusing directory source");
+        return serializeResult(std::wstring(), false);
+    }
+
+    // Resolve the protected update dir once (SHGetKnownFolderPath isn't free), then
+    // wipe and recreate. This clears any prior staging state — symmetric with
+    // installerCleanupStaged below — and is also the primary self-healing path if
+    // the engine ever crashed before persisting the pendingInstallerCleanup flag.
+    const std::wstring updateDir = Utils::getUpdatePath(false);
+    if (updateDir.empty()) {
+        spdlog::error("installerStageAndVerify: failed to obtain protected update dir");
+        return serializeResult(std::wstring(), false);
+    }
+    std::error_code dirEc;
+    std::filesystem::remove_all(updateDir, dirEc);
+    std::filesystem::create_directories(updateDir, dirEc);
+    if (dirEc) {
+        spdlog::error("installerStageAndVerify: failed to recreate update dir: {}", dirEc.message());
+        return serializeResult(std::wstring(), false);
+    }
+
+    const std::wstring stagedPath = updateDir + L"\\installer.exe";
+
+    if (!::CopyFileW(srcPath.c_str(), stagedPath.c_str(), FALSE)) {
+        spdlog::error("installerStageAndVerify: CopyFileW failed ({})", ::GetLastError());
+        return serializeResult(std::wstring(), false);
+    }
+
+    // The staged file inherits the Program Files ACL: Users RX (so the launching
+    // non-elevated user can ShellExecuteEx the file through UAC) and Admins/SYSTEM Full.
+    // Users have no W, which is what closes the TOCTOU window — the bytes can't be
+    // swapped between the signature check and the runas launch.
+
+    ExecutableSignature sigCheck;
+    if (!sigCheck.verify(stagedPath)) {
+        spdlog::error("installerStageAndVerify: signature verification failed: {}", sigCheck.lastError());
+        ::DeleteFileW(stagedPath.c_str());
+        return serializeResult(std::wstring(), false);
+    }
+
+    return serializeResult(stagedPath, true);
+}
+
+std::string installerCleanupStaged(const std::string &pars)
+{
+    // Pass create=false: we're about to remove the directory, so recreating it first
+    // would be pointless and racey.
+    const std::wstring updateDir = Utils::getUpdatePath(false);
+    if (!updateDir.empty()) {
+        std::error_code ec;
+        std::filesystem::remove_all(updateDir, ec);
+        if (ec) {
+            spdlog::info("installerCleanupStaged: {}", ec.message());
+        }
+    }
+    return std::string();
 }

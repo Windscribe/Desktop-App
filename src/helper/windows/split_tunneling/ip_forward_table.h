@@ -1,21 +1,27 @@
 #pragma once
 
+#include <WinSock2.h>
+#include <ws2ipdef.h>
 #include <windows.h>
 #include <iphlpapi.h>
-#include <vector>
+#include <netioapi.h>
 
-// wrapper for API GetIpForwardTable and util functions
+// Wrapper for GetIpForwardTable2. Dual-stack (AF_UNSPEC): table holds both IPv4 and IPv6 rows.
+// Owns the buffer allocated by Windows and frees it via FreeMibTable on destruction.
 class IpForwardTable
 {
 public:
     IpForwardTable();
+    ~IpForwardTable();
 
-    DWORD count() const;
-    const MIB_IPFORWARDROW *getByIndex(DWORD ind) const;
+    IpForwardTable(const IpForwardTable &) = delete;
+    IpForwardTable &operator=(const IpForwardTable &) = delete;
+
+    ULONG count() const;
+    const MIB_IPFORWARD_ROW2 *getByIndex(ULONG ind) const;
     ULONG getMaxMetric() const { return maxMetric_; }
 
 private:
-    std::vector<unsigned char> ipForwardVector_;
-    MIB_IPFORWARDTABLE *pIpForwardTable;
+    PMIB_IPFORWARD_TABLE2 pIpForwardTable_;
     ULONG maxMetric_;
 };

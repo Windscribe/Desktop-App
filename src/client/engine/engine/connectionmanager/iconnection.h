@@ -1,5 +1,6 @@
 #pragma once
 
+#include <variant>
 #include <QThread>
 #include "types/proxysettings.h"
 #include "types/enums.h"
@@ -9,6 +10,34 @@ class WireGuardConfig;
 
 enum class ConnectionType { IKEV2, OPENVPN, WIREGUARD };
 
+struct OpenVpnStartParams
+{
+    QString config;
+    QString username;
+    QString password;
+    types::ProxySettings proxySettings;
+    bool isCustomConfig = false;
+};
+
+struct WireGuardStartParams
+{
+    const WireGuardConfig *wireGuardConfig = nullptr;
+    QString overrideDnsIp;
+};
+
+struct Ikev2StartParams
+{
+    QString hostname;
+    QString ip;
+    QString dnsHostName;
+    QString username;
+    QString password;
+    bool isEnableCompression = false;
+    QString overrideDnsIp;
+};
+
+using StartConnectParams = std::variant<OpenVpnStartParams, WireGuardStartParams, Ikev2StartParams>;
+
 class IConnection : public QThread
 {
     Q_OBJECT
@@ -17,11 +46,7 @@ public:
     explicit IConnection(QObject *parent): QThread(parent) {}
     virtual ~IConnection() {}
 
-    // config contents for openvpn, url for ikev2
-    virtual void startConnect(const QString &configOrUrl, const QString &ip, const QString &dnsHostName,
-                              const QString &username, const QString &password, const types::ProxySettings &proxySettings,
-                              const WireGuardConfig *wireGuardConfig, bool isEnableIkev2Compression,
-                              bool isCustomConfig, const QString &overrideDnsIp) = 0;
+    virtual void startConnect(const StartConnectParams &params) = 0;
     virtual void startDisconnect() = 0;
     virtual bool isDisconnected() const = 0;
     virtual void waitForDisconnect() {}

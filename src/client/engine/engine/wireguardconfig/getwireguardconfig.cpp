@@ -1,5 +1,6 @@
 #include "getwireguardconfig.h"
 #include <QDataStream>
+#include <QHostAddress>
 #include <QIODevice>
 #include <QSettings>
 #include "api_responses/wgconfigs_init.h"
@@ -97,7 +98,20 @@ void GetWireGuardConfig::onWgConfigsInitAnswer(wsnet::ApiRetCode serverApiRetCod
     }
 
     wireGuardConfig_.setPeerPresharedKey(res.presharedKey());
-    wireGuardConfig_.setPeerAllowedIPs(WireGuardConfig::stripIpv6Address(res.allowedIps()));
+
+    // The API returns AllowedIPs (v4) and optionally AllowedIPsV6 as separate fields, but
+    // WireGuard expects a single comma-separated dual-stack list in [Peer].AllowedIPs.
+    // Downstream helpers (stripIpv6Addresses, expandCatchAllRoutes) already operate on a
+    // mixed v4/v6 string, so we merge here and keep the rest of the pipeline untouched.
+    QString peerAllowedIps = res.allowedIps();
+    const QString peerAllowedIpsV6 = res.allowedIpsV6();
+    if (!peerAllowedIpsV6.isEmpty()) {
+        if (!peerAllowedIps.isEmpty()) {
+            peerAllowedIps += QStringLiteral(", ");
+        }
+        peerAllowedIps += peerAllowedIpsV6;
+    }
+    wireGuardConfig_.setPeerAllowedIPs(peerAllowedIps);
 
     if (res.hashedCIDR().isEmpty()) {
         qCDebug(LOG_WIREGUARD) << "Failed to get WG config: HashedCIDR is missing";
@@ -113,6 +127,15 @@ void GetWireGuardConfig::onWgConfigsInitAnswer(wsnet::ApiRetCode serverApiRetCod
         return;
     }
 
+    if (!res.hashedCIDRv6().isEmpty()) {
+        QString cidrV6 = res.hashedCIDRv6().at(0);
+        QString clientIpv6Address = generateClientIpv6Address(cidrV6);
+        if (clientIpv6Address.isEmpty()) {
+            qCDebug(LOG_WIREGUARD) << "Failed to generate client IPv6 address from CIDR:" << cidrV6;
+        } else {
+            clientAddress += "," + clientIpv6Address;
+        }
+    }
     wireGuardConfig_.setClientIpAddress(clientAddress);
     wireGuardConfig_.setClientDnsAddress("10.255.255.1");
 
@@ -258,4 +281,52 @@ QString GetWireGuardConfig::generateClientAddress(const QString &cidr)
         .arg(ipInt & 0xFF);
 
     return result;
+}
+
+QString GetWireGuardConfig::generateClientIpv6Address(const QString &cidr)
+{
+    if (cidr.isEmpty() || wireGuardConfig_.clientPublicKey().isEmpty()) {
+        return QString();
+    }
+
+    auto slashPos = cidr.indexOf('/');
+    if (slashPos == -1) {
+        return QString();
+    }
+
+    QString ipPart = cidr.left(slashPos);
+    QString prefixPart = cidr.mid(slashPos + 1);
+    bool ok;
+    int prefix = prefixPart.toInt(&ok);
+    if (!ok || prefix < 0 || prefix > 128) {
+        return QString();
+    }
+
+    QHostAddress networkAddr(ipPart);
+    if (networkAddr.protocol() != QAbstractSocket::IPv6Protocol) {
+        return QString();
+    }
+
+    Q_IPV6ADDR ipv6 = networkAddr.toIPv6Address();
+
+    QByteArray keyBytes = QByteArray::fromBase64(wireGuardConfig_.clientPublicKey().toLatin1());
+    unsigned char hash[SHA256_DIGEST_LENGTH];
+    SHA256(reinterpret_cast<const unsigned char*>(keyBytes.constData()), keyBytes.size(), hash);
+
+    for (int i = prefix; i < 128; i++) {
+        int byteIdx = i / 8;
+        int bitIdx = 7 - (i % 8);
+        int hashBit = i - prefix;
+        int hashByteIdx = hashBit / 8;
+        int hashBitIdx = 7 - (hashBit % 8);
+
+        if (hashByteIdx < SHA256_DIGEST_LENGTH && (hash[hashByteIdx] & (1 << hashBitIdx))) {
+            ipv6[byteIdx] |= static_cast<quint8>(1 << bitIdx);
+        } else {
+            ipv6[byteIdx] &= static_cast<quint8>(~(1 << bitIdx));
+        }
+    }
+
+    QHostAddress result(ipv6);
+    return result.toString();
 }

@@ -16,6 +16,7 @@
 #include "api_responses/servercredentials.h"
 #include "engine/locationsmodel/baselocationinfo.h"
 #include "types/connectionsettings.h"
+#include "types/enums.h"
 #include "types/packetsize.h"
 #include "types/protocol.h"
 #include "types/connecteddnsinfo.h"
@@ -32,6 +33,26 @@ class TestVPNTunnel;
 enum class WireGuardConfigRetCode;
 class GetWireGuardConfig;
 
+struct ConnectRequest
+{
+    QString ovpnConfig;
+    api_responses::ServerCredentials serverCredentialsOpenVpn;
+    api_responses::ServerCredentials serverCredentialsIkev2;
+    QSharedPointer<locationsmodel::BaseLocationInfo> bli;
+    types::ConnectionSettings connectionSettings;
+    api_responses::PortMap portMap;
+    types::ProxySettings proxySettings;
+    bool bEmitAuthError = false;
+    api_responses::AmneziawgUnblockParams amneziawgParams;
+    QString amneziawgPreset;
+    QString preferredNodeHostname;
+
+    // Controls whether IPv6 is enabled for VPN tunnels that can carry dual-stack traffic
+    // (currently: WireGuard from API + WireGuard custom configs). kIPv4Only forces v6 to
+    // be stripped from the tunnel config; kAuto keeps v6 if the node/config supports it.
+    IpStack ipStackEgress = IpStack::kAuto;
+};
+
 // manage openvpn connection, reconnects, sleep mode, network change, automatic/manual connection mode
 
 class ConnectionManager : public QObject
@@ -42,15 +63,7 @@ public:
                                CustomOvpnAuthCredentialsStorage *customOvpnAuthCredentialsStorage);
     ~ConnectionManager() override;
 
-    void clickConnect(const QString &ovpnConfig,
-                      const api_responses::ServerCredentials &serverCredentialsOpenVpn,
-                      const api_responses::ServerCredentials &serverCredentialsIkev2,
-                      QSharedPointer<locationsmodel::BaseLocationInfo> bli,
-                      const types::ConnectionSettings &connectionSettings,
-                      const api_responses::PortMap &portMap, const types::ProxySettings &proxySettings,
-                      bool bEmitAuthError, const QString &customConfigPath,
-                      const api_responses::AmneziawgUnblockParams &amneziawgParams, const QString &amneziawgPreset,
-                      const QString &preferredNodeHostname = QString());
+    void clickConnect(const ConnectRequest &req);
 
     void clickDisconnect(DISCONNECT_REASON reason = DISCONNECTED_BY_USER);
     void reconnect();
@@ -166,16 +179,7 @@ private:
 
     QString lastIp_;
 
-    QString lastOvpnConfig_;
-    api_responses::ServerCredentials lastServerCredentialsOpenVpn_;
-    api_responses::ServerCredentials lastServerCredentialsIkev2_;
-    types::ProxySettings lastProxySettings_;
-    bool isProtocolTweaksEnabled_ = false;
-    api_responses::AmneziawgUnblockParams amneziawgParams_;
-    QString amneziawgPreset_;
-    bool bEmitAuthError_;
-
-    QString customConfigPath_;
+    ConnectRequest lastRequest_;
 
     QTimer timerWaitNetworkConnectivity_;
 
@@ -220,10 +224,6 @@ private:
     AdapterGatewayInfo vpnAdapterInfo_;
 
     types::ConnectedDnsInfo connectedDnsInfo_;
-
-    QSharedPointer<locationsmodel::BaseLocationInfo> bli_;
-
-    QString preferredNodeHostname_;
 
     DISCONNECT_REASON userDisconnectReason_ = DISCONNECTED_BY_USER;
 

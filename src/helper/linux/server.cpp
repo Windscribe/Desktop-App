@@ -5,6 +5,7 @@
 #include <boost/archive/text_iarchive.hpp>
 #include <boost/serialization/vector.hpp>
 #include <codecvt>
+#include <filesystem>
 #include <grp.h>
 #include <stdlib.h>
 #include <string>
@@ -15,11 +16,22 @@
 #include <unistd.h>
 #include <spdlog/spdlog.h>
 
+#include "../common/io_posix.h"
 #include "firewallonboot.h"
 #include "process_command.h"
 #include "utils.h"
 
-#define SOCK_PATH WS_POSIX_RUN_DIR "/helper.sock"
+#define SOCK_PATH WS_LINUX_RUN_DIR "/helper.sock"
+
+namespace {
+// Scope-local umask override. Restores the previous umask in the destructor so an exception during the guarded
+// operation can't leave the process-wide umask in an unexpected state.
+struct UmaskGuard {
+    explicit UmaskGuard(mode_t mask) : prev_(umask(mask)) {}
+    ~UmaskGuard() { umask(prev_); }
+    mode_t prev_;
+};
+} // namespace
 
 Server::Server()
 {
@@ -49,25 +61,44 @@ bool Server::readAndHandleCommand(socket_ptr sock, boost::asio::streambuf *buf, 
     int cmdId;
     memcpy(&cmdId, bufPtr + headerSize, sizeof(cmdId));
     headerSize += sizeof(cmdId);
-    pid_t pid;
-    memcpy(&pid, bufPtr + headerSize, sizeof(pid));
-    headerSize += sizeof(pid);
+    // pid field is reserved in the protocol but unused by the helper
+    headerSize += sizeof(pid_t);
     int length;
     memcpy(&length, bufPtr + headerSize, sizeof(length));
     headerSize += sizeof(length);
 
-    // not enough data for read command
-    if (buf->size() < (headerSize + length)) {
+    // Reject malformed or oversized frames before any size-derived allocation.
+    // A negative length would otherwise promote to a huge size_t in the
+    // completeness check and the vector constructor below, crashing the helper.
+    if (length < 0 || static_cast<size_t>(length) > kMaxHelperFrameSize) {
+        spdlog::error("Helper IPC: rejecting frame with invalid length {}", length);
+        boost::system::error_code closeEc;
+        sock->close(closeEc);
         return false;
     }
 
-    std::vector<char> vector(length);
-    memcpy(&vector[0], bufPtr + headerSize, length);
-    std::string str(vector.begin(), vector.end());
-    std::istringstream stream(str);
-    outCmdAnswer = processCommand((HelperCommand)cmdId, str);
+    // not enough data for read command
+    if (buf->size() < (headerSize + static_cast<size_t>(length))) {
+        return false;
+    }
 
+    std::string str;
+    try {
+        str.assign(bufPtr + headerSize, length);
+    } catch (const std::bad_alloc &) {
+        spdlog::error("Helper IPC: bad_alloc for frame size {}", length);
+        boost::system::error_code closeEc;
+        sock->close(closeEc);
+        return false;
+    }
     buf->consume(headerSize + length);
+
+    try {
+        outCmdAnswer = processCommand((HelperCommand)cmdId, str);
+    } catch (const std::exception &ex) {
+        spdlog::error("Helper IPC: processCommand({}) exception: {}", cmdId, ex.what());
+        outCmdAnswer.clear();
+    }
 
     return true;
 }
@@ -154,32 +185,86 @@ boost::system::error_code Server::safeBlockingWrite(socket_ptr &sock, const void
 void Server::run()
 {
 
-#ifdef NDEBUG   // release build
-    Utils::createAppUserAndGroup();
-    auto res = system("mkdir -p " WS_POSIX_RUN_DIR " && chown :" WS_PRODUCT_NAME_LOWER " " WS_POSIX_RUN_DIR " && chmod 775 " WS_POSIX_RUN_DIR " && mkdir -p " WS_LINUX_TMP_DIR); // res is necessary to avoid no-discard warning.
-#else           // debug build
-    auto res = system("mkdir -p " WS_POSIX_RUN_DIR " && chmod 777 " WS_POSIX_RUN_DIR " && mkdir -p " WS_LINUX_TMP_DIR);
+    std::error_code ec;
+    {
+#ifdef NDEBUG
+        UmaskGuard guard(0067);
+#else
+        UmaskGuard guard(0);
 #endif
-    spdlog::info(WS_POSIX_RUN_DIR " and " WS_LINUX_TMP_DIR " created");
-    UNUSED(res);
+        std::filesystem::create_directories(WS_LINUX_RUN_DIR, ec);
+    }
+    if (ec) {
+        spdlog::error("Failed to create " WS_LINUX_RUN_DIR ": {}", ec.message());
+    }
+#ifdef NDEBUG // release build
+    Utils::createAppUserAndGroup();
+    // Force uid=0 (not (uid_t)-1) so a pre-existing dir with a wrong owner is self-healed before
+    // permissions runs — otherwise the chmod could hand owner-write to that wrong owner.
+    if (struct group *grp = getgrnam(WS_PRODUCT_NAME_LOWER)) {
+        if (::lchown(WS_LINUX_RUN_DIR, 0, grp->gr_gid) != 0) {
+            spdlog::error("Failed to chown " WS_LINUX_RUN_DIR ": {}", IO::strerror(errno));
+        }
+    } else {
+        spdlog::error("Could not get group info for " WS_PRODUCT_NAME_LOWER);
+    }
+    std::filesystem::permissions(WS_LINUX_RUN_DIR,
+        std::filesystem::perms::owner_all | std::filesystem::perms::group_exec,
+        ec);
+#else // debug build
+    std::filesystem::permissions(WS_LINUX_RUN_DIR,
+        std::filesystem::perms::owner_all | std::filesystem::perms::group_all | std::filesystem::perms::others_all,
+        ec);
+#endif
+    if (ec) {
+        spdlog::error("Failed to set permissions on " WS_LINUX_RUN_DIR ": {}", ec.message());
+    }
+    {
+#ifdef NDEBUG
+        UmaskGuard guard(0077);
+#else
+        UmaskGuard guard(0);
+#endif
+        std::filesystem::create_directories(WS_LINUX_TMP_DIR, ec);
+    }
+    if (ec) {
+        spdlog::error("Failed to create " WS_LINUX_TMP_DIR ": {}", ec.message());
+    }
+#ifdef NDEBUG // release build
+    if (struct group *grp = getgrnam(WS_PRODUCT_NAME_LOWER)) {
+        if (::lchown(WS_LINUX_TMP_DIR, 0, grp->gr_gid) != 0) {
+            spdlog::error("Failed to chown " WS_LINUX_TMP_DIR ": {}", IO::strerror(errno));
+        }
+    } else {
+        spdlog::error("Could not get group info for " WS_PRODUCT_NAME_LOWER);
+    }
+    std::filesystem::permissions(WS_LINUX_TMP_DIR, std::filesystem::perms::owner_all, ec);
+#else // debug build
+    std::filesystem::permissions(WS_LINUX_TMP_DIR,
+        std::filesystem::perms::owner_all | std::filesystem::perms::group_all | std::filesystem::perms::others_all,
+        ec);
+#endif
+    if (ec) {
+        spdlog::error("Failed to set permissions on " WS_LINUX_TMP_DIR ": {}", ec.message());
+    }
+    spdlog::info(WS_LINUX_RUN_DIR " and " WS_LINUX_TMP_DIR " created");
 
-    ::unlink(SOCK_PATH);
-
+    unlink(SOCK_PATH);
     boost::asio::local::stream_protocol::endpoint ep(SOCK_PATH);
-    acceptor_ = new boost::asio::local::stream_protocol::acceptor(io_context_, ep);
-
+    {
+#ifdef NDEBUG
+        UmaskGuard guard(0007);
+#else
+        UmaskGuard guard(0);
+#endif
+        acceptor_ = new boost::asio::local::stream_protocol::acceptor(io_context_, ep);
+    }
 
 #ifdef NDEBUG
     struct group *grp = getgrnam(WS_PRODUCT_NAME_LOWER);
-    if (!grp || chmod(SOCK_PATH, 0770) || chown(SOCK_PATH, (uid_t)-1, grp->gr_gid)) {
-        // Do not have a group, or chmod/chown failed.
-        ::unlink(SOCK_PATH);
-        return;
-    }
-#else
-    if (chmod(SOCK_PATH, 0777)) {
-        // Do not have a group, or chmod/chown failed.
-        ::unlink(SOCK_PATH);
+    if (!grp || chown(SOCK_PATH, (uid_t)-1, grp->gr_gid) != 0) {
+        // Do not have a group, or chown failed.
+        unlink(SOCK_PATH);
         return;
     }
 #endif

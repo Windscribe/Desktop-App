@@ -89,7 +89,7 @@ QSharedPointer<BaseLocationInfo> ApiLocationsModel::getMutableLocationInfoById(c
                     {
                         ips << it;
                     }
-                    nodes << QSharedPointer<BaseNode>(new StaticLocationNode(ips, sid.hostname, sid.wgPubKey, sid.wgIp, sid.dnsHostname, sid.username, sid.password, sid.getAllStaticIpIntPorts()));
+                    nodes << QSharedPointer<BaseNode>(new StaticLocationNode(ips, sid.hostname, sid.wgPubKey, sid.wgIp, sid.dnsHostname, sid.username, sid.password, sid.getAllStaticIpIntPorts(), false));
 
                     QSharedPointer<BaseLocationInfo> bli(new MutableLocationInfo(locationId, sid.cityName + " - " + sid.staticIp, nodes, 0, "", sid.ovpnX509));
                     return bli;
@@ -117,7 +117,7 @@ QSharedPointer<BaseLocationInfo> ApiLocationsModel::getMutableLocationInfoById(c
                         const api_responses::Node &apiInfoNode = group.getNode(n);
                         QStringList ips;
                         ips << apiInfoNode.getIp(0) << apiInfoNode.getIp(1) << apiInfoNode.getIp(2);
-                        nodes << QSharedPointer<const ApiLocationNode>(new ApiLocationNode(ips, apiInfoNode.getHost(), apiInfoNode.getWeight(), group.getWgPubKey()));
+                        nodes << QSharedPointer<const ApiLocationNode>(new ApiLocationNode(ips, apiInfoNode.getHost(), apiInfoNode.getWeight(), group.getWgPubKey(), apiInfoNode.isIpv6Support()));
                     }
 
                     // once API server list is updated so that the old WINDFLIX locations' dns_hostname matches that of the containing region this code can be removed

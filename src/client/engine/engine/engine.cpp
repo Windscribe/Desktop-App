@@ -14,8 +14,8 @@
 #include "utils/dns_utils/dnsserversconfiguration.h"
 #include "utils/network_utils/dnschecker.h"
 #include "utils/extraconfig.h"
-#include "utils/ipvalidation.h"
 #include "utils/hardcodedsettings.h"
+#include "utils/networkingvalidation.h"
 #include "utils/executable_signature/executable_signature.h"
 #include "connectionmanager/connectionmanager.h"
 #include "connectionmanager/finishactiveconnections.h"
@@ -45,7 +45,6 @@
     #include "utils/network_utils/wlan_utils_win.h"
     #include "utils/winutils.h"
 #elif defined Q_OS_MACOS
-    #include "ipv6controller_mac.h"
     #include "networkdetectionmanager/networkdetectionmanager_mac.h"
     #include "networkdetectionmanager/reachabilityevents.h"
     #include "splittunnelextension/systemextensions_mac.h"
@@ -445,12 +444,12 @@ void Engine::stopWifiSharing()
     }
 }
 
-void Engine::startProxySharing(PROXY_SHARING_TYPE proxySharingType, uint port, bool whileConnected)
+void Engine::startProxySharing(const types::ShareProxyGateway &settings)
 {
     QMutexLocker locker(&mutex_);
     WS_ASSERT(bInitialized_);
     if (bInitialized_) {
-        QMetaObject::invokeMethod(this, "startProxySharingImpl", Q_ARG(PROXY_SHARING_TYPE, proxySharingType), Q_ARG(uint, port), Q_ARG(bool, whileConnected));
+        QMetaObject::invokeMethod(this, "startProxySharingImpl", Q_ARG(types::ShareProxyGateway, settings));
     }
 }
 
@@ -597,7 +596,6 @@ void Engine::initPart2()
 #if defined(Q_OS_WIN)
     WlanUtils_win::setHelper(helper_);
 #elif defined(Q_OS_MACOS)
-    Ipv6Controller_mac::instance().setHelper(helper_);
     ReachAbilityEvents::instance().init();
 #endif
 
@@ -717,10 +715,11 @@ void Engine::initPart2()
     connect(locationsModel_, &locationsmodel::LocationsModel::whitelistLocationsIpsChanged, this, &Engine::onLocationsModelWhitelistIpsChanged);
     connect(locationsModel_, &locationsmodel::LocationsModel::whitelistCustomConfigsIpsChanged, this, &Engine::onLocationsModelWhitelistCustomConfigIpsChanged);
 
-    vpnShareController_ = new VpnShareController(this, helper_);
+    vpnShareController_ = new VpnShareController(this, helper_, networkDetectionManager_);
     connect(vpnShareController_, &VpnShareController::connectedWifiUsersChanged, this, &Engine::wifiSharingStateChanged);
     connect(vpnShareController_, &VpnShareController::connectedProxyUsersChanged, this, &Engine::proxySharingStateChanged);
     connect(vpnShareController_, &VpnShareController::wifiSharingFailed, this, &Engine::wifiSharingFailed);
+    connect(vpnShareController_, &VpnShareController::proxySharingFailed, this, &Engine::proxySharingFailed);
 
     keepAliveManager_ = new KeepAliveManager(this, connectStateController_);
     keepAliveManager_->setEnabled(engineSettings_.isKeepAliveEnabled());
@@ -777,6 +776,25 @@ void Engine::onInitializeHelper(INIT_HELPER_RET ret)
     bool isAuthHashExists =  !WSNet::instance()->apiResourcersManager()->authHash().empty();
     if (ret == INIT_HELPER_SUCCESS)
     {
+        // If a previous run staged an installer (and we never got a chance to clean it
+        // up — e.g. the installer ran successfully and we're now the post-update launch,
+        // or the user cancelled, or we crashed between stage and launch), wipe the
+        // helper-protected staging dir now. Tracking this with a "did we stage" flag
+        // rather than a version compare so it survives downgrades to pre-fix versions
+        // that don't maintain the flag. Done outside mutex_ so an unhealthy helper here
+        // does not block the rest of engine init.
+        // Linux helper has no installerCleanupStaged handler (and the Linux branch
+        // never stages), so this is Windows/macOS only.
+#if defined(Q_OS_WIN) || defined(Q_OS_MACOS)
+        {
+            QSettings s;
+            if (s.value("engine/pendingInstallerCleanup", false).toBool()) {
+                helper_->installerCleanupStaged();
+                s.setValue("engine/pendingInstallerCleanup", false);
+            }
+        }
+#endif
+
         QMutexLocker locker(&mutex_);
         qCInfo(LOG_BASIC) << "Helper version" << helper_->getHelperVersion();
         bInitialized_ = true;
@@ -877,7 +895,7 @@ void Engine::cleanupImpl(bool isUpdating)
 
     if (vpnShareController_) {
         vpnShareController_->stopWifiSharing();
-        vpnShareController_->stopProxySharing();
+        vpnShareController_->userStopProxySharing();
     }
 
     if (helper_ && firewallController_) {
@@ -900,8 +918,6 @@ void Engine::cleanupImpl(bool isUpdating)
 
 #ifdef Q_OS_WIN
     helper_->setIPv6EnabledInFirewall(true);
-#elif defined(Q_OS_MACOS)
-    Ipv6Controller_mac::instance().restoreIpv6();
 #endif
 
     SAFE_DELETE(loginWaitForNetworkConnectivity_);
@@ -991,8 +1007,6 @@ void Engine::connectClickImpl(const LocationID &locationId, const types::Connect
 
 #ifdef Q_OS_WIN
     DnsInfo_win::outputDebugDnsInfo();
-#elif defined Q_OS_MACOS
-    Ipv6Controller_mac::instance().disableIpv6();
 #endif
 
     stopFetchingServerCredentials();
@@ -1199,6 +1213,10 @@ void Engine::updateCurrentNetworkInterfaceImpl()
                                        AdapterGatewayInfo(),
                                        QString(),
                                        types::Protocol());
+        }
+
+        if (vpnShareController_) {
+            vpnShareController_->onNetworkChange(networkInterface);
         }
 
         emit networkChanged(networkInterface);
@@ -1409,7 +1427,7 @@ void Engine::onConnectionManagerConnected()
     {
         WS_ASSERT(connectionManager_->getVpnAdapterInfo().dnsServers().count() == 1);
         if (!helper_->setCustomDnsWhileConnected( connectionManager_->getVpnAdapterInfo().ifIndex(),
-                                                    connectionManager_->getVpnAdapterInfo().dnsServers().first()))
+                                                    QString::fromStdString(connectionManager_->getVpnAdapterInfo().dnsServers().first().toString())))
         {
             qCCritical(LOG_CONNECTED_DNS) << "Failed to set Custom 'while connected' DNS";
         }
@@ -1480,7 +1498,7 @@ void Engine::onConnectionManagerConnected()
     // disable proxy
     WSNet::instance()->httpNetworkManager()->setProxySettings();
 
-    DnsServersConfiguration::instance().setConnectedState(connectionManager_->getVpnAdapterInfo().dnsServers());
+    DnsServersConfiguration::instance().setConnectedState(connectionManager_->getVpnAdapterInfo().dnsServersAsStringList());
     WSNet::instance()->dnsResolver()->setDnsServers(DnsServersConfiguration::instance().getCurrentDnsServers());
 
     if (engineSettings_.isTerminateSockets())
@@ -1650,14 +1668,14 @@ void Engine::onConnectionManagerError(CONNECT_ERROR err)
 #ifdef Q_OS_WIN
     else if (err == CONNECT_ERROR::NO_INSTALLED_TUN_TAP)
     {
-        qCWarning(LOG_BASIC) << "OpenVPN failed to detect the wintun adapter";
-        connectStateController_->setDisconnectedState(DISCONNECTED_WITH_ERROR, CONNECT_ERROR::WINTUN_FATAL_ERROR);
+        qCWarning(LOG_BASIC) << "OpenVPN failed to detect the TAP adapter";
+        connectStateController_->setDisconnectedState(DISCONNECTED_WITH_ERROR, CONNECT_ERROR::TAP_FATAL_ERROR);
         return;
     }
-    else if (err == CONNECT_ERROR::WINTUN_FATAL_ERROR)
+    else if (err == CONNECT_ERROR::TAP_FATAL_ERROR)
     {
-        qCWarning(LOG_BASIC) << "OpenVPN reported the wintun adapter as already in use";
-        connectStateController_->setDisconnectedState(DISCONNECTED_WITH_ERROR, CONNECT_ERROR::WINTUN_FATAL_ERROR);
+        qCWarning(LOG_BASIC) << "OpenVPN reported a fatal TAP adapter error";
+        connectStateController_->setDisconnectedState(DISCONNECTED_WITH_ERROR, CONNECT_ERROR::TAP_FATAL_ERROR);
         return;
     }
 #endif
@@ -1666,9 +1684,6 @@ void Engine::onConnectionManagerError(CONNECT_ERROR err)
         //emit connectError(err);
     }
 
-#ifdef Q_OS_MACOS
-    Ipv6Controller_mac::instance().restoreIpv6();
-#endif
     connectStateController_->setDisconnectedState(DISCONNECTED_WITH_ERROR, err);
 }
 
@@ -1886,14 +1901,24 @@ void Engine::onDownloadHelperFinished(const DownloadHelper::DownloadState &state
 
 #ifdef Q_OS_WIN
 
-    ExecutableSignature sigCheck;
-    if (!sigCheck.verify(installerPath_.toStdWString()))
+    // Stage the installer to a protected, non-user-writable location (under Program Files)
+    // and verify its signature there. This closes the TOCTOU window between signature
+    // verification and the subsequent ShellExecuteEx(runas) launch: an attacker running as
+    // the same user cannot replace the file once it lives in an Admins-only directory.
+    // Persist the cleanup flag *before* invoking the helper so a crash inside the helper
+    // (or between IPC return and any subsequent work) still results in cleanup on the next
+    // engine init. If staging fails, the flag stays set — the next stage call wipes the
+    // entire update dir anyway, so a leftover flag is self-healing rather than a leak.
+    QSettings().setValue("engine/pendingInstallerCleanup", true);
+    const QString stagedPath = helper_->installerStageAndVerify(installerPath_);
+    QFile::remove(installerPath_);
+    if (stagedPath.isEmpty())
     {
-        qCInfo(LOG_AUTO_UPDATER) << "Incorrect signature, removing unsigned installer: " << QString::fromStdString(sigCheck.lastError());
-        QFile::remove(installerPath_);
+        qCInfo(LOG_AUTO_UPDATER) << "Failed to stage/verify installer";
         emit updateVersionChanged(0, UPDATE_VERSION_STATE_DONE, UPDATE_VERSION_ERROR_SIGN_FAIL);
         return;
     }
+    installerPath_ = stagedPath;
     qCInfo(LOG_AUTO_UPDATER) << "Installer signature valid";
 #elif defined Q_OS_MACOS
 
@@ -1905,7 +1930,27 @@ void Engine::onDownloadHelperFinished(const DownloadHelper::DownloadState &state
         emit updateVersionChanged(0, UPDATE_VERSION_STATE_DONE, autoUpdaterHelper_->error());
         return;
     }
-    installerPath_ = tempInstallerFilename;
+
+    // Stage the unpacked installer.app into a root-owned location and verify its signature
+    // there. This closes the TOCTOU window between verification and posix_spawn: a same-user
+    // attacker cannot swap the bundle once it lives in /Library/Application Support/Windscribe/update
+    // (root:wheel 0711). QProcess::startDetached on the inner Mach-O bypasses Gatekeeper, so
+    // protecting the bytes on disk is the only thing standing between the user and arbitrary
+    // elevated execution if they later approve the installer's auth prompt.
+    // Persist the cleanup flag *before* invoking the helper so a crash inside the helper
+    // (or between IPC return and any subsequent work) still results in cleanup on the next
+    // engine init. If staging fails, the flag stays set — the next stage call wipes the
+    // entire update dir anyway, so a leftover flag is self-healing rather than a leak.
+    QSettings().setValue("engine/pendingInstallerCleanup", true);
+    const QString stagedPath = helper_->installerStageAndVerify(tempInstallerFilename);
+    Utils::removeDirectory(tempInstallerFilename);
+    if (stagedPath.isEmpty())
+    {
+        qCInfo(LOG_AUTO_UPDATER) << "Failed to stage/verify installer";
+        emit updateVersionChanged(0, UPDATE_VERSION_STATE_DONE, UPDATE_VERSION_ERROR_SIGN_FAIL);
+        return;
+    }
+    installerPath_ = stagedPath;
 #elif defined Q_OS_LINUX
 
     // if api for some reason doesn't return sha256 field
@@ -2038,7 +2083,7 @@ void Engine::onEmergencyControllerConnected()
 
     // disable proxy
     WSNet::instance()->httpNetworkManager()->setProxySettings();
-    DnsServersConfiguration::instance().setConnectedState(emergencyController_->getVpnAdapterInfo().dnsServers());
+    DnsServersConfiguration::instance().setConnectedState(emergencyController_->getVpnAdapterInfo().dnsServersAsStringList());
     WSNet::instance()->dnsResolver()->setDnsServers(DnsServersConfiguration::instance().getCurrentDnsServers());
 
     emergencyConnectStateController_->setConnectedState(LocationID());
@@ -2172,6 +2217,10 @@ void Engine::onNetworkChange(const types::NetworkInterface &networkInterface)
         }
     }
 
+    if (vpnShareController_) {
+        vpnShareController_->onNetworkChange(networkInterface);
+    }
+
     emit networkChanged(networkInterface);
 }
 
@@ -2238,15 +2287,15 @@ void Engine::onMacAddressControllerMacSpoofApplied()
 
 
 
-void Engine::startProxySharingImpl(PROXY_SHARING_TYPE proxySharingType, uint port, bool whileConnected)
+void Engine::startProxySharingImpl(const types::ShareProxyGateway &settings)
 {
-    vpnShareController_->startProxySharing(proxySharingType, port, whileConnected);
-    emit proxySharingStateChanged(true, proxySharingType, getProxySharingAddress(), 0);
+    vpnShareController_->startProxySharing(settings);
+    emit proxySharingStateChanged(true, settings.proxySharingMode, getProxySharingAddress(), 0);
 }
 
 void Engine::stopProxySharingImpl()
 {
-    vpnShareController_->stopProxySharing();
+    vpnShareController_->userStopProxySharing();
     emit proxySharingStateChanged(false, PROXY_SHARING_HTTP, "", 0);
 }
 
@@ -2430,7 +2479,7 @@ void Engine::onApiResourcesManagerAuthTokenFinished(LoginResult loginResult)
     } else {
         api_responses::AuthToken authToken(WSNet::instance()->apiResourcersManager()->authTokenResult());
         if (!authToken.isValid()) {
-            qCInfo(LOG_BASIC) << "onApiResourcesManagerAuthTokenLoginFinished failed, ret:" << QString::fromStdString(WSNet::instance()->apiResourcersManager()->authTokenResult());
+            qCInfo(LOG_BASIC) << "onApiResourcesManagerAuthTokenLoginFinished failed: invalid auth token response";
             emit loginError(LoginResult::kIncorrectJson, QString());
         } else {
             if (authToken.isRateLimitError()) {
@@ -2500,15 +2549,15 @@ void Engine::addCustomRemoteIpToFirewallIfNeed()
     QString strHost = ExtraConfig::instance().getRemoteIpFromExtraConfig();
     if (!strHost.isEmpty())
     {
-        if (IpValidation::isIp(strHost))
+        if (NetworkingValidation::isIp(strHost))
         {
             ip = strHost;
         }
-        else if (IpValidation::isDomain(strHost))
+        else if (NetworkingValidation::isDomain(strHost))
         {
             // make DNS-resolution for add IP to firewall exceptions
             qCDebug(LOG_BASIC) << "Make DNS-resolution for" << strHost;
-            auto res = WSNet::instance()->dnsResolver()->lookupBlocked(strHost.toStdString());
+            auto res = WSNet::instance()->dnsResolver()->lookupBlocked(strHost.toStdString(), IpFamily::kIpv4);
             if (res->error()->isSuccess() && res->ips().size() > 0) {
                 qCDebug(LOG_BASIC) << "Resolved IP address for" << strHost << ":" << res->ips()[0];
                 ip = QString::fromStdString(res->ips()[0]);
@@ -2587,19 +2636,35 @@ void Engine::doConnect(bool bEmitAuthError)
             connectionSettings = engineSettings_.connectionSettingsForNetworkInterface(networkInterface.networkOrSsid);
         }
 
-        connectionManager_->clickConnect(ovpnConfig, ovpnCredentials, ikev2Credentials, bli,
-            connectionSettings, portMap, ProxyServerController::instance().getCurrentProxySettings(),
-                                         bEmitAuthError, engineSettings_.customOvpnConfigsPath(),
-                                         amneziawgParams_, effectiveAmneziawgPreset(), pinnedNode_.first);
+        ConnectRequest req;
+        req.ovpnConfig = ovpnConfig;
+        req.serverCredentialsOpenVpn = ovpnCredentials;
+        req.serverCredentialsIkev2 = ikev2Credentials;
+        req.bli = bli;
+        req.connectionSettings = connectionSettings;
+        req.portMap = portMap;
+        req.proxySettings = ProxyServerController::instance().getCurrentProxySettings();
+        req.bEmitAuthError = bEmitAuthError;
+        req.amneziawgParams = amneziawgParams_;
+        req.amneziawgPreset = effectiveAmneziawgPreset();
+        req.preferredNodeHostname = pinnedNode_.first;
+        req.ipStackEgress = engineSettings_.ipStackEgress();
+        connectionManager_->clickConnect(req);
     }
     // for custom configs without login
     else
     {
         qCInfo(LOG_CONNECTION) << "Connecting to" << locationName_;
-        connectionManager_->clickConnect("", api_responses::ServerCredentials(), api_responses::ServerCredentials(), bli,
-            engineSettings_.connectionSettingsForNetworkInterface(networkInterface.networkOrSsid), api_responses::PortMap(),
-            ProxyServerController::instance().getCurrentProxySettings(), bEmitAuthError, engineSettings_.customOvpnConfigsPath(),
-                                          amneziawgParams_, effectiveAmneziawgPreset(), pinnedNode_.first);
+        ConnectRequest req;
+        req.bli = bli;
+        req.connectionSettings = engineSettings_.connectionSettingsForNetworkInterface(networkInterface.networkOrSsid);
+        req.proxySettings = ProxyServerController::instance().getCurrentProxySettings();
+        req.bEmitAuthError = bEmitAuthError;
+        req.amneziawgParams = amneziawgParams_;
+        req.amneziawgPreset = effectiveAmneziawgPreset();
+        req.preferredNodeHostname = pinnedNode_.first;
+        req.ipStackEgress = engineSettings_.ipStackEgress();
+        connectionManager_->clickConnect(req);
     }
 }
 
@@ -2634,10 +2699,6 @@ void Engine::doDisconnectRestoreStuff()
 
 #ifdef Q_OS_WIN
     helper_->setIPv6EnabledInFirewall(true);
-#endif
-
-#ifdef Q_OS_MACOS
-    Ipv6Controller_mac::instance().restoreIpv6();
 #endif
 
     // If we have disconnected and are still not logged then try again.

@@ -1,5 +1,6 @@
 #import <NetworkExtension/NetworkExtension.h>
 #include "splittunnelextensionmanager_mac.h"
+#include "types/ipaddress.h"
 #include "utils/extraconfig.h"
 #include "utils/log/categories.h"
 #include "utils/macutils.h"
@@ -21,11 +22,35 @@ static NSDictionary *getExtensionOptions(const QString &primaryInterface, const 
     [options setObject:vpnInterface.toNSString() forKey:@"vpnInterface"];
     [options setObject:(isActive ? @"1" : @"0") forKey:@"isActive"];
     [options setObject:(isExclude ? @"1" : @"0") forKey:@"isExclude"];
+
+    // Family-split the IPs list across two keys: `ips` carries v4 literals, `ipsV6` carries v6.
+    // The extension consumes both. Keys are additive, so an extension that only knows about `ips`
+    // still gets the v4 entries it expects.
+    //
+    // Validate each entry by round-tripping through types::IpAddressRange (handles both bare IPs
+    // and CIDR forms). detectFamily is a syntactic colon-presence check, so a port-suffixed v4
+    // literal like `1.2.3.4:80` lands in the v6 bucket and is silently lost extension-side
+    // (lookup keys are inet_ntop output, which never matches `1.2.3.4:80`). The validation here
+    // drops any entry that doesn't parse as a real address before it reaches the extension, with
+    // a log line so the user can correlate "my split-tunnel rule isn't applying" against the
+    // input they pasted.
     NSMutableArray<NSString *> *ipsArray = [[NSMutableArray alloc] init];
+    NSMutableArray<NSString *> *ipsV6Array = [[NSMutableArray alloc] init];
     for (const QString &ip : ips) {
-        [ipsArray addObject:ip.toNSString()];
+        const std::string ipStd = ip.toStdString();
+        const types::IpAddressRange range(ipStd);
+        if (!range.isValid()) {
+            qCWarning(LOG_SPLIT_TUNNEL_EXTENSION) << "Dropping invalid split-tunnel IP entry:" << ip;
+            continue;
+        }
+        if (range.isV6()) {
+            [ipsV6Array addObject:ip.toNSString()];
+        } else {
+            [ipsArray addObject:ip.toNSString()];
+        }
     }
     [options setObject:ipsArray forKey:@"ips"];
+    [options setObject:ipsV6Array forKey:@"ipsV6"];
 
     NSMutableArray<NSString *> *hostnamesArray = [[NSMutableArray alloc] init];
     for (const QString &hostname : hostnames) {

@@ -5,7 +5,7 @@
     Provider = %ManufacturerName%
     CatalogFile = "WindscribeSplitTunnel.cat"
     PnpLockdown = 1
-DriverVer = 08/07/2024,21.53.24.227
+DriverVer = 04/23/2026,14.33.39.417
 
 [SourceDisksNames]
     1 = %DiskName%,,,""

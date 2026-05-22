@@ -1,7 +1,7 @@
 #include "apiresolutionsettings.h"
 #include "types/enums.h"
-#include "utils/ipvalidation.h"
 #include "utils/log/logger.h"
+#include "utils/networkingvalidation.h"
 
 namespace types {
 

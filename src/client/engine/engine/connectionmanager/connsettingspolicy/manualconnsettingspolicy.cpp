@@ -1,8 +1,8 @@
 #include "manualconnsettingspolicy.h"
 
 #include "utils/extraconfig.h"
-#include "utils/ipvalidation.h"
 #include "utils/log/categories.h"
+#include "utils/networkingvalidation.h"
 #include "utils/ws_assert.h"
 
 ManualConnSettingsPolicy::ManualConnSettingsPolicy(QSharedPointer<locationsmodel::BaseLocationInfo> bli,
@@ -14,7 +14,7 @@ ManualConnSettingsPolicy::ManualConnSettingsPolicy(QSharedPointer<locationsmodel
     WS_ASSERT(!locationInfo_->locationId().isCustomConfigsLocation());
 
     QString remoteOverride = ExtraConfig::instance().getRemoteIpFromExtraConfig();
-    if (!remoteOverride.isEmpty() && IpValidation::isIp(remoteOverride) && connectionSettings_.protocol().isWireGuardProtocol()) {
+    if (!remoteOverride.isEmpty() && NetworkingValidation::isIp(remoteOverride) && connectionSettings_.protocol().isWireGuardProtocol()) {
         locationInfo_->selectNodeByIp(remoteOverride);
     } else if (!preferredNodeHostname.isEmpty()) {
         qCInfo(LOG_CONNECTION) << "Selecting preferred node by hostname: " << preferredNodeHostname;
@@ -45,7 +45,7 @@ void ManualConnSettingsPolicy::putFailedConnection()
 
     if (failedManualModeCounter_ < 2) {
         QString remoteOverride = ExtraConfig::instance().getRemoteIpFromExtraConfig();
-        if (!remoteOverride.isEmpty() && IpValidation::isIp(remoteOverride) && connectionSettings_.protocol().isWireGuardProtocol()) {
+        if (!remoteOverride.isEmpty() && NetworkingValidation::isIp(remoteOverride) && connectionSettings_.protocol().isWireGuardProtocol()) {
             locationInfo_->selectNodeByIp(remoteOverride);
         } else if (!preferredNodeHostname_.isEmpty()) {
             qCInfo(LOG_CONNECTION) << "Selecting preferred node by hostname on retry: " << preferredNodeHostname_;

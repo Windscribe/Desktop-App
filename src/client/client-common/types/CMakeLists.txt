@@ -2,6 +2,8 @@ target_sources(client-common PRIVATE
     apiresolutionsettings.cpp
     apiresolutionsettings.h
     backgroundsettings.h
+    ipaddress.cpp
+    ipaddress.h
     connecteddnsinfo.cpp
     connecteddnsinfo.h
     connectionsettings.cpp
@@ -32,6 +34,7 @@ target_sources(client-common PRIVATE
     proxysettings.cpp
     proxysettings.h
     proxysharinginfo.h
+    shareproxygateway.cpp
     shareproxygateway.h
     sharesecurehotspot.h
     splittunneling.h

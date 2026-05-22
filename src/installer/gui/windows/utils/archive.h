@@ -11,8 +11,13 @@ public:
     explicit Archive();
     void setLogFunction(const std::function<void(const std::wstring&)>& func);
 
+    // Extract the embedded 7zr.exe decompressor to extractFolder.  Must be called once
+    // before extract() if the folder doesn't already contain a trusted 7zr.exe.
+    bool extractDecompressor(const std::wstring &extractFolder);
+
     // Extract archiveName from the embedded resourceName to the extractFolder, then
-    // extract all files from the archive to the targetFolder.
+    // extract all files from the archive to the targetFolder.  The caller must have
+    // placed a trusted 7zr.exe in extractFolder beforehand (see extractDecompressor).
     bool extract(const std::wstring &resourceName, const std::wstring &archiveName,
                  const std::wstring &extractFolder, const std::wstring &targetFolder);
 
@@ -26,7 +31,7 @@ private:
     std::function<void(const std::wstring&)> logFunction_ = nullptr;
 
 private:
-    void executeCmd(const std::wstring &cmd);
+    void executeCmd(const std::wstring &cmd, const std::wstring &workingDir);
     void extractArchiveFromResource(const std::wstring &resourceName, const std::wstring &archiveName,
                                     const std::wstring &extractFolder);
     void extractFile(const std::wstring &archiveName, const std::wstring &extractFolder,

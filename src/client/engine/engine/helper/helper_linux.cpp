@@ -19,3 +19,8 @@ void Helper_linux::resetMacAddresses(const QString &ignoreNetwork)
     sendCommand(HelperCommand::resetMacAddresses, ignoreNetwork.toStdString());
 }
 
+void Helper_linux::setOpenVpnDcoMode(bool useDco)
+{
+    sendCommand(HelperCommand::setOpenVpnDcoMode, useDco);
+}
+

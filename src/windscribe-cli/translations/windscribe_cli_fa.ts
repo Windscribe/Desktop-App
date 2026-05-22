@@ -187,6 +187,14 @@
         <translation>وضعیت ناشناخته</translation>
     </message>
     <message>
+        <source>VPN IP: %1</source>
+        <translation>IP VPN: ٪1</translation>
+    </message>
+    <message>
+        <source>Public IP: %1</source>
+        <translation>مالکیت فکری عمومی: ۱٪</translation>
+    </message>
+    <message>
         <source>Protocol: %1:%2</source>
         <translation>قرارداد:%1:%2</translation>
     </message>

@@ -38,6 +38,7 @@ public:
     QString getHostnameForSelectedNode() const;
     QString getWgPubKeyForSelectedNode() const;
     QString getWgIpForSelectedNode() const;
+    bool isIpv6SupportForSelectedNode() const;
 
     QString getStaticIpUsername() const;
     QString getStaticIpPassword() const;

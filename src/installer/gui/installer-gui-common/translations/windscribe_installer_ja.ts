@@ -45,6 +45,22 @@
         <translation>Windscribe の既存のインストールを削除できませんでした。アプリケーションを手動でアンインストールして、もう一度やり直してください。</translation>
     </message>
     <message>
+        <source>The Windows Base Filtering Engine service is not running and could not be started. This core Windows service must be running to install Windscribe. Third-party security/firewall software is most often the cause of this issue.</source>
+        <translation>Windowsの基本フィルタリングエンジンサービスは動作しておらず、起動もできませんでした。Windscribeをインストールするには、このコアとなるWindowsサービスが実行されている必要があります。この問題の原因はサードパーティのセキュリティやファイアウォールソフトウェアが最も多いです。</translation>
+    </message>
+    <message>
+        <source>Windscribe is unable to connect to the Windows Base Filtering Engine service. Connecting to this core Windows service is required to install Windscribe. Third-party security/firewall software is most often the cause of this issue.</source>
+        <translation>WindscribeはWindowsのBase Filtering Engineサービスに接続できません。Windscribeをインストールするには、このコアWindowsサービスへの接続が必要です。この問題の原因はサードパーティのセキュリティやファイアウォールソフトウェアが最も多いです。</translation>
+    </message>
+    <message>
+        <source>Windscribe is unable to install its helper service. Please manually uninstall Windscribe and try again. If this issue persists, please contact our Technical Support.</source>
+        <translation>Windscribeはヘルパーサービスをインストールできません。Windscribeを手動でアンインストールしてからもう一度お試しください。この問題が続く場合は、技術サポートまでご連絡ください。</translation>
+    </message>
+    <message>
+        <source>Windscribe is unable to start its helper service. Third-party security/firewall software may be the cause. If this is not the case, please contact our Technical Support.</source>
+        <translation>Windscribeはヘルパーサービスを開始できません。サードパーティのセキュリティやファイアウォールソフトウェアが原因かもしれません。もしそうでない場合は、当社のテクニカルサポートまでご連絡ください。</translation>
+    </message>
+    <message>
         <source>The installation could not be completed successfully. Please contact our Technical Support.</source>
         <translation>インストールを正常に完了できませんでした。テクニカルサポートにお問い合わせください。</translation>
     </message>

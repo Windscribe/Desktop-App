@@ -89,6 +89,7 @@ void Backend::init()
     connect(engine_, &Engine::proxySharingStateChanged, this, &Backend::onEngineProxySharingStateChanged);
     connect(engine_, &Engine::wifiSharingStateChanged, this, &Backend::onEngineWifiSharingStateChanged);
     connect(engine_, &Engine::wifiSharingFailed, this, &Backend::wifiSharingFailed);
+    connect(engine_, &Engine::proxySharingFailed, this, &Backend::proxySharingFailed);
     connect(engine_, &Engine::logoutFinished, this, &Backend::onEngineLogoutFinished);
     connect(engine_, &Engine::gotoCustomOvpnConfigModeFinished, this, &Backend::onEngineGotoCustomOvpnConfigModeFinished);
     connect(engine_, &Engine::detectionCpuUsageAfterConnected, this, &Backend::onEngineDetectionCpuUsageAfterConnected);
@@ -308,9 +309,9 @@ void Backend::stopWifiSharing()
     engine_->stopWifiSharing();
 }
 
-void Backend::startProxySharing(PROXY_SHARING_TYPE proxySharingMode, uint port, bool whileConnected)
+void Backend::startProxySharing(const types::ShareProxyGateway &settings)
 {
-    engine_->startProxySharing(proxySharingMode, port, whileConnected);
+    engine_->startProxySharing(settings);
 }
 
 void Backend::stopProxySharing()

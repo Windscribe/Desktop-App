@@ -174,6 +174,9 @@ void Uninstaller::RunSecondPhase()
     spdlog::info(L"uninstall OpenVPN DCO driver");
     UninstallOpenVPNDCODriver(path_for_installation);
 
+    spdlog::info(L"uninstall tap-windows6 driver");
+    UninstallTapWindows6Driver(path_for_installation);
+
     spdlog::info(L"perform uninstall");
     PerformUninstall(&DeleteUninstallDataFiles, path_for_installation);
 
@@ -329,6 +332,35 @@ void Uninstaller::UninstallOpenVPNDCODriver(const wstring& installationPath)
     }
     else {
         spdlog::info(L"OpenVPN DCO driver ({}) successfully removed from the Windows driver store", adapterOEMIdentifier);
+    }
+}
+
+void Uninstaller::UninstallTapWindows6Driver(const wstring& installationPath)
+{
+    wstring adapterOEMIdentifier;
+    const wstring keyName = ApplicationInfo::installerRegistryKey(false);
+    Registry::RegQueryStringValue(HKEY_CURRENT_USER, keyName.c_str(), L"tapWindows6DriverOEMIdentifier", adapterOEMIdentifier);
+    if (adapterOEMIdentifier.empty()) {
+        spdlog::warn(L"WARNING: failed to find 'tapWindows6DriverOEMIdentifier' entry in the installer registry key.");
+        return;
+    }
+
+    const wstring appName = Path::append(installationPath, L"devcon.exe");
+    const wstring commandLine = wstring(L"dp_delete ") + adapterOEMIdentifier;
+
+    auto result = Utils::instExec(appName, commandLine, 30 * 1000, SW_HIDE);
+
+    if (!result.has_value()) {
+        spdlog::warn(L"WARNING: The tap-windows6 driver uninstall failed to launch.");
+    }
+    else if (result.value() == WAIT_TIMEOUT) {
+        spdlog::warn(L"WARNING: The tap-windows6 driver uninstall stage timed out.");
+    }
+    else if (result.value() != NO_ERROR) {
+        spdlog::warn(L"WARNING: The tap-windows6 driver uninstall returned a failure code ({}).", result.value());
+    }
+    else {
+        spdlog::info(L"tap-windows6 driver ({}) successfully removed from the Windows driver store", adapterOEMIdentifier);
     }
 }
 

@@ -4,7 +4,7 @@
 #include "generalmessagecontroller.h"
 #include "languagecontroller.h"
 #include "graphicresources/imageresourcessvg.h"
-#include "utils/ipvalidation.h"
+#include "utils/networkingvalidation.h"
 
 #if defined(Q_OS_WIN)
 #include "utils/winutils.h"
@@ -357,7 +357,7 @@ void ConnectedDnsGroup::onControldDevicesFetched(CONTROLD_FETCH_RESULT result, c
 
 void ConnectedDnsGroup::checkDnsLeak(const QString &v1, const QString &v2)
 {
-    if (IpValidation::isLocalIp(v1) || IpValidation::isLocalIp(v2)) {
+    if (NetworkingValidation::isLocalIp(v1) || NetworkingValidation::isLocalIp(v2)) {
         GeneralMessageController::instance().showMessage(
             "WARNING_YELLOW",
             tr("DNS leak detected"),

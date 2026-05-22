@@ -187,6 +187,14 @@
         <translation>Nieznany stan</translation>
     </message>
     <message>
+        <source>VPN IP: %1</source>
+        <translation>IP VPN: %1</translation>
+    </message>
+    <message>
+        <source>Public IP: %1</source>
+        <translation>Publiczne IP: %1</translation>
+    </message>
+    <message>
         <source>Protocol: %1:%2</source>
         <translation>Protokół: %1:%2</translation>
     </message>

@@ -116,7 +116,7 @@ bool WireGuardController::configureAdapter(const std::string &ipAddress, const s
         return false;
     return adapter_->setIpAddress(ipAddress)
            && adapter_->setDnsServers(dnsAddressList, dnsScriptName)
-           && adapter_->enableRouting(ipAddress, allowedIps, fwmark);
+           && adapter_->enableRouting(allowedIps, fwmark);
 }
 
 std::string WireGuardController::getAdapterName() const

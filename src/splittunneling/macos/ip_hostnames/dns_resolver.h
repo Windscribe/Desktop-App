@@ -32,6 +32,9 @@ public:
 
     void stop();
 
+    // Issues per-hostname AF_INET and AF_INET6 lookups in parallel. The all-resolved gate fires
+    // only after both family answers (or per-family errors) are in for every hostname, so the
+    // merged HostInfo entry contains every address that resolved across both families.
     void resolveDomains(const std::vector<std::string> &hostnames);
     void cancelAll();
     void setResolveDomainsCallbackHandler(std::function<void(std::map<std::string, HostInfo>)> resolveDomainsCallback);
@@ -42,6 +45,7 @@ private:
     struct USER_ARG
     {
         std::string hostname;
+        int family;     // AF_INET or AF_INET6 — disambiguates the per-family completion bookkeeping.
     };
 
     bool bStopCalled_;
@@ -55,7 +59,10 @@ private:
     static DnsResolver *this_;
 
     std::map<std::string, HostInfo> hostinfoResults_;
-    std::set<std::string> hostnamesInProgress_;
+    // Per-hostname-and-family pending set. We use a set of (hostname, family) pairs rather than a
+    // multiset of hostnames so the per-family completion erase is unambiguous (multiset::erase(key)
+    // would clear both pending family entries at once, fooling the all-resolved gate below).
+    std::set<std::pair<std::string, int>> hostnamesInProgress_;
 
     // thread specific
     std::thread thread_;

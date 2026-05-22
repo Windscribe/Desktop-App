@@ -1,7 +1,10 @@
 #include "split_tunneling.h"
+
+#include <algorithm>
 #include <spdlog/spdlog.h>
 #include "../firewallcontroller.h"
 #include "../utils.h"
+#include "types/ipaddress.h"
 
 SplitTunneling::SplitTunneling(): isSplitTunnelActive_(false), isExclude_(false), isAllowLanTraffic_(false)
 {
@@ -40,7 +43,16 @@ void SplitTunneling::setSplitTunnelingParams(bool isActive, bool isExclude, cons
         apps_.push_back(WS_LINUX_INSTALL_DIR "/" WS_APP_EXECUTABLE_NAME);
     }
 
-    hostnamesManager_.setSettings(ips, hosts);
+    // Convert raw user/ROBERT-supplied IP strings into typed dual-stack ranges so the
+    // HostnamesManager / IpRoutes / FirewallController layers can dispatch by family.
+    // Invalid entries are dropped here so they never reach the shell-command boundary.
+    auto ipRanges = types::IpAddressRange::fromStrings(ips);
+    ipRanges.erase(
+        std::remove_if(ipRanges.begin(), ipRanges.end(),
+                       [](const types::IpAddressRange &r) { return !r.isValid(); }),
+        ipRanges.end());
+
+    hostnamesManager_.setSettings(ipRanges, hosts);
     routesManager_.updateState(connectStatus_, isSplitTunnelActive_, isExclude_);
     ProcessMonitor::instance().setApps(apps_);
     updateState();
@@ -51,11 +63,6 @@ bool SplitTunneling::updateState()
 {
     if (connectStatus_.isConnected && isSplitTunnelActive_) {
         if (!apps_.empty()) {
-            std::string gw = connectStatus_.vpnAdapter.adapterIp;
-            if (connectStatus_.protocol == kCmdProtocolOpenvpn || connectStatus_.protocol == kCmdProtocolStunnelOrWstunnel) {
-                gw = connectStatus_.vpnAdapter.gatewayIp;
-            }
-
             bool ret = CGroups::instance().enable(connectStatus_, isAllowLanTraffic_, isExclude_);
             if (!ret) {
                 return ret;
@@ -67,13 +74,13 @@ bool SplitTunneling::updateState()
         }
 
         if (isExclude_) {
-            hostnamesManager_.enable(connectStatus_.defaultAdapter.gatewayIp);
+            // Exclude mode: host pins for excluded apps route via the default adapter.
+            hostnamesManager_.enable(connectStatus_.defaultAdapter.gatewayIp,
+                                     connectStatus_.defaultAdapter.gatewayIpV6);
         } else {
-            if (connectStatus_.protocol == kCmdProtocolOpenvpn || connectStatus_.protocol == kCmdProtocolStunnelOrWstunnel) {
-                hostnamesManager_.enable(connectStatus_.vpnAdapter.gatewayIp);
-            } else {
-                hostnamesManager_.enable(connectStatus_.vpnAdapter.adapterIp);
-            }
+            // Inclusive mode: host pins for included apps route via the VPN adapter.
+            hostnamesManager_.enable(connectStatus_.vpnAdapter.gatewayIp,
+                                     connectStatus_.vpnAdapter.gatewayIpV6);
         }
     } else {
         CGroups::instance().disable();
@@ -81,11 +88,15 @@ bool SplitTunneling::updateState()
         hostnamesManager_.disable();
     }
 
+    // Pass both families' default-adapter addresses; the firewall layer dispatches the
+    // ingress-connmark path per-family. adapterIpV6.toString() returns "" for an invalid
+    // IpAddress (no v6 detected), which the firewall layer treats as "skip the v6 path".
     FirewallController::instance().setSplitTunnelingEnabled(
         connectStatus_.isConnected,
         isSplitTunnelActive_,
         isExclude_,
         connectStatus_.defaultAdapter.adapterName,
-        connectStatus_.defaultAdapter.adapterIp);
+        connectStatus_.defaultAdapter.adapterIp.toString(),
+        connectStatus_.defaultAdapter.adapterIpV6.toString());
     return false;
 }

@@ -33,6 +33,22 @@
         <translation>Instalace nebyla úspěšná</translation>
     </message>
     <message>
+        <source>The Windows Base Filtering Engine service is not running and could not be started. This core Windows service must be running to install Windscribe. Third-party security/firewall software is most often the cause of this issue.</source>
+        <translation>Služba Windows Base Filtering Engine neběží a nemohla být spuštěna. Tato základní Windows služba musí běžet, aby bylo možné nainstalovat Windscribe. Příčinou tohoto problému je nejčastěji bezpečnostní nebo firewallový software třetích stran.</translation>
+    </message>
+    <message>
+        <source>Windscribe is unable to connect to the Windows Base Filtering Engine service. Connecting to this core Windows service is required to install Windscribe. Third-party security/firewall software is most often the cause of this issue.</source>
+        <translation>Windscribe se nemůže připojit ke službě Windows Base Filtering Engine. Pro instalaci Windscribe je nutné připojit se k této základní službě Windows. Příčinou tohoto problému je nejčastěji bezpečnostní nebo firewallový software třetích stran.</translation>
+    </message>
+    <message>
+        <source>Windscribe is unable to install its helper service. Please manually uninstall Windscribe and try again. If this issue persists, please contact our Technical Support.</source>
+        <translation>Windscribe nemůže nainstalovat svou pomocnou službu. Prosím, ručně odinstalujte Windscribe a zkuste to znovu. Pokud tento problém přetrvává, kontaktujte prosím naši technickou podporu.</translation>
+    </message>
+    <message>
+        <source>Windscribe is unable to start its helper service. Third-party security/firewall software may be the cause. If this is not the case, please contact our Technical Support.</source>
+        <translation>Windscribe nemůže spustit svou pomocnou službu. Příčinou může být bezpečnostní nebo firewallový software třetích stran. Pokud tomu tak není, kontaktujte prosím naši technickou podporu.</translation>
+    </message>
+    <message>
         <source>The installation could not be completed successfully. Please contact our Technical Support.</source>
         <translation>Instalaci nelze úspěšně dokončit. Kontaktujte prosím naši technickou podporu.</translation>
     </message>

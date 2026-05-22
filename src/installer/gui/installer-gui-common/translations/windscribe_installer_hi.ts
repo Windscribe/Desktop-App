@@ -33,6 +33,22 @@
         <translation>स्थापना रद्द कर दी गई. अनुप्रयोग को स्थापित करने के लिए व्यवस्थापक यी विशेषाधिकार आवश्यक हैं।</translation>
     </message>
     <message>
+        <source>The Windows Base Filtering Engine service is not running and could not be started. This core Windows service must be running to install Windscribe. Third-party security/firewall software is most often the cause of this issue.</source>
+        <translation>Windows बेस फ़िल्टरिंग इंजन सेवा नहीं चल रही है और प्रारंभ नहीं किया जा सका. यह कोर Windows सेवा Windscribe को स्थापित करने के लिए चल रही होनी चाहिए। तृतीय-पक्ष सुरक्षा/फ़ायरवॉल सॉफ़्टवेयर अक्सर इस समस्या का कारण होता है।</translation>
+    </message>
+    <message>
+        <source>Windscribe is unable to connect to the Windows Base Filtering Engine service. Connecting to this core Windows service is required to install Windscribe. Third-party security/firewall software is most often the cause of this issue.</source>
+        <translation>Windscribe Windows बेस फ़िल्टरिंग इंजन सेवा से कनेक्ट करने में असमर्थ है। इस कोर से कनेक्ट करना Windows सेवा Windscribe को स्थापित करने के लिए आवश्यक है। तृतीय-पक्ष सुरक्षा/फ़ायरवॉल सॉफ़्टवेयर अक्सर इस समस्या का कारण होता है।</translation>
+    </message>
+    <message>
+        <source>Windscribe is unable to install its helper service. Please manually uninstall Windscribe and try again. If this issue persists, please contact our Technical Support.</source>
+        <translation>विंडसाइड अपनी सहायक सेवा स्थापित करने में असमर्थ है। कृपया मैन्युअल रूप से Windscribe की स्थापना रद्द करें और पुन: प्रयास करें। यदि यह समस्या बनी रहती है, तो कृपया हमारे तकनीकी समर्थन से संपर्क करें।</translation>
+    </message>
+    <message>
+        <source>Windscribe is unable to start its helper service. Third-party security/firewall software may be the cause. If this is not the case, please contact our Technical Support.</source>
+        <translation>विंडसाइड अपनी सहायक सेवा शुरू करने में असमर्थ है। तृतीय-पक्ष सुरक्षा/फ़ायरवॉल सॉफ़्टवेयर इसका कारण हो सकता है। यदि यह मामला नहीं है, तो कृपया हमारे तकनीकी समर्थन से संपर्क करें।</translation>
+    </message>
+    <message>
         <source>The installation could not be completed successfully. Please contact our Technical Support.</source>
         <translation>स्थापना सफलतापूर्वक पूर्ण नहीं की जा सकी. कृपया हमारे तकनीकी समर्थन से संपर्क करें।</translation>
     </message>

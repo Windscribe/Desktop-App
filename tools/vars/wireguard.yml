@@ -3,8 +3,8 @@
 # Copyright (c) 2020-2026, Windscribe Limited. All rights reserved.
 # ------------------------------------------------------------------------------
 variables:
-  VERSION_WIREGUARD_WIN: '0.5.3'
+  VERSION_WIREGUARD_WIN: '1.0'
   VERSION_WIREGUARD_GNU: '0.0.20250515'
   ARTIFACT_WIREGUARD: 'wireguard.zip'
-  CHECKSUM_WIREGUARD_WIN: 'de20bbefaa945753ba079d328307b5c6dc17368084685013aac2736275208ab6'
+  CHECKSUM_WIREGUARD_WIN: '5a29cd03385e4bf0e62feef3a9be9ffd35620e3b15bb2ab72b56964bb193b82b'
   CHECKSUM_WIREGUARD_GNU: '5ee2043f56e24cb7256d8e53588eacad97e3f90256d5f85f74035106f1e7c1e7'

@@ -618,26 +618,6 @@ Se perdi l&apos;hash dell&apos;account, è sparito per sempre e il supporto non 
         <translation>Seleziona cartella di configurazione personalizzata</translation>
     </message>
     <message>
-        <source>Cannot select this directory because it is writeable for non-privileged users. Custom configs in this directory may pose a potential security risk. Please authenticate with an admin user to select this directory.</source>
-        <translation>Impossibile selezionare questa directory perché è scrivibile per gli utenti senza privilegi. Le configurazioni personalizzate in questa directory possono rappresentare un potenziale rischio per la sicurezza. Eseguire l&apos;autenticazione con un utente amministratore per selezionare questa directory.</translation>
-    </message>
-    <message>
-        <source>Can&apos;t select directory</source>
-        <translation>Impossibile selezionare la directory</translation>
-    </message>
-    <message>
-        <source>The application is corrupted.  Please reinstall Windscribe.</source>
-        <translation>L&apos;applicazione è danneggiata.  Reinstallare Windscribe.</translation>
-    </message>
-    <message>
-        <source>Validation Error</source>
-        <translation>Errore di convalida</translation>
-    </message>
-    <message>
-        <source>The selected directory is writeable for non-privileged users. Custom configs in this directory may pose a potential security risk.</source>
-        <translation>La directory selezionata è scrivibile per gli utenti senza privilegi. Le configurazioni personalizzate in questa directory possono rappresentare un potenziale rischio per la sicurezza.</translation>
-    </message>
-    <message>
         <source>Security Risk</source>
         <translation>Rischio per la sicurezza</translation>
     </message>
@@ -678,6 +658,26 @@ Se perdi l&apos;hash dell&apos;account, è sparito per sempre e il supporto non 
         <translation>Sconnesso</translation>
     </message>
     <message>
+        <source>The selected directory is writeable for other users. Custom configs in this directory may pose a potential security risk.</source>
+        <translation>La directory selezionata è scrivibile per altri utenti. Le configurazioni personalizzate in questa directory possono rappresentare un potenziale rischio per la sicurezza.</translation>
+    </message>
+    <message>
+        <source>Proxy Gateway is unauthenticated</source>
+        <translation>Il Proxy Gateway non è autenticato</translation>
+    </message>
+    <message>
+        <source>Your Proxy Gateway is enabled without authentication. Anyone on your local network, including untrusted networks like coffee-shop Wi-Fi, can route their traffic through your VPN. We strongly recommend setting credentials.</source>
+        <translation>Il tuo Proxy Gateway è abilitato senza autenticazione. Chiunque sia sulla tua rete locale, incluse reti non affidabili come il Wi-Fi di un bar, può instradare il proprio traffico attraverso la tua VPN. Raccomandiamo vivamente di stabilire le credenziali.</translation>
+    </message>
+    <message>
+        <source>Go to Preferences</source>
+        <translation>Vai a Preferenze</translation>
+    </message>
+    <message>
+        <source>Later</source>
+        <translation>Successivamente</translation>
+    </message>
+    <message>
         <source>Connected to </source>
         <translation>Collegato a </translation>
     </message>
@@ -690,6 +690,18 @@ Se perdi l&apos;hash dell&apos;account, è sparito per sempre e il supporto non 
 %1 transferred in %2</source>
         <translation>La connessione a Windscribe è stata terminata.
 %1 trasferito in %2</translation>
+    </message>
+    <message>
+        <source>Could not start Proxy Gateway</source>
+        <translation>Non sono riuscito ad avviare il Proxy Gateway</translation>
+    </message>
+    <message>
+        <source>The configured port is in use. Please try a different port.</source>
+        <translation>La porta configurata è in uso. Per favore, prova un porteggio diverso.</translation>
+    </message>
+    <message>
+        <source>An unknown error occurred.</source>
+        <translation>Si è verificato un errore sconosciuto.</translation>
     </message>
     <message>
         <source>Network Settings Interference</source>
@@ -924,14 +936,6 @@ Se il problema persiste dopo un riavvio, inviare un registro di debug e aprire u
     <message>
         <source>  If you are on a restrictive network, please connect the VPN before trying the download again.</source>
         <translation>  Se ti trovi su una rete restrittiva, connetti la VPN prima di riprovare il download.</translation>
-    </message>
-    <message>
-        <source>Custom Config Directory Import</source>
-        <translation>Importazione della directory di configurazione personalizzata</translation>
-    </message>
-    <message>
-        <source>A custom config directory is being imported.  Windscribe will prompt for your admin password to check for correct permissions.</source>
-        <translation>È in corso l&apos;importazione di una directory di configurazione personalizzata.  Windscribe richiederà la password dell&apos;amministratore per verificare la correttezza delle autorizzazioni.</translation>
     </message>
     <message>
         <source>Your &quot;Connected DNS&quot; server is set to an OS default DNS server, which would result in a DNS leak.  It has been changed to Auto.</source>
@@ -1447,6 +1451,14 @@ Se il problema persiste dopo un riavvio, inviare un registro di debug e aprire u
         <translation>Scegli automaticamente il protocollo VPN o selezionane uno manualmente. NOTA: &quot;Protocollo preferito&quot; sostituirà questa impostazione.</translation>
     </message>
     <message>
+        <source>Configure egress IP stack for VPN connections.</source>
+        <translation>Configura lo stack IP di uscita per le connessioni VPN.</translation>
+    </message>
+    <message>
+        <source>IP Stack</source>
+        <translation>Pila IP</translation>
+    </message>
+    <message>
         <source>Select the DNS server while connected to Windscribe.</source>
         <translation>Selezionare il server DNS mentre si è connessi a Windscribe.</translation>
     </message>
@@ -1517,6 +1529,13 @@ Se il problema persiste dopo un riavvio, inviare un registro di debug e aprire u
     <message>
         <source>Anti-censorship Settings</source>
         <translation>Impostazioni anti-censura</translation>
+    </message>
+</context>
+<context>
+    <name>PreferencesWindow::CopyableTextItem</name>
+    <message>
+        <source>Copied</source>
+        <translation>Copiato</translation>
     </message>
 </context>
 <context>
@@ -2106,31 +2125,36 @@ Connettersi prima a una rete</translation>
         <translation>Porto</translation>
     </message>
     <message>
-        <source>Unable to start proxy server</source>
-        <translation>Impossibile avviare il server proxy</translation>
+        <source>Require Authentication</source>
+        <translation>Richiedere l&apos;autenticazione</translation>
     </message>
     <message>
-        <source>The proxy server couldn&apos;t be started on the requested port. Please try again with a different port.</source>
-        <translation>Non è stato possibile avviare il server proxy sulla porta richiesta. Riprovare con una porta diversa.</translation>
+        <source>Without authentication, anyone on your network (e.g. coffee shop Wi-Fi) can use this proxy. Leave this on unless you know what you&apos;re doing.</source>
+        <translation>Senza autenticazione, chiunque sia sulla tua rete (ad esempio Wi-Fi di un bar) può usare questo proxy. Lascialo acceso a meno che tu non sappia cosa stai facendo.</translation>
+    </message>
+    <message>
+        <source>IP</source>
+        <translation>IP</translation>
+    </message>
+    <message>
+        <source>Username</source>
+        <translation>Nome utente</translation>
+    </message>
+    <message>
+        <source>Password</source>
+        <translation>Password</translation>
     </message>
     <message>
         <source>Auto</source>
         <translation>Automatico</translation>
     </message>
     <message>
+        <source>Unavailable</source>
+        <translation>Non disponibile</translation>
+    </message>
+    <message>
         <source>Only when VPN is connected</source>
         <translation>Solo quando la VPN è connessa</translation>
-    </message>
-</context>
-<context>
-    <name>PreferencesWindow::ProxyIpAddressItem</name>
-    <message>
-        <source>IP</source>
-        <translation>IP</translation>
-    </message>
-    <message>
-        <source>Copied</source>
-        <translation>Copiato</translation>
     </message>
 </context>
 <context>
@@ -2573,6 +2597,10 @@ Se la reinstallazione non risolve il problema, contattare il supporto Windscribe
     <message>
         <source>Van Gogh</source>
         <translation>Van Gogh</translation>
+    </message>
+    <message>
+        <source>IPv4 Only</source>
+        <translation>Solo IPv4</translation>
     </message>
     <message>
         <source>Enabled</source>

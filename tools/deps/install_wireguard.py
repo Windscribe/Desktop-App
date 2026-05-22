@@ -28,6 +28,14 @@ DEP_URL_GNU = "https://git.zx2c4.com/wireguard-go/snapshot/"
 DEP_OS_LIST = ["win32", "macos", "linux"]
 
 
+def CheckWindowsTar():
+    if os.environ.get("MSYSTEM"):
+        raise iutl.InstallError(
+            "MSYS2/Git Bash detected. The upstream WireGuard build uses 'tar' to "
+            "extract .zip files, which requires Windows' built-in bsdtar. MSYS2's "
+            "GNU tar does not support .zip. Please run from PowerShell or CMD.")
+
+
 def BuildDependencyMSVC(outpath, outpath_arm64, configured_rc):
     buildenv = os.environ.copy()
     if configured_rc:
@@ -71,6 +79,8 @@ def InstallDependency():
     if not configdata:
         raise iutl.InstallError("Failed to get config data.")
     iutl.SetupEnvironment(configdata)
+    if utl.GetCurrentOS() == "win32":
+        CheckWindowsTar()
     dep_name = DEP_TITLE.lower()
     dep_version_var = "VERSION_" + DEP_TITLE.upper().replace("-", "") + ("_WIN" if utl.GetCurrentOS() == "win32" else "_GNU")
     dep_version_str = os.environ.get(dep_version_var, None)
@@ -93,9 +103,10 @@ def InstallDependency():
     iutl.DownloadFile("{}{}".format(download_url, archivename), localfilename, dep_checksum_str)
     msg.HeadPrint("Extracting: \"{}\"".format(archivename))
     iutl.ExtractFile(localfilename)
-    # Copy modified files (Windows only).
+    # Apply patch (Windows only).
     if utl.GetCurrentOS() == "win32":
-        iutl.CopyCustomFiles(dep_name, os.path.join(temp_dir, archivetitle))
+        patch_file = os.path.join(TOOLS_DIR, "deps", "custom_wireguard", "windscribe_wireguard.patch")
+        iutl.ApplyPatch(os.path.join(temp_dir, archivetitle), patch_file)
     if c_ismac:
         # Need to configure and build wireguard-go for each target architecture in its own folder.
         with utl.PushDir(temp_dir):
@@ -104,12 +115,13 @@ def InstallDependency():
     # Build the dependency.
     dep_buildroot_str = os.path.join(iutl.GetBuildLibsRoot(product_name), dep_name)
     outpath = os.path.normpath(os.path.join(os.path.dirname(TOOLS_DIR), dep_buildroot_str))
+    outpath_arm64 = None
     # Clean the output folder to ensure no conflicts when we're updating to a newer wireguard version.
     utl.RemoveDirectory(outpath)
     exe_name = "{}wireguard".format(product_name)
     configured_rc = None
     if utl.GetCurrentOS() == "win32":
-        template_in = os.path.join(TOOLS_DIR, "deps", "custom_wireguard", "embeddable-dll-service", "version_info.rc.in")
+        template_in = os.path.join(temp_dir, archivetitle, "embeddable-dll-service", "version_info.rc.in")
         configured_rc = os.path.join(temp_dir, "version_info.rc")
         iutl.ConfigureDependencyTemplate(product_name, template_in, configured_rc)
     if c_ismac:
@@ -136,6 +148,8 @@ def InstallDependency():
                 BuildDependencyLinux(outpath, product_name)
     # Copy the dependency to output directory and to a zip file, if needed.
     aflist = [outpath]
+    if outpath_arm64:
+        aflist.append(outpath_arm64)
     if "-zip" in sys.argv:
         dep_artifact_var = "ARTIFACT_" + DEP_TITLE.upper()
         dep_artifact_str = os.environ.get(dep_artifact_var, "{}.zip".format(dep_name))
@@ -148,6 +162,8 @@ def InstallDependency():
     msg.Print("Cleaning temporary directory...")
     utl.RemoveDirectory(temp_dir)
     msg.Print(f"{DEP_TITLE} v{dep_version_str} installed in {outpath}")
+    if outpath_arm64:
+        msg.Print(f"{DEP_TITLE} v{dep_version_str} installed in {outpath_arm64}")
 
 
 if __name__ == "__main__":

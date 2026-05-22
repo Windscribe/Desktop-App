@@ -45,6 +45,22 @@
         <translation>Não foi possível remover uma instalação existente do Windscribe. Desinstale o aplicativo manualmente e tente novamente.</translation>
     </message>
     <message>
+        <source>The Windows Base Filtering Engine service is not running and could not be started. This core Windows service must be running to install Windscribe. Third-party security/firewall software is most often the cause of this issue.</source>
+        <translation>O serviço do Windows Base Filtering Engine não está a funcionar e não pôde ser iniciado. Este serviço central do Windows tem de estar a correr para instalar o Windscribe. Software de segurança/firewall de terceiros é geralmente a causa deste problema.</translation>
+    </message>
+    <message>
+        <source>Windscribe is unable to connect to the Windows Base Filtering Engine service. Connecting to this core Windows service is required to install Windscribe. Third-party security/firewall software is most often the cause of this issue.</source>
+        <translation>O Windscribe não consegue ligar-se ao serviço Windows Base Filtering Engine. É necessário ligar-se a este serviço principal do Windows para instalar o Windscribe. Software de segurança/firewall de terceiros é geralmente a causa deste problema.</translation>
+    </message>
+    <message>
+        <source>Windscribe is unable to install its helper service. Please manually uninstall Windscribe and try again. If this issue persists, please contact our Technical Support.</source>
+        <translation>A Windscribe não consegue instalar o seu serviço auxiliar. Por favor, desinstala manualmente o Windscribe e tenta novamente. Se este problema persistir, por favor contacte o nosso Suporte Técnico.</translation>
+    </message>
+    <message>
+        <source>Windscribe is unable to start its helper service. Third-party security/firewall software may be the cause. If this is not the case, please contact our Technical Support.</source>
+        <translation>A Windscribe não consegue iniciar o seu serviço auxiliar. Software de segurança/firewall de terceiros pode ser a causa. Se não for esse o caso, por favor contacte o nosso Suporte Técnico.</translation>
+    </message>
+    <message>
         <source>The installation could not be completed successfully. Please contact our Technical Support.</source>
         <translation>A instalação não pôde ser concluída com êxito. Entre em contato com nosso Suporte Técnico.</translation>
     </message>

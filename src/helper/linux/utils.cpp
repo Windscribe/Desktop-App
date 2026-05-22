@@ -1,13 +1,12 @@
 #include "utils.h"
 #include "3rdparty/pstream.h"
+#include "../common/validation_posix.h"
 
 #include <arpa/inet.h>
 #include <cstring>
 #include <dirent.h>
-#include <net/if.h>
-#include <skyr/core/parse.hpp>
-#include <skyr/core/serialize.hpp>
-#include <skyr/url.hpp>
+#include <filesystem>
+#include <fstream>
 #include <sstream>
 #include <sys/stat.h>
 #include <spdlog/spdlog.h>
@@ -80,58 +79,37 @@ bool isFileExists(const std::string &name)
     return (stat (name.c_str(), &buffer) == 0);
 }
 
-std::string getFullCommand(const std::string &exePath, const std::string &executable, const std::string &arguments)
+bool resolveExePath(const std::string &exePath, const std::string &executable, std::string &outPath)
 {
     char *canonicalPath = realpath(exePath.c_str(), NULL);
     if (!canonicalPath) {
         spdlog::warn("Executable not in valid path, ignoring.");
-        return "";
+        return false;
     }
 
 // check only for release build
 #ifdef NDEBUG
-    if (std::string(canonicalPath).rfind(WS_LINUX_INSTALL_DIR, 0) != 0 && std::string(canonicalPath).rfind("/usr/lib" WS_LINUX_INSTALL_DIR, 0) != 0) {
+    if (strcmp(canonicalPath, WS_LINUX_INSTALL_DIR) != 0 && strcmp(canonicalPath, "/usr/lib" WS_LINUX_INSTALL_DIR) != 0) {
         // Don't execute arbitrary commands, only executables that are in our application directory
         spdlog::warn("Executable not in correct path, ignoring.");
         free(canonicalPath);
-        return "";
+        return false;
     }
 #endif
 
-    std::string fullCmd = std::string(canonicalPath) + "/" + executable + " " + arguments;
-    spdlog::debug("Resolved command: {}", fullCmd);
+    outPath = std::string(canonicalPath) + "/" + executable;
     free(canonicalPath);
-
-    if (fullCmd.find_first_of(";|&`") != std::string::npos) {
-        // Don't execute commands with dangerous pipes or delimiters
-        spdlog::warn("Executable command contains invalid characters, ignoring.");
-        return "";
-    }
-
-    return fullCmd;
-}
-
-std::string getFullCommandAsUser(const std::string &user, const std::string &exePath, const std::string &executable, const std::string &arguments)
-{
-    return "sudo -u " + user + " " + getFullCommand(exePath, executable, arguments);
+    return true;
 }
 
 std::vector<std::string> getOpenVpnExeNames()
 {
     std::vector<std::string> ret;
-    std::string list;
-    std::string item;
-    int rc = 0;
-
-    rc = Utils::executeCommand("ls", {WS_LINUX_INSTALL_DIR}, &list);
-    if (rc != 0) {
-        return ret;
-    }
-
-    std::istringstream stream(list);
-    while (std::getline(stream, item)) {
-        if (item.find("openvpn") != std::string::npos) {
-            ret.push_back(item);
+    std::error_code ec;
+    for (std::filesystem::directory_iterator it(WS_LINUX_INSTALL_DIR, ec), end; !ec && it != end; it.increment(ec)) {
+        std::string name = it->path().filename().string();
+        if (name.find("openvpn") != std::string::npos) {
+            ret.push_back(name);
         }
     }
     return ret;
@@ -153,7 +131,7 @@ std::string getDnsScript(CmdDnsManager mgr)
 
 void createAppUserAndGroup()
 {
-    bool exists = !Utils::executeCommand("id " WS_PRODUCT_NAME_LOWER);
+    bool exists = !Utils::executeCommand("id", {WS_PRODUCT_NAME_LOWER});
     if (exists) {
         return;
     }
@@ -172,99 +150,6 @@ bool hasWhitespaceInString(const std::string &str)
 std::string getExePath()
 {
     return WS_LINUX_INSTALL_DIR;
-}
-
-bool isValidIpAddress(const std::string &address)
-{
-    struct sockaddr_in sa;
-    return inet_pton(AF_INET, address.c_str(), &(sa.sin_addr)) != 0;
-}
-
-bool isValidDomain(const std::string &address)
-{
-    if (isValidIpAddress(address)) {
-        return false;
-    }
-
-    auto domain = skyr::parse_host(address);
-    if (!domain) {
-        return false;
-    }
-
-    return true;
-}
-
-bool isValidInterfaceName(const std::string &interfaceName)
-{
-    if (interfaceName.empty() || interfaceName.length() >= IFNAMSIZ) {
-        return false;
-    }
-
-    for (char c : interfaceName) {
-        if (c == '\0' || c == ':' || c == '/' || std::isspace(c)) {
-            return false;
-        }
-    }
-
-    return true;
-}
-
-bool isValidMacAddress(const std::string &macAddress)
-{
-    if (macAddress.empty()) {
-        return false;
-    }
-
-    size_t len = macAddress.length();
-
-    if (len == 12) {
-        for (char c : macAddress) {
-            if (!std::isxdigit(c)) {
-                return false;
-            }
-        }
-        return true;
-    } else if (len == 17) {
-        char separator = macAddress[2];
-        if (separator != ':' && separator != '-') {
-            return false;
-        }
-
-        for (size_t i = 0; i < len; i++) {
-            if (i % 3 == 2) {
-                if (macAddress[i] != separator) {
-                    return false;
-                }
-            } else {
-                if (!std::isxdigit(macAddress[i])) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
-    return false;
-}
-
-std::string normalizeAddress(const std::string &address)
-{
-    std::string addr = address;
-
-    if (isValidIpAddress(address)) {
-        return addr;
-    }
-
-    if (isValidDomain(address)) {
-        return addr;
-    }
-
-    auto url = skyr::parse(address);
-    if (!url) {
-        return "";
-    }
-
-    return skyr::serialize(url.value());
 }
 
 bool isMacAddressSpoofed(const std::string &network)
@@ -316,7 +201,7 @@ static std::vector<std::string> getInterfaceNames()
 
 static std::string getHwMac(const std::string &ifname)
 {
-    if (!isValidInterfaceName(ifname)) {
+    if (!Validation::isValidInterfaceName(ifname)) {
         spdlog::error("Invalid interface name in getHwMac: {}", ifname);
         return "";
     }
@@ -340,13 +225,16 @@ static std::string getHwMac(const std::string &ifname)
 
 static std::string getCurrentMac(const std::string &ifname)
 {
-    if (!isValidInterfaceName(ifname)) {
+    if (!Validation::isValidInterfaceName(ifname)) {
         spdlog::error("Invalid interface name in getCurrentMac: {}", ifname);
         return "";
     }
 
+    std::ifstream addrFile("/sys/class/net/" + ifname + "/address");
     std::string output;
-    Utils::executeCommand("cat", {"/sys/class/net/" + ifname + "/address"}, &output);
+    if (addrFile) {
+        std::getline(addrFile, output);
+    }
     // Remove trailing whitespace
     output.erase(output.find_last_not_of(" \n\r\t") + 1);
     return output;

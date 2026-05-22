@@ -618,26 +618,6 @@ Hesabınızı kaybederseniz, sonsuza dek kaybolur ve destek size onu kurtarmaya 
         <translation>Özel Yapılandırma Klasörü&apos;nü seçin</translation>
     </message>
     <message>
-        <source>Cannot select this directory because it is writeable for non-privileged users. Custom configs in this directory may pose a potential security risk. Please authenticate with an admin user to select this directory.</source>
-        <translation>Ayrıcalıklı olmayan kullanıcılar için yazılabilir olduğundan bu dizin seçilemiyor. Bu dizindeki özel yapılandırmalar olası bir güvenlik riski oluşturabilir. Bu dizini seçmek için lütfen bir yönetici kullanıcıyla kimlik doğrulaması yapın.</translation>
-    </message>
-    <message>
-        <source>Can&apos;t select directory</source>
-        <translation>Dizin seçilemiyor</translation>
-    </message>
-    <message>
-        <source>The application is corrupted.  Please reinstall Windscribe.</source>
-        <translation>Uygulama bozuk.  Lütfen Windscribe&apos;ı yeniden yükleyin.</translation>
-    </message>
-    <message>
-        <source>Validation Error</source>
-        <translation>Doğrulama Hatası</translation>
-    </message>
-    <message>
-        <source>The selected directory is writeable for non-privileged users. Custom configs in this directory may pose a potential security risk.</source>
-        <translation>Seçilen dizin, ayrıcalıklı olmayan kullanıcılar için yazılabilir. Bu dizindeki özel yapılandırmalar olası bir güvenlik riski oluşturabilir.</translation>
-    </message>
-    <message>
         <source>Security Risk</source>
         <translation>Güvenlik Riski</translation>
     </message>
@@ -678,6 +658,26 @@ Hesabınızı kaybederseniz, sonsuza dek kaybolur ve destek size onu kurtarmaya 
         <translation>Bağlantısı kesilmiş</translation>
     </message>
     <message>
+        <source>The selected directory is writeable for other users. Custom configs in this directory may pose a potential security risk.</source>
+        <translation>Seçilen dizin diğer kullanıcılar için yazılabilir. Bu dizindeki özel yapılandırmalar potansiyel bir güvenlik riski oluşturabilir.</translation>
+    </message>
+    <message>
+        <source>Proxy Gateway is unauthenticated</source>
+        <translation>Proxy Gateway doğrulanmamıştır</translation>
+    </message>
+    <message>
+        <source>Your Proxy Gateway is enabled without authentication. Anyone on your local network, including untrusted networks like coffee-shop Wi-Fi, can route their traffic through your VPN. We strongly recommend setting credentials.</source>
+        <translation>Proxy Gateway&apos;iniz kimlik doğrulama olmadan etkinleştirilmiştir. Yerel ağınızdaki, kahve dükkanı Wi-Fi gibi güvenilmez ağlar da dahil, trafiğini VPN üzerinden yönlendirebilir. Kimlik bilgilerini belirlemenizi şiddetle tavsiye ederiz.</translation>
+    </message>
+    <message>
+        <source>Go to Preferences</source>
+        <translation>Tercihler&apos;e git</translation>
+    </message>
+    <message>
+        <source>Later</source>
+        <translation>Daha sonra</translation>
+    </message>
+    <message>
         <source>Connected to </source>
         <translation>Bağlı </translation>
     </message>
@@ -690,6 +690,18 @@ Hesabınızı kaybederseniz, sonsuza dek kaybolur ve destek size onu kurtarmaya 
 %1 transferred in %2</source>
         <translation>Windscribe bağlantısı sonlandırıldı.
 %1 %2&apos;de transfer edildi</translation>
+    </message>
+    <message>
+        <source>Could not start Proxy Gateway</source>
+        <translation>Proxy Gateway başlatamadım</translation>
+    </message>
+    <message>
+        <source>The configured port is in use. Please try a different port.</source>
+        <translation>Yapılandırılmış port kullanılıyor. Lütfen farklı bir port deneyin.</translation>
+    </message>
+    <message>
+        <source>An unknown error occurred.</source>
+        <translation>Bilinmeyen bir hata meydana geldi.</translation>
     </message>
     <message>
         <source>Network Settings Interference</source>
@@ -924,14 +936,6 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
     <message>
         <source>  If you are on a restrictive network, please connect the VPN before trying the download again.</source>
         <translation>  Kısıtlayıcı bir ağdaysanız, indirmeyi tekrar denemeden önce lütfen VPN&apos;i bağlayın.</translation>
-    </message>
-    <message>
-        <source>Custom Config Directory Import</source>
-        <translation>Özel Yapılandırma Dizini İçe Aktarma</translation>
-    </message>
-    <message>
-        <source>A custom config directory is being imported.  Windscribe will prompt for your admin password to check for correct permissions.</source>
-        <translation>Özel bir yapılandırma dizini içe aktarılıyor.  Windscribe, doğru izinleri kontrol etmek için yönetici parolanızı isteyecektir.</translation>
     </message>
     <message>
         <source>Your &quot;Connected DNS&quot; server is set to an OS default DNS server, which would result in a DNS leak.  It has been changed to Auto.</source>
@@ -1447,6 +1451,14 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
         <translation>VPN protokolünü otomatik olarak seçin veya manuel olarak seçin. NOT: &quot;Tercih Edilen Protokol&quot; bu ayarı geçersiz kılacaktır.</translation>
     </message>
     <message>
+        <source>Configure egress IP stack for VPN connections.</source>
+        <translation>VPN bağlantıları için çıkış IP yığınını yapılandırın.</translation>
+    </message>
+    <message>
+        <source>IP Stack</source>
+        <translation>IP Yığını</translation>
+    </message>
+    <message>
         <source>Select the DNS server while connected to Windscribe.</source>
         <translation>Windscribe&apos;a bağlıyken DNS sunucusunu seçin.</translation>
     </message>
@@ -1517,6 +1529,13 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
     <message>
         <source>Anti-censorship Settings</source>
         <translation>Sansür karşıtı Ayarlar</translation>
+    </message>
+</context>
+<context>
+    <name>PreferencesWindow::CopyableTextItem</name>
+    <message>
+        <source>Copied</source>
+        <translation>Kopya -lanan</translation>
     </message>
 </context>
 <context>
@@ -2106,31 +2125,36 @@ Connect to a network first</source>
         <translation>Liman</translation>
     </message>
     <message>
-        <source>Unable to start proxy server</source>
-        <translation>Proxy sunucusu başlatılamıyor</translation>
+        <source>Require Authentication</source>
+        <translation>Kimlik Doğrulama Gerekli</translation>
     </message>
     <message>
-        <source>The proxy server couldn&apos;t be started on the requested port. Please try again with a different port.</source>
-        <translation>Proxy sunucusu istenen bağlantı noktasında başlatılamadı. Lütfen farklı bir bağlantı noktasıyla tekrar deneyin.</translation>
+        <source>Without authentication, anyone on your network (e.g. coffee shop Wi-Fi) can use this proxy. Leave this on unless you know what you&apos;re doing.</source>
+        <translation>Kimlik doğrulama olmadan, ağınızdaki herkes (örneğin kafe Wi-Fi) bu proxy&apos;yi kullanabilir. Ne yaptığını bilmiyorsan bunu açık bırak.</translation>
+    </message>
+    <message>
+        <source>IP</source>
+        <translation>IP</translation>
+    </message>
+    <message>
+        <source>Username</source>
+        <translation>Kullanıcı adı</translation>
+    </message>
+    <message>
+        <source>Password</source>
+        <translation>Şifre</translation>
     </message>
     <message>
         <source>Auto</source>
         <translation>Otomatik</translation>
     </message>
     <message>
+        <source>Unavailable</source>
+        <translation>Mevcut değil</translation>
+    </message>
+    <message>
         <source>Only when VPN is connected</source>
         <translation>Yalnızca VPN bağlıyken</translation>
-    </message>
-</context>
-<context>
-    <name>PreferencesWindow::ProxyIpAddressItem</name>
-    <message>
-        <source>IP</source>
-        <translation>IP</translation>
-    </message>
-    <message>
-        <source>Copied</source>
-        <translation>Kopya -lanan</translation>
     </message>
 </context>
 <context>
@@ -2573,6 +2597,10 @@ Yeniden yükleme yardımcı olmazsa, lütfen yardım için Windscribe desteği i
     <message>
         <source>Van Gogh</source>
         <translation>Van Gogh</translation>
+    </message>
+    <message>
+        <source>IPv4 Only</source>
+        <translation>Sadece IPv4</translation>
     </message>
     <message>
         <source>Enabled</source>

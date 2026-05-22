@@ -1,6 +1,7 @@
 #include "enginesettings.h"
 
 #include <QJsonDocument>
+#include <filesystem>
 
 #include "types/global_consts.h"
 #include "utils/languagesutil.h"
@@ -19,6 +20,7 @@ EngineSettings::EngineSettings() : d(new EngineSettingsData)
 EngineSettings::EngineSettings(const QJsonObject &json) : d(new EngineSettingsData)
 {
     d->fromJson(json);
+    d->validate();
 }
 
 void EngineSettings::saveToSettings()
@@ -33,7 +35,8 @@ void EngineSettings::saveToSettings()
               d->firewallSettings << d->connectionSettings << apiResolutionSettingsNotUsed << d->proxySettings << d->packetSize <<
               d->macAddrSpoofing << d->dnsPolicy << d->tapAdapter << d->customOvpnConfigsPath << d->isKeepAliveEnabled <<
               d->connectedDnsInfo << d->dnsManager << d->networkPreferredProtocols <<
-              d->isAPIAntiCensorship << d->decoyTrafficSettings << d->amneziawgPreset << d->serverRoutingMethod << d->protocolTweaksMethod;
+              d->isAPIAntiCensorship << d->decoyTrafficSettings << d->amneziawgPreset << d->serverRoutingMethod << d->protocolTweaksMethod <<
+              static_cast<int>(d->IpStackEgress);
     }
 
     QSettings settings;
@@ -53,11 +56,17 @@ bool EngineSettings::loadFromSettings()
         QByteArray arr = simpleCrypt.decryptToByteArray(str);
 
         QDataStream ds(&arr, QIODevice::ReadOnly);
+        // Wrap in a transaction so nested-type version mismatches stay in the corrupt-stream state
+        // inside QList readers (see StreamStateSaver in qdatastream.h), avoiding a huge
+        // QList::reserve() that would crash before we reach the status check below.
+        ds.startTransaction();
+
         types::ApiResolutionSettings apiResolutionSettingsNotUsed;  // Left only for compatibility of reading settings
-        quint32 magic, version;
-        ds >> magic;
-        if (magic == magic_) {
-            ds >> version;
+        quint32 magic = 0, version = 0;
+        ds >> magic >> version;
+        if (magic != magic_ || version > versionForSerialization_) {
+            ds.setStatus(QDataStream::ReadCorruptData);
+        } else {
             ds >> d->language >> d->updateChannel >> d->isIgnoreSslErrors >> d->isTerminateSockets >> d->isAllowLanTraffic >>
                     d->firewallSettings >> d->connectionSettings >> apiResolutionSettingsNotUsed >> d->proxySettings >> d->packetSize >>
                     d->macAddrSpoofing >> d->dnsPolicy >> d->tapAdapter >> d->customOvpnConfigsPath >> d->isKeepAliveEnabled >>
@@ -73,7 +82,7 @@ bool EngineSettings::loadFromSettings()
                 ds >> d->isAPIAntiCensorship;
             }
             if (version >= 5) {
-                d->tapAdapter = WINTUN_ADAPTER;
+                d->tapAdapter = TAP_ADAPTER;
             }
             if (version >= 6) {
                 ds >> d->decoyTrafficSettings;
@@ -87,10 +96,16 @@ bool EngineSettings::loadFromSettings()
             if (version >= 10) {
                 ds >> d->protocolTweaksMethod;
             }
-
-            if (ds.status() == QDataStream::Ok) {
-                bLoaded = true;
+            if (version >= 11) {
+                int ipStackEgressInt;
+                ds >> ipStackEgressInt;
+                d->IpStackEgress = ipStackFromInt(ipStackEgressInt);
             }
+        }
+
+        if (ds.commitTransaction()) {
+            d->validate();
+            bLoaded = true;
         }
     }
 
@@ -319,6 +334,16 @@ void EngineSettings::setProtocolTweaksMethod(PROTOCOL_TWEAKS_METHOD_TYPE method)
     d->protocolTweaksMethod = method;
 }
 
+IpStack EngineSettings::ipStackEgress() const
+{
+    return d->IpStackEgress;
+}
+
+void EngineSettings::setIpStackEgress(IpStack ipStackEgress)
+{
+    d->IpStackEgress = ipStackEgress;
+}
+
 void EngineSettings::setMacAddrSpoofing(const MacAddrSpoofing &macAddrSpoofing)
 {
     d->macAddrSpoofing = macAddrSpoofing;
@@ -362,7 +387,8 @@ bool EngineSettings::operator==(const EngineSettings &other) const
             other.d->networkPreferredProtocols == d->networkPreferredProtocols &&
             other.d->amneziawgPreset == d->amneziawgPreset &&
             other.d->serverRoutingMethod == d->serverRoutingMethod &&
-            other.d->protocolTweaksMethod == d->protocolTweaksMethod;
+            other.d->protocolTweaksMethod == d->protocolTweaksMethod &&
+            other.d->IpStackEgress == d->IpStackEgress;
 }
 
 bool EngineSettings::operator!=(const EngineSettings &other) const
@@ -380,6 +406,7 @@ QJsonObject EngineSettings::toJson(bool isForDebugLog) const
 void EngineSettings::fromIni(QSettings &settings)
 {
     d->fromIni(settings);
+    d->validate();
 }
 
 void EngineSettings::toIni(QSettings &settings) const
@@ -394,6 +421,66 @@ QDebug operator<<(QDebug dbg, const EngineSettings &es)
     dbg.noquote();
     dbg << doc.toJson(QJsonDocument::Compact);
     return dbg;
+}
+
+void EngineSettingsData::validate()
+{
+    if (!language.isEmpty() && !LanguagesUtil::isSupportedLanguage(language)) {
+        qCWarning(LOG_BASIC) << "EngineSettings: unsupported language, resetting";
+        language = LanguagesUtil::systemLanguage();
+    }
+
+    if (!customOvpnConfigsPath.isEmpty()) {
+        std::error_code ec;
+        std::filesystem::path p(customOvpnConfigsPath.toStdString());
+        if (!p.is_absolute() || !std::filesystem::is_directory(p, ec)) {
+            qCWarning(LOG_BASIC) << "EngineSettings: customOvpnConfigsPath not a valid absolute directory, clearing";
+            customOvpnConfigsPath.clear();
+        }
+    }
+
+    constexpr int kMaxAmneziawgPresetLen = 64;
+    if (amneziawgPreset.size() > kMaxAmneziawgPresetLen || amneziawgPreset.contains(QChar(0))) {
+        qCWarning(LOG_BASIC) << "EngineSettings: amneziawgPreset out of bounds, clearing";
+        amneziawgPreset.clear();
+    }
+
+    dnsPolicy = DNS_POLICY_TYPE_fromInt(static_cast<int>(dnsPolicy));
+    dnsManager = DNS_MANAGER_TYPE_fromInt(static_cast<int>(dnsManager));
+    updateChannel = UPDATE_CHANNEL_fromInt(static_cast<int>(updateChannel));
+    serverRoutingMethod = SERVER_ROUTING_METHOD_TYPE_fromInt(static_cast<int>(serverRoutingMethod));
+    protocolTweaksMethod = PROTOCOL_TWEAKS_METHOD_TYPE_fromInt(static_cast<int>(protocolTweaksMethod));
+
+    proxySettings.validate();
+    connectedDnsInfo.validate();
+    macAddrSpoofing.validate();
+    connectionSettings.validate();
+    firewallSettings.validate();
+    decoyTrafficSettings.validate();
+
+    constexpr int kMaxNetworkPreferred = 256;
+    constexpr int kMaxSsidLen = 256;
+    if (networkPreferredProtocols.size() > kMaxNetworkPreferred) {
+        qCWarning(LOG_BASIC) << "EngineSettings: networkPreferredProtocols over cap, truncating";
+        QMap<QString, types::ConnectionSettings> trimmed;
+        int n = 0;
+        for (auto it = networkPreferredProtocols.begin();
+             it != networkPreferredProtocols.end() && n < kMaxNetworkPreferred; ++it, ++n) {
+            trimmed.insert(it.key(), it.value());
+        }
+        networkPreferredProtocols = trimmed;
+    }
+    QMap<QString, types::ConnectionSettings> filteredPreferred;
+    for (auto it = networkPreferredProtocols.begin(); it != networkPreferredProtocols.end(); ++it) {
+        if (it.key().size() > kMaxSsidLen || it.key().contains(QChar(0))) {
+            qCWarning(LOG_BASIC) << "EngineSettings: dropping networkPreferredProtocols entry with invalid key";
+            continue;
+        }
+        ConnectionSettings cs = it.value();
+        cs.validate();
+        filteredPreferred.insert(it.key(), cs);
+    }
+    networkPreferredProtocols = filteredPreferred;
 }
 
 void EngineSettingsData::fromJson(const QJsonObject &json)
@@ -436,6 +523,10 @@ void EngineSettingsData::fromJson(const QJsonObject &json)
         isAPIAntiCensorship = json[kJsonIsAntiCensorshipProp].toBool();
     }
 
+    if (json.contains(kJsonIsIgnoreSslErrorsProp) && json[kJsonIsIgnoreSslErrorsProp].isBool()) {
+        isIgnoreSslErrors = json[kJsonIsIgnoreSslErrorsProp].toBool();
+    }
+
     if (json.contains(kJsonIsKeepAliveEnabledProp) && json[kJsonIsKeepAliveEnabledProp].isBool()) {
         isKeepAliveEnabled = json[kJsonIsKeepAliveEnabledProp].toBool();
     }
@@ -447,10 +538,7 @@ void EngineSettingsData::fromJson(const QJsonObject &json)
 #endif
 
     if (json.contains(kJsonLanguageProp) && json[kJsonLanguageProp].isString()) {
-        QString lang = json[kJsonLanguageProp].toString();
-        if (LanguagesUtil::isSupportedLanguage(lang)) {
-            language = lang;
-        }
+        language = json[kJsonLanguageProp].toString();
     }
 
     if (json.contains(kJsonAmneziawgPresetProp) && json[kJsonAmneziawgPresetProp].isString()) {
@@ -463,6 +551,10 @@ void EngineSettingsData::fromJson(const QJsonObject &json)
 
     if (json.contains(kJsonProtocolTweaksMethodProp) && json[kJsonProtocolTweaksMethodProp].isDouble()) {
         protocolTweaksMethod = PROTOCOL_TWEAKS_METHOD_TYPE_fromInt(json[kJsonProtocolTweaksMethodProp].toInt());
+    }
+
+    if (json.contains(kJsonIpStackEgressProp) && json[kJsonIpStackEgressProp].isDouble()) {
+        IpStackEgress = ipStackFromInt(json[kJsonIpStackEgressProp].toInt());
     }
 
     if (json.contains(kJsonMacAddrSpoofingProp) && json[kJsonMacAddrSpoofingProp].isObject()) {
@@ -500,6 +592,9 @@ QJsonObject EngineSettingsData::toJson(bool isForDebugLog) const
 
     json[kJsonConnectedDnsInfoProp] = connectedDnsInfo.toJson();
     json[kJsonConnectionSettingsProp] = connectionSettings.toJson(isForDebugLog);
+#if defined(Q_OS_LINUX)
+    json[kJsonDnsManagerProp] = static_cast<int>(dnsManager);
+#endif
     json[kJsonDnsPolicyProp] = static_cast<int>(dnsPolicy);
     json[kJsonDecoyTrafficSettingsProp] = decoyTrafficSettings.toJson();
     json[kJsonFirewallSettingsProp] = firewallSettings.toJson(isForDebugLog);
@@ -512,6 +607,7 @@ QJsonObject EngineSettingsData::toJson(bool isForDebugLog) const
     json[kJsonAmneziawgPresetProp] = amneziawgPreset;
     json[kJsonServerRoutingMethodProp] = static_cast<int>(serverRoutingMethod);
     json[kJsonProtocolTweaksMethodProp] = static_cast<int>(protocolTweaksMethod);
+    json[kJsonIpStackEgressProp] = static_cast<int>(IpStackEgress);
     json[kJsonMacAddrSpoofingProp] = macAddrSpoofing.toJson(isForDebugLog);
 
     QJsonObject networkPreferredProtocolsObj;
@@ -532,6 +628,7 @@ QJsonObject EngineSettingsData::toJson(bool isForDebugLog) const
         json["dnsPolicyDesc"] = DNS_POLICY_TYPE_toString(dnsPolicy);
         json["serverRoutingMethodDesc"] = SERVER_ROUTING_METHOD_TYPE_toString(serverRoutingMethod);
         json["protocolTweaksMethodDesc"] = PROTOCOL_TWEAKS_METHOD_TYPE_toString(protocolTweaksMethod);
+        json["ipStackEgressDesc"] = ipStackToString(IpStackEgress);
         json["updateChannelDesc"] = UPDATE_CHANNEL_toString(updateChannel);
     } else {
         json[kJsonCustomOvpnConfigsPathProp] = Utils::toBase64(customOvpnConfigsPath);
@@ -541,10 +638,7 @@ QJsonObject EngineSettingsData::toJson(bool isForDebugLog) const
 
 void EngineSettingsData::fromIni(QSettings &settings)
 {
-    QString lang = settings.value(kIniLanguageProp, language).toString();
-    if (LanguagesUtil::isSupportedLanguage(lang)) {
-        language = lang;
-    }
+    language = settings.value(kIniLanguageProp, language).toString();
 
     updateChannel = UPDATE_CHANNEL_fromString(settings.value(kIniUpdateChannelProp, UPDATE_CHANNEL_toString(updateChannel)).toString());
 
@@ -569,6 +663,7 @@ void EngineSettingsData::fromIni(QSettings &settings)
     amneziawgPreset = settings.value(kIniAmneziawgPresetProp, amneziawgPreset).toString();
     serverRoutingMethod = SERVER_ROUTING_METHOD_TYPE_fromInt(settings.value(kIniServerRoutingMethodProp, static_cast<int>(serverRoutingMethod)).toInt());
     protocolTweaksMethod = PROTOCOL_TWEAKS_METHOD_TYPE_fromInt(settings.value(kIniProtocolTweaksMethodProp, static_cast<int>(protocolTweaksMethod)).toInt());
+    IpStackEgress = ipStackFromInt(settings.value(kIniIpStackEgressProp, static_cast<int>(IpStackEgress)).toInt());
     settings.endGroup();
 
     settings.beginGroup(QString("Advanced"));
@@ -604,6 +699,7 @@ void EngineSettingsData::toIni(QSettings &settings) const
     settings.setValue(kIniAmneziawgPresetProp, amneziawgPreset);
     settings.setValue(kIniServerRoutingMethodProp, static_cast<int>(serverRoutingMethod));
     settings.setValue(kIniProtocolTweaksMethodProp, static_cast<int>(protocolTweaksMethod));
+    settings.setValue(kIniIpStackEgressProp, static_cast<int>(IpStackEgress));
     settings.endGroup();
 
     settings.beginGroup(QString("Advanced"));

@@ -2,11 +2,14 @@
 
 #include <QHostAddress>
 #include <QPainter>
-#include "generalmessagecontroller.h"
 #include "graphicresources/imageresourcessvg.h"
 #include "languagecontroller.h"
+#include "utils/utils.h"
 
 namespace PreferencesWindow {
+
+constexpr int kProxyCredentialLength = 12;
+const QString kProxyUsername = QStringLiteral("windscribe");
 
 ProxyGatewayGroup::ProxyGatewayGroup(ScalableGraphicsObject *parent, const QString &desc, const QString &descUrl)
   : PreferenceGroup(parent, desc, descUrl)
@@ -35,14 +38,25 @@ ProxyGatewayGroup::ProxyGatewayGroup(ScalableGraphicsObject *parent, const QStri
     connect(editBoxPort_, &EditBoxItem::editClicked, this, &ProxyGatewayGroup::onPortEditClicked);
     addItem(editBoxPort_);
 
-    proxyIpAddressItem_ = new ProxyIpAddressItem(this);
+    proxyIpAddressItem_ = new CopyableTextItem(this);
     addItem(proxyIpAddressItem_);
 
     checkBoxWhileConnected_ = new ToggleItem(this);
     connect(checkBoxWhileConnected_, &ToggleItem::stateChanged, this, &ProxyGatewayGroup::onWhileConnectedStateChanged);
     addItem(checkBoxWhileConnected_);
 
-    hideItems(indexOf(comboBoxProxyType_), indexOf(checkBoxWhileConnected_), DISPLAY_FLAGS::FLAG_NO_ANIMATION);
+    checkBoxRequireAuth_ = new ToggleItem(this);
+    connect(checkBoxRequireAuth_, &ToggleItem::stateChanged, this, &ProxyGatewayGroup::onRequireAuthStateChanged);
+    addItem(checkBoxRequireAuth_);
+
+    usernameItem_ = new CopyableTextItem(this);
+    addItem(usernameItem_);
+
+    passwordItem_ = new CopyableTextItem(this, "preferences/REFRESH_ICON");
+    connect(passwordItem_, &CopyableTextItem::extraButtonPressed, this, &ProxyGatewayGroup::onRegeneratePasswordClicked);
+    addItem(passwordItem_);
+
+    hideItems(indexOf(comboBoxProxyType_), indexOf(passwordItem_), DISPLAY_FLAGS::FLAG_NO_ANIMATION);
 
     updateMode();
 
@@ -52,23 +66,29 @@ ProxyGatewayGroup::ProxyGatewayGroup(ScalableGraphicsObject *parent, const QStri
 
 void ProxyGatewayGroup::setProxyGatewaySettings(const types::ShareProxyGateway &sp)
 {
-    if (settings_ != sp) {
-        settings_ = sp;
-        checkBoxEnable_->setState(sp.isEnabled);
-        comboBoxProxyType_->setCurrentItem(sp.proxySharingMode);
-        if (sp.port == 0) {
-            editBoxPort_->setText(tr("Auto"));
-        } else {
-            editBoxPort_->setText(QString::number(sp.port));
-        }
-        checkBoxWhileConnected_->setState(sp.whileConnected);
-        updateMode();
+    settings_ = sp;
+    checkBoxEnable_->setState(sp.isEnabled);
+    comboBoxProxyType_->setCurrentItem(sp.proxySharingMode);
+    if (sp.port == 0) {
+        editBoxPort_->setText(tr("Auto"));
+    } else {
+        editBoxPort_->setText(QString::number(sp.port));
     }
+    checkBoxWhileConnected_->setState(sp.whileConnected);
+    checkBoxRequireAuth_->setState(sp.requireAuth);
+    usernameItem_->setText(sp.username);
+    passwordItem_->setText(sp.password);
+    updateMode();
 }
 
 void ProxyGatewayGroup::onCheckBoxStateChanged(bool isChecked)
 {
     settings_.isEnabled = isChecked;
+    if (isChecked && settings_.requireAuth) {
+        // Generate creds the first time the proxy is enabled with auth already on (fresh install: requireAuth defaults
+        // to true). For legacy upgraders requireAuth is already false here, so this is a no-op.
+        ensureCredentials();
+    }
     updateMode();
     emit proxyGatewayPreferencesChanged(settings_);
 }
@@ -112,26 +132,14 @@ void ProxyGatewayGroup::onWhileConnectedStateChanged(bool isChecked)
 
 void ProxyGatewayGroup::setProxyGatewayAddress(const QString &address)
 {
-    if (settings_.isEnabled && address.endsWith(":0")) {
-        // Port 0 indicates that the proxy is not running.  Reset to Auto.
-        editBoxPort_->setText(tr("Auto"));
-        settings_.port = 0;
-        emit proxyGatewayPreferencesChanged(settings_);
-
-        GeneralMessageController::instance().showMessage(
-            "WARNING_YELLOW",
-            tr("Unable to start proxy server"),
-            tr("The proxy server couldn't be started on the requested port. Please try again with a different port."),
-            GeneralMessageController::tr(GeneralMessageController::kOk),
-            "",
-            "",
-            std::function<void(bool b)>(nullptr),
-            std::function<void(bool b)>(nullptr),
-            std::function<void(bool b)>(nullptr),
-            GeneralMessage::kFromPreferences);
-        return;
+    // Engine returns "ip:port"; if it has no usable bind IP yet (no network, or whileConnected without VPN
+    // and no primary interface) we get just ":port", which renders as a confusing leading-colon stub. Show a
+    // friendly placeholder instead.
+    if (address.startsWith(":")) {
+        proxyIpAddressItem_->setText(tr("Unavailable"));
+    } else {
+        proxyIpAddressItem_->setText(address);
     }
-    proxyIpAddressItem_->setIP(address);
 }
 
 void ProxyGatewayGroup::hideOpenPopups()
@@ -141,11 +149,15 @@ void ProxyGatewayGroup::hideOpenPopups()
 
 void ProxyGatewayGroup::updateMode()
 {
-    if (checkBoxEnable_->isChecked()) {
-        showItems(indexOf(comboBoxProxyType_), indexOf(checkBoxWhileConnected_));
+    if (!checkBoxEnable_->isChecked()) {
+        hideItems(indexOf(comboBoxProxyType_), indexOf(passwordItem_));
+        return;
     }
-    else {
-        hideItems(indexOf(comboBoxProxyType_), indexOf(checkBoxWhileConnected_));
+    showItems(indexOf(comboBoxProxyType_), indexOf(checkBoxRequireAuth_));
+    if (settings_.requireAuth) {
+        showItems(indexOf(usernameItem_), indexOf(passwordItem_));
+    } else {
+        hideItems(indexOf(usernameItem_), indexOf(passwordItem_));
     }
 }
 
@@ -156,6 +168,40 @@ void ProxyGatewayGroup::onLanguageChanged()
     comboBoxProxyType_->setItems(PROXY_SHARING_TYPE_toList(), settings_.proxySharingMode);
     checkBoxWhileConnected_->setCaption(tr("Only when VPN is connected"));
     editBoxPort_->setCaption(tr("Port"));
+    checkBoxRequireAuth_->setCaption(tr("Require Authentication"));
+    checkBoxRequireAuth_->setDescription(
+        tr("Without authentication, anyone on your network (e.g. coffee shop Wi-Fi) can use this proxy. "
+           "Leave this on unless you know what you're doing."));
+    proxyIpAddressItem_->setLabel(tr("IP"));
+    usernameItem_->setLabel(tr("Username"));
+    passwordItem_->setLabel(tr("Password"));
+}
+
+void ProxyGatewayGroup::onRequireAuthStateChanged(bool isChecked)
+{
+    settings_.requireAuth = isChecked;
+    if (isChecked) {
+        ensureCredentials();
+    }
+    updateMode();
+    emit proxyGatewayPreferencesChanged(settings_);
+}
+
+void ProxyGatewayGroup::ensureCredentials()
+{
+    if (settings_.username.isEmpty() || settings_.password.isEmpty()) {
+        settings_.username = kProxyUsername;
+        settings_.password = Utils::generateSecureCredential(kProxyCredentialLength);
+        usernameItem_->setText(settings_.username);
+        passwordItem_->setText(settings_.password);
+    }
+}
+
+void ProxyGatewayGroup::onRegeneratePasswordClicked()
+{
+    settings_.password = Utils::generateSecureCredential(kProxyCredentialLength);
+    passwordItem_->setText(settings_.password);
+    emit proxyGatewayPreferencesChanged(settings_);
 }
 
 void ProxyGatewayGroup::onPortEditClicked()

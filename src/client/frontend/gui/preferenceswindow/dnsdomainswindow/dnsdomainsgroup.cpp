@@ -2,7 +2,7 @@
 
 #include <QPainter>
 #include "preferenceswindow/preferencegroup.h"
-#include "utils/ipvalidation.h"
+#include "utils/networkingvalidation.h"
 
 namespace PreferencesWindow {
 
@@ -84,7 +84,7 @@ void DnsDomainsGroup::onDeleteClicked()
 
 DnsDomainsGroup::ValidationCode DnsDomainsGroup::validate(const QString &address)
 {
-    if (!IpValidation::isDomainWithWildcard(address))
+    if (!NetworkingValidation::isDomainWithWildcard(address))
     {
         return ValidationCode::ERROR_INVALID;
     }

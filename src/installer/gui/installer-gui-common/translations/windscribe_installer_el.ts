@@ -69,6 +69,22 @@
         <translation>Δεν ήταν δυνατή η διαγραφή του προσαρμοσμένου φακέλου εγκατάστασης. Απεγκαταστήστε την εφαρμογή με μη αυτόματο τρόπο, βεβαιωθείτε ότι καμία εφαρμογή δεν έχει πρόσβαση στον προσαρμοσμένο φάκελο και δοκιμάστε ξανά.</translation>
     </message>
     <message>
+        <source>The Windows Base Filtering Engine service is not running and could not be started. This core Windows service must be running to install Windscribe. Third-party security/firewall software is most often the cause of this issue.</source>
+        <translation>Η υπηρεσία του βασικού μηχανισμού φιλτραρίσματος των Windows δεν εκτελείται και δεν ήταν δυνατή η εκκίνησή της. Αυτή η βασική υπηρεσία των Windows πρέπει να εκτελείται για την εγκατάσταση του Windscrib. Το λογισμικό ασφαλείας/τείχους προστασίας τρίτων είναι τις περισσότερες φορές η αιτία αυτού του ζητήματος.</translation>
+    </message>
+    <message>
+        <source>Windscribe is unable to connect to the Windows Base Filtering Engine service. Connecting to this core Windows service is required to install Windscribe. Third-party security/firewall software is most often the cause of this issue.</source>
+        <translation>Το Windscribe δεν μπορεί να συνδεθεί με την υπηρεσία Windows Base Filtering Engine. Η σύνδεση σε αυτήν τη βασική υπηρεσία των Windows απαιτείται για την εγκατάσταση του Windscrib. Το λογισμικό ασφαλείας/τείχους προστασίας τρίτων είναι τις περισσότερες φορές η αιτία αυτού του ζητήματος.</translation>
+    </message>
+    <message>
+        <source>Windscribe is unable to install its helper service. Please manually uninstall Windscribe and try again. If this issue persists, please contact our Technical Support.</source>
+        <translation>Το Windscrib δεν μπορεί να εγκαταστήσει τη βοηθητική του υπηρεσία. Απεγκαταστήστε χειροκίνητα το Windscrib και δοκιμάστε ξανά. Εάν αυτό το πρόβλημα παραμένει, επικοινωνήστε με την Τεχνική υποστήριξη.</translation>
+    </message>
+    <message>
+        <source>Windscribe is unable to start its helper service. Third-party security/firewall software may be the cause. If this is not the case, please contact our Technical Support.</source>
+        <translation>Το Windscribe δεν μπορεί να ξεκινήσει την υπηρεσία βοήθειας. Η αιτία μπορεί να είναι λογισμικό ασφαλείας/τείχους προστασίας τρίτων. Εάν δεν συμβαίνει αυτό, επικοινωνήστε με την Τεχνική Υποστήριξη.</translation>
+    </message>
+    <message>
         <source>The installation could not be completed successfully. Please contact our Technical Support.</source>
         <translation>Δεν ήταν δυνατή η ολοκλήρωση της εγκατάστασης με επιτυχία. Επικοινωνήστε με την Τεχνική Υποστήριξη.</translation>
     </message>

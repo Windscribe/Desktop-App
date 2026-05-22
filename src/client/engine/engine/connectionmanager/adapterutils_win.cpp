@@ -1,9 +1,37 @@
 #include "adapterutils_win.h"
 
 #include <winsock2.h>
+#include <ws2tcpip.h>
 #include <iphlpapi.h>
 
 #include "utils/log/categories.h"
+
+namespace {
+
+types::IpAddress sockaddrToIpAddress(const SOCKADDR *addr)
+{
+    char buf[INET6_ADDRSTRLEN];
+    if (addr->sa_family == AF_INET) {
+        inet_ntop(AF_INET, &reinterpret_cast<const sockaddr_in *>(addr)->sin_addr, buf, sizeof(buf));
+        return types::IpAddress(std::string(buf));
+    } else if (addr->sa_family == AF_INET6) {
+        inet_ntop(AF_INET6, &reinterpret_cast<const sockaddr_in6 *>(addr)->sin6_addr, buf, sizeof(buf));
+        return types::IpAddress(std::string(buf));
+    }
+    return types::IpAddress();
+}
+
+template <typename AddrEntry>
+types::IpAddress findAddressOfFamily(AddrEntry *head, int family)
+{
+    for (auto *entry = head; entry; entry = entry->Next) {
+        if (entry->Address.lpSockaddr->sa_family == family)
+            return sockaddrToIpAddress(entry->Address.lpSockaddr);
+    }
+    return types::IpAddress();
+}
+
+} // namespace
 
 AdapterGatewayInfo AdapterUtils_win::getDefaultAdapterInfo()
 {
@@ -27,14 +55,15 @@ AdapterGatewayInfo AdapterUtils_win::getAdapterInfo(bool byIfIndex, unsigned lon
     ULONG sz = sizeof(IP_ADAPTER_ADDRESSES_LH) * 32;
     QByteArray arr(sz, Qt::Uninitialized);
 
-    ULONG ret = GetAdaptersAddresses(AF_INET, 0, NULL, (PIP_ADAPTER_ADDRESSES)arr.data(), &sz);
+    const ULONG flags = GAA_FLAG_INCLUDE_GATEWAYS;
+    ULONG ret = GetAdaptersAddresses(AF_UNSPEC, flags, NULL, (PIP_ADAPTER_ADDRESSES)arr.data(), &sz);
     if (ret == ERROR_BUFFER_OVERFLOW)
     {
         arr.resize(sz);
-        ret = GetAdaptersAddresses(AF_INET, 0, NULL, (PIP_ADAPTER_ADDRESSES)arr.data(), &sz);
+        ret = GetAdaptersAddresses(AF_UNSPEC, flags, NULL, (PIP_ADAPTER_ADDRESSES)arr.data(), &sz);
     }
 
-    if (ret != ERROR_SUCCESS )
+    if (ret != ERROR_SUCCESS)
     {
         return AdapterGatewayInfo();
     }
@@ -51,25 +80,19 @@ AdapterGatewayInfo AdapterUtils_win::getAdapterInfo(bool byIfIndex, unsigned lon
                 info.setIfIndex(aa->IfIndex);
                 info.setAdapterName(QString::fromUtf16((const ushort *)aa->Description));
 
-                QString ip, gateway;
-                getAdapterIpAndGateway(aa->IfIndex, ip, gateway);
-
-                info.setAdapterIp(ip);
-                info.setGateway(gateway);
+                info.addAdapterIp(findAddressOfFamily(aa->FirstUnicastAddress, AF_INET));
+                info.addAdapterIp(findAddressOfFamily(aa->FirstUnicastAddress, AF_INET6));
+                info.addGatewayIp(findAddressOfFamily(aa->FirstGatewayAddress, AF_INET));
+                info.addGatewayIp(findAddressOfFamily(aa->FirstGatewayAddress, AF_INET6));
 
                 IP_ADAPTER_DNS_SERVER_ADDRESS_XP *dns_address = aa->FirstDnsServerAddress;
                 while (dns_address)
                 {
-                    char buf[64];
-                    DWORD lenStr = sizeof(buf);
-                    int result = ::WSAAddressToStringA(dns_address->Address.lpSockaddr, dns_address->Address.iSockaddrLength,
-                                                       nullptr, buf, &lenStr);
-                    if (result == ERROR_SUCCESS) {
-                        info.addDnsServer(QString::fromLocal8Bit(buf, lenStr));
-                    }
-                    else {
-                        qCWarning(LOG_CONNECTION) << "AdapterUtils_win::getAdapterInfo - WSAAddressToString failed:" << ::WSAGetLastError();
-                    }
+                    types::IpAddress dnsIp = sockaddrToIpAddress(dns_address->Address.lpSockaddr);
+                    if (dnsIp.isValid())
+                        info.addDnsServer(dnsIp);
+                    else
+                        qCWarning(LOG_CONNECTION) << "AdapterUtils_win::getAdapterInfo - failed to parse DNS server address";
 
                     dns_address = dns_address->Next;
                 }
@@ -81,34 +104,4 @@ AdapterGatewayInfo AdapterUtils_win::getAdapterInfo(bool byIfIndex, unsigned lon
     }
 
     return info;
-
 }
-
-void AdapterUtils_win::getAdapterIpAndGateway(unsigned long ifIndex, QString &outIp, QString &outGateway)
-{
-    ULONG ulAdapterInfoSize = sizeof(IP_ADAPTER_INFO) * 32;
-    QByteArray pAdapterInfo(ulAdapterInfoSize, Qt::Uninitialized);
-
-    DWORD ret = GetAdaptersInfo((IP_ADAPTER_INFO *)pAdapterInfo.data(), &ulAdapterInfoSize);
-    if (ret == ERROR_BUFFER_OVERFLOW ) // out of buff
-    {
-        pAdapterInfo.resize(ulAdapterInfoSize);
-        ret = GetAdaptersInfo((IP_ADAPTER_INFO *)pAdapterInfo.data(), &ulAdapterInfoSize);
-    }
-    if( ret == ERROR_SUCCESS )
-    {
-        IP_ADAPTER_INFO *ai = (IP_ADAPTER_INFO *)pAdapterInfo.data();
-
-        do
-        {
-            if (ai->Index == ifIndex)
-            {
-                outIp = QString(ai->IpAddressList.IpAddress.String);
-                outGateway = QString(ai->GatewayList.IpAddress.String);
-                return;
-            }
-            ai = ai->Next;
-        } while(ai);
-    }
-}
-

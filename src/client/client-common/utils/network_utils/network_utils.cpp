@@ -98,6 +98,35 @@ QString NetworkUtils::getLocalIP()
 #endif
 }
 
+void NetworkUtils::getInterfaceAddress(const types::NetworkInterface &iface, QHostAddress &outIp, int &outPrefixLength)
+{
+    outIp = QHostAddress();
+    outPrefixLength = 0;
+
+    QString ipStr;
+#ifdef Q_OS_WIN
+    if (iface.interfaceIndex < 0) {
+        return;
+    }
+    NetworkUtils_win::getAdapterIpAndPrefix(static_cast<unsigned long>(iface.interfaceIndex), ipStr, outPrefixLength);
+#elif defined Q_OS_MACOS
+    NetworkUtils_mac::interfaceAddressByName(iface.interfaceName, ipStr, outPrefixLength);
+#elif defined Q_OS_LINUX
+    NetworkUtils_linux::getAdapterIpAndPrefix(iface.interfaceName, ipStr, outPrefixLength);
+#endif
+
+    if (!ipStr.isEmpty()) {
+        QHostAddress addr(ipStr);
+        if (!addr.isNull() && addr.protocol() == QAbstractSocket::IPv4Protocol) {
+            outIp = addr;
+        }
+    }
+    // Contract: outIp null => failure; never report a prefix without an IP.
+    if (outIp.isNull()) {
+        outPrefixLength = 0;
+    }
+}
+
 QString NetworkUtils::networkInterfacesToString(const QVector<types::NetworkInterface> &networkInterfaces, bool includeIndex)
 {
     QString adapters;

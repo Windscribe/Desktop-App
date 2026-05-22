@@ -40,25 +40,19 @@ IKEv2Connection_win::~IKEv2Connection_win()
     }
 }
 
-void IKEv2Connection_win::startConnect(const QString &configOrUrl, const QString &ip, const QString &dnsHostName, const QString &username,
-                                       const QString &password, const types::ProxySettings &proxySettings, const WireGuardConfig *wireGuardConfig,
-                                       bool isEnableIkev2Compression, bool isCustomConfig, const QString &overrideDnsIp)
+void IKEv2Connection_win::startConnect(const StartConnectParams &params)
 {
-    Q_UNUSED(dnsHostName);
-    Q_UNUSED(proxySettings);
-    Q_UNUSED(wireGuardConfig);
-    Q_UNUSED(isCustomConfig);
-    Q_UNUSED(overrideDnsIp);
+    const auto &p = std::get<Ikev2StartParams>(params);
 
     QMutexLocker locker(&mutex_);
 
     WS_ASSERT(state_ == STATE_DISCONNECTED);
 
-    initialUrl_ = configOrUrl;
-    initialIp_ = ip;
-    initialUsername_ = username;
-    initialPassword_ = password;
-    initialEnableIkev2Compression_ = isEnableIkev2Compression;
+    initialUrl_ = p.hostname;
+    initialIp_ = p.ip;
+    initialUsername_ = p.username;
+    initialPassword_ = p.password;
+    initialEnableIkev2Compression_ = p.isEnableCompression;
 
     cntFailedConnectionAttempts_ = 0;
 

@@ -41,6 +41,10 @@
         "miniaudio",
         "ctrld",
         {
+            "name": "tap-windows6-driver",
+            "platform": "windows"
+        },
+        {
             "name": "winreg",
             "platform": "windows"
         }

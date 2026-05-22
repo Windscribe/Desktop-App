@@ -9,6 +9,7 @@
 
 @synthesize appPaths = appPaths_;
 @synthesize ips = ips_;
+@synthesize ipsV6 = ipsV6_;
 @synthesize hostnames = hostnames_;
 @synthesize primaryInterface = primaryInterface_;
 @synthesize vpnInterface = vpnInterface_;
@@ -36,6 +37,7 @@
 
         appPaths_ = options[@"appPaths"];
         ips_ = options[@"ips"];
+        ipsV6_ = options[@"ipsV6"];
         hostnames_ = options[@"hostnames"];
 
         isExclude_ = [options[@"isExclude"] boolValue];
@@ -73,6 +75,7 @@
 - (void)cleanup {
     appPaths_ = nil;
     ips_ = nil;
+    ipsV6_ = nil;
     hostnames_ = nil;
     primaryInterface_ = nil;
     vpnInterface_ = nil;
@@ -161,6 +164,22 @@
     std::vector<std::string> ips;
     for (NSString *ip in ips_) {
         ips.push_back([ip UTF8String]);
+    }
+    // The IpHostnamesManager keys its lookup set on `inet_ntop` output, so v6 literals from the
+    // user list must be canonicalised (e.g. "2001:0db8::0001" -> "2001:db8::1") before insertion;
+    // otherwise they would never match the canonical string produced by isSplitTunnelApplicable's
+    // inet_ntop. v4 dotted-decimal literals already match inet_ntop output, so they are passed
+    // through unchanged above.
+    for (NSString *ip in ipsV6_) {
+        const char *raw = [ip UTF8String];
+        struct in6_addr addr6;
+        char canonical[INET6_ADDRSTRLEN];
+        if (inet_pton(AF_INET6, raw, &addr6) == 1
+            && inet_ntop(AF_INET6, &addr6, canonical, sizeof(canonical)) != nullptr) {
+            ips.push_back(canonical);
+        } else {
+            spdlog::warn("Skipping invalid IPv6 literal in split tunnel IP list: {}", raw);
+        }
     }
     return ips;
 }

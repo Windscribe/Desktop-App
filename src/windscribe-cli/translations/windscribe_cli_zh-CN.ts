@@ -187,6 +187,14 @@
         <translation>未知状态</translation>
     </message>
     <message>
+        <source>VPN IP: %1</source>
+        <translation>VPN IP：%1</translation>
+    </message>
+    <message>
+        <source>Public IP: %1</source>
+        <translation>公共IP：%1</translation>
+    </message>
+    <message>
         <source>Protocol: %1:%2</source>
         <translation>协议：%1：%2</translation>
     </message>

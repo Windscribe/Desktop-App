@@ -34,15 +34,13 @@
 #include "multipleaccountdetection/multipleaccountdetectionfactory.h"
 #include "showingdialogstate.h"
 #include "themecontroller.h"
-#include "utils/authcheckerfactory.h"
+#include "utils/directorypermissions.h"
 #include "utils/extraconfig.h"
 #include "utils/hardcodedsettings.h"
-#include "utils/iauthchecker.h"
 #include "utils/log/categories.h"
 #include "utils/log/multiline_message_logger.h"
 #include "utils/network_utils/network_utils.h"
 #include "utils/utils.h"
-#include "utils/writeaccessrightschecker.h"
 #include "utils/ws_assert.h"
 
 #if defined(Q_OS_WIN)
@@ -52,10 +50,8 @@
     #include <windows.h>
 #elif defined(Q_OS_LINUX)
     #include <unistd.h>
-    #include "utils/authchecker_linux.h"
 #else
     #include <unistd.h>
-    #include "utils/authchecker_mac.h"
     #include "utils/macutils.h"
     #include "utils/network_utils/network_utils_mac.h"
     #include "widgetutils/widgetutils_mac.h"
@@ -141,6 +137,7 @@ MainWindow::MainWindow() :
     connect(backend_, &Backend::proxySharingInfoChanged, this, &MainWindow::onBackendProxySharingInfoChanged);
     connect(backend_, &Backend::wifiSharingInfoChanged, this, &MainWindow::onBackendWifiSharingInfoChanged);
     connect(backend_, &Backend::wifiSharingFailed, this, &MainWindow::onBackendWifiSharingFailed);
+    connect(backend_, &Backend::proxySharingFailed, this, &MainWindow::onBackendProxySharingFailed);
     connect(backend_, &Backend::cleanupFinished, this, &MainWindow::onBackendCleanupFinished);
     connect(backend_, &Backend::gotoCustomOvpnConfigModeFinished, this, &MainWindow::onBackendGotoCustomOvpnConfigModeFinished);
     connect(backend_, &Backend::sessionDeleted, this, &MainWindow::onBackendSessionDeleted);
@@ -1691,22 +1688,7 @@ void MainWindow::onLocationsAddCustomConfigClicked()
 
 void MainWindow::onPreferencesCustomConfigPathNeedsUpdate(const QString &path)
 {
-#ifdef Q_OS_WIN
-    // On Windows, the user gets an UAC prompt (possibly requesting admin credentials)
-    // The prompt contains the context of why we need admin credentials, so we don't need to show an additional message.
     checkCustomConfigPath(path);
-#else
-    // For Mac & Linux, show an alert that describes why we're about to prompt for admin password,
-    // because the prompt does not show any useful context.
-    GeneralMessageController::instance().showMessage(
-        "WARNING_WHITE",
-        tr("Custom Config Directory Import"),
-        tr("A custom config directory is being imported.  Windscribe will prompt for your admin password to check for correct permissions."),
-        GeneralMessageController::tr(GeneralMessageController::kOk),
-        "",
-        "",
-        [this, path](bool b) { checkCustomConfigPath(path); });
-#endif
 }
 
 void MainWindow::checkCustomConfigPath(const QString &path)
@@ -1715,36 +1697,17 @@ void MainWindow::checkCustomConfigPath(const QString &path)
         return;
     }
 
-    WriteAccessRightsChecker checker(path);
-    if (checker.isWriteable()) {
-        if (!checker.isElevated()) {
-            std::unique_ptr<IAuthChecker> authChecker = AuthCheckerFactory::createAuthChecker();
-
-            AuthCheckerError err = authChecker->authenticate();
-            if (err == AuthCheckerError::AUTH_AUTHENTICATION_ERROR) {
-                qCWarning(LOG_BASIC) << "Cannot change path to non-system directory when windscribe is not elevated.";
-                const QString desc = tr(
-                    "Cannot select this directory because it is writeable for non-privileged users. "
-                    "Custom configs in this directory may pose a potential security risk. "
-                    "Please authenticate with an admin user to select this directory.");
-                GeneralMessageController::instance().showMessage("WARNING_YELLOW", tr("Can't select directory"), desc, GeneralMessageController::tr(GeneralMessageController::kOk));
-                return;
-            } else if (err == AuthCheckerError::AUTH_HELPER_ERROR) {
-                qCWarning(LOG_AUTH_HELPER) << "Failed to verify AuthHelper, binary may be corrupted.";
-                const QString desc = tr("The application is corrupted.  Please reinstall Windscribe.");
-                GeneralMessageController::instance().showMessage("WARNING_YELLOW", tr("Validation Error"), desc, GeneralMessageController::tr(GeneralMessageController::kOk));
-                return;
-            }
-        }
-
-        // warn, but still allow path setting
+    // The warning is advisory — the helper's OpenVPN directive allowlist is the
+    // actual gate against malicious custom configs.  We inform the user of the
+    // security implication and still honor their choice of directory.
+    if (DirectoryPermissions::isWritableByOtherUsers(path)) {
+        qCWarning(LOG_BASIC) << "Custom config directory is writable by other users:" << path;
         const QString desc = tr(
-            "The selected directory is writeable for non-privileged users. "
+            "The selected directory is writeable for other users. "
             "Custom configs in this directory may pose a potential security risk.");
         GeneralMessageController::instance().showMessage("WARNING_YELLOW", tr("Security Risk"), desc, GeneralMessageController::tr(GeneralMessageController::kOk));
     }
 
-    // set the path
     backend_->getPreferences()->setCustomOvpnConfigsPath(path);
 }
 
@@ -1906,6 +1869,34 @@ void MainWindow::onBackendLoginFinished()
 
     checkLocationPermission();
     checkNotificationEnabled();
+
+    if (backend_->getPreferences()->shareProxyGateway().upgradedFromV3) {
+        GeneralMessageController::instance().showMessage(
+            "WARNING_YELLOW",
+            tr("Proxy Gateway is unauthenticated"),
+            tr("Your Proxy Gateway is enabled without authentication. "
+               "Anyone on your local network, including untrusted networks like coffee-shop Wi-Fi, "
+               "can route their traffic through your VPN. We strongly recommend setting credentials."),
+            tr("Go to Preferences"),
+            tr("Later"),
+            "",
+            [this](bool) {
+                types::ShareProxyGateway sp = backend_->getPreferences()->shareProxyGateway();
+                sp.upgradedFromV3 = false;
+                backend_->getPreferences()->setShareProxyGateway(sp);
+                // Tell the message controller where we want to land after the dialog dismisses; expandPreferences
+                // here is a no-op because curWindow_ is WINDOW_ID_GENERAL_MESSAGE during the callback.
+                mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_CONNECT_PREFERENCES);
+                mainWindowController_->getPreferencesWindow()->setCurrentTab(TAB_CONNECTION);
+            },
+            [this](bool) {
+                types::ShareProxyGateway sp = backend_->getPreferences()->shareProxyGateway();
+                sp.upgradedFromV3 = false;
+                backend_->getPreferences()->setShareProxyGateway(sp);
+            },
+            std::function<void(bool)>(nullptr),
+            GeneralMessage::kNone);
+    }
 }
 
 void MainWindow::onBackendTryingBackupEndpoint(int num, int cnt)
@@ -2518,6 +2509,38 @@ void MainWindow::onBackendWifiSharingFailed(WIFI_SHARING_ERROR error)
     }
 }
 
+void MainWindow::onBackendProxySharingFailed(PROXY_SHARING_ERROR error)
+{
+    types::ShareProxyGateway sp = backend_->getPreferences()->shareProxyGateway();
+    QString title = tr("Could not start Proxy Gateway");
+    QString desc;
+    if (error == PROXY_SHARING_ERROR_PORT_BUSY) {
+        // Reset port to Auto so the next start attempt picks any free port. Defer the apply so we don't synchronously
+        // re-enter the backend via shareProxyGatewayChanged → onPreferencesShareProxyGatewayChanged → startProxySharing
+        // while still inside this failure handler.
+        sp.port = 0;
+        QTimer::singleShot(0, this, [this, sp]() {
+            backend_->getPreferences()->setShareProxyGateway(sp);
+        });
+        desc = tr("The configured port is in use. Please try a different port.");
+    } else if (error == PROXY_SHARING_ERROR_NO_LOCAL_IP) {
+        // Address field shows "Unavailable"; no dialog needed since the engine retains wantSharing_ and
+        // onNetworkChange will self-heal as soon as a usable IP arrives.
+        return;
+    } else {
+        // MISSING_CREDENTIALS or anything else: shouldn't be reachable from the GUI under normal use
+        // (proxygatewaygroup ensures credentials before emitting), so we don't bother with a tailored message.
+        // Defer the apply for the same re-entrancy reason as PORT_BUSY above.
+        sp.isEnabled = false;
+        QTimer::singleShot(0, this, [this, sp]() {
+            backend_->getPreferences()->setShareProxyGateway(sp);
+        });
+        desc = tr("An unknown error occurred.");
+    }
+    GeneralMessageController::instance().showMessage("WARNING_YELLOW", title, desc,
+        GeneralMessageController::tr(GeneralMessageController::kOk));
+}
+
 void MainWindow::onBackendRequestCustomOvpnConfigCredentials(const QString &username)
 {
     GeneralMessageController::instance().showCredentialPrompt(
@@ -3019,7 +3042,7 @@ void MainWindow::onPreferencesFirewallSettingsChanged(const types::FirewallSetti
 void MainWindow::onPreferencesShareProxyGatewayChanged(const types::ShareProxyGateway &sp)
 {
     if (sp.isEnabled) {
-        backend_->startProxySharing((PROXY_SHARING_TYPE)sp.proxySharingMode, sp.port, sp.whileConnected);
+        backend_->startProxySharing(sp);
     } else {
         backend_->stopProxySharing();
     }

@@ -11,13 +11,9 @@ MakeOVPNFileFromCustom::~MakeOVPNFileFromCustom()
 }
 
 // write all of ovpnData to file and add remoteCommand with replaced ip
-bool MakeOVPNFileFromCustom::generate(const QString &customConfigPath, const QString &ovpnData, const QString &ip, const QString &remoteCommand, const QString &customDns)
+bool MakeOVPNFileFromCustom::generate(const QString &ovpnData, const QString &ip, const QString &remoteCommand, const QString &customDns)
 {
     config_ = "";
-
-    QString customConfigPathCopy(customConfigPath);
-    QString cd_command = QString("cd \"%1\"\n\n").arg(customConfigPathCopy.replace("\\", "/"));
-    config_ += cd_command;
     config_ += ovpnData;
 
     QString line = remoteCommand;

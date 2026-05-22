@@ -29,6 +29,7 @@ target_compile_definitions(client-common PRIVATE CMAKE_LIBRARY_LIBRARY
 
 add_subdirectory(api_responses)
 add_subdirectory(ipc)
+add_subdirectory(tests)
 add_subdirectory(types)
 add_subdirectory(utils)
 

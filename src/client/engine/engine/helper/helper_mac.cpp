@@ -22,13 +22,19 @@ bool Helper_mac::setDnsOfDynamicStoreEntry(const QString &ipAddress, const QStri
     return success;
 }
 
-void Helper_mac::setIpv6Enabled(bool bEnabled)
-{
-    sendCommand(HelperCommand::setIpv6Enabled, bEnabled);
-}
-
 void Helper_mac::deleteRoute(const QString &range, int mask, const QString &gateway)
 {
     sendCommand(HelperCommand::deleteRoute, range.toStdString(), mask, gateway.toStdString());
 }
 
+QString Helper_mac::installerStageAndVerify(const QString &srcBundlePath)
+{
+    auto result = sendCommand(HelperCommand::installerStageAndVerify, srcBundlePath.toStdString());
+    std::string stagedPath;
+    bool success = false;
+    deserializeAnswer(result, stagedPath, success);
+    if (!success) {
+        return QString();
+    }
+    return QString::fromStdString(stagedPath);
+}

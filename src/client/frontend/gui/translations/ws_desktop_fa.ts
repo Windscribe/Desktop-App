@@ -618,26 +618,6 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
         <translation>برگزیدن پوشۀ پیکربندی سفارشی</translation>
     </message>
     <message>
-        <source>Cannot select this directory because it is writeable for non-privileged users. Custom configs in this directory may pose a potential security risk. Please authenticate with an admin user to select this directory.</source>
-        <translation>نمیتوان این فهرست راهنما را انتخاب کرد زیرا برای کاربران غیر ممتاز قابل نوشتن است. تنظیمات سفارشی در این دایرکتوری ممکن است یک خطر امنیتی بالقوه ایجاد کند. لطفا برای انتخاب این فهرست راهنما، با یک کاربر مدیر احراز هویت کنید.</translation>
-    </message>
-    <message>
-        <source>Can&apos;t select directory</source>
-        <translation>فهرست راهنما را نمیتوان انتخاب کرد</translation>
-    </message>
-    <message>
-        <source>The application is corrupted.  Please reinstall Windscribe.</source>
-        <translation>برنامه خراب شده است.  لطفا Windscribe را دوباره نصب کنید.</translation>
-    </message>
-    <message>
-        <source>Validation Error</source>
-        <translation>خطای اعتبارسنجی</translation>
-    </message>
-    <message>
-        <source>The selected directory is writeable for non-privileged users. Custom configs in this directory may pose a potential security risk.</source>
-        <translation>دایرکتوری انتخاب شده برای کاربران غیر ممتاز قابل نوشتن است. تنظیمات سفارشی در این دایرکتوری ممکن است یک خطر امنیتی بالقوه ایجاد کند.</translation>
-    </message>
-    <message>
         <source>Security Risk</source>
         <translation>خطر امنیتی</translation>
     </message>
@@ -678,6 +658,26 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
         <translation>قطع</translation>
     </message>
     <message>
+        <source>The selected directory is writeable for other users. Custom configs in this directory may pose a potential security risk.</source>
+        <translation>دایرکتوری انتخاب شده برای سایر کاربران قابل نوشتن است. پیکربندی های سفارشی در این دایرکتوری ممکن است ریسک امنیتی بالقوه ای ایجاد کنند.</translation>
+    </message>
+    <message>
+        <source>Proxy Gateway is unauthenticated</source>
+        <translation>دروازه پراکسی احراز هویت نشده است</translation>
+    </message>
+    <message>
+        <source>Your Proxy Gateway is enabled without authentication. Anyone on your local network, including untrusted networks like coffee-shop Wi-Fi, can route their traffic through your VPN. We strongly recommend setting credentials.</source>
+        <translation>دروازه پراکسی شما بدون احراز هویت فعال است. هر کسی در شبکه محلی شما، از جمله شبکه های غیرقابل اعتماد مانند وای فای کافی شاپ، می تواند ترافیک خود را از طریق VPN شما هدایت کند. ما اکیدا توصیه می کنیم مدارک را تنظیم کنید.</translation>
+    </message>
+    <message>
+        <source>Go to Preferences</source>
+        <translation>به بخش ترجیحات بروید</translation>
+    </message>
+    <message>
+        <source>Later</source>
+        <translation>بعدا</translation>
+    </message>
+    <message>
         <source>Connected to </source>
         <translation>متصل به </translation>
     </message>
@@ -690,6 +690,18 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
 %1 transferred in %2</source>
         <translation>اتصال به Windscribe قطع شده است.
 %1 منتقل شده در%2</translation>
+    </message>
+    <message>
+        <source>Could not start Proxy Gateway</source>
+        <translation>Proxy Gateway را نتوانستم اجرا کنم</translation>
+    </message>
+    <message>
+        <source>The configured port is in use. Please try a different port.</source>
+        <translation>پورت پیکربندی شده در حال استفاده است. لطفا پورت دیگری را امتحان کنید.</translation>
+    </message>
+    <message>
+        <source>An unknown error occurred.</source>
+        <translation>یک خطای ناشناخته رخ داد.</translation>
     </message>
     <message>
         <source>Network Settings Interference</source>
@@ -924,14 +936,6 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>  If you are on a restrictive network, please connect the VPN before trying the download again.</source>
         <translation>  اگر در یک شبکه محدود کننده هستید، لطفا قبل از تلاش مجدد دانلود، VPN را وصل کنید.</translation>
-    </message>
-    <message>
-        <source>Custom Config Directory Import</source>
-        <translation>ایمپورت دایرکتوری پیکربندی سفارشی</translation>
-    </message>
-    <message>
-        <source>A custom config directory is being imported.  Windscribe will prompt for your admin password to check for correct permissions.</source>
-        <translation>یک دایرکتوری پیکربندی سفارشی در حال وارد شدن است.  Windscribe رمز عبور مدیریت شما را برای بررسی مجوزهای صحیح درخواست می کند.</translation>
     </message>
     <message>
         <source>Your &quot;Connected DNS&quot; server is set to an OS default DNS server, which would result in a DNS leak.  It has been changed to Auto.</source>
@@ -1447,6 +1451,14 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>پروتکل VPN را به صورت خودکار انتخاب کنید یا یکی را به صورت دستی انتخاب کنید. توجه: &quot;پروتکل ترجیحی&quot; این تنظیمات را لغو خواهد کرد.</translation>
     </message>
     <message>
+        <source>Configure egress IP stack for VPN connections.</source>
+        <translation>پیکربندی پشته IP خروجی برای اتصالات VPN.</translation>
+    </message>
+    <message>
+        <source>IP Stack</source>
+        <translation>پشته IP</translation>
+    </message>
+    <message>
         <source>Select the DNS server while connected to Windscribe.</source>
         <translation>سرور DNS را در حالی که به Windscribe متصل است انتخاب کنید.</translation>
     </message>
@@ -1517,6 +1529,13 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Anti-censorship Settings</source>
         <translation>تنظیمات ضد سانسور</translation>
+    </message>
+</context>
+<context>
+    <name>PreferencesWindow::CopyableTextItem</name>
+    <message>
+        <source>Copied</source>
+        <translation>کپی</translation>
     </message>
 </context>
 <context>
@@ -2106,31 +2125,36 @@ Connect to a network first</source>
         <translation>پورت</translation>
     </message>
     <message>
-        <source>Unable to start proxy server</source>
-        <translation>قادر به اغاز کارگزار پیشکار نیست</translation>
+        <source>Require Authentication</source>
+        <translation>نیاز به احراز هویت</translation>
     </message>
     <message>
-        <source>The proxy server couldn&apos;t be started on the requested port. Please try again with a different port.</source>
-        <translation>کارگزار پروکسی نمی تواند بر روی درگاه درخواست شده اغاز شود. لطفا با درگاه دیگری دوباره تلاش کنید.</translation>
+        <source>Without authentication, anyone on your network (e.g. coffee shop Wi-Fi) can use this proxy. Leave this on unless you know what you&apos;re doing.</source>
+        <translation>بدون احراز هویت، هر کسی در شبکه شما (مثلا وای فای کافی شاپ) می تواند از این پراکسی استفاده کند. این را روشن نگه دار مگر اینکه بلد باشی چه کار می کنی.</translation>
+    </message>
+    <message>
+        <source>IP</source>
+        <translation>آی پی</translation>
+    </message>
+    <message>
+        <source>Username</source>
+        <translation>نام کاربری</translation>
+    </message>
+    <message>
+        <source>Password</source>
+        <translation>رمز عبور</translation>
     </message>
     <message>
         <source>Auto</source>
         <translation>خودکار</translation>
     </message>
     <message>
+        <source>Unavailable</source>
+        <translation>در دسترس نیست</translation>
+    </message>
+    <message>
         <source>Only when VPN is connected</source>
         <translation>فقط زمانی که VPN متصل است</translation>
-    </message>
-</context>
-<context>
-    <name>PreferencesWindow::ProxyIpAddressItem</name>
-    <message>
-        <source>IP</source>
-        <translation>آی پی</translation>
-    </message>
-    <message>
-        <source>Copied</source>
-        <translation>کپی</translation>
     </message>
 </context>
 <context>
@@ -2573,6 +2597,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Van Gogh</source>
         <translation>ون گوگ</translation>
+    </message>
+    <message>
+        <source>IPv4 Only</source>
+        <translation>فقط IPv4</translation>
     </message>
     <message>
         <source>Enabled</source>

@@ -187,6 +187,14 @@
         <translation>Trạng thái không xác định</translation>
     </message>
     <message>
+        <source>VPN IP: %1</source>
+        <translation>IP VPN: %1</translation>
+    </message>
+    <message>
+        <source>Public IP: %1</source>
+        <translation>IP công cộng: %1</translation>
+    </message>
+    <message>
         <source>Protocol: %1:%2</source>
         <translation>Giao thức: %1:%2</translation>
     </message>

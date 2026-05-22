@@ -1,8 +1,9 @@
 #include "connecteddnsinfo.h"
 #include <QObject>
-#include "utils/ws_assert.h"
-#include "utils/ipvalidation.h"
+#include "utils/log/categories.h"
+#include "utils/networkingvalidation.h"
 #include "utils/utils.h"
+#include "utils/ws_assert.h"
 
 namespace types {
 
@@ -10,17 +11,10 @@ ConnectedDnsInfo::ConnectedDnsInfo(const QJsonObject &json)
 {
     if (json.contains(kJsonTypeProp) && json[kJsonTypeProp].isDouble()) {
         type = CONNECTED_DNS_TYPE_fromInt(json[kJsonTypeProp].toInt());
-        // CONNECTED_DNS_TYPE_FORCED has been merged into CONNECTED_DNS_TYPE_AUTO
-        if (type == CONNECTED_DNS_TYPE_FORCED) {
-            type = CONNECTED_DNS_TYPE_AUTO;
-        }
     }
 
     if (json.contains(kJsonUpStream1Prop) && json[kJsonUpStream1Prop].isString()) {
-        QString server = json[kJsonUpStream1Prop].toString();
-        if (IpValidation::isCtrldCorrectAddress(server)) {
-            upStream1 = server;
-        }
+        upStream1 = json[kJsonUpStream1Prop].toString();
     }
 
     if (json.contains(kJsonIsSplitDnsProp) && json[kJsonIsSplitDnsProp].isBool()) {
@@ -28,10 +22,7 @@ ConnectedDnsInfo::ConnectedDnsInfo(const QJsonObject &json)
     }
 
     if (json.contains(kJsonUpStream2Prop) && json[kJsonUpStream2Prop].isString()) {
-        QString server = json[kJsonUpStream2Prop].toString();
-        if (IpValidation::isCtrldCorrectAddress(server)) {
-            upStream2 = server;
-        }
+        upStream2 = json[kJsonUpStream2Prop].toString();
     }
 
     if (json.contains(kJsonHostnamesProp) && json[kJsonHostnamesProp].isArray()) {
@@ -39,10 +30,7 @@ ConnectedDnsInfo::ConnectedDnsInfo(const QJsonObject &json)
         hostnames.clear();
         for (const QJsonValue &hostnameValue : hostnamesArray) {
             if (hostnameValue.isString()) {
-                QString hostname = hostnameValue.toString();
-                if (IpValidation::isIp(hostname) || IpValidation::isDomainWithWildcard(hostname)) {
-                    hostnames.append(hostname);
-                }
+                hostnames.append(hostnameValue.toString());
             }
         }
     }
@@ -61,7 +49,7 @@ QList<CONNECTED_DNS_TYPE> ConnectedDnsInfo::allAvailableTypes()
 
 bool ConnectedDnsInfo::isCustomIPv4Address() const
 {
-    return type == CONNECTED_DNS_TYPE_CUSTOM && IpValidation::isIp(upStream1) && isSplitDns == false;
+    return type == CONNECTED_DNS_TYPE_CUSTOM && NetworkingValidation::isIp(upStream1) && isSplitDns == false;
 }
 
 
@@ -87,36 +75,16 @@ QJsonObject ConnectedDnsInfo::toJson() const
 void ConnectedDnsInfo::fromIni(const QSettings &settings)
 {
     type = CONNECTED_DNS_TYPE_fromString(settings.value(kIniTypeProp, "Auto").toString());
-    // CONNECTED_DNS_TYPE_FORCED has been merged into CONNECTED_DNS_TYPE_AUTO
-    if (type == CONNECTED_DNS_TYPE_FORCED) {
-        type = CONNECTED_DNS_TYPE_AUTO;
-    }
 
     // If using CLI-only, this type is not supported, change it to custom instead.
     if (type == CONNECTED_DNS_TYPE_CONTROLD) {
         type = CONNECTED_DNS_TYPE_CUSTOM;
     }
 
-    QString str = settings.value(kIniUpStream1Prop).toString();
-    if (IpValidation::isCtrldCorrectAddress(str)) {
-       upStream1 = str;
-    }
-
+    upStream1 = settings.value(kIniUpStream1Prop).toString();
     isSplitDns = settings.value(kIniIsSplitDnsProp, false).toBool();
-
-    str = settings.value(kIniUpStream2Prop).toString();
-    if (IpValidation::isCtrldCorrectAddress(str)) {
-       upStream2 = str;
-    }
-
-    QStringList list = settings.value(kIniHostnamesProp).toStringList();
-    QStringList domains;
-    for (const QString &domain: list) {
-        if (IpValidation::isIp(domain) || IpValidation::isDomainWithWildcard(domain)) {
-            domains.append(domain);
-        }
-    }
-    hostnames = domains;
+    upStream2 = settings.value(kIniUpStream2Prop).toString();
+    hostnames = settings.value(kIniHostnamesProp).toStringList();
 }
 
 void ConnectedDnsInfo::toIni(QSettings &settings) const
@@ -136,6 +104,40 @@ void ConnectedDnsInfo::toIni(QSettings &settings) const
     } else {
         settings.setValue(kIniHostnamesProp, hostnames);
     }
+}
+
+void ConnectedDnsInfo::validate()
+{
+    type = CONNECTED_DNS_TYPE_fromInt(static_cast<int>(type));
+    if (type == CONNECTED_DNS_TYPE_FORCED) {
+        type = CONNECTED_DNS_TYPE_AUTO;
+    }
+
+    if (!upStream1.isEmpty() && !NetworkingValidation::isCtrldCorrectAddress(upStream1)) {
+        qCWarning(LOG_BASIC) << "ConnectedDnsInfo: invalid upStream1, falling back to default";
+        upStream1.clear();
+        type = CONNECTED_DNS_TYPE_AUTO;
+    }
+    if (!upStream2.isEmpty() && !NetworkingValidation::isCtrldCorrectAddress(upStream2)) {
+        qCWarning(LOG_BASIC) << "ConnectedDnsInfo: invalid upStream2, clearing";
+        upStream2.clear();
+    }
+
+    constexpr int kMaxHostnames = 1024;
+    if (hostnames.size() > kMaxHostnames) {
+        qCWarning(LOG_BASIC) << "ConnectedDnsInfo: hostnames over cap, truncating";
+        hostnames = hostnames.mid(0, kMaxHostnames);
+    }
+    QStringList filtered;
+    filtered.reserve(hostnames.size());
+    for (const QString &h : hostnames) {
+        if (NetworkingValidation::isIp(h) || NetworkingValidation::isDomainWithWildcard(h)) {
+            filtered.append(h);
+        } else {
+            qCWarning(LOG_BASIC) << "ConnectedDnsInfo: dropping invalid split-DNS hostname";
+        }
+    }
+    hostnames = filtered;
 }
 
 bool ConnectedDnsInfo::operator==(const ConnectedDnsInfo &other) const
@@ -177,10 +179,6 @@ QDataStream& operator >>(QDataStream &stream, ConnectedDnsInfo &o)
     else
         stream >> o.type >> o.upStream1 >> o.isSplitDns >> o.upStream2 >> o.hostnames >> o.controldApiKey >> o.controldDevices;
 
-    // CONNECTED_DNS_TYPE_FORCED has been merged into CONNECTED_DNS_TYPE_AUTO
-    if (o.type == CONNECTED_DNS_TYPE_FORCED) {
-        o.type = CONNECTED_DNS_TYPE_AUTO;
-    }
     return stream;
 }
 

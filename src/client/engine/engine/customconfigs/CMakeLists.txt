@@ -6,6 +6,8 @@ target_sources(engine PRIVATE
     customovpnauthcredentialsstorage.cpp
     customovpnauthcredentialsstorage.h
     icustomconfig.h
+    ovpncredentialinliner.cpp
+    ovpncredentialinliner.h
     ovpncustomconfig.cpp
     ovpncustomconfig.h
     parseovpnconfigline.cpp

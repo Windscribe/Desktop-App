@@ -1,6 +1,8 @@
 #include "ws_branding.h"
 #include "split_tunneling.h"
 
+#include <algorithm>
+
 #include <spdlog/spdlog.h>
 
 #include "../close_tcp_connections.h"
@@ -8,7 +10,7 @@
 #include "../utils.h"
 
 SplitTunneling::SplitTunneling(FwpmWrapper& fwpmWrapper)
-    : calloutFilter_(fwpmWrapper), hostnamesManager_()
+    : calloutFilter_(fwpmWrapper), hostnamesManager_(&calloutFilter_)
 {
     connectStatus_.isConnected = false;
     detectVpnExecutables();
@@ -34,12 +36,12 @@ void SplitTunneling::setSettings(bool isEnabled, bool isExclude, const std::vect
 
     apps_ = apps;
 
-    std::vector<Ip4AddressAndMask> ipsList;
-    for (auto it = ips.begin(); it != ips.end(); ++it) {
-        ipsList.push_back(Ip4AddressAndMask(it->c_str()));
-    }
+    auto ranges = types::IpAddressRange::fromStrings(ips);
+    ranges.erase(std::remove_if(ranges.begin(), ranges.end(),
+                                [](const types::IpAddressRange &r) { return !r.isValid(); }),
+                 ranges.end());
 
-    hostnamesManager_.setSettings(isExclude, ipsList, hosts);
+    hostnamesManager_.setSettings(isExclude, ranges, hosts);
     routesManager_.updateState(connectStatus_, isSplitTunnelEnabled_, isExclude_);
 
     updateState();
@@ -99,15 +101,18 @@ bool SplitTunneling::updateState()
     spdlog::debug("SplitTunneling::updateState begin");
     AppsIds appsIds;
     appsIds.setFromList(apps_);
-    Ip4AddressAndMask localAddr(connectStatus_.defaultAdapter.adapterIp.c_str());
-    DWORD localIp = localAddr.ipNetworkOrder();
+    // adapterIp is types::IpAddress; ipv4NetworkOrder() returns 0 for non-v4/invalid which
+    // matches the previous Ip4AddressAndMask behaviour for empty/invalid input.
+    DWORD localIp = connectStatus_.defaultAdapter.adapterIp.ipv4NetworkOrder();
     bool isSplitTunnelActive = connectStatus_.isConnected && isSplitTunnelEnabled_;
 
     // Allow excluded traffic to bypass firewall even when not connected
     if (!connectStatus_.isConnected && isSplitTunnelEnabled_ && isExclude_
         && connectStatus_.defaultAdapter.ifIndex != 0 && FirewallFilter::instance().currentStatus())
     {
-        hostnamesManager_.enable(connectStatus_.defaultAdapter.gatewayIp, connectStatus_.defaultAdapter.ifIndex);
+        hostnamesManager_.enable(connectStatus_.defaultAdapter.gatewayIp,
+                                 connectStatus_.defaultAdapter.gatewayIpV6,
+                                 connectStatus_.defaultAdapter.ifIndex);
         FirewallFilter::instance().setSplitTunnelingAppsIds(appsIds);
         FirewallFilter::instance().setSplitTunnelingEnabled(isExclude_);
 
@@ -118,18 +123,25 @@ bool SplitTunneling::updateState()
             return false;
         }
 
-        DWORD vpnIp;
-        Ip4AddressAndMask vpnAddr(connectStatus_.vpnAdapter.adapterIp.c_str());
-        vpnIp = vpnAddr.ipNetworkOrder();
+        DWORD vpnIp = connectStatus_.vpnAdapter.adapterIp.ipv4NetworkOrder();
 
         FirewallFilter::instance().setSplitTunnelingAppsIds(appsIds);
         FirewallFilter::instance().setSplitTunnelingEnabled(isExclude_);
 
         if (isExclude_) {
-            hostnamesManager_.enable(connectStatus_.defaultAdapter.gatewayIp, connectStatus_.defaultAdapter.ifIndex);
+            hostnamesManager_.enable(connectStatus_.defaultAdapter.gatewayIp,
+                                     connectStatus_.defaultAdapter.gatewayIpV6,
+                                     connectStatus_.defaultAdapter.ifIndex);
         } else {
             appsIds.addFrom(vpnOtherExecutablesId_);
-            hostnamesManager_.enable(connectStatus_.vpnAdapter.gatewayIp, connectStatus_.vpnAdapter.ifIndex);
+            // WireGuard/IKEv2 are point-to-point: vpn.gatewayIp(V6) is invalid for them.
+            // Fall back to the adapter address (matches RoutesManager::addDnsRoutes and
+            // doActionsForInclusiveMode{WireGuard,Ikev2}), which Windows resolves on-link
+            // via the tunnel interface.
+            const auto &vpn = connectStatus_.vpnAdapter;
+            const types::IpAddress &gw   = vpn.gatewayIp.isValid()   ? vpn.gatewayIp   : vpn.adapterIp;
+            const types::IpAddress &gwV6 = vpn.gatewayIpV6.isValid() ? vpn.gatewayIpV6 : vpn.adapterIpV6;
+            hostnamesManager_.enable(gw, gwV6, vpn.ifIndex);
         }
 
         // For ctrld utility and the main app executable we need special rules for inclusive mode
@@ -138,7 +150,11 @@ bool SplitTunneling::updateState()
             vpnExecutablesForInclusive.addFrom(vpnMainExecutableId_);
             vpnExecutablesForInclusive.addFrom(ctrldExecutableId_);
         }
-        calloutFilter_.enable(localIp, vpnIp, appsIds, vpnExecutablesForInclusive, isExclude_, isAllowLanTraffic_);
+        calloutFilter_.enable(localIp, vpnIp,
+                             connectStatus_.defaultAdapter.adapterIpV6,
+                             connectStatus_.vpnAdapter.adapterIpV6,
+                             appsIds, vpnExecutablesForInclusive, isExclude_, isAllowLanTraffic_,
+                             connectStatus_.vpnAdapter.ifIndex);
 
     } else {
         calloutFilter_.disable();

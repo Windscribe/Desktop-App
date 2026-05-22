@@ -1,0 +1,67 @@
+diff -ruN wireguard-windows-1.0/embeddable-dll-service/build.bat wireguard-windows-1.0-modified/embeddable-dll-service/build.bat
+--- wireguard-windows-1.0/embeddable-dll-service/build.bat	2026-04-18 08:51:04.000000000 -0400
++++ wireguard-windows-1.0-modified/embeddable-dll-service/build.bat	2026-04-22 13:33:46.938465500 -0400
+@@ -19,7 +19,7 @@
+ 	set GOROOT=%BUILDDIR%..\.deps
+ 	set CGO_ENABLED=1
+ 	set CGO_CFLAGS=-O3 -Wall -Wno-unused-function -Wno-switch -std=gnu11 -DWINVER=0x0A00
+-	call :build_plat x86 i686 386 || goto :error
++	rem call :build_plat x86 i686 386 || goto :error
+ 	call :build_plat amd64 x86_64 amd64 || goto :error
+ 	call :build_plat arm64 aarch64 arm64 || goto :error
+ 
+@@ -36,8 +36,11 @@
+ 
+ :build_plat
+ 	set CC=%~2-w64-mingw32-gcc
++	set WINDRES=%~2-w64-mingw32-windres.exe
+ 	set GOARCH=%~3
+ 	mkdir %1 >NUL 2>&1
++	echo [+] Building version info
++	%WINDRES% -i version_info.rc -O coff -o version_info.syso
+ 	echo [+] Building library %1
+ 	go build -buildmode c-shared -ldflags="-w -s" -trimpath -v -o "%~1/tunnel.dll" || exit /b 1
+ 	del "%~1\tunnel.h"
+diff -ruN wireguard-windows-1.0/embeddable-dll-service/version_info.rc.in wireguard-windows-1.0-modified/embeddable-dll-service/version_info.rc.in
+--- wireguard-windows-1.0/embeddable-dll-service/version_info.rc.in	1969-12-31 19:00:00.000000000 -0500
++++ wireguard-windows-1.0-modified/embeddable-dll-service/version_info.rc.in	2026-04-22 13:33:58.338009200 -0400
+@@ -0,0 +1,39 @@
++#include <windows.h>
++
++/////////////////////////////////////////////////////////////////////////////
++//
++// Version
++//
++
++VS_VERSION_INFO VERSIONINFO
++ FILEVERSION 1,0,0,0
++ PRODUCTVERSION 1,0,0,0
++ FILEFLAGSMASK 0x3fL
++#ifdef _DEBUG
++ FILEFLAGS 0x1L
++#else
++ FILEFLAGS 0x0L
++#endif
++ FILEOS 0x40004L
++ FILETYPE 0x1L
++ FILESUBTYPE 0x0L
++BEGIN
++    BLOCK "StringFileInfo"
++    BEGIN
++        BLOCK "040904b0"
++        BEGIN
++            VALUE "CompanyName", "WireGuard\0"
++            VALUE "FileDescription", "WireGuard embeddable-dll-service built by @WS_VENDOR@\0"
++            VALUE "FileVersion", "1, 0, 0, 0\0"
++            VALUE "InternalName", "tunnel.dll\0"
++            VALUE "LegalCopyright", "© Copyright 2015-2026 Jason A. Donenfeld. All Rights Reserved.\0"
++            VALUE "OriginalFilename", "tunnel.dll\0"
++            VALUE "ProductName", "WireGuard embeddable-dll-service\0"
++            VALUE "ProductVersion", "1, 0, 0, 0\0"
++        END
++    END
++    BLOCK "VarFileInfo"
++    BEGIN
++        VALUE "Translation", 0x409, 1200
++    END
++END

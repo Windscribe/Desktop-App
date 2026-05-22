@@ -27,13 +27,14 @@ signals:
     void anotherInstanceRunning();
 
 private:
-    #if defined(Q_OS_WIN)
+#if defined(Q_OS_WIN)
     wsl::Win32Handle appSingletonObj_;
-    #else
+#else
     QString socketName_;
+    QString lockFilePath_;
     QScopedPointer< QLockFile > lockFile_;
     QLocalServer localServer_;
-    #endif
+#endif
 };
 
 }

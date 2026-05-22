@@ -7,6 +7,6 @@ target_sources(engine PRIVATE
     pingstorage.h
 )
 
-#if(DEFINED IS_BUILD_TESTS)
+#if(IS_BUILD_TESTS)
     #add_subdirectory(tests)
-#endif(DEFINED IS_BUILD_TESTS)
+#endif(IS_BUILD_TESTS)

@@ -32,7 +32,7 @@ def GetCurrentOS():
     return _OS_CURRENT_NAME
 
 
-def LoadConfig(filename, loader=yaml.Loader):
+def LoadConfig(filename, loader=yaml.SafeLoader):
     configdata = None
     msg.Verbose("LoadConfig: \"{}\"".format(filename))
     try:

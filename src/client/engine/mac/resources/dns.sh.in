@@ -16,7 +16,11 @@ if [ "$1" = "-up" ] ; then
                 DOMAIN_NAME=${option//dhcp-option DOMAIN /}
                 ;;
             *DNS*)
-                VPN_DNS=${option//dhcp-option DNS /}
+                # Accumulate every `dhcp-option DNS <addr>` into a space-separated list so that
+                # both IPv4 and IPv6 nameservers reach scutil. The original loop kept only the
+                # last entry; with dual-stack WG configs the helper now passes multiple
+                # `dhcp-option DNS …` lines (one per address) and ServerAddresses is an array.
+                VPN_DNS="${VPN_DNS:+${VPN_DNS} }${option//dhcp-option DNS /}"
                 ;;
         esac
     done <<< "${FOREIGN_OPTIONS}"
@@ -32,6 +36,10 @@ if [ "$1" = "-up" ] ; then
         set State:/Network/@WS_APP_IDENTIFIER@/Original/Global/IPv4
 
         d.init
+        get State:/Network/Global/IPv6
+        set State:/Network/@WS_APP_IDENTIFIER@/Original/Global/IPv6
+
+        d.init
         get State:/Network/Global/DNS
         set State:/Network/@WS_APP_IDENTIFIER@/Original/Global/DNS
 _EOF
@@ -43,6 +51,13 @@ _EOF
     if [[ "${VPN_ROUTER}" == "" ]]; then
         VPN_ROUTER=${ifconfig_local}
     fi
+
+    # First non-link-local IPv6 address on the tunnel iface. Empty when WireGuard didn't push
+    # a v6 client address (and for OpenVPN/Stunnel/Wstunnel/IKEv2 paths, which never set a v6
+    # address on the tunnel). The IPv6 scutil writes below are gated on this — when empty, the
+    # host's existing State:/Network/Global/IPv6 stays untouched and v6 leaks are blocked by
+    # the conditional kill-switch in firewallcontroller_mac.cpp.
+    VPN_ROUTER_V6=`ifconfig -v ${VPN_IF} 2>/dev/null | awk '/inet6 / && $2 !~ /^fe80/ {print $2; exit}'`
 
     echo "Creating new network service with UUID: ${SERVICE_UUID}"
     scutil <<_EOF
@@ -80,11 +95,31 @@ _EOF
         set State:/Network/Global/IPv4
 _EOF
 
+    if [[ "${VPN_ROUTER_V6}" != "" ]]; then
+        echo "VPN ROUTER V6: $VPN_ROUTER_V6"
+        scutil <<_EOF
+            d.init
+            d.add Addresses * ${VPN_ROUTER_V6}
+            d.add InterfaceName "${VPN_IF}"
+            d.add Router "${VPN_ROUTER_V6}"
+            set State:/Network/Service/${SERVICE_UUID}/IPv6
+
+            d.init
+            d.add PrimaryService ${SERVICE_UUID}
+            d.add PrimaryInterface ${VPN_IF}
+            d.add Router ${VPN_ROUTER_V6}
+            set State:/Network/Global/IPv6
+_EOF
+    fi
+
 elif [ "$1" = "-down" ] ; then
     echo "Restoring original global network settings"
 
-    # Check if we have saved settings
+    # Check if we have saved settings. PrimaryService is the canonical "this dict was populated"
+    # marker for both IPv4 and IPv6 — if the host had no v6 default route at -up time, the saved
+    # v6 entry is empty and we skip restoring it.
     SAVED_IPV4=`echo "show State:/Network/@WS_APP_IDENTIFIER@/Original/Global/IPv4" | scutil | grep PrimaryService`
+    SAVED_IPV6=`echo "show State:/Network/@WS_APP_IDENTIFIER@/Original/Global/IPv6" | scutil | grep PrimaryService`
     SAVED_DNS=`echo "show State:/Network/@WS_APP_IDENTIFIER@/Original/Global/DNS" | scutil | grep ServerAddresses`
 
     if [[ "${SAVED_IPV4}" == "" ]]; then
@@ -97,6 +132,18 @@ elif [ "$1" = "-down" ] ; then
             d.init
             get State:/Network/@WS_APP_IDENTIFIER@/Original/Global/IPv4
             set State:/Network/Global/IPv4
+_EOF
+    fi
+
+    if [[ "${SAVED_IPV6}" == "" ]]; then
+        echo "No original Global IPv6 configuration to restore"
+    else
+        echo "Found original Global IPv6 configuration"
+
+        scutil <<_EOF
+            d.init
+            get State:/Network/@WS_APP_IDENTIFIER@/Original/Global/IPv6
+            set State:/Network/Global/IPv6
 _EOF
     fi
 
@@ -113,11 +160,15 @@ _EOF
 _EOF
     fi
 
+    # Defensive remove for v6: when no v6 address was set on the tunnel during -up,
+    # State:/Network/Service/${SERVICE_UUID}/IPv6 won't exist and `remove` is a harmless no-op.
     scutil <<_EOF
         remove State:/Network/Service/${SERVICE_UUID}
         remove State:/Network/Service/${SERVICE_UUID}/DNS
         remove State:/Network/Service/${SERVICE_UUID}/IPv4
+        remove State:/Network/Service/${SERVICE_UUID}/IPv6
         remove State:/Network/@WS_APP_IDENTIFIER@/Original/Global/IPv4
+        remove State:/Network/@WS_APP_IDENTIFIER@/Original/Global/IPv6
         remove State:/Network/@WS_APP_IDENTIFIER@/Original/Global/DNS
 _EOF
 

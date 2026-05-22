@@ -13,6 +13,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface Settings : NSObject {
     NSArray *appPaths_;
     NSArray *ips_;
+    NSArray *ipsV6_;
     NSArray *hostnames_;
     nw_interface_t primaryInterface_;
     nw_interface_t vpnInterface_;
@@ -23,6 +24,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, readonly) NSArray *appPaths;
 @property (nonatomic, readonly) NSArray *ips;
+@property (nonatomic, readonly) NSArray *ipsV6;
 @property (nonatomic, readonly) NSArray *hostnames;
 @property (nonatomic, readonly) nw_interface_t primaryInterface;
 @property (nonatomic, readonly) nw_interface_t vpnInterface;

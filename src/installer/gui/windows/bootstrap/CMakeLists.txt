@@ -9,6 +9,7 @@ add_definitions(-DUNICODE -D_UNICODE /wd4090 -D_CRT_SECURE_NO_WARNINGS -D_SILENC
 
 set(SOURCES
     ../utils/archive.cpp
+    ../utils/secure_dir.cpp
     installer.rc
     main.cpp
     ossupport.manifest
@@ -41,6 +42,7 @@ set_property(TARGET bootstrap PROPERTY LINK_FLAGS "/DELAYLOAD:dwmapi.dll /DELAYL
 
 target_link_libraries(bootstrap
     PRIVATE
+    bcrypt
     delayimp
 )
 

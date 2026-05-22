@@ -35,6 +35,7 @@ Requires:	iw
 Requires:	ethtool
 Requires:	psmisc
 Requires:	coreutils
+Requires:	libacl
 
 %description
 Windscribe CLI client.
@@ -82,13 +83,9 @@ if [ $1 -eq 0 ]; then
     rm -rf /etc/windscribe
     rm -rf /opt/windscribe
     rm -rf /var/log/windscribe
+    rm -rf /var/lib/windscribe
 else
-    rm -rf /etc/windscribe/stunnel.conf
-    rm -rf /etc/windscribe/config.ovpn
-    mkdir -p /var/tmp/windscribe
-    if [ -d "/etc/windscribe/windscribe_servers" ]; then
-        mv -f /etc/windscribe/windscribe_servers /var/tmp/windscribe
-    fi
+    rm -rf /etc/windscribe/stunnel.conf /etc/windscribe/config.ovpn /etc/windscribe/windscribe_servers
 fi
 
 %files
@@ -96,4 +93,3 @@ fi
 /usr/lib/systemd/system-preset/69-windscribe-helper.preset
 /usr/lib/systemd/system/windscribe-helper.service
 /usr/lib/systemd/user/windscribe.service
-/usr/polkit-1/actions/com.windscribe.authhelper.policy

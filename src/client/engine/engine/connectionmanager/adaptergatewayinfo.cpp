@@ -1,6 +1,7 @@
 #include "adaptergatewayinfo.h"
 
 #include <QMetaType>
+#include "utils/ws_assert.h"
 
 #ifdef Q_OS_WIN
     #include "adapterutils_win.h"
@@ -20,14 +21,59 @@ AdapterGatewayInfo AdapterGatewayInfo::detectAndCreateDefaultAdapterInfo()
 #ifdef Q_OS_WIN
     cai = AdapterUtils_win::getDefaultAdapterInfo();
 #elif defined Q_OS_MACOS
-    NetworkUtils_mac::getDefaultRoute(cai.gateway_, cai.adapterName_);
-    cai.adapterIp_ = NetworkUtils_mac::ipAddressByInterfaceName(cai.adapterName_);
-    cai.dnsServers_ = NetworkUtils_mac::getDnsServersForInterface(cai.adapterName_);
+    QString gateway;
+    NetworkUtils_mac::getDefaultRoute(gateway, cai.adapterName_);
+    cai.addGatewayIp(types::IpAddress(gateway.toStdString()));
+    cai.addAdapterIp(types::IpAddress(NetworkUtils_mac::ipAddressByInterfaceName(cai.adapterName_).toStdString()));
+
+    // IPv6 default route. Independent of the v4 default — picked from `netstat -nr -f inet6` — so
+    // a dual-stack host gets both addresses populated, a v4-only host gets only v4, and a host
+    // with two separate default-route interfaces per family is supported. If the v6 default-route
+    // interface name differs from the v4 one, we don't override cai.adapterName_ (v4 wins as the
+    // canonical name); the addresses still flow through addGatewayIp/addAdapterIp. On a v6-only
+    // host (no v4 default route at all) we fall back to the v6 adapter name so isEmpty() does not
+    // mistakenly treat the host as "no default adapter detected" and the connection manager can
+    // proceed instead of looping in waitForNetworkConnectivity().
+    {
+        QString gatewayV6, adapterNameV6;
+        NetworkUtils_mac::getDefaultRouteV6(gatewayV6, adapterNameV6);
+        cai.addGatewayIp(types::IpAddress(gatewayV6.toStdString()));
+        cai.addAdapterIp(types::IpAddress(NetworkUtils_mac::ipAddressByInterfaceNameV6(adapterNameV6).toStdString()));
+        if (cai.adapterName_.isEmpty()) {
+            cai.adapterName_ = adapterNameV6;
+        }
+    }
+
+    // DNS pulls from scutil --dns, which on a dual-stack host returns both v4 and v6 nameservers
+    // verbatim. types::IpAddress::IpAddress(const std::string &) rejects scope-suffixed
+    // link-local DNS (`fe80::1%en0`) by yielding an invalid address, which addDnsServer drops; no
+    // explicit filter needed here.
+    const QStringList dnsStrings = NetworkUtils_mac::getDnsServersForInterface(cai.adapterName_);
+    for (const QString &s : dnsStrings)
+        cai.addDnsServer(types::IpAddress(s.toStdString()));
 #elif defined Q_OS_LINUX
-    NetworkUtils_linux::getDefaultRoute(cai.gateway_, cai.adapterName_, cai.adapterIp_);
-    // todo: for split tunneling
-    // cai.adapterIp_ =
-    //cai.dnsServers_ =
+    QString gateway, adapterIp;
+    NetworkUtils_linux::getDefaultRoute(gateway, cai.adapterName_, adapterIp);
+    cai.addGatewayIp(types::IpAddress(gateway.toStdString()));
+    cai.addAdapterIp(types::IpAddress(adapterIp.toStdString()));
+
+    // IPv6 default route. Independent of the v4 default — picked from /proc/net/ipv6_route — so
+    // a dual-stack host gets both addresses populated, a v4-only host gets only v4, and a host
+    // with two separate default-route interfaces per family is supported. If the v6 default-route
+    // interface name differs from the v4 one, we don't override cai.adapterName_ (v4 wins as the
+    // canonical name); the addresses still flow through addGatewayIp/addAdapterIp.
+    {
+        QString gatewayV6, adapterNameV6, adapterIpV6;
+        NetworkUtils_linux::getDefaultRouteV6(gatewayV6, adapterNameV6, adapterIpV6);
+        cai.addGatewayIp(types::IpAddress(gatewayV6.toStdString()));
+        cai.addAdapterIp(types::IpAddress(adapterIpV6.toStdString()));
+    }
+
+    // DNS servers intentionally not populated on Linux: the current helper does not consume
+    // defaultAdapter.dnsServers (no read sites under src/helper/linux), so reading /etc/resolv.conf
+    // here would be dead data. macOS keeps its own getDnsServersForInterface path because IKEv2
+    // and other macOS-specific helper code consumes that field. If a future Linux helper feature
+    // needs system DNS, parse /etc/resolv.conf here at the same time it gains a consumer.
 #endif
 
     return cai;
@@ -37,13 +83,96 @@ AdapterGatewayInfo::AdapterGatewayInfo() : ifIndex_(0)
 {
 }
 
+void AdapterGatewayInfo::addAdapterIp(const types::IpAddress &ip)
+{
+    if (ip.isValid()) {
+        adapterIps_ << ip;
+    }
+}
+
+void AdapterGatewayInfo::addGatewayIp(const types::IpAddress &ip)
+{
+    if (ip.isValid()) {
+        gatewayIps_ << ip;
+    }
+}
+
+void AdapterGatewayInfo::addDnsServer(const types::IpAddress &ip)
+{
+    if (ip.isValid()) {
+        dnsServers_.append(ip);
+    }
+}
+
+types::IpAddress AdapterGatewayInfo::adapterIpV4() const
+{
+    for (const auto &ip : adapterIps_) {
+        if (ip.isV4()) {
+            return ip;
+        }
+    }
+    return types::IpAddress();
+}
+
+types::IpAddress AdapterGatewayInfo::adapterIpV6() const
+{
+    for (const auto &ip : adapterIps_) {
+        if (ip.isV6()) {
+            return ip;
+        }
+    }
+    return types::IpAddress();
+}
+
+types::IpAddress AdapterGatewayInfo::gatewayV4() const
+{
+    for (const auto &ip : gatewayIps_) {
+        if (ip.isV4()) {
+            return ip;
+        }
+    }
+    return types::IpAddress();
+
+}
+
+types::IpAddress AdapterGatewayInfo::gatewayV6() const
+{
+    for (const auto &ip : gatewayIps_) {
+        if (ip.isV6()) {
+            return ip;
+        }
+    }
+    return types::IpAddress();
+}
+
 bool AdapterGatewayInfo::isEmpty() const
 {
     return adapterName_.isEmpty();
 }
 
+QStringList AdapterGatewayInfo::dnsServersAsStringList() const
+{
+    QStringList result;
+    for (const auto &ip : dnsServers_)
+        result << QString::fromStdString(ip.toString());
+    return result;
+}
+
 QString AdapterGatewayInfo::makeLogString()
 {
-    return QString("adapter name = %1; adapter IP = %2; gateway IP = %3; remote IP = %4; dns = (%5); ifIndex = %6")
-            .arg(adapterName_).arg(adapterIp_).arg(gateway_).arg(remoteIp_).arg(dnsServers_.join(',')).arg(ifIndex_ != 0 ? QString::number(ifIndex_) : "not detected");
+    auto joinIps = [](const QVector<types::IpAddress> &ips) {
+        QStringList strs;
+        for (const auto &ip : ips)
+            strs << QString::fromStdString(ip.toString());
+        return strs.join(',');
+    };
+
+    return QString("adapter name = %1; adapter IPs = (%2); gateway IPs = (%3);"
+                   " remote IP = %4; dns = (%5); ifIndex = %6")
+            .arg(adapterName_)
+            .arg(joinIps(adapterIps_))
+            .arg(joinIps(gatewayIps_))
+            .arg(QString::fromStdString(remoteIp_.toString()))
+            .arg(joinIps(dnsServers_))
+            .arg(ifIndex_ != 0 ? QString::number(ifIndex_) : "not detected");
 }

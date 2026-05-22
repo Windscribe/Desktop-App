@@ -94,10 +94,10 @@ bool DefaultRouteMonitor::checkDefaultRoutes()
     return setEndpointDirectRoute();
 }
 
-bool DefaultRouteMonitor::executeCommandWithLogging(const std::string &command) const
+bool DefaultRouteMonitor::executeCommandWithLogging(const std::string &program, const std::vector<std::string> &args) const
 {
     std::string output;
-    const auto status = Utils::executeCommand(command, {}, &output);
+    const auto status = Utils::executeCommand(program, args, &output);
     if (!output.empty())
         spdlog::info("{}", output);
     return status == 0;
@@ -123,8 +123,7 @@ bool DefaultRouteMonitor::setEndpointDirectRoute()
 {
     if (endpoint_.empty() || lastGateway_.empty())
         return false;
-    if (!executeCommandWithLogging(
-        "route -q -n add -inet " + endpoint_ + " -gateway " + lastGateway_))
+    if (!executeCommandWithLogging("route", {"-q", "-n", "add", "-inet", endpoint_, "-gateway", lastGateway_}))
         return false;
     return true;
 }
@@ -133,5 +132,5 @@ void DefaultRouteMonitor::unsetEndpointDirectRoute()
 {
     if (endpoint_.empty())
         return;
-    executeCommandWithLogging("route -q -n delete -inet " + endpoint_);
+    executeCommandWithLogging("route", {"-q", "-n", "delete", "-inet", endpoint_});
 }

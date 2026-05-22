@@ -12,6 +12,7 @@ if [ $1 != "upgrade" ]; then
     delgroup windscribe || true
 
     rm -rf /var/log/windscribe
+    rm -rf /var/lib/windscribe
     rm -rf /etc/windscribe
     rm -f /usr/bin/windscribe-cli
 fi

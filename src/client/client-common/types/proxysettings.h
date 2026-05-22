@@ -49,6 +49,8 @@ public:
     void toIni(QSettings &settings) const;
     QJsonObject toJson(bool isForDebugLog) const;
 
+    void validate();
+
     friend QDataStream& operator <<(QDataStream &stream, const ProxySettings &o);
     friend QDataStream& operator >>(QDataStream &stream, ProxySettings &o);
 

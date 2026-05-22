@@ -2,10 +2,8 @@
 
 #include <arpa/inet.h>
 #include <chrono>
-#include <net/if.h>
-#include <skyr/core/parse.hpp>
-#include <skyr/core/serialize.hpp>
-#include <skyr/url.hpp>
+#include <cstring>
+#include <filesystem>
 #include <sstream>
 #include <sys/stat.h>
 #include <thread>
@@ -73,7 +71,9 @@ int executeCommand(const std::string &cmd, const std::vector<std::string> &args,
     {
         return proc.rdbuf()->status();
     }
-    return 0;
+    // The child did not exit normally (signal, stop, etc.). Callers compare the return
+    // value to 0 to decide success, so a 0 here would falsely report success.
+    return -1;
 }
 
 
@@ -90,57 +90,37 @@ bool isFileExists(const std::string &name)
     return (stat (name.c_str(), &buffer) == 0);
 }
 
-std::string getFullCommand(const std::string &exePath, const std::string &executable, const std::string &arguments)
+bool resolveExePath(const std::string &exePath, const std::string &executable, std::string &outPath)
 {
     char *canonicalPath = realpath(exePath.c_str(), NULL);
     if (!canonicalPath) {
         spdlog::warn("Executable not in valid path, ignoring.");
-        return "";
+        return false;
     }
 
 #if defined(USE_SIGNATURE_CHECK)
-    if (std::string(canonicalPath).rfind(WS_MAC_APP_DIR, 0) != 0) {
+    if (strcmp(canonicalPath, WS_MAC_APP_DIR "/Contents/Helpers") != 0) {
         // Don't execute arbitrary commands, only executables that are in our application directory
         spdlog::warn("Executable not in correct path, ignoring.");
         free(canonicalPath);
-        return "";
+        return false;
     }
 #endif
 
-    std::string fullCmd = std::string(canonicalPath) + "/" + executable + " " + arguments;
-    spdlog::debug("Resolved command: {}", fullCmd);
+    outPath = std::string(canonicalPath) + "/" + executable;
     free(canonicalPath);
-
-    if (fullCmd.find_first_of(";|&`") != std::string::npos) {
-        // Don't execute commands with dangerous pipes or delimiters
-        spdlog::warn("Executable command contains invalid characters, ignoring.");
-        return "";
-    }
-
-    return fullCmd;
-}
-
-std::string getFullCommandAsUser(const std::string &user, const std::string &exePath, const std::string &executable, const std::string &arguments)
-{
-    return "sudo -u " + user + " " + getFullCommand(exePath, executable, arguments);
+    return true;
 }
 
 std::vector<std::string> getOpenVpnExeNames()
 {
     std::vector<std::string> ret;
-    std::string list;
-    std::string item;
-    int rc = 0;
-
-    rc = Utils::executeCommand("ls", {WS_MAC_APP_DIR "/Contents/Helpers"}, &list);
-    if (rc != 0) {
-        return ret;
-    }
-
-    std::istringstream stream(list);
-    while (std::getline(stream, item)) {
-        if (item.find("openvpn") != std::string::npos) {
-            ret.push_back(item);
+    std::error_code ec;
+    for (std::filesystem::directory_iterator it(WS_MAC_APP_DIR "/Contents/Helpers", ec), end;
+         !ec && it != end; it.increment(ec)) {
+        std::string name = it->path().filename().string();
+        if (name.find("openvpn") != std::string::npos) {
+            ret.push_back(name);
         }
     }
     return ret;
@@ -178,7 +158,9 @@ void createAppUserAndGroup()
 bool isAppUninstalled()
 {
     // App is uninstalled if the application path is no longer valid AND the installer app is not running
-    return Utils::executeCommand("ls", {WS_MAC_APP_DIR}) && Utils::executeCommand("pgrep", {"-f", WS_MAC_INSTALLER_BUNDLE_NAME});
+    std::error_code ec;
+    return !std::filesystem::exists(WS_MAC_APP_DIR, ec) &&
+           Utils::executeCommand("pgrep", {"-f", WS_MAC_INSTALLER_BUNDLE_NAME});
 }
 
 void deleteSelf()
@@ -186,9 +168,23 @@ void deleteSelf()
     FirewallOnBootManager::instance().setEnabled(false);
 
     Utils::executeCommand("launchctl", {"remove", "/Library/LaunchDaemons/" WS_MAC_HELPER_BUNDLE_ID ".plist"});
-    Utils::executeCommand("rm", {"/Library/LaunchDaemons/" WS_MAC_HELPER_BUNDLE_ID ".plist"});
-    Utils::executeCommand("rm", {"/Library/PrivilegedHelperTools/" WS_MAC_HELPER_BUNDLE_ID});
-    Utils::executeCommand("rm", {"/usr/local/bin/" WS_CLI_EXECUTABLE_NAME});
+    std::error_code ec;
+    std::filesystem::remove("/Library/LaunchDaemons/" WS_MAC_HELPER_BUNDLE_ID ".plist", ec);
+    if (ec) {
+        spdlog::warn("Failed to remove helper plist: {}", ec.message());
+    }
+    std::filesystem::remove("/Library/PrivilegedHelperTools/" WS_MAC_HELPER_BUNDLE_ID, ec);
+    if (ec) {
+        spdlog::warn("Failed to remove privileged helper: {}", ec.message());
+    }
+    std::filesystem::remove("/usr/local/bin/" WS_CLI_EXECUTABLE_NAME, ec);
+    if (ec) {
+        spdlog::warn("Failed to remove CLI symlink: {}", ec.message());
+    }
+    std::filesystem::remove_all(Utils::kInstallerStageDir, ec);
+    if (ec) {
+        spdlog::warn("Failed to remove update dir: {}", ec.message());
+    }
     // Note that the following command generally fails with a permission error and does not actually remove the user.
     // It seems on MacOS you need a Secure Token account to delete a user, and even though the privileged helper is running as root, it doesn't have a Secure Token.
     Utils::executeCommand("dscl", {".", "-delete", "/Users/" WS_PRODUCT_NAME_LOWER});
@@ -203,79 +199,6 @@ bool hasWhitespaceInString(const std::string &str)
 std::string getExePath()
 {
     return WS_MAC_APP_DIR "/Contents/Helpers";
-}
-
-bool isValidIpAddress(const std::string &address)
-{
-    struct sockaddr_in sa;
-    return inet_pton(AF_INET, address.c_str(), &(sa.sin_addr)) != 0;
-}
-
-bool isValidDomain(const std::string &address)
-{
-    if (isValidIpAddress(address)) {
-        return false;
-    }
-
-    auto domain = skyr::parse_host(address);
-    if (!domain) {
-        return false;
-    }
-
-    return true;
-}
-
-bool isValidInterfaceName(const std::string &interfaceName)
-{
-    if (interfaceName.empty() || interfaceName.length() >= IFNAMSIZ) {
-        return false;
-    }
-
-    for (char c : interfaceName) {
-        if (c == '\0' || c == ':' || c == '/' || std::isspace(c)) {
-            return false;
-        }
-    }
-
-    return true;
-}
-
-bool isValidMacAddress(const std::string &macAddress)
-{
-    if (macAddress.empty()) {
-        return false;
-    }
-
-    size_t len = macAddress.length();
-
-    if (len == 12) {
-        for (char c : macAddress) {
-            if (!std::isxdigit(c)) {
-                return false;
-            }
-        }
-        return true;
-    } else if (len == 17) {
-        char separator = macAddress[2];
-        if (separator != ':' && separator != '-') {
-            return false;
-        }
-
-        for (size_t i = 0; i < len; i++) {
-            if (i % 3 == 2) {
-                if (macAddress[i] != separator) {
-                    return false;
-                }
-            } else {
-                if (!std::isxdigit(macAddress[i])) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
-    return false;
 }
 
 bool isValidDnsDynamicStoreEntry(const std::string &entry)
@@ -312,26 +235,6 @@ bool isValidDnsDynamicStoreEntry(const std::string &entry)
     }
 
     return true;
-}
-
-std::string normalizeAddress(const std::string &address)
-{
-    std::string addr = address;
-
-    if (isValidIpAddress(address)) {
-        return addr;
-    }
-
-    if (isValidDomain(address)) {
-        return addr;
-    }
-
-    auto url = skyr::parse(address);
-    if (!url) {
-        return "";
-    }
-
-    return skyr::serialize(url.value());
 }
 
 bool isPortListening(unsigned int port, int maxRetries, int delayMs)

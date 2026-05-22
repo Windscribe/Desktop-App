@@ -58,9 +58,10 @@ void IpHostnamesManager::dnsResolverCallback(std::map<std::string, DnsResolver::
     for (auto it = hostInfos.begin(); it != hostInfos.end(); ++it) {
         if (!it->second.error) {
             for (const auto addr : it->second.addresses) {
-                if (addr == "0.0.0.0") {
-                    // ROBERT sometimes will give us an address of 0.0.0.0 for a 'blocked' resource.  This is not a valid address.
-                    spdlog::debug("IpHostnamesManager::dnsResolverCallback(), Resolved : {}, IP: 0.0.0.0 (Ignored)", it->first);
+                // ROBERT (and Cloudflare for blocked-domain v6 responses) returns the all-zeros
+                // sentinel for a blocked resource. Skip both family forms.
+                if (addr == "0.0.0.0" || addr == "::") {
+                    spdlog::debug("IpHostnamesManager::dnsResolverCallback(), Resolved : {}, IP: {} (Ignored)", it->first, addr);
                 } else {
                     spdlog::debug("IpHostnamesManager::dnsResolverCallback(), Resolved : {}, IP: {}", it->first, addr);
                     addressesList_.insert(addr);

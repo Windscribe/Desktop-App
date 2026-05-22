@@ -19,20 +19,22 @@ void PersistentState::load()
         QByteArray arr = simpleCrypt.decryptToByteArray(str);
 
         QDataStream ds(&arr, QIODevice::ReadOnly);
+        // Wrap in a transaction so nested-type version mismatches stay in the corrupt-stream state
+        // inside QList readers (see StreamStateSaver in qdatastream.h), avoiding a huge
+        // QList::reserve() that would crash before we reach the status check below.
+        ds.startTransaction();
 
-        quint32 magic, version;
-        ds >> magic;
-        if (magic == magic_)
-        {
-            ds >> version;
-            if (version <= versionForSerialization_)
-            {
-                ds >> state_;
-                if (ds.status() == QDataStream::Ok)
-                {
-                    bLoaded = true;
-                }
-            }
+        quint32 magic = 0, version = 0;
+        ds >> magic >> version;
+        if (magic != magic_ || version > versionForSerialization_) {
+            ds.setStatus(QDataStream::ReadCorruptData);
+        } else {
+            ds >> state_;
+        }
+
+        if (ds.commitTransaction()) {
+            state_.validate();
+            bLoaded = true;
         }
     }
     if (!bLoaded)
@@ -222,6 +224,7 @@ void PersistentState::fromIni(QSettings &settings)
     settings.endGroup();
 
     state_.networkWhiteList = out;
+    state_.validate();
     save();
 }
 
@@ -250,6 +253,7 @@ void PersistentState::fromJson(const QJsonObject &json)
     }
 
     state_.networkWhiteList = out;
+    state_.validate();
     save();
 }
 

@@ -10,15 +10,14 @@ HttpProxyConnectionManager::HttpProxyConnectionManager(QObject *parent, int thre
     usersCounter_(usersCounter)
 {
     WS_ASSERT(threadsCount > 0);
-    for (int i = 0; i < threadsCount; i++)
-    {
+    for (int i = 0; i < threadsCount; i++) {
         QThread *thread = new QThread(this);
         threads_[thread] = 0;
         thread->start(QThread::LowPriority);
     }
 }
 
-void HttpProxyConnectionManager::newConnection(qintptr socketDescriptor)
+void HttpProxyConnectionManager::newConnection(qintptr socketDescriptor, const ProxyAuth::Config &auth)
 {
 #ifdef Q_OS_WIN
     SOCKADDR_IN  addr = {0};
@@ -31,7 +30,7 @@ void HttpProxyConnectionManager::newConnection(qintptr socketDescriptor)
     char *ip = inet_ntoa(addr.sin_addr);
     usersCounter_->newUserConnected(ip);
     QThread *thread = getLessBusyThread();
-    HttpProxyConnection *connection = new HttpProxyConnection(socketDescriptor, ip);
+    HttpProxyConnection *connection = new HttpProxyConnection(socketDescriptor, ip, auth);
     connect(connection, &HttpProxyConnection::finished, this, &HttpProxyConnectionManager::onConnectionFinished);
     addConnectionToThread(thread, connection);
 
@@ -40,20 +39,17 @@ void HttpProxyConnectionManager::newConnection(qintptr socketDescriptor)
 
 void HttpProxyConnectionManager::closeAllConnections()
 {
-    for(auto c : connections_.keys())
-    {
+    for (auto c : connections_.keys()) {
         QMetaObject::invokeMethod(c, "forceClose", Qt::QueuedConnection);
     }
 }
 
 void HttpProxyConnectionManager::stop()
 {
-    for(auto thread : threads_.keys())
-    {
+    for (auto thread : threads_.keys()) {
         thread->exit();
     }
-    for(auto thread : threads_.keys())
-    {
+    for (auto thread : threads_.keys()) {
         thread->wait();
     }
 }
@@ -83,10 +79,8 @@ QThread *HttpProxyConnectionManager::getLessBusyThread()
     quint32 min = threads_.begin().value();
     QThread *thread = threads_.begin().key();
 
-    for (QMap<QThread *, quint32>::const_iterator it = threads_.cbegin(); it != threads_.cend(); ++it)
-    {
-        if (it.value() < min)
-        {
+    for (QMap<QThread *, quint32>::const_iterator it = threads_.cbegin(); it != threads_.cend(); ++it) {
+        if (it.value() < min) {
             min = it.value();
             thread = it.key();
         }
@@ -106,8 +100,7 @@ void HttpProxyConnectionManager::addConnectionToThread(QThread *thread, HttpProx
 
 void HttpProxyConnectionManager::dumpThreads()
 {
-    for (QMap<QThread *, quint32>::iterator it = threads_.begin(); it != threads_.end(); ++it)
-    {
+    for (QMap<QThread *, quint32>::iterator it = threads_.begin(); it != threads_.end(); ++it) {
         qDebug() << "Thread:" << it.key() << "Value:" << it.value();
     }
 }
