@@ -1,0 +1,148 @@
+name: Bug report
+description: Report a defect to help us improve the app
+title: "[Bug]: "
+labels: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Before you file
+
+        Please fill out **every required section** of this form. Reports that omit required information — particularly reproduction steps, OS, app version, and a debug log or username — may be closed without investigation. You are welcome to reopen the issue once the missing details are provided.
+
+        If you have a concern about personal information appearing in a debug log, you can send the log from inside the app (Preferences → Help → Send Log) and provide your Windscribe username in the field below instead of pasting the log here.
+
+  - type: checkboxes
+    id: preflight
+    attributes:
+      label: Preflight checks
+      description: Please confirm the following before submitting.
+      options:
+        - label: I have searched [existing issues](https://github.com/Windscribe/Desktop-App/issues?q=is%3Aissue) and this bug has not already been reported.
+          required: true
+        - label: I am running the latest version of the app available for my platform.
+          required: true
+        - label: I understand that incomplete reports may be closed without investigation.
+          required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Describe the bug
+      description: A clear and concise description of what the bug is.
+      placeholder: When I do X, Y happens instead of Z.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating system
+      description: Select the OS where you can reproduce the bug.
+      options:
+        - Windows 11
+        - Windows 10
+        - Windows Server 2022
+        - macOS 15 (Sequoia)
+        - macOS 14 (Sonoma)
+        - macOS 13 (Ventura)
+        - Ubuntu
+        - Fedora
+        - openSUSE
+        - Arch
+        - Other Linux distribution
+        - Other (specify in OS details)
+    validations:
+      required: true
+
+  - type: input
+    id: os_details
+    attributes:
+      label: OS details
+      description: Exact OS version and architecture (e.g. "Windows 11 23H2 arm64", "macOS 14.5 arm64", "Ubuntu 24.04 amd64").
+      placeholder: e.g. Windows 11 23H2 amd64
+    validations:
+      required: true
+
+  - type: input
+    id: app_version
+    attributes:
+      label: App version
+      description: Found in the app under Preferences → About, or via `windscribe-cli --version`.
+      placeholder: e.g. 2.21.1
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to reproduce
+      description: Provide the exact steps needed to reliably reproduce the bug.
+      value: |
+        1.
+        2.
+        3.
+        4.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: A clear and concise description of what you expected to happen.
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: What actually happened instead. Include any error messages verbatim.
+    validations:
+      required: true
+
+  - type: textarea
+    id: debug_log
+    attributes:
+      label: Debug log or username
+      description: |
+        A debug log is **required** to investigate this bug. Either:
+
+        - Paste the contents of the debug log here (or attach it by dragging the file into this field), **or**
+        - Send the log from inside the app (Preferences → Help → Send Log) and enter your Windscribe username here so we can locate it.
+
+        Log file locations:
+        - Windows: `C:\Users\<user>\AppData\Local\Windscribe\Windscribe2`
+        - macOS: `~/Library/Application Support/Windscribe/Windscribe2`
+        - Linux: `~/.local/share/Windscribe/Windscribe2`
+    validations:
+      required: true
+
+  - type: dropdown
+    id: regression
+    attributes:
+      label: Is this a regression?
+      description: Did this bug occur in previous versions of the app, or is it new to the version above?
+      options:
+        - New to this version
+        - Present in previous versions as well
+        - Not sure
+    validations:
+      required: true
+
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots
+      description: If applicable, attach screenshots that help explain the problem. Drag and drop images directly into this field.
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional_context
+    attributes:
+      label: Additional context
+      description: Any other context about the problem — network setup, VPN protocol in use, firewall/AV software, recent system changes, etc.
+    validations:
+      required: false

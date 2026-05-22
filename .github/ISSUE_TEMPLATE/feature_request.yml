@@ -1,0 +1,73 @@
+name: Feature request
+description: Suggest an idea or improvement for the app
+title: "[Feature]: "
+labels: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Before you file
+
+        Please fill out **every required section** of this form. Requests that omit required information may be closed without further discussion. You are welcome to reopen the issue once the missing details are provided.
+
+        For general questions or discussion, please use [Windscribe Community](https://community.windscribe.com/) rather than opening an issue here.
+
+  - type: checkboxes
+    id: preflight
+    attributes:
+      label: Preflight checks
+      description: Please confirm the following before submitting.
+      options:
+        - label: I have searched [existing issues](https://github.com/Windscribe/Desktop-App/issues?q=is%3Aissue) and this feature has not already been requested.
+          required: true
+        - label: This request is for the Windscribe **desktop** app (not the browser extension, mobile app, or web dashboard).
+          required: true
+        - label: I understand that incomplete requests may be closed without further discussion.
+          required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or motivation
+      description: What problem does this feature solve, or what use case does it enable? Describe the situation that prompted the request.
+      placeholder: I'm always frustrated when [...] / I would like to be able to [...] because [...]
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed solution
+      description: A clear and concise description of what you want to happen. Be as specific as possible — UI placement, behavior, interaction with existing settings, etc.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Other solutions, workarounds, or approaches you have considered, and why they fall short.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: platforms
+    attributes:
+      label: Which platforms should this apply to?
+      multiple: true
+      options:
+        - Windows
+        - macOS
+        - Linux (GUI)
+        - Linux (CLI-only)
+        - All platforms
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional_context
+    attributes:
+      label: Additional context
+      description: Any other context, mockups, screenshots, links to similar features in other apps, or references that would help evaluate the request.
+    validations:
+      required: false

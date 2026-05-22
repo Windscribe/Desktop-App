@@ -1,3 +1,9 @@
+2.22.10 (21/05/2026)
+All:
+   * Fixed application blocked by TLS fingerprinting in Russia. #1822
+   * Fixed AmneziaWG custom configs with valid H1-H4 ranges rejected by the security validator. #1823
+
+
 2.22.9 (06/05/2026)
 macOS:
    * Fixed possible local privilege escalation and TOCTOU exploits in the helper and installer. #1796

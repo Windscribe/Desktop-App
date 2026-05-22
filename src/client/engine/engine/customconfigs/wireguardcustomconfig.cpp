@@ -15,11 +15,13 @@ static constexpr qint64 kMaxConfigFileSize = 64 * 1024;
 // WireGuard keys are 32 bytes, base64-encoded = 44 characters (including trailing '=').
 static const QRegularExpression kBase64KeyRegex(QStringLiteral("^[A-Za-z0-9+/]{43}=$"));
 
-// H1-H4 are uint32 values represented as decimal strings.
-static const QRegularExpression kUint32Regex(QStringLiteral("^[0-9]{1,10}$"));
+// H1-H4 are either a single uint32 decimal string or a range "x-y" of two uint32 decimal strings.
+// See: https://github.com/amnezia-vpn/amneziawg-go (message paddings).
+static const QRegularExpression kHeaderValueRegex(QStringLiteral("^[0-9]{1,10}(-[0-9]{1,10})?$"));
 
-// I1-I5 are hex-encoded init packet data. MTU limits mean the binary payload
-// should not exceed ~1500 bytes, but we allow up to 4096 characters for safety.
+// I1-I5 are tag-syntax init-packet specs: <b 0xHEX>, <r N>, <rd N>, <rc N>, <t>
+// (see amneziawg-go README). MTU bounds the expanded payload to ~1500 bytes;
+// 4096 leaves comfortable margin for the literal string form.
 static constexpr int kMaxIValueLength = 4096;
 
 static bool isValidWgKey(const QString &key)
@@ -291,7 +293,7 @@ void WireguardCustomConfig::validate()
         // H1-H4: must be numeric uint32 strings when present
         for (const QString &h : {obfuscationParams_.h1, obfuscationParams_.h2,
                                   obfuscationParams_.h3, obfuscationParams_.h4}) {
-            if (!h.isEmpty() && !kUint32Regex.match(h).hasMatch()) {
+            if (!h.isEmpty() && !kHeaderValueRegex.match(h).hasMatch()) {
                 errMessage_ = QObject::tr("Invalid AmneziaWG header parameter");
                 return;
             }

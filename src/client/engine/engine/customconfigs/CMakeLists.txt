@@ -13,3 +13,7 @@ target_sources(engine PRIVATE
     wireguardcustomconfig.cpp
     wireguardcustomconfig.h
 )
+
+if(IS_BUILD_TESTS)
+    add_subdirectory(tests)
+endif(IS_BUILD_TESTS)
