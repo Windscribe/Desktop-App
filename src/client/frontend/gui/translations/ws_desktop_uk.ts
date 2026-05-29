@@ -39,15 +39,15 @@
     </message>
     <message>
         <source> transferred in </source>
-        <translation> переведено в </translation>
+        <translation> передано за </translation>
     </message>
     <message>
         <source>Connected for </source>
-        <translation>Підключено для </translation>
+        <translation>Підключено </translation>
     </message>
     <message>
         <source> transferred</source>
-        <translation> Передані</translation>
+        <translation> передано</translation>
     </message>
     <message>
         <source>Firewall</source>
@@ -67,7 +67,7 @@
     </message>
     <message>
         <source>Rotate IP</source>
-        <translation>Повернути IP</translation>
+        <translation>Змінити IP</translation>
     </message>
     <message>
         <source>FIREWALL</source>
@@ -192,7 +192,7 @@
     <name>FreeTrafficNotificationController</name>
     <message>
         <source>You reached %1% of your free bandwidth allowance</source>
-        <translation>Ви досягли 1% від ліміту вільної пропускної здатності;</translation>
+        <translation>Ви досягли %1% від ліміту безкоштовного трафіку.</translation>
     </message>
 </context>
 <context>
@@ -245,7 +245,7 @@
     </message>
     <message>
         <source>Choose</source>
-        <translation>Вибирати</translation>
+        <translation>Вибрати</translation>
     </message>
     <message>
         <source>The selected directory contains no custom configs</source>
@@ -345,7 +345,7 @@
     </message>
     <message>
         <source>Complete Puzzle to continue</source>
-        <translation>Здійсніть пазл, щоб продовжити</translation>
+        <translation>Завершіть пазл, щоб продовжити</translation>
     </message>
 </context>
 <context>
@@ -444,7 +444,7 @@
     </message>
     <message>
         <source>Rate limited. Please wait before trying to login again.</source>
-        <translation>Ставка обмежена. Будь ласка, зачекайте, перш ніж знову намагатися увійти.</translation>
+        <translation>Перевищено ліміт запитів. Будь ласка, зачекайте перед повторним входом.</translation>
     </message>
     <message>
         <source>Session is expired. Please login again</source>
@@ -519,7 +519,7 @@
     </message>
     <message>
         <source>Continue</source>
-        <translation>Продовжуй</translation>
+        <translation>Продовжити</translation>
     </message>
     <message>
         <source>Hash</source>
@@ -553,7 +553,7 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
     </message>
     <message>
         <source>Invalid email</source>
-        <translation>Недійсний електронний лист</translation>
+        <translation>Неправильна адреса ел. пошти</translation>
     </message>
     <message>
         <source>Invalid hash</source>
@@ -615,7 +615,7 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
     </message>
     <message>
         <source>Select Custom Config Folder</source>
-        <translation>Виберіть Custom Config Folder (Власна папка конфігурації)</translation>
+        <translation>Виберіть папку користувацьких конфігурацій</translation>
     </message>
     <message>
         <source>Security Risk</source>
@@ -689,7 +689,7 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
         <source>Connection to Windscribe has been terminated.
 %1 transferred in %2</source>
         <translation>З&apos;єднання з Windscribe припинено.
-%1 переведено в %2</translation>
+%1 передано за %2</translation>
     </message>
     <message>
         <source>Could not start Proxy Gateway</source>
@@ -899,7 +899,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Rotating MAC Address</source>
-        <translation>Поворот MAC-адреси</translation>
+        <translation>Зміна MAC-адреси</translation>
     </message>
     <message>
         <source>Wi-Fi is off</source>
@@ -1015,7 +1015,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Could not rotate IP</source>
-        <translation>Не вдалося повернути IP</translation>
+        <translation>Не вдалося змінити IP</translation>
     </message>
     <message>
         <source>Try again later or go to our Status page for more info.</source>
@@ -1027,7 +1027,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Back</source>
-        <translation>Задній</translation>
+        <translation>Назад</translation>
     </message>
     <message>
         <source>Manual connection mode failed</source>
@@ -1058,7 +1058,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Log Out of Windscribe?</source>
-        <translation>Вийти з Windscribe?</translation>
+        <translation>Вийти з облікового запису Windscribe?</translation>
     </message>
     <message>
         <source>Quit</source>
@@ -1189,7 +1189,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>UPGRADE &gt;</source>
-        <translation>ОНОВЛЕННЯ &gt;</translation>
+        <translation>ПОКРАЩИТИ &gt;</translation>
     </message>
 </context>
 <context>
@@ -1306,11 +1306,11 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Bundled</source>
-        <translation>Комплекті</translation>
+        <translation>Вбудований</translation>
     </message>
     <message>
         <source>None</source>
-        <translation>Ніхто</translation>
+        <translation>Нічого</translation>
     </message>
     <message>
         <source>Custom</source>
@@ -1512,7 +1512,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Clear Wi-Fi History</source>
-        <translation>Чиста історія Wi-Fi</translation>
+        <translation>Очистити історію Wi-Fi</translation>
     </message>
     <message>
         <source>Are you sure?</source>
@@ -2069,15 +2069,15 @@ Connect to a network first</source>
     </message>
     <message>
         <source>Discard</source>
-        <translation>Викид</translation>
+        <translation>Скасувати</translation>
     </message>
     <message>
         <source>You have unsaved changes in edit fields. Do you want to save them?</source>
-        <translation>У вас є незбережені зміни в полях редагування. Хочеш їх врятувати?</translation>
+        <translation>У вас є незбережені зміни в полях редагування. Хочете їх зберегти?</translation>
     </message>
     <message>
         <source>Save</source>
-        <translation>Збереження</translation>
+        <translation>Зберегти</translation>
     </message>
 </context>
 <context>
@@ -2215,14 +2215,14 @@ Connect to a network first</source>
     </message>
     <message>
         <source>Allowing</source>
-        <translation>Дозволяючи</translation>
+        <translation>Дозволено</translation>
     </message>
 </context>
 <context>
     <name>PreferencesWindow::RobertWindowItem</name>
     <message>
         <source>R.O.B.E.R.T.</source>
-        <translation>Р.О.Б.Е.Р.Т.</translation>
+        <translation>R.O.B.E.R.T.</translation>
     </message>
     <message>
         <source>R.O.B.E.R.T. is a customizable server-side domain and IP blocking tool. Select the block lists you wish to apply on all your devices by toggling the switch.</source>
@@ -2302,7 +2302,7 @@ Connect to a network first</source>
     </message>
     <message>
         <source>None</source>
-        <translation>Ніхто</translation>
+        <translation>Нічого</translation>
     </message>
     <message>
         <source>When Disconnected</source>
@@ -2310,7 +2310,7 @@ Connect to a network first</source>
     </message>
     <message>
         <source>Bundled</source>
-        <translation>Комплекті</translation>
+        <translation>Вбудований</translation>
     </message>
     <message>
         <source>Custom</source>
@@ -2516,7 +2516,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <name>QObject</name>
     <message>
         <source>Custom</source>
-        <translation>Користувальницький</translation>
+        <translation>Користувацький</translation>
     </message>
     <message>
         <source>OS Default</source>
@@ -2580,7 +2580,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>Internal</source>
-        <translation>Внутрішні</translation>
+        <translation>Внутрішній</translation>
     </message>
     <message>
         <source>Exclude</source>
@@ -2608,7 +2608,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>Disabled</source>
-        <translation>Відключений</translation>
+        <translation>Вимкнено</translation>
     </message>
     <message>
         <source>Config file too large</source>
@@ -2628,7 +2628,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>Missing &quot;Peer&quot; section</source>
-        <translation>Відсутній розділ &quot;Одноранговий&quot;</translation>
+        <translation>Відсутній розділ &quot;Peer&quot;</translation>
     </message>
     <message>
         <source>Missing &quot;PrivateKey&quot; in the &quot;Interface&quot; section</source>
@@ -2648,7 +2648,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>Missing &quot;Endpoint&quot; in the &quot;Peer&quot; section</source>
-        <translation>Відсутня &quot;Кінцева точка&quot; в розділі &quot;Peer&quot;</translation>
+        <translation>Відсутній &quot;Endpoint&quot; в розділі &quot;Peer&quot;</translation>
     </message>
     <message>
         <source>Invalid &quot;PrivateKey&quot; format</source>
@@ -2684,7 +2684,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>AmneziaWG init parameter too large</source>
-        <translation>AmneziaWG init занадто великий параметр</translation>
+        <translation>Параметр ініціалізації AmneziaWG занадто великий</translation>
     </message>
     <message>
         <source>Static IPs</source>
@@ -2760,7 +2760,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>Always On+</source>
-        <translation>Завжди на зв&apos;язку+</translation>
+        <translation>Завжди ввімкнено+</translation>
     </message>
     <message>
         <source>Custom configs</source>
@@ -2780,11 +2780,11 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>Regular</source>
-        <translation>Регулярні</translation>
+        <translation>Звичайний</translation>
     </message>
     <message>
         <source>Alternate</source>
-        <translation>Альтернатива</translation>
+        <translation>Альтернативний</translation>
     </message>
 </context>
 <context>
@@ -2848,7 +2848,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>Quit Windscribe</source>
-        <translation>Кинь Windscribe</translation>
+        <translation>Вийти з Windscribe</translation>
     </message>
     <message>
         <source>Favourites</source>
@@ -2897,7 +2897,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>Update</source>
-        <translation>Оновлювати</translation>
+        <translation>Оновити</translation>
     </message>
 </context>
 <context>
@@ -2950,7 +2950,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>%1 left</source>
-        <translation>%1 ліворуч</translation>
+        <translation>Залишилось %1</translation>
     </message>
     <message>
         <source>0 days left</source>
@@ -2958,7 +2958,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>1 day left</source>
-        <translation>Залишилось 1 днів</translation>
+        <translation>Залишився 1 день</translation>
     </message>
     <message>
         <source>2 days left</source>
@@ -2986,7 +2986,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>Renew</source>
-        <translation>Обновляти</translation>
+        <translation>Продовжити</translation>
     </message>
 </context>
 <context>

@@ -39,7 +39,7 @@
     </message>
     <message>
         <source> transferred in </source>
-        <translation> переведено в </translation>
+        <translation> передано за </translation>
     </message>
     <message>
         <source>Connected for </source>
@@ -63,7 +63,7 @@
     </message>
     <message>
         <source>Favourite IP</source>
-        <translation>Любимый IP</translation>
+        <translation>Избранный IP</translation>
     </message>
     <message>
         <source>Rotate IP</source>
@@ -101,7 +101,7 @@
     </message>
     <message>
         <source>Favourites</source>
-        <translation>Любимые</translation>
+        <translation>Избранное</translation>
     </message>
 </context>
 <context>
@@ -289,14 +289,14 @@
     </message>
     <message>
         <source>Add</source>
-        <translation>Добавлять</translation>
+        <translation>Добавить</translation>
     </message>
 </context>
 <context>
     <name>GuiLocations::StaticIPDeviceInfo</name>
     <message>
         <source>Add</source>
-        <translation>Добавлять</translation>
+        <translation>Добавить</translation>
     </message>
 </context>
 <context>
@@ -444,7 +444,7 @@
     </message>
     <message>
         <source>Rate limited. Please wait before trying to login again.</source>
-        <translation>Ставка ограничена. Пожалуйста, подождите, прежде чем снова пытаться войти.</translation>
+        <translation>Превышен лимит запросов. Пожалуйста, подождите перед повторным входом.</translation>
     </message>
     <message>
         <source>Session is expired. Please login again</source>
@@ -519,7 +519,7 @@
     </message>
     <message>
         <source>Continue</source>
-        <translation>Продолжайте</translation>
+        <translation>Продолжить</translation>
     </message>
     <message>
         <source>Hash</source>
@@ -553,7 +553,7 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
     </message>
     <message>
         <source>Invalid email</source>
-        <translation>Недействительное письмо</translation>
+        <translation>Неверный адрес эл. почты</translation>
     </message>
     <message>
         <source>Invalid hash</source>
@@ -899,7 +899,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Rotating MAC Address</source>
-        <translation>Поворот MAC-адреса</translation>
+        <translation>Смена MAC-адреса</translation>
     </message>
     <message>
         <source>Wi-Fi is off</source>
@@ -1011,11 +1011,11 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>We could not set your favourite IP for this location.  Try again later.</source>
-        <translation>Мы не смогли установить ваш любимый IP-адрес для этого местоположения.  Повторите попытку позже.</translation>
+        <translation>Мы не смогли установить ваш избранный IP-адрес для этого местоположения. Повторите попытку позже.</translation>
     </message>
     <message>
         <source>Could not rotate IP</source>
-        <translation>Не удалось повернуть IP</translation>
+        <translation>Не удалось сменить IP</translation>
     </message>
     <message>
         <source>Try again later or go to our Status page for more info.</source>
@@ -1054,7 +1054,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     <name>MainWindowController</name>
     <message>
         <source>Quit Windscribe?</source>
-        <translation>Покинуть Windscribe?</translation>
+        <translation>Выйти из Windscribe?</translation>
     </message>
     <message>
         <source>Log Out of Windscribe?</source>
@@ -1189,7 +1189,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>UPGRADE &gt;</source>
-        <translation>МОДЕРНИЗАЦИЯ &gt;</translation>
+        <translation>УЛУЧШИТЬ &gt;</translation>
     </message>
 </context>
 <context>
@@ -1512,7 +1512,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Clear Wi-Fi History</source>
-        <translation>Чистая история Wi-Fi</translation>
+        <translation>Очистить историю Wi-Fi</translation>
     </message>
     <message>
         <source>Are you sure?</source>
@@ -1901,7 +1901,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     <name>PreferencesWindow::NetworkOptionsNetworkWindowItem</name>
     <message>
         <source>Windscribe auto-connects if the device connects to this network.</source>
-        <translation>Windscribe автоматически подключится, если устройство соединиться с этой сетью.</translation>
+        <translation>Windscribe автоматически подключится, если устройство соединится с этой сетью.</translation>
     </message>
     <message>
         <source>Auto-Secure</source>
@@ -2026,7 +2026,7 @@ Connect to a network first</source>
     </message>
     <message>
         <source>Connection</source>
-        <translation>Связь</translation>
+        <translation>Подключение</translation>
     </message>
     <message>
         <source>R.O.B.E.R.T.</source>
@@ -2073,7 +2073,7 @@ Connect to a network first</source>
     </message>
     <message>
         <source>You have unsaved changes in edit fields. Do you want to save them?</source>
-        <translation>У вас есть несохраненные изменения в полях редактирования. Ты хочешь их спасти?</translation>
+        <translation>У вас есть несохранённые изменения в полях редактирования. Хотите их сохранить?</translation>
     </message>
     <message>
         <source>Save</source>
@@ -2608,7 +2608,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>Disabled</source>
-        <translation>Отключение</translation>
+        <translation>Отключено</translation>
     </message>
     <message>
         <source>Config file too large</source>
@@ -2772,7 +2772,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>Your application version is no longer supported. Please update to continue using %1.</source>
-        <translation>Ваша версия приложения больше не поддерживается. Пожалуйста, обновите информацию, чтобы продолжать использовать %1.</translation>
+        <translation>Ваша версия приложения больше не поддерживается. Пожалуйста, обновите приложение, чтобы продолжать пользоваться %1.</translation>
     </message>
     <message>
         <source>Please upgrade to a Pro account to continue using %1.</source>
@@ -2798,7 +2798,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <name>ServerRatingsTooltip</name>
     <message>
         <source>Rate speed</source>
-        <translation>Скорость тарифа</translation>
+        <translation>Оценить скорость</translation>
     </message>
 </context>
 <context>
@@ -2848,11 +2848,11 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>Quit Windscribe</source>
-        <translation>Брось Windscribe</translation>
+        <translation>Выйти из Windscribe</translation>
     </message>
     <message>
         <source>Favourites</source>
-        <translation>Любимые</translation>
+        <translation>Избранное</translation>
     </message>
     <message>
         <source>Show app</source>
@@ -2986,14 +2986,14 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>Renew</source>
-        <translation>Обновлять</translation>
+        <translation>Продлить</translation>
     </message>
 </context>
 <context>
     <name>UpgradeWindow::UpgradeWindowItem</name>
     <message>
         <source>You&apos;re out of data!</source>
-        <translation>У вас закончилился пакет трафика!</translation>
+        <translation>У вас закончился пакет трафика!</translation>
     </message>
     <message>
         <source>Don&apos;t leave your front door open. Upgrade or wait until next month to get your monthly data allowance back.</source>

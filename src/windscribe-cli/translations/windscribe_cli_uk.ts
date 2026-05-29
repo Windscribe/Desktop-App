@@ -21,19 +21,19 @@
     </message>
     <message>
         <source>Could not rotate IP.  Please check that you have Windscribe Pro or have this location in your plan, or try again later.</source>
-        <translation>Не вдалося повернути ІП.  Будь ласка, переконайтеся, що у вас є Windscribe Pro або є це місце у вашому плані, або спробуйте пізніше.</translation>
+        <translation>Не вдалося змінити IP. Переконайтеся, що у вас є Windscribe Pro або що це місце входить у ваш план, або спробуйте пізніше.</translation>
     </message>
     <message>
         <source>Could not favourite IP.  Please check that you have Windscribe Pro or have this location in your plan, or try again later.</source>
-        <translation>Не зміг вибратися IP.  Будь ласка, переконайтеся, що у вас є Windscribe Pro або є це місце у вашому плані, або спробуйте пізніше.</translation>
+        <translation>Не вдалося додати IP до вибраного. Переконайтеся, що у вас є Windscribe Pro або що це місце входить у ваш план, або спробуйте пізніше.</translation>
     </message>
     <message>
         <source>Could not unfavourite IP.  Please check that the provided IP is valid.</source>
-        <translation>Не міг не обійтися без улюбленого ІП.  Будь ласка, перевірте дійсність наданої IP-адреси.</translation>
+        <translation>Не вдалося видалити IP з вибраного. Переконайтеся, що вказана IP-адреса вірна.</translation>
     </message>
     <message>
         <source>IP rotate already in progress.</source>
-        <translation>ІП обертання вже в процесі.</translation>
+        <translation>Зміна IP вже виконується.</translation>
     </message>
     <message>
         <source>No AmneziaWG configurations available.</source>
@@ -124,7 +124,7 @@
     </message>
     <message>
         <source>Rate limited</source>
-        <translation>Ставка обмежена</translation>
+        <translation>Перевищено ліміт запитів</translation>
     </message>
     <message>
         <source>Unknown error</source>
@@ -136,11 +136,11 @@
     </message>
     <message>
         <source>Connected: %1</source>
-        <translation>пов&apos;язаний: %1</translation>
+        <translation>Підключено: %1</translation>
     </message>
     <message>
         <source>Connected</source>
-        <translation>Підключений</translation>
+        <translation>Підключено</translation>
     </message>
     <message>
         <source>[Network interference]</source>
@@ -208,7 +208,7 @@
     </message>
     <message>
         <source>On</source>
-        <translation>На</translation>
+        <translation>Увімк.</translation>
     </message>
     <message>
         <source>Off</source>
@@ -324,7 +324,7 @@
     </message>
     <message>
         <source> (Pro)</source>
-        <translation> (Про)</translation>
+        <translation> (Pro)</translation>
     </message>
     <message>
         <source>Not connected</source>
@@ -332,15 +332,15 @@
     </message>
     <message>
         <source>IP rotated.</source>
-        <translation>ІП повернувся.</translation>
+        <translation>IP змінено.</translation>
     </message>
     <message>
         <source>IP favorited.</source>
-        <translation>IP вибраний.</translation>
+        <translation>IP додано до вибраного.</translation>
     </message>
     <message>
         <source>IP unfavorited.</source>
-        <translation>ІП невибране.</translation>
+        <translation>IP видалено з вибраного.</translation>
     </message>
     <message>
         <source>Invalid IP address</source>
