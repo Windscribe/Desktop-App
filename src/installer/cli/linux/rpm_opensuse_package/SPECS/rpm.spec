@@ -39,6 +39,7 @@ Requires:	psmisc
 Requires:	coreutils
 Requires:	libgthread-2_0-0
 Requires:	libacl1
+Requires:	gpg2
 
 %description
 Windscribe CLI client.

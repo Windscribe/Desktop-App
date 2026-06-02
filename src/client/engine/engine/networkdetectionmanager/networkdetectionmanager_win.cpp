@@ -64,16 +64,7 @@ void NetworkDetectionManager_win::removeMacAddressSpoof(int ifIndex)
 void NetworkDetectionManager_win::resetAdapter(int ifIndex, bool bringBackUp)
 {
     qCInfo(LOG_BASIC) << "Resetting interface: " << ifIndex;
-    QString subkeyName = NetworkUtils_win::interfaceSubkeyName(ifIndex);
-
-    if (subkeyName != "")
-    {
-        helper_->resetNetworkAdapter(subkeyName, bringBackUp);
-    }
-    else
-    {
-        qCWarning(LOG_BASIC) << "Couldn't reset adapter -- No index matching adapter in Registry:" << ifIndex;
-    }
+    helper_->resetNetworkAdapter(ifIndex, bringBackUp);
 }
 
 void NetworkDetectionManager_win::onNetworkChanged()

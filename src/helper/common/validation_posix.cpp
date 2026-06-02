@@ -1,5 +1,7 @@
 #include "validation_posix.h"
 
+#include "helper_commands.h"
+
 #include <cctype>
 #include <cerrno>
 #include <cstdlib>
@@ -17,6 +19,13 @@ namespace Validation {
 
 bool isValidIpAddress(const std::string &ip)
 {
+    // Reject a scope-id suffix (e.g. "fe80::1%en0"): make_address parses it as valid, but callers
+    // interpolate the result verbatim into pf/iptables tables and the OpenVPN config, none of which
+    // accept "%zone" syntax. A scoped address must not be treated as a bare literal — a single one
+    // reaching `pfctl -T load` rejects the whole <disallowed_dns> table and fails the kill switch.
+    if (ip.find('%') != std::string::npos) {
+        return false;
+    }
     boost::system::error_code ec;
     boost::asio::ip::make_address(ip, ec);
     return !ec;
@@ -228,13 +237,72 @@ bool isValidInterfaceName(const std::string &interfaceName)
         return false;
     }
 
-    for (char c : interfaceName) {
-        if (c == '\0' || c == ':' || c == '/' || std::isspace(c)) {
+    // Whitelist the characters real interface names use (alphanumerics plus '.', '_', '-'). This is
+    // intentionally stricter than "reject obvious separators": the name is interpolated verbatim
+    // into iptables/pf rule text, so anything outside this set is rejected. In particular it bars
+    // the iptables/pf wildcard '+' (which would match all interfaces and weaken the kill switch)
+    // and pf grammar characters such as '}' (which could prematurely close an anchor block).
+    for (unsigned char c : interfaceName) {
+        if (!std::isalnum(c) && c != '.' && c != '_' && c != '-') {
             return false;
         }
     }
 
     return true;
+}
+
+bool isValidNetworkManagerConnectionName(const std::string &name)
+{
+    if (name.empty() || name.length() >= 256) {
+        return false;
+    }
+
+    // A leading '-' would be parsed by nmcli as an option rather than a connection name.
+    if (name.front() == '-') {
+        return false;
+    }
+
+    // Reject control bytes (NUL/newline/tab/etc). Spaces and high (UTF-8) bytes are allowed, since
+    // real NM connection names use them; argv-style execution prevents shell interpretation.
+    for (unsigned char c : name) {
+        if (c < 0x20 || c == 0x7f) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+void sanitizeFirewallConfig(FirewallConfig &config)
+{
+    if (!config.connectingIp.empty() && !isValidIpv4Address(config.connectingIp)) {
+        spdlog::error("sanitizeFirewallConfig: invalid connectingIp \"{}\", dropping it", config.connectingIp);
+        config.connectingIp.clear();
+    }
+    std::vector<std::string> validIps;
+    validIps.reserve(config.allowedIps.size());
+    for (const auto &ip : config.allowedIps) {
+        if (isValidIpv4Address(ip)) {
+            validIps.push_back(ip);
+        } else {
+            spdlog::error("sanitizeFirewallConfig: invalid allowedIp \"{}\", dropping it", ip);
+        }
+    }
+    config.allowedIps = std::move(validIps);
+    if (!config.vpnInterfaceName.empty() && !isValidInterfaceName(config.vpnInterfaceName)) {
+        spdlog::error("sanitizeFirewallConfig: invalid vpnInterfaceName \"{}\", dropping it", config.vpnInterfaceName);
+        config.vpnInterfaceName.clear();
+    }
+    std::vector<unsigned int> validPorts;
+    validPorts.reserve(config.staticPorts.size());
+    for (unsigned int port : config.staticPorts) {
+        if (port > 0 && port <= 65535) {
+            validPorts.push_back(port);
+        } else {
+            spdlog::error("sanitizeFirewallConfig: static port {} out of range, dropping it", port);
+        }
+    }
+    config.staticPorts = std::move(validPorts);
 }
 
 bool isValidMacAddress(const std::string &macAddress)
@@ -293,6 +361,16 @@ std::string normalizeAddress(const std::string &address)
     }
 
     return skyr::serialize(url.value());
+}
+
+bool isPrintableSingleLineAscii(const std::string &v)
+{
+    for (unsigned char c : v) {
+        if (c < 0x20 || c > 0x7E) {
+            return false;
+        }
+    }
+    return true;
 }
 
 } // namespace Validation

@@ -24,3 +24,15 @@ void Helper_linux::setOpenVpnDcoMode(bool useDco)
     sendCommand(HelperCommand::setOpenVpnDcoMode, useDco);
 }
 
+QString Helper_linux::installerStageAndVerify(const QString &srcPath)
+{
+    auto result = sendCommand(HelperCommand::installerStageAndVerify, srcPath.toStdString());
+    std::string stagedPath;
+    bool success = false;
+    deserializeAnswer(result, stagedPath, success);
+    if (!success) {
+        return QString();
+    }
+    return QString::fromStdString(stagedPath);
+}
+

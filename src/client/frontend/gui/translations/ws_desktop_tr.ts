@@ -498,10 +498,6 @@
         <translation>E-posta girin</translation>
     </message>
     <message>
-        <source>For password recovery, updates &amp; promo only. No spam.</source>
-        <translation>Şifre kurtarma, güncellemeler ve sadece promosyon için. Spam yok.</translation>
-    </message>
-    <message>
         <source>Voucher Code?</source>
         <translation>Kupon Kodu?</translation>
     </message>
@@ -650,10 +646,6 @@ Hesabınızı kaybederseniz, sonsuza dek kaybolur ve destek size onu kurtarmaya 
         <translation>SSL Hatası</translation>
     </message>
     <message>
-        <source>We detected that SSL requests may be intercepted on your network. This could be due to a firewall configured on your computer, or Windscribe being blocked by your network administrator. Ignore SSL errors?</source>
-        <translation>SSL isteklerinin ağınızda ele geçirilebileceğini tespit ettik. Bunun nedeni, bilgisayarınızda yapılandırılmış bir güvenlik duvarı veya Windscribe&apos;ın ağ yöneticiniz tarafından engellenmesi olabilir. SSL hataları göz ardı edilsin mi?</translation>
-    </message>
-    <message>
         <source>Disconnected</source>
         <translation>Bağlantısı kesilmiş</translation>
     </message>
@@ -676,6 +668,10 @@ Hesabınızı kaybederseniz, sonsuza dek kaybolur ve destek size onu kurtarmaya 
     <message>
         <source>Later</source>
         <translation>Daha sonra</translation>
+    </message>
+    <message>
+        <source>SSL requests may be intercepted on your network. Ignoring SSL errors disables TLS certificate validation for this session: anyone able to intercept your traffic can then impersonate Windscribe and read or alter your data, and we can&apos;t guarantee your security while it&apos;s on. Ignore SSL errors?</source>
+        <translation>SSL talepleri ağınızda ele geçirilebilir. SSL hatalarını görmezden gelmek bu oturum için TLS sertifikası doğrulamasını devre dışı bırakır: trafiğinizi yakalayabilecek herkes Windscribe kimliğine girip verilerinizi okuyabilir veya değiştirebilir ve bu işlem açıkken güvenliğinizi garanti edemeyiz. SSL hatalarını görmezden gelmek mi?</translation>
     </message>
     <message>
         <source>Connected to </source>
@@ -798,7 +794,7 @@ Kurtarma...</translation>
         <translation>Bir uygulama seçin</translation>
     </message>
     <message>
-        <source>Read-only file</source>
+        <source>Read-Only File</source>
         <translation>Salt okunur dosya</translation>
     </message>
     <message>
@@ -1207,19 +1203,11 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
         <translation>Gelişmiş Parametreler</translation>
     </message>
     <message>
-        <source>Ignore SSL certificate validation errors.</source>
-        <translation>SSL sertifikası doğrulama hatalarını yoksayın.</translation>
-    </message>
-    <message>
-        <source>Ignore SSL Errors</source>
-        <translation>SSL Hatalarını Yoksay</translation>
-    </message>
-    <message>
         <source>Prevents connections from dying (by time-out) by periodically pinging the server.</source>
         <translation>Sunucuya düzenli olarak ping yaparak bağlantılarının ölmesini (zaman aşımına uğramasını) önler.</translation>
     </message>
     <message>
-        <source>Client-side Keepalive</source>
+        <source>Client-Side Keepalive</source>
         <translation>İstemci Tarafı Canlı Tutma</translation>
     </message>
     <message>
@@ -1258,7 +1246,7 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
 <context>
     <name>PreferencesWindow::AntiCensorshipWindowItem</name>
     <message>
-        <source>Anti-censorship</source>
+        <source>Anti-Censorship</source>
         <translation>Sansür karşıtı</translation>
     </message>
     <message>
@@ -1451,10 +1439,6 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
         <translation>VPN protokolünü otomatik olarak seçin veya manuel olarak seçin. NOT: &quot;Tercih Edilen Protokol&quot; bu ayarı geçersiz kılacaktır.</translation>
     </message>
     <message>
-        <source>Configure egress IP stack for VPN connections.</source>
-        <translation>VPN bağlantıları için çıkış IP yığınını yapılandırın.</translation>
-    </message>
-    <message>
         <source>IP Stack</source>
         <translation>IP Yığını</translation>
     </message>
@@ -1511,6 +1495,10 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
         <translation>Bu güvenlik duvarı modunda, bağlantı kesildiğinde Windscribe API&apos;si kullanılamaz, bunun istenmeyen sonuçları olabilir. Kendi sorumluluğunuzdadır kullanın.</translation>
     </message>
     <message>
+        <source>Configure egress IP stack for VPN connections (WireGuard only).</source>
+        <translation>VPN bağlantıları için çıkış IP yığınını yapılandırın (sadece WireGuard).</translation>
+    </message>
+    <message>
         <source>Clear Wi-Fi History</source>
         <translation>Wi-Fi Geçmişini Temizle</translation>
     </message>
@@ -1527,7 +1515,7 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
         <translation>Konum geçmişi takimini önlemek için işletim sisteminizden Wi-Fi SSID ve MAC bilgilerini kaldırın.</translation>
     </message>
     <message>
-        <source>Anti-censorship Settings</source>
+        <source>Anti-Censorship Settings</source>
         <translation>Sansür karşıtı Ayarlar</translation>
     </message>
 </context>
@@ -1740,7 +1728,7 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
         <translation>Sürüm</translation>
     </message>
     <message>
-        <source>Multi-desktop</source>
+        <source>Multi-Desktop</source>
         <translation>Çoklu masaüstü</translation>
     </message>
     <message>
@@ -2687,6 +2675,10 @@ Yeniden yükleme yardımcı olmazsa, lütfen yardım için Windscribe desteği i
         <translation>AmneziaWG init parametresi çok büyük</translation>
     </message>
     <message>
+        <source>AmneziaWG init parameter contains invalid characters</source>
+        <translation>AmneziaWG init parametresi geçersiz karakterler içerir</translation>
+    </message>
+    <message>
         <source>Static IPs</source>
         <translation>Statik IP&apos;ler</translation>
     </message>
@@ -2873,7 +2865,7 @@ Yeniden yükleme yardımcı olmazsa, lütfen yardım için Windscribe desteği i
 <context>
     <name>TwoFactorAuthWindow::TwoFactorAuthWindowItem</name>
     <message>
-        <source>Two-factor Auth</source>
+        <source>Two-Factor Auth</source>
         <translation>İki Faktörlü Kimlik Doğrulama</translation>
     </message>
     <message>

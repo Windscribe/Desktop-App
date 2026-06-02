@@ -19,26 +19,17 @@ public:
     bool whitelistPorts(const api_responses::StaticIpPortsVector &ports) override;
     bool deleteWhitelistPorts() override;
 
-    void setInterfaceToSkip_posix(const QString &interfaceToSkip) override;
+    void setVpnInterface_posix(const QString &vpnInterface) override;
     void setFirewallOnBoot(bool bEnable, const QSet<QString>& ipTable = QSet<QString>(), bool isAllowLanTraffic = false) override;
 
 private:
     Helper *helper_;
-    QString interfaceToSkip_;
-    bool forceUpdateInterfaceToSkip_;
+    QString vpnInterface_;
+    bool forceUpdateVpnInterface_;
     QRecursiveMutex mutex_;
-    QString pathToTempTable_;
-    QString comment_;
 
-    bool firewallOnImpl(const QString &connectingIp, const QSet<QString> &ips, bool bAllowLanTraffic, bool bIsCustomConfig, const api_responses::StaticIpPortsVector &ports);
-    QStringList getAppRules(const QString &comment, bool modifyForDelete, bool isIPv6);
-    void removeAppRules(const QString &comment, bool isIPv6);
-    QStringList getLocalAddresses(const QString iface) const;
-    // True iff `iface` has at least one non-link-local IPv6 unicast address.
-    // Used to gate the conditional v6 VPN-adapter permit in firewallOnImpl: the
-    // WireGuard server only sometimes pushes a v6 client address; OpenVPN never
-    // does. We must not punch ::/0 into the kill switch when the tunnel is v4-only.
-    bool hasIPv6Address(const QString &iface) const;
-    QString getHotspotAdapter() const;
-    bool hasBlockRule();
+    // Builds the validated firewall intent and hands it to the helper, which is the sole author of
+    // the actual iptables rules. Rule construction and local-machine introspection that used to
+    // live here now live in the privileged helper (src/helper/linux/firewallcontroller.cpp).
+    bool firewallOnImpl(const QString &connectingIp, const QSet<QString> &ips, bool bAllowLanTraffic, bool bIsCustomConfig);
 };

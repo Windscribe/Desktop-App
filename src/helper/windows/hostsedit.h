@@ -12,19 +12,17 @@ public:
         return he;
     }
 
-    bool removeAppHosts();
-    bool addHosts(std::wstring szHosts);
+    bool addHosts(const std::wstring &ip, const std::wstring &hostname);
+    bool makeHostsFileWritable() const;
     bool removeHosts();
 
 private:
-    std::wstring szTitle_;
-    std::wstring szSystemDir_;
+    std::wstring addedByMarker_;
+    std::wstring systemDir_;
 
     HostsEdit();
     virtual ~HostsEdit();
-    std::wstring getHostsPath();
-    std::wstring getTempHostsPath();
-    bool stringInVector(std::vector<std::wstring> &vec, std::wstring &str);
-    std::vector<std::wstring> &split(const std::wstring &s, wchar_t delim, std::vector<std::wstring> &elems);
-    std::vector<std::wstring> split(const std::wstring &s, wchar_t delim);
+    std::wstring getHostsPath() const;
+    std::wstring getTempHostsPath() const;
+    bool stringInVector(const std::vector<std::wstring> &vec, const std::wstring &str);
 };

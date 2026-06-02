@@ -45,6 +45,7 @@ Requires:	coreutils
 Requires:	libgthread-2_0-0
 Requires:	desktop-file-utils
 Requires:	libacl1
+Requires:	gpg2
 
 %description
 Windscribe client.

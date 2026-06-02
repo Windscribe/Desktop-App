@@ -384,21 +384,6 @@ void Preferences::setMacAddrSpoofing(const types::MacAddrSpoofing &mas)
     }
 }
 
-bool Preferences::isIgnoreSslErrors() const
-{
-    return engineSettings_.isIgnoreSslErrors();
-}
-
-void Preferences::setIgnoreSslErrors(bool b)
-{
-    if (engineSettings_.isIgnoreSslErrors() != b)
-    {
-        engineSettings_.setIsIgnoreSslErrors(b);
-        emitEngineSettingsChanged();
-        emit isIgnoreSslErrorsChanged(engineSettings_.isIgnoreSslErrors());
-    }
-}
-
 #if defined(Q_OS_WIN)
 bool Preferences::isTerminateSockets() const
 {
@@ -777,7 +762,6 @@ void Preferences::setEngineSettings(const types::EngineSettings &es, bool fromJs
     isSettingEngineSettings_ = true;
     setLanguage(es.language());
     setUpdateChannel(es.updateChannel());
-    setIgnoreSslErrors(es.isIgnoreSslErrors());
 #if defined(Q_OS_WIN)
     setTerminateSockets(es.isTerminateSockets());
 #endif
@@ -966,7 +950,6 @@ void Preferences::loadIni()
     isSettingEngineSettings_ = true;
     setLanguage(es.language());
     setUpdateChannel(es.updateChannel());
-    setIgnoreSslErrors(es.isIgnoreSslErrors());
     setAPIAntiCensorship(es.isAPIAntiCensorship());
     setAllowLanTraffic(es.isAllowLanTraffic());
     setFirewallSettings(es.firewallSettings());

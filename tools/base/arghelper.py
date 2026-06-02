@@ -49,8 +49,8 @@ class ArgHelper:
     options.append(("\nSigning", ""))
     options.append((OPTION_NOTARIZE, "Notarizes the app after building (Mac only, CI-only)"))
     options.append(("\nBuild specific components", ""))
-    options.append((OPTION_BUILD_APP, "Build the app. On MacOS & Linux, also signs."))
-    options.append((OPTION_SIGN_APP, "Sign the app (Windows only)"))
+    options.append((OPTION_BUILD_APP, "Build the app. On MacOS, also signs."))
+    options.append((OPTION_SIGN_APP, "Sign the app (Windows). Sign Linux packages (.deb/.rpm) after build (Linux). Requires LINUX_SIGNING_GPG_KEY_ID in env on Linux."))
     options.append((OPTION_BUILD_INSTALLER, "Build the installer. On MacOS, also signs."))
     options.append((OPTION_SIGN_INSTALLER, "Sign the installer (Windows only)"))
     options.append((OPTION_BUILD_BOOTSTRAP, "Build the bootstrap (Windows only)"))
@@ -104,7 +104,13 @@ class ArgHelper:
             ArgHelper.OPTION_BUILD_RPM_OPENSUSE not in program_arg_list and \
             ArgHelper.OPTION_BUILD_DEB not in program_arg_list
 
-        self.mode_build_deb = no_packaging_selected or ArgHelper.OPTION_BUILD_DEB in program_arg_list
+        # BUILD_DEB defaults on when no other packaging type is asked for. Suppress
+        # that default in sign-only mode (--sign-app with no --build-* flag) so the
+        # standalone sign step doesn't try to also rebuild the .deb — it just signs
+        # whatever's already in build-exe from a prior build invocation. This mirrors
+        # the Windows split-step pattern.
+        sign_only = self.mode_sign_app and not self.mode_build_app and not self.mode_build_installer
+        self.mode_build_deb = (no_packaging_selected and not sign_only) or ArgHelper.OPTION_BUILD_DEB in program_arg_list
         self.mode_build_rpm = ArgHelper.OPTION_BUILD_RPM in program_arg_list
         self.mode_build_rpm_opensuse = ArgHelper.OPTION_BUILD_RPM_OPENSUSE in program_arg_list
 

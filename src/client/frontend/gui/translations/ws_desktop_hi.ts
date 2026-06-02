@@ -498,10 +498,6 @@
         <translation>ईमेल दर्ज करें</translation>
     </message>
     <message>
-        <source>For password recovery, updates &amp; promo only. No spam.</source>
-        <translation>केवल पासवर्ड रिकवरी, अपडेट और प्रोमो के लिए। कोई स्पैम नहीं।</translation>
-    </message>
-    <message>
         <source>Voucher Code?</source>
         <translation>वाउचर कोड?</translation>
     </message>
@@ -622,10 +618,6 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
         <translation>&apos;बेस फ़िल्टरिंग इंजन&apos; सेवा प्रारंभ नहीं कर सका.  कृपया इस सेवा को Windows सेवाओं में मैन्युअल रूप से सक्षम करें.</translation>
     </message>
     <message>
-        <source>We detected that SSL requests may be intercepted on your network. This could be due to a firewall configured on your computer, or Windscribe being blocked by your network administrator. Ignore SSL errors?</source>
-        <translation>हमने पाया कि SSL अनुरोध आपके नेटवर्क पर अवरोधित किए जा सकते हैं. यह आपके कंप्यूटर पर कॉन्फ़िगर किए गए फ़ायरवॉल के कारण हो सकता है, या आपके नेटवर्क व्यवस्थापक द्वारा विंडस्क्राइब को अवरुद्ध किया जा रहा है। SSL त्रुटियों को अनदेखा करें?</translation>
-    </message>
-    <message>
         <source>We&apos;ve detected that your network settings may interfere with Windscribe.  Please send us a debug log to troubleshoot.</source>
         <translation>हमने पाया है कि आपकी नेटवर्क सेटिंग्स विंडस्क्राइब में हस्तक्षेप कर सकती हैं।  कृपया समस्या निवारण के लिए हमें एक डीबग लॉग भेजें.</translation>
     </message>
@@ -642,7 +634,7 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
         <translation>अद्यतनकर्ता नहीं चलाया जा सका (त्रुटि %1).  कृपया समर्थन से संपर्क करें</translation>
     </message>
     <message>
-        <source>Read-only file</source>
+        <source>Read-Only File</source>
         <translation>केवल पढ़ने की फ़ाइल</translation>
     </message>
     <message>
@@ -704,6 +696,10 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
     <message>
         <source>Later</source>
         <translation>बाद में</translation>
+    </message>
+    <message>
+        <source>SSL requests may be intercepted on your network. Ignoring SSL errors disables TLS certificate validation for this session: anyone able to intercept your traffic can then impersonate Windscribe and read or alter your data, and we can&apos;t guarantee your security while it&apos;s on. Ignore SSL errors?</source>
+        <translation>एसएसएल अनुरोधों को आपके नेटवर्क पर इंटरसेप्ट किया जा सकता है। एसएसएल त्रुटियों को अनदेखा करने से इस सत्र के लिए टीएलएस प्रमाणपत्र सत्यापन अक्षम हो जाता है: आपके ट्रैफ़िक को रोकने में सक्षम कोई भी व्यक्ति विंडस्क्राइब का प्रतिरूपण कर सकता है और आपके डेटा को पढ़ या बदल सकता है, और हम चालू होने के दौरान आपकी सुरक्षा की गारंटी नहीं दे सकते। एसएसएल त्रुटियों पर ध्यान न दें?</translation>
     </message>
     <message>
         <source>Connected to </source>
@@ -1207,19 +1203,11 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>उन्नत पैरामीटर</translation>
     </message>
     <message>
-        <source>Ignore SSL certificate validation errors.</source>
-        <translation>SSL प्रमाणपत्र सत्यापन त्रुटियों पर ध्यान न दें।</translation>
-    </message>
-    <message>
-        <source>Ignore SSL Errors</source>
-        <translation>SSL त्रुटियों पर ध्यान न दें</translation>
-    </message>
-    <message>
         <source>Prevents connections from dying (by time-out) by periodically pinging the server.</source>
         <translation>समय-समय पर सर्वर को पिंग करके कनेक्शन को मरने से रोकता है (टाइम-आउट द्वारा)।</translation>
     </message>
     <message>
-        <source>Client-side Keepalive</source>
+        <source>Client-Side Keepalive</source>
         <translation>ग्राहक-पक्ष कीपअलिव</translation>
     </message>
     <message>
@@ -1258,7 +1246,7 @@ If the problem persists after a restart, please send a debug log and open a supp
 <context>
     <name>PreferencesWindow::AntiCensorshipWindowItem</name>
     <message>
-        <source>Anti-censorship</source>
+        <source>Anti-Censorship</source>
         <translation>सेंसरशिप विरोधी</translation>
     </message>
     <message>
@@ -1447,10 +1435,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>कनेक्शन मोड</translation>
     </message>
     <message>
-        <source>Configure egress IP stack for VPN connections.</source>
-        <translation>वीपीएन कनेक्शन के लिए निकास आईपी स्टैक कॉन्फ़िगर करें।</translation>
-    </message>
-    <message>
         <source>IP Stack</source>
         <translation>आईपी स्टैक</translation>
     </message>
@@ -1511,6 +1495,10 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>इस फ़ायरवॉल मोड में, डिस्कनेक्ट होने पर विंडसाइड एपीआई उपलब्ध नहीं होगा, इसके अनपेक्षित परिणाम हो सकते हैं। अपने जोखिम पर उपयोग करें।</translation>
     </message>
     <message>
+        <source>Configure egress IP stack for VPN connections (WireGuard only).</source>
+        <translation>वीपीएन कनेक्शन के लिए निकास आईपी स्टैक कॉन्फ़िगर करें (केवल वायरगार्ड)।</translation>
+    </message>
+    <message>
         <source>Clear Wi-Fi History</source>
         <translation>वाई-फाई इतिहास साफ़ करें</translation>
     </message>
@@ -1527,7 +1515,7 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>स्थान इतिहास ट्रैकिंग को रोकने के लिए अपने ऑपरेटिंग सिस्टम से वाई-फाई एसएसआईडी और मैक जानकारी निकालें।</translation>
     </message>
     <message>
-        <source>Anti-censorship Settings</source>
+        <source>Anti-Censorship Settings</source>
         <translation>सेंसरशिप विरोधी सेटिंग्स</translation>
     </message>
 </context>
@@ -1740,7 +1728,7 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>विंडसाइड मेनूबार को छोटा करता है और अब डॉक में दिखाई नहीं देता है।</translation>
     </message>
     <message>
-        <source>Multi-desktop</source>
+        <source>Multi-Desktop</source>
         <translation>मल्टी-डेस्कटॉप</translation>
     </message>
     <message>
@@ -2687,6 +2675,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <translation>AmneziaWG init पैरामीटर बहुत बड़ा</translation>
     </message>
     <message>
+        <source>AmneziaWG init parameter contains invalid characters</source>
+        <translation>AmneziaWG init पैरामीटर में अमान्य वर्ण हैं</translation>
+    </message>
+    <message>
         <source>Static IPs</source>
         <translation>स्थैतिक आईपी</translation>
     </message>
@@ -2873,7 +2865,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
 <context>
     <name>TwoFactorAuthWindow::TwoFactorAuthWindowItem</name>
     <message>
-        <source>Two-factor Auth</source>
+        <source>Two-Factor Auth</source>
         <translation>दो-कारक Auth</translation>
     </message>
     <message>

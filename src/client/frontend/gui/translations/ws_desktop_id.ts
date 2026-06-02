@@ -498,10 +498,6 @@
         <translation>Masukkan email</translation>
     </message>
     <message>
-        <source>For password recovery, updates &amp; promo only. No spam.</source>
-        <translation>Untuk pemulihan kata sandi, pembaruan &amp; promo saja. Tidak ada spam.</translation>
-    </message>
-    <message>
         <source>Voucher Code?</source>
         <translation>Kode Voucher?</translation>
     </message>
@@ -650,10 +646,6 @@ Jika Anda kehilangan hash akun, itu akan hilang selamanya dan dukungan tidak dap
         <translation>Kesalahan SSL</translation>
     </message>
     <message>
-        <source>We detected that SSL requests may be intercepted on your network. This could be due to a firewall configured on your computer, or Windscribe being blocked by your network administrator. Ignore SSL errors?</source>
-        <translation>Kami mendeteksi bahwa permintaan SSL dapat disadap di jaringan Anda. Ini bisa jadi karena firewall yang dikonfigurasi di komputer Anda, atau Windscribe diblokir oleh administrator jaringan Anda. Abaikan kesalahan SSL?</translation>
-    </message>
-    <message>
         <source>Disconnected</source>
         <translation>Terputus</translation>
     </message>
@@ -676,6 +668,10 @@ Jika Anda kehilangan hash akun, itu akan hilang selamanya dan dukungan tidak dap
     <message>
         <source>Later</source>
         <translation>Nanti</translation>
+    </message>
+    <message>
+        <source>SSL requests may be intercepted on your network. Ignoring SSL errors disables TLS certificate validation for this session: anyone able to intercept your traffic can then impersonate Windscribe and read or alter your data, and we can&apos;t guarantee your security while it&apos;s on. Ignore SSL errors?</source>
+        <translation>Permintaan SSL dapat dicegat di jaringan Anda. Mengabaikan kesalahan SSL akan menonaktifkan validasi sertifikat TLS untuk sesi ini: siapa pun yang dapat mencegat lalu lintas Anda kemudian dapat meniru identitas Windscribe dan membaca atau mengubah data Anda, dan kami tidak dapat menjamin keamanan Anda saat aktif. Mengabaikan kesalahan SSL?</translation>
     </message>
     <message>
         <source>Connected to </source>
@@ -798,7 +794,7 @@ Memulihkan...</translation>
         <translation>Pilih aplikasi</translation>
     </message>
     <message>
-        <source>Read-only file</source>
+        <source>Read-Only File</source>
         <translation>File baca-saja</translation>
     </message>
     <message>
@@ -1207,19 +1203,11 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
         <translation>Parameter Lanjutan</translation>
     </message>
     <message>
-        <source>Ignore SSL certificate validation errors.</source>
-        <translation>Abaikan kesalahan validasi sertifikat SSL.</translation>
-    </message>
-    <message>
-        <source>Ignore SSL Errors</source>
-        <translation>Abaikan Kesalahan SSL</translation>
-    </message>
-    <message>
         <source>Prevents connections from dying (by time-out) by periodically pinging the server.</source>
         <translation>Mencegah koneksi mati (dengan waktu habis) dengan melakukan ping server secara berkala.</translation>
     </message>
     <message>
-        <source>Client-side Keepalive</source>
+        <source>Client-Side Keepalive</source>
         <translation>Keepalive sisi klien</translation>
     </message>
     <message>
@@ -1258,7 +1246,7 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
 <context>
     <name>PreferencesWindow::AntiCensorshipWindowItem</name>
     <message>
-        <source>Anti-censorship</source>
+        <source>Anti-Censorship</source>
         <translation>Anti-sensor</translation>
     </message>
     <message>
@@ -1451,10 +1439,6 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
         <translation>Pilih protokol VPN secara otomatis, atau pilih secara manual. CATATAN: &quot;Protokol Pilihan&quot; akan mengganti pengaturan ini.</translation>
     </message>
     <message>
-        <source>Configure egress IP stack for VPN connections.</source>
-        <translation>Konfigurasikan tumpukan IP keluar untuk koneksi VPN.</translation>
-    </message>
-    <message>
         <source>IP Stack</source>
         <translation>Tumpukan IP</translation>
     </message>
@@ -1511,6 +1495,10 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
         <translation>Dalam mode firewall ini, API Windscribe tidak akan tersedia saat terputus, ini dapat memiliki konsekuensi yang tidak diinginkan. Gunakan dengan risiko sendiri.</translation>
     </message>
     <message>
+        <source>Configure egress IP stack for VPN connections (WireGuard only).</source>
+        <translation>Konfigurasikan tumpukan IP keluar untuk koneksi VPN (hanya WireGuard).</translation>
+    </message>
+    <message>
         <source>Clear Wi-Fi History</source>
         <translation>Hapus Riwayat Wi-Fi</translation>
     </message>
@@ -1527,7 +1515,7 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
         <translation>Hapus informasi SSID dan MAC Wi-Fi dari sistem operasi Anda untuk mencegah pelacakan riwayat lokasi.</translation>
     </message>
     <message>
-        <source>Anti-censorship Settings</source>
+        <source>Anti-Censorship Settings</source>
         <translation>Pengaturan anti-sensor</translation>
     </message>
 </context>
@@ -1740,8 +1728,8 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
         <translation>Versi</translation>
     </message>
     <message>
-        <source>Multi-desktop</source>
-        <translation>Multi-desktop</translation>
+        <source>Multi-Desktop</source>
+        <translation>Multi-Desktop</translation>
     </message>
     <message>
         <source>Select behaviour when window is activated with multiple desktops.</source>
@@ -2687,6 +2675,10 @@ Jika penginstalan ulang tidak membantu, hubungi dukungan Windscribe untuk mendap
         <translation>Parameter init AmneziaWG terlalu besar</translation>
     </message>
     <message>
+        <source>AmneziaWG init parameter contains invalid characters</source>
+        <translation>Parameter init AmneziaWG berisi karakter yang tidak valid</translation>
+    </message>
+    <message>
         <source>Static IPs</source>
         <translation>IP statis</translation>
     </message>
@@ -2873,7 +2865,7 @@ Jika penginstalan ulang tidak membantu, hubungi dukungan Windscribe untuk mendap
 <context>
     <name>TwoFactorAuthWindow::TwoFactorAuthWindowItem</name>
     <message>
-        <source>Two-factor Auth</source>
+        <source>Two-Factor Auth</source>
         <translation>Autentikasi dua faktor</translation>
     </message>
     <message>

@@ -123,6 +123,10 @@ public:
     void setSettingsMacAddressSpoofing(const types::MacAddrSpoofing &macAddrSpoofing);
     void setSplitTunnelingSettings(bool isActive, bool isExclude, const QStringList &files,
                                    const QStringList &ips, const QStringList &hosts);
+    // Sets whether SSL certificate errors are ignored for wsnet API/bridge requests. This is a
+    // session-only runtime value (never persisted); it resets to false on the next app launch. Enabled
+    // by the user after a login/failover failure prompts the SSL-error dialog.
+    void setIgnoreSslErrors(bool bIgnore);
 
     void updateWindowInfo(qint32 windowCenterX, qint32 windowCenterY);
     void updateVersion(qint64 windowHandle);
@@ -348,13 +352,15 @@ private slots:
 private:
     void initPart2();
     void updateProxySettings();
-    bool verifyContentsSha256(const QString &filename, const QString &compareHash);
 
 #ifdef Q_OS_WIN
     void enableDohSettings();
 #endif
 
     types::EngineSettings engineSettings_;
+    // Session-only "ignore SSL errors" state (never persisted). Mirrors what we last pushed to wsnet so the
+    // login-failure path can tell a genuine no-connectivity failure from one worth re-prompting about.
+    bool ignoreSslErrors_ = false;
     Helper *helper_;
     FirewallController *firewallController_;
     ConnectionManager *connectionManager_;
@@ -451,7 +457,6 @@ private:
     uint lastDownloadProgress_;
     QString installerUrl_;
     QString installerPath_;
-    QString installerHash_;
     qint64 guiWindowHandle_;
 #ifdef Q_OS_LINUX
     QProcess *installUpdateProcess_ = nullptr;

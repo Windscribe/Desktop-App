@@ -772,6 +772,16 @@ IpStack ipStackFromInt(int t)
     }
 }
 
+IpStack ipStackFromString(const QString &s)
+{
+    if (s == "Auto") return IpStack::kAuto;
+    else if (s == "IPv4 Only") return IpStack::kIPv4Only;
+    else {
+        WS_ASSERT(false);
+        return IpStack::kAuto;
+    }
+}
+
 QString ipStackToString(IpStack s)
 {
     switch (s) {

@@ -119,6 +119,11 @@ int main(int argc, char *argv[])
         std::cout << "        " << "Configure behaviour for the next time during this run that the key limit is reached for WireGuard." << std::endl;
         std::cout << "        " << "keep [default] - Do not delete key.  Connection attempt will fail if the key limit is reached." << std::endl;
         std::cout << "        " << "delete - Delete the oldest WireGuard key if key limit is reached." << std::endl;
+        std::cout << "    ignoresslerrors on|off" << std::endl;
+        std::cout << "        " << "Ignore SSL errors for the rest of this session.  Only available if unable to login." << std::endl;
+        std::cout << "        " << "This disables TLS certificate validation and is a security risk." << std::endl;
+        std::cout << "        " << "off [default] - Do not ignore SSL errors." << std::endl;
+        std::cout << "        " << "on - Ignore SSL errors and retry login." << std::endl;
 #endif
         std::cout << "    disconnect [options]" << std::endl;
         std::cout << "        " << "Disconnect from current datacenter" << std::endl;

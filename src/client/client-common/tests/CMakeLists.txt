@@ -11,6 +11,7 @@ if(IS_BUILD_TESTS)
         ${PROJECT_DIRECTORY}/client-common
     )
     set_target_properties(locationsmodel.test PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
+    ws_add_test(locationsmodel)
 
     add_executable(networkingvalidation.test
         networkingvalidation.test.cpp
@@ -22,6 +23,7 @@ if(IS_BUILD_TESTS)
         ${PROJECT_DIRECTORY}/client-common
     )
     set_target_properties(networkingvalidation.test PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
+    ws_add_test(networkingvalidation)
 
     add_executable(settingsvalidation.test
         settingsvalidation.test.cpp
@@ -33,4 +35,5 @@ if(IS_BUILD_TESTS)
         ${PROJECT_DIRECTORY}/client-common
     )
     set_target_properties(settingsvalidation.test PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
+    ws_add_test(settingsvalidation)
 endif(IS_BUILD_TESTS)

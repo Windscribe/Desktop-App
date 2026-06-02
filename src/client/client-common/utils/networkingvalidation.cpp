@@ -5,8 +5,6 @@
 #include <QHostAddress>
 #include <QRegularExpression>
 
-#include "ws_assert.h"
-
 namespace {
 
 // Strict parse of a bare IPv4 or IPv6 literal. Rejects CIDR suffix, scope id ("fe80::1%eth0"),
@@ -239,6 +237,15 @@ bool NetworkingValidation::isLocalIp(const QString &str)
     return addr.isLoopback() || addr.isLinkLocal() || addr.isUniqueLocalUnicast();
 }
 
+bool NetworkingValidation::isUnspecifiedIp(const QString &str)
+{
+    QHostAddress addr;
+    if (!parseIpLiteral(str, &addr)) {
+        return false;
+    }
+    return addr == QHostAddress(QHostAddress::AnyIPv4) || addr == QHostAddress(QHostAddress::AnyIPv6);
+}
+
 bool NetworkingValidation::isValidUrlForCtrld(const QString &str)
 {
     QRegularExpression httpsRegex("^((https|h3):\\/)\\/?([^:\\/\\s]+)((\\/\\w+)*\\/)([\\w\\-\\.]+[^#?\\s]+)(.*)?(#[\\w\\-]+)?$");
@@ -317,6 +324,17 @@ bool NetworkingValidation::isValidPort(int port)
     return port >= 1 && port <= 65535;
 }
 
+bool NetworkingValidation::isPrintableSingleLineAscii(const QString &str)
+{
+    for (QChar c : str) {
+        ushort code = c.unicode();
+        if (code < 0x20 || code > 0x7E) {
+            return false;
+        }
+    }
+    return true;
+}
+
 QString NetworkingValidation::getRemoteIdFromDomain(const QString &str)
 {
     int ind1 = str.indexOf('-');
@@ -333,156 +351,3 @@ QString NetworkingValidation::getRemoteIdFromDomain(const QString &str)
     s = s.remove(ind1, ind2 - ind1);
     return s;
 }
-
-#if defined(QT_DEBUG)
-
-void NetworkingValidation::runTests()
-{
-    // Valid domain names:
-    const char *kValidDomainNames[] = {
-        "g.co",
-        "g.com",
-        "google.t.t.co",
-        "0-0o.com",
-        "0-oz.co.uk",
-        "0-google.com.br",
-        "0-wh-ao14-0.com-com.net",
-        "xn--d1ai6ai.xn--p1ai",
-        "xn-fsqu00a.xn-0zwm56d",
-        "xn--google.com",
-        "google.xn--com",
-        "google.com.au",
-        "www.google.com",
-        "google.com",
-        "google123.com",
-        "google-info.com",
-        "sub.google.com",
-        "sub.google-info.com",
-        "my.sub-domain.at-123.google.com.au",
-        "test-andmoretest-somerandomlettersoflongstring.us-east-2.eu.google.com",
-        "a-1234567890-1234567890-1234567890-1234567890-1234567890-1234-z.eu.us",
-    };
-
-    // Invalid domain names:
-    const char *kInvalidDomainNames[] = {
-        "com.g",            // TLD must be 2 or more characters long.
-        "google.t.t.c",     // TLD must be 2 or more characters long.
-        "google,com",       // Comma is not allowed.
-        "google",           // Missing TLD.
-        "google.1test",     // TLD must not start with a digit.
-        "google.test1",     // TLD must not end with a digit.
-        "google.123",       // TLD must not start or end with a digit.
-        ".com",             // Empty subdomain.
-        "google.com/users", // No TLD.
-        "-g.com",           // Subdomain cannot start with a hyphen.
-        "-0-0o.com",        // Subdomain cannot start with a hyphen.
-        "0-0o_.com",        // Underscore is not allowed.
-        "-google.com",      // Subdomain cannot start with a hyphen.
-        "google-.com",      // Subdomain cannot end with a hyphen.
-        "sub.-google.com",  // Subdomain cannot start with a hyphen.
-        "sub.google-.com",  // Subdomain cannot end with a hyphen.
-        "a-1234567890-1234567890-1234567890-1234567890-1234567890-12345-z.eu.us", // Too long.
-    };
-
-    for (size_t i = 0; i < sizeof(kValidDomainNames) / sizeof(kValidDomainNames[0]); ++i)
-        WS_ASSERT(isDomain(QString(kValidDomainNames[i])));
-    for (size_t i = 0; i < sizeof(kInvalidDomainNames) / sizeof(kInvalidDomainNames[0]); ++i)
-        WS_ASSERT(!isDomain(QString(kInvalidDomainNames[i])));
-
-    // -------- isIp: valid v4 + v6 literals --------
-    const char *kValidIps[] = {
-        "0.0.0.0",
-        "1.2.3.4",
-        "255.255.255.255",
-        "8.8.8.8",
-        "::",
-        "::1",
-        "fe80::1",
-        "2001:db8::1",
-        "2001:4860:4860::8888",
-        "fd00:abcd::5",
-    };
-    for (size_t i = 0; i < sizeof(kValidIps) / sizeof(kValidIps[0]); ++i)
-        WS_ASSERT(isIp(QString(kValidIps[i])));
-
-    // -------- isIp: invalid inputs --------
-    const char *kInvalidIps[] = {
-        "",
-        "1.2.3",                // missing octet
-        "1.2.3.4.5",            // too many octets
-        "1.2.3.256",            // octet out of range
-        "1.2.3.4/24",           // CIDR not allowed in isIp
-        "google.com",           // hostname
-        "fe80::1%eth0",         // scoped v6
-        "::g",                  // bad hex in v6
-        " 1.2.3.4",             // leading whitespace
-        "1.2.3.4 ",             // trailing whitespace
-        "2001:db8::/64",        // CIDR not allowed in isIp
-    };
-    for (size_t i = 0; i < sizeof(kInvalidIps) / sizeof(kInvalidIps[0]); ++i)
-        WS_ASSERT(!isIp(QString(kInvalidIps[i])));
-
-    // -------- isIpCidr: valid v4 + v6 --------
-    const char *kValidIpCidrs[] = {
-        "1.2.3.4",              // single host, no suffix
-        "1.2.3.4/0",
-        "1.2.3.4/24",
-        "10.0.0.0/8",
-        "0.0.0.0/0",
-        "2001:db8::1",          // single host v6
-        "2001:db8::/64",
-        "::/0",
-        "2001:db8::1/128",
-        "fd00::/8",
-    };
-    for (size_t i = 0; i < sizeof(kValidIpCidrs) / sizeof(kValidIpCidrs[0]); ++i)
-        WS_ASSERT(isIpCidr(QString(kValidIpCidrs[i])));
-
-    // -------- isIpCidr: invalid --------
-    const char *kInvalidIpCidrs[] = {
-        "1.2.3.4/33",           // prefix > 32 for v4
-        "2001:db8::/129",       // prefix > 128 for v6
-        "garbage/24",           // not an IP
-        "1.2.3.4 /24",          // whitespace
-        "1.2.3.4/",             // empty prefix
-        "1.2.3.4/-1",           // negative prefix
-        "1.2.3.4/24/8",         // double suffix
-        "2001:db8::1/abc",      // non-numeric prefix
-    };
-    for (size_t i = 0; i < sizeof(kInvalidIpCidrs) / sizeof(kInvalidIpCidrs[0]); ++i)
-        WS_ASSERT(!isIpCidr(QString(kInvalidIpCidrs[i])));
-
-    // -------- isValidIpForCidr: alignment checks --------
-    WS_ASSERT(isValidIpForCidr("10.0.0.0/8"));
-    WS_ASSERT(isValidIpForCidr("192.168.0.0/16"));
-    WS_ASSERT(isValidIpForCidr("1.2.3.4"));               // single host, vacuously aligned
-    WS_ASSERT(isValidIpForCidr("1.2.3.4/32"));
-    WS_ASSERT(isValidIpForCidr("0.0.0.0/0"));
-    WS_ASSERT(!isValidIpForCidr("10.0.0.1/8"));           // host bits set
-    WS_ASSERT(!isValidIpForCidr("192.168.1.0/16"));       // host bits set
-    WS_ASSERT(isValidIpForCidr("2001:db8::/64"));
-    WS_ASSERT(isValidIpForCidr("2001:db8::1/128"));       // single host
-    WS_ASSERT(isValidIpForCidr("::/0"));
-    WS_ASSERT(!isValidIpForCidr("2001:db8::1/64"));       // host bits set in v6
-    WS_ASSERT(!isValidIpForCidr("garbage/24"));           // CIDR-shaped but bad IP
-    WS_ASSERT(isValidIpForCidr("google.com"));            // hostname-pass-through (preserved)
-
-    // -------- isLocalIp --------
-    WS_ASSERT(isLocalIp("127.0.0.1"));
-    WS_ASSERT(isLocalIp("10.0.0.5"));
-    WS_ASSERT(isLocalIp("192.168.1.1"));
-    WS_ASSERT(isLocalIp("169.254.10.1"));
-    WS_ASSERT(isLocalIp("172.16.0.1"));
-    WS_ASSERT(isLocalIp("172.31.255.255"));
-    WS_ASSERT(!isLocalIp("172.32.0.1"));                  // outside 172.16/12
-    WS_ASSERT(!isLocalIp("172.15.0.1"));                  // outside 172.16/12
-    WS_ASSERT(!isLocalIp("8.8.8.8"));
-    WS_ASSERT(!isLocalIp("10.foo"));                      // tightening: not a valid IP
-    WS_ASSERT(isLocalIp("::1"));
-    WS_ASSERT(isLocalIp("fe80::1"));
-    WS_ASSERT(isLocalIp("fc00::1"));
-    WS_ASSERT(isLocalIp("fd12:3456::1"));
-    WS_ASSERT(!isLocalIp("2001:4860:4860::8888"));        // public v6
-}
-
-#endif  // QT_DEBUG

@@ -29,7 +29,7 @@
         currentState = SystemExtensions_mac::Active;
     } else {
         qCWarning(LOG_SPLIT_TUNNEL_EXTENSION) << "System extension operation completed with unexpected result:" << (int)result;
-        currentState = SystemExtensions_mac::Unknown;
+        currentState = SystemExtensions_mac::Inactive;
     }
     SystemExtensions_mac::instance()->onExtensionStateChanged(currentState);
 }

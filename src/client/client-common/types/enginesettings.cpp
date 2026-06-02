@@ -31,7 +31,7 @@ void EngineSettings::saveToSettings()
         QDataStream ds(&arr, QIODevice::WriteOnly);
         ds << magic_;
         ds << versionForSerialization_;
-        ds << d->language << d->updateChannel << d->isIgnoreSslErrors << d->isTerminateSockets << d->isAllowLanTraffic <<
+        ds << d->language << d->updateChannel << d->isTerminateSockets << d->isAllowLanTraffic <<
               d->firewallSettings << d->connectionSettings << apiResolutionSettingsNotUsed << d->proxySettings << d->packetSize <<
               d->macAddrSpoofing << d->dnsPolicy << d->tapAdapter << d->customOvpnConfigsPath << d->isKeepAliveEnabled <<
               d->connectedDnsInfo << d->dnsManager << d->networkPreferredProtocols <<
@@ -67,7 +67,14 @@ bool EngineSettings::loadFromSettings()
         if (magic != magic_ || version > versionForSerialization_) {
             ds.setStatus(QDataStream::ReadCorruptData);
         } else {
-            ds >> d->language >> d->updateChannel >> d->isIgnoreSslErrors >> d->isTerminateSockets >> d->isAllowLanTraffic >>
+            ds >> d->language >> d->updateChannel;
+            if (version < 12) {
+                // isIgnoreSslErrors is no longer persisted; it's a session-only runtime value owned by the
+                // engine. Read and discard the legacy value from older streams to keep alignment.
+                bool legacyIgnoreSslErrors;
+                ds >> legacyIgnoreSslErrors;
+            }
+            ds >> d->isTerminateSockets >> d->isAllowLanTraffic >>
                     d->firewallSettings >> d->connectionSettings >> apiResolutionSettingsNotUsed >> d->proxySettings >> d->packetSize >>
                     d->macAddrSpoofing >> d->dnsPolicy >> d->tapAdapter >> d->customOvpnConfigsPath >> d->isKeepAliveEnabled >>
                     d->connectedDnsInfo >> d->dnsManager;
@@ -150,16 +157,6 @@ QString EngineSettings::amneziawgPreset() const
 void EngineSettings::setAmneziawgPreset(const QString &preset)
 {
     d->amneziawgPreset = preset;
-}
-
-bool EngineSettings::isIgnoreSslErrors() const
-{
-    return d->isIgnoreSslErrors;
-}
-
-void EngineSettings::setIsIgnoreSslErrors(bool ignore)
-{
-    d->isIgnoreSslErrors = ignore;
 }
 
 bool EngineSettings::isTerminateSockets() const
@@ -368,7 +365,6 @@ bool EngineSettings::operator==(const EngineSettings &other) const
 {
     return  other.d->language == d->language &&
             other.d->updateChannel == d->updateChannel &&
-            other.d->isIgnoreSslErrors == d->isIgnoreSslErrors &&
             other.d->isTerminateSockets == d->isTerminateSockets &&
             other.d->isAPIAntiCensorship == d->isAPIAntiCensorship &&
             other.d->isAllowLanTraffic == d->isAllowLanTraffic &&
@@ -523,10 +519,6 @@ void EngineSettingsData::fromJson(const QJsonObject &json)
         isAPIAntiCensorship = json[kJsonIsAntiCensorshipProp].toBool();
     }
 
-    if (json.contains(kJsonIsIgnoreSslErrorsProp) && json[kJsonIsIgnoreSslErrorsProp].isBool()) {
-        isIgnoreSslErrors = json[kJsonIsIgnoreSslErrorsProp].toBool();
-    }
-
     if (json.contains(kJsonIsKeepAliveEnabledProp) && json[kJsonIsKeepAliveEnabledProp].isBool()) {
         isKeepAliveEnabled = json[kJsonIsKeepAliveEnabledProp].toBool();
     }
@@ -600,7 +592,6 @@ QJsonObject EngineSettingsData::toJson(bool isForDebugLog) const
     json[kJsonFirewallSettingsProp] = firewallSettings.toJson(isForDebugLog);
     json[kJsonIsAllowLanTrafficProp] = isAllowLanTraffic;
     json[kJsonIsAntiCensorshipProp] = isAPIAntiCensorship;
-    json[kJsonIsIgnoreSslErrorsProp] = isIgnoreSslErrors;
     json[kJsonIsKeepAliveEnabledProp] = isKeepAliveEnabled;
     json[kJsonIsTerminateSocketsProp] = isTerminateSockets;
     json[kJsonLanguageProp] = language;
@@ -663,11 +654,10 @@ void EngineSettingsData::fromIni(QSettings &settings)
     amneziawgPreset = settings.value(kIniAmneziawgPresetProp, amneziawgPreset).toString();
     serverRoutingMethod = SERVER_ROUTING_METHOD_TYPE_fromInt(settings.value(kIniServerRoutingMethodProp, static_cast<int>(serverRoutingMethod)).toInt());
     protocolTweaksMethod = PROTOCOL_TWEAKS_METHOD_TYPE_fromInt(settings.value(kIniProtocolTweaksMethodProp, static_cast<int>(protocolTweaksMethod)).toInt());
-    IpStackEgress = ipStackFromInt(settings.value(kIniIpStackEgressProp, static_cast<int>(IpStackEgress)).toInt());
+    IpStackEgress = ipStackFromString(settings.value(kIniIpStackEgressProp, ipStackToString(IpStackEgress)).toString());
     settings.endGroup();
 
     settings.beginGroup(QString("Advanced"));
-    isIgnoreSslErrors = settings.value(kIniIsIgnoreSslErrorsProp, isIgnoreSslErrors).toBool();
 #ifdef Q_OS_LINUX
     dnsManager = DNS_MANAGER_TYPE_fromString(settings.value(kIniDnsManagerProp, DNS_MANAGER_TYPE_toString(dnsManager)).toString());
 #endif
@@ -699,11 +689,10 @@ void EngineSettingsData::toIni(QSettings &settings) const
     settings.setValue(kIniAmneziawgPresetProp, amneziawgPreset);
     settings.setValue(kIniServerRoutingMethodProp, static_cast<int>(serverRoutingMethod));
     settings.setValue(kIniProtocolTweaksMethodProp, static_cast<int>(protocolTweaksMethod));
-    settings.setValue(kIniIpStackEgressProp, static_cast<int>(IpStackEgress));
+    settings.setValue(kIniIpStackEgressProp, ipStackToString(IpStackEgress));
     settings.endGroup();
 
     settings.beginGroup(QString("Advanced"));
-    settings.setValue(kIniIsIgnoreSslErrorsProp, isIgnoreSslErrors);
     settings.setValue(kIniDnsPolicyProp, DNS_POLICY_TYPE_toString(dnsPolicy));
 #ifdef Q_OS_LINUX
     settings.setValue(kIniDnsManagerProp, DNS_MANAGER_TYPE_toString(dnsManager));

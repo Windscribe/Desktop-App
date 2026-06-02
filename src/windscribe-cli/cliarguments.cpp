@@ -171,6 +171,24 @@ void CliArguments::parseKeyLimit(const QStringList &args)
     }
 }
 
+void CliArguments::parseIgnoreSslErrors(const QStringList &args)
+{
+    if (args.length() <= 2) {
+        cliCommand_ = CLI_COMMAND_HELP;
+        return;
+    }
+
+    cliCommand_ = CLI_COMMAND_SET_IGNORE_SSL_ERRORS;
+    QString arg2 = args[2].toLower();
+    if (arg2 == "off") {
+        ignoreSslErrors_ = false;
+    } else if (arg2 == "on") {
+        ignoreSslErrors_ = true;
+    } else {
+        cliCommand_ = CLI_COMMAND_HELP;
+    }
+}
+
 void CliArguments::parseLocations(const QStringList &args)
 {
     if (args.length() <= 2) {
@@ -292,6 +310,8 @@ void CliArguments::processArguments()
 #ifdef CLI_ONLY
     } else if (arg1 == "keylimit") {
         parseKeyLimit(args);
+    } else if (arg1 == "ignoresslerrors") {
+        parseIgnoreSslErrors(args);
 #endif
     } else if (arg1 == "ip") {
         parseIp(args);
@@ -361,6 +381,11 @@ bool CliArguments::keepFirewallOn() const
 bool CliArguments::keyLimitDelete() const
 {
     return keyLimitDelete_;
+}
+
+bool CliArguments::ignoreSslErrors() const
+{
+    return ignoreSslErrors_;
 }
 
 bool CliArguments::nonBlocking() const

@@ -115,6 +115,10 @@
         <translation>Nama pengguna, kata sandi, atau kode 2FA salah</translation>
     </message>
     <message>
+        <source>Could not log in.  Please try again.  If the problem continues, you can ignore SSL errors for this session, but we strongly recommend against it: doing so disables TLS certificate validation and could allow a third party to intercept your traffic.  To proceed anyway, run &quot;windscribe-cli ignoresslerrors on&quot;.</source>
+        <translation>Tidak dapat masuk.  Silakan coba lagi.  Jika masalah berlanjut, Anda dapat mengabaikan error SSL untuk sesi ini, tetapi kami sangat menyarankan untuk tidak melakukannya: hal itu menonaktifkan validasi sertifikat TLS dan dapat memungkinkan pihak ketiga untuk mencegat traffic Anda.  Untuk melanjutkan, jalankan &quot;windscribe-cli ignoresslerrors on&quot;.</translation>
+    </message>
+    <message>
         <source>SSL error</source>
         <translation>Kesalahan SSL</translation>
     </message>
@@ -329,6 +333,18 @@
     <message>
         <source>Not connected</source>
         <translation>Tidak terhubung</translation>
+    </message>
+    <message>
+        <source>Ignoring SSL errors is only available when unable to log in.</source>
+        <translation>Mengabaikan kesalahan SSL hanya tersedia jika tidak dapat masuk.</translation>
+    </message>
+    <message>
+        <source>Ignoring SSL errors for this session.</source>
+        <translation>Mengabaikan kesalahan SSL untuk sesi ini.</translation>
+    </message>
+    <message>
+        <source>SSL errors will no longer be ignored.</source>
+        <translation>Kesalahan SSL tidak akan lagi diabaikan.</translation>
     </message>
     <message>
         <source>IP rotated.</source>

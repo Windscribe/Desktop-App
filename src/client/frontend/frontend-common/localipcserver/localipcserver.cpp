@@ -124,6 +124,16 @@ void LocalIPCServer::onConnectionCommandCallback(IPC::Command *command, IPC::Con
         if (!backend_->isDisconnected()) {
             backend_->sendDisconnect();
         }
+    } else if (command->getStringId() == IPC::CliCommands::SetIgnoreSslErrors::getCommandStringId()) {
+        IPC::CliCommands::SetIgnoreSslErrors *cmd = static_cast<IPC::CliCommands::SetIgnoreSslErrors *>(command);
+        if (cmd->isEnable_ && lastLoginError_ != wsnet::LoginResult::kSslError) {
+            IPC::CliCommands::Acknowledge ack;
+            ack.code_ = 1;
+            ack.message_ = "Ignoring SSL errors is not available.";
+            sendCommand(ack);
+            return;
+        }
+        emit setIgnoreSslErrors(cmd->isEnable_);
     } else if (command->getStringId() == IPC::CliCommands::Firewall::getCommandStringId()) {
         IPC::CliCommands::Firewall *cmd = static_cast<IPC::CliCommands::Firewall *>(command);
         if (cmd->isEnable_ && !backend_->isFirewallEnabled()) {
@@ -243,6 +253,7 @@ void LocalIPCServer::onConnectionStateCallback(int state, IPC::Connection *conne
 void LocalIPCServer::onBackendLoginFinished()
 {
     loginState_ = LOGIN_STATE_LOGGED_IN;
+    lastLoginError_ = wsnet::LoginResult::kSuccess;
 }
 
 void LocalIPCServer::onBackendCaptchaRequired(bool isAsciiCaptcha, const QString &asciiArt, const QString &background, const QString &slider, int top)
@@ -260,6 +271,7 @@ void LocalIPCServer::onBackendLoginError(wsnet::LoginResult code, const QString 
 void LocalIPCServer::onBackendLogoutFinished()
 {
     loginState_ = LOGIN_STATE_LOGGED_OUT;
+    lastLoginError_ = wsnet::LoginResult::kSuccess;
 }
 
 void LocalIPCServer::sendCommand(const IPC::Command &command)

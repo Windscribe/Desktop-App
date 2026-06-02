@@ -9,6 +9,7 @@
 #include <fstream>
 #include <sstream>
 #include <sys/stat.h>
+#include <sys/wait.h>
 #include <spdlog/spdlog.h>
 
 namespace Utils
@@ -60,7 +61,11 @@ int executeCommand(const std::string &cmd, const std::vector<std::string> &args,
 
     proc.close();
     if (proc.rdbuf()->exited()) {
-        return proc.rdbuf()->status();
+        // status() is the raw wait-status from waitpid (e.g. exit code 2 -> 512), which
+        // is misleading when logged. Normalize to the real exit code so callers and logs
+        // see what the command actually returned. exited() == WIFEXITED, so WEXITSTATUS
+        // is well-defined here.
+        return WEXITSTATUS(proc.rdbuf()->status());
     }
     return 0;
 }
@@ -294,13 +299,15 @@ bool resetMacAddresses(const std::string &ignoreNetwork)
             continue;
         }
 
-        Utils::executeCommand("nmcli", {"connection", "modify", name.c_str(), "wifi.cloned-mac-address", "preserve"}, &output);
-        Utils::executeCommand("nmcli", {"connection", "modify", name.c_str(), "ethernet.cloned-mac-address", "preserve"}, &output);
+        // Use an explicit "id" selector so a connection literally named "id"/"uuid"/"path" can't be
+        // reinterpreted by nmcli as a selector keyword that consumes the following token.
+        Utils::executeCommand("nmcli", {"connection", "modify", "id", name.c_str(), "wifi.cloned-mac-address", "preserve"}, &output);
+        Utils::executeCommand("nmcli", {"connection", "modify", "id", name.c_str(), "ethernet.cloned-mac-address", "preserve"}, &output);
 
         spdlog::info("Reset MAC addresses: {} (state = {})", name, state);
 
         if (state == "activated") {
-            Utils::executeCommand("nmcli", {"connection", "up", name.c_str()});
+            Utils::executeCommand("nmcli", {"connection", "up", "id", name.c_str()});
         }
     }
 #endif

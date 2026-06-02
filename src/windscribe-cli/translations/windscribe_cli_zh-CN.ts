@@ -115,6 +115,10 @@
         <translation>用户名、密码或两步验证代码不正确</translation>
     </message>
     <message>
+        <source>Could not log in.  Please try again.  If the problem continues, you can ignore SSL errors for this session, but we strongly recommend against it: doing so disables TLS certificate validation and could allow a third party to intercept your traffic.  To proceed anyway, run &quot;windscribe-cli ignoresslerrors on&quot;.</source>
+        <translation>无法登录。 请再试一次。 如果问题持续，您可以忽略本次会话的SSL错误，但我们强烈建议不要这样做：这样做会禁用TLS证书验证，并可能让第三方拦截您的流量。 无论如何，要继续操作，运行“windscribe-cli ignoresslerrors on”。</translation>
+    </message>
+    <message>
         <source>SSL error</source>
         <translation>SSL 错误</translation>
     </message>
@@ -329,6 +333,18 @@
     <message>
         <source>Not connected</source>
         <translation>未连接</translation>
+    </message>
+    <message>
+        <source>Ignoring SSL errors is only available when unable to log in.</source>
+        <translation>忽略SSL错误只有在无法登录时才可用。</translation>
+    </message>
+    <message>
+        <source>Ignoring SSL errors for this session.</source>
+        <translation>本次会话忽略SSL错误。</translation>
+    </message>
+    <message>
+        <source>SSL errors will no longer be ignored.</source>
+        <translation>SSL错误将不再被忽视。</translation>
     </message>
     <message>
         <source>IP rotated.</source>

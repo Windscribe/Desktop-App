@@ -88,9 +88,6 @@ public:
     const types::MacAddrSpoofing &macAddrSpoofing() const;
     void setMacAddrSpoofing(const types::MacAddrSpoofing &mas);
 
-    bool isIgnoreSslErrors() const;
-    void setIgnoreSslErrors(bool b);
-
 #if defined(Q_OS_WIN)
     bool isTerminateSockets() const;
     void setTerminateSockets(bool b);
@@ -198,7 +195,6 @@ signals:
     void connectionSettingsChanged(const types::ConnectionSettings &cm);
     void packetSizeChanged(const types::PacketSize &ps);
     void macAddrSpoofingChanged(const types::MacAddrSpoofing &mas);
-    void isIgnoreSslErrorsChanged(bool b);
     void customConfigsPathChanged(QString path);
     void customConfigNeedsUpdate(const QString &path);
     void showLocationLoadChanged(bool b);

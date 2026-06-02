@@ -49,6 +49,7 @@ Requires:	libxkbcommon-x11
 Requires:	coreutils
 Requires:	desktop-file-utils
 Requires:	libacl
+Requires:	gnupg2
 
 %description
 Windscribe client.

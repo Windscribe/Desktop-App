@@ -105,7 +105,7 @@ void TwoFactorAuthWindowItem::paint(QPainter *painter, const QStyleOptionGraphic
     painter->setFont(FontManager::instance().getFont(16, QFont::Bold));
     painter->setPen(Qt::white);
     painter->drawText(QRect(0, 87 * G_SCALE, WINDOW_WIDTH * G_SCALE, 20 * G_SCALE),
-                      Qt::AlignCenter, tr("Two-factor Auth"));
+                      Qt::AlignCenter, tr("Two-Factor Auth"));
 
     // Message
     painter->setOpacity(curTextOpacity_ * initialOpacity);

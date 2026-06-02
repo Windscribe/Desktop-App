@@ -2,6 +2,17 @@
 # Build System Utility Functions
 # ------------------------------------------------------------------------------
 
+# Register a Qt test executable with CTest under the given name.
+# Expects an existing target named "${name}.test".
+function(ws_add_test name)
+    add_test(NAME ${name} COMMAND ${name}.test)
+    set_tests_properties(${name} PROPERTIES
+        ENVIRONMENT "QT_QPA_PLATFORM=offscreen"
+        LABELS "client-desktop"
+    )
+endfunction()
+
+
 # Resolve an output name template by replacing @VERSION@, @SUFFIX@, @ARCH@ placeholders.
 # Empty placeholders are replaced with "", and resulting double/trailing underscores are cleaned up.
 function(ws_resolve_output_name TEMPLATE OUT_VAR)

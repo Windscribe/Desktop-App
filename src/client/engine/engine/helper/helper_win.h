@@ -1,8 +1,10 @@
 #pragma once
 
+#include <Windows.h>
+#include <ws2def.h>
+
 #include "helper_base.h"
 #include "types/protocol.h"
-#include "types/enums.h"
 
 class AdapterGatewayInfo;
 class WireGuardConfig;
@@ -28,7 +30,7 @@ public:
                            const QString &connectedIp, const types::Protocol &protocol);
     void changeMtu(const QString &adapter, int mtu);
     bool executeOpenVPN(const QString &config, unsigned int port, const QString &httpProxy, unsigned int httpPort,
-                                const QString &socksProxy, unsigned int socksPort);
+                        const QString &socksProxy, unsigned int socksPort);
 
     bool executeTaskKill(CmdKillTarget target);
 
@@ -37,14 +39,14 @@ public:
     bool configureWireGuard(const WireGuardConfig &config);
     bool getWireGuardStatus(types::WireGuardStatus *status);
 
-    void firewallOn(const QString &connectingIp, const QString &ip, bool bAllowLanTraffic, bool bIsCustomConfig);
+    void firewallOn(const QString &connectingIp, const QStringList &ips, bool bAllowLanTraffic, bool bIsCustomConfig);
     void firewallOff();
     bool firewallActualState();
 
     bool setCustomDnsWhileConnected(unsigned long ifIndex, const QString &overrideDnsIpAddress);
 
-    QString executeSetMetric(const QString &interfaceType, const QString &interfaceName, const QString &metricNumber);
-    QString executeWmicGetConfigManagerErrorCode(const QString &adapterName);
+    bool executeSetMetric(ADDRESS_FAMILY family, const QString &interfaceName, ULONG metric);
+    bool isWanIkev2AdapterDisabled();
 
     bool isIcsSupported();
     bool startIcs();
@@ -60,7 +62,7 @@ public:
 
     bool clearWifiHistoryData();
 
-    bool addHosts(const QString &hosts);
+    bool addHosts(const QString &ip, const QString &hostname);
     bool removeHosts();
 
     void closeAllTcpConnections(bool isKeepLocalSockets);
@@ -77,7 +79,7 @@ public:
 
     void setMacAddressRegistryValueSz(const QString &subkeyInterfaceName, const QString &value);
     void removeMacAddressRegistryProperty(const QString &subkeyInterfaceName);
-    void resetNetworkAdapter(const QString &subkeyInterfaceName, bool bringAdapterBackUp);
+    void resetNetworkAdapter(int ifIndex, bool bringAdapterBackUp);
 
     void addIKEv2DefaultRoute();
     void removeAppNetworkProfiles();

@@ -115,6 +115,10 @@
         <translation>Yanlış kullanıcı adı, şifre veya 2FA kodu</translation>
     </message>
     <message>
+        <source>Could not log in.  Please try again.  If the problem continues, you can ignore SSL errors for this session, but we strongly recommend against it: doing so disables TLS certificate validation and could allow a third party to intercept your traffic.  To proceed anyway, run &quot;windscribe-cli ignoresslerrors on&quot;.</source>
+        <translation>Giriş yapamadım.  Lütfen tekrar dene.  Sorun devam ederse, bu oturumda SSL hatalarını görmezden gelebilirsiniz, ancak kesinlikle tavsiye etmeyiz: bu TLS sertifikası doğrulamasını devre dışı bırakır ve üçüncü bir tarafın trafiğinizi yakalamasına izin verebilir.  Yine de devam etmek için &quot;windscribe-cli ignoresslerrors on&quot; çalıştırın.</translation>
+    </message>
+    <message>
         <source>SSL error</source>
         <translation>SSL hatası</translation>
     </message>
@@ -329,6 +333,18 @@
     <message>
         <source>Not connected</source>
         <translation>Bağlı değil</translation>
+    </message>
+    <message>
+        <source>Ignoring SSL errors is only available when unable to log in.</source>
+        <translation>SSL hatalarını görmezden gelmek sadece giriş yapamadığında mümkündür.</translation>
+    </message>
+    <message>
+        <source>Ignoring SSL errors for this session.</source>
+        <translation>Bu oturum için SSL hatalarını görmezden geliyorum.</translation>
+    </message>
+    <message>
+        <source>SSL errors will no longer be ignored.</source>
+        <translation>SSL hataları artık göz ardı edilmeyecek.</translation>
     </message>
     <message>
         <source>IP rotated.</source>

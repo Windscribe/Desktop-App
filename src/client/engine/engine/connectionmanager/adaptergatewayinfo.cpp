@@ -39,6 +39,7 @@ AdapterGatewayInfo AdapterGatewayInfo::detectAndCreateDefaultAdapterInfo()
         NetworkUtils_mac::getDefaultRouteV6(gatewayV6, adapterNameV6);
         cai.addGatewayIp(types::IpAddress(gatewayV6.toStdString()));
         cai.addAdapterIp(types::IpAddress(NetworkUtils_mac::ipAddressByInterfaceNameV6(adapterNameV6).toStdString()));
+        cai.setAdapterNameV6(adapterNameV6);
         if (cai.adapterName_.isEmpty()) {
             cai.adapterName_ = adapterNameV6;
         }
@@ -61,12 +62,15 @@ AdapterGatewayInfo AdapterGatewayInfo::detectAndCreateDefaultAdapterInfo()
     // a dual-stack host gets both addresses populated, a v4-only host gets only v4, and a host
     // with two separate default-route interfaces per family is supported. If the v6 default-route
     // interface name differs from the v4 one, we don't override cai.adapterName_ (v4 wins as the
-    // canonical name); the addresses still flow through addGatewayIp/addAdapterIp.
+    // canonical name); the addresses still flow through addGatewayIp/addAdapterIp. The v6
+    // interface name is kept separately (adapterNameV6_) so split-tunnel v6 routes use the
+    // correct `dev` on a multi-homed host where v6 default lives on a different NIC than v4.
     {
         QString gatewayV6, adapterNameV6, adapterIpV6;
         NetworkUtils_linux::getDefaultRouteV6(gatewayV6, adapterNameV6, adapterIpV6);
         cai.addGatewayIp(types::IpAddress(gatewayV6.toStdString()));
         cai.addAdapterIp(types::IpAddress(adapterIpV6.toStdString()));
+        cai.setAdapterNameV6(adapterNameV6);
     }
 
     // DNS servers intentionally not populated on Linux: the current helper does not consume
@@ -167,9 +171,10 @@ QString AdapterGatewayInfo::makeLogString()
         return strs.join(',');
     };
 
-    return QString("adapter name = %1; adapter IPs = (%2); gateway IPs = (%3);"
-                   " remote IP = %4; dns = (%5); ifIndex = %6")
+    return QString("adapter name = %1 (v6: %2); adapter IPs = (%3); gateway IPs = (%4);"
+                   " remote IP = %5; dns = (%6); ifIndex = %7")
             .arg(adapterName_)
+            .arg(adapterNameV6())
             .arg(joinIps(adapterIps_))
             .arg(joinIps(gatewayIps_))
             .arg(QString::fromStdString(remoteIp_.toString()))

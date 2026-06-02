@@ -498,10 +498,6 @@
         <translation>Enter email</translation>
     </message>
     <message>
-        <source>For password recovery, updates &amp; promo only. No spam.</source>
-        <translation>For password recovery, updates &amp; promo only. No spam.</translation>
-    </message>
-    <message>
         <source>Voucher Code?</source>
         <translation>Voucher Code?</translation>
     </message>
@@ -650,10 +646,6 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
         <translation>SSL Error</translation>
     </message>
     <message>
-        <source>We detected that SSL requests may be intercepted on your network. This could be due to a firewall configured on your computer, or Windscribe being blocked by your network administrator. Ignore SSL errors?</source>
-        <translation>We detected that SSL requests may be intercepted on your network. This could be due to a firewall configured on your computer, or Windscribe being blocked by your network administrator. Ignore SSL errors?</translation>
-    </message>
-    <message>
         <source>Disconnected</source>
         <translation>Disconnected</translation>
     </message>
@@ -676,6 +668,10 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
     <message>
         <source>Later</source>
         <translation>Later</translation>
+    </message>
+    <message>
+        <source>SSL requests may be intercepted on your network. Ignoring SSL errors disables TLS certificate validation for this session: anyone able to intercept your traffic can then impersonate Windscribe and read or alter your data, and we can&apos;t guarantee your security while it&apos;s on. Ignore SSL errors?</source>
+        <translation>SSL requests may be intercepted on your network. Ignoring SSL errors disables TLS certificate validation for this session: anyone able to intercept your traffic can then impersonate Windscribe and read or alter your data, and we can&apos;t guarantee your security while it&apos;s on. Ignore SSL errors?</translation>
     </message>
     <message>
         <source>Connected to </source>
@@ -798,8 +794,8 @@ Recovering...</translation>
         <translation>Select an application</translation>
     </message>
     <message>
-        <source>Read-only file</source>
-        <translation>Read-only file</translation>
+        <source>Read-Only File</source>
+        <translation>Read-Only File</translation>
     </message>
     <message>
         <source>Your hosts file is read-only. IKEv2 connectivity requires for it to be writable. Fix the issue automatically?</source>
@@ -1207,20 +1203,12 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Advanced Parameters</translation>
     </message>
     <message>
-        <source>Ignore SSL certificate validation errors.</source>
-        <translation>Ignore SSL certificate validation errors.</translation>
-    </message>
-    <message>
-        <source>Ignore SSL Errors</source>
-        <translation>Ignore SSL Errors</translation>
-    </message>
-    <message>
         <source>Prevents connections from dying (by time-out) by periodically pinging the server.</source>
         <translation>Prevents connections from dying (by time-out) by periodically pinging the server.</translation>
     </message>
     <message>
-        <source>Client-side Keepalive</source>
-        <translation>Client-side Keepalive</translation>
+        <source>Client-Side Keepalive</source>
+        <translation>Client-Side Keepalive</translation>
     </message>
     <message>
         <source>Windscribe uses this DNS server to resolve addresses outside the VPN.</source>
@@ -1258,8 +1246,8 @@ If the problem persists after a restart, please send a debug log and open a supp
 <context>
     <name>PreferencesWindow::AntiCensorshipWindowItem</name>
     <message>
-        <source>Anti-censorship</source>
-        <translation>Anti-censorship</translation>
+        <source>Anti-Censorship</source>
+        <translation>Anti-Censorship</translation>
     </message>
     <message>
         <source>These degrade performance, enable only if Windscribe doesn&apos;t connect normally.</source>
@@ -1451,10 +1439,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Automatically choose the VPN protocol, or select one manually. NOTE: &quot;Preferred Protocol&quot; will override this setting.</translation>
     </message>
     <message>
-        <source>Configure egress IP stack for VPN connections.</source>
-        <translation>Configure egress IP stack for VPN connections.</translation>
-    </message>
-    <message>
         <source>IP Stack</source>
         <translation>IP Stack</translation>
     </message>
@@ -1511,6 +1495,10 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>In this firewall mode, the Windscribe API will not be available while disconnected, this could have unintended consequences. Use at own risk.</translation>
     </message>
     <message>
+        <source>Configure egress IP stack for VPN connections (WireGuard only).</source>
+        <translation>Configure egress IP stack for VPN connections (WireGuard only).</translation>
+    </message>
+    <message>
         <source>Clear Wi-Fi History</source>
         <translation>Clear Wi-Fi History</translation>
     </message>
@@ -1527,8 +1515,8 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Remove Wi-Fi SSID and MAC information from your operating system to prevent location history tracking.</translation>
     </message>
     <message>
-        <source>Anti-censorship Settings</source>
-        <translation>Anti-censorship Settings</translation>
+        <source>Anti-Censorship Settings</source>
+        <translation>Anti-Censorship Settings</translation>
     </message>
 </context>
 <context>
@@ -1740,8 +1728,8 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Version</translation>
     </message>
     <message>
-        <source>Multi-desktop</source>
-        <translation>Multi-desktop</translation>
+        <source>Multi-Desktop</source>
+        <translation>Multi-Desktop</translation>
     </message>
     <message>
         <source>Select behaviour when window is activated with multiple desktops.</source>
@@ -2687,6 +2675,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <translation>AmneziaWG init parameter too large</translation>
     </message>
     <message>
+        <source>AmneziaWG init parameter contains invalid characters</source>
+        <translation>AmneziaWG init parameter contains invalid characters</translation>
+    </message>
+    <message>
         <source>Static IPs</source>
         <translation>Static IPs</translation>
     </message>
@@ -2873,8 +2865,8 @@ If the reinstall does not help, please contact Windscribe support for assistance
 <context>
     <name>TwoFactorAuthWindow::TwoFactorAuthWindowItem</name>
     <message>
-        <source>Two-factor Auth</source>
-        <translation>Two-factor Auth</translation>
+        <source>Two-Factor Auth</source>
+        <translation>Two-Factor Auth</translation>
     </message>
     <message>
         <source>Use your app to get an authentication code, and enter it below</source>

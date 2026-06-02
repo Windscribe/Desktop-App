@@ -22,7 +22,6 @@ AdvancedWindowItem::AdvancedWindowItem(ScalableGraphicsObject *parent, Preferenc
 #ifdef Q_OS_LINUX
     connect(preferences, &Preferences::dnsManagerChanged, this, &AdvancedWindowItem::onDnsManagerPreferencesChanged);
 #endif
-    connect(preferences, &Preferences::isIgnoreSslErrorsChanged, this, &AdvancedWindowItem::onIgnoreSslErrorsPreferencesChanged);
     connect(preferences, &Preferences::keepAliveChanged, this, &AdvancedWindowItem::onKeepAlivePreferencesChanged);
 
     advParametersGroup_ = new PreferenceGroup(this);
@@ -30,14 +29,6 @@ AdvancedWindowItem::AdvancedWindowItem(ScalableGraphicsObject *parent, Preferenc
     connect(advParametersItem_, &LinkItem::clicked, this, &AdvancedWindowItem::advParametersClick);
     advParametersGroup_->addItem(advParametersItem_);
     addItem(advParametersGroup_);
-
-    ignoreSslErrorsGroup_ = new PreferenceGroup(this);
-    cbIgnoreSslErrors_ = new ToggleItem(ignoreSslErrorsGroup_);
-    cbIgnoreSslErrors_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/IGNORE_SSL_ERRORS"));
-    cbIgnoreSslErrors_->setState(preferences->isIgnoreSslErrors());
-    connect(cbIgnoreSslErrors_, &ToggleItem::stateChanged, this, &AdvancedWindowItem::onIgnoreSslErrorsStateChanged);
-    ignoreSslErrorsGroup_->addItem(cbIgnoreSslErrors_);
-    addItem(ignoreSslErrorsGroup_);
 
     keepAliveGroup_ = new PreferenceGroup(this);
     cbKeepAlive_ = new ToggleItem(keepAliveGroup_);
@@ -102,11 +93,6 @@ void AdvancedWindowItem::updateScaling()
     CommonGraphics::BasePage::updateScaling();
 }
 
-void AdvancedWindowItem::onIgnoreSslErrorsStateChanged(bool isChecked)
-{
-    preferences_->setIgnoreSslErrors(isChecked);
-}
-
 void AdvancedWindowItem::onKeepAliveStateChanged(bool isChecked)
 {
     preferences_->setKeepAlive(isChecked);
@@ -123,11 +109,6 @@ void AdvancedWindowItem::onDnsManagerItemChanged(QVariant dns)
     preferences_->setDnsManager((DNS_MANAGER_TYPE)dns.toInt());
 }
 #endif
-
-void AdvancedWindowItem::onIgnoreSslErrorsPreferencesChanged(bool b)
-{
-    cbIgnoreSslErrors_->setState(b);
-}
 
 void AdvancedWindowItem::onKeepAlivePreferencesChanged(bool b)
 {
@@ -150,10 +131,8 @@ void AdvancedWindowItem::onLanguageChanged()
 {
     advParametersItem_->setDescription(tr("Make advanced tweaks to the way the app functions."));
     advParametersItem_->setTitle(tr("Advanced Parameters"));
-    cbIgnoreSslErrors_->setDescription(tr("Ignore SSL certificate validation errors."));
-    cbIgnoreSslErrors_->setCaption(tr("Ignore SSL Errors"));
     cbKeepAlive_->setDescription(tr("Prevents connections from dying (by time-out) by periodically pinging the server."));
-    cbKeepAlive_->setCaption(tr("Client-side Keepalive"));
+    cbKeepAlive_->setCaption(tr("Client-Side Keepalive"));
     comboBoxAppInternalDns_->setDescription(tr("Windscribe uses this DNS server to resolve addresses outside the VPN.") + "\n" + tr("Warning: Using \"OS Default\" may sometimes cause DNS leaks during reconnects."));
     comboBoxAppInternalDns_->setLabelCaption(tr("App Internal DNS"));
     comboBoxAppInternalDns_->setItems(DNS_POLICY_TYPE_toList(), preferences_->dnsPolicy());

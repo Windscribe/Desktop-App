@@ -1,11 +1,13 @@
 #include "helper_win.h"
+
 #include <basetsd.h>
-#include "utils/log/categories.h"
+
+#include "../../../../helper/common/helper_commands.h"
 #include "convert_utils.h"
 #include "engine/connectionmanager/adaptergatewayinfo.h"
 #include "engine/wireguardconfig/wireguardconfig.h"
 #include "types/wireguardtypes.h"
-#include "../../../../helper/common/helper_commands.h"
+#include "utils/log/categories.h"
 #include "utils/winutils.h"
 #include "utils/ws_assert.h"
 
@@ -36,7 +38,8 @@ bool Helper_win::sendConnectStatus(bool isConnected, bool isTerminateSocket, boo
                                const QString &connectedIp, const types::Protocol &protocol)
 {
     auto fillAdapterInfo = [](const AdapterGatewayInfo &a, ADAPTER_GATEWAY_INFO &out) {
-        out.adapterName = a.adapterName().toStdString();
+        out.adapterName   = a.adapterName().toStdString();
+        out.adapterNameV6 = a.adapterNameV6().toStdString();
         out.adapterIp   = a.adapterIpV4();
         out.adapterIpV6 = a.adapterIpV6();
         out.gatewayIp   = a.gatewayV4();
@@ -151,9 +154,9 @@ bool Helper_win::getWireGuardStatus(types::WireGuardStatus *status)
     return true;
 }
 
-void Helper_win::firewallOn(const QString &connectingIp, const QString &ip, bool bAllowLanTraffic, bool bIsCustomConfig)
+void Helper_win::firewallOn(const QString &connectingIp, const QStringList &ips, bool bAllowLanTraffic, bool bIsCustomConfig)
 {
-    sendCommand(HelperCommand::firewallOn, connectingIp.toStdWString(), ip.toStdWString(), bAllowLanTraffic, bIsCustomConfig);
+    sendCommand(HelperCommand::firewallOn, connectingIp.toStdWString(), toStdVector(ips), bAllowLanTraffic, bIsCustomConfig);
 }
 
 void Helper_win::firewallOff()
@@ -177,20 +180,20 @@ bool Helper_win::setCustomDnsWhileConnected(unsigned long ifIndex, const QString
     return success;
 }
 
-QString Helper_win::executeSetMetric(const QString &interfaceType, const QString &interfaceName, const QString &metricNumber)
+bool Helper_win::executeSetMetric(ADDRESS_FAMILY family, const QString &interfaceName, ULONG metric)
 {
-    auto result = sendCommand(HelperCommand::executeSetMetric, interfaceType.toStdWString(), interfaceName.toStdWString(), metricNumber.toStdWString());
-    std::wstring output;
-    deserializeAnswer(result, output);
-    return QString::fromStdWString(output);
+    auto result = sendCommand(HelperCommand::executeSetMetric, family, interfaceName.toStdWString(), metric);
+    bool success = false;
+    deserializeAnswer(result, success);
+    return success;
 }
 
-QString Helper_win::executeWmicGetConfigManagerErrorCode(const QString &adapterName)
+bool Helper_win::isWanIkev2AdapterDisabled()
 {
-    auto result = sendCommand(HelperCommand::executeWmicGetConfigManagerErrorCode, adapterName.toStdWString());
-    std::wstring output;
-    deserializeAnswer(result, output);
-    return QString::fromStdWString(output);
+    auto result = sendCommand(HelperCommand::isWanIkev2AdapterDisabled);
+    bool disabled = false;
+    deserializeAnswer(result, disabled);
+    return disabled;
 }
 
 bool Helper_win::isIcsSupported()
@@ -267,9 +270,9 @@ bool Helper_win::clearWifiHistoryData()
     return success;
 }
 
-bool Helper_win::addHosts(const QString &hosts)
+bool Helper_win::addHosts(const QString &ip, const QString &hostname)
 {
-    auto result = sendCommand(HelperCommand::addHosts, hosts.toStdWString());
+    auto result = sendCommand(HelperCommand::addHosts, ip.toStdWString(), hostname.toStdWString());
     bool success = false;
     deserializeAnswer(result, success);
     return success;
@@ -342,9 +345,9 @@ void Helper_win::removeMacAddressRegistryProperty(const QString &subkeyInterface
     sendCommand(HelperCommand::removeMacAddressRegistryProperty, subkeyInterfaceName.toStdWString());
 }
 
-void Helper_win::resetNetworkAdapter(const QString &subkeyInterfaceName, bool bringAdapterBackUp)
+void Helper_win::resetNetworkAdapter(int ifIndex, bool bringAdapterBackUp)
 {
-    sendCommand(HelperCommand::resetNetworkAdapter, subkeyInterfaceName.toStdWString(), bringAdapterBackUp);
+    sendCommand(HelperCommand::resetNetworkAdapter, static_cast<ULONG>(ifIndex), bringAdapterBackUp);
 }
 
 void Helper_win::addIKEv2DefaultRoute()

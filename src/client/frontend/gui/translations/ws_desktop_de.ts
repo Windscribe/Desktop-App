@@ -498,10 +498,6 @@
         <translation>E-Mail eingeben</translation>
     </message>
     <message>
-        <source>For password recovery, updates &amp; promo only. No spam.</source>
-        <translation>Für Passwortwiederherstellung, nur Updates und Aktionen. Kein Spam.</translation>
-    </message>
-    <message>
         <source>Voucher Code?</source>
         <translation>Gutscheincode?</translation>
     </message>
@@ -622,10 +618,6 @@ Wenn du den Hash deines Kontos verlierst, ist er für immer weg und der Support 
         <translation>Der Dienst &quot;Base Filtering Engine&quot; konnte nicht gestartet werden.  Bitte aktivieren Sie diesen Dienst manuell in den Windows-Diensten.</translation>
     </message>
     <message>
-        <source>We detected that SSL requests may be intercepted on your network. This could be due to a firewall configured on your computer, or Windscribe being blocked by your network administrator. Ignore SSL errors?</source>
-        <translation>Wir haben festgestellt, dass SSL-Anfragen in Ihrem Netzwerk abgefangen werden können. Dies kann daran liegen, dass auf Ihrem Computer eine Firewall konfiguriert ist oder Windscribe von Ihrem Netzwerkadministrator blockiert wird. SSL-Fehler ignorieren?</translation>
-    </message>
-    <message>
         <source>We&apos;ve detected that your network settings may interfere with Windscribe.  Please send us a debug log to troubleshoot.</source>
         <translation>Wir haben festgestellt, dass Ihre Netzwerkeinstellungen Windscribe beeinträchtigen können.  Bitte senden Sie uns ein Debug-Protokoll zur Fehlerbehebung.</translation>
     </message>
@@ -642,7 +634,7 @@ Wenn du den Hash deines Kontos verlierst, ist er für immer weg und der Support 
         <translation>Updater konnte nicht ausgeführt werden (Fehler %1).  Bitte wenden Sie sich an den Support</translation>
     </message>
     <message>
-        <source>Read-only file</source>
+        <source>Read-Only File</source>
         <translation>Schreibgeschützte Datei</translation>
     </message>
     <message>
@@ -704,6 +696,10 @@ Wenn du den Hash deines Kontos verlierst, ist er für immer weg und der Support 
     <message>
         <source>Later</source>
         <translation>Später</translation>
+    </message>
+    <message>
+        <source>SSL requests may be intercepted on your network. Ignoring SSL errors disables TLS certificate validation for this session: anyone able to intercept your traffic can then impersonate Windscribe and read or alter your data, and we can&apos;t guarantee your security while it&apos;s on. Ignore SSL errors?</source>
+        <translation>SSL-Anfragen können in Ihrem Netzwerk abgefangen werden. Das Ignorieren von SSL-Fehlern deaktiviert die TLS-Zertifikatsvalidierung für diese Sitzung: Jeder, der Ihren Datenverkehr abfangen kann, kann sich dann als Windscribe ausgeben und Ihre Daten lesen oder verändern, und wir können Ihre Sicherheit nicht garantieren, solange es läuft. SSL-Fehler ignorieren?</translation>
     </message>
     <message>
         <source>Connected to </source>
@@ -1207,19 +1203,11 @@ Wenn das Problem nach einem Neustart weiterhin besteht, senden Sie bitte ein Deb
         <translation>Erweiterte Parameter</translation>
     </message>
     <message>
-        <source>Ignore SSL certificate validation errors.</source>
-        <translation>Ignorieren Sie SSL-Zertifikatsvalidierungsfehler.</translation>
-    </message>
-    <message>
-        <source>Ignore SSL Errors</source>
-        <translation>SSL-Fehler ignorieren</translation>
-    </message>
-    <message>
         <source>Prevents connections from dying (by time-out) by periodically pinging the server.</source>
         <translation>Verhindert, dass Verbindungen (durch Zeitüberschreitung) unterbrochen werden, indem der Server regelmäßig angepingt wird.</translation>
     </message>
     <message>
-        <source>Client-side Keepalive</source>
+        <source>Client-Side Keepalive</source>
         <translation>Clientseitiges Keepalive</translation>
     </message>
     <message>
@@ -1258,7 +1246,7 @@ Wenn das Problem nach einem Neustart weiterhin besteht, senden Sie bitte ein Deb
 <context>
     <name>PreferencesWindow::AntiCensorshipWindowItem</name>
     <message>
-        <source>Anti-censorship</source>
+        <source>Anti-Censorship</source>
         <translation>Anti-Zensur</translation>
     </message>
     <message>
@@ -1447,10 +1435,6 @@ Wenn das Problem nach einem Neustart weiterhin besteht, senden Sie bitte ein Deb
         <translation>Verbindungsmodus</translation>
     </message>
     <message>
-        <source>Configure egress IP stack for VPN connections.</source>
-        <translation>Konfigurieren Sie den Ausgangs-IP-Stack für VPN-Verbindungen.</translation>
-    </message>
-    <message>
         <source>IP Stack</source>
         <translation>IP-Stack</translation>
     </message>
@@ -1511,6 +1495,10 @@ Wenn das Problem nach einem Neustart weiterhin besteht, senden Sie bitte ein Deb
         <translation>In diesem Firewall-Modus ist die Windscribe-API nicht verfügbar, wenn die Verbindung getrennt ist, was unbeabsichtigte Folgen haben kann. Die Nutzung erfolgt auf eigene Gefahr.</translation>
     </message>
     <message>
+        <source>Configure egress IP stack for VPN connections (WireGuard only).</source>
+        <translation>Konfigurieren Sie den Ausgangs-IP-Stack für VPN-Verbindungen (nur WireGuard).</translation>
+    </message>
+    <message>
         <source>Clear Wi-Fi History</source>
         <translation>Klare Wi-Fi-Geschichte</translation>
     </message>
@@ -1527,7 +1515,7 @@ Wenn das Problem nach einem Neustart weiterhin besteht, senden Sie bitte ein Deb
         <translation>Entfernen Sie die WLAN-SSID und MAC-Informationen aus Ihrem Betriebssystem, um die Erfassung des Standortverlaufs zu verhindern.</translation>
     </message>
     <message>
-        <source>Anti-censorship Settings</source>
+        <source>Anti-Censorship Settings</source>
         <translation>Anti-Zensur-Settings</translation>
     </message>
 </context>
@@ -1740,7 +1728,7 @@ Wenn das Problem nach einem Neustart weiterhin besteht, senden Sie bitte ein Deb
         <translation>Windscribe wird auf die Menüleiste minimiert und nicht mehr im Dock angezeigt.</translation>
     </message>
     <message>
-        <source>Multi-desktop</source>
+        <source>Multi-Desktop</source>
         <translation>Multi-Desktop-Funktion</translation>
     </message>
     <message>
@@ -2687,6 +2675,10 @@ Wenn die Neuinstallation nicht hilft, wenden Sie sich bitte an den Windscribe-Su
         <translation>AmneziaWG init-Parameter ist zu groß</translation>
     </message>
     <message>
+        <source>AmneziaWG init parameter contains invalid characters</source>
+        <translation>AmneziaWG init-Parameter enthält ungültige Zeichen</translation>
+    </message>
+    <message>
         <source>Static IPs</source>
         <translation>Statische IP-Adressen</translation>
     </message>
@@ -2873,7 +2865,7 @@ Wenn die Neuinstallation nicht hilft, wenden Sie sich bitte an den Windscribe-Su
 <context>
     <name>TwoFactorAuthWindow::TwoFactorAuthWindowItem</name>
     <message>
-        <source>Two-factor Auth</source>
+        <source>Two-Factor Auth</source>
         <translation>Zwei-Faktor-Authentifizierung</translation>
     </message>
     <message>

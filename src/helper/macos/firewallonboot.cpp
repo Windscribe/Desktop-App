@@ -29,34 +29,27 @@ bool FirewallOnBootManager::setEnabled(bool enabled, bool allowLanTraffic)
 bool FirewallOnBootManager::enable(bool allowLanTraffic) {
     std::stringstream rules;
 
-    // Pre-parse ipTable_ once and split entries by address family. The list comes from
-    // Helper_posix::setFirewallOnBoot (Engine::firewallExceptions_), which can include v6
-    // DNS / API / endpoint IPs in dual-stack builds. UniqueIpList does not filter by family,
-    // so a v6 entry reaching the boot ruleset would otherwise wedge `pfctl -f`: the v4-typed
-    // `inet from any to <windscribe_ips>` rule would never match v6 entries even if loaded,
-    // and pf rejects an empty `from any to <table>` match, so each family is emitted
-    // independently with its own non-empty guard below. Each token is round-tripped through
-    // types::IpAddress so we both classify by real family and drop anything that fails
-    // inet_pton — defence in depth against a future producer widening the set to include
-    // malformed strings, which would otherwise wedge `pfctl -f` and break the boot-time
-    // killswitch entirely. Helper_posix serialises the set with a trailing space
-    // (`ipTableStr += " "`), so we guard against the empty trailing token too.
+    // Split entries by address family. The list comes from Helper_posix::setFirewallOnBoot
+    // (Engine::firewallExceptions_), which can include v6 DNS / API / endpoint IPs in dual-stack
+    // builds. UniqueIpList does not filter by family, so a v6 entry reaching the boot ruleset would
+    // otherwise wedge `pfctl -f`: the v4-typed `inet from any to <windscribe_ips>` rule would never
+    // match v6 entries even if loaded, and pf rejects an empty `from any to <table>` match, so each
+    // family is emitted independently with its own non-empty guard below. Each entry is round-tripped
+    // through types::IpAddress so we both classify by real family and drop anything that fails
+    // inet_pton — defence in depth against a future producer widening the set to include malformed
+    // strings, which would otherwise wedge `pfctl -f` and break the boot-time killswitch entirely.
     std::string v4Ips;
     std::string v6Ips;
-    {
-        std::istringstream ips(ipTable_);
-        std::string ip;
-        while (std::getline(ips, ip, ' ')) {
-            if (ip.empty()) {
-                continue;
-            }
-            const types::IpAddress parsed(ip);
-            if (!parsed.isValid()) {
-                spdlog::warn("FirewallOnBootManager: dropping invalid IP \"{}\" from boot ruleset", ip);
-                continue;
-            }
-            (parsed.isV6() ? v6Ips : v4Ips) += ip + " ";
+    for (const std::string &ip : ipTable_) {
+        if (ip.empty()) {
+            continue;
         }
+        const types::IpAddress parsed(ip);
+        if (!parsed.isValid()) {
+            spdlog::warn("FirewallOnBootManager: dropping invalid IP \"{}\" from boot ruleset", ip);
+            continue;
+        }
+        (parsed.isV6() ? v6Ips : v4Ips) += ip + " ";
     }
 
     rules << "set block-policy return\n";

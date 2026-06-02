@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QMutex>
+
 #include "firewallcontroller.h"
 #include "engine/helper/helper.h"
 
@@ -19,7 +20,7 @@ public:
     bool whitelistPorts(const api_responses::StaticIpPortsVector &ports) override;
     bool deleteWhitelistPorts() override;
 
-    void setInterfaceToSkip_posix(const QString &interfaceToSkip) override;
+    void setVpnInterface_posix(const QString &vpnInterface) override;
     void setFirewallOnBoot(bool bEnable, const QSet<QString>& ipTable = QSet<QString>(), bool isAllowLanTraffic = false) override;
 
 private:

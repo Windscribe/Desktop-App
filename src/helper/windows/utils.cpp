@@ -1,17 +1,14 @@
 #include "ws_branding.h"
 #include "utils.h"
 
-#include <comdef.h>
 #include <Fwpmu.h>
 #include <ws2def.h>
-#include <Mstcpip.h>
-#include <netiodef.h>
 #include <Psapi.h>
 #include <shlobj.h>
-#include <WbemIdl.h>
 #include <wlanapi.h>
+#include <SetupAPI.h>
+#include <devguid.h>
 
-#include <cwctype>
 #include <sstream>
 
 #include <spdlog/spdlog.h>
@@ -24,8 +21,8 @@
 
 #if defined(USE_SIGNATURE_CHECK)
 #include "utils/executable_signature/executable_signature.h"
-#include "utils/win32handle.h"
 #endif
+#include "utils/win32handle.h"
 #include "utils/wsscopeguard.h"
 
 namespace Utils
@@ -169,12 +166,10 @@ bool iequals(const std::wstring &a, const std::wstring &b)
 
 bool verifyAppProcessPath(HANDLE hPipe)
 {
-#if defined(USE_SIGNATURE_CHECK)
-    // NOTE: a test project is archived with issue 546 for testing this method.
     DWORD dwStart = ::GetTickCount();
+
     DWORD pidClient = 0;
-    BOOL result = ::GetNamedPipeClientProcessId(hPipe, &pidClient);
-    if (result == FALSE) {
+    if (!::GetNamedPipeClientProcessId(hPipe, &pidClient)) {
         spdlog::error("verifyAppProcessPath GetNamedPipeClientProcessId failed {}", ::GetLastError());
         return false;
     }
@@ -182,6 +177,19 @@ bool verifyAppProcessPath(HANDLE hPipe)
     wsl::Win32Handle processHandle(::OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, pidClient));
     if (!processHandle.isValid()) {
         spdlog::error("verifyAppProcessPath OpenProcess failed {}", ::GetLastError());
+        return false;
+    }
+
+    // Reject Session 0 callers. Post-Vista, services and other non-interactive contexts live in
+    // Session 0 and have no desktop, so the real user-facing app is never there — any client that
+    // claims to be is either misconfigured or hostile.
+    DWORD clientSessionId = 0;
+    if (!::ProcessIdToSessionId(pidClient, &clientSessionId)) {
+        spdlog::error("verifyAppProcessPath ProcessIdToSessionId failed {}", ::GetLastError());
+        return false;
+    }
+    if (clientSessionId == 0) {
+        spdlog::error("verifyAppProcessPath rejecting client pid {} in Session 0", pidClient);
         return false;
     }
 
@@ -198,141 +206,110 @@ bool verifyAppProcessPath(HANDLE hPipe)
         return false;
     }
 
+#if defined(USE_SIGNATURE_CHECK)
     ExecutableSignature sigCheck;
     if (!sigCheck.verify(path)) {
         spdlog::error("verifyAppProcessPath signature verify failed. Err = {}", sigCheck.lastError());
         return false;
     }
+#endif
 
     DWORD dwElapsed = ::GetTickCount() - dwStart;
     spdlog::debug(L"verifyAppProcessPath signature verified for {} in {} ms", path, dwElapsed);
 
     return true;
-#else
-    (void)hPipe;
-    return true;
-#endif
 }
 
-void callNetworkAdapterMethod(const std::wstring &methodName, const std::wstring &adapterRegistryName)
+bool setNetworkAdapterState(ULONG ifIndex, bool enable)
 {
-    // Assume that COM has already been initialzed for the thread
-
-    BSTR strNetworkResource = L"\\\\.\\root\\CIMV2";
-    HRESULT hres;
-
-    // Obtain the initial locator to WMI -------------------------
-    IWbemLocator *pLoc = NULL;
-    hres = CoCreateInstance(CLSID_WbemLocator, 0, CLSCTX_INPROC_SERVER, IID_IWbemLocator, (LPVOID *)&pLoc);
-
-    if (FAILED(hres))
-    {
-        std::wstring output = L"Failed to create IWbemLocator object. Err = " + std::to_wstring(hres);
-        spdlog::error(L"{}", output);
-        return;
+    // Resolve ifIndex to the adapter's NetCfgInstanceId GUID via typed Win32 APIs so the
+    // SetupDi enumeration below can be matched without any client-supplied string entering
+    // the lookup. This is the LPE-relevant property of this function: the caller picks an
+    // index, the helper picks the device.
+    NET_LUID luid = {};
+    DWORD ret = ::ConvertInterfaceIndexToLuid(ifIndex, &luid);
+    if (ret != NO_ERROR) {
+        spdlog::error("setNetworkAdapterState: ConvertInterfaceIndexToLuid failed for ifIndex={} ({})", ifIndex, ret);
+        return false;
     }
 
-    // Connect to WMI through the IWbemLocator::ConnectServer method
-    IWbemServices *pSvc = NULL;
-
-    // Connect to the root\\CIMV2 namespace
-    // and obtain pointer pSvc to make IWbemServices calls.
-    hres = pLoc->ConnectServer(
-        _bstr_t(strNetworkResource),      // Object path of WMI namespace
-        NULL,                    // User name. NULL = current user
-        NULL,                    // User password. NULL = current
-        0,                       // Locale. NULL indicates current
-        NULL,                    // Security flags.
-        0,                       // Authority (e.g. Kerberos)
-        0,                       // Context object
-        &pSvc                    // pointer to IWbemServices proxy
-        );
-
-    if (FAILED(hres))
-    {
-        std::wstring output = L"Could not connect. Err = " + std::to_wstring(hres);
-        spdlog::error(L"{}", output);
-        pLoc->Release();
-        return;
+    GUID interfaceGuid = {};
+    ret = ::ConvertInterfaceLuidToGuid(&luid, &interfaceGuid);
+    if (ret != NO_ERROR) {
+        spdlog::error("setNetworkAdapterState: ConvertInterfaceLuidToGuid failed for ifIndex={} ({})", ifIndex, ret);
+        return false;
     }
 
-    // Set security levels on the proxy -------------------------
-    hres = CoSetProxyBlanket(
-        pSvc,                        // Indicates the proxy to set
-        RPC_C_AUTHN_WINNT,           // RPC_C_AUTHN_xxx
-        RPC_C_AUTHZ_NONE,            // RPC_C_AUTHZ_xxx
-        NULL,                        // Server principal name
-        RPC_C_AUTHN_LEVEL_CALL,      // RPC_C_AUTHN_LEVEL_xxx
-        RPC_C_IMP_LEVEL_IMPERSONATE, // RPC_C_IMP_LEVEL_xxx
-        NULL,                        // client identity
-        EOAC_NONE                    // proxy capabilities
-        );
-
-    if (FAILED(hres))
-    {
-        std::wstring output = L"Could not set proxy blanket. Err = " + std::to_wstring(hres);
-        spdlog::error(L"{}", output);
-
-        pSvc->Release();
-        pLoc->Release();
-        return;
+    // NetCfgInstanceId is stored as the canonical "{GUID}" form, so format the same way for comparison.
+    wchar_t targetGuidStr[40] = {};
+    if (::StringFromGUID2(interfaceGuid, targetGuidStr, _countof(targetGuidStr)) == 0) {
+        spdlog::error("setNetworkAdapterState: StringFromGUID2 failed for ifIndex={}", ifIndex);
+        return false;
     }
 
-    BSTR MethodName = SysAllocString(methodName.c_str());
-    BSTR ClassName = SysAllocString(L"Win32_NetworkAdapter");
+    // Restrict the enumeration to the Net device class and present devices only — we never
+    // want to PROPERTYCHANGE an absent/ghost adapter or anything outside the network class.
+    HDEVINFO hDevInfo = ::SetupDiGetClassDevsW(&GUID_DEVCLASS_NET, NULL, NULL, DIGCF_PRESENT);
+    if (hDevInfo == INVALID_HANDLE_VALUE) {
+        spdlog::error("setNetworkAdapterState: SetupDiGetClassDevs failed: {}", ::GetLastError());
+        return false;
+    }
+    auto devInfoCleanup = wsl::wsScopeGuard([&]() { ::SetupDiDestroyDeviceInfoList(hDevInfo); });
 
-    // Get class
-    IWbemClassObject* pClass = NULL;
-    hres = pSvc->GetObject(ClassName, 0, NULL, &pClass, NULL);
+    SP_DEVINFO_DATA devData = {};
+    devData.cbSize = sizeof(SP_DEVINFO_DATA);
 
-    if (FAILED(hres))
-    {
-        std::wstring output = L"Failed GetObject IWbemClassObject. Err = " + std::to_wstring(hres);
-        spdlog::error(L"{}", output);
+    bool found = false;
+    for (DWORD i = 0; ::SetupDiEnumDeviceInfo(hDevInfo, i, &devData); ++i) {
+        HKEY hKey = ::SetupDiOpenDevRegKey(hDevInfo, &devData, DICS_FLAG_GLOBAL, 0, DIREG_DRV, KEY_READ);
+        if (hKey == INVALID_HANDLE_VALUE) {
+            continue;
+        }
 
-        SysFreeString(ClassName);
-        SysFreeString(MethodName);
-        pSvc->Release();
-        pLoc->Release();
-        return;
+        wchar_t netCfgId[64] = {};
+        // RegQueryValueEx does not guarantee a REG_SZ value is null-terminated. Reserve a wchar_t
+        // of headroom the API can never write into: combined with the zero-init, that keeps
+        // netCfgId terminated for the _wcsicmp below. (An over-long value returns ERROR_MORE_DATA
+        // and is skipped.)
+        DWORD bufSize = sizeof(netCfgId) - sizeof(wchar_t);
+        DWORD valueType = 0;
+        LONG result = ::RegQueryValueExW(hKey, L"NetCfgInstanceId", NULL, &valueType,
+                                         reinterpret_cast<LPBYTE>(netCfgId), &bufSize);
+        ::RegCloseKey(hKey);
+
+        if (result != ERROR_SUCCESS || valueType != REG_SZ) {
+            continue;
+        }
+
+        if (_wcsicmp(netCfgId, targetGuidStr) == 0) {
+            found = true;
+            break;
+        }
     }
 
-    // Create instance
-    IWbemClassObject* pClassInstance = NULL;
-    hres = pClass->SpawnInstance(0, &pClassInstance);
-
-    // Execute Method
-    IWbemClassObject* pInParamsDefinition = NULL; // no input parameters to disable()
-    IWbemClassObject* pOutParams = NULL;          // no output paramters to disable()
-
-    std::wstring networkAdapterDeviceID = L"Win32_NetworkAdapter.DeviceID=\"" + adapterRegistryName + L"\"";
-    hres = pSvc->ExecMethod((BSTR)networkAdapterDeviceID.c_str(), MethodName, 0,
-                            NULL, pClassInstance, &pOutParams, NULL);
-
-    if (FAILED(hres))
-    {
-        std::wstring output = L"Could not execute method. Err = " + std::to_wstring(hres);
-        spdlog::error(L"{}", output);
-
-        SysFreeString(ClassName);
-        SysFreeString(MethodName);
-        pClass->Release();
-        if (pInParamsDefinition) pInParamsDefinition->Release();
-        if (pOutParams) pOutParams->Release();
-        pSvc->Release();
-        pLoc->Release();
-        return;
+    if (!found) {
+        spdlog::error(L"setNetworkAdapterState: no Net-class device matched NetCfgInstanceId {}", targetGuidStr);
+        return false;
     }
 
-    // Clean up
-    SysFreeString(ClassName);
-    SysFreeString(MethodName);
-    pClass->Release();
-    if (pInParamsDefinition) pInParamsDefinition->Release();
-    if (pOutParams) pOutParams->Release();
-    pLoc->Release();
-    pSvc->Release();
-    return;
+    SP_PROPCHANGE_PARAMS params = {};
+    params.ClassInstallHeader.cbSize = sizeof(SP_CLASSINSTALL_HEADER);
+    params.ClassInstallHeader.InstallFunction = DIF_PROPERTYCHANGE;
+    params.StateChange = enable ? DICS_ENABLE : DICS_DISABLE;
+    params.Scope = DICS_FLAG_GLOBAL;
+    params.HwProfile = 0;
+
+    if (!::SetupDiSetClassInstallParamsW(hDevInfo, &devData, &params.ClassInstallHeader, sizeof(params))) {
+        spdlog::error("setNetworkAdapterState: SetupDiSetClassInstallParams failed for ifIndex={} ({})", ifIndex, ::GetLastError());
+        return false;
+    }
+
+    if (!::SetupDiCallClassInstaller(DIF_PROPERTYCHANGE, hDevInfo, &devData)) {
+        spdlog::error("setNetworkAdapterState: SetupDiCallClassInstaller failed for ifIndex={} ({})", ifIndex, ::GetLastError());
+        return false;
+    }
+
+    return true;
 }
 
 GUID guidFromString(const std::wstring &str)
@@ -660,34 +637,6 @@ std::wstring getSystemDir()
     }
 
     return std::wstring(path);
-}
-
-bool isMacAddress(const std::wstring &value)
-{
-    bool valid = false;
-
-    if (value.find_first_of(L":-") == std::wstring::npos) {
-        if (value.size() == 12) {
-            const auto result = std::count_if(value.begin(), value.end(), [](wint_t c){ return std::iswxdigit(c); });
-            valid = (result == 12);
-        }
-    }
-    else {
-        // We expect the MAC address in AA-BB-CC-DD-EE-FF format, with the separator being a '-' or ':'.
-        if (value.size() == 17) {
-            // Convert to the non-DIX standard "-" notation required by the IP Helper API.
-            std::wstring mac(value);
-            std::replace(mac.begin(), mac.end(), L':', L'-');
-
-            // Let the Windows API do the validation for us.
-            PCWSTR terminator = NULL;
-            DL_EUI48 addr;
-            auto status = ::RtlEthernetStringToAddressW(mac.c_str(), &terminator, &addr);
-            valid = (status == ERROR_SUCCESS);
-        }
-    }
-
-    return valid;
 }
 
 std::string ssidFromInterfaceGUID(const std::wstring &interfaceGUID)

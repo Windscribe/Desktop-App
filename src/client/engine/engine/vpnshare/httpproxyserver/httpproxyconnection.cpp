@@ -148,7 +148,6 @@ void HttpProxyConnection::onDestinationResolved(const QList<QHostAddress> &allow
         return;
     }
     if (allowedAddresses.isEmpty()) {
-        qCWarning(LOG_HTTP_SERVER) << "Blocked destination" << QString::fromStdString(requestParser_.getRequest().host);
         writeError(HttpProxyReply::bad_gateway);
         return;
     }

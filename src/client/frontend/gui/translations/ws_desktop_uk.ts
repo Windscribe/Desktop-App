@@ -498,10 +498,6 @@
         <translation>Введіть електронну пошту</translation>
     </message>
     <message>
-        <source>For password recovery, updates &amp; promo only. No spam.</source>
-        <translation>Тільки для відновлення пароля, оновлень і промо. Без спаму.</translation>
-    </message>
-    <message>
         <source>Voucher Code?</source>
         <translation>Код ваучера?</translation>
     </message>
@@ -650,10 +646,6 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
         <translation>Помилка SSL</translation>
     </message>
     <message>
-        <source>We detected that SSL requests may be intercepted on your network. This could be due to a firewall configured on your computer, or Windscribe being blocked by your network administrator. Ignore SSL errors?</source>
-        <translation>Ми виявили, що SSL-запити можуть бути перехоплені у вашій мережі. Це може бути пов&apos;язано з брандмауером, налаштованим на вашому комп&apos;ютері, або з блокуванням Windscribe адміністратором мережі. Ігнорувати помилки SSL?</translation>
-    </message>
-    <message>
         <source>Disconnected</source>
         <translation>Відключено</translation>
     </message>
@@ -676,6 +668,10 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
     <message>
         <source>Later</source>
         <translation>Пізніше</translation>
+    </message>
+    <message>
+        <source>SSL requests may be intercepted on your network. Ignoring SSL errors disables TLS certificate validation for this session: anyone able to intercept your traffic can then impersonate Windscribe and read or alter your data, and we can&apos;t guarantee your security while it&apos;s on. Ignore SSL errors?</source>
+        <translation>SSL-запити можуть бути перехоплені у вашій мережі. Ігнорування SSL-помилок відключає перевірку TLS-сертифіката для цієї сесії: будь-хто, хто зможе перехопити ваш трафік, може видавати себе за Windscribe і читати або змінювати ваші дані, і ми не можемо гарантувати вашу безпеку, поки він увімкнений. Ігнорувати помилки SSL?</translation>
     </message>
     <message>
         <source>Connected to </source>
@@ -798,7 +794,7 @@ Recovering...</source>
         <translation>Оберіть програму</translation>
     </message>
     <message>
-        <source>Read-only file</source>
+        <source>Read-Only File</source>
         <translation>Файл лише для читання</translation>
     </message>
     <message>
@@ -1207,19 +1203,11 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Розширені параметри</translation>
     </message>
     <message>
-        <source>Ignore SSL certificate validation errors.</source>
-        <translation>Ігнорувати помилки перевірки SSL-сертифіката.</translation>
-    </message>
-    <message>
-        <source>Ignore SSL Errors</source>
-        <translation>Ігнорування помилок SSL</translation>
-    </message>
-    <message>
         <source>Prevents connections from dying (by time-out) by periodically pinging the server.</source>
         <translation>Запобігає розриву з&apos;єднань (через тайм-аут) шляхом періодичного пінгування сервера.</translation>
     </message>
     <message>
-        <source>Client-side Keepalive</source>
+        <source>Client-Side Keepalive</source>
         <translation>Keepalive на стороні клієнта</translation>
     </message>
     <message>
@@ -1258,7 +1246,7 @@ If the problem persists after a restart, please send a debug log and open a supp
 <context>
     <name>PreferencesWindow::AntiCensorshipWindowItem</name>
     <message>
-        <source>Anti-censorship</source>
+        <source>Anti-Censorship</source>
         <translation>Антицензура</translation>
     </message>
     <message>
@@ -1451,10 +1439,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Автоматично вибрати протокол VPN або вибрати його вручну. ПРИМІТКА: &quot;Бажаний протокол&quot; замінить це налаштування.</translation>
     </message>
     <message>
-        <source>Configure egress IP stack for VPN connections.</source>
-        <translation>Налаштуйте IP-стек виходу для VPN-з&apos;єднань.</translation>
-    </message>
-    <message>
         <source>IP Stack</source>
         <translation>IP стек</translation>
     </message>
@@ -1511,6 +1495,10 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>У цьому режимі брандмауера API Windscribe не буде доступний у відключеному стані, це може мати непередбачені наслідки. Використання на свій ризик.</translation>
     </message>
     <message>
+        <source>Configure egress IP stack for VPN connections (WireGuard only).</source>
+        <translation>Налаштуйте IP-стек виходу для VPN-з&apos;єднань (тільки через WireGuard).</translation>
+    </message>
+    <message>
         <source>Clear Wi-Fi History</source>
         <translation>Чиста історія Wi-Fi</translation>
     </message>
@@ -1527,7 +1515,7 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Видаліть інформацію про Wi-Fi SSID та MAC з операційної системи, щоб запобігти відстеженню історії місцезнаходження.</translation>
     </message>
     <message>
-        <source>Anti-censorship Settings</source>
+        <source>Anti-Censorship Settings</source>
         <translation>Антицензурні налаштування</translation>
     </message>
 </context>
@@ -1740,7 +1728,7 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Версія</translation>
     </message>
     <message>
-        <source>Multi-desktop</source>
+        <source>Multi-Desktop</source>
         <translation>Мультинастільний комп&apos;ютер</translation>
     </message>
     <message>
@@ -2687,6 +2675,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <translation>AmneziaWG init занадто великий параметр</translation>
     </message>
     <message>
+        <source>AmneziaWG init parameter contains invalid characters</source>
+        <translation>Init параметр AmneziaWG містить недопустимі символи</translation>
+    </message>
+    <message>
         <source>Static IPs</source>
         <translation>Статичні IP-адреси</translation>
     </message>
@@ -2873,7 +2865,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
 <context>
     <name>TwoFactorAuthWindow::TwoFactorAuthWindowItem</name>
     <message>
-        <source>Two-factor Auth</source>
+        <source>Two-Factor Auth</source>
         <translation>Двофакторна аутентифікація</translation>
     </message>
     <message>

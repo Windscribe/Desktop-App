@@ -246,18 +246,36 @@ void ConnectedDnsGroup::onUpstream1Changed(QString v)
     splitDnsCheckBox_->setEnabled(!v.isEmpty());
 
     if (settings_.upStream1 != v) {
-        checkDnsLeak(v);
         settings_.upStream1 = v;
+        settings_.normalize();
+        if (settings_.upStream1 != v) {
+            // The wildcard listen address was canonicalized to loopback; reflect it in the field.
+            v = settings_.upStream1;
+            editBoxUpstream1_->setText(v);
+        }
+        // Commit before warning: checkDnsLeak() opens a message window, which collapses preferences
+        // and synchronously runs validateAndUpdateIfNeeded(). If the new value isn't committed yet,
+        // that validation sees the stale upstream and reverts a valid custom DNS to ROBERT.
         emit connectedDnsInfoChanged(settings_);
+        checkDnsLeak(v);
     }
 }
 
 void ConnectedDnsGroup::onUpstream2Changed(QString v)
 {
     if (settings_.upStream2 != v) {
-        checkDnsLeak(v);
         settings_.upStream2 = v;
+        settings_.normalize();
+        if (settings_.upStream2 != v) {
+            // The wildcard listen address was canonicalized to loopback; reflect it in the field.
+            v = settings_.upStream2;
+            editBoxUpstream2_->setText(v);
+        }
+        // Commit before warning: checkDnsLeak() opens a message window, which collapses preferences
+        // and synchronously runs validateAndUpdateIfNeeded(). If the new value isn't committed yet,
+        // that validation sees the stale upstream and reverts a valid custom DNS to ROBERT.
         emit connectedDnsInfoChanged(settings_);
+        checkDnsLeak(v);
     }
 }
 

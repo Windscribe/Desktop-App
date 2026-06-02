@@ -1,7 +1,6 @@
 #include <Windows.h>
 #include <Fwpmu.h>
 
-#include <sstream>
 #include <spdlog/spdlog.h>
 
 #include "firewallfilter.h"
@@ -20,7 +19,7 @@ void FirewallFilter::release()
 {
 }
 
-void FirewallFilter::on(const wchar_t *connectingIp, const wchar_t *ip, bool bAllowLocalTraffic, bool bIsCustomConfig)
+void FirewallFilter::on(const wchar_t *connectingIp, const std::vector<std::wstring> &ips, bool bAllowLocalTraffic, bool bIsCustomConfig)
 {
     std::lock_guard<std::recursive_mutex> guard(mutex_);
 
@@ -41,7 +40,7 @@ void FirewallFilter::on(const wchar_t *connectingIp, const wchar_t *ip, bool bAl
 
     DWORD dwRet = FwpmSubLayerAdd0(hEngine, &subLayer, NULL );
     if (dwRet == ERROR_SUCCESS) {
-        addFilters(hEngine, connectingIp, ip, bAllowLocalTraffic, bIsCustomConfig);
+        addFilters(hEngine, connectingIp, ips, bAllowLocalTraffic, bIsCustomConfig);
     } else {
         spdlog::error("FirewallFilter::on(), FwpmSubLayerAdd0 failed");
     }
@@ -183,10 +182,8 @@ void FirewallFilter::setSplitTunnelingWhitelistIps(const std::vector<types::IpAd
     fwpmWrapper_.unlock();
 }
 
-void FirewallFilter::addFilters(HANDLE engineHandle, const wchar_t *connectingIp, const wchar_t *ip, bool bAllowLocalTraffic, bool bIsCustomConfig)
+void FirewallFilter::addFilters(HANDLE engineHandle, const wchar_t *connectingIp, const std::vector<std::wstring> &ips, bool bAllowLocalTraffic, bool bIsCustomConfig)
 {
-    std::vector<std::wstring> ipAddresses = split(ip, L';');
-
     AdaptersInfo ai;
     std::vector<NET_IFINDEX> taps = ai.getTAPAdapters();
 
@@ -253,8 +250,8 @@ void FirewallFilter::addFilters(HANDLE engineHandle, const wchar_t *connectingIp
     addPermitFilterForVpnAndSystemServices(engineHandle, connectingIp);
 
     // add permit filter for specific IPs
-    for (size_t i = 0; i < ipAddresses.size(); ++i) {
-        const std::vector<types::IpAddressRange> ipAddr = { types::IpAddressRange(ipAddresses[i]) };
+    for (size_t i = 0; i < ips.size(); ++i) {
+        const std::vector<types::IpAddressRange> ipAddr = { types::IpAddressRange(ips[i]) };
         ret = Utils::addFilterV4(engineHandle, nullptr, FWP_ACTION_PERMIT, 2, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, nullptr, &ipAddr);
         if (!ret) {
             spdlog::error("Could not add " WS_PRODUCT_NAME " IPs allow filter");
@@ -407,21 +404,4 @@ void FirewallFilter::removeIpsSplitTunnelingFilter(HANDLE engineHandle)
         }
     }
     filterIdsSplitRoutingIps_.clear();
-}
-
-std::vector<std::wstring> &FirewallFilter::split(const std::wstring &s, wchar_t delim, std::vector<std::wstring> &elems)
-{
-    std::wstringstream ss(s);
-    std::wstring item;
-    while (std::getline(ss, item, delim)) {
-        elems.push_back(item);
-    }
-    return elems;
-}
-
-std::vector<std::wstring> FirewallFilter::split(const std::wstring &s, wchar_t delim)
-{
-    std::vector<std::wstring> elems;
-    split(s, delim, elems);
-    return elems;
 }

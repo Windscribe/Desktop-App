@@ -19,6 +19,8 @@ public:
 
     static bool isValidIpForCidr(const QString &str);
     static bool isLocalIp(const QString &str);
+    // True for the IPv4/IPv6 "unspecified" (any/wildcard) literals 0.0.0.0 and ::.
+    static bool isUnspecifiedIp(const QString &str);
     static bool isValidUrlForCtrld(const QString &str);
     static bool isReservedIp(const QString &str);
     static QString getRemoteIdFromDomain(const QString &str);
@@ -33,7 +35,10 @@ public:
     // 1..65535
     static bool isValidPort(int port);
 
-#if defined(QT_DEBUG)
-    static void runTests();
-#endif
+    // Returns true iff every character is printable ASCII (0x20..0x7E). Rejects newlines,
+    // tabs, NULs, and all non-ASCII. Empty string is considered valid; callers that need to
+    // also reject empty values should check that separately. Used at boundaries that hand a
+    // value off to a line-oriented sink (wireguard.conf, AmneziaWG UAPI, INI files) where a
+    // smuggled newline could be reinterpreted as a new record/directive.
+    static bool isPrintableSingleLineAscii(const QString &str);
 };

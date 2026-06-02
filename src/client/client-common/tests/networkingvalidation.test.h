@@ -14,9 +14,12 @@ private slots:
     void testIsValidInterfaceName();
     void testIsValidPort();
     void testIsIpAndIsDomain_smoke();
+    void testIsIp();
+    void testIsDomain();
     void testIsIpv4AndIsIpv6();
     void testIsIpCidr();
     void testIsValidIpForCidr();
     void testIsLocalIp();
+    void testIsUnspecifiedIp();
     void testIsCtrldCorrectAddress();
 };

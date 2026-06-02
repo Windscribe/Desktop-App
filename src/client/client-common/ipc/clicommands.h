@@ -134,6 +134,36 @@ public:
     static std::string getCommandStringId() { return "CliCommands::Disconnect";  }
 };
 
+// Sets the session-only "ignore SSL errors" state on the engine.
+class SetIgnoreSslErrors : public Command
+{
+public:
+    SetIgnoreSslErrors() {}
+    explicit SetIgnoreSslErrors(char *buf, int size)
+    {
+        QByteArray arr(buf, size);
+        QDataStream ds(&arr, QIODevice::ReadOnly);
+        ds >> isEnable_;
+    }
+
+    std::vector<char> getData() const override
+    {
+        QByteArray arr;
+        QDataStream ds(&arr, QIODevice::WriteOnly);
+        ds << isEnable_;
+        return std::vector<char>(arr.begin(), arr.end());
+    }
+
+    std::string getStringId() const override { return getCommandStringId(); }
+    std::string getDebugString() const override
+    {
+        return "CliCommands::SetIgnoreSslErrors debug string";
+    }
+    static std::string getCommandStringId() { return "CliCommands::SetIgnoreSslErrors";  }
+
+    bool isEnable_ = false;
+};
+
 class ShowLocations : public Command
 {
 public:

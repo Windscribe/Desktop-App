@@ -35,7 +35,11 @@ QString loginStateString(LOGIN_STATE state, wsnet::LoginResult loginError, const
         case LoginResult::kInvalidSecurityToken:
             return msg.arg(error.arg(loginErrorMessage));
         case LoginResult::kSslError:
+#ifdef CLI_ONLY
+            return msg.arg(QObject::tr("Could not log in.  Please try again.  If the problem continues, you can ignore SSL errors for this session, but we strongly recommend against it: doing so disables TLS certificate validation and could allow a third party to intercept your traffic.  To proceed anyway, run \"windscribe-cli ignoresslerrors on\"."));
+#else
             return msg.arg(error.arg(QObject::tr("SSL error")));
+#endif
         case LoginResult::kSessionInvalid:
             return msg.arg(error.arg(QObject::tr("Session expired")));
         case LoginResult::kRateLimited:

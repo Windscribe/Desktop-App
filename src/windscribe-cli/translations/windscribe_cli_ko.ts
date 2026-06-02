@@ -115,6 +115,10 @@
         <translation>잘못된 사용자 이름, 비밀번호 또는 2FA 코드</translation>
     </message>
     <message>
+        <source>Could not log in.  Please try again.  If the problem continues, you can ignore SSL errors for this session, but we strongly recommend against it: doing so disables TLS certificate validation and could allow a third party to intercept your traffic.  To proceed anyway, run &quot;windscribe-cli ignoresslerrors on&quot;.</source>
+        <translation>로그인할 수 없었어요.  다시 시도해 주세요.  문제가 계속된다면 이 세션에서 SSL 오류를 무시할 수 있지만, TLS 인증서 검증이 비활성화되어 제3자가 트래픽을 가로챌 수 있으므로 강력히 권장하지 않습니다.  어쨌든 진행하려면 &quot;windscribe-cli ignoresslerrors on&quot;을 실행하세요.</translation>
+    </message>
+    <message>
         <source>SSL error</source>
         <translation>SSL 오류</translation>
     </message>
@@ -329,6 +333,18 @@
     <message>
         <source>Not connected</source>
         <translation>연결되지 않음</translation>
+    </message>
+    <message>
+        <source>Ignoring SSL errors is only available when unable to log in.</source>
+        <translation>SSL 오류 무시는 로그인이 불가능할 때만 가능합니다.</translation>
+    </message>
+    <message>
+        <source>Ignoring SSL errors for this session.</source>
+        <translation>이번 세션에서는 SSL 오류를 무시합니다.</translation>
+    </message>
+    <message>
+        <source>SSL errors will no longer be ignored.</source>
+        <translation>SSL 오류는 더 이상 무시되지 않습니다.</translation>
     </message>
     <message>
         <source>IP rotated.</source>

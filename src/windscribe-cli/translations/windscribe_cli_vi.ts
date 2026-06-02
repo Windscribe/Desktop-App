@@ -115,6 +115,10 @@
         <translation>Tên người dùng, mật khẩu hoặc mã 2FA không chính xác</translation>
     </message>
     <message>
+        <source>Could not log in.  Please try again.  If the problem continues, you can ignore SSL errors for this session, but we strongly recommend against it: doing so disables TLS certificate validation and could allow a third party to intercept your traffic.  To proceed anyway, run &quot;windscribe-cli ignoresslerrors on&quot;.</source>
+        <translation>Không thể đăng nhập.  Vui lòng thử lại.  Nếu sự cố vẫn tiếp diễn, bạn có thể bỏ qua lỗi SSL cho phiên này, nhưng chúng tôi thực sự khuyên bạn không nên làm như vậy: làm như vậy sẽ vô hiệu hóa xác thực chứng chỉ TLS và có thể cho phép bên thứ ba chặn lưu lượng truy cập của bạn.  Để tiếp tục, hãy chạy &quot;windscribe-cli ignoresslerrors on&quot;.</translation>
+    </message>
+    <message>
         <source>SSL error</source>
         <translation>Lỗi SSL</translation>
     </message>
@@ -329,6 +333,18 @@
     <message>
         <source>Not connected</source>
         <translation>Không kết nối</translation>
+    </message>
+    <message>
+        <source>Ignoring SSL errors is only available when unable to log in.</source>
+        <translation>Bỏ qua lỗi SSL chỉ khả dụng khi không thể đăng nhập.</translation>
+    </message>
+    <message>
+        <source>Ignoring SSL errors for this session.</source>
+        <translation>Bỏ qua lỗi SSL cho phiên này.</translation>
+    </message>
+    <message>
+        <source>SSL errors will no longer be ignored.</source>
+        <translation>Lỗi SSL sẽ không còn bị bỏ qua nữa.</translation>
     </message>
     <message>
         <source>IP rotated.</source>

@@ -498,10 +498,6 @@
         <translation>Введите электронную почту</translation>
     </message>
     <message>
-        <source>For password recovery, updates &amp; promo only. No spam.</source>
-        <translation>Для восстановления пароля — только обновления и промо. Без спама.</translation>
-    </message>
-    <message>
         <source>Voucher Code?</source>
         <translation>Код ваучера?</translation>
     </message>
@@ -622,10 +618,6 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
         <translation>Не удалось запустить службу &apos;Base Filtering Engine&apos;. Включите эту службу вручную в службах Windows.</translation>
     </message>
     <message>
-        <source>We detected that SSL requests may be intercepted on your network. This could be due to a firewall configured on your computer, or Windscribe being blocked by your network administrator. Ignore SSL errors?</source>
-        <translation>Мы обнаружили, что SSL-запросы в вашей сети перехватываются. Это может быть связано с тем, что на вашем компьютере настроен брандмауэр, или Windscribe заблокирован сетевым администратором. Игнорировать ошибки SSL?</translation>
-    </message>
-    <message>
         <source>We&apos;ve detected that your network settings may interfere with Windscribe.  Please send us a debug log to troubleshoot.</source>
         <translation>Мы обнаружили, что настройки вашей сети могут мешать работе Windscribe.  Пожалуйста, пришлите нам журнал отладки для устранения неполадок.</translation>
     </message>
@@ -642,7 +634,7 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
         <translation>Не удалось запустить программу обновления (ошибка %1).  Пожалуйста, свяжитесь со службой поддержки</translation>
     </message>
     <message>
-        <source>Read-only file</source>
+        <source>Read-Only File</source>
         <translation>Файл только для чтения</translation>
     </message>
     <message>
@@ -704,6 +696,10 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
     <message>
         <source>Later</source>
         <translation>Позже</translation>
+    </message>
+    <message>
+        <source>SSL requests may be intercepted on your network. Ignoring SSL errors disables TLS certificate validation for this session: anyone able to intercept your traffic can then impersonate Windscribe and read or alter your data, and we can&apos;t guarantee your security while it&apos;s on. Ignore SSL errors?</source>
+        <translation>SSL-запросы могут быть перехвачены в вашей сети. Игнорирование ошибок SSL отключает проверку TLS-сертификата для этой сессии: любой, кто сможет перехватить ваш трафик, может выдать себя за Windscribe и прочитать или изменить ваши данные, и мы не можем гарантировать вашу безопасность, пока он включён. Игнорировать ошибки SSL?</translation>
     </message>
     <message>
         <source>Connected to </source>
@@ -1207,19 +1203,11 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Дополнительные параметры</translation>
     </message>
     <message>
-        <source>Ignore SSL certificate validation errors.</source>
-        <translation>Игнорировать ошибки проверки SSL-сертификатов.</translation>
-    </message>
-    <message>
-        <source>Ignore SSL Errors</source>
-        <translation>Игнорировать ошибки SSL</translation>
-    </message>
-    <message>
         <source>Prevents connections from dying (by time-out) by periodically pinging the server.</source>
         <translation>Предотвращает разрыв соединений по таймауту путем периодического пинга сервера.</translation>
     </message>
     <message>
-        <source>Client-side Keepalive</source>
+        <source>Client-Side Keepalive</source>
         <translation>Поддержание соединения</translation>
     </message>
     <message>
@@ -1258,7 +1246,7 @@ If the problem persists after a restart, please send a debug log and open a supp
 <context>
     <name>PreferencesWindow::AntiCensorshipWindowItem</name>
     <message>
-        <source>Anti-censorship</source>
+        <source>Anti-Censorship</source>
         <translation>Антицензура</translation>
     </message>
     <message>
@@ -1447,10 +1435,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Режим подключения</translation>
     </message>
     <message>
-        <source>Configure egress IP stack for VPN connections.</source>
-        <translation>Настройте стек IP-выхода для VPN-соединений.</translation>
-    </message>
-    <message>
         <source>IP Stack</source>
         <translation>IP Stack</translation>
     </message>
@@ -1511,6 +1495,10 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>В этом режиме брандмауэра API Windscribe не будет доступен при отключении, это может привести к непредвиденным последствиям. Используйте на свой страх и риск.</translation>
     </message>
     <message>
+        <source>Configure egress IP stack for VPN connections (WireGuard only).</source>
+        <translation>Настройте стек IP-выхода для VPN-соединений (только через WireGuard).</translation>
+    </message>
+    <message>
         <source>Clear Wi-Fi History</source>
         <translation>Чистая история Wi-Fi</translation>
     </message>
@@ -1527,7 +1515,7 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Удалите информацию о Wi-Fi SSID и MAC из вашей операционной системы, чтобы предотвратить отслеживание истории местоположения.</translation>
     </message>
     <message>
-        <source>Anti-censorship Settings</source>
+        <source>Anti-Censorship Settings</source>
         <translation>Антицензурные настройки</translation>
     </message>
 </context>
@@ -1740,7 +1728,7 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Windscribe сворачивается в строку меню и больше не отображается в док-станции.</translation>
     </message>
     <message>
-        <source>Multi-desktop</source>
+        <source>Multi-Desktop</source>
         <translation>Мультидесктоп</translation>
     </message>
     <message>
@@ -2687,6 +2675,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <translation>AmneziaWG init слишком большой параметр</translation>
     </message>
     <message>
+        <source>AmneziaWG init parameter contains invalid characters</source>
+        <translation>Параметр init AmneziaWG содержит недопустимые символы</translation>
+    </message>
+    <message>
         <source>Static IPs</source>
         <translation>Статические IP-адреса</translation>
     </message>
@@ -2873,7 +2865,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
 <context>
     <name>TwoFactorAuthWindow::TwoFactorAuthWindowItem</name>
     <message>
-        <source>Two-factor Auth</source>
+        <source>Two-Factor Auth</source>
         <translation>Двухфакторная аутентификация</translation>
     </message>
     <message>

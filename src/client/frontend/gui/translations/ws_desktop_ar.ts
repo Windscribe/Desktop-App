@@ -498,10 +498,6 @@
         <translation>أدخل البريد الإلكتروني</translation>
     </message>
     <message>
-        <source>For password recovery, updates &amp; promo only. No spam.</source>
-        <translation>لاستعادة كلمات المرور، التحديثات والترويج فقط. لا رسائل مزعجة.</translation>
-    </message>
-    <message>
         <source>Voucher Code?</source>
         <translation>رمز القسيمة؟</translation>
     </message>
@@ -622,10 +618,6 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
         <translation>تعذر بدء تشغيل خدمة &quot;محرك التصفية الأساسي&quot;.  الرجاء تمكين هذه الخدمة يدويا في خدمات Windows.</translation>
     </message>
     <message>
-        <source>We detected that SSL requests may be intercepted on your network. This could be due to a firewall configured on your computer, or Windscribe being blocked by your network administrator. Ignore SSL errors?</source>
-        <translation>اكتشفنا أنه قد يتم اعتراض طلبات SSL على شبكتك. قد يكون هذا بسبب جدار حماية تم تكوينه على جهاز الكمبيوتر الخاص بك ، أو حظر Windscribe من قبل مسؤول الشبكة. تجاهل أخطاء SSL؟</translation>
-    </message>
-    <message>
         <source>We&apos;ve detected that your network settings may interfere with Windscribe.  Please send us a debug log to troubleshoot.</source>
         <translation>لقد اكتشفنا أن إعدادات الشبكة الخاصة بك قد تتداخل مع Windscribe.  يرجى إرسال سجل تصحيح الأخطاء إلينا لاستكشاف الأخطاء وإصلاحها.</translation>
     </message>
@@ -642,7 +634,7 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
         <translation>تعذر تشغيل المحدث (خطأ %1).  يرجى الاتصال بالدعم</translation>
     </message>
     <message>
-        <source>Read-only file</source>
+        <source>Read-Only File</source>
         <translation>ملف للقراءة فقط</translation>
     </message>
     <message>
@@ -704,6 +696,10 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
     <message>
         <source>Later</source>
         <translation>لاحقا</translation>
+    </message>
+    <message>
+        <source>SSL requests may be intercepted on your network. Ignoring SSL errors disables TLS certificate validation for this session: anyone able to intercept your traffic can then impersonate Windscribe and read or alter your data, and we can&apos;t guarantee your security while it&apos;s on. Ignore SSL errors?</source>
+        <translation>قد يتم اعتراض طلبات SSL على شبكتك. تجاهل أخطاء SSL يعطل التحقق من صحة شهادة TLS لهذه الجلسة: أي شخص قادر على اعتراض حركة المرور الخاصة بك يمكنه بعد ذلك انتحال شخصية Windscribe وقراءة أو تعديل بياناتك، ولا يمكننا ضمان أمانك أثناء تشغيلها. هل تتجاهل أخطاء SSL؟</translation>
     </message>
     <message>
         <source>Connected to </source>
@@ -1207,19 +1203,11 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>المعلمات المتقدمة</translation>
     </message>
     <message>
-        <source>Ignore SSL certificate validation errors.</source>
-        <translation>تجاهل أخطاء التحقق من صحة شهادة SSL.</translation>
-    </message>
-    <message>
-        <source>Ignore SSL Errors</source>
-        <translation>تجاهل أخطاء SSL</translation>
-    </message>
-    <message>
         <source>Prevents connections from dying (by time-out) by periodically pinging the server.</source>
         <translation>يمنع اتصالات من الموت (حسب المهلة) عن طريق اختبار اتصال الخادم بشكل دوري.</translation>
     </message>
     <message>
-        <source>Client-side Keepalive</source>
+        <source>Client-Side Keepalive</source>
         <translation>البقاء على قيد الحياة من جانب العميل</translation>
     </message>
     <message>
@@ -1258,7 +1246,7 @@ If the problem persists after a restart, please send a debug log and open a supp
 <context>
     <name>PreferencesWindow::AntiCensorshipWindowItem</name>
     <message>
-        <source>Anti-censorship</source>
+        <source>Anti-Censorship</source>
         <translation>مناهضة الرقابة</translation>
     </message>
     <message>
@@ -1447,10 +1435,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>وضع الاتصال</translation>
     </message>
     <message>
-        <source>Configure egress IP stack for VPN connections.</source>
-        <translation>قم بتكوين بروتوكول IP مخرج لاتصالات VPN.</translation>
-    </message>
-    <message>
         <source>IP Stack</source>
         <translation>مكدس IP</translation>
     </message>
@@ -1511,6 +1495,10 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>في وضع جدار الحماية هذا ، لن تكون واجهة برمجة تطبيقات Windscribe متاحة أثناء قطع الاتصال ، وقد يكون لذلك عواقب غير مقصودة. استخدم على مسؤوليتهم الخاصة.</translation>
     </message>
     <message>
+        <source>Configure egress IP stack for VPN connections (WireGuard only).</source>
+        <translation>قم بتكوين مكدس IP للخروج لاتصالات VPN (فقط عبر WireGuard).</translation>
+    </message>
+    <message>
         <source>Clear Wi-Fi History</source>
         <translation>تاريخ الواي فاي الواضح</translation>
     </message>
@@ -1527,7 +1515,7 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>قم بإزالة معلومات SSID وMAC من نظام التشغيل الخاص بك لمنع تتبع تاريخ الموقع.</translation>
     </message>
     <message>
-        <source>Anti-censorship Settings</source>
+        <source>Anti-Censorship Settings</source>
         <translation>إعدادات مكافحة الرقابة</translation>
     </message>
 </context>
@@ -1740,7 +1728,7 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>يتم تصغير Windscribe إلى شريط القوائم ولم يعد يظهر في قفص الاتهام.</translation>
     </message>
     <message>
-        <source>Multi-desktop</source>
+        <source>Multi-Desktop</source>
         <translation>سطح مكتب متعدد</translation>
     </message>
     <message>
@@ -2687,6 +2675,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <translation>AmneziaWG init parameter large too</translation>
     </message>
     <message>
+        <source>AmneziaWG init parameter contains invalid characters</source>
+        <translation>يحتوي معامل AmneziaWG init على أحرف غير صالحة</translation>
+    </message>
+    <message>
         <source>Static IPs</source>
         <translation>عناوين IP ثابتة</translation>
     </message>
@@ -2873,7 +2865,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
 <context>
     <name>TwoFactorAuthWindow::TwoFactorAuthWindowItem</name>
     <message>
-        <source>Two-factor Auth</source>
+        <source>Two-Factor Auth</source>
         <translation>المصادقة الثنائية</translation>
     </message>
     <message>

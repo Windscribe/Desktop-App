@@ -287,7 +287,7 @@ void GeneralWindowItem::onLanguageChanged()
 #if defined(Q_OS_MACOS)
     multiDesktopBehaviorItem_->setDescription(tr("Select behaviour when window is activated with multiple desktops."),
                                               "https://github.com/Windscribe/Desktop-App/wiki/macOS-Multi%E2%80%90desktop-preference");
-    multiDesktopBehaviorItem_->setLabelCaption(tr("Multi-desktop"));
+    multiDesktopBehaviorItem_->setLabelCaption(tr("Multi-Desktop"));
     multiDesktopBehaviorItem_->setItems(MULTI_DESKTOP_BEHAVIOR_toList(), preferences_->multiDesktopBehavior());
 #endif
 

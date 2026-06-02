@@ -356,7 +356,7 @@ void ConnectionWindowItem::onLanguageChanged()
     networkOptionsItem_->setTitle(tr("Network Options"));
     splitTunnelingItem_->setTitle(tr("Split Tunneling"));
     onSplitTunnelingPreferencesChanged(preferences_->splitTunneling());
-    antiCensorshipItem_->setTitle(tr("Anti-censorship Settings"));
+    antiCensorshipItem_->setTitle(tr("Anti-Censorship Settings"));
     proxySettingsItem_->setTitle(tr("Proxy Settings"));
 
     checkBoxAutoConnect_->setDescription(tr("Connects to last used location when the app launches or joins a network."));
@@ -369,7 +369,7 @@ void ConnectionWindowItem::onLanguageChanged()
     packetSizeGroup_->setDescription(tr("Automatically determine the MTU for your connection, or manually override.  This has no effect on TCP-based protocols."),
                                      QString("https://%1/features/packet-size").arg(HardcodedSettings::instance().windscribeServerUrl()));
 
-    ipStackGroup_->setDescription(tr("Configure egress IP stack for VPN connections."),
+    ipStackGroup_->setDescription(tr("Configure egress IP stack for VPN connections (WireGuard only)."),
                                   QString("https://%1/features/ipv6").arg(HardcodedSettings::instance().windscribeServerUrl()));
 
     comboBoxIpStack_->setLabelCaption(tr("IP Stack"));

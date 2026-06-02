@@ -56,7 +56,7 @@
     "city": "gw01-udp-65000-ws-rw-igor.ovpn"
    },
    "name": "gw01-udp-65000-ws-rw-igor",
-   "nick": "149.56.10.82",
+   "nick": "192.0.2.82",
    "ping_time": 228,
    "is_premium_only": true,
    "is_disabled": false,

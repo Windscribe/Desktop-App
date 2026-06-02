@@ -30,6 +30,7 @@ signals:
     void connectToStaticIpLocation(const QString &location, const types::Protocol &protocol, uint port);
     void attemptLogin(const QString &username, const QString &password, const QString &code2fa);
     void setKeyLimitBehavior(bool deleteKey);
+    void setIgnoreSslErrors(bool ignore);
     void update();
     void pinIp();
     void unpinIp(const QString &ip);
@@ -73,7 +74,7 @@ private:
     uint updateProgress_;
     QString updatePath_;
     QString updateAvailable_;
-    wsnet::LoginResult lastLoginError_;
+    wsnet::LoginResult lastLoginError_ = wsnet::LoginResult::kSuccess;
     QString lastLoginErrorMessage_;
     types::ConnectState connectState_;
     types::Protocol protocol_;

@@ -7,6 +7,7 @@
 
 #include "utils/extraconfig.h"
 #include "utils/log/categories.h"
+#include "utils/networkingvalidation.h"
 #include "utils/openssl_utils.h"
 
 namespace {
@@ -130,10 +131,20 @@ QString WireGuardConfig::generateConfigFile() const
         }
 
         // Send I1-I5 parameters (in order, only if they exist)
+        // Belt-and-suspenders against a malformed I-value reaching the line-oriented sinks
+        // downstream (wireguard.conf -> tunnel.dll on Windows; AmneziawgConfig -> UAPI socket
+        // on the POSIX helpers). wireguardcustomconfig.cpp hard-rejects such values at import,
+        // so this only catches values arriving from a future ingress path (e.g. API responses).
         for (auto i = 0; i < client_.amneziawgParam.iValues.size() && i < 5; ++i) {
-            if (!client_.amneziawgParam.iValues[i].isEmpty()) {
-                ts << "I" << i + 1 << " = " << client_.amneziawgParam.iValues[i] << '\n';
+            const QString &iv = client_.amneziawgParam.iValues[i];
+            if (iv.isEmpty()) {
+                continue;
             }
+            if (!NetworkingValidation::isPrintableSingleLineAscii(iv)) {
+                qCWarning(LOG_CONNECTION) << "WireGuardConfig::generateConfigFile skipping I" << i + 1 << "with non-printable characters";
+                continue;
+            }
+            ts << "I" << i + 1 << " = " << iv << '\n';
         }
     }
 
@@ -266,6 +277,10 @@ AmneziawgConfig WireGuardConfig::amneziawgParamToHelperConfig() const
         config.h3 = client_.amneziawgParam.h3.toStdString();
         config.h4 = client_.amneziawgParam.h4.toStdString();
         for (const auto &iValue : client_.amneziawgParam.iValues) {
+            if (!NetworkingValidation::isPrintableSingleLineAscii(iValue)) {
+                qCWarning(LOG_CONNECTION) << "WireGuardConfig::amneziawgParamToHelperConfig skipping I-value with non-printable characters";
+                continue;
+            }
             config.iValues.push_back(iValue.toStdString());
         }
         if (ExtraConfig::instance().getWireGuardVerboseLogging()) {

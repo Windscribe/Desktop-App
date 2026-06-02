@@ -498,10 +498,6 @@
         <translation>이메일을 입력하세요</translation>
     </message>
     <message>
-        <source>For password recovery, updates &amp; promo only. No spam.</source>
-        <translation>비밀번호 복구, 업데이트 및 프로모션용으로만 사용됩니다. 스팸 금지.</translation>
-    </message>
-    <message>
         <source>Voucher Code?</source>
         <translation>바우처 코드?</translation>
     </message>
@@ -650,10 +646,6 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
         <translation>SSL 오류</translation>
     </message>
     <message>
-        <source>We detected that SSL requests may be intercepted on your network. This could be due to a firewall configured on your computer, or Windscribe being blocked by your network administrator. Ignore SSL errors?</source>
-        <translation>네트워크에서 SSL 요청을 가로챌 수 있음을 감지했습니다. 이는 컴퓨터에 방화벽이 구성되어 있거나 네트워크 관리자가 Windscribe를 차단했기 때문일 수 있습니다. SSL 오류를 무시할까요?</translation>
-    </message>
-    <message>
         <source>Disconnected</source>
         <translation>연결 끊김</translation>
     </message>
@@ -676,6 +668,10 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
     <message>
         <source>Later</source>
         <translation>나중에</translation>
+    </message>
+    <message>
+        <source>SSL requests may be intercepted on your network. Ignoring SSL errors disables TLS certificate validation for this session: anyone able to intercept your traffic can then impersonate Windscribe and read or alter your data, and we can&apos;t guarantee your security while it&apos;s on. Ignore SSL errors?</source>
+        <translation>SSL 요청은 네트워크에서 가로챌 수 있습니다. SSL 오류를 무시하면 이 세션에서 TLS 인증서 검증이 비활성화됩니다: 트래픽을 가로챌 수 있는 사람은 Windscribe를 가장해 데이터를 읽거나 조작할 수 있으며, 켜진 상태에서는 보안을 보장할 수 없습니다. SSL 오류를 무시할 수 있나요?</translation>
     </message>
     <message>
         <source>Connected to </source>
@@ -798,7 +794,7 @@ Recovering...</source>
         <translation>응용 프로그램 선택</translation>
     </message>
     <message>
-        <source>Read-only file</source>
+        <source>Read-Only File</source>
         <translation>읽기 전용 파일</translation>
     </message>
     <message>
@@ -1207,19 +1203,11 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>매개 변수 설정</translation>
     </message>
     <message>
-        <source>Ignore SSL certificate validation errors.</source>
-        <translation>SSL 인증서 유효성 검사 오류를 무시합니다.</translation>
-    </message>
-    <message>
-        <source>Ignore SSL Errors</source>
-        <translation>SSL 오류 무시</translation>
-    </message>
-    <message>
         <source>Prevents connections from dying (by time-out) by periodically pinging the server.</source>
         <translation>주기적으로 서버를 ping하여 연결이 시간 초과로 인해 중단되지 않도록 합니다.</translation>
     </message>
     <message>
-        <source>Client-side Keepalive</source>
+        <source>Client-Side Keepalive</source>
         <translation>클라이언트 Keepalive</translation>
     </message>
     <message>
@@ -1258,7 +1246,7 @@ If the problem persists after a restart, please send a debug log and open a supp
 <context>
     <name>PreferencesWindow::AntiCensorshipWindowItem</name>
     <message>
-        <source>Anti-censorship</source>
+        <source>Anti-Censorship</source>
         <translation>반검열</translation>
     </message>
     <message>
@@ -1451,10 +1439,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>VPN 프로토콜을 자동으로 선택하거나 수동으로 선택합니다. 참고: &quot;기본 설정 프로토콜&quot;은 이 설정을 무시합니다.</translation>
     </message>
     <message>
-        <source>Configure egress IP stack for VPN connections.</source>
-        <translation>VPN 연결을 위한 이그레스 IP 스택을 설정하세요.</translation>
-    </message>
-    <message>
         <source>IP Stack</source>
         <translation>IP 스택</translation>
     </message>
@@ -1511,6 +1495,10 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>이 방화벽 모드에서는 연결이 끊어진 동안에는 Windscribe API를 사용할 수 없으므로 의도하지 않은 결과가 발생할 수 있습니다. 자신의 책임하에 사용하십시오.</translation>
     </message>
     <message>
+        <source>Configure egress IP stack for VPN connections (WireGuard only).</source>
+        <translation>VPN 연결용으로 이그레스 IP 스택을 설정하세요 (WireGuard 전용).</translation>
+    </message>
+    <message>
         <source>Clear Wi-Fi History</source>
         <translation>와이파이 기록 명확</translation>
     </message>
@@ -1527,7 +1515,7 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>위치 추적을 막기 위해 운영체제에서 Wi-Fi SSID와 MAC 정보를 제거하세요.</translation>
     </message>
     <message>
-        <source>Anti-censorship Settings</source>
+        <source>Anti-Censorship Settings</source>
         <translation>검열 방지 설정</translation>
     </message>
 </context>
@@ -1740,7 +1728,7 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>버전</translation>
     </message>
     <message>
-        <source>Multi-desktop</source>
+        <source>Multi-Desktop</source>
         <translation>멀티 데스크톱</translation>
     </message>
     <message>
@@ -2687,6 +2675,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <translation>AmneziaWG init 매개변수가 너무 커요</translation>
     </message>
     <message>
+        <source>AmneziaWG init parameter contains invalid characters</source>
+        <translation>AmneziaWG init 매개변수에는 유효하지 않은 문자가 포함되어 있습니다</translation>
+    </message>
+    <message>
         <source>Static IPs</source>
         <translation>고정 IP</translation>
     </message>
@@ -2873,7 +2865,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
 <context>
     <name>TwoFactorAuthWindow::TwoFactorAuthWindowItem</name>
     <message>
-        <source>Two-factor Auth</source>
+        <source>Two-Factor Auth</source>
         <translation>2단계 인증</translation>
     </message>
     <message>

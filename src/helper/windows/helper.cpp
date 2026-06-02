@@ -17,6 +17,7 @@
 #include "split_tunneling/split_tunneling.h"
 #include "utils.h"
 #include "utils/crashhandler.h"
+#include "utils/wsscopeguard.h"
 
 namespace wsl
 {
@@ -144,16 +145,19 @@ bool Helper::createClientPipe()
     sa.nLength = sizeof(SECURITY_ATTRIBUTES);
     sa.bInheritHandle = FALSE;
 
-    const TCHAR * szSD = TEXT("D:")   // Discretionary ACL
-        TEXT("(D;OICI;GA;;;AN)")      // Deny access to anonymous logon
-        TEXT("(A;OICI;GRGWGX;;;BG)")  // Allow access to built-in guests
-        TEXT("(A;OICI;GRGWGX;;;AU)")  // Allow read/write/execute to authenticated users
-        TEXT("(A;OICI;GA;;;BA)");     // Allow full control to administrators
+    // Allow only interactive-logon tokens (S-1-5-4, "IU"). Services, network logons, batch jobs,
+    // and anonymous all lack this SID, so they cannot open the pipe even if they know the name.
+    // This is the DACL-layer counterpart to the Session 0 reject in Utils::verifyAppProcessPath.
+    const TCHAR * szSD = TEXT("D:")
+        TEXT("(D;OICI;GA;;;AN)")       // Deny anonymous logon
+        TEXT("(A;OICI;GRGWGX;;;IU)");  // Allow read/write/execute to interactive users
 
-    BOOL result = ::ConvertStringSecurityDescriptorToSecurityDescriptor(szSD, SDDL_REVISION_1, &sa.lpSecurityDescriptor, NULL);
-    if (!result) {
+    if (!::ConvertStringSecurityDescriptorToSecurityDescriptor(szSD, SDDL_REVISION_1, &sa.lpSecurityDescriptor, NULL)) {
         return false;
     }
+    auto freeSD = wsScopeGuard([&] {
+        ::LocalFree(sa.lpSecurityDescriptor);
+    });
 
     clientPipe_.setHandle(::CreateNamedPipe(L"\\\\.\\pipe\\" WS_APP_IDENTIFIER_W L"Service", PIPE_ACCESS_DUPLEX | FILE_FLAG_OVERLAPPED,
                                             PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE | PIPE_WAIT | PIPE_REJECT_REMOTE_CLIENTS,

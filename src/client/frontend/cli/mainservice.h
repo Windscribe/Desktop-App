@@ -44,6 +44,7 @@ private slots:
     void onLogin(const QString &username, const QString &password, const QString &code2fa);
     void onShowLocations(IPC::CliCommands::LocationType type);
     void onSetKeyLimitBehavior(bool deleteKey);
+    void onSetIgnoreSslErrors(bool ignore);
     void onPinIp();
     void onUnpinIp(const QString &ip);
 

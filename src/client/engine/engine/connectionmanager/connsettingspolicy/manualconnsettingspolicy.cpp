@@ -88,6 +88,7 @@ CurrentConnectionDescr ManualConnSettingsPolicy::getCurrentConnectionSettings() 
     ccd.dnsHostName = locationInfo_->getDnsName();
     ccd.wgPeerPublicKey = locationInfo_->getWgPubKeyForSelectedNode();
     ccd.verifyX509name = locationInfo_->getVerifyX509name();
+    ccd.isIpv6Support = locationInfo_->isIpv6SupportForSelectedNode();
 
     // for static IP set additional fields
     if (locationInfo_->locationId().isStaticIpsLocation())

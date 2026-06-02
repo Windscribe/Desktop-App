@@ -8,6 +8,7 @@
 #include "clear_wifi_history/clear_wifi_history.h"
 #include "firewallcontroller.h"
 #include "firewallonboot.h"
+#include "installer_verifier.h"
 #include "ovpn.h"
 #include "split_tunneling/split_tunneling.h"
 #include "utils.h"
@@ -65,11 +66,13 @@ std::string sendConnectStatus(const std::string &pars)
         return true;
     };
     if (!checkIface(cs.defaultAdapter.adapterName, "defaultAdapter.adapterName") ||
-        !checkIface(cs.vpnAdapter.adapterName, "vpnAdapter.adapterName")) {
+        !checkIface(cs.defaultAdapter.adapterNameV6, "defaultAdapter.adapterNameV6") ||
+        !checkIface(cs.vpnAdapter.adapterName, "vpnAdapter.adapterName") ||
+        !checkIface(cs.vpnAdapter.adapterNameV6, "vpnAdapter.adapterNameV6")) {
         return serializeResult(false);
     }
 
-    bool success = !SplitTunneling::instance().setConnectParams(cs);
+    bool success = SplitTunneling::instance().setConnectParams(cs);
     return serializeResult(success);
 }
 
@@ -102,11 +105,17 @@ std::string executeOpenVPN(const std::string &pars)
         return serializeResult(false);
     }
 
-    // sanitize
-    if (Utils::hasWhitespaceInString(httpProxy) ||
-        Utils::hasWhitespaceInString(socksProxy))
-    {
+    // The proxy address must be an IP literal: the GUI restricts it to one (NetworkingValidation::
+    // isIp) and no other path sets it. Validate here too rather than trust the client — an invalid
+    // value is dropped so it can't reach the OpenVPN config the helper writes as root. The proxy
+    // lines are appended after OvpnDirectiveWhitelist::filterConfig, so they aren't otherwise
+    // filtered. isValidIpAddress also rejects whitespace, subsuming the previous whitespace guard.
+    if (!httpProxy.empty() && !Validation::isValidIpAddress(httpProxy)) {
+        spdlog::warn("executeOpenVPN: invalid httpProxy, ignoring");
         httpProxy = "";
+    }
+    if (!socksProxy.empty() && !Validation::isValidIpAddress(socksProxy)) {
+        spdlog::warn("executeOpenVPN: invalid socksProxy, ignoring");
         socksProxy = "";
     }
 
@@ -312,9 +321,7 @@ std::string startCtrld(const std::string &pars)
 
 std::string checkFirewallState(const std::string &pars)
 {
-    std::string tag;
-    deserializePars(pars, tag);
-    return serializeResult(FirewallController::instance().enabled(tag));
+    return serializeResult(FirewallController::instance().enabled());
 }
 
 std::string clearFirewallRules(const std::string &pars)
@@ -322,34 +329,29 @@ std::string clearFirewallRules(const std::string &pars)
     bool isKeepPfEnabled;
     deserializePars(pars, isKeepPfEnabled);
     spdlog::debug("Clear firewall rules");
-    FirewallController::instance().disable();
-    return std::string();
+    return serializeResult(FirewallController::instance().disable());
 }
 
 std::string setFirewallRules(const std::string &pars)
 {
-    CmdIpVersion ipVersion;
-    std::string table, group, rules;
-    deserializePars(pars, ipVersion, table, group, rules);
-    spdlog::debug("Set firewall rules");
-    FirewallController::instance().enable(ipVersion == kIpv6, rules);
-    return std::string();
-}
+    FirewallConfig config;
+    deserializePars(pars, config);
 
-std::string getFirewallRules(const std::string &pars)
-{
-    CmdIpVersion ipVersion;
-    std::string table, group;
-    deserializePars(pars, ipVersion, table, group);
-    std::string rules;
-    FirewallController::instance().getRules(ipVersion == kIpv6, &rules);
-    return serializeResult(rules);
+    // Sanitize every token the helper will interpolate into iptables rules. A single bad entry must
+    // not drop the whole kill-switch update (that could leave the firewall off and leak), so invalid
+    // values are stripped rather than aborting: the firewall still comes up from the valid remainder
+    // and the offending allow-rule simply isn't emitted. The helper never builds a rule from
+    // unvalidated client input.
+    Validation::sanitizeFirewallConfig(config);
+
+    spdlog::debug("Set firewall rules");
+    return serializeResult(FirewallController::instance().enable(config));
 }
 
 std::string setFirewallOnBoot(const std::string &pars)
 {
     bool enabled, allowLanTraffic;
-    std::string ipTable;
+    std::vector<std::string> ipTable;
     deserializePars(pars, enabled, allowLanTraffic, ipTable);
     spdlog::debug("Set firewall on boot: {}", enabled ? "true" : "false");
     FirewallOnBootManager::instance().setIpTable(ipTable);
@@ -435,6 +437,12 @@ std::string setMacAddress(const std::string &pars)
         return serializeResult(false);
     }
 
+    // network is passed to nmcli; validating here also guards the resetMacAddresses() call below.
+    if (!Validation::isValidNetworkManagerConnectionName(network)) {
+        spdlog::error("Invalid network connection name: {}", network);
+        return serializeResult(false);
+    }
+
     std::string mac =
         macAddress.substr(0, 2) + ":" +
         macAddress.substr(2, 2) + ":" +
@@ -455,13 +463,17 @@ std::string setMacAddress(const std::string &pars)
     Utils::executeCommand("ip", {"link", "set", "dev", interface, "up"});
 #else
     std::string out;
+    // Pass the connection name with an explicit "id" selector so nmcli always treats it as a name,
+    // never as one of its own selector keywords (id/uuid/path) that would otherwise consume the
+    // following token. isValidNetworkManagerConnectionName already blocks a leading '-'; this closes
+    // the same argv-semantics gap for a connection literally named "id"/"uuid"/"path".
     if (isWifi) {
-        Utils::executeCommand("nmcli", {"connection", "modify", network, "wifi.cloned-mac-address", mac}, &out);
+        Utils::executeCommand("nmcli", {"connection", "modify", "id", network, "wifi.cloned-mac-address", mac}, &out);
     } else {
-        Utils::executeCommand("nmcli", {"connection", "modify", network, "ethernet.cloned-mac-address", mac}, &out);
+        Utils::executeCommand("nmcli", {"connection", "modify", "id", network, "ethernet.cloned-mac-address", mac}, &out);
     }
     // restart the connection
-    Utils::executeCommand("nmcli", {"connection", "up", network});
+    Utils::executeCommand("nmcli", {"connection", "up", "id", network});
 #endif
     return serializeResult(true);
 }
@@ -471,7 +483,10 @@ std::string setDnsLeakProtectEnabled(const std::string &pars)
     bool enabled;
     deserializePars(pars, enabled);
     spdlog::debug("Set DNS leak protect: {}", enabled ? "enabled" : "disabled");
-    // We only handle the down case; the 'up' trigger for this script happens in the DNS manager script
+    // We only handle the down case; the 'up' trigger (chain install) happens in
+    // the DNS manager scripts at connect time. OUTPUT rule ordering on a late
+    // firewall enable is handled by FirewallController::outputJumpRule when the
+    // helper builds the rules, so there is no helper-driven replay.
     if (!enabled) {
         Utils::executeCommand(WS_LINUX_INSTALL_DIR "/scripts/dns-leak-protect", {"down"});
     }
@@ -504,4 +519,24 @@ std::string clearWifiHistoryData(const std::string &pars)
     spdlog::debug("clearWifiHistoryData");
     bool success = ClearWiFiHistory::clear();
     return serializeResult(success);
+}
+
+std::string installerStageAndVerify(const std::string &pars)
+{
+    std::string srcPath;
+    deserializePars(pars, srcPath);
+    spdlog::debug("installerStageAndVerify: src={}", srcPath);
+
+    auto stagedPath = InstallerVerifier::stageAndVerify(srcPath);
+    if (!stagedPath) {
+        return serializeResult(std::string(), false);
+    }
+    return serializeResult(*stagedPath, true);
+}
+
+std::string installerCleanupStaged(const std::string &pars)
+{
+    spdlog::debug("installerCleanupStaged");
+    InstallerVerifier::cleanupStaged();
+    return std::string();
 }

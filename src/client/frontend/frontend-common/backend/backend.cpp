@@ -441,6 +441,15 @@ void Backend::onEngineSettingsChangedInPreferences()
     engine_->setSettings(preferences_.getEngineSettings());
 }
 
+bool Backend::setIgnoreSslErrors(bool bIgnore)
+{
+    if (bIgnore && lastLoginError_ != wsnet::LoginResult::kSslError) {
+        return false;
+    }
+    engine_->setIgnoreSslErrors(bIgnore);
+    return true;
+}
+
 void Backend::onEngineCleanupFinished()
 {
     isCleanupFinished_ = true;
@@ -491,6 +500,7 @@ void Backend::onEngineFirewallStateChanged(bool isEnabled)
 void Backend::onEngineLoginFinished(const api_responses::PortMap &portMap)
 {
     loginState_ = LOGIN_STATE_LOGGED_IN;
+    lastLoginError_ = wsnet::LoginResult::kSuccess;
     preferencesHelper_.setPortMap(portMap);
 
     triggerAutoConnect(currentNetworkInterface_);
@@ -657,6 +667,7 @@ void Backend::onEngineWifiSharingStateChanged(bool bEnabled, const QString &ssid
 void Backend::onEngineLogoutFinished()
 {
     loginState_ = LOGIN_STATE_LOGGED_OUT;
+    lastLoginError_ = wsnet::LoginResult::kSuccess;
     emit logoutFinished();
 }
 

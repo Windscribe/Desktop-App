@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <vector>
 
 class FirewallOnBootManager
 {
@@ -12,7 +13,7 @@ public:
     }
 
     bool setEnabled(bool enabled, bool allowLanTraffic = false);
-    void setIpTable(const std::string& ipTable) { ipTable_ = ipTable; }
+    void setIpTable(const std::vector<std::string>& ipTable) { ipTable_ = ipTable; }
 
 private:
     FirewallOnBootManager();
@@ -21,5 +22,5 @@ private:
     bool enable(bool allowLanTraffic);
     bool disable();
 
-    std::string ipTable_;
+    std::vector<std::string> ipTable_;
 };

@@ -498,10 +498,6 @@
         <translation>Zadejte e-mail</translation>
     </message>
     <message>
-        <source>For password recovery, updates &amp; promo only. No spam.</source>
-        <translation>Pro obnovu hesla, pouze aktualizace a promo akce. Žádný spam.</translation>
-    </message>
-    <message>
         <source>Voucher Code?</source>
         <translation>Voucherový kód?</translation>
     </message>
@@ -650,10 +646,6 @@ Pokud ztratíte hash účtu, je navždy pryč a podpora vám nemůže pomoci ho 
         <translation>Chyba SSL</translation>
     </message>
     <message>
-        <source>We detected that SSL requests may be intercepted on your network. This could be due to a firewall configured on your computer, or Windscribe being blocked by your network administrator. Ignore SSL errors?</source>
-        <translation>Zjistili jsme, že ve vaší síti mohou být zachyceny požadavky SSL. Příčinou může být brána firewall nakonfigurovaná v počítači nebo blokování programu Windscribe správcem sítě. Ignorovat chyby SSL?</translation>
-    </message>
-    <message>
         <source>Disconnected</source>
         <translation>Nesouvislý</translation>
     </message>
@@ -676,6 +668,10 @@ Pokud ztratíte hash účtu, je navždy pryč a podpora vám nemůže pomoci ho 
     <message>
         <source>Later</source>
         <translation>Později</translation>
+    </message>
+    <message>
+        <source>SSL requests may be intercepted on your network. Ignoring SSL errors disables TLS certificate validation for this session: anyone able to intercept your traffic can then impersonate Windscribe and read or alter your data, and we can&apos;t guarantee your security while it&apos;s on. Ignore SSL errors?</source>
+        <translation>SSL požadavky mohou být zachyceny ve vaší síti. Ignorování chyb SSL deaktivuje validaci TLS certifikátu pro tuto relaci: kdokoli, kdo dokáže zachytit váš provoz, se pak může vydávat za Windscribe a číst nebo měnit vaše data, a nemůžeme garantovat vaši bezpečnost, dokud je zapnutý. Ignorovat chyby SSL?</translation>
     </message>
     <message>
         <source>Connected to </source>
@@ -798,7 +794,7 @@ Uzdravování...</translation>
         <translation>Vyberte aplikaci</translation>
     </message>
     <message>
-        <source>Read-only file</source>
+        <source>Read-Only File</source>
         <translation>Soubor jen pro čtení</translation>
     </message>
     <message>
@@ -1207,19 +1203,11 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
         <translation>Pokročilé parametry</translation>
     </message>
     <message>
-        <source>Ignore SSL certificate validation errors.</source>
-        <translation>Ignorujte chyby ověření certifikátu SSL.</translation>
-    </message>
-    <message>
-        <source>Ignore SSL Errors</source>
-        <translation>Ignorovat chyby SSL</translation>
-    </message>
-    <message>
         <source>Prevents connections from dying (by time-out) by periodically pinging the server.</source>
         <translation>Zabraňuje umírání připojení (vypršení časového limitu) pravidelným příkazem ping na server.</translation>
     </message>
     <message>
-        <source>Client-side Keepalive</source>
+        <source>Client-Side Keepalive</source>
         <translation>Udržování alive na straně klienta</translation>
     </message>
     <message>
@@ -1258,7 +1246,7 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
 <context>
     <name>PreferencesWindow::AntiCensorshipWindowItem</name>
     <message>
-        <source>Anti-censorship</source>
+        <source>Anti-Censorship</source>
         <translation>Anticenzura</translation>
     </message>
     <message>
@@ -1447,10 +1435,6 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
         <translation>Režim připojení</translation>
     </message>
     <message>
-        <source>Configure egress IP stack for VPN connections.</source>
-        <translation>Konfigurujte výstupní IP stack pro VPN připojení.</translation>
-    </message>
-    <message>
         <source>IP Stack</source>
         <translation>IP Stack</translation>
     </message>
@@ -1511,6 +1495,10 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
         <translation>V tomto režimu brány firewall nebude rozhraní API Windscribe k dispozici, když bude odpojeno, což by mohlo mít nezamýšlené důsledky. Používejte na vlastní riziko.</translation>
     </message>
     <message>
+        <source>Configure egress IP stack for VPN connections (WireGuard only).</source>
+        <translation>Konfigurujte výstupní IP stack pro VPN připojení (pouze WireGuard).</translation>
+    </message>
+    <message>
         <source>Clear Wi-Fi History</source>
         <translation>Jasná historie Wi-Fi</translation>
     </message>
@@ -1527,7 +1515,7 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
         <translation>Odstraňte Wi-Fi SSID a MAC údaje z operačního systému, abyste zabránili sledování historie polohy.</translation>
     </message>
     <message>
-        <source>Anti-censorship Settings</source>
+        <source>Anti-Censorship Settings</source>
         <translation>Prostředí proti cenzuře</translation>
     </message>
 </context>
@@ -1740,7 +1728,7 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
         <translation>Windscribe se minimalizuje na panel nabídek a již se nezobrazuje v doku.</translation>
     </message>
     <message>
-        <source>Multi-desktop</source>
+        <source>Multi-Desktop</source>
         <translation>Více ploch</translation>
     </message>
     <message>
@@ -2687,6 +2675,10 @@ Pokud přeinstalace nepomůže, obraťte se na podporu Windscribe a požádejte 
         <translation>AmneziaWG parametr initu příliš velký</translation>
     </message>
     <message>
+        <source>AmneziaWG init parameter contains invalid characters</source>
+        <translation>Init parametr AmneziaWG obsahuje neplatné znaky</translation>
+    </message>
+    <message>
         <source>Static IPs</source>
         <translation>Statické IP adresy</translation>
     </message>
@@ -2873,7 +2865,7 @@ Pokud přeinstalace nepomůže, obraťte se na podporu Windscribe a požádejte 
 <context>
     <name>TwoFactorAuthWindow::TwoFactorAuthWindowItem</name>
     <message>
-        <source>Two-factor Auth</source>
+        <source>Two-Factor Auth</source>
         <translation>Dvoufaktorové ověřování</translation>
     </message>
     <message>

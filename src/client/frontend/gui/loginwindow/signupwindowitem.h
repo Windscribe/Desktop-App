@@ -62,9 +62,7 @@ private:
 
     UsernamePasswordEntry *usernameEntry_;
     UsernamePasswordEntry *passwordEntry_;
-    CommonGraphics::TextItem *passwordHint_;
     UsernamePasswordEntry *emailEntry_;
-    CommonGraphics::TextItem *emailHint_;
 
     UsernamePasswordEntry *hashEntry_;
     CommonGraphics::TextItem *hashHint_;

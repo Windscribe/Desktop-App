@@ -115,6 +115,10 @@
         <translation>Неверное имя пользователя, пароль или код 2FA</translation>
     </message>
     <message>
+        <source>Could not log in.  Please try again.  If the problem continues, you can ignore SSL errors for this session, but we strongly recommend against it: doing so disables TLS certificate validation and could allow a third party to intercept your traffic.  To proceed anyway, run &quot;windscribe-cli ignoresslerrors on&quot;.</source>
+        <translation>Не смог войти.  Пожалуйста, попробуйте ещё раз.  Если проблема продолжится, вы можете игнорировать ошибки SSL для этой сессии, но мы настоятельно не рекомендуем этого делать: это отключает проверку TLS-сертификатов и может позволить третьей стороне перехватить ваш трафик.  Чтобы продолжить, запустите &quot;windscribe-cli ignoresslerrors on&quot;.</translation>
+    </message>
+    <message>
         <source>SSL error</source>
         <translation>Ошибка SSL</translation>
     </message>
@@ -329,6 +333,18 @@
     <message>
         <source>Not connected</source>
         <translation>Не подключен</translation>
+    </message>
+    <message>
+        <source>Ignoring SSL errors is only available when unable to log in.</source>
+        <translation>Игнорирование ошибок SSL возможно только при невозможности войти.</translation>
+    </message>
+    <message>
+        <source>Ignoring SSL errors for this session.</source>
+        <translation>Игнорируя ошибки SSL для этой сессии.</translation>
+    </message>
+    <message>
+        <source>SSL errors will no longer be ignored.</source>
+        <translation>Ошибки SSL больше не будут игнорироваться.</translation>
     </message>
     <message>
         <source>IP rotated.</source>

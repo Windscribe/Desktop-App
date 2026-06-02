@@ -58,6 +58,31 @@ else()
     set(INSTALLER_LINUX_COMMON_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src/installer/${WS_PRODUCT_NAME_LOWER}/linux")
 endif()
 
+# Package signing setup. Linux package signing rides along with the existing
+# --sign-app flag (Windows signs the app binary; Linux signs the packages).
+# Trigger: SIGN_APP=ON and LINUX_SIGNING_GPG_KEY_ID set in the build env.
+# If SIGN_APP is set without the key id, fail loudly — silently producing
+# unsigned packages from a signing pipeline would be worse than not building.
+if(SIGN_APP)
+    if(NOT DEFINED ENV{LINUX_SIGNING_GPG_KEY_ID} OR "$ENV{LINUX_SIGNING_GPG_KEY_ID}" STREQUAL "")
+        message(FATAL_ERROR "SIGN_APP=ON but LINUX_SIGNING_GPG_KEY_ID env var is not set")
+    endif()
+    set(LINUX_SIGNING_KEY_ID "$ENV{LINUX_SIGNING_GPG_KEY_ID}")
+    find_program(GPG_EXECUTABLE gpg)
+    if(NOT GPG_EXECUTABLE)
+        message(FATAL_ERROR "SIGN_APP=ON but gpg not found on PATH")
+    endif()
+    if(BUILD_RPM OR BUILD_RPM_OPENSUSE)
+        find_program(RPMSIGN_EXECUTABLE rpmsign)
+        if(NOT RPMSIGN_EXECUTABLE)
+            message(FATAL_ERROR "SIGN_APP=ON with RPM target but rpmsign not found on PATH")
+        endif()
+    endif()
+    message(STATUS "Linux package signing enabled with key ${LINUX_SIGNING_KEY_ID}")
+else()
+    message(STATUS "Linux package signing disabled (SIGN_APP not set)")
+endif()
+
 # DEB Packaging
 if(BUILD_DEB)
     set(DEB_PACKAGE_DIR "${CMAKE_BINARY_DIR}/debian_package")
@@ -230,4 +255,30 @@ endif()
 if(BUILD_RPM_OPENSUSE)
     add_dependencies(package-rpm-opensuse init-build-exe)
     add_dependencies(deploy package-rpm-opensuse)
+endif()
+
+# Linux package signing target. Mirrors the Windows `sign-app` pattern: a separate
+# target in ALL so it runs whenever SIGN_APP is set, operating on whatever .deb/.rpm
+# files are in BUILD_EXE_DIR. This supports both
+#   ./build_all --build-deb --sign-app                (combined; deps below order it)
+#   ./build_all --build-deb && ./build_all --sign-app (split; signs prior output)
+# rpmsign + gpg --detach-sign are idempotent so the combined case is safe even
+# though the package-build targets and this target both touch the same files.
+if(SIGN_APP)
+    add_custom_target(sign-linux-packages ALL
+        COMMAND bash "${CMAKE_CURRENT_SOURCE_DIR}/tools/sign-linux-packages.sh"
+                "${LINUX_SIGNING_KEY_ID}"
+                "${BUILD_EXE_DIR}"
+        COMMENT "Signing Linux packages..."
+        VERBATIM
+    )
+    if(TARGET package-deb)
+        add_dependencies(sign-linux-packages package-deb)
+    endif()
+    if(TARGET package-rpm-fedora)
+        add_dependencies(sign-linux-packages package-rpm-fedora)
+    endif()
+    if(TARGET package-rpm-opensuse)
+        add_dependencies(sign-linux-packages package-rpm-opensuse)
+    endif()
 endif()

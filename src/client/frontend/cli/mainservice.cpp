@@ -42,6 +42,7 @@ MainService::MainService() : QObject(), isExitingAfterUpdate_(false), keyLimitDe
     connect(localIpcServer_, &LocalIPCServer::connectToStaticIpLocation, this, &MainService::onConnectToStaticIpLocation);
     connect(localIpcServer_, &LocalIPCServer::attemptLogin, this, &MainService::onLogin);
     connect(localIpcServer_, &LocalIPCServer::setKeyLimitBehavior, this, &MainService::onSetKeyLimitBehavior);
+    connect(localIpcServer_, &LocalIPCServer::setIgnoreSslErrors, this, &MainService::onSetIgnoreSslErrors);
     connect(localIpcServer_, &LocalIPCServer::pinIp, this, &MainService::onPinIp);
     connect(localIpcServer_, &LocalIPCServer::unpinIp, this, &MainService::onUnpinIp);
 }
@@ -373,6 +374,13 @@ void MainService::onPreferencesAllowLanTrafficChanged(bool /*allowLanTraffic*/)
 void MainService::onSetKeyLimitBehavior(bool deleteKey)
 {
     keyLimitDelete_ = deleteKey;
+}
+
+void MainService::onSetIgnoreSslErrors(bool ignore)
+{
+    if (backend_->setIgnoreSslErrors(ignore) && ignore) {
+        backend_->loginWithLastLoginSettings();
+    }
 }
 
 void MainService::onBackendLocalDnsServerNotAvailable()

@@ -26,9 +26,7 @@
 
 void ProcessMonitor::monitorWorker(void *ctx)
 {
-    int ret;
     char buff[BUFSIZE];
-    struct nlmsghdr *nlh = (struct nlmsghdr*)buff;
 
     spdlog::debug("process monitor thread started");
     running_ = true;
@@ -55,11 +53,12 @@ void ProcessMonitor::monitorWorker(void *ctx)
             break;
         }
 
+        struct nlmsghdr *nlh = (struct nlmsghdr *)buff;
         while (NLMSG_OK(nlh, ret)) {
             std::string cmd;
 
             if (nlh->nlmsg_type == NLMSG_NOOP) {
-                NLMSG_NEXT(nlh, ret);
+                nlh = NLMSG_NEXT(nlh, ret);
                 continue;
             }
             if ((nlh->nlmsg_type == NLMSG_ERROR) || (nlh->nlmsg_type == NLMSG_OVERRUN)) {

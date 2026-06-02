@@ -241,6 +241,7 @@ include(cmake/signing.cmake)
 if(BUILD_APP)
     if(BUILD_TESTS)
         set(IS_BUILD_TESTS ON)
+        enable_testing()
     endif()
 
     # Additional components from integration config
@@ -261,6 +262,7 @@ if(BUILD_APP)
     elseif(UNIX)
         add_custom_target(build-app ALL DEPENDS ${WS_LINUX_APP_TARGETS})
     endif()
+
 endif()
 
 # Installers

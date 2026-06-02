@@ -1,218 +1,145 @@
 #include "ws_branding.h"
 #include <shlwapi.h>
 
-#include <sstream>
 #include <stdio.h>
+
+#include <cwctype>
+
+#include <spdlog/spdlog.h>
 
 #include "hostsedit.h"
 #include "utils.h"
+#include "utils/wsscopeguard.h"
 
-HostsEdit::HostsEdit() : szTitle_(L"added by " WS_PRODUCT_NAME_W L", do not modify.")
+HostsEdit::HostsEdit() : addedByMarker_(L"added by " WS_PRODUCT_NAME_W L", do not modify.")
 {
-    szSystemDir_ = Utils::getSystemDir();
+    systemDir_ = Utils::getSystemDir();
 }
 
 HostsEdit::~HostsEdit()
 {
 }
 
-bool HostsEdit::removeAppHosts()
+bool HostsEdit::addHosts(const std::wstring &ip, const std::wstring &hostname)
 {
-    // remove hosts with strings WS_PRODUCT_NAME_LOWER from hosts file
-    FILE *fileTmp = _wfopen(getTempHostsPath().c_str(), L"w");
-    bool bSuccess = false;
-    if (fileTmp)
-    {
-        FILE *file = _wfopen(getHostsPath().c_str(), L"a+");
-        if (file)
-        {
-            std::vector<std::wstring> strs;
-            wchar_t buf[10000];
-            while (!feof(file))
-            {
-                fgetws(buf, 10000, file);
-                if (StrStrI(buf, WS_PRODUCT_NAME_LOWER_W) == NULL)
-                {
-                    strs.push_back(buf);
-                }
-            }
-
-            for (std::vector<std::wstring>::iterator it = strs.begin(); it != strs.end(); ++it)
-            {
-                std::wstring str = *it;
-                // remove newline for last string
-                if (it == (strs.end() - 1))
-                {
-                    if (it->size() > 0 && str[wcslen(it->c_str())-1] == L'\n')
-                    {
-                        str = it->substr(0, it->size()-1);
-                    }
-                }
-                fputws(str.c_str(), fileTmp);
-            }
-
-            fclose(file);
-            bSuccess = true;
-        }
-        fclose(fileTmp);
-    }
-
-    if (bSuccess)
-    {
-        return (MoveFileEx(getTempHostsPath().c_str(), getHostsPath().c_str(), MOVEFILE_REPLACE_EXISTING) != 0);
-    }
-    else
-    {
+    FILE *file = nullptr;
+    if (_wfopen_s(&file, getHostsPath().c_str(), L"a+") != 0 || !file) {
         return false;
     }
+
+    std::vector<std::wstring> strs;
+    wchar_t buf[10000];
+    while (fgetws(buf, 10000, file) != nullptr) {
+        strs.push_back(buf);
+    }
+
+    std::wstring entry = ip + L" " + hostname;
+    if (!stringInVector(strs, entry)) {
+        // Add a separating newline if the file isn't empty and doesn't already end with one.
+        // fgetws preserves the trailing newline, so the last line we read tells us this; an
+        // empty file (strs empty) needs no leading newline.
+        if (!strs.empty() && !strs.back().empty() && strs.back().back() != L'\n') {
+            fseek(file, 0, SEEK_END);
+            fputws(L"\n", file);
+        }
+
+        fputws(entry.c_str(), file);
+        fputws(L"   #", file);
+        fputws(addedByMarker_.c_str(), file);
+    }
+    fclose(file);
+    return true;
 }
 
-bool HostsEdit::addHosts(std::wstring szHosts)
+bool HostsEdit::makeHostsFileWritable() const
 {
-    FILE *file = _wfopen(getHostsPath().c_str(), L"a+");
-
-    if (file)
-    {
-        //first read all strings from file to vector
-        std::vector<std::wstring> strs;
-        wchar_t buf[10000];
-        while (!feof(file))
-        {
-            fgetws(buf, 10000, file);
-            strs.push_back(buf);
-        }
-
-        std::vector<std::wstring> hosts = split(szHosts, L';');
-        std::vector<std::wstring> added_hosts;
-        for (std::vector<std::wstring>::iterator it = hosts.begin(); it != hosts.end(); ++it)
-        {
-            if (!stringInVector(strs, *it))
-            {
-                added_hosts.push_back(*it);
-            }
-        }
-
-        if (added_hosts.size() > 0)
-        {
-            // write newline to end of file, if needed
-            fseek(file, 1, SEEK_END);
-            char c;
-            fread(&c, 1, 1, file);
-
-            if (c != '\n')
-            {
-                fseek(file, 0, SEEK_END);
-                fputws(L"\n", file);
-            }
-        }
-        for (std::vector<std::wstring>::iterator it = added_hosts.begin(); it != added_hosts.end(); ++it)
-        {
-            fputws(it->c_str(), file);
-            fputws(L"   #", file);
-            fputws(szTitle_.c_str(), file);
-            if (it != added_hosts.end() - 1)
-            {
-                fputws(L"\n", file);
-            }
-        }
-        fclose(file);
-        return true;
-    }
-    else
-    {
+    const auto hostsFile = getHostsPath();
+    const auto attributes = ::GetFileAttributes(hostsFile.c_str());
+    if (attributes == INVALID_FILE_ATTRIBUTES) {
+        spdlog::error("GetFileAttributes of hosts file failed ({})", ::GetLastError());
         return false;
     }
+
+    if (::SetFileAttributes(hostsFile.c_str(), attributes & ~FILE_ATTRIBUTE_READONLY) == FALSE) {
+        spdlog::error("SetFileAttributes of hosts file failed ({})", ::GetLastError());
+        return false;
+    }
+
+    return true;
 }
 
 bool HostsEdit::removeHosts()
 {
-    FILE *fileTmp = _wfopen(getTempHostsPath().c_str(), L"w");
-    bool bSuccess = false;
-    if (fileTmp)
+    // Ensure the files are closed before we attempt the move.
     {
-        FILE *file = _wfopen(getHostsPath().c_str(), L"a+");
-        if (file)
-        {
-            std::vector<std::wstring> strs;
-            wchar_t buf[10000];
-            while (!feof(file))
-            {
-                fgetws(buf, 10000, file);
-                if (wcsstr(buf, szTitle_.c_str()) == NULL)
-                {
-                    strs.push_back(buf);
-                }
-            }
+        FILE *fileTmp = nullptr;
+        FILE *file = nullptr;
+        auto closeFiles = wsl::wsScopeGuard([&] {
+            if (file) fclose(file);
+            if (fileTmp) fclose(fileTmp);
+        });
 
-            for (std::vector<std::wstring>::iterator it = strs.begin(); it != strs.end(); ++it)
-            {
-                std::wstring str = *it;
-                // remove newline for last string
-                if (it == (strs.end() - 1))
-                {
-                    if (it->size() > 0 && str[wcslen(it->c_str()) - 1] == L'\n')
-                    {
-                        str = it->substr(0, it->size() - 1);
-                    }
-                }
-                fputws(str.c_str(), fileTmp);
-            }
-
-            fclose(file);
-            bSuccess = true;
+        if (_wfopen_s(&fileTmp, getTempHostsPath().c_str(), L"w") != 0 || !fileTmp) {
+            return false;
         }
-        fclose(fileTmp);
+
+        if (_wfopen_s(&file, getHostsPath().c_str(), L"a+") != 0 || !file) {
+            return false;
+        }
+
+        std::vector<std::wstring> strs;
+        wchar_t buf[10000];
+        while (fgetws(buf, 10000, file) != nullptr) {
+            if (wcsstr(buf, addedByMarker_.c_str()) == NULL) {
+                strs.push_back(buf);
+            }
+        }
+
+        for (std::vector<std::wstring>::iterator it = strs.begin(); it != strs.end(); ++it) {
+            std::wstring str = *it;
+            // remove newline for last string
+            if (it == (strs.end() - 1)) {
+                if (!str.empty() && str.back() == L'\n') {
+                    str.pop_back();
+                }
+            }
+            fputws(str.c_str(), fileTmp);
+        }
     }
 
-    if (bSuccess)
-    {
-        return (MoveFileEx(getTempHostsPath().c_str(), getHostsPath().c_str(), MOVEFILE_REPLACE_EXISTING) != 0);
-    }
-    else
-    {
+    return (MoveFileEx(getTempHostsPath().c_str(), getHostsPath().c_str(), MOVEFILE_REPLACE_EXISTING) != 0);
+}
+
+std::wstring HostsEdit::getHostsPath() const
+{
+    wchar_t szPath[MAX_PATH];
+    PathCombine(szPath, systemDir_.c_str(), L"drivers\\etc\\hosts");
+    return szPath;
+}
+
+std::wstring HostsEdit::getTempHostsPath() const
+{
+    wchar_t szPath[MAX_PATH];
+    PathCombine(szPath, systemDir_.c_str(), L"drivers\\etc\\hosts.tmp");
+    return szPath;
+}
+
+bool HostsEdit::stringInVector(const std::vector<std::wstring> &vec, const std::wstring &str)
+{
+    if (str.empty()) {
         return false;
     }
-}
 
-std::wstring HostsEdit::getHostsPath()
-{
-    wchar_t szPath[MAX_PATH];
-    PathCombine(szPath, szSystemDir_.c_str(), L"drivers\\etc\\hosts");
-    return szPath;
-}
-
-std::wstring HostsEdit::getTempHostsPath()
-{
-    wchar_t szPath[MAX_PATH];
-    PathCombine(szPath, szSystemDir_.c_str(), L"drivers\\etc\\hosts.tmp");
-    return szPath;
-}
-
-bool HostsEdit::stringInVector(std::vector<std::wstring> &vec, std::wstring &str)
-{
-    for (std::vector<std::wstring>::iterator it = vec.begin(); it != vec.end(); ++it)
-    {
-        if (wcsstr(it->c_str(), str.c_str()) != NULL)
-        {
-            return true;
+    for (const auto &line : vec) {
+        // Ensure we match the string exactly (e.g. is not a substring).
+        for (size_t pos = line.find(str); pos != std::wstring::npos; pos = line.find(str, pos + 1)) {
+            const bool boundaryBefore = (pos == 0) || iswspace(line[pos - 1]);
+            const size_t after = pos + str.size();
+            const bool boundaryAfter = (after == line.size()) || iswspace(line[after]) || line[after] == L'#';
+            if (boundaryBefore && boundaryAfter) {
+                return true;
+            }
         }
     }
     return false;
-}
-
-std::vector<std::wstring> &HostsEdit::split(const std::wstring &s, wchar_t delim, std::vector<std::wstring> &elems)
-{
-    std::wstringstream ss(s);
-    std::wstring item;
-    while (std::getline(ss, item, delim)) {
-        elems.push_back(item);
-    }
-    return elems;
-}
-
-std::vector<std::wstring> HostsEdit::split(const std::wstring &s, wchar_t delim)
-{
-    std::vector<std::wstring> elems;
-    split(s, delim, elems);
-    return elems;
 }

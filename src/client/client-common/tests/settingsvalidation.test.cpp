@@ -87,6 +87,17 @@ void TestSettingsValidation::testProxySettings_resetOnBadHost()
     QVERIFY(ps.address().isEmpty());
 }
 
+void TestSettingsValidation::testProxySettings_resetOnDomain()
+{
+    types::ProxySettings ps;
+    ps.setOption(PROXY_OPTION_HTTP);
+    ps.setAddress("proxy.example.com");
+    ps.setPort(8080);
+    ps.validate();
+    QCOMPARE(ps.option(), PROXY_OPTION_NONE);
+    QVERIFY(ps.address().isEmpty());
+}
+
 void TestSettingsValidation::testProxySettings_resetOnBadPort()
 {
     types::ProxySettings ps;
@@ -169,6 +180,39 @@ void TestSettingsValidation::testConnectedDnsInfo_filtersInvalidHostnames()
     QVERIFY(dns.hostnames.contains("1.2.3.4"));
     QVERIFY(!dns.hostnames.contains("abc;rm -rf"));
     QVERIFY(!dns.hostnames.contains("another bad one"));
+}
+
+void TestSettingsValidation::testConnectedDnsInfo_normalizesUnspecifiedUpstream()
+{
+    // A custom DNS server given as the wildcard listen address is canonicalized to loopback.
+    types::ConnectedDnsInfo v4;
+    v4.type = CONNECTED_DNS_TYPE_CUSTOM;
+    v4.upStream1 = "0.0.0.0";
+    v4.validate();
+    QCOMPARE(v4.upStream1, QString("127.0.0.1"));
+
+    types::ConnectedDnsInfo v6;
+    v6.type = CONNECTED_DNS_TYPE_CUSTOM;
+    v6.upStream1 = "::";
+    v6.validate();
+    QCOMPARE(v6.upStream1, QString("::1"));
+
+    // A normal custom DNS server is left untouched.
+    types::ConnectedDnsInfo plain;
+    plain.type = CONNECTED_DNS_TYPE_CUSTOM;
+    plain.upStream1 = "8.8.8.8";
+    plain.validate();
+    QCOMPARE(plain.upStream1, QString("8.8.8.8"));
+
+    // In split-DNS mode both upstreams are normalized.
+    types::ConnectedDnsInfo split;
+    split.type = CONNECTED_DNS_TYPE_CUSTOM;
+    split.isSplitDns = true;
+    split.upStream1 = "0.0.0.0";
+    split.upStream2 = "::";
+    split.validate();
+    QCOMPARE(split.upStream1, QString("127.0.0.1"));
+    QCOMPARE(split.upStream2, QString("::1"));
 }
 
 void TestSettingsValidation::testConnectionSettings_badPort()

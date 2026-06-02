@@ -498,10 +498,6 @@
         <translation>輸入電子郵件</translation>
     </message>
     <message>
-        <source>For password recovery, updates &amp; promo only. No spam.</source>
-        <translation>僅限於密碼恢復、更新和促銷。沒有垃圾訊息。</translation>
-    </message>
-    <message>
         <source>Voucher Code?</source>
         <translation>代金券代碼？</translation>
     </message>
@@ -650,10 +646,6 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
         <translation>SSL 錯誤</translation>
     </message>
     <message>
-        <source>We detected that SSL requests may be intercepted on your network. This could be due to a firewall configured on your computer, or Windscribe being blocked by your network administrator. Ignore SSL errors?</source>
-        <translation>我們檢測到您的網路上可能會攔截 SSL 請求。這可能是由於計算機上配置了防火牆，或者網路管理員阻止了Windscribe。忽略 SSL 錯誤？</translation>
-    </message>
-    <message>
         <source>Disconnected</source>
         <translation>斷開</translation>
     </message>
@@ -676,6 +668,10 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
     <message>
         <source>Later</source>
         <translation>稍後</translation>
+    </message>
+    <message>
+        <source>SSL requests may be intercepted on your network. Ignoring SSL errors disables TLS certificate validation for this session: anyone able to intercept your traffic can then impersonate Windscribe and read or alter your data, and we can&apos;t guarantee your security while it&apos;s on. Ignore SSL errors?</source>
+        <translation>SSL 請求可能會在您的網路上被攔截。忽略 SSL 錯誤會使本次會話的 TLS 憑證驗證失效：任何能攔截你流量的人都可以冒充 Windscribe 讀取或修改你的資料，而我們無法保證你的安全。要忽略 SSL 錯誤嗎？</translation>
     </message>
     <message>
         <source>Connected to </source>
@@ -798,7 +794,7 @@ Recovering...</source>
         <translation>選擇一個應用程式</translation>
     </message>
     <message>
-        <source>Read-only file</source>
+        <source>Read-Only File</source>
         <translation>唯讀檔</translation>
     </message>
     <message>
@@ -1207,19 +1203,11 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>高級參數</translation>
     </message>
     <message>
-        <source>Ignore SSL certificate validation errors.</source>
-        <translation>忽略 SSL 憑證驗證錯誤。</translation>
-    </message>
-    <message>
-        <source>Ignore SSL Errors</source>
-        <translation>忽略 SSL 錯誤</translation>
-    </message>
-    <message>
         <source>Prevents connections from dying (by time-out) by periodically pinging the server.</source>
         <translation>通過定期 ping 伺服器來防止連接停止（超時）。</translation>
     </message>
     <message>
-        <source>Client-side Keepalive</source>
+        <source>Client-Side Keepalive</source>
         <translation>用戶端保持連接</translation>
     </message>
     <message>
@@ -1258,7 +1246,7 @@ If the problem persists after a restart, please send a debug log and open a supp
 <context>
     <name>PreferencesWindow::AntiCensorshipWindowItem</name>
     <message>
-        <source>Anti-censorship</source>
+        <source>Anti-Censorship</source>
         <translation>反審查</translation>
     </message>
     <message>
@@ -1451,10 +1439,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>自動選擇 VPN 協定，或手動選擇一個。注意：「首選協定」將覆蓋此設置。</translation>
     </message>
     <message>
-        <source>Configure egress IP stack for VPN connections.</source>
-        <translation>設定 VPN 連線的出口 IP 堆疊。</translation>
-    </message>
-    <message>
         <source>IP Stack</source>
         <translation>IP 堆疊</translation>
     </message>
@@ -1511,6 +1495,10 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>在這種防火牆模式下，Windscribe API 在斷開連接時將不可用，這可能會產生意想不到的後果。使用風險自負。</translation>
     </message>
     <message>
+        <source>Configure egress IP stack for VPN connections (WireGuard only).</source>
+        <translation>設定 VPN 連線的出口 IP 堆疊（僅限 WireGuard）。</translation>
+    </message>
+    <message>
         <source>Clear Wi-Fi History</source>
         <translation>清晰的 Wi-Fi 歷史</translation>
     </message>
@@ -1527,7 +1515,7 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>請從作業系統中移除 Wi-Fi SSID 和 MAC 資訊，以防止位置歷史追蹤。</translation>
     </message>
     <message>
-        <source>Anti-censorship Settings</source>
+        <source>Anti-Censorship Settings</source>
         <translation>反審查設定</translation>
     </message>
 </context>
@@ -1740,7 +1728,7 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>版本</translation>
     </message>
     <message>
-        <source>Multi-desktop</source>
+        <source>Multi-Desktop</source>
         <translation>多桌面</translation>
     </message>
     <message>
@@ -2687,6 +2675,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <translation>AmneziaWG 初始化參數太大</translation>
     </message>
     <message>
+        <source>AmneziaWG init parameter contains invalid characters</source>
+        <translation>AmneziaWG 初始化參數包含無效字元</translation>
+    </message>
+    <message>
         <source>Static IPs</source>
         <translation>靜態IP</translation>
     </message>
@@ -2873,7 +2865,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
 <context>
     <name>TwoFactorAuthWindow::TwoFactorAuthWindowItem</name>
     <message>
-        <source>Two-factor Auth</source>
+        <source>Two-Factor Auth</source>
         <translation>雙因素身份驗證</translation>
     </message>
     <message>

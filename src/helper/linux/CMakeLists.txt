@@ -19,6 +19,7 @@ set(SOURCES
     clear_wifi_history/clear_wifi_history.cpp
     firewallcontroller.cpp
     firewallonboot.cpp
+    installer_verifier.cpp
     main.cpp
     ovpn.cpp
     process_command.cpp

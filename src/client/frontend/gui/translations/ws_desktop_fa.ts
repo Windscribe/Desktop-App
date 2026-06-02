@@ -498,10 +498,6 @@
         <translation>وارد کردن ایمیل</translation>
     </message>
     <message>
-        <source>For password recovery, updates &amp; promo only. No spam.</source>
-        <translation>برای بازیابی رمز عبور، فقط به روزرسانی ها و تبلیغات. هیچ اسپم ممنوع.</translation>
-    </message>
-    <message>
         <source>Voucher Code?</source>
         <translation>کد کوپن؟</translation>
     </message>
@@ -650,10 +646,6 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
         <translation>خطای SSL</translation>
     </message>
     <message>
-        <source>We detected that SSL requests may be intercepted on your network. This could be due to a firewall configured on your computer, or Windscribe being blocked by your network administrator. Ignore SSL errors?</source>
-        <translation>ما متوجه شدیم که درخواست های SSL ممکن است در شبکه شما رهگیری شوند. این می تواند به دلیل یک فایروال پیکربندی شده بر روی کامپیوتر شما یا Windscribe باشد که توسط مدیر شبکه شما مسدود شده است. نادیده گرفتن خطاهای SSL؟</translation>
-    </message>
-    <message>
         <source>Disconnected</source>
         <translation>قطع</translation>
     </message>
@@ -676,6 +668,10 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
     <message>
         <source>Later</source>
         <translation>بعدا</translation>
+    </message>
+    <message>
+        <source>SSL requests may be intercepted on your network. Ignoring SSL errors disables TLS certificate validation for this session: anyone able to intercept your traffic can then impersonate Windscribe and read or alter your data, and we can&apos;t guarantee your security while it&apos;s on. Ignore SSL errors?</source>
+        <translation>درخواست های SSL ممکن است در شبکه شما رهگیری شوند. نادیده گرفتن خطاهای SSL اعتبارسنجی گواهی TLS را برای این جلسه غیرفعال می کند: هر کسی که بتواند ترافیک شما را رهگیری کند، می تواند خود را به جای Windscribe جا زده و داده های شما را بخواند یا تغییر دهد، و ما نمی توانیم امنیت شما را در حین روشن بودن تضمین کنیم. خطاهای SSL را نادیده بگیرم؟</translation>
     </message>
     <message>
         <source>Connected to </source>
@@ -798,7 +794,7 @@ Recovering...</source>
         <translation>یک برنامه را انتخاب کنید</translation>
     </message>
     <message>
-        <source>Read-only file</source>
+        <source>Read-Only File</source>
         <translation>پرونده فقط خواندنی</translation>
     </message>
     <message>
@@ -1207,19 +1203,11 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>پارامترهای پیشرفته</translation>
     </message>
     <message>
-        <source>Ignore SSL certificate validation errors.</source>
-        <translation>خطاهای اعتبارسنجی گواهی SSL را نادیده بگیرید.</translation>
-    </message>
-    <message>
-        <source>Ignore SSL Errors</source>
-        <translation>نادیده گرفتن خطاهای SSL</translation>
-    </message>
-    <message>
         <source>Prevents connections from dying (by time-out) by periodically pinging the server.</source>
         <translation>جلوگیری از اتصال از مرگ (با زمان خارج) به صورت دوره ای پینگ سرور.</translation>
     </message>
     <message>
-        <source>Client-side Keepalive</source>
+        <source>Client-Side Keepalive</source>
         <translation>Keepalive سمت مشتری</translation>
     </message>
     <message>
@@ -1258,7 +1246,7 @@ If the problem persists after a restart, please send a debug log and open a supp
 <context>
     <name>PreferencesWindow::AntiCensorshipWindowItem</name>
     <message>
-        <source>Anti-censorship</source>
+        <source>Anti-Censorship</source>
         <translation>ضد سانسور</translation>
     </message>
     <message>
@@ -1451,10 +1439,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>پروتکل VPN را به صورت خودکار انتخاب کنید یا یکی را به صورت دستی انتخاب کنید. توجه: &quot;پروتکل ترجیحی&quot; این تنظیمات را لغو خواهد کرد.</translation>
     </message>
     <message>
-        <source>Configure egress IP stack for VPN connections.</source>
-        <translation>پیکربندی پشته IP خروجی برای اتصالات VPN.</translation>
-    </message>
-    <message>
         <source>IP Stack</source>
         <translation>پشته IP</translation>
     </message>
@@ -1511,6 +1495,10 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>در این حالت فایروال، Windscribe API در هنگام قطع شدن در دسترس نخواهد بود، این می تواند عواقب ناخواسته ای داشته باشد. با مسئولیت خود استفاده کنید.</translation>
     </message>
     <message>
+        <source>Configure egress IP stack for VPN connections (WireGuard only).</source>
+        <translation>پیکربندی پشته IP خروجی برای اتصال VPN (فقط WireGuard).</translation>
+    </message>
+    <message>
         <source>Clear Wi-Fi History</source>
         <translation>تاریخچه وای فای پاک</translation>
     </message>
@@ -1527,7 +1515,7 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>اطلاعات SSID و MAC وای فای را از سیستم عامل خود حذف کنید تا از ردیابی تاریخچه موقعیت جلوگیری شود.</translation>
     </message>
     <message>
-        <source>Anti-censorship Settings</source>
+        <source>Anti-Censorship Settings</source>
         <translation>تنظیمات ضد سانسور</translation>
     </message>
 </context>
@@ -1740,7 +1728,7 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>نسخهٔ</translation>
     </message>
     <message>
-        <source>Multi-desktop</source>
+        <source>Multi-Desktop</source>
         <translation>چند دسکتاپ</translation>
     </message>
     <message>
@@ -2687,6 +2675,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <translation>AmneziaWG init پارامتر خیلی بزرگ است</translation>
     </message>
     <message>
+        <source>AmneziaWG init parameter contains invalid characters</source>
+        <translation>پارامتر init AmneziaWG شامل کاراکترهای نامعتبر است</translation>
+    </message>
+    <message>
         <source>Static IPs</source>
         <translation>IP های استاتیک</translation>
     </message>
@@ -2873,7 +2865,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
 <context>
     <name>TwoFactorAuthWindow::TwoFactorAuthWindowItem</name>
     <message>
-        <source>Two-factor Auth</source>
+        <source>Two-Factor Auth</source>
         <translation>دو عامل Auth</translation>
     </message>
     <message>

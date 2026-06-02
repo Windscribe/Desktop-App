@@ -13,4 +13,6 @@ public:
     void setGaiIpv4PriorityEnabled(bool bEnabled);
     void resetMacAddresses(const QString &ignoreNetwork = "");
     void setOpenVpnDcoMode(bool useDco);
+
+    QString installerStageAndVerify(const QString &srcPath);
 };

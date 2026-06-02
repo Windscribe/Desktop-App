@@ -135,6 +135,18 @@
         <translation>Οι προτιμήσεις επαναφορτώθηκαν.</translation>
     </message>
     <message>
+        <source>Ignoring SSL errors is only available when unable to log in.</source>
+        <translation>Η παράβλεψη σφαλμάτων SSL είναι διαθέσιμη μόνο όταν δεν μπορείτε να συνδεθείτε.</translation>
+    </message>
+    <message>
+        <source>Ignoring SSL errors for this session.</source>
+        <translation>Παράβλεψη σφαλμάτων SSL για αυτήν την περίοδο λειτουργίας.</translation>
+    </message>
+    <message>
+        <source>SSL errors will no longer be ignored.</source>
+        <translation>Τα σφάλματα SSL δεν θα αγνοούνται πλέον.</translation>
+    </message>
+    <message>
         <source>IP rotated.</source>
         <translation>Η IP περιστράφηκε.</translation>
     </message>
@@ -209,6 +221,10 @@
     <message>
         <source>Need 2FA code</source>
         <translation>Χρειάζεστε κωδικό 2FA</translation>
+    </message>
+    <message>
+        <source>Could not log in.  Please try again.  If the problem continues, you can ignore SSL errors for this session, but we strongly recommend against it: doing so disables TLS certificate validation and could allow a third party to intercept your traffic.  To proceed anyway, run &quot;windscribe-cli ignoresslerrors on&quot;.</source>
+        <translation>Δεν ήταν δυνατή η σύνδεση.  Παρακαλώ προσπαθήστε ξανά.  Εάν το πρόβλημα παραμένει, μπορείτε να αγνοήσετε τα σφάλματα SSL για αυτήν την περίοδο λειτουργίας, αλλά συνιστούμε ανεπιφύλακτα να μην το κάνετε: κάτι τέτοιο απενεργοποιεί την επικύρωση πιστοποιητικού TLS και μπορεί να επιτρέψει σε τρίτους να υποκλέψουν την επισκεψιμότητά σας.  Για να συνεχίσετε ούτως ή άλλως, εκτελέστε το &quot;windscribe-cli ignoresslerrors on&quot;.</translation>
     </message>
     <message>
         <source>SSL error</source>

@@ -22,6 +22,7 @@ enum CliCommand {
     CLI_COMMAND_LOGOUT,
     CLI_COMMAND_RELOAD_CONFIG,
     CLI_COMMAND_SEND_LOGS,
+    CLI_COMMAND_SET_IGNORE_SSL_ERRORS,
     CLI_COMMAND_SET_KEYLIMIT_BEHAVIOR,
     CLI_COMMAND_STATUS,
     CLI_COMMAND_UPDATE,
@@ -44,6 +45,7 @@ public:
     const QString &ipAddress() const;
     bool keepFirewallOn() const;
     bool keyLimitDelete() const;
+    bool ignoreSslErrors() const;
     bool nonBlocking() const;
 
     void setUsername(const QString &username);
@@ -59,6 +61,7 @@ private:
     QString ipAddress_ = "";
     bool keepFirewallOn_ = false;
     bool keyLimitDelete_ = false;
+    bool ignoreSslErrors_ = false;
     bool nonBlocking_ = false;
 
     void parseConnect(const QStringList &args);
@@ -72,4 +75,5 @@ private:
     void parsePreferences(const QStringList &args);
     void parseLogs(const QStringList &args);
     void parseKeyLimit(const QStringList &args);
+    void parseIgnoreSslErrors(const QStringList &args);
 };

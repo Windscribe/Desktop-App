@@ -31,6 +31,13 @@ struct ConnectedDnsInfo
 
     void validate();
 
+    // Rewrites a custom DNS upstream given as the wildcard listen address (0.0.0.0 / ::) to its
+    // loopback equivalent (127.0.0.1 / ::1) — that is the address a resolver bound to the
+    // wildcard is actually reached on. Covers upStream1, plus upStream2 in split-DNS mode.
+    // Applied at every entry point (load, import, GUI) so the stored value is already canonical
+    // and use sites never have to special-case the wildcard.
+    void normalize();
+
     bool isCustomIPv4Address() const;
 
     friend QDataStream& operator <<(QDataStream &stream, const ConnectedDnsInfo &o);

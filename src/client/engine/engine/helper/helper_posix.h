@@ -39,10 +39,10 @@ public:
     bool startCtrld(const QString &upstream1, const QString &upstream2, const QStringList &domains, bool isCreateLog);
     bool stopCtrld();
 
-    bool checkFirewallState(const QString &tag);
+    bool checkFirewallState();
     bool clearFirewallRules(bool isKeepPfEnabled);
-    bool setFirewallRules(CmdIpVersion version, const QString &table, const QString &group, const QString &rules);
-    bool getFirewallRules(CmdIpVersion version, const QString &table, const QString &group, QString &rules);
+    bool setFirewallRules(const FirewallConfig &config);
+    bool getFirewallRules(CmdFirewallRulesQuery query, QString &rules);
     bool setFirewallOnBoot(bool enabled, const QSet<QString>& ipTable, bool allowLanTraffic);
     bool startStunnel(const QString &hostname, unsigned int port, unsigned int localPort, bool extraPadding);
     bool startWstunnel(const QString &hostname, unsigned int port, unsigned int localPort);

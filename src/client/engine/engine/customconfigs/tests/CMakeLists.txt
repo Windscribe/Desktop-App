@@ -10,6 +10,7 @@ if(IS_BUILD_TESTS)
         ${PROJECT_DIRECTORY}/client-common
     )
     set_target_properties(ovpncredentialinliner.test PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
+    ws_add_test(ovpncredentialinliner)
 
     add_executable(wireguardcustomconfig.test
         wireguardcustomconfig.test.cpp
@@ -22,4 +23,5 @@ if(IS_BUILD_TESTS)
         ${PROJECT_DIRECTORY}/client-common
     )
     set_target_properties(wireguardcustomconfig.test PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
+    ws_add_test(wireguardcustomconfig)
 endif(IS_BUILD_TESTS)

@@ -679,8 +679,8 @@ void Engine::initPart2()
             onFailOverTryingBackupEndpoint(num, count);
         });
     });
-    WSNet::instance()->serverAPI()->setIgnoreSslErrors(engineSettings_.isIgnoreSslErrors());
-    WSNet::instance()->bridgeAPI()->setIgnoreSslErrors(engineSettings_.isIgnoreSslErrors());
+    WSNet::instance()->serverAPI()->setIgnoreSslErrors(ignoreSslErrors_);
+    WSNet::instance()->bridgeAPI()->setIgnoreSslErrors(ignoreSslErrors_);
     updateApiResolutionSettingsInWsnet();
 
     applyServerRoutingMethod();
@@ -783,9 +783,6 @@ void Engine::onInitializeHelper(INIT_HELPER_RET ret)
         // rather than a version compare so it survives downgrades to pre-fix versions
         // that don't maintain the flag. Done outside mutex_ so an unhealthy helper here
         // does not block the rest of engine init.
-        // Linux helper has no installerCleanupStaged handler (and the Linux branch
-        // never stages), so this is Windows/macOS only.
-#if defined(Q_OS_WIN) || defined(Q_OS_MACOS)
         {
             QSettings s;
             if (s.value("engine/pendingInstallerCleanup", false).toBool()) {
@@ -793,7 +790,6 @@ void Engine::onInitializeHelper(INIT_HELPER_RET ret)
                 s.setValue("engine/pendingInstallerCleanup", false);
             }
         }
-#endif
 
         QMutexLocker locker(&mutex_);
         qCInfo(LOG_BASIC) << "Helper version" << helper_->getHelperVersion();
@@ -1313,8 +1309,6 @@ void Engine::setSettingsImpl(const types::EngineSettings &engineSettings)
         WSNet::instance()->setLanguage(engineSettings_.language().toStdString());
     }
 
-    WSNet::instance()->serverAPI()->setIgnoreSslErrors(engineSettings_.isIgnoreSslErrors());
-    WSNet::instance()->bridgeAPI()->setIgnoreSslErrors(engineSettings_.isIgnoreSslErrors());
     WSNet::instance()->advancedParameters()->setAPIExtraTLSPadding(engineSettings_.isAPIAntiCensorship());
 
     if (isServerRoutingMethodChanged) {
@@ -1353,10 +1347,8 @@ void Engine::onCheckUpdateUpdated(const api_responses::CheckUpdate &checkUpdate)
     qCDebug(LOG_BASIC) << "Received Check Update Answer";
 
     installerUrl_ = checkUpdate.url();
-    installerHash_ = checkUpdate.sha256();
     if (checkUpdate.isAvailable()) {
         qCDebug(LOG_BASIC) << "Installer URL: " << installerUrl_;
-        qCDebug(LOG_BASIC) << "Installer Hash: " << installerHash_;
     }
     emit checkUpdateUpdated(checkUpdate);
 }
@@ -1384,7 +1376,7 @@ void Engine::onConnectionManagerConnected()
         AdapterMetricsController_win::updateMetrics(adapterName, helper_);
     }
 #elif defined (Q_OS_MACOS) || defined (Q_OS_LINUX)
-    firewallController_->setInterfaceToSkip_posix(adapterName);
+    firewallController_->setVpnInterface_posix(adapterName);
 #endif
 
     bool isFirewallAlreadyEnabled = false;
@@ -1701,7 +1693,7 @@ void Engine::onConnectionManagerStatisticsUpdated(quint64 bytesIn, quint64 bytes
 void Engine::onConnectionManagerInterfaceUpdated(const QString &interfaceName)
 {
 #if defined (Q_OS_MACOS) || defined(Q_OS_LINUX)
-    firewallController_->setInterfaceToSkip_posix(interfaceName);
+    firewallController_->setVpnInterface_posix(interfaceName);
     updateFirewallSettings();
 #else
     Q_UNUSED(interfaceName);
@@ -1848,7 +1840,25 @@ void Engine::updateVersionImpl(qint64 windowHandle)
     if (installerUrl_ != "")
     {
         QMap<QString, QString> downloads;
-        downloads.insert(installerUrl_, downloadHelper_->downloadInstallerPath());
+        const QString installerPath = downloadHelper_->downloadInstallerPath();
+        downloads.insert(installerUrl_, installerPath);
+#if defined(Q_OS_LINUX)
+        // The helper-side signature check (Engine::updateDownloaded) requires the public
+        // key alongside every package, plus a detached signature so verification is uniform
+        // across all formats (.asc for .deb and .rpm, .sig for .pkg.tar.zst). The install
+        // step passes --nogpgcheck/--no-gpg-checks, so RPM's embedded header signature is
+        // never verified natively at install time; the helper's detached-.asc check is the
+        // only signature verification, sharing one gpgv-based code path with the other
+        // formats. DownloadHelper fails as a whole if any of these fetches fails, so a
+        // server that omits a required sibling cannot sneak an unsigned package past the
+        // in-app updater.
+        downloads.insert(installerUrl_ + ".pub", installerPath + ".pub");
+        if (installerPath.endsWith(".deb") || installerPath.endsWith(".rpm")) {
+            downloads.insert(installerUrl_ + ".asc", installerPath + ".asc");
+        } else if (installerPath.endsWith(".pkg.tar.zst")) {
+            downloads.insert(installerUrl_ + ".sig", installerPath + ".sig");
+        }
+#endif
         downloadHelper_->get(downloads);
     }
 }
@@ -1894,6 +1904,11 @@ void Engine::onDownloadHelperFinished(const DownloadHelper::DownloadState &state
     {
         qCInfo(LOG_DOWNLOADER) << "Removing incomplete installer";
         QFile::remove(installerPath_);
+#ifdef Q_OS_LINUX
+        QFile::remove(installerPath_ + ".pub");
+        QFile::remove(installerPath_ + ".asc");
+        QFile::remove(installerPath_ + ".sig");
+#endif
         emit updateVersionChanged(0, UPDATE_VERSION_STATE_DONE, UPDATE_VERSION_ERROR_DL_FAIL);
         return;
     }
@@ -1953,22 +1968,29 @@ void Engine::onDownloadHelperFinished(const DownloadHelper::DownloadState &state
     installerPath_ = stagedPath;
 #elif defined Q_OS_LINUX
 
-    // if api for some reason doesn't return sha256 field
-    if (installerHash_ == "")
-    {
-        qCWarning(LOG_BASIC) << "Hash from API is empty -- cannot verify";
-        if (QFile::exists(installerPath_)) QFile::remove(installerPath_);
-        emit updateVersionChanged(0, UPDATE_VERSION_STATE_DONE, UPDATE_VERSION_ERROR_API_HASH_INVALID);
+    // Stage the downloaded package (and its sibling .pub / .asc / .sig) into a root-owned
+    // location under /var/lib/windscribe/update/ and verify the signature there. The helper
+    // validates the downloaded public key's master fingerprint against the compile-time
+    // anchor (LINUX_SIGNING_MASTER_FINGERPRINTS), then verifies the package signature using
+    // that key (gpgv against the detached .asc/.sig). The GPG signature rooted in the
+    // compile-time fingerprint is the trust anchor.
+    // Persist the cleanup flag *before* invoking the helper so a crash inside the helper
+    // (or between IPC return and any subsequent work) still results in cleanup on the next
+    // engine init. If staging fails, the flag stays set — the next stage call wipes the
+    // entire update dir anyway, so a leftover flag is self-healing rather than a leak.
+    QSettings().setValue("engine/pendingInstallerCleanup", true);
+    const QString stagedPath = helper_->installerStageAndVerify(installerPath_);
+    QFile::remove(installerPath_);
+    QFile::remove(installerPath_ + ".pub");
+    QFile::remove(installerPath_ + ".asc");
+    QFile::remove(installerPath_ + ".sig");
+    if (stagedPath.isEmpty()) {
+        qCInfo(LOG_AUTO_UPDATER) << "Failed to stage/verify installer";
+        emit updateVersionChanged(0, UPDATE_VERSION_STATE_DONE, UPDATE_VERSION_ERROR_SIGN_FAIL);
         return;
     }
-
-    if (!verifyContentsSha256(installerPath_, installerHash_))
-    {
-        qCWarning(LOG_AUTO_UPDATER) << "Incorrect hash, removing installer";
-        if (QFile::exists(installerPath_)) QFile::remove(installerPath_);
-        emit updateVersionChanged(0, UPDATE_VERSION_STATE_DONE, UPDATE_VERSION_ERROR_COMPARE_HASH_FAIL);
-        return;
-    }
+    installerPath_ = stagedPath;
+    qCInfo(LOG_AUTO_UPDATER) << "Installer signature valid";
 #endif
 
     emit updateDownloaded(installerPath_);
@@ -2028,7 +2050,7 @@ void Engine::updateRunInstaller(qint32 windowCenterX, qint32 windowCenterY)
     installUpdateProcess_ = new QProcess(this);
     connect(installUpdateProcess_, &QProcess::finished, this, &Engine::onInstallUpdateFinished);
     installUpdateProcess_->setProgram(WS_LINUX_INSTALL_DIR "/scripts/install-update");
-    installUpdateProcess_->setArguments(QStringList() << installerPath_ << installerHash_);
+    installUpdateProcess_->setArguments(QStringList() << installerPath_);
     installUpdateProcess_->start();
     if (!installUpdateProcess_->waitForStarted()) {
         qCCritical(LOG_AUTO_UPDATER) << "Install failed to start";
@@ -2040,7 +2062,6 @@ void Engine::updateRunInstaller(qint32 windowCenterX, qint32 windowCenterY)
 #endif
 
     installerPath_.clear();
-    installerHash_.clear();
 
 #ifndef Q_OS_LINUX
     qCInfo(LOG_AUTO_UPDATER) << "Installer valid and executed";
@@ -2054,6 +2075,14 @@ void Engine::onInstallUpdateFinished(int exitCode, QProcess::ExitStatus exitStat
     qCInfo(LOG_AUTO_UPDATER) << "Installer exited with code" << exitCode
                              << "status" << exitStatus;
     if (installUpdateProcess_) {
+        const QByteArray outBytes = installUpdateProcess_->readAllStandardOutput();
+        const QByteArray errBytes = installUpdateProcess_->readAllStandardError();
+        if (!outBytes.isEmpty()) {
+            qCInfo(LOG_AUTO_UPDATER) << "install-update stdout:" << QString::fromUtf8(outBytes).trimmed();
+        }
+        if (!errBytes.isEmpty()) {
+            qCInfo(LOG_AUTO_UPDATER) << "install-update stderr:" << QString::fromUtf8(errBytes).trimmed();
+        }
         installUpdateProcess_->deleteLater();
         installUpdateProcess_ = nullptr;
     }
@@ -2065,7 +2094,6 @@ void Engine::onInstallUpdateFinished(int exitCode, QProcess::ExitStatus exitStat
     UPDATE_VERSION_ERROR err;
     switch (exitCode) {
         case 0: err = UPDATE_VERSION_ERROR_NO_ERROR; break;
-        case 2: err = UPDATE_VERSION_ERROR_COMPARE_HASH_FAIL; break;
         case 3: err = UPDATE_VERSION_ERROR_START_INSTALLER_FAIL; break;
         default: err = UPDATE_VERSION_ERROR_OTHER_FAIL; break;
     }
@@ -2345,6 +2373,15 @@ void Engine::setSplitTunnelingSettingsImpl(bool isActive, bool isExclude, const 
 #endif
 }
 
+void Engine::setIgnoreSslErrors(bool bIgnore)
+{
+    QMetaObject::invokeMethod(this, [this, bIgnore]() {
+        ignoreSslErrors_ = bIgnore;
+        WSNet::instance()->serverAPI()->setIgnoreSslErrors(bIgnore);
+        WSNet::instance()->bridgeAPI()->setIgnoreSslErrors(bIgnore);
+    });
+}
+
 void Engine::onApiResourceManagerCallback(ApiResourcesManagerNotification notification, LoginResult loginResult, const std::string &errorMessage)
 {
     // To keep the data in persistent settings when the OS reboots or kills the process
@@ -2426,7 +2463,7 @@ void Engine::onApiResourcesManagerLoginFailed(LoginResult loginResult, const QSt
         emit loginError(LoginResult::kNoConnectivity, QString());
         tryLoginNextConnectOrDisconnect_ = true;
     } else if (loginResult == LoginResult::kNoApiConnectivity) {
-        if (engineSettings_.isIgnoreSslErrors()) {
+        if (ignoreSslErrors_) {
             emit loginError(LoginResult::kNoApiConnectivity, QString());
             tryLoginNextConnectOrDisconnect_ = true;
         }
@@ -2469,7 +2506,7 @@ void Engine::onApiResourcesManagerAuthTokenFinished(LoginResult loginResult)
     if (loginResult == LoginResult::kNoConnectivity) {
         emit loginError(LoginResult::kNoConnectivity, QString());
     } else if (loginResult == LoginResult::kNoApiConnectivity) {
-        if (engineSettings_.isIgnoreSslErrors()) {
+        if (ignoreSslErrors_) {
             emit loginError(LoginResult::kNoApiConnectivity, QString());
         } else {
             emit loginError(LoginResult::kSslError, QString());
@@ -2680,7 +2717,7 @@ void Engine::doDisconnectRestoreStuff()
 
 
 #if defined (Q_OS_MACOS) || defined(Q_OS_LINUX)
-    firewallController_->setInterfaceToSkip_posix("");
+    firewallController_->setVpnInterface_posix("");
 #endif
 
     bool bChanged;
@@ -2802,23 +2839,6 @@ void Engine::updateProxySettings()
         firewallExceptions_.setProxyIP(proxySettings);
         updateFirewallSettings();
     }
-}
-
-bool Engine::verifyContentsSha256(const QString &filename, const QString &compareHash)
-{
-    QFile file(filename);
-    if (!file.open(QIODevice::ReadOnly))
-    {
-        qCCritical(LOG_BASIC) << "Failed to open installer for reading";
-        return false;
-    }
-    QByteArray contentsBytes = file.readAll();
-    QString sha256Hash = QCryptographicHash::hash(contentsBytes, QCryptographicHash::Sha256).toHex();
-    if (sha256Hash == compareHash)
-    {
-        return true;
-    }
-    return false;
 }
 
 #ifdef Q_OS_WIN
@@ -2943,8 +2963,13 @@ void Engine::onSystemExtensionStateChanged(SystemExtensions_mac::SystemExtension
         SplitTunnelExtensionManager::instance().stopExtension();
     }
 
-    bool available = (newState == SystemExtensions_mac::Active);
-    emit systemExtensionAvailabilityChanged(available);
+    // No need to update the UI if we do not know the state.  Without this check, the UI will briefly display the
+    // "system extension not enabled" error in the UI then clear it once we know the extension is active, or has
+    // been activated successfully.
+    if (newState != SystemExtensions_mac::Unknown) {
+        bool available = (newState == SystemExtensions_mac::Active);
+        emit systemExtensionAvailabilityChanged(available);
+    }
 }
 #endif
 

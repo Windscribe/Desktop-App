@@ -19,7 +19,7 @@ std::string firewallOff(const std::string &pars);
 std::string firewallActualState(const std::string &pars);
 std::string setCustomDnsWhileConnected(const std::string &pars);
 std::string executeSetMetric(const std::string &pars);
-std::string executeWmicGetConfigManagerErrorCode(const std::string &pars);
+std::string isWanIkev2AdapterDisabled(const std::string &pars);
 std::string isIcsSupported(const std::string &pars);
 std::string startIcs(const std::string &pars);
 std::string changeIcs(const std::string &pars);
@@ -70,7 +70,7 @@ static const std::map<const HelperCommand, std::function<std::string(const std::
     { HelperCommand::firewallActualState, firewallActualState },
     { HelperCommand::setCustomDnsWhileConnected, setCustomDnsWhileConnected },
     { HelperCommand::executeSetMetric, executeSetMetric },
-    { HelperCommand::executeWmicGetConfigManagerErrorCode, executeWmicGetConfigManagerErrorCode },
+    { HelperCommand::isWanIkev2AdapterDisabled, isWanIkev2AdapterDisabled },
     { HelperCommand::isIcsSupported, isIcsSupported },
     { HelperCommand::startIcs, startIcs },
     { HelperCommand::changeIcs, changeIcs },

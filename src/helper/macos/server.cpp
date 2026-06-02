@@ -88,7 +88,13 @@ void Server::peer_event_handler(xpc_connection_t peer, xpc_object_t event)
             data = std::string((const char *)buf, length);
         }
 
-        std::string answer = processCommand((HelperCommand)cmdId, data);
+        std::string answer;
+        try {
+            answer = processCommand((HelperCommand)cmdId, data);
+        } catch (const std::exception &ex) {
+            spdlog::error("Helper IPC: processCommand({}) exception: {}", (int)cmdId, ex.what());
+            answer.clear();
+        }
         HelperSecurity::clearCurrentCallerSecCode();
 
         xpc_object_t message = xpc_dictionary_create_reply(event);

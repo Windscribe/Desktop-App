@@ -36,6 +36,7 @@ Requires:	ethtool
 Requires:	psmisc
 Requires:	coreutils
 Requires:	libacl
+Requires:	gnupg2
 
 %description
 Windscribe CLI client.

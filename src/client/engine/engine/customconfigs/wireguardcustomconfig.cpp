@@ -1,6 +1,7 @@
 #include "wireguardcustomconfig.h"
 #include "utils/log/categories.h"
 #include "utils/log/clean_sensitive_info.h"
+#include "utils/networkingvalidation.h"
 
 #include <QFileInfo>
 #include <QHostAddress>
@@ -298,9 +299,19 @@ void WireguardCustomConfig::validate()
             }
         }
         // I1-I5: length limit (hex-encoded init packet data, bounded by MTU)
+        // and printable-ASCII content limit (blocks downstream config / UAPI line
+        // injection via embedded newlines or control characters).
+        // I-values are emitted into newline-delimited wireguard.conf and UAPI streams
+        // downstream. QSettings decodes INI escapes (\n, \xHH, etc.) into literal bytes,
+        // so a malicious imported config could otherwise smuggle a newline through and
+        // inject extra config lines or UAPI records. Restrict to printable ASCII.
         for (const QString &iVal : obfuscationParams_.iValues) {
             if (iVal.length() > kMaxIValueLength) {
                 errMessage_ = QObject::tr("AmneziaWG init parameter too large");
+                return;
+            }
+            if (!NetworkingValidation::isPrintableSingleLineAscii(iVal)) {
+                errMessage_ = QObject::tr("AmneziaWG init parameter contains invalid characters");
                 return;
             }
         }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstddef>
+#include <stdexcept>
 #include <string>
 #include <vector>
 #include <sstream>
@@ -41,7 +42,7 @@ enum class HelperCommand {
     firewallActualState,
     setCustomDnsWhileConnected,
     executeSetMetric,
-    executeWmicGetConfigManagerErrorCode,
+    isWanIkev2AdapterDisabled,
     isIcsSupported,
     startIcs,
     changeIcs,
@@ -117,9 +118,11 @@ enum CmdKillTarget {
     kTargetCtrld
 };
 
-enum CmdIpVersion {
-    kIpv4 = 4,
-    kIpv6 = 6,
+// Selects which firewall rules getFirewallRules returns. Replaces the previous free-form
+// pf table/anchor strings so a caller cannot steer the helper into querying arbitrary tables.
+enum CmdFirewallRulesQuery {
+    kFirewallAllRules,
+    kFirewallIpsTable,
 };
 
 enum CmdDnsManager {
@@ -131,6 +134,11 @@ enum CmdDnsManager {
 struct ADAPTER_GATEWAY_INFO
 {
     std::string adapterName;
+    // Interface name for the IPv6 default route. May differ from adapterName on a
+    // multi-homed host (v6 default on a different NIC than v4); empty means "same as
+    // adapterName". Consumers that need a v6 `dev` should fall back to adapterName
+    // when this is empty.
+    std::string adapterNameV6;
     types::IpAddress adapterIp;
     types::IpAddress adapterIpV6;
     types::IpAddress gatewayIp;
@@ -170,6 +178,21 @@ struct ConnectStatus {
     bool isTerminateSocket;
     bool isKeepLocalSocket;
 
+};
+
+// Intent-based firewall description. The privileged helper is the sole author of the actual
+// iptables/pf ruleset; the client only sends this validated intent and the helper builds the
+// rules from a fixed template. This deliberately replaces the previous "client sends a raw
+// iptables-restore/pfctl blob" design so a local caller that reaches the helper socket cannot
+// install arbitrary root firewall rules.
+struct FirewallConfig
+{
+    std::string connectingIp;               // VPN server IP (IPv4); helper appends /32
+    std::vector<std::string> allowedIps;    // API/server IPs (IPv4); helper appends /32
+    bool allowLanTraffic = false;
+    bool isCustomConfig = false;
+    std::string vpnInterfaceName;           // VPN adapter name (e.g. wgN/utunN), may be empty
+    std::vector<unsigned int> staticPorts;  // static-IP TCP ports (macOS only; Linux ignores)
 };
 
 struct AmneziawgConfig
@@ -245,12 +268,24 @@ template<class Archive>
 void serialize(Archive &ar, ADAPTER_GATEWAY_INFO &a, const unsigned int /*version*/)
 {
     ar & a.adapterName;
+    ar & a.adapterNameV6;
     ar & a.adapterIp;
     ar & a.adapterIpV6;
     ar & a.gatewayIp;
     ar & a.gatewayIpV6;
     ar & a.dnsServers;
     ar & a.ifIndex;
+}
+
+template<class Archive>
+void serialize(Archive &ar, FirewallConfig &c, const unsigned int /*version*/)
+{
+    ar & c.connectingIp;
+    ar & c.allowedIps;
+    ar & c.allowLanTraffic;
+    ar & c.isCustomConfig;
+    ar & c.vpnInterfaceName;
+    ar & c.staticPorts;
 }
 
 template<class Archive>
@@ -284,23 +319,20 @@ std::string serializeResult(const Args&... args)
     return oss.str();
 }
 
+// Throws on malformed or empty input rather than swallowing it. The previous version logged and
+// returned, which left args default- or partly-constructed and let the handler run on garbage
+// parameters. Every platform's dispatch wraps processCommand in a try/catch (linux/server.cpp,
+// windows/helper.cpp, macos/server.cpp), so a throw here aborts the command and yields an empty
+// answer before the handler body executes — the handler never acts on partially-deserialized data.
 template<typename... Args>
 void deserializePars(const std::string &data, Args&... args)
 {
-    if (data.empty()) {
-        spdlog::error("deserializePars error: data is empty");
-        return;
-    }
-
-    try {
+    if constexpr (sizeof...(Args) > 0) {
+        if (data.empty()) {
+            throw std::runtime_error("deserializePars: empty payload for a command that expects parameters");
+        }
         std::istringstream iss(data, std::ios::binary);
         boost::archive::binary_iarchive archive(iss, boost::archive::no_header);
-        if constexpr (sizeof...(Args) > 0) {
-            (archive >> ... >> args);
-        }
-    } catch(const std::exception & ex) {
-        spdlog::error("deserializePars exception: {}", ex.what());
+        (archive >> ... >> args);
     }
 }
-
-

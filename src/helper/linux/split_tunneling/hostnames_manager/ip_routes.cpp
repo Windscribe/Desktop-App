@@ -1,14 +1,84 @@
 #include "ip_routes.h"
 
 #include <set>
+#include <string>
+#include <utility>
+#include <vector>
 #include <spdlog/spdlog.h>
 #include "../../utils.h"
 
+namespace {
+
+// Run `ip <args>` capturing stdout+stderr (trimmed of trailing newlines). Returns the
+// process exit code and fills `*output`; logging is left to the caller so each operation
+// can classify failures (e.g. a delete of an already-absent route) on its own terms.
+int runIpCmd(const std::vector<std::string> &args, std::string *output)
+{
+    int rc = Utils::executeCommand("ip", args, output, /*appendFromStdErr=*/true);
+    while (!output->empty() && (output->back() == '\n' || output->back() == '\r')) {
+        output->pop_back();
+    }
+    return rc;
+}
+
+// True when `ip route del` failed because the route (or its device) is already gone.
+// In that case the desired end-state — no such route — is already reached, so callers
+// treat it as a successful delete rather than retrying a del that can never succeed.
+bool isRouteAlreadyAbsent(const std::string &output)
+{
+    // v4/v6 missing route: "RTNETLINK answers: No such process".
+    // Missing device:       "Cannot find device ...".
+    return output.find("No such process") != std::string::npos
+        || output.find("Cannot find") != std::string::npos;
+}
+
+// Build the argv + human-readable description for `ip route {add,del} …`.
+//
+// The kernel rejects v6 routes whose nexthop has different scope (link-local v6
+// gateway from RA) without an explicit `dev`; it also rejects any `via <addr>`
+// when `<addr>` is one of our own interface addresses (the WireGuard point-to-
+// point hack puts the WG client IP into both adapterIp and gatewayIp). To handle
+// both, callers tell us whether the gateway is "local" — when it is, we drop
+// `via` and route by interface only.
+std::pair<std::vector<std::string>, std::string>
+buildRouteArgs(const std::string &op,
+               const std::string &dst,
+               const std::string &via,
+               const std::string &iface,
+               bool gatewayIsLocal)
+{
+    std::vector<std::string> args = {"route", op, dst};
+    std::string desc = "ip route " + op + " " + dst;
+
+    if (!gatewayIsLocal) {
+        args.push_back("via");
+        args.push_back(via);
+        desc += " via " + via;
+    }
+    if (!iface.empty()) {
+        args.push_back("dev");
+        args.push_back(iface);
+        desc += " dev " + iface;
+    }
+    return {std::move(args), std::move(desc)};
+}
+
+} // namespace
+
 void IpRoutes::setIps(const types::IpAddress &gatewayV4,
                       const types::IpAddress &gatewayV6,
+                      const types::IpAddress &adapterIpV4,
+                      const types::IpAddress &adapterIpV6,
+                      const std::string &adapterName,
+                      const std::string &adapterNameV6,
                       const std::vector<types::IpAddressRange> &ips)
 {
     std::lock_guard<std::recursive_mutex> guard(mutex_);
+
+    // Per-family interface name. The v6 default route can live on a different NIC than
+    // the v4 default on a multi-homed host; an empty adapterNameV6 means "same as v4".
+    const std::string &ifaceV4 = adapterName;
+    const std::string &ifaceV6 = adapterNameV6.empty() ? adapterName : adapterNameV6;
 
     // Deduplicate input and drop any invalid entries up front.
     std::set<types::IpAddressRange> ipsSet;
@@ -18,21 +88,47 @@ void IpRoutes::setIps(const types::IpAddress &gatewayV4,
         }
     }
 
-    // Find routes that are no longer wanted, or whose family-specific gateway changed
-    // since they were installed — both cases need a delete-then-(maybe)-add cycle.
+    // Drop negative-cache entries for destinations no longer requested so the cache
+    // doesn't accumulate across DNS changes; a re-requested destination will be retried.
+    for (auto it = failedRoutes_.begin(); it != failedRoutes_.end();) {
+        if (ipsSet.find(it->first) == ipsSet.end()) {
+            it = failedRoutes_.erase(it);
+        } else {
+            ++it;
+        }
+    }
+
+    // Find routes that are no longer wanted, or whose installed parameters changed
+    // (gateway swap on adapter switch, interface rename, exclude<->inclusive flip
+    // toggling the local-gateway form). All three need a delete-then-add cycle.
     std::set<types::IpAddressRange> ipsDelete;
     for (auto it = activeRoutes_.begin(); it != activeRoutes_.end(); ++it) {
         const auto &rd = it->second;
         const auto &gwForFamily = rd.ip.isV6() ? gatewayV6 : gatewayV4;
-        if (rd.defaultRouteIp != gwForFamily || ipsSet.find(it->first) == ipsSet.end()) {
+        const auto &adapterIpForFamily = rd.ip.isV6() ? adapterIpV6 : adapterIpV4;
+        const auto &ifaceForFamily = rd.ip.isV6() ? ifaceV6 : ifaceV4;
+        const bool gwIsLocalNow = adapterIpForFamily.isValid() && (gwForFamily == adapterIpForFamily);
+        if (rd.defaultRouteIp != gwForFamily
+            || rd.interfaceName != ifaceForFamily
+            || rd.gatewayIsLocal != gwIsLocalNow
+            || ipsSet.find(it->first) == ipsSet.end()) {
             ipsDelete.insert(it->first);
         }
     }
 
     for (auto it = ipsDelete.begin(); it != ipsDelete.end(); ++it) {
         auto fr = activeRoutes_.find(*it);
-        if (fr != activeRoutes_.end()) {
-            deleteRoute(fr->second);
+        if (fr == activeRoutes_.end()) {
+            continue;
+        }
+        // Drop tracking only when the kernel route is actually gone. If `del` failed
+        // but the destination is still wanted, the add loop below reinstalls it with
+        // the new parameters via idempotent `ip route replace`, so the stale entry is
+        // safe to erase. If `del` failed for a no-longer-wanted destination, keep the
+        // entry so a later cycle (or clear()) retries the delete instead of orphaning
+        // a live kernel route.
+        const bool stillWanted = ipsSet.find(*it) != ipsSet.end();
+        if (deleteRoute(fr->second) || stillWanted) {
             activeRoutes_.erase(fr);
         }
     }
@@ -44,7 +140,8 @@ void IpRoutes::setIps(const types::IpAddress &gatewayV4,
 
         // Pick the gateway by destination family; skip when the family's gateway is
         // not configured (OpenVPN-on-Linux is v4-only, so v6 destinations end up here
-        // when inclusive-mode VPN is OpenVPN).
+        // when inclusive-mode VPN is OpenVPN; v6-less LAN with exclude mode also
+        // lands here for v6 destinations).
         const auto &gw = it->isV6() ? gatewayV6 : gatewayV4;
         if (!gw.isValid()) {
             spdlog::warn("IpRoutes::setIps(), no {} gateway for destination {}",
@@ -52,37 +149,107 @@ void IpRoutes::setIps(const types::IpAddress &gatewayV4,
             continue;
         }
 
+        // Detect the WireGuard point-to-point case: the engine layer feeds the WG
+        // client address as both adapterIp and gatewayIp (see addGatewayIp(ip)
+        // paired with addAdapterIp(ip) in wireguardconnection_posix.cpp). For
+        // such "local" gateways the kernel refuses any `via <addr>` form
+        // ("Gateway can not be a local address."); fall back to `dev`-only.
+        const auto &adapterIpForFamily = it->isV6() ? adapterIpV6 : adapterIpV4;
+        const bool gwIsLocal = adapterIpForFamily.isValid() && (gw == adapterIpForFamily);
+
         RouteDescr rd;
         rd.ip = *it;
         rd.defaultRouteIp = gw;
-        addRoute(rd);
-        activeRoutes_[*it] = rd;
+        rd.interfaceName = it->isV6() ? ifaceV6 : ifaceV4;
+        rd.gatewayIsLocal = gwIsLocal;
+
+        // Negative cache: if this exact route was already rejected by the kernel, don't
+        // re-spawn `ip` (or re-log the same error) on this refresh. The retry only fires
+        // once the parameters change (gateway swap, iface rename, local-gateway flip),
+        // which produces a different RouteDescr and so misses the cache.
+        auto failedIt = failedRoutes_.find(*it);
+        if (failedIt != failedRoutes_.end() && sameRouteParams(failedIt->second, rd)) {
+            continue;
+        }
+
+        // `addRoute` uses idempotent `ip route replace`, so success means the route is
+        // installed regardless of whether it already existed in the kernel (e.g. a
+        // host-pin left over by a crashed/restarted/upgraded helper, which would have
+        // made plain `ip route add` fail with "File exists"). Recording on success
+        // therefore also adopts such stale routes into tracking so teardown removes them.
+        if (addRoute(rd)) {
+            activeRoutes_[*it] = rd;
+            failedRoutes_.erase(*it);
+        } else {
+            // Remember the rejected attempt (with the parameters tried) so the next
+            // refresh suppresses the duplicate spawn + error log until something changes.
+            failedRoutes_[*it] = rd;
+        }
     }
+}
+
+bool IpRoutes::sameRouteParams(const RouteDescr &a, const RouteDescr &b)
+{
+    return a.defaultRouteIp == b.defaultRouteIp
+        && a.interfaceName == b.interfaceName
+        && a.gatewayIsLocal == b.gatewayIsLocal;
 }
 
 void IpRoutes::clear()
 {
     std::lock_guard<std::recursive_mutex> guard(mutex_);
-    for (auto it = activeRoutes_.begin(); it != activeRoutes_.end(); ++it) {
-        deleteRoute(it->second);
+    // The negative cache only tracks add attempts; nothing to tear down for it.
+    failedRoutes_.clear();
+    // Keep entries whose `del` failed (transient: iface already torn down, route mutated
+    // by NetworkManager, …) so the next clear()/setIps() retries them instead of leaving
+    // a live but untracked kernel route behind.
+    for (auto it = activeRoutes_.begin(); it != activeRoutes_.end();) {
+        if (deleteRoute(it->second)) {
+            it = activeRoutes_.erase(it);
+        } else {
+            ++it;
+        }
     }
-    activeRoutes_.clear();
 }
 
-void IpRoutes::addRoute(const RouteDescr &rd)
+bool IpRoutes::addRoute(const RouteDescr &rd)
 {
-    // `ip route add` autodetects family from the destination literal, so the same
-    // command shape works for v4 and v6 — provided we paired the right gateway.
+    // `ip route replace` autodetects family from the destination literal, so the same
+    // command shape works for v4 and v6 — provided we paired the right gateway. We use
+    // `replace` rather than `add` so the operation is idempotent: a host-pin route that
+    // survived a helper crash/restart/upgrade is overwritten in place instead of failing
+    // with "File exists" and being left untracked (and thus never cleaned up).
     const std::string dst = rd.ip.toString();
     const std::string via = rd.defaultRouteIp.toString();
-    spdlog::info("cmd: ip route add {} via {}", dst, via);
-    Utils::executeCommand("ip", {"route", "add", dst, "via", via});
+    auto cmd = buildRouteArgs("replace", dst, via, rd.interfaceName, rd.gatewayIsLocal);
+    spdlog::info("cmd: {}", cmd.second);
+    std::string output;
+    int rc = runIpCmd(cmd.first, &output);
+    if (rc != 0) {
+        spdlog::error("{} failed (rc={}): {}", cmd.second, rc, output);
+        return false;
+    }
+    return true;
 }
 
-void IpRoutes::deleteRoute(const RouteDescr &rd)
+bool IpRoutes::deleteRoute(const RouteDescr &rd)
 {
     const std::string dst = rd.ip.toString();
     const std::string via = rd.defaultRouteIp.toString();
-    spdlog::info("cmd: ip route del {} via {}", dst, via);
-    Utils::executeCommand("ip", {"route", "del", dst, "via", via});
+    auto cmd = buildRouteArgs("del", dst, via, rd.interfaceName, rd.gatewayIsLocal);
+    spdlog::info("cmd: {}", cmd.second);
+    std::string output;
+    int rc = runIpCmd(cmd.first, &output);
+    if (rc == 0) {
+        return true;
+    }
+    if (isRouteAlreadyAbsent(output)) {
+        // Route is already gone — desired state reached. Report success so the caller
+        // drops tracking instead of retaining a "ghost" entry that would block a future
+        // reinstall of the same destination.
+        spdlog::debug("{} skipped: route already absent ({})", cmd.second, output);
+        return true;
+    }
+    spdlog::error("{} failed (rc={}): {}", cmd.second, rc, output);
+    return false;
 }

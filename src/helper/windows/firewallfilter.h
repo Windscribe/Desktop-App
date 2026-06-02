@@ -19,7 +19,7 @@ public:
 
     void release();
 
-    void on(const wchar_t *connectingIp, const wchar_t *ip, bool bAllowLocalTraffic, bool bIsCustomConfig);
+    void on(const wchar_t *connectingIp, const std::vector<std::wstring> &ips, bool bAllowLocalTraffic, bool bIsCustomConfig);
     void off();
     bool currentStatus();
 
@@ -45,7 +45,7 @@ private:
     bool currentStatusImpl(HANDLE engineHandle);
     void offImpl(HANDLE engineHandle);
 
-    void addFilters(HANDLE engineHandle, const wchar_t *connectingIp, const wchar_t *ip, bool bAllowLocalTraffic, bool bIsCustomConfig);
+    void addFilters(HANDLE engineHandle, const wchar_t *connectingIp, const std::vector<std::wstring> &ips, bool bAllowLocalTraffic, bool bIsCustomConfig);
     void addPermitFilterForVpnAndSystemServices(HANDLE engineHandle, const wchar_t *ip);
     void addPermitFilterForAppsIds(HANDLE engineHandle);
     void addPermitFilterForSplitRoutingWhitelistIps(HANDLE engineHandle);
@@ -53,9 +53,6 @@ private:
     void removeAppsSplitTunnelingFilter(HANDLE engineHandle);
     void removeIpsSplitTunnelingFilter(HANDLE engineHandle);
     void removeAllSplitTunnelingFilters(HANDLE engineHandle);
-
-    std::vector<std::wstring> &split(const std::wstring &s, wchar_t delim, std::vector<std::wstring> &elems);
-    std::vector<std::wstring> split(const std::wstring &s, wchar_t delim);
 
     std::vector<std::wstring> tapAdapters_;
 

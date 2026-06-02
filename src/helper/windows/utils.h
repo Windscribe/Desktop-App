@@ -25,9 +25,8 @@ namespace Utils
     bool hasWhitespaceInString(const std::wstring &str);
     bool verifyAppProcessPath(HANDLE hPipe);
     bool iequals(const std::wstring &a, const std::wstring &b);
-    bool isMacAddress(const std::wstring &value);
 
-    void callNetworkAdapterMethod(const std::wstring &methodName, const std::wstring &adapterRegistryName);
+    bool setNetworkAdapterState(ULONG ifIndex, bool enable);
     GUID guidFromString(const std::wstring &str);
 
     // Both addFilterV4/addFilterV6 accept dual-stack types::IpAddressRange ranges; entries that

@@ -1,6 +1,7 @@
 #include "io_posix.h"
 
 #include <errno.h>
+#include <fcntl.h>
 #include <string.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -22,6 +23,22 @@ bool writeAll(int fd, const std::string &content)
         p += n;
         remaining -= static_cast<size_t>(n);
     }
+    return true;
+}
+
+bool writeFile(const std::string &path, const std::string &content, int mode)
+{
+    unlink(path.c_str());
+    int fd = open(path.c_str(), O_CREAT | O_WRONLY | O_TRUNC, mode);
+    if (fd < 0) {
+        return false;
+    }
+    if (!writeAll(fd, content)) {
+        close(fd);
+        unlink(path.c_str());
+        return false;
+    }
+    close(fd);
     return true;
 }
 

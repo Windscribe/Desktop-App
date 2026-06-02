@@ -11,6 +11,7 @@
 #include <spdlog/spdlog.h>
 
 #include "../../../common/spawn_posix.h"
+#include "../../../common/validation_posix.h"
 #include "../../utils.h"
 
 static const std::string kExecutableName = WS_PRODUCT_NAME_LOWER "amneziawg";
@@ -34,6 +35,7 @@ stringToValue(const std::string &str)
 {
     return str.empty() ? T(0) : stringToValueImpl<T>(str);
 }
+
 }  // namespace
 
 WireGuardGoCommunicator::Connection::Connection(const std::string &deviceName)
@@ -207,6 +209,17 @@ bool WireGuardGoCommunicator::configure(const std::string &clientPrivateKey, con
     if (connection.getStatus() != Connection::Status::OK) {
         spdlog::error("WireGuardGoCommunicator::configure(): no connection to daemon");
         return false;
+    }
+
+    // Defense in depth: refuse to write a UAPI record whose value contains anything
+    // outside printable ASCII. Engine validates I-values at custom-config import; this
+    // stops a malformed value from any future engine path being interpreted as extra
+    // newline-delimited UAPI records by the AmneziaWG-go control socket.
+    for (const auto &iValue : amneziawgConfig.iValues) {
+        if (!iValue.empty() && !Validation::isPrintableSingleLineAscii(iValue)) {
+            spdlog::error("WireGuardGoCommunicator::configure(): rejecting AmneziaWG I-value with non-printable characters");
+            return false;
+        }
     }
 
     // Send set command.

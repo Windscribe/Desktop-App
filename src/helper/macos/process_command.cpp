@@ -105,11 +105,17 @@ std::string executeOpenVPN(const std::string &pars)
     CmdDnsManager dnsManager;
     deserializePars(pars, config, port, httpProxy, httpPort, socksProxy, socksPort, dnsManager);
 
-    // sanitize
-    if (Utils::hasWhitespaceInString(httpProxy) ||
-        Utils::hasWhitespaceInString(socksProxy))
-    {
+    // The proxy address must be an IP literal: the GUI restricts it to one (NetworkingValidation::
+    // isIp) and no other path sets it. Validate here too rather than trust the client — an invalid
+    // value is dropped so it can't reach the OpenVPN config the helper writes as root. The proxy
+    // lines are appended after OvpnDirectiveWhitelist::filterConfig, so they aren't otherwise
+    // filtered. isValidIpAddress also rejects whitespace, subsuming the previous whitespace guard.
+    if (!httpProxy.empty() && !Validation::isValidIpAddress(httpProxy)) {
+        spdlog::warn("executeOpenVPN: invalid httpProxy, ignoring");
         httpProxy = "";
+    }
+    if (!socksProxy.empty() && !Validation::isValidIpAddress(socksProxy)) {
+        spdlog::warn("executeOpenVPN: invalid socksProxy, ignoring");
         socksProxy = "";
     }
 
@@ -304,8 +310,6 @@ std::string startCtrld(const std::string &pars)
 
 std::string checkFirewallState(const std::string &pars)
 {
-    std::string tag;
-    deserializePars(pars, tag);
     return serializeResult(FirewallController::instance().enabled());
 }
 
@@ -314,35 +318,38 @@ std::string clearFirewallRules(const std::string &pars)
     bool isKeepPfEnabled;
     deserializePars(pars, isKeepPfEnabled);
     spdlog::debug("Clear firewall rules");
-    FirewallController::instance().disable(isKeepPfEnabled);
-    return std::string();
+    return serializeResult(FirewallController::instance().disable(isKeepPfEnabled));
 }
 
 std::string setFirewallRules(const std::string &pars)
 {
-    CmdIpVersion ipVersion;
-    std::string table, group, rules;
-    deserializePars(pars, ipVersion, table, group, rules);
+    FirewallConfig config;
+    deserializePars(pars, config);
+
+    // Sanitize every token the helper will interpolate into pf rules. A single bad entry must not
+    // drop the whole kill-switch update (that could leave the firewall off and leak), so invalid
+    // values are stripped rather than aborting: the firewall still comes up from the valid remainder
+    // and the offending allow-rule simply isn't emitted. The helper never builds a rule from
+    // unvalidated client input.
+    Validation::sanitizeFirewallConfig(config);
 
     spdlog::debug("Set firewall rules");
-    FirewallController::instance().enable(rules, table, group);
-    return std::string();
+    return serializeResult(FirewallController::instance().enable(config));
 }
 
 std::string getFirewallRules(const std::string &pars)
 {
-    CmdIpVersion ipVersion;
-    std::string table, group;
-    deserializePars(pars, ipVersion, table, group);
+    CmdFirewallRulesQuery query;
+    deserializePars(pars, query);
     std::string rules;
-    FirewallController::instance().getRules(table, group, &rules);
+    FirewallController::instance().getRules(query, &rules);
     return serializeResult(rules);
 }
 
 std::string setFirewallOnBoot(const std::string &pars)
 {
     bool enabled, allowLanTraffic;
-    std::string ipTable;
+    std::vector<std::string> ipTable;
     deserializePars(pars, enabled, allowLanTraffic, ipTable);
     spdlog::info("Set firewall on boot: {}", enabled ? "true" : "false");
     FirewallOnBootManager::instance().setIpTable(ipTable);
@@ -788,8 +795,8 @@ std::string installerStageAndVerify(const std::string &pars)
     static const std::string kStagedBundle = kStageDir + "/installer.app";
 
     // Clear any prior staging state — symmetric with installerCleanupStaged below.
-    // Wipes the entire stage dir (not just installer.app) so any debris from a
-    // previous run can't survive into a new stage.
+    // Wipes the entire stage dir (not just installer.app)
+    // so any debris from a previous run can't survive into a new stage.
     std::filesystem::remove_all(kStageDir, ec);
 
     std::filesystem::create_directories(kStageDir, ec);

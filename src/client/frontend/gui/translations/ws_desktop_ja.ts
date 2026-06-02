@@ -498,10 +498,6 @@
         <translation>メールの登場</translation>
     </message>
     <message>
-        <source>For password recovery, updates &amp; promo only. No spam.</source>
-        <translation>パスワード回復、アップデート、プロモーションのみです。スパム禁止。</translation>
-    </message>
-    <message>
         <source>Voucher Code?</source>
         <translation>バウチャーコード?</translation>
     </message>
@@ -650,10 +646,6 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
         <translation>SSL エラー</translation>
     </message>
     <message>
-        <source>We detected that SSL requests may be intercepted on your network. This could be due to a firewall configured on your computer, or Windscribe being blocked by your network administrator. Ignore SSL errors?</source>
-        <translation>ネットワーク上で SSL 要求が傍受される可能性があることが検出されました。これは、コンピュータにファイアウォールが設定されているか、ネットワーク管理者によって Windscribe がブロックされていることが原因である可能性があります。SSLエラーを無視しますか?</translation>
-    </message>
-    <message>
         <source>Disconnected</source>
         <translation>未接続</translation>
     </message>
@@ -676,6 +668,10 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
     <message>
         <source>Later</source>
         <translation>後で</translation>
+    </message>
+    <message>
+        <source>SSL requests may be intercepted on your network. Ignoring SSL errors disables TLS certificate validation for this session: anyone able to intercept your traffic can then impersonate Windscribe and read or alter your data, and we can&apos;t guarantee your security while it&apos;s on. Ignore SSL errors?</source>
+        <translation>SSLリクエストはネットワーク上で傍受される可能性があります。SSLエラーを無視すると、このセッションではTLS証明書の検証が無効になります。トラフィックを傍受できる者はWindscribeになりすましてデータを読み取ったり改ざんしたりでき、オン中のセキュリティは保証できません。SSLエラーを無視する?</translation>
     </message>
     <message>
         <source>Connected to </source>
@@ -798,7 +794,7 @@ Recovering...</source>
         <translation>アプリケーションを選択</translation>
     </message>
     <message>
-        <source>Read-only file</source>
+        <source>Read-Only File</source>
         <translation>読み取り専用ファイル</translation>
     </message>
     <message>
@@ -1207,19 +1203,11 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>詳細パラメータ</translation>
     </message>
     <message>
-        <source>Ignore SSL certificate validation errors.</source>
-        <translation>SSL 証明書の検証エラーを無視します。</translation>
-    </message>
-    <message>
-        <source>Ignore SSL Errors</source>
-        <translation>SSL エラーを無視する</translation>
-    </message>
-    <message>
         <source>Prevents connections from dying (by time-out) by periodically pinging the server.</source>
         <translation>サーバーに定期的に ping を実行することで、接続が (タイムアウトによって) 切断されるのを防ぎます。</translation>
     </message>
     <message>
-        <source>Client-side Keepalive</source>
+        <source>Client-Side Keepalive</source>
         <translation>クライアント側のキープアライブ</translation>
     </message>
     <message>
@@ -1258,7 +1246,7 @@ If the problem persists after a restart, please send a debug log and open a supp
 <context>
     <name>PreferencesWindow::AntiCensorshipWindowItem</name>
     <message>
-        <source>Anti-censorship</source>
+        <source>Anti-Censorship</source>
         <translation>反検閲</translation>
     </message>
     <message>
@@ -1451,10 +1439,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>VPN プロトコルを自動的に選択するか、手動で選択します。注: &quot;優先プロトコル&quot; はこの設定よりも優先されます。</translation>
     </message>
     <message>
-        <source>Configure egress IP stack for VPN connections.</source>
-        <translation>VPN接続用の出口IPスタックを設定してください。</translation>
-    </message>
-    <message>
         <source>IP Stack</source>
         <translation>IPスタック</translation>
     </message>
@@ -1511,6 +1495,10 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>このファイアウォールモードでは、切断中はWindscribe APIを使用できないため、意図しない結果を招く可能性があります。自己責任で使用してください。</translation>
     </message>
     <message>
+        <source>Configure egress IP stack for VPN connections (WireGuard only).</source>
+        <translation>VPN接続用の出口IPスタック(WireGuardのみ)を設定してください。</translation>
+    </message>
+    <message>
         <source>Clear Wi-Fi History</source>
         <translation>Wi-Fi履歴のクリア</translation>
     </message>
@@ -1527,7 +1515,7 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>位置履歴の追跡を防ぐために、Wi-Fi SSIDとMAC情報をOSから削除してください。</translation>
     </message>
     <message>
-        <source>Anti-censorship Settings</source>
+        <source>Anti-Censorship Settings</source>
         <translation>反検閲の設定</translation>
     </message>
 </context>
@@ -1740,7 +1728,7 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>バージョン</translation>
     </message>
     <message>
-        <source>Multi-desktop</source>
+        <source>Multi-Desktop</source>
         <translation>マルチデスクトップ</translation>
     </message>
     <message>
@@ -2687,6 +2675,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <translation>AmneziaWG initパラメータが大きすぎる</translation>
     </message>
     <message>
+        <source>AmneziaWG init parameter contains invalid characters</source>
+        <translation>AmneziaWG initパラメータには無効な文字が含まれています</translation>
+    </message>
+    <message>
         <source>Static IPs</source>
         <translation>静的 IP アドレス</translation>
     </message>
@@ -2873,7 +2865,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
 <context>
     <name>TwoFactorAuthWindow::TwoFactorAuthWindowItem</name>
     <message>
-        <source>Two-factor Auth</source>
+        <source>Two-Factor Auth</source>
         <translation>二要素認証</translation>
     </message>
     <message>

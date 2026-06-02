@@ -80,6 +80,95 @@ void TestNetworkingValidation::testIsIpAndIsDomain_smoke()
     QVERIFY(!NetworkingValidation::isDomain("no_tld"));
 }
 
+void TestNetworkingValidation::testIsIp()
+{
+    // Valid v4 + v6 literals.
+    const char *kValidIps[] = {
+        "0.0.0.0",
+        "1.2.3.4",
+        "255.255.255.255",
+        "8.8.8.8",
+        "::",
+        "::1",
+        "fe80::1",
+        "2001:db8::1",
+        "2001:4860:4860::8888",
+        "fd00:abcd::5",
+    };
+    // Invalid inputs.
+    const char *kInvalidIps[] = {
+        "",
+        "1.2.3",                // missing octet
+        "1.2.3.4.5",            // too many octets
+        "1.2.3.256",            // octet out of range
+        "1.2.3.4/24",           // CIDR not allowed in isIp
+        "google.com",           // hostname
+        "fe80::1%eth0",         // scoped v6
+        "::g",                  // bad hex in v6
+        " 1.2.3.4",             // leading whitespace
+        "1.2.3.4 ",             // trailing whitespace
+        "2001:db8::/64",        // CIDR not allowed in isIp
+    };
+
+    for (const char *s : kValidIps)
+        QVERIFY2(NetworkingValidation::isIp(s), s);
+    for (const char *s : kInvalidIps)
+        QVERIFY2(!NetworkingValidation::isIp(s), s);
+}
+
+void TestNetworkingValidation::testIsDomain()
+{
+    // Valid domain names.
+    const char *kValidDomainNames[] = {
+        "g.co",
+        "g.com",
+        "google.t.t.co",
+        "0-0o.com",
+        "0-oz.co.uk",
+        "0-google.com.br",
+        "0-wh-ao14-0.com-com.net",
+        "xn--d1ai6ai.xn--p1ai",
+        "xn-fsqu00a.xn-0zwm56d",
+        "xn--google.com",
+        "google.xn--com",
+        "google.com.au",
+        "www.google.com",
+        "google.com",
+        "google123.com",
+        "google-info.com",
+        "sub.google.com",
+        "sub.google-info.com",
+        "my.sub-domain.at-123.google.com.au",
+        "test-andmoretest-somerandomlettersoflongstring.us-east-2.eu.google.com",
+        "a-1234567890-1234567890-1234567890-1234567890-1234567890-1234-z.eu.us",
+    };
+    // Invalid domain names.
+    const char *kInvalidDomainNames[] = {
+        "com.g",            // TLD must be 2 or more characters long.
+        "google.t.t.c",     // TLD must be 2 or more characters long.
+        "google,com",       // Comma is not allowed.
+        "google",           // Missing TLD.
+        "google.1test",     // TLD must not start with a digit.
+        "google.test1",     // TLD must not end with a digit.
+        "google.123",       // TLD must not start or end with a digit.
+        ".com",             // Empty subdomain.
+        "google.com/users", // No TLD.
+        "-g.com",           // Subdomain cannot start with a hyphen.
+        "-0-0o.com",        // Subdomain cannot start with a hyphen.
+        "0-0o_.com",        // Underscore is not allowed.
+        "-google.com",      // Subdomain cannot start with a hyphen.
+        "google-.com",      // Subdomain cannot end with a hyphen.
+        "sub.-google.com",  // Subdomain cannot start with a hyphen.
+        "sub.google-.com",  // Subdomain cannot end with a hyphen.
+        "a-1234567890-1234567890-1234567890-1234567890-1234567890-12345-z.eu.us", // Too long.
+    };
+
+    for (const char *s : kValidDomainNames)
+        QVERIFY2(NetworkingValidation::isDomain(s), s);
+    for (const char *s : kInvalidDomainNames)
+        QVERIFY2(!NetworkingValidation::isDomain(s), s);
+}
+
 void TestNetworkingValidation::testIsIpv4AndIsIpv6()
 {
     // v4 literals
@@ -125,11 +214,15 @@ void TestNetworkingValidation::testIsIpCidr()
 {
     // v4 — historical behaviour preserved.
     QVERIFY(NetworkingValidation::isIpCidr("1.2.3.4"));
+    QVERIFY(NetworkingValidation::isIpCidr("1.2.3.4/0"));
     QVERIFY(NetworkingValidation::isIpCidr("10.0.0.0/8"));
     QVERIFY(NetworkingValidation::isIpCidr("0.0.0.0/0"));
     QVERIFY(NetworkingValidation::isIpCidr("1.2.3.4/32"));
     QVERIFY(!NetworkingValidation::isIpCidr("1.2.3.4/33"));
     QVERIFY(!NetworkingValidation::isIpCidr("1.2.3.4/"));
+    QVERIFY(!NetworkingValidation::isIpCidr("1.2.3.4 /24"));   // whitespace
+    QVERIFY(!NetworkingValidation::isIpCidr("1.2.3.4/-1"));    // negative prefix
+    QVERIFY(!NetworkingValidation::isIpCidr("1.2.3.4/24/8"));  // double suffix
     QVERIFY(!NetworkingValidation::isIpCidr("garbage/24"));
 
     // v6 — new behaviour added by the client-side IpValidation refresh.
@@ -137,6 +230,7 @@ void TestNetworkingValidation::testIsIpCidr()
     QVERIFY(NetworkingValidation::isIpCidr("::/0"));
     QVERIFY(NetworkingValidation::isIpCidr("2001:db8::1/128"));
     QVERIFY(NetworkingValidation::isIpCidr("2001:4860:4860::8888"));  // single host v6
+    QVERIFY(NetworkingValidation::isIpCidr("fd00::/8"));
     QVERIFY(!NetworkingValidation::isIpCidr("2001:db8::/129"));
     QVERIFY(!NetworkingValidation::isIpCidr("2001:db8::1/abc"));
 }
@@ -189,6 +283,19 @@ void TestNetworkingValidation::testIsLocalIp()
     QVERIFY(NetworkingValidation::isLocalIp("fc00::1"));        // ULA
     QVERIFY(NetworkingValidation::isLocalIp("fd12:3456::1"));   // ULA
     QVERIFY(!NetworkingValidation::isLocalIp("2001:4860:4860::8888"));  // public v6
+}
+
+void TestNetworkingValidation::testIsUnspecifiedIp()
+{
+    QVERIFY(NetworkingValidation::isUnspecifiedIp("0.0.0.0"));
+    QVERIFY(NetworkingValidation::isUnspecifiedIp("::"));
+
+    QVERIFY(!NetworkingValidation::isUnspecifiedIp("127.0.0.1"));
+    QVERIFY(!NetworkingValidation::isUnspecifiedIp("::1"));
+    QVERIFY(!NetworkingValidation::isUnspecifiedIp("8.8.8.8"));
+    QVERIFY(!NetworkingValidation::isUnspecifiedIp("0.0.0.1"));
+    QVERIFY(!NetworkingValidation::isUnspecifiedIp(""));         // not a valid literal
+    QVERIFY(!NetworkingValidation::isUnspecifiedIp("garbage"));
 }
 
 void TestNetworkingValidation::testIsCtrldCorrectAddress()

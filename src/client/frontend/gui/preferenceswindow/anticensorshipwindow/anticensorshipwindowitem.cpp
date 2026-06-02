@@ -49,7 +49,7 @@ AntiCensorshipWindowItem::AntiCensorshipWindowItem(ScalableGraphicsObject *paren
 
 QString AntiCensorshipWindowItem::caption() const
 {
-    return tr("Anti-censorship");
+    return tr("Anti-Censorship");
 }
 
 void AntiCensorshipWindowItem::updateScaling()

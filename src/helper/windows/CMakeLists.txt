@@ -36,6 +36,7 @@ set(SOURCES
     ipv6_firewall.cpp
     macaddressspoof.cpp
     main.cpp
+    network_validation.cpp
     openvpncontroller.cpp
     pipe_for_process.cpp
     process_command.cpp
@@ -77,6 +78,7 @@ set_property(TARGET ${WS_APP_IDENTIFIER}Service PROPERTY COMPILE_WARNING_AS_ERRO
 
 target_link_libraries(${WS_APP_IDENTIFIER}Service
                       PRIVATE
+                      Dnsapi
                       Iphlpapi
                       rpcrt4
                       Fwpuclnt

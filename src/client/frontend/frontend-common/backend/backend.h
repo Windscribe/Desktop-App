@@ -45,6 +45,10 @@ public:
     void logout(bool keepFirewallOn);
     void sendConnect(const LocationID &lid, const types::ConnectionSettings &connectionSettings = types::ConnectionSettings(types::Protocol(), 0, true));
     void sendDisconnect(DISCONNECT_REASON reason = DISCONNECTED_BY_USER);
+    // Sets the session-only "ignore SSL errors" state on the engine (pushed to wsnet, never persisted).
+    // Enabling is refused unless the engine has reported an SSL error this session. Returns true if the
+    // state was applied, false if the request was refused.
+    bool setIgnoreSslErrors(bool bIgnore);
     bool isDisconnected() const;
     LOGIN_STATE currentLoginState() const;
     wsnet::LoginResult lastLoginError() const;
@@ -308,7 +312,7 @@ private:
     void clearAutoLoginCredentials();
 
     LOGIN_STATE loginState_;
-    wsnet::LoginResult lastLoginError_;
+    wsnet::LoginResult lastLoginError_ = wsnet::LoginResult::kSuccess;
 
     std::vector<std::wstring> osDnsServers_;
 

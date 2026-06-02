@@ -498,10 +498,6 @@
         <translation>Nhập email</translation>
     </message>
     <message>
-        <source>For password recovery, updates &amp; promo only. No spam.</source>
-        <translation>Chỉ để khôi phục mật khẩu, cập nhật và khuyến mãi. Không có thư rác.</translation>
-    </message>
-    <message>
         <source>Voucher Code?</source>
         <translation>Mã phiếu thưởng?</translation>
     </message>
@@ -650,10 +646,6 @@ Nếu bạn mất hàm băm tài khoản của mình, nó sẽ biến mất vĩn
         <translation>Lỗi SSL</translation>
     </message>
     <message>
-        <source>We detected that SSL requests may be intercepted on your network. This could be due to a firewall configured on your computer, or Windscribe being blocked by your network administrator. Ignore SSL errors?</source>
-        <translation>Chúng tôi phát hiện thấy rằng các yêu cầu SSL có thể bị chặn trên mạng của bạn. Điều này có thể là do tường lửa được cấu hình trên máy tính của bạn hoặc Windscribe bị quản trị viên mạng của bạn chặn. Bỏ qua lỗi SSL?</translation>
-    </message>
-    <message>
         <source>Disconnected</source>
         <translation>Rời rạc</translation>
     </message>
@@ -676,6 +668,10 @@ Nếu bạn mất hàm băm tài khoản của mình, nó sẽ biến mất vĩn
     <message>
         <source>Later</source>
         <translation>Sau này</translation>
+    </message>
+    <message>
+        <source>SSL requests may be intercepted on your network. Ignoring SSL errors disables TLS certificate validation for this session: anyone able to intercept your traffic can then impersonate Windscribe and read or alter your data, and we can&apos;t guarantee your security while it&apos;s on. Ignore SSL errors?</source>
+        <translation>Các yêu cầu SSL có thể bị chặn trên mạng của bạn. Việc bỏ qua lỗi SSL sẽ vô hiệu hóa xác thực chứng chỉ TLS cho phiên này: bất kỳ ai có thể chặn lưu lượng truy cập của bạn sau đó đều có thể mạo danh Windscribe và đọc hoặc thay đổi dữ liệu của bạn và chúng tôi không thể đảm bảo tính bảo mật của bạn khi nó đang bật. Bỏ qua lỗi SSL?</translation>
     </message>
     <message>
         <source>Connected to </source>
@@ -798,7 +794,7 @@ Phục hồi...</translation>
         <translation>Chọn một ứng dụng</translation>
     </message>
     <message>
-        <source>Read-only file</source>
+        <source>Read-Only File</source>
         <translation>Tệp chỉ đọc</translation>
     </message>
     <message>
@@ -1207,19 +1203,11 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
         <translation>Thông số nâng cao</translation>
     </message>
     <message>
-        <source>Ignore SSL certificate validation errors.</source>
-        <translation>Bỏ qua lỗi xác thực chứng chỉ SSL.</translation>
-    </message>
-    <message>
-        <source>Ignore SSL Errors</source>
-        <translation>Bỏ qua lỗi SSL</translation>
-    </message>
-    <message>
         <source>Prevents connections from dying (by time-out) by periodically pinging the server.</source>
         <translation>Ngăn các kết nối chết (do hết thời gian chờ) bằng cách định kỳ ping máy chủ.</translation>
     </message>
     <message>
-        <source>Client-side Keepalive</source>
+        <source>Client-Side Keepalive</source>
         <translation>Keepalive phía máy khách</translation>
     </message>
     <message>
@@ -1258,7 +1246,7 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
 <context>
     <name>PreferencesWindow::AntiCensorshipWindowItem</name>
     <message>
-        <source>Anti-censorship</source>
+        <source>Anti-Censorship</source>
         <translation>Chống kiểm duyệt</translation>
     </message>
     <message>
@@ -1451,10 +1439,6 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
         <translation>Tự động chọn giao thức VPN hoặc chọn một giao thức theo cách thủ công. LƯU Ý: &quot;Giao thức Ưu tiên&quot; sẽ ghi đè cài đặt này.</translation>
     </message>
     <message>
-        <source>Configure egress IP stack for VPN connections.</source>
-        <translation>Định cấu hình ngăn xếp IP đầu ra cho các kết nối VPN.</translation>
-    </message>
-    <message>
         <source>IP Stack</source>
         <translation>Ngăn xếp IP</translation>
     </message>
@@ -1511,6 +1495,10 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
         <translation>Ở chế độ tường lửa này, API Windscribe sẽ không khả dụng khi ngắt kết nối, điều này có thể gây ra những hậu quả không mong muốn. Tự chịu rủi ro khi sử dụng.</translation>
     </message>
     <message>
+        <source>Configure egress IP stack for VPN connections (WireGuard only).</source>
+        <translation>Định cấu hình ngăn xếp IP đầu ra cho các kết nối VPN (chỉ dành cho WireGuard).</translation>
+    </message>
+    <message>
         <source>Clear Wi-Fi History</source>
         <translation>Xóa lịch sử Wi-Fi</translation>
     </message>
@@ -1527,7 +1515,7 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
         <translation>Xóa thông tin Wi-Fi SSID và MAC khỏi hệ điều hành của bạn để ngăn theo dõi lịch sử vị trí.</translation>
     </message>
     <message>
-        <source>Anti-censorship Settings</source>
+        <source>Anti-Censorship Settings</source>
         <translation>Cài đặt chống kiểm duyệt</translation>
     </message>
 </context>
@@ -1740,7 +1728,7 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
         <translation>Phiên bản</translation>
     </message>
     <message>
-        <source>Multi-desktop</source>
+        <source>Multi-Desktop</source>
         <translation>Đa máy tính để bàn</translation>
     </message>
     <message>
@@ -2687,6 +2675,10 @@ Nếu việc cài đặt lại không hiệu quả, vui lòng liên hệ với b
         <translation>AmneziaWG init tham số quá lớn</translation>
     </message>
     <message>
+        <source>AmneziaWG init parameter contains invalid characters</source>
+        <translation>Tham số init AmneziaWG chứa các ký tự không hợp lệ</translation>
+    </message>
+    <message>
         <source>Static IPs</source>
         <translation>IP tĩnh</translation>
     </message>
@@ -2873,7 +2865,7 @@ Nếu việc cài đặt lại không hiệu quả, vui lòng liên hệ với b
 <context>
     <name>TwoFactorAuthWindow::TwoFactorAuthWindowItem</name>
     <message>
-        <source>Two-factor Auth</source>
+        <source>Two-Factor Auth</source>
         <translation>Xác thực hai yếu tố</translation>
     </message>
     <message>

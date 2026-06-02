@@ -97,3 +97,14 @@ if(APPLE)
         message(FATAL_ERROR "codesign not found. Code signing is required on macOS.")
     endif()
 endif()
+
+# ------------------------------------------------------------------------------
+# Linux Signing Configuration
+# ------------------------------------------------------------------------------
+#
+# Linux package signing rides along with the SIGN_APP option (the same flag Windows uses
+# to gate Authenticode signing). The actual signing logic lives in packaging_linux.cmake
+# because it runs as a post-build step on each package output; this file just owns the
+# Windows/macOS signing setup. See cmake/packaging_linux.cmake for the DEB / RPM hooks
+# and `LINUX_SIGNING_MASTER_FINGERPRINTS` in executable_signature_defs.h for the
+# compile-time trust anchor used by the helper-side verifier.

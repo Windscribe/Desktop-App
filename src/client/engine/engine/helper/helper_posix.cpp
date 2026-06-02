@@ -33,7 +33,8 @@ void Helper_posix::setSplitTunnelingSettings(bool isActive, bool isExclude, bool
 bool Helper_posix::sendConnectStatus(bool isConnected, bool isTerminateSocket, bool isKeepLocalSocket, const AdapterGatewayInfo &defaultAdapter, const AdapterGatewayInfo &vpnAdapter, const QString &connectedIp, const types::Protocol &protocol)
 {
     auto fillAdapterInfo = [](const AdapterGatewayInfo &a, ADAPTER_GATEWAY_INFO &out) {
-        out.adapterName = a.adapterName().toStdString();
+        out.adapterName   = a.adapterName().toStdString();
+        out.adapterNameV6 = a.adapterNameV6().toStdString();
         out.adapterIp   = a.adapterIpV4();
         out.adapterIpV6 = a.adapterIpV6();
         out.gatewayIp   = a.gatewayV4();
@@ -218,9 +219,9 @@ bool Helper_posix::stopCtrld()
     return executeTaskKill(kTargetCtrld);
 }
 
-bool Helper_posix::checkFirewallState(const QString &tag)
+bool Helper_posix::checkFirewallState()
 {
-    auto result = sendCommand(HelperCommand::checkFirewallState, tag.toStdString());
+    auto result = sendCommand(HelperCommand::checkFirewallState);
     bool isEnabled = false;
     deserializeAnswer(result, isEnabled);
     return isEnabled;
@@ -228,19 +229,23 @@ bool Helper_posix::checkFirewallState(const QString &tag)
 
 bool Helper_posix::clearFirewallRules(bool isKeepPfEnabled)
 {
-    sendCommand(HelperCommand::clearFirewallRules, isKeepPfEnabled);
-    return true;
+    auto result = sendCommand(HelperCommand::clearFirewallRules, isKeepPfEnabled);
+    bool success = false;
+    deserializeAnswer(result, success);
+    return success;
 }
 
-bool Helper_posix::setFirewallRules(CmdIpVersion version, const QString &table, const QString &group, const QString &rules)
+bool Helper_posix::setFirewallRules(const FirewallConfig &config)
 {
-    sendCommand(HelperCommand::setFirewallRules, version, table.toStdString(), group.toStdString(), rules.toStdString());
-    return true;
+    auto result = sendCommand(HelperCommand::setFirewallRules, config);
+    bool success = false;
+    deserializeAnswer(result, success);
+    return success;
 }
 
-bool Helper_posix::getFirewallRules(CmdIpVersion version, const QString &table, const QString &group, QString &rules)
+bool Helper_posix::getFirewallRules(CmdFirewallRulesQuery query, QString &rules)
 {
-    auto result = sendCommand(HelperCommand::getFirewallRules, version, table.toStdString(), group.toStdString());
+    auto result = sendCommand(HelperCommand::getFirewallRules, query);
     std::string tempRules;
     deserializeAnswer(result, tempRules);
     rules = QString::fromStdString(tempRules);
@@ -249,12 +254,12 @@ bool Helper_posix::getFirewallRules(CmdIpVersion version, const QString &table, 
 
 bool Helper_posix::setFirewallOnBoot(bool enabled, const QSet<QString> &ipTable, bool allowLanTraffic)
 {
-    std::string ipTableStr = "";
+    std::vector<std::string> ips;
+    ips.reserve(ipTable.size());
     for (const auto& ip : ipTable) {
-        ipTableStr += ip.toStdString();
-        ipTableStr += " ";
+        ips.push_back(ip.toStdString());
     }
-    sendCommand(HelperCommand::setFirewallOnBoot, enabled, allowLanTraffic, ipTableStr);
+    sendCommand(HelperCommand::setFirewallOnBoot, enabled, allowLanTraffic, ips);
     return true;
 }
 

@@ -1,4 +1,4 @@
-FROM ubuntu:20.04
+FROM ubuntu:22.04
 COPY ./tools/requirements.txt /r/
 ENV PATH=/opt/cmake/bin:$PATH
 ENV DEBIAN_FRONTEND=noninteractive

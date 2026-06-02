@@ -498,10 +498,6 @@
         <translation>Εισάγετε email</translation>
     </message>
     <message>
-        <source>For password recovery, updates &amp; promo only. No spam.</source>
-        <translation>Μόνο για ανάκτηση κωδικού πρόσβασης, ενημερώσεις και προώθηση. Χωρίς ανεπιθύμητο περιεχόμενο.</translation>
-    </message>
-    <message>
         <source>Voucher Code?</source>
         <translation>Κωδικός κουπονιού;</translation>
     </message>
@@ -694,10 +690,6 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
         <translation>Σφάλμα SSL</translation>
     </message>
     <message>
-        <source>We detected that SSL requests may be intercepted on your network. This could be due to a firewall configured on your computer, or Windscribe being blocked by your network administrator. Ignore SSL errors?</source>
-        <translation>Εντοπίσαμε ότι τα αιτήματα SSL ενδέχεται να υποκλαπούν στο δίκτυό σας. Αυτό μπορεί να οφείλεται σε ένα τείχος προστασίας που έχει ρυθμιστεί στον υπολογιστή σας ή στον αποκλεισμό του Windscrib από τον διαχειριστή του δικτύου σας. Να αγνοήσετε τα σφάλματα SSL;</translation>
-    </message>
-    <message>
         <source>Could not pin IP</source>
         <translation>Δεν ήταν δυνατή η καρφίτσα IP</translation>
     </message>
@@ -728,6 +720,10 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
     <message>
         <source>Later</source>
         <translation>Αργότερα</translation>
+    </message>
+    <message>
+        <source>SSL requests may be intercepted on your network. Ignoring SSL errors disables TLS certificate validation for this session: anyone able to intercept your traffic can then impersonate Windscribe and read or alter your data, and we can&apos;t guarantee your security while it&apos;s on. Ignore SSL errors?</source>
+        <translation>Τα αιτήματα SSL ενδέχεται να υποκλαπούν στο δίκτυό σας. Η παράβλεψη σφαλμάτων SSL απενεργοποιεί την επικύρωση πιστοποιητικού TLS για αυτήν την περίοδο λειτουργίας: οποιοσδήποτε μπορεί να υποκλέψει την επισκεψιμότητά σας μπορεί στη συνέχεια να μιμηθεί το Windscribe και να διαβάσει ή να τροποποιήσει τα δεδομένα σας και δεν μπορούμε να εγγυηθούμε την ασφάλειά σας ενώ είναι ενεργοποιημένη. Να αγνοήσετε τα σφάλματα SSL;</translation>
     </message>
     <message>
         <source>Connected to </source>
@@ -914,7 +910,7 @@ Recovering...</source>
         <translation>Επιλέξτε μια εφαρμογή</translation>
     </message>
     <message>
-        <source>Read-only file</source>
+        <source>Read-Only File</source>
         <translation>Αρχείο μόνο για ανάγνωση</translation>
     </message>
     <message>
@@ -1207,19 +1203,11 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Προηγμένες παράμετροι</translation>
     </message>
     <message>
-        <source>Ignore SSL certificate validation errors.</source>
-        <translation>Αγνοήστε τα σφάλματα επικύρωσης πιστοποιητικού SSL.</translation>
-    </message>
-    <message>
-        <source>Ignore SSL Errors</source>
-        <translation>Παράβλεψη σφαλμάτων SSL</translation>
-    </message>
-    <message>
         <source>Prevents connections from dying (by time-out) by periodically pinging the server.</source>
         <translation>Αποτρέπει το θάνατο των συνδέσεων (λόγω χρονικού ορίου) με περιοδική αποστολή ping στο διακομιστή.</translation>
     </message>
     <message>
-        <source>Client-side Keepalive</source>
+        <source>Client-Side Keepalive</source>
         <translation>Διατήρηση εν ενεργεία από την πλευρά του πελάτη</translation>
     </message>
     <message>
@@ -1258,7 +1246,7 @@ If the problem persists after a restart, please send a debug log and open a supp
 <context>
     <name>PreferencesWindow::AntiCensorshipWindowItem</name>
     <message>
-        <source>Anti-censorship</source>
+        <source>Anti-Censorship</source>
         <translation>Κατά της λογοκρισίας</translation>
     </message>
     <message>
@@ -1463,10 +1451,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Προσδιορίστε αυτόματα την MTU για τη σύνδεσή σας ή παρακάμψτε χειροκίνητα.  Αυτό δεν έχει καμία επίδραση στα πρωτόκολλα που βασίζονται σε TCP.</translation>
     </message>
     <message>
-        <source>Configure egress IP stack for VPN connections.</source>
-        <translation>Διαμορφώστε τη στοίβα IP εξόδου για συνδέσεις VPN.</translation>
-    </message>
-    <message>
         <source>IP Stack</source>
         <translation>Στοίβα IP</translation>
     </message>
@@ -1515,6 +1499,10 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Εκκαθάριση ιστορικού Wi-Fi</translation>
     </message>
     <message>
+        <source>Configure egress IP stack for VPN connections (WireGuard only).</source>
+        <translation>Διαμορφώστε τη στοίβα IP εξόδου για συνδέσεις VPN (μόνο WireGuard).</translation>
+    </message>
+    <message>
         <source>Are you sure?</source>
         <translation>Είσαι σίγουρος?</translation>
     </message>
@@ -1527,7 +1515,7 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Καταργήστε τις πληροφορίες SSID και MAC Wi-Fi από το λειτουργικό σας σύστημα για να αποτρέψετε την παρακολούθηση του ιστορικού τοποθεσίας.</translation>
     </message>
     <message>
-        <source>Anti-censorship Settings</source>
+        <source>Anti-Censorship Settings</source>
         <translation>Ρυθμίσεις κατά της λογοκρισίας</translation>
     </message>
 </context>
@@ -1732,7 +1720,7 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Επιλέξτε συμπεριφορά όταν το παράθυρο είναι ενεργοποιημένο με πολλές επιφάνειες εργασίας.</translation>
     </message>
     <message>
-        <source>Multi-desktop</source>
+        <source>Multi-Desktop</source>
         <translation>Πολλαπλοί επιτραπέζιοι υπολογιστές</translation>
     </message>
     <message>
@@ -2739,6 +2727,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <translation>Η παράμετρος init AmneziaWG είναι πολύ μεγάλη</translation>
     </message>
     <message>
+        <source>AmneziaWG init parameter contains invalid characters</source>
+        <translation>Η παράμετρος init AmneziaWG περιέχει μη έγκυρους χαρακτήρες</translation>
+    </message>
+    <message>
         <source>Static IPs</source>
         <translation>Στατικές IP</translation>
     </message>
@@ -2873,7 +2865,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
 <context>
     <name>TwoFactorAuthWindow::TwoFactorAuthWindowItem</name>
     <message>
-        <source>Two-factor Auth</source>
+        <source>Two-Factor Auth</source>
         <translation>Έλεγχος ταυτότητας δύο παραγόντων</translation>
     </message>
     <message>

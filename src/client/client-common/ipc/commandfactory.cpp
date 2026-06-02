@@ -22,6 +22,8 @@ Command *CommandFactory::makeCommand(const std::string strId, char *buf, int siz
         return new IPC::CliCommands::Connect(buf, size);
     } else if (strId == IPC::CliCommands::Disconnect::getCommandStringId()) {
         return new IPC::CliCommands::Disconnect(buf, size);
+    } else if (strId == IPC::CliCommands::SetIgnoreSslErrors::getCommandStringId()) {
+        return new IPC::CliCommands::SetIgnoreSslErrors(buf, size);
     } else if (strId == IPC::CliCommands::ShowLocations::getCommandStringId()) {
         return new IPC::CliCommands::ShowLocations(buf, size);
     } else if (strId == IPC::CliCommands::LocationsList::getCommandStringId()) {

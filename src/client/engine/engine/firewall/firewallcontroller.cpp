@@ -10,7 +10,6 @@ void FirewallController::firewallOn(const QString &connectingIp, const QSet<QStr
 {
     if (!bInitialized_) {
         bStateChanged_ = true;
-        bInitialized_ = true;
     } else {
         bStateChanged_ = (latestEnabledState_ != true ||
                           latestConnectingIp_ != connectingIp ||
@@ -19,23 +18,32 @@ void FirewallController::firewallOn(const QString &connectingIp, const QSet<QStr
                           latestIsCustomConfig_ != bIsCustomConfig ||
                           latestIsVpnConnected_ != isVpnConnected);
     }
+}
+
+void FirewallController::commitFirewallOn(const QString &connectingIp, const QSet<QString> &ips, bool bAllowLanTraffic, bool bIsCustomConfig, bool isVpnConnected)
+{
     latestConnectingIp_ = connectingIp;
     latestIps_ = ips;
     latestAllowLanTraffic_ = bAllowLanTraffic;
     latestIsCustomConfig_ = bIsCustomConfig;
     latestIsVpnConnected_ = isVpnConnected;
     latestEnabledState_ = true;
+    bInitialized_ = true;
 }
 
 void FirewallController::firewallOff()
 {
     if (!bInitialized_) {
         bStateChanged_ = true;
-        bInitialized_ = true;
     } else {
         bStateChanged_ = (latestEnabledState_ != false);
     }
+}
+
+void FirewallController::commitFirewallOff()
+{
     latestEnabledState_ = false;
+    bInitialized_ = true;
 }
 
 bool FirewallController::whitelistPorts(const api_responses::StaticIpPortsVector &ports)

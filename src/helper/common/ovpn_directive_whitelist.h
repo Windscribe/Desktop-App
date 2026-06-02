@@ -250,6 +250,7 @@ inline const std::unordered_set<std::string>& allowedInlineBlockTags()
 inline std::string extractInlineBlockTag(const std::string &line, size_t start, bool &isClosing)
 {
     isClosing = false;
+    bool closing = false;
     // Must start with '<'
     if (start >= line.size() || line[start] != '<') {
         return "";
@@ -259,7 +260,7 @@ inline std::string extractInlineBlockTag(const std::string &line, size_t start, 
 
     // Check for closing tag
     if (pos < line.size() && line[pos] == '/') {
-        isClosing = true;
+        closing = true;
         ++pos;
     }
 
@@ -275,10 +276,23 @@ inline std::string extractInlineBlockTag(const std::string &line, size_t start, 
 
     std::string tag = line.substr(nameStart, pos - nameStart);
 
+    // Reject anything other than whitespace after '>'. OpenVPN treats inline
+    // tags as line-anchored; if we accepted "<ca> trailing-data" as an opener
+    // while OpenVPN did not, blocked directives placed inside the apparent
+    // block could survive filtering.
+    ++pos;
+    while (pos < line.size()) {
+        if (line[pos] != ' ' && line[pos] != '\t' && line[pos] != '\r' && line[pos] != '\n') {
+            return "";
+        }
+        ++pos;
+    }
+
     // Lowercase
     std::transform(tag.begin(), tag.end(), tag.begin(),
                    [](unsigned char c) { return std::tolower(c); });
 
+    isClosing = closing;
     return tag;
 }
 

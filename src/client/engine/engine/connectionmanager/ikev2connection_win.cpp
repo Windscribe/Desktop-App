@@ -7,7 +7,6 @@
 #include <QElapsedTimer>
 
 #include "adapterutils_win.h"
-#include "engine/taputils/checkadapterenable.h"
 #include "utils/log/categories.h"
 #include "utils/ras_service_win.h"
 #include "utils/winutils.h"
@@ -226,7 +225,7 @@ void IKEv2Connection_win::handleErrorReinstallWan()
         return;
     }
 
-    if (CheckAdapterEnable::isAdapterDisabled(helper_, "WAN Miniport (IKEv2)") || CheckAdapterEnable::isAdapterDisabled(helper_, "WAN Miniport (IP)")) {
+    if (helper_->isWanIkev2AdapterDisabled()) {
         qCInfo(LOG_IKEV2) << "WAN Miniport (IKEv2) or WAN Miniport (IP) disabled, try enable it";
         helper_->enableWanIkev2();
         // pause 3 secs, before connect
@@ -400,7 +399,7 @@ void IKEv2Connection_win::doConnect()
         return;
     }
 
-    if (!helper_->addHosts(initialIp_ + " " + initialUrl_))
+    if (!helper_->addHosts(initialIp_, initialUrl_))
     {
         qCCritical(LOG_IKEV2) << "Can't modify hosts file";
         state_ = STATE_DISCONNECTED;

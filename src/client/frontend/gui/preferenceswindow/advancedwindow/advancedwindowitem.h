@@ -33,14 +33,12 @@ public:
 signals:
     void advParametersClick();
 private slots:
-    void onIgnoreSslErrorsStateChanged(bool isChecked);
     void onKeepAliveStateChanged(bool isChecked);
     void onAppInternalDnsItemChanged(QVariant dns);
 #ifdef Q_OS_LINUX
     void onDnsManagerItemChanged(QVariant dns);
 #endif
 
-    void onIgnoreSslErrorsPreferencesChanged(bool b);
     void onKeepAlivePreferencesChanged(bool b);
     void onDnsPolicyPreferencesChanged(DNS_POLICY_TYPE d);
 #ifdef Q_OS_LINUX
@@ -59,8 +57,6 @@ private:
     PreferenceGroup *advParametersGroup_;
     LinkItem *advParametersItem_;
 
-    PreferenceGroup *ignoreSslErrorsGroup_;
-    ToggleItem *cbIgnoreSslErrors_;
     PreferenceGroup *keepAliveGroup_;
     ToggleItem *cbKeepAlive_;
     PreferenceGroup *internalDnsGroup_;

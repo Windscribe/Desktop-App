@@ -190,7 +190,7 @@ void ProxySettings::validate()
 
     bool needsReset = false;
     if (option_ == PROXY_OPTION_HTTP) {
-        if (!NetworkingValidation::isIp(address_) && !NetworkingValidation::isDomain(address_)) {
+        if (!NetworkingValidation::isIp(address_)) {
             qCWarning(LOG_BASIC) << "ProxySettings: invalid address, disabling proxy";
             needsReset = true;
         } else if (!NetworkingValidation::isValidPort(static_cast<int>(port_))) {

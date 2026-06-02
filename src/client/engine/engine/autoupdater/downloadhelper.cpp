@@ -220,6 +220,18 @@ void DownloadHelper::removeAutoUpdateInstallerFiles()
         QFile::remove(installerPath);
     }
 
+#ifdef Q_OS_LINUX
+    // Linux fetches sibling artifacts (.pub for all formats, .asc for .deb, .sig for Arch)
+    // alongside the package; clean those up too so a stale verification artifact from a
+    // prior session can't get paired with a new package.
+    for (const QString &suffix : { QStringLiteral(".pub"), QStringLiteral(".asc"), QStringLiteral(".sig") }) {
+        const QString siblingPath = installerPath + suffix;
+        if (QFile::exists(siblingPath)) {
+            QFile::remove(siblingPath);
+        }
+    }
+#endif
+
 #ifdef Q_OS_MACOS
     // remove temp installer.app on mac:
     // | installer.app was unpacked from above .dmg

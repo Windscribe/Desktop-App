@@ -50,7 +50,7 @@ case "$script_type" in
         fi
     done
 
-    "$DNS_LEAK_SCRIPT" "up" "${servers[@]}"
+    "$DNS_LEAK_SCRIPT" "up" "$dev" "${servers[@]}"
 
     # Prioritize IPv4 to avoid delays when IPv6 is blocked
     GAI_SCRIPT=$SCRIPT_DIR/gai-ipv4-priority

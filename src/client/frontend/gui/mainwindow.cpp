@@ -1909,16 +1909,16 @@ void MainWindow::onBackendLoginError(wsnet::LoginResult loginError, const QStrin
 {
     // This error is special in that we can show the prompt any time
     if (loginError == wsnet::LoginResult::kSslError) {
-        GeneralMessageController::instance().showMessage(
+        GeneralMessageController::instance().showMessageWithRedAccept(
             "WARNING_WHITE",
             tr("SSL Error"),
-            tr("We detected that SSL requests may be intercepted on your network. This could be due to a firewall configured on your computer, or Windscribe being blocked by your network administrator. Ignore SSL errors?"),
+            tr("SSL requests may be intercepted on your network. Ignoring SSL errors disables TLS certificate validation for this session: anyone able to intercept your traffic can then impersonate Windscribe and read or alter your data, and we can't guarantee your security while it's on. Ignore SSL errors?"),
             GeneralMessageController::tr(GeneralMessageController::kYes),
             GeneralMessageController::tr(GeneralMessageController::kNo),
             "",
             [this](bool b) {
                 if (!isLastCallWasSignup_) {
-                    backend_->getPreferences()->setIgnoreSslErrors(true);
+                    backend_->setIgnoreSslErrors(true);
                     if (!isLoginOkAndConnectWindowVisible_) {
                         mainWindowController_->getLoggingInWindow()->setMessage(tr("Logging you in..."));
                         mainWindowController_->getLoggingInWindow()->setAdditionalMessage("");
@@ -3651,7 +3651,7 @@ void MainWindow::handleDisconnectWithError(const types::ConnectState &connectSta
         return;
     } else if (connectState.connectError == IKEV_FAILED_MODIFY_HOSTS_WIN) {
         GeneralMessageController::instance().showMessage("WARNING_WHITE",
-                                               tr("Read-only file"),
+                                               tr("Read-Only File"),
                                                tr("Your hosts file is read-only. IKEv2 connectivity requires for it to be writable. Fix the issue automatically?"),
                                                GeneralMessageController::tr(GeneralMessageController::kYes),
                                                GeneralMessageController::tr(GeneralMessageController::kNo),

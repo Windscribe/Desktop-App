@@ -1,6 +1,7 @@
 #include "firewallcontroller_win.h"
-#include <QStandardPaths>
-#include <QDir>
+
+#include <QStringList>
+
 #include "utils/log/categories.h"
 
 FirewallController_win::FirewallController_win(QObject *parent, Helper *helper) : FirewallController(parent),
@@ -18,20 +19,10 @@ void FirewallController_win::firewallOn(const QString &connectingIp, const QSet<
     FirewallController::firewallOn(connectingIp, ips, bAllowLanTraffic, bIsCustomConfig, isVpnConnected);
     if (isStateChanged())
     {
-        QString ipStr;
-        for (const QString &ip : ips)
-        {
-            ipStr += ip + ";";
-        }
-
-        if (ipStr.endsWith(";"))
-        {
-            ipStr = ipStr.remove(ipStr.length() - 1, 1);
-        }
-
         qCInfo(LOG_FIREWALL_CONTROLLER) << "firewall enabled with ips count:" << ips.count();
-        helper_->firewallOn(connectingIp, ipStr, bAllowLanTraffic, bIsCustomConfig);
+        helper_->firewallOn(connectingIp, QStringList(ips.begin(), ips.end()), bAllowLanTraffic, bIsCustomConfig);
     }
+    commitFirewallOn(connectingIp, ips, bAllowLanTraffic, bIsCustomConfig, isVpnConnected);
 }
 
 void FirewallController_win::firewallOff()
@@ -43,6 +34,7 @@ void FirewallController_win::firewallOff()
         qCInfo(LOG_FIREWALL_CONTROLLER) << "firewall disabled";
         helper_->firewallOff();
     }
+    commitFirewallOff();
 }
 
 bool FirewallController_win::firewallActualState()
@@ -63,9 +55,9 @@ bool FirewallController_win::deleteWhitelistPorts()
     return helper_->deleteWhitelistPorts();
 }
 
-void FirewallController_win::setInterfaceToSkip_posix(const QString &interfaceToSkip)
+void FirewallController_win::setVpnInterface_posix(const QString &vpnInterface)
 {
-    Q_UNUSED(interfaceToSkip);
+    Q_UNUSED(vpnInterface);
     //nothing todo for Windows
 }
 

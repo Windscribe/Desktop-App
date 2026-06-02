@@ -498,10 +498,6 @@
         <translation>Introduza o email</translation>
     </message>
     <message>
-        <source>For password recovery, updates &amp; promo only. No spam.</source>
-        <translation>Para recuperação de palavra-passe, atualizações e promoção apenas. Sem spam.</translation>
-    </message>
-    <message>
         <source>Voucher Code?</source>
         <translation>Código de voucher?</translation>
     </message>
@@ -650,10 +646,6 @@ Se perderes o hash da tua conta, ele desaparece para sempre e o suporte não te 
         <translation>Erro SSL</translation>
     </message>
     <message>
-        <source>We detected that SSL requests may be intercepted on your network. This could be due to a firewall configured on your computer, or Windscribe being blocked by your network administrator. Ignore SSL errors?</source>
-        <translation>Detetamos que solicitações SSL podem ser intercetadas em sua rede. Isso pode ser devido a um firewall configurado no seu computador ou ao bloqueio do Windscribe pelo administrador da rede. Ignorar erros de SSL?</translation>
-    </message>
-    <message>
         <source>Disconnected</source>
         <translation>Desconectado</translation>
     </message>
@@ -676,6 +668,10 @@ Se perderes o hash da tua conta, ele desaparece para sempre e o suporte não te 
     <message>
         <source>Later</source>
         <translation>Mais tarde</translation>
+    </message>
+    <message>
+        <source>SSL requests may be intercepted on your network. Ignoring SSL errors disables TLS certificate validation for this session: anyone able to intercept your traffic can then impersonate Windscribe and read or alter your data, and we can&apos;t guarantee your security while it&apos;s on. Ignore SSL errors?</source>
+        <translation>Os pedidos SSL podem ser interceptados na sua rede. Ignorar erros SSL desativa a validação do certificado TLS para esta sessão: qualquer pessoa capaz de intercetar o seu tráfego pode então fazer-se passar pelo Windscribe e ler ou alterar os seus dados, e não podemos garantir a sua segurança enquanto estiver ativa. Ignorar erros SSL?</translation>
     </message>
     <message>
         <source>Connected to </source>
@@ -798,7 +794,7 @@ A recuperar...</translation>
         <translation>Selecione uma aplicação</translation>
     </message>
     <message>
-        <source>Read-only file</source>
+        <source>Read-Only File</source>
         <translation>Arquivo somente leitura</translation>
     </message>
     <message>
@@ -1207,19 +1203,11 @@ Se o problema persistir após uma reinicialização, envie um log de depuração
         <translation>Parâmetros avançados</translation>
     </message>
     <message>
-        <source>Ignore SSL certificate validation errors.</source>
-        <translation>Ignore os erros de validação do certificado SSL.</translation>
-    </message>
-    <message>
-        <source>Ignore SSL Errors</source>
-        <translation>Ignorar erros SSL</translation>
-    </message>
-    <message>
         <source>Prevents connections from dying (by time-out) by periodically pinging the server.</source>
         <translation>Impede que as conexões morram (por tempo limite) executando periodicamente ping no servidor.</translation>
     </message>
     <message>
-        <source>Client-side Keepalive</source>
+        <source>Client-Side Keepalive</source>
         <translation>Keepalive do lado do cliente</translation>
     </message>
     <message>
@@ -1258,7 +1246,7 @@ Se o problema persistir após uma reinicialização, envie um log de depuração
 <context>
     <name>PreferencesWindow::AntiCensorshipWindowItem</name>
     <message>
-        <source>Anti-censorship</source>
+        <source>Anti-Censorship</source>
         <translation>Anti-censura</translation>
     </message>
     <message>
@@ -1451,10 +1439,6 @@ Se o problema persistir após uma reinicialização, envie um log de depuração
         <translation>Escolha automaticamente o protocolo VPN ou selecione um manualmente. NOTA: &quot;Protocolo preferencial&quot; substituirá esta definição.</translation>
     </message>
     <message>
-        <source>Configure egress IP stack for VPN connections.</source>
-        <translation>Configure a pilha de IP de saída para ligações VPN.</translation>
-    </message>
-    <message>
         <source>IP Stack</source>
         <translation>IP Stack</translation>
     </message>
@@ -1511,6 +1495,10 @@ Se o problema persistir após uma reinicialização, envie um log de depuração
         <translation>Neste modo de firewall, a API Windscribe não estará disponível enquanto estiver desconectada, isso pode ter consequências indesejadas. Utilização por conta e risco.</translation>
     </message>
     <message>
+        <source>Configure egress IP stack for VPN connections (WireGuard only).</source>
+        <translation>Configure a pilha de IP de saída para ligações VPN (apenas WireGuard).</translation>
+    </message>
+    <message>
         <source>Clear Wi-Fi History</source>
         <translation>História Limpa do Wi-Fi</translation>
     </message>
@@ -1527,7 +1515,7 @@ Se o problema persistir após uma reinicialização, envie um log de depuração
         <translation>Remova o SSID Wi-Fi e as informações MAC do seu sistema operativo para evitar o rastreio do histórico de localização.</translation>
     </message>
     <message>
-        <source>Anti-censorship Settings</source>
+        <source>Anti-Censorship Settings</source>
         <translation>Definições Anti-censura</translation>
     </message>
 </context>
@@ -1740,7 +1728,7 @@ Se o problema persistir após uma reinicialização, envie um log de depuração
         <translation>Versão</translation>
     </message>
     <message>
-        <source>Multi-desktop</source>
+        <source>Multi-Desktop</source>
         <translation>Multi-área de trabalho</translation>
     </message>
     <message>
@@ -2687,6 +2675,10 @@ Se a reinstalação não ajudar, entre em contato com o suporte do Windscribe pa
         <translation>O parâmetro de entrada do AmneziaWG é demasiado grande</translation>
     </message>
     <message>
+        <source>AmneziaWG init parameter contains invalid characters</source>
+        <translation>O parâmetro de entrada do AmneziaWG contém caracteres inválidos</translation>
+    </message>
+    <message>
         <source>Static IPs</source>
         <translation>IPs estáticos</translation>
     </message>
@@ -2873,7 +2865,7 @@ Se a reinstalação não ajudar, entre em contato com o suporte do Windscribe pa
 <context>
     <name>TwoFactorAuthWindow::TwoFactorAuthWindowItem</name>
     <message>
-        <source>Two-factor Auth</source>
+        <source>Two-Factor Auth</source>
         <translation>Autenticação de dois fatores</translation>
     </message>
     <message>

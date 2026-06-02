@@ -1,3 +1,28 @@
+2.23.5 (02/06/2026)
+All:
+   * Improved Belarusian translations in the desktop app, installer, and CLI from GitHub user dubovy-achvelak. #1846
+   * Improved Proxy Gateway privacy by no longer logging blocked destinations for HTTP and SOCKS gateway requests. #1843
+   * Improved IP Stack preference wording to clarify it applies to WireGuard only. #1842
+   * Improved Preferences title casing consistency. #1840
+   * Improved Sign Up screen helper text styling under the Password and Email fields. #1775
+   * Improved JSON/INI import consistency for proxy sharing and MAC spoofing settings. #1795
+   * Fixed persistent Ignore SSL Errors preference behavior so TLS validation bypass is runtime-only and does not survive app restart. #1834 #1745
+   * Fixed AmneziaWG custom WireGuard I-values allowing newline/config injection in imported custom configs. #1838
+   * Fixed malformed OpenVPN inline tags bypassing custom config directive filtering. #1839
+   * Fixed Connected DNS Custom 0.0.0.0 breaking local ctrld resolver behavior while connected. #1841
+Windows:
+   * Improved Windows helper IPC parameter validation to reduce local IPC attack surface. #1797
+macOS:
+   * Fixed split tunneling disabled message handling by backporting the ESET desktop fix. #1845
+Linux:
+   * Added package signing and update authenticity hardening for supported Linux packages. #652
+   * Improved Linux helper IPC/API hardening after EGL gid-check bypass review. #1830
+   * Fixed IPv6 split-tunnel routes being added without the required interface name. #1833
+   * Fixed IPv6 DNS leak protection missing ip6tables rules for IPv6 DNS resolvers. #1832
+   * Fixed Linux split-tunneling process monitor skipping proc events after the first netlink read. #1836
+   * Fixed Linux split-tunneling setup failures being reported as successful. #1837
+   
+
 2.23.4 (21/05/2026)
 All:
    * Added IPv6 connection modes for WireGuard locations that support IPv6. #1687

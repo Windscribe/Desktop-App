@@ -25,7 +25,6 @@ struct EngineSettingsData : public QSharedData
     EngineSettingsData() {}
 
     UPDATE_CHANNEL updateChannel = UPDATE_CHANNEL_RELEASE;
-    bool isIgnoreSslErrors = false;
     bool isTerminateSockets = true;
     bool isAPIAntiCensorship = false;      // This option enables the ExtraTLSPadding flag in the wsnet library. It only affects the API access method.
     bool isAllowLanTraffic = false;
@@ -64,7 +63,6 @@ private:
     static const inline QString kIniDnsPolicyProp = "DNSPolicy";
     static const inline QString kIniIsAllowLanTrafficProp = "AllowLANTraffic";
     static const inline QString kIniIsAntiCensorshipProp = "CircumventCensorship";
-    static const inline QString kIniIsIgnoreSslErrorsProp = "IgnoreSSLErrors";
     static const inline QString kIniIsKeepAliveEnabledProp = "ClientsideKeepalive";
     static const inline QString kIniLanguageProp = "Language";
     static const inline QString kIniUpdateChannelProp = "UpdateChannel";
@@ -82,7 +80,6 @@ private:
     static const inline QString kJsonFirewallSettingsProp = "firewallSettings";
     static const inline QString kJsonIsAllowLanTrafficProp = "isAllowLanTraffic";
     static const inline QString kJsonIsAntiCensorshipProp = "isAntiCensorship";
-    static const inline QString kJsonIsIgnoreSslErrorsProp = "isIgnoreSslErrors";
     static const inline QString kJsonIsKeepAliveEnabledProp = "isKeepAliveEnabled";
     static const inline QString kJsonIsTerminateSocketsProp = "isTerminateSockets";
     static const inline QString kJsonLanguageProp = "language";
@@ -114,8 +111,6 @@ public:
     QString amneziawgPreset() const;
     void setAmneziawgPreset(const QString &preset);
 
-    bool isIgnoreSslErrors() const;
-    void setIsIgnoreSslErrors(bool ignore);
     bool isTerminateSockets() const;
     void setIsTerminateSockets(bool close);
     bool isAPIAntiCensorship() const;
@@ -180,7 +175,7 @@ private:
 
     // for serialization
     static constexpr quint32 magic_ = 0x7745C2AE;
-    static constexpr int versionForSerialization_ = 11;  // should increment the version if the data format is changed
+    static constexpr int versionForSerialization_ = 12;  // should increment the version if the data format is changed
 };
 
 } // types namespace

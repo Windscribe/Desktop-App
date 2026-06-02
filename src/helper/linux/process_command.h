@@ -19,7 +19,6 @@ std::string startCtrld(const std::string &pars);
 std::string checkFirewallState(const std::string &pars);
 std::string clearFirewallRules(const std::string &pars);
 std::string setFirewallRules(const std::string &pars);
-std::string getFirewallRules(const std::string &pars);
 std::string setFirewallOnBoot(const std::string &pars);
 std::string startStunnel(const std::string &pars);
 std::string startWstunnel(const std::string &pars);
@@ -29,6 +28,8 @@ std::string setGaiIpv4PriorityEnabled(const std::string &pars);
 std::string resetMacAddresses(const std::string &pars);
 std::string clearWifiHistoryData(const std::string &pars);
 std::string setOpenVpnDcoMode(const std::string &pars);
+std::string installerStageAndVerify(const std::string &pars);
+std::string installerCleanupStaged(const std::string &pars);
 
 static const std::map<const HelperCommand, std::function<std::string(const std::string &)>> kCommands = {
     { HelperCommand::getHelperVersion, getHelperVersion },
@@ -45,7 +46,6 @@ static const std::map<const HelperCommand, std::function<std::string(const std::
     { HelperCommand::checkFirewallState, checkFirewallState },
     { HelperCommand::clearFirewallRules, clearFirewallRules },
     { HelperCommand::setFirewallRules, setFirewallRules },
-    { HelperCommand::getFirewallRules, getFirewallRules },
     { HelperCommand::setFirewallOnBoot, setFirewallOnBoot },
     { HelperCommand::startStunnel, startStunnel },
     { HelperCommand::startWstunnel, startWstunnel },
@@ -54,7 +54,9 @@ static const std::map<const HelperCommand, std::function<std::string(const std::
     { HelperCommand::setGaiIpv4PriorityEnabled, setGaiIpv4PriorityEnabled },
     { HelperCommand::resetMacAddresses, resetMacAddresses },
     { HelperCommand::clearWifiHistoryData, clearWifiHistoryData },
-    { HelperCommand::setOpenVpnDcoMode, setOpenVpnDcoMode }
+    { HelperCommand::setOpenVpnDcoMode, setOpenVpnDcoMode },
+    { HelperCommand::installerStageAndVerify, installerStageAndVerify },
+    { HelperCommand::installerCleanupStaged, installerCleanupStaged }
 };
 
 std::string processCommand(HelperCommand cmdId, const std::string &pars);

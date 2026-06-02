@@ -82,28 +82,27 @@ bool FirewallOnBootManager::setEnabled(bool enabled, bool allowLanTraffic)
 bool FirewallOnBootManager::enable(bool allowLanTraffic) {
     std::stringstream rules;
 
-    // Pre-parse ipTable_ once and split entries by address family. The list is
-    // populated from Engine::firewallExceptions_, which can include v6 DNS
-    // servers / host IPs in dual-stack builds. Family detection goes through the
-    // shared types::IpAddress boundary so this site stays consistent with the rest
-    // of the codebase (instead of an ad-hoc ':' heuristic). The engine-side
-    // validation in firewallexceptions.cpp already guarantees non-empty, syntactically
-    // valid IPs; we only guard against the trailing-space token produced by
-    // Helper_posix::setFirewallOnBoot's `ipTableStr += " "`.
+    // Split entries by address family. The list is populated from Engine::firewallExceptions_, which
+    // can include v6 DNS servers / host IPs in dual-stack builds. Each entry is round-tripped through
+    // types::IpAddress so we both classify by real family and drop anything that fails inet_pton —
+    // defence in depth against a future producer feeding a malformed token into the boot
+    // iptables-restore blob (arbitrary rule injection, root, persisted across reboots). A valid
+    // IP/CIDR can carry no whitespace, so validate-and-drop closes that. Mirrors the macOS
+    // firewallonboot path.
     std::stringstream v4IpTableRules;
     std::stringstream v6IpTableRules;
-    {
-        std::istringstream ips(ipTable_);
-        std::string ip;
-        while (std::getline(ips, ip, ' ')) {
-            if (ip.empty()) {
-                continue;
-            }
-            const bool isV6 = (types::IpAddress::detectFamily(ip) == types::IpAddress::IPv6);
-            std::stringstream &out = isV6 ? v6IpTableRules : v4IpTableRules;
-            out << "-A " WS_PRODUCT_NAME_LOWER "_input -s " + ip + " -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
-            out << "-A " WS_PRODUCT_NAME_LOWER "_output -d " + ip + " -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
+    for (const std::string &ip : ipTable_) {
+        if (ip.empty()) {
+            continue;
         }
+        const types::IpAddress parsed(ip);
+        if (!parsed.isValid()) {
+            spdlog::warn("FirewallOnBootManager: dropping invalid IP \"{}\" from boot ruleset", ip);
+            continue;
+        }
+        std::stringstream &out = parsed.isV6() ? v6IpTableRules : v4IpTableRules;
+        out << "-A " WS_PRODUCT_NAME_LOWER "_input -s " + ip + " -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
+        out << "-A " WS_PRODUCT_NAME_LOWER "_output -d " + ip + " -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
     }
 
     rules << "*filter\n";

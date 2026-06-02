@@ -13,6 +13,11 @@ public:
 public:
     explicit AdapterGatewayInfo();
     void setAdapterName(const QString &name) { adapterName_ = name; }
+    // Per-family interface name for the IPv6 default route. On a multi-homed host the
+    // v6 default route can live on a different NIC than the v4 default; storing it
+    // separately lets the helper emit v6 routes with the correct `dev`. Falls back to
+    // the v4 adapter name when not set (single-homed and VPN-adapter cases).
+    void setAdapterNameV6(const QString &name) { adapterNameV6_ = name; }
 
     void addAdapterIp(const types::IpAddress &ip);
     void addGatewayIp(const types::IpAddress &ip);
@@ -23,6 +28,7 @@ public:
     void setRemoteIp(const types::IpAddress &ip) { remoteIp_ = ip; }
     void setIfIndex(unsigned long ifIndex) { ifIndex_ = ifIndex; }
     QString adapterName() const { return adapterName_; }
+    QString adapterNameV6() const { return adapterNameV6_.isEmpty() ? adapterName_ : adapterNameV6_; }
 
     types::IpAddress adapterIpV4() const;
     types::IpAddress adapterIpV6() const;
@@ -36,6 +42,7 @@ public:
 
     void clear() {
         adapterName_.clear();
+        adapterNameV6_.clear();
         adapterIps_.clear();
         gatewayIps_.clear();
         dnsServers_.clear();
@@ -48,6 +55,7 @@ public:
 
 private:
     QString adapterName_;
+    QString adapterNameV6_;
     QVector<types::IpAddress> adapterIps_;
     QVector<types::IpAddress> gatewayIps_;
     QVector<types::IpAddress> dnsServers_;

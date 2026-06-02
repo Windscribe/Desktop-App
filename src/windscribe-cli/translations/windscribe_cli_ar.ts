@@ -115,6 +115,10 @@
         <translation>اسم مستخدم أو كلمة مرور أو رمز 2FA غير صحيح</translation>
     </message>
     <message>
+        <source>Could not log in.  Please try again.  If the problem continues, you can ignore SSL errors for this session, but we strongly recommend against it: doing so disables TLS certificate validation and could allow a third party to intercept your traffic.  To proceed anyway, run &quot;windscribe-cli ignoresslerrors on&quot;.</source>
+        <translation>لم أتمكن من تسجيل الدخول.  يرجى المحاولة مرة أخرى.  إذا استمرت المشكلة، يمكنك تجاهل أخطاء SSL لهذه الجلسة، لكننا نوصي بشدة بعدم القيام بذلك: فالقيام بذلك يعطل التحقق من صحة شهادة TLS وقد يسمح لطرف ثالث باعتراض حركة المرور الخاصة بك.  على أي حال، شغل &quot;windscribe-cli ignoresslerrors on&quot;.</translation>
+    </message>
+    <message>
         <source>SSL error</source>
         <translation>خطأ SSL</translation>
     </message>
@@ -329,6 +333,18 @@
     <message>
         <source>Not connected</source>
         <translation>غير متصل</translation>
+    </message>
+    <message>
+        <source>Ignoring SSL errors is only available when unable to log in.</source>
+        <translation>تجاهل أخطاء SSL متاح فقط عند عدم القدرة على تسجيل الدخول.</translation>
+    </message>
+    <message>
+        <source>Ignoring SSL errors for this session.</source>
+        <translation>تجاهل أخطاء SSL لهذه الجلسة.</translation>
+    </message>
+    <message>
+        <source>SSL errors will no longer be ignored.</source>
+        <translation>لن يتم تجاهل أخطاء SSL بعد الآن.</translation>
     </message>
     <message>
         <source>IP rotated.</source>

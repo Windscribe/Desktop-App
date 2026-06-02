@@ -120,7 +120,7 @@ up() {
   # Set dns leak protection
   SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
   DNS_LEAK_SCRIPT=$SCRIPT_DIR/dns-leak-protect
-  "$DNS_LEAK_SCRIPT" "up" ${dns_ips[@]}
+  "$DNS_LEAK_SCRIPT" "up" "$dev" "${dns_ips[@]}"
 
   # Prioritize IPv4 to avoid delays when IPv6 is blocked
   GAI_SCRIPT=$SCRIPT_DIR/gai-ipv4-priority

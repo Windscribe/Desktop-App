@@ -20,6 +20,7 @@ private slots:
 
     // ProxySettings
     void testProxySettings_resetOnBadHost();
+    void testProxySettings_resetOnDomain();
     void testProxySettings_resetOnBadPort();
     void testProxySettings_credentialOverflow();
     void testProxySettings_outOfRangeOption();
@@ -32,6 +33,7 @@ private slots:
     void testConnectedDnsInfo_badUpstream1();
     void testConnectedDnsInfo_capHostnames();
     void testConnectedDnsInfo_filtersInvalidHostnames();
+    void testConnectedDnsInfo_normalizesUnspecifiedUpstream();
 
     // ConnectionSettings
     void testConnectionSettings_badPort();

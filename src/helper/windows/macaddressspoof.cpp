@@ -4,6 +4,7 @@
 #include <spdlog/spdlog.h>
 #include <winreg/WinReg.hpp>
 
+#include "network_validation.h"
 #include "utils.h"
 
 namespace MacAddressSpoof
@@ -45,7 +46,7 @@ void set(const std::wstring &interfaceName, const std::wstring &value)
         return;
     }
 
-    if (!Utils::isMacAddress(value)) {
+    if (!NetworkValidation::isMacAddress(value)) {
         spdlog::error(L"MacAddressSpoof::set received an invalid MAC address {}", value);
         return;
     }

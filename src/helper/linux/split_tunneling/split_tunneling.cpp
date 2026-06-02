@@ -76,11 +76,23 @@ bool SplitTunneling::updateState()
         if (isExclude_) {
             // Exclude mode: host pins for excluded apps route via the default adapter.
             hostnamesManager_.enable(connectStatus_.defaultAdapter.gatewayIp,
-                                     connectStatus_.defaultAdapter.gatewayIpV6);
+                                     connectStatus_.defaultAdapter.gatewayIpV6,
+                                     connectStatus_.defaultAdapter.adapterIp,
+                                     connectStatus_.defaultAdapter.adapterIpV6,
+                                     connectStatus_.defaultAdapter.adapterName,
+                                     connectStatus_.defaultAdapter.adapterNameV6);
         } else {
             // Inclusive mode: host pins for included apps route via the VPN adapter.
+            // The adapter IPs are also forwarded so HostnamesManager/IpRoutes can
+            // detect the WireGuard point-to-point case (gatewayIp == adapterIp,
+            // see wireguardconnection_posix.cpp) and emit `dev <iface>` instead
+            // of `via <our-own-addr>`, which the kernel rejects.
             hostnamesManager_.enable(connectStatus_.vpnAdapter.gatewayIp,
-                                     connectStatus_.vpnAdapter.gatewayIpV6);
+                                     connectStatus_.vpnAdapter.gatewayIpV6,
+                                     connectStatus_.vpnAdapter.adapterIp,
+                                     connectStatus_.vpnAdapter.adapterIpV6,
+                                     connectStatus_.vpnAdapter.adapterName,
+                                     connectStatus_.vpnAdapter.adapterNameV6);
         }
     } else {
         CGroups::instance().disable();
@@ -98,5 +110,5 @@ bool SplitTunneling::updateState()
         connectStatus_.defaultAdapter.adapterName,
         connectStatus_.defaultAdapter.adapterIp.toString(),
         connectStatus_.defaultAdapter.adapterIpV6.toString());
-    return false;
+    return true;
 }

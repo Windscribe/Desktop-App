@@ -78,20 +78,18 @@ void AdapterMetricsController_win::updateMetrics(const QString &adapterName, Hel
             if (setupIPv4Metric > 2) {
                 setupIPv4Metric--;
             }
-            QString cmd = "netsh int ipv4 set interface interface=\"" + tapFriendlyName + "\" metric=" + QString::number(setupIPv4Metric);
-            qCDebug(LOG_BASIC) << "Execute cmd:" << cmd;
-            QString answer = helper->executeSetMetric("ipv4", tapFriendlyName, QString::number(setupIPv4Metric));
-            qCDebug(LOG_BASIC) << "Answer from netsh cmd:" << answer;
+            if (!helper->executeSetMetric(AF_INET, tapFriendlyName, setupIPv4Metric)) {
+                qCWarning(LOG_BASIC) << "AdapterMetricsController_win::updateMetrics(): failed to set IPv4 metric for" << tapFriendlyName;
+            }
         }
         if (tapAdapterIPv6Enabled && tapAdapterIPv6Metric >= minIPv6Metric) {
             ULONG setupIPv6Metric = minIPv6Metric;
             if (setupIPv6Metric > 2) {
                 setupIPv6Metric--;
             }
-            QString cmd = "netsh int ipv6 set interface interface=\"" + tapFriendlyName + "\" metric=" + QString::number(setupIPv6Metric);
-            qCDebug(LOG_BASIC) << "Execute cmd:" << cmd;
-            QString answer = helper->executeSetMetric("ipv6", tapFriendlyName, QString::number(setupIPv6Metric));
-            qCDebug(LOG_BASIC) << "Answer from netsh cmd:" << answer;
+            if (!helper->executeSetMetric(AF_INET6, tapFriendlyName, setupIPv6Metric)) {
+                qCWarning(LOG_BASIC) << "AdapterMetricsController_win::updateMetrics(): failed to set IPv6 metric for" << tapFriendlyName;
+            }
         }
     }
     else {

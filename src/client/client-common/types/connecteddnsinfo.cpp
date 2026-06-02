@@ -52,6 +52,25 @@ bool ConnectedDnsInfo::isCustomIPv4Address() const
     return type == CONNECTED_DNS_TYPE_CUSTOM && NetworkingValidation::isIp(upStream1) && isSplitDns == false;
 }
 
+void ConnectedDnsInfo::normalize()
+{
+    // A custom DNS upstream given as the wildcard listen address is reached on loopback, so we
+    // store the loopback equivalent as the actual upstream. Control D resolvers are not listen
+    // addresses, so only custom upstreams are touched.
+    if (type != CONNECTED_DNS_TYPE_CUSTOM) {
+        return;
+    }
+    const auto toLoopback = [](const QString &ip) {
+        if (NetworkingValidation::isUnspecifiedIp(ip)) {
+            return QString(NetworkingValidation::isIpv6(ip) ? "::1" : "127.0.0.1");
+        }
+        return ip;
+    };
+    upStream1 = toLoopback(upStream1);
+    if (isSplitDns) {
+        upStream2 = toLoopback(upStream2);
+    }
+}
 
 QJsonObject ConnectedDnsInfo::toJson() const
 {
@@ -122,6 +141,8 @@ void ConnectedDnsInfo::validate()
         qCWarning(LOG_BASIC) << "ConnectedDnsInfo: invalid upStream2, clearing";
         upStream2.clear();
     }
+
+    normalize();
 
     constexpr int kMaxHostnames = 1024;
     if (hostnames.size() > kMaxHostnames) {

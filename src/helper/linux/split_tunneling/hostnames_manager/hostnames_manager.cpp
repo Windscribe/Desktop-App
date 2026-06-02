@@ -12,15 +12,24 @@ HostnamesManager::~HostnamesManager()
 {
 }
 
-void HostnamesManager::enable(const types::IpAddress &gatewayIp, const types::IpAddress &gatewayIpV6)
+void HostnamesManager::enable(const types::IpAddress &gatewayIp,
+                              const types::IpAddress &gatewayIpV6,
+                              const types::IpAddress &adapterIp,
+                              const types::IpAddress &adapterIpV6,
+                              const std::string &adapterName,
+                              const std::string &adapterNameV6)
 {
     {
         std::lock_guard<std::recursive_mutex> guard(mutex_);
 
         gatewayIp_ = gatewayIp;
         gatewayIpV6_ = gatewayIpV6;
+        adapterIp_ = adapterIp;
+        adapterIpV6_ = adapterIpV6;
+        adapterName_ = adapterName;
+        adapterNameV6_ = adapterNameV6;
         ipRoutes_.clear();
-        ipRoutes_.setIps(gatewayIp_, gatewayIpV6_, ipsLatest_);
+        ipRoutes_.setIps(gatewayIp_, gatewayIpV6_, adapterIp_, adapterIpV6_, adapterName_, adapterNameV6_, ipsLatest_);
         FirewallController::instance().setSplitTunnelIpExceptions(ipsLatest_);
         isEnabled_ = true;
     }
@@ -83,7 +92,7 @@ void HostnamesManager::dnsResolverCallback(std::map<std::string, DnsResolver::Ho
     hostsIps.insert(hostsIps.end(), ipsLatest_.begin(), ipsLatest_.end());
 
     if (isEnabled_) {
-        ipRoutes_.setIps(gatewayIp_, gatewayIpV6_, hostsIps);
+        ipRoutes_.setIps(gatewayIp_, gatewayIpV6_, adapterIp_, adapterIpV6_, adapterName_, adapterNameV6_, hostsIps);
         FirewallController::instance().setSplitTunnelIpExceptions(hostsIps);
     }
 }

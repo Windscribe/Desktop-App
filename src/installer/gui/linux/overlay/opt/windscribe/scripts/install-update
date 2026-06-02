@@ -4,16 +4,6 @@ if [ -z "$1" ]; then
     exit 1
 fi
 
-hash_ok=0
-case "$2" in
-    *[!0-9a-f]*) ;;
-    ????????????????????????????????????????????????????????????????) hash_ok=1 ;;
-esac
-if [ "$hash_ok" != 1 ]; then
-    echo "Invalid or missing sha256 hash" >&2
-    exit 1
-fi
-
 platform=$(cat /etc/windscribe/platform 2>/dev/null || true)
 if [ -z "$platform" ]; then
     # should not be here
@@ -23,36 +13,51 @@ fi
 PRIVILEGED_SCRIPT='
 set -eu
 SRC=$1
-HASH=$2
-PLATFORM=$3
-WS_DISPLAY=$4
-WS_DBUS=$5
-WS_XDG=$6
-WS_XAUTH=$7
+PLATFORM=$2
+WS_DISPLAY=$3
+WS_DBUS=$4
+WS_XDG=$5
+WS_XAUTH=$6
+
+# Canonicalize $1 here (as root, where we can definitely traverse /var/lib/windscribe/update)
+# and pin to the helper-staged dir. This blocks a confused-deputy where a caller could pass
+# a symlink or unrelated path and trick us into installing an unrelated package.
+SRC=$(realpath -e -- "$SRC" 2>/dev/null)
+if [ -z "$SRC" ]; then
+    echo "install-update: \"$1\" does not exist or cannot be resolved" >&2
+    exit 1
+fi
+case "$SRC" in
+    /var/lib/windscribe/update/*) ;;
+    *)
+        echo "install-update: \"$SRC\" is not under /var/lib/windscribe/update/" >&2
+        exit 1
+        ;;
+esac
 
 case "$PLATFORM" in
-    linux_deb_x64|linux_deb_arm64) EXT=deb ;;
-    linux_rpm_x64|linux_rpm_arm64|linux_rpm_opensuse_x64) EXT=rpm ;;
-    linux_zst_x64) EXT=pkg.tar.zst ;;
+    linux_deb_x64|linux_deb_arm64|linux_rpm_x64|linux_rpm_arm64|linux_rpm_opensuse_x64|linux_zst_x64) ;;
     *) echo "Unsupported platform $PLATFORM" >&2; exit 1 ;;
 esac
 
-STAGING=/var/lib/windscribe/updates
-install -d -m 700 -o root -g root "$STAGING"
-STAGED="$STAGING/update.$EXT"
-
-install -m 600 -o root -g root -- "$SRC" "$STAGED"
-cleanup() { rm -f -- "$STAGED"; }
+# $SRC is the helper-staged path under /var/lib/windscribe/update/, already root-owned
+# and signature-verified by the helper. No re-staging or hash check here — the helper
+# is the authority. Clean up the staged file on exit so it does not survive the install.
+cleanup() { rm -f -- "$SRC" "${SRC}.pub" "${SRC}.asc" "${SRC}.sig"; }
 trap cleanup EXIT
 
-ACTUAL=$(sha256sum -- "$STAGED" | cut -d" " -f1)
-if [ "$ACTUAL" != "$HASH" ]; then
-    echo "Hash mismatch, aborting install" >&2
-    exit 2
-fi
-
 USER_NAME=$(getent passwd "$PKEXEC_UID" | cut -d: -f1)
+if [ -z "$USER_NAME" ]; then
+    echo "install-update: no passwd entry for PKEXEC_UID=$PKEXEC_UID" >&2
+    exit 1
+fi
 : "${WS_XDG:=/run/user/$PKEXEC_UID}"
+
+# The helper already verified $SRC against the compile-time master fingerprint with gpgv
+# before staging it here, so the native package-manager signature check is redundant. We
+# skip it per-invocation below rather than importing the master key into the system rpmdb /
+# pacman keyring — an import would grant that key permanent system-wide trust that survives
+# uninstall.
 
 trap - EXIT
 (
@@ -68,41 +73,54 @@ trap - EXIT
 
     case "$PLATFORM" in
         linux_deb_x64|linux_deb_arm64)
-            APT_LISTBUGS_FRONTEND=none apt install -y --reinstall "$STAGED"
+            APT_LISTBUGS_FRONTEND=none apt install -y --reinstall "$SRC"
             ;;
         linux_rpm_x64|linux_rpm_arm64)
             if command -v rpm-ostree >/dev/null; then
-                rpm-ostree upgrade --cache-only --reboot --uninstall windscribe --install "$STAGED"
+                rpm-ostree upgrade --cache-only --uninstall windscribe --install "$SRC"
+                cleanup
+                trap - EXIT
+                systemctl reboot
+                exit 0
             else
-                dnf upgrade --cacheonly -y "$STAGED"
+                dnf upgrade --cacheonly -y --nogpgcheck "$SRC"
             fi
             ;;
         linux_rpm_opensuse_x64)
             if [ -f /usr/sbin/transactional-update ]; then
-                transactional-update -n pkg install --allow-unsigned-rpm "$STAGED"
+                transactional-update -n run zypper --no-gpg-checks --non-interactive install --force "$SRC"
+                cleanup
+                trap - EXIT
                 reboot
                 exit 0
             else
-                zypper --non-interactive install --force --allow-unsigned-rpm "$STAGED"
+                zypper --non-interactive --no-gpg-checks install --force "$SRC"
             fi
             ;;
         linux_zst_x64)
-            pacman -U --noconfirm "$STAGED"
+            # pacman has no per-invocation skip-check flag (unlike dnf --nogpgcheck / zypper
+            # --no-gpg-checks). Under the default LocalFileSigLevel=Optional it would verify a
+            # present .sig against its keyring and reject our un-imported key, so drop the .sig
+            # and let Optional install the package unsigned — the helper already verified it.
+            rm -f -- "${SRC}.sig"
+            pacman -U --noconfirm "$SRC"
             ;;
     esac
 
+    # systemd-run --user puts Windscribe in the user logind session so a later in-app pkexec authenticates.
     runuser -u "$USER_NAME" -- env \
         DISPLAY="$WS_DISPLAY" \
         DBUS_SESSION_BUS_ADDRESS="$WS_DBUS" \
         XDG_RUNTIME_DIR="$WS_XDG" \
         XAUTHORITY="$WS_XAUTH" \
-        nohup /opt/windscribe/Windscribe </dev/null >/dev/null 2>&1 &
+        systemd-run --user --collect --quiet \
+            /opt/windscribe/Windscribe
 ) </dev/null >/dev/null 2>&1 &
 
 exit 0
 '
 
-pkexec sh -c "$PRIVILEGED_SCRIPT" _ "$1" "$2" "$platform" \
+pkexec sh -c "$PRIVILEGED_SCRIPT" _ "$1" "$platform" \
     "${DISPLAY:-}" "${DBUS_SESSION_BUS_ADDRESS:-}" "${XDG_RUNTIME_DIR:-}" "${XAUTHORITY:-}"
 rc=$?
 case $rc in

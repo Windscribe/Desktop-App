@@ -115,8 +115,12 @@
         <translation>Nesprávne používateľské meno, heslo alebo kód 2FA</translation>
     </message>
     <message>
+        <source>Could not log in.  Please try again.  If the problem continues, you can ignore SSL errors for this session, but we strongly recommend against it: doing so disables TLS certificate validation and could allow a third party to intercept your traffic.  To proceed anyway, run &quot;windscribe-cli ignoresslerrors on&quot;.</source>
+        <translation>Nedalo sa prihlásiť.  Prosím, skúste to znova.  Ak problém pretrváva, môžete SSL chyby ignorovať počas tejto relácie, ale dôrazne to neodporúčame: tým sa deaktivuje validácia TLS certifikátov a môže umožniť tretej strane zachytiť vašu prevádzku.  Ak chcete pokračovať, použite &quot;windscribe-cli ignoresslerrors on&quot;.</translation>
+    </message>
+    <message>
         <source>SSL error</source>
-        <translation>Chyba SSL</translation>
+        <translation>SSL chyba</translation>
     </message>
     <message>
         <source>Session expired</source>
@@ -333,6 +337,18 @@
     <message>
         <source>Invalid IP address</source>
         <translation>Neplatná IP adresa</translation>
+    </message>
+    <message>
+        <source>Ignoring SSL errors is only available when unable to log in.</source>
+        <translation>Ignorovanie chýb SSL je dostupné len v prípade, že sa nedá prihlásiť.</translation>
+    </message>
+    <message>
+        <source>Ignoring SSL errors for this session.</source>
+        <translation>Ignorujem SSL chyby pre túto reláciu.</translation>
+    </message>
+    <message>
+        <source>SSL errors will no longer be ignored.</source>
+        <translation>SSL chyby už nebudú ignorované.</translation>
     </message>
     <message>
         <source>IP rotated.</source>

@@ -87,8 +87,6 @@ SignupWindowItem::SignupWindowItem(QGraphicsObject *parent, PreferencesHelper *p
         passwordEntry_->setError(false);
     });
 
-    passwordHint_ = new CommonGraphics::TextItem(this, "", FontDescr(11, QFont::Normal), Qt::white, (WINDOW_WIDTH- 36)*G_SCALE);
-
     hashEntry_ = new UsernamePasswordEntry("", false, this);
     hashEntry_->setCustomIcon1("REFRESH_ICON");
     hashEntry_->setCustomIcon2("UPLOAD_FILE");
@@ -108,8 +106,6 @@ SignupWindowItem::SignupWindowItem(QGraphicsObject *parent, PreferencesHelper *p
     connect(emailEntry_, &UsernamePasswordEntry::textChanged, this, [this] {
         emailEntry_->setError(false);
     });
-
-    emailHint_ = new CommonGraphics::TextItem(this, "", FontDescr(11, QFont::Normal), Qt::white, (WINDOW_WIDTH- 36)*G_SCALE);
 
     btnVoucherCode_ = new CommonGraphics::TextWrapIconButton(0, "", "ARROW_DOWN_LOCATIONS", this, true);
     btnVoucherCode_->setFont(FontDescr(12, QFont::Normal));
@@ -199,9 +195,7 @@ void SignupWindowItem::updateScaling()
     // before ScalableGraphicsObject::updateScaling() propagates to children and
     // triggers their recalcBoundingRect() / recalcWidth() calls.
     const int hintMaxWidth = (WINDOW_WIDTH - 36) * G_SCALE;
-    passwordHint_->setMaxWidth(hintMaxWidth);
     hashHint_->setMaxWidth(hintMaxWidth);
-    emailHint_->setMaxWidth(hintMaxWidth);
     errorHint_->setMaxWidth(hintMaxWidth);
 
     const int btnMaxWidth = (WINDOW_WIDTH - 30) * G_SCALE;
@@ -294,10 +288,8 @@ void SignupWindowItem::onLanguageChanged()
     usernameEntry_->setPlaceholderText(tr("Enter username"));
     passwordEntry_->setDescription(tr("Password"));
     passwordEntry_->setPlaceholderText(tr("Enter password"));
-    passwordHint_->setText(tr("8 or more characters with at least one uppercase and lowercase(ie. \"Hello1234\", \"Solyanka\")."));
     emailEntry_->setDescription(tr("Email (Optional)"));
     emailEntry_->setPlaceholderText(tr("Enter email"));
-    emailHint_->setText(tr("For password recovery, updates & promo only. No spam."));
     btnVoucherCode_->setText(tr("Voucher Code?"));
     voucherEntry_->setPlaceholderText(tr("Voucher code (optional)"));
     btnReferred_->setText(tr("Referred By Someone?"));
@@ -423,13 +415,9 @@ void SignupWindowItem::updatePositions()
     if (!isHashedMode_) {
         y_offs += 18 * G_SCALE;
         passwordEntry_->setPos(0, y_offs);
-        y_offs += 54 * G_SCALE;
-        passwordHint_->setPos(16 * G_SCALE, y_offs);
-        y_offs += passwordHint_->getHeight() + 20 * G_SCALE;
+        y_offs += 74 * G_SCALE;
         emailEntry_->setPos(0, y_offs);
-        y_offs += 54 * G_SCALE;
-        emailHint_->setPos(16 * G_SCALE, y_offs);
-        y_offs += emailHint_->getHeight() + 20 * G_SCALE;
+        y_offs += 74 * G_SCALE;
     } else {
         y_offs += 4 * G_SCALE;
         hashHint_->setPos(16 * G_SCALE, y_offs);
@@ -483,17 +471,13 @@ void SignupWindowItem::showEditBoxes()
         passwordEntry_->setClickable(true);
         usernameEntry_->show();
         passwordEntry_->show();
-        passwordHint_->show();
         emailEntry_->show();
-        emailHint_->show();
     } else {
         usernameEntry_->setClickable(false);
         passwordEntry_->setClickable(false);
         usernameEntry_->hide();
         passwordEntry_->hide();
-        passwordHint_->hide();
         emailEntry_->hide();
-        emailHint_->hide();
 
         hashEntry_->setClickable(true);
         hashEntry_->show();

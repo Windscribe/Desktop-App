@@ -192,7 +192,6 @@ void SocksProxyConnection::handleCommandRequest()
         memcpy(&ipv4, &commandParser_.cmd().DestAddr.IPv4, sizeof(quint32));
         QHostAddress addr(ipv4);
         if (!ProxyDestinationFilter::isAllowedDestination(addr)) {
-            qCWarning(LOG_SOCKS_SERVER) << "Blocked SOCKS5 destination" << addr.toString();
             sendReply(0x02);  // not allowed by ruleset
             return;
         }
@@ -201,7 +200,6 @@ void SocksProxyConnection::handleCommandRequest()
         quint8 *ip6Addr = (quint8 *)&commandParser_.cmd().DestAddr.IPv6;
         QHostAddress addr(ip6Addr);
         if (!ProxyDestinationFilter::isAllowedDestination(addr)) {
-            qCWarning(LOG_SOCKS_SERVER) << "Blocked SOCKS5 destination" << addr.toString();
             sendReply(0x02);
             return;
         }
@@ -219,7 +217,6 @@ void SocksProxyConnection::handleCommandRequest()
                     return;
                 }
                 if (allowed.isEmpty()) {
-                    qCWarning(LOG_SOCKS_SERVER) << "Blocked SOCKS5 destination" << QString::fromStdString(hostname);
                     sendReply(0x02);  // not allowed by ruleset
                     return;
                 }
