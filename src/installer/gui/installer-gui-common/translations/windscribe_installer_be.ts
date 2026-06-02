@@ -34,19 +34,19 @@
     </message>
     <message>
         <source>The Windows Base Filtering Engine service is not running and could not be started. This core Windows service must be running to install Windscribe. Third-party security/firewall software is most often the cause of this issue.</source>
-        <translation>Сэрвіс Windows Base Filtering Engine не працуе і не можа быць запушчаны. Гэты асноўны сэрвіс Windows павінен працаваць, каб усталяваць Windscribe. Звычайна прычынай гэтай праблемы з&apos;яўляецца праграмнае забеспячэнне для бяспекі і файрвола трэціх бакоў.</translation>
+        <translation>Служба Windows Base Filtering Engine не працуе і не можа быць запушчана. Гэтая асноўная служба Windows павінна працаваць для ўсталёўкі Windscribe. Часьцей за ўсё праблему выклікае староньняе ахоўнае праґрамнае забесьпячэньне альбо брандмаўэр.</translation>
     </message>
     <message>
         <source>Windscribe is unable to connect to the Windows Base Filtering Engine service. Connecting to this core Windows service is required to install Windscribe. Third-party security/firewall software is most often the cause of this issue.</source>
-        <translation>Windscribe не можа падключыцца да сэрвісу Windows Base Filtering Engine. Для ўстаноўкі Windscribe неабходна падключыцца да гэтага асноўнага сэрвісу Windows. Звычайна прычынай гэтай праблемы з&apos;яўляецца праграмнае забеспячэнне для бяспекі і файрвола трэціх бакоў.</translation>
+        <translation>Windscribe не можа падлучыцца да службы Windows Base Filtering Engine. Для ўсталёўкі Windscribe неабходна падлучэньне да гэтай асноўнай службы Windows. Часьцей за ўсё праблему выклікае староньняе ахоўнае праґрамнае забесьпячэньне альбо брандмаўэр.</translation>
     </message>
     <message>
         <source>Windscribe is unable to install its helper service. Please manually uninstall Windscribe and try again. If this issue persists, please contact our Technical Support.</source>
-        <translation>Windscribe не можа ўсталяваць сваю дапаможную службу. Калі ласка, выдаліце Windscribe ўручную і паспрабуйце зноў. Калі гэтая праблема захаваецца, калі ласка, звяжыцеся з нашай тэхнічнай падтрымкай.</translation>
+        <translation>Windscribe не ўдаецца ўсталяваць дапаможную службу. Выдаліце Windscribe ўручную і паспрабуйце яшчэ раз. Калі праблема захаваецца, зьвярніцеся ў службу тэхнічнай падтрымкі.</translation>
     </message>
     <message>
         <source>Windscribe is unable to start its helper service. Third-party security/firewall software may be the cause. If this is not the case, please contact our Technical Support.</source>
-        <translation>Windscribe не можа запусціць сваю дапаможную службу. Прычынай можа быць праграмнае забеспячэнне для бяспекі і файрвола трэціх бакоў. Калі гэта не так, калі ласка, звяжыцеся з нашай тэхнічнай падтрымкай.</translation>
+        <translation>Windscribe не ўдаецца запусьціць дапаможную службу. Прычынай можа быць староньняе ахоўнае праґрамнае забесьпячэньне альбо брандмаўэр. Калі праблема не ў гэтым, зьвярніцеся ў службу тэхнічнай падтрымкі.</translation>
     </message>
     <message>
         <source>The installation could not be completed successfully. Please contact our Technical Support.</source>

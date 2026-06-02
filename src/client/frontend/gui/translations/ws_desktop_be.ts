@@ -420,7 +420,7 @@
     </message>
     <message>
         <source>Proxy requires authentication</source>
-        <translation>Проксі-сэрвэр патрабуе праверкі сапраўднасьці</translation>
+        <translation>Проксі-сэрвэр патрабуе аўтэнтыфікацыі</translation>
     </message>
     <message>
         <source>Invalid API response, check your network</source>
@@ -659,19 +659,19 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
     </message>
     <message>
         <source>The selected directory is writeable for other users. Custom configs in this directory may pose a potential security risk.</source>
-        <translation>Выбраны каталог можна пісаць для іншых карыстальнікаў. Карыстальніцкія канфігурацыі ў гэтым каталогу могуць ствараць патэнцыйную пагрозу бяспецы.</translation>
+        <translation>Абраны каталёґ даступны для запісу іншымі карыстальнікамі. Карыстальніцкія канфіґурацыйныя файлы ў гэтым каталёґу могуць прадстаўляць пагрозу бясьпецы.</translation>
     </message>
     <message>
         <source>Proxy Gateway is unauthenticated</source>
-        <translation>Proxy Gateway не аўтэнтыфікаваны</translation>
+        <translation>Проксі-шлюз без аўтэнтыфікацыі</translation>
     </message>
     <message>
         <source>Your Proxy Gateway is enabled without authentication. Anyone on your local network, including untrusted networks like coffee-shop Wi-Fi, can route their traffic through your VPN. We strongly recommend setting credentials.</source>
-        <translation>Ваш Proxy Gateway уключаны без аўтэнтыфікацыі. Любы карыстальнік вашай лакальнай сеткі, уключаючы ненадзейныя сеткі, такія як Wi-Fi у кавярнях, можа накіроўваць свой трафік праз ваш VPN. Мы настойліва рэкамендуем усталяваць уліковыя дадзеныя.</translation>
+        <translation>Проксі-шлюз уключаны без аўтэнтыфікацыі. Любы карыстальнік у вашай лякальнай сетцы можа накіроўваць свой трафік праз ваш VPN, у тым ліку ў ненадзейных сетках, напрыклад праз Wi-Fi у кавярнях. Мы настойліва раім задаць ўліковыя дадзеныя.</translation>
     </message>
     <message>
         <source>Go to Preferences</source>
-        <translation>Перайсці ў налады</translation>
+        <translation>Перайсьці ў налады</translation>
     </message>
     <message>
         <source>Later</source>
@@ -693,11 +693,11 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
     </message>
     <message>
         <source>Could not start Proxy Gateway</source>
-        <translation>Не ўдалося запусціць Proxy Gateway</translation>
+        <translation>Не ўдалося запусьціць проксі-шлюз</translation>
     </message>
     <message>
         <source>The configured port is in use. Please try a different port.</source>
-        <translation>Настроены порт выкарыстоўваецца. Калі ласка, паспрабуйце іншы порт.</translation>
+        <translation>Наладжаны порт ужо заняты. Паспрабуйце іншы порт.</translation>
     </message>
     <message>
         <source>An unknown error occurred.</source>
@@ -1263,15 +1263,15 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Increases latency, but improves chances of being able to connect.</source>
-        <translation>Павялічвае затрымку, але паляпшае шанцы на падлучэньне.</translation>
+        <translation>Павялічвае затрымку, але паляпшае шанцы на пасьпяховае падлучэньне.</translation>
     </message>
     <message>
         <source>Large TLS</source>
-        <translation>Вялікі TLS</translation>
+        <translation>Павялічаныя TLS-пакеты</translation>
     </message>
     <message>
         <source>Artificially enlarge TLS packets, helps to circumvent censorship in some cases. Adds extra TLS padding to all API requests.</source>
-        <translation>Штучнае павелічэнне TLS-пакетаў у некаторых выпадках дапамагае абыйсці цэнзуру. Дадае дадатковае TLS-запаўненне да ўсіх запытаў API.</translation>
+        <translation>Штучна павялічвае памер TLS-пакетаў, што ў некаторых выпадках дапамагае абысьці цэнзуру. Дадае дадатковыя запаўнялінікі TLS да ўсіх запытаў API.</translation>
     </message>
     <message>
         <source>Protocol-level changes made to WireGuard, OpenVPN, and Stealth protocols.</source>
@@ -1279,7 +1279,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Server Routing</source>
-        <translation>Маршрутызацыя сэрвэраў</translation>
+        <translation>Маршрутызацыя</translation>
     </message>
     <message>
         <source>These degrade performance, enable only if Windscribe doesn&apos;t connect normally.</source>
@@ -1452,11 +1452,11 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Configure egress IP stack for VPN connections.</source>
-        <translation>Наладзіць IP-стэк выходу для VPN-злучэнняў.</translation>
+        <translation>Наладзьце IP-пратакол для VPN-злучэньняў.</translation>
     </message>
     <message>
         <source>IP Stack</source>
-        <translation>IP Stack</translation>
+        <translation>IP-пратакол</translation>
     </message>
     <message>
         <source>Select the DNS server while connected to Windscribe.</source>
@@ -2103,11 +2103,11 @@ Connect to a network first</source>
     <name>PreferencesWindow::ProtocolTweaksGroup</name>
     <message>
         <source>Amnezia Config</source>
-        <translation>Amnezia Config</translation>
+        <translation>Amnezia</translation>
     </message>
     <message>
         <source>Protocol Tweaks</source>
-        <translation>Карэкцыі пратаколу</translation>
+        <translation>Налады пратаколу</translation>
     </message>
 </context>
 <context>
@@ -2608,11 +2608,11 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>Disabled</source>
-        <translation>Адключаны</translation>
+        <translation>Адключана</translation>
     </message>
     <message>
         <source>Config file too large</source>
-        <translation>Канфігурацыйны файл занадта вялікі</translation>
+        <translation>Файл канфіґурацыі занадта вялікі</translation>
     </message>
     <message>
         <source>Failed to open file</source>
@@ -2660,19 +2660,19 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>Invalid &quot;PresharedKey&quot; format</source>
-        <translation>Няправільны фармат «PresharedKey»</translation>
+        <translation>Няправільны фармат &quot;PresharedKey&quot;</translation>
     </message>
     <message>
         <source>Invalid &quot;Address&quot; value: %1</source>
-        <translation>Няправільнае значэнне «Адрас»: %1</translation>
+        <translation>Няправільнае значэньне &quot;Address&quot;: %1</translation>
     </message>
     <message>
         <source>Invalid &quot;AllowedIPs&quot; value: %1</source>
-        <translation>Няправільнае значэнне &quot;Дазволеных IP&quot;: %1</translation>
+        <translation>Няправільнае значэньне &quot;AllowedIPs&quot;: %1</translation>
     </message>
     <message>
         <source>Invalid &quot;DNS&quot; value: %1</source>
-        <translation>Няправільнае значэнне &quot;DNS&quot;: %1</translation>
+        <translation>Няправільнае значэньне &quot;DNS&quot;: %1</translation>
     </message>
     <message>
         <source>Invalid endpoint port</source>
@@ -2680,11 +2680,11 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>Invalid AmneziaWG header parameter</source>
-        <translation>Няправільны параметр загалоўка AmneziaWG</translation>
+        <translation>Няправільны парамэтар загалоўка AmneziaWG</translation>
     </message>
     <message>
         <source>AmneziaWG init parameter too large</source>
-        <translation>Параметр init AmneziaWG занадта вялікі</translation>
+        <translation>Парамэтар init AmneziaWG занадта вялікі</translation>
     </message>
     <message>
         <source>Static IPs</source>
@@ -2776,15 +2776,15 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>Regular</source>
-        <translation>Звычайны</translation>
+        <translation>Стандартны</translation>
     </message>
     <message>
         <source>Please upgrade to a Pro account to continue using %1.</source>
-        <translation>Калі ласка, абнавіце ўліковы запіс да Pro, каб працягнуць карыстацца %1.</translation>
+        <translation>Перайдзіце на Pro, каб працягваць карыстацца %1.</translation>
     </message>
     <message>
         <source>Your application version is no longer supported. Please update to continue using %1.</source>
-        <translation>Вашая вэрсія праґрамы больш не падтрымліваецца. Абнавіце яе, каб працягнуць карыстацца %1.</translation>
+        <translation>Вашая вэрсія праґрамы больш не падтрымліваецца. Абнавіце яе, каб працягваць карыстацца %1.</translation>
     </message>
 </context>
 <context>
@@ -2878,7 +2878,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>Use your app to get an authentication code, and enter it below</source>
-        <translation>Атрымайце код у праґраме праверкі сапраўднасьці і ўвядзіце яго ніжэй</translation>
+        <translation>Атрымайце код у праґраме аўтэнтыфікацыі і ўвядзіце яго ніжэй</translation>
     </message>
     <message>
         <source>Please provide a 2FA code</source>
@@ -3012,7 +3012,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <name>gui_locations::LocationsModel</name>
     <message>
         <source>Best Location</source>
-        <translation>Найлепшае месцазнаходжаньне</translation>
+        <translation>Найлепшае месца</translation>
     </message>
 </context>
 </TS>
