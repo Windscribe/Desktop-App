@@ -78,7 +78,7 @@
     </message>
     <message>
         <source>Quit</source>
-        <translation>Кинути</translation>
+        <translation>Вийти</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -231,7 +231,7 @@
     <name>SettingsWindow</name>
     <message>
         <source>Install Settings</source>
-        <translation>Інсталяція налаштувань</translation>
+        <translation>Налаштування встановлення</translation>
     </message>
     <message>
         <source>OK</source>

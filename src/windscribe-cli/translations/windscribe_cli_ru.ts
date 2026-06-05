@@ -13,7 +13,7 @@
     </message>
     <message>
         <source>No locations.</source>
-        <translation>Никаких локаций.</translation>
+        <translation>Нет локаций.</translation>
     </message>
     <message>
         <source>No ports available for the specified protocol.</source>
@@ -21,7 +21,7 @@
     </message>
     <message>
         <source>Could not rotate IP.  Please check that you have Windscribe Pro or have this location in your plan, or try again later.</source>
-        <translation>Не удалось повернуть IP.  Убедитесь, что у вас есть Windscribe Pro или есть ли это местоположение в вашем тарифном плане, или повторите попытку позже.</translation>
+        <translation>Не удалось сменить IP. Убедитесь, что у вас есть Windscribe Pro или что это местоположение входит в ваш план, либо повторите попытку позже.</translation>
     </message>
     <message>
         <source>Could not favourite IP.  Please check that you have Windscribe Pro or have this location in your plan, or try again later.</source>
@@ -29,11 +29,11 @@
     </message>
     <message>
         <source>Could not unfavourite IP.  Please check that the provided IP is valid.</source>
-        <translation>Не мог остаться нелюбимым IP.  Пожалуйста, убедитесь, что предоставленный IP-адрес действителен.</translation>
+        <translation>Не удалось убрать IP из избранного. Убедитесь, что указанный IP-адрес верен.</translation>
     </message>
     <message>
         <source>IP rotate already in progress.</source>
-        <translation>Ротация IP уже началась.</translation>
+        <translation>Смена IP уже выполняется.</translation>
     </message>
     <message>
         <source>No AmneziaWG configurations available.</source>
@@ -96,7 +96,7 @@
     </message>
     <message>
         <source>Logged in</source>
-        <translation>Авторизовался</translation>
+        <translation>Выполнен вход</translation>
     </message>
     <message>
         <source>Error: %1</source>
@@ -128,7 +128,7 @@
     </message>
     <message>
         <source>Rate limited</source>
-        <translation>Тариф ограничен</translation>
+        <translation>Превышен лимит запросов</translation>
     </message>
     <message>
         <source>Unknown error</source>
@@ -144,7 +144,7 @@
     </message>
     <message>
         <source>Connected</source>
-        <translation>Связанный</translation>
+        <translation>Подключено</translation>
     </message>
     <message>
         <source>[Network interference]</source>
@@ -156,7 +156,7 @@
     </message>
     <message>
         <source>Connecting</source>
-        <translation>Соединительный</translation>
+        <translation>Подключение</translation>
     </message>
     <message>
         <source>Disconnecting</source>
@@ -164,7 +164,7 @@
     </message>
     <message>
         <source>Disconnected</source>
-        <translation>Бессвязный</translation>
+        <translation>Отключено</translation>
     </message>
     <message>
         <source>Error: Location does not exist or is disabled</source>
@@ -208,15 +208,15 @@
     </message>
     <message>
         <source>Always On</source>
-        <translation>Всегда на связи</translation>
+        <translation>Всегда включён</translation>
     </message>
     <message>
         <source>On</source>
-        <translation>На</translation>
+        <translation>Вкл.</translation>
     </message>
     <message>
         <source>Off</source>
-        <translation>От</translation>
+        <translation>Выкл.</translation>
     </message>
     <message>
         <source>Update error: download failed. Please try again or try a different network.</source>
@@ -272,7 +272,7 @@
     </message>
     <message>
         <source>Logs sent.</source>
-        <translation>Бревна отправлены.</translation>
+        <translation>Журналы отправлены.</translation>
     </message>
     <message>
         <source>Preferences reloaded.</source>
@@ -280,7 +280,7 @@
     </message>
     <message>
         <source>Key limit behaviour is set.</source>
-        <translation>Задается поведение ограничения клавиш.</translation>
+        <translation>Поведение при достижении лимита ключей задано.</translation>
     </message>
     <message>
         <source>Connection has been overridden by another command.</source>
@@ -328,7 +328,7 @@
     </message>
     <message>
         <source> (Pro)</source>
-        <translation> (Плюс)</translation>
+        <translation> (Pro)</translation>
     </message>
     <message>
         <source>Not connected</source>
@@ -348,15 +348,15 @@
     </message>
     <message>
         <source>IP rotated.</source>
-        <translation>Ротация IP.</translation>
+        <translation>IP сменён.</translation>
     </message>
     <message>
         <source>IP favorited.</source>
-        <translation>IP в избранном.</translation>
+        <translation>IP добавлен в избранное.</translation>
     </message>
     <message>
         <source>IP unfavorited.</source>
-        <translation>IP не в избранном.</translation>
+        <translation>IP удалён из избранного.</translation>
     </message>
     <message>
         <source>Invalid IP address</source>
