@@ -27,6 +27,10 @@ target_compile_definitions(client-common PRIVATE CMAKE_LIBRARY_LIBRARY
                                   WIN32_LEAN_AND_MEAN
                                   PIO_APC_ROUTINE_DEFINED)
 
+if(APPLE)
+    target_compile_options(client-common PRIVATE "-fobjc-arc")
+endif()
+
 add_subdirectory(api_responses)
 add_subdirectory(ipc)
 add_subdirectory(tests)

@@ -92,8 +92,8 @@ bool resolveExePath(const std::string &exePath, const std::string &executable, s
         return false;
     }
 
-// check only for release build
-#ifdef NDEBUG
+// check only for non-dev builds
+#ifndef WINDSCRIBE_DEV_MODE
     if (strcmp(canonicalPath, WS_LINUX_INSTALL_DIR) != 0 && strcmp(canonicalPath, "/usr/lib" WS_LINUX_INSTALL_DIR) != 0) {
         // Don't execute arbitrary commands, only executables that are in our application directory
         spdlog::warn("Executable not in correct path, ignoring.");

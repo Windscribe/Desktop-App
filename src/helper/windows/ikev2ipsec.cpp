@@ -1,6 +1,7 @@
 #include <shlobj.h>
 #include <wtsapi32.h>
 
+#include <string>
 #include <spdlog/spdlog.h>
 
 #include "ikev2ipsec.h"
@@ -64,27 +65,28 @@ bool IKEv2IPSec::setIKEv2IPSecParametersInPhoneBook()
     for (const auto clsid : { CSIDL_APPDATA, CSIDL_LOCAL_APPDATA, CSIDL_COMMON_APPDATA }) {
         if (SHGetFolderPath(0, clsid, impersonation_helper.token(), SHGFP_TYPE_CURRENT, pbk_path))
             continue;
-        wcscat_s(pbk_path, L"\\Microsoft\\Network\\Connections\\Pbk\\rasphone.pbk");
+        std::wstring phonebookEntry(pbk_path);
+        phonebookEntry += L"\\Microsoft\\Network\\Connections\\Pbk\\rasphone.pbk";
         // Check if the phonebook exists and is valid.
-        auto pbk_handle = CreateFile(pbk_path, GENERIC_WRITE, 0, nullptr, OPEN_EXISTING,
+        auto pbk_handle = CreateFile(phonebookEntry.c_str(), GENERIC_WRITE, 0, nullptr, OPEN_EXISTING,
                                      FILE_ATTRIBUTE_NORMAL, nullptr);
         if (pbk_handle == INVALID_HANDLE_VALUE)
             continue;
         CloseHandle(pbk_handle);
         // Write custom IPSec parameters to the phonebook.
         if (!WritePrivateProfileString(
-            kConnectionName, L"NumCustomPolicy", L"1", pbk_path) ||
+            kConnectionName, L"NumCustomPolicy", L"1", phonebookEntry.c_str()) ||
             // Note that this value is approximately, but not exactly, a ROUTER_CUSTOM_IKEv2_POLICY0 structure,
             // with each DWORD written out one byte at a time.  This value was actually derived from setting
             // the policy with the PowerShell command and then inspecting the rasphone.pbk file.
             !WritePrivateProfileString(
                 kConnectionName, L"CustomIPSecPolicies",
-                L"030000000600000005000000080000000500000005000000", pbk_path) ||
+                L"030000000600000005000000080000000500000005000000", phonebookEntry.c_str()) ||
             // This string disables NetBIOS over TCP/IP.
-            !WritePrivateProfileString( kConnectionName, L"IpNBTFlags", L"0", pbk_path)) {
+            !WritePrivateProfileString( kConnectionName, L"IpNBTFlags", L"0", phonebookEntry.c_str())) {
             // This is a valid phonebook, but we cannot write it. Don't try other locations, they
             // won't make any sense; better to try other IPSec setup functions, like PowerShell.
-            spdlog::warn(L"Phonebook is not accessible: {}", pbk_path);
+            spdlog::warn(L"Phonebook is not accessible: {}", phonebookEntry.c_str());
             break;
         }
         return true;

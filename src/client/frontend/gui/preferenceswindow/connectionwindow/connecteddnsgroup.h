@@ -52,6 +52,7 @@ private:
     void checkDnsLeak(const QString &v1, const QString &v2 = "");
     void populateDnsTypes(bool isLocalDnsAvailable);
     void fetchDevices(const QString &apiKey);
+    QString selectedControldResolver() const;
 
     ComboBoxItem *comboBoxDns_;
     VerticalEditBoxItem *editBoxControldApiKey_;

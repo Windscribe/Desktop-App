@@ -73,7 +73,11 @@ void IpRoutes::setIps(const types::IpAddress &gatewayIp,
         if (fr != activeRoutes_.end()) {
             DWORD status = DeleteIpForwardEntry2(&fr->second);
             if (status != NO_ERROR) {
-                spdlog::error("IpRoutes::setIps(), DeleteIpForwardEntry2 failed: {}", status);
+                if (status == ERROR_NOT_FOUND) {
+                    spdlog::info("IpRoutes::setIps(), DeleteIpForwardEntry2 did not find {}", ip.toString());
+                } else {
+                    spdlog::error("IpRoutes::setIps(), DeleteIpForwardEntry2 failed: {}", status);
+                }
             }
             activeRoutes_.erase(fr);
         }
@@ -137,7 +141,11 @@ void IpRoutes::clear()
     for (auto &kv : activeRoutes_) {
         DWORD status = DeleteIpForwardEntry2(&kv.second);
         if (status != NO_ERROR) {
-            spdlog::error("IpRoutes::clear(), DeleteIpForwardEntry2 failed: {}", status);
+            if (status == ERROR_NOT_FOUND) {
+                spdlog::info("IpRoutes::clear(), DeleteIpForwardEntry2 did not find {}", kv.first.toString());
+            } else {
+                spdlog::error("IpRoutes::clear(), DeleteIpForwardEntry2 failed: {}", status);
+            }
         }
     }
     activeRoutes_.clear();

@@ -1,9 +1,3 @@
-# build_all.py sets this option when invoked with the '--sign' flag. Disabled by default
-option(DEFINE_USE_SIGNATURE_CHECK_MACRO "Add define USE_SIGNATURE_CHECK to project" OFF)
-if(DEFINE_USE_SIGNATURE_CHECK_MACRO)
-    add_definitions(-DUSE_SIGNATURE_CHECK)
-endif(DEFINE_USE_SIGNATURE_CHECK_MACRO)
-
 option(DEFINE_RUN_AS_CONSOLE_APP_MACRO "Run the helper as a console app for debugging" OFF)
 if(DEFINE_RUN_AS_CONSOLE_APP_MACRO)
     add_definitions(-DRUN_AS_CONSOLE_APP)

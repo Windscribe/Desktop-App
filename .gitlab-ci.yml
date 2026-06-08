@@ -33,7 +33,6 @@ variables:
   BUILD_LIBS_FOLDER_X64: 'build-libs/windscribe'
   BUILD_LIBS_FOLDER_ARM64: 'build-libs-arm64/windscribe'
   VCPKG_ROOT_WINDOWS: 'c:\vcpkg'
-  VCPKG_DEFAULT_BINARY_CACHE_WINDOWS: 'c:\vcpkg_cache'
 
 .check_translations:
   script:
@@ -50,7 +49,8 @@ variables:
   tags: [win10qty6]
   before_script:
     - $env:VCPKG_ROOT = $env:VCPKG_ROOT_WINDOWS
-    - $env:VCPKG_DEFAULT_BINARY_CACHE = $env:VCPKG_DEFAULT_BINARY_CACHE_WINDOWS
+    - $env:VCPKG_CA_BUNDLE = "$(Get-Location)\tools\cacert.pem"
+    - $env:VCPKG_BINARY_SOURCES = "clear;http,https://${env:NEXUS_USERNAME}:${env:NEXUS_PASSWORD}@nexus.int.windscribe.com/repository/client-desktop/client-desktop/vcpkg_cache/current/binary_cache/{sha}.zip,readwrite"
     - $env:VCPKG_INSTALL_OPTIONS = "--clean-after-build"
     - if (Test-Path ws-vcpkg-registry) { Remove-Item -Recurse -Force ws-vcpkg-registry }
     - git clone https://github.com/Windscribe/ws-vcpkg-registry.git
@@ -84,6 +84,8 @@ variables:
     - brew install pkg-config
     - export VCPKG_ROOT="${HOME}/vcpkg"
     - export VCPKG_INSTALL_OPTIONS="--clean-after-build"
+    - export VCPKG_CA_BUNDLE="$(pwd)/tools/cacert.pem"
+    - export VCPKG_BINARY_SOURCES="clear;http,https://${NEXUS_USERNAME}:${NEXUS_PASSWORD}@nexus.int.windscribe.com/repository/client-desktop/client-desktop/vcpkg_cache/current/binary_cache/{sha}.zip,readwrite"
     - rm -rf ws-vcpkg-registry
     - git clone https://github.com/Windscribe/ws-vcpkg-registry.git
     - ./ws-vcpkg-registry/install-vcpkg/vcpkg_install.sh "${VCPKG_ROOT}" --configure-git
@@ -94,10 +96,14 @@ variables:
 .template_aarch64_ubuntu_build: &template_aarch64_ubuntu_build
   tags: [linux-arm64-qt6]
   image: registry.gitlab.int.windscribe.com:5005/ws/client/desktop/client-desktop/ubuntu-aarch64
+  hooks:
+    pre_get_sources_script:
+      # The build runners clone with a permissive umask, producing world-writable (0777)
+      # files that later break the dpkg-deb command in the build_all script. Set a sane
+      # umask before sources are fetched; before_script is too late as the clone is done.
+      - umask 0022
   before_script:
     - python3 -m pip install --user -r tools/requirements.txt
-    # hack to fix 777 file permissions, which breaks the dpkg-deb command in the build_all script.
-    - chmod -R o-w src/installer/gui/linux src/installer/cli/linux
     # vcpkg settings
     - export VCPKG_ROOT="${HOME}/vcpkg"
     - export VCPKG_FORCE_SYSTEM_BINARIES=1
@@ -113,9 +119,13 @@ variables:
   # RHEL 8.4 is the minimum build target for Qt 6.5
   # Could not use the RHEL 8.4 ubi Docker images, as they require a subscription license in order to install many of the packages we require below.
   image: registry.gitlab.int.windscribe.com:5005/ws/client/desktop/client-desktop/fedora36
+  hooks:
+    pre_get_sources_script:
+      # The build runners clone with a permissive umask, producing world-writable (0777)
+      # files that later break the dpkg-deb command in the build_all script. Set a sane
+      # umask before sources are fetched; before_script is too late as the clone is done.
+      - umask 0022
   before_script:
-    # hack to fix 777 file permissions, which breaks the dpkg-deb command in the build_all script.
-    - chmod -R o-w src/installer/gui/linux src/installer/cli/linux
     # vcpkg settings
     - export VCPKG_ROOT="${HOME}/vcpkg"
     - export PATH=${RHEL_CMAKE_BUILD_PATH}/bin:$PATH
@@ -181,7 +191,6 @@ variables:
     - !reference [.download_dependencies_win, script]
     - 'IF(Test-Path .\$BUILD_LIBS_FOLDER\) {Get-ChildItem .\$BUILD_LIBS_FOLDER\*.zip | Foreach {.\tools\bin\7z.exe x $_.FullName -o"$BUILD_LIBS_FOLDER\"}}'
     - $env:VCPKG_ROOT = $env:VCPKG_ROOT_WINDOWS
-    - $env:VCPKG_DEFAULT_BINARY_CACHE = $env:VCPKG_DEFAULT_BINARY_CACHE_WINDOWS
     - $buildSymbolsFlag = if ($CI_COMMIT_TAG) { "--build-symbols" } else { "" }
     - tools/build_all ${BUILD_FLAG} ${ARCH_FLAG} --ci-mode $buildSymbolsFlag
     - !reference [.check_translations, script]
@@ -196,10 +205,8 @@ variables:
   variables:
     GIT_STRATEGY: clone
     VCPKG_ROOT: '%VCPKG_ROOT_WINDOWS%'
-    VCPKG_DEFAULT_BINARY_CACHE: '%VCPKG_DEFAULT_BINARY_CACHE_WINDOWS%'
   script:
     - $env:VCPKG_ROOT = $env:VCPKG_ROOT_WINDOWS
-    - $env:VCPKG_DEFAULT_BINARY_CACHE = $env:VCPKG_DEFAULT_BINARY_CACHE_WINDOWS
     - tools/build_all --build-bootstrap ${ARCH_FLAG} --ci-mode
   artifacts:
     paths:
@@ -222,7 +229,6 @@ build:win:x64:mr:
   variables:
     GIT_STRATEGY: clone
     VCPKG_ROOT: '%VCPKG_ROOT_WINDOWS%'
-    VCPKG_DEFAULT_BINARY_CACHE: '%VCPKG_DEFAULT_BINARY_CACHE_WINDOWS%'
   script:
     - Set-Variable -name OS_IDENTIFIER -value "windows"
     - !reference [.download_dependencies_win, script]
@@ -430,7 +436,6 @@ build:win:arm64:mr:
   variables:
     GIT_STRATEGY: clone
     VCPKG_ROOT: '%VCPKG_ROOT_WINDOWS%'
-    VCPKG_DEFAULT_BINARY_CACHE: '%VCPKG_DEFAULT_BINARY_CACHE_WINDOWS%'
   script:
     # Need the x64 Qt package so we can reference it as the QT_HOST_PATH in build_all.
     - Set-Variable -name OS_IDENTIFIER -value "windows"
@@ -1163,13 +1168,70 @@ test:version:mac:
   rules:
     - if: $BUILD_MAC == "y" && $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH == null && $NIGHTLY_TEST_BUILD != "y"
 
+test:linux:package_permissions:
+  tags: [linux-arm64-qt6]
+  image: registry.gitlab.int.windscribe.com:5005/ws/client/desktop/client-desktop/ubuntu-aarch64
+  stage: Test
+  variables:
+    GIT_STRATEGY: clone
+  needs:
+    - "build:aarch64_ubuntu:installer"
+    - "build:aarch64_ubuntu_cli:installer"
+    - "build:rhel:installer"
+    - "build:rhel_cli:installer"
+    - "build:archlinux:installer"
+    - "build:archlinux_cli:installer"
+  script:
+    - export PATH=${RHEL_CMAKE_BUILD_PATH}/bin:$PATH
+    - if ! command -v rpm >/dev/null || ! command -v zstd >/dev/null; then apt-get update -qq && apt-get install -y -qq rpm zstd; fi
+    - VERSION=$(cmake -P cmake/print_version.cmake 2>&1)
+    - mkdir -p pkgs
+    - |
+      for spec in \
+        "linux-arm64/windscribe_${VERSION}_arm64.deb" \
+        "linux-arm64/windscribe_${VERSION}_arm64_fedora.rpm" \
+        "linux-arm64/windscribe-cli_${VERSION}_arm64.deb" \
+        "linux-arm64/windscribe-cli_${VERSION}_arm64_fedora.rpm" \
+        "linux/windscribe_${VERSION}_amd64.deb" \
+        "linux/windscribe_${VERSION}_amd64_fedora.rpm" \
+        "linux/windscribe_${VERSION}_amd64_opensuse.rpm" \
+        "linux/windscribe-cli_${VERSION}_amd64.deb" \
+        "linux/windscribe-cli_${VERSION}_amd64_fedora.rpm" \
+        "linux/windscribe-cli_${VERSION}_amd64_opensuse.rpm" \
+        "linux/windscribe_${VERSION}_amd64.pkg.tar.zst" \
+        "linux/windscribe-cli_${VERSION}_amd64.pkg.tar.zst"; do
+        curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem \
+          -o "pkgs/$(basename "$spec")" "${NEXUS_PATH_BRANCH_UPLOAD}/${spec}"
+      done
+    - |
+      status=0
+      for pkg in pkgs/*; do
+        # Normalize each tool's listing to "MODE OWNER GROUP PATH".
+        case "$pkg" in
+          *.deb)         listing=$(dpkg-deb -c "$pkg" | awk '{split($2,o,"/"); print $1, o[1], o[2], $NF}');;
+          *.rpm)         listing=$(rpm -qlvp "$pkg" | awk '{print $1, $3, $4, $NF}');;
+          *.pkg.tar.zst) listing=$(tar --zstd -tvf "$pkg" | awk '{split($2,o,"/"); print $1, o[1], o[2], $NF}');;
+          *) continue;;
+        esac
+        # Fail non-symlink entries that are group/world-writable (catches 0777, 0775, ...) or not owned by root:root.
+        # Skip symlinks and Arch package metadata (.PKGINFO/.MTREE/.BUILDINFO/...), which pacman never installs to disk.
+        bad=$(echo "$listing" | awk 'substr($1,1,1)=="l"||$4~/^\.(PKGINFO|MTREE|BUILDINFO|INSTALL|CHANGELOG)$/{next} (substr($1,6,1)=="w"||substr($1,9,1)=="w"){print "writable",$1,$4} ($2!="root"&&$2!="0")||($3!="root"&&$3!="0"){print "owner",$2"/"$3,$4}')
+        if [ -n "$bad" ]; then
+          echo "FAIL: $pkg"; echo "$bad"; status=1
+        else
+          echo "OK:   $pkg"
+        fi
+      done
+      exit $status
+  rules:
+    - if: $BUILD_LINUX == "y" && $BUILD_LINUX_ARM64 == "y" && $BUILD_LINUX_CLI == "y" && $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH != null && $NIGHTLY_TEST_BUILD != "y"
+
 build:nightly:win:
   <<: *template_win10_build
   stage: Build
   variables:
     GIT_STRATEGY: clone
     VCPKG_ROOT: '%VCPKG_ROOT_WINDOWS%'
-    VCPKG_DEFAULT_BINARY_CACHE: '%VCPKG_DEFAULT_BINARY_CACHE_WINDOWS%'
   script:
     - Set-Variable -name OS_IDENTIFIER -value "windows"
     - !reference [.download_dependencies_win, script]

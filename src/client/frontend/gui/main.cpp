@@ -67,7 +67,7 @@ void handler_sigterm(int signum)
 int main(int argc, char *argv[])
 {
 #if defined (Q_OS_LINUX)
-#ifndef QT_DEBUG
+#ifndef WINDSCRIBE_DEV_MODE
     gid_t gid = LinuxUtils::getAppGid();
     if (gid == -1) {
         qCCritical(LOG_BASIC) << "windscribe group does not exist";
@@ -102,8 +102,8 @@ int main(int argc, char *argv[])
     signal(SIGTERM, handler_sigterm);
 #endif
 
-    // set Qt plugin library paths for release build
-#ifndef QT_DEBUG
+    // set Qt plugin library paths for non-dev builds
+#ifndef WINDSCRIBE_DEV_MODE
 #ifdef Q_OS_WIN
         // For Windows an empty list means searching plugins in the executable folder
         QCoreApplication::setLibraryPaths(QStringList());

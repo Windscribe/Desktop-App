@@ -98,7 +98,7 @@ install_wstunnel
 
 ### Build the Windscribe 2.0 app
 
-Go to subfolder `tools` and run `build_all`. Assuming all goes well with the build, the installer will be placed in `build-exe`. You can run `build_all --sign --use-local-secrets` for a code-signed build, using the certificate from the [Install signing certificate](#install-signing-certificate-optional) section above, which will perform run-time signature verification checks on the executables. Note that an unsigned build must be installed on your PC if you intend to debug the project. Append `--arm64` to the command to build for Windows arm64.
+Go to subfolder `tools` and run `build_all --dev-mode`. Assuming all goes well with the build, the installer will be placed in `build-exe`. The `--dev-mode` flag disables run-time signature verification and relaxes the security checks, which is what you want for local development and debugging. Omitting `--dev-mode` produces a build that performs run-time signature verification on its executables; that build must be code-signed with `--sign-app` (and `--sign-installer` / `--sign-bootstrap` as needed), using the certificate from the [Install signing certificate](#install-signing-certificate-optional) section above, otherwise it will reject its own unsigned executables at run time. Append `--arm64` to the command to build for Windows arm64.
 
 See `build_all --help` for other build options.
 
@@ -170,7 +170,7 @@ install_wstunnel
 
 ### Build the Windscribe 2.0 app
 
-Go to subfolder `tools` and run `build_all`. Assuming all goes well with the build, the installer will be placed in `build-exe`.
+Go to subfolder `tools` and run `build_all --dev-mode`. Assuming all goes well with the build, the installer will be placed in `build-exe`.
 
 See `build_all --help` for other build options.
 
@@ -204,7 +204,7 @@ The repository contains Dockerfile to simplify building process. Skip all the ot
 ```
 - Build the application:
 ```bash
-  sudo docker run --rm -v .:/w ws-builder /bin/bash -c "export VCPKG_ROOT=/w/vcpkg  && cd /w/tools/ && ./build_all"
+  sudo docker run --rm -v .:/w ws-builder /bin/bash -c "export VCPKG_ROOT=/w/vcpkg  && cd /w/tools/ && ./build_all --dev-mode"
 ```
 
 ### Prerequisites
@@ -244,7 +244,7 @@ install_wstunnel
 
 ### Build the Windscribe 2.0 app
 
-Go to subfolder `tools` and run `build_all`. Assuming all goes well with the build, the installer will be placed in `build-exe`.
+Go to subfolder `tools` and run `build_all --dev-mode`. Assuming all goes well with the build, the installer will be placed in `build-exe`.
 
 See `build_all --help` for other build options.
 

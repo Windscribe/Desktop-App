@@ -31,7 +31,7 @@ public:
     QString getIpForNode(int indNode, int indIp) const;
 
     void selectNextNode();
-    void selectNodeByIp(const QString &addr);
+    bool selectNodeByIp(const QString &addr);
     bool selectNodeByHostname(const QString &hostname);
 
     QString getIpForSelectedNode(int indIp) const;

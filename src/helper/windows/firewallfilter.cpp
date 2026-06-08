@@ -343,10 +343,9 @@ void FirewallFilter::addPermitFilterForVpnAndSystemServices(HANDLE engineHandle,
 
 void FirewallFilter::addPermitFilterForAppsIds(HANDLE engineHandle)
 {
-    bool ret;
-
+    bool ret = true;
     if (isSplitTunnelingExclusiveMode_) {
-        if (appsIds_.count() != 0) {
+        if (appsIds_.count() > 0) {
             ret = Utils::addFilterV4(engineHandle, &filterIdsApps_, FWP_ACTION_PERMIT, 2, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, nullptr, nullptr, 0, 0, &appsIds_);
             ret = Utils::addFilterV6(engineHandle, &filterIdsApps_, FWP_ACTION_PERMIT, 2, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, nullptr, nullptr, 0, 0, &appsIds_) && ret;
         }

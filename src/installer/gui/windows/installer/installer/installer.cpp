@@ -46,8 +46,7 @@ void Installer::startImpl()
 
 void Installer::executionImpl()
 {
-    int overallProgress = 0;
-    int prevOverallProgress = 0;
+    double completedWeight = 0;
 
     state_ = wsl::STATE_EXTRACTING;
     callback_();
@@ -78,8 +77,8 @@ void Installer::executionImpl()
 
             // block is finished?
             if (progressOfBlock >= 100 || (progressOfBlock < 0 && !block->isCritical())) {
-                overallProgress = prevOverallProgress + (int)(100 * block->getWeight() / totalWork_);
-                progress_ = overallProgress;
+                completedWeight += block->getWeight();
+                progress_ = (int)(100 * completedWeight / totalWork_);
                 callback_();
                 ticks.push_back(GetTickCount() - initTick);
                 if (progressOfBlock < 0) {
@@ -91,20 +90,17 @@ void Installer::executionImpl()
             }
             // error from block?
             else if (progressOfBlock < 0) {
-                progress_ = overallProgress;
+                progress_ = (int)(100 * completedWeight / totalWork_);
                 error_ = static_cast<wsl::INSTALLER_ERROR>(-progressOfBlock);
                 state_ = wsl::STATE_ERROR;
                 callback_();
                 spdlog::error(L"{}", block->getLastError());
                 return;
             } else {
-                overallProgress = prevOverallProgress + (int)(progressOfBlock * block->getWeight() / totalWork_);
-                progress_ = overallProgress;
+                progress_ = (int)(100 * (completedWeight + progressOfBlock * block->getWeight() / 100.0) / totalWork_);
                 callback_();
             }
         }
-        prevOverallProgress = overallProgress;
-
     }
 
     // Delete blocks to catch any memory access/corruption errors now rather than when the program exits.

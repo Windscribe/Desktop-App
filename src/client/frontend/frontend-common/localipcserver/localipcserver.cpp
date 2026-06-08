@@ -1,5 +1,7 @@
 #include "localipcserver.h"
 
+#include <memory>
+
 #include "backend/persistentstate.h"
 #include "ipc/server.h"
 #include "utils/log/categories.h"
@@ -33,7 +35,7 @@ LocalIPCServer::LocalIPCServer(Backend *backend, QObject *parent) : QObject(pare
 
 LocalIPCServer::~LocalIPCServer()
 {
-    for (IPC::Connection * connection : connections_) {
+    for (IPC::Connection * connection : std::as_const(connections_)) {
         connection->close();
         delete connection;
     }
@@ -77,6 +79,8 @@ void LocalIPCServer::onServerCallbackAcceptFunction(IPC::Connection *connection)
 
 void LocalIPCServer::onConnectionCommandCallback(IPC::Command *command, IPC::Connection * /*connection*/)
 {
+    std::unique_ptr<IPC::Command> owner(command);
+
     if (command->getStringId() ==IPC::CliCommands::ShowLocations::getCommandStringId()) {
         IPC::CliCommands::ShowLocations *cmd = static_cast<IPC::CliCommands::ShowLocations *>(command);
         emit showLocations(cmd->locationType_);
@@ -276,7 +280,7 @@ void LocalIPCServer::onBackendLogoutFinished()
 
 void LocalIPCServer::sendCommand(const IPC::Command &command)
 {
-    for (IPC::Connection * connection : connections_) {
+    for (IPC::Connection *connection : std::as_const(connections_)) {
         connection->sendCommand(command);
     }
 }

@@ -97,15 +97,7 @@ void ConnectedDnsGroup::setConnectedDnsInfo(const types::ConnectedDnsInfo &dns)
             for (const auto& device : dns.controldDevices) {
                 devicesList << qMakePair(device.first, QVariant(device.second));
             }
-            // Find the device that matches upstream1
-            QVariant selectedDevice = devicesList.first().second;
-            for (const auto& device : devicesList) {
-                if (device.second.toString() == dns.upStream1) {
-                    selectedDevice = device.second;
-                    break;
-                }
-            }
-            comboBoxControldDevice_->setItems(devicesList, selectedDevice);
+            comboBoxControldDevice_->setItems(devicesList, selectedControldResolver());
         }
 
         splitDnsCheckBox_->setState(dns.isSplitDns);
@@ -175,6 +167,21 @@ void ConnectedDnsGroup::onConnectedDnsModeChanged(QVariant v)
             settings_.upStream1 = "";
             onUpstream1Changed("");
             editBoxUpstream1_->setEnabled(true);
+        }
+
+        if (settings_.type == CONNECTED_DNS_TYPE_CONTROLD) {
+            // upStream1 is shared across DNS modes, so switching back into Control D can leave a
+            // custom value (e.g. an IPv6 bootstrap IP entered in Custom mode) in upStream1, which
+            // would then be sent to ctrld as the upstream and rejected. If the current value isn't
+            // one of the fetched Control D devices, re-derive it from the device list.
+            QString resolver = selectedControldResolver();
+            if (resolver != settings_.upStream1) {
+                editBoxUpstream1_->setText(resolver);
+                if (!resolver.isEmpty()) {
+                    comboBoxControldDevice_->setCurrentItem(resolver);
+                }
+                onUpstream1Changed(resolver);
+            }
         }
 
         if (v.toInt() == CONNECTED_DNS_TYPE_CUSTOM) {
@@ -306,6 +313,19 @@ void ConnectedDnsGroup::fetchDevices(const QString &apiKey)
     emit fetchControldDevices(apiKey);
 }
 
+QString ConnectedDnsGroup::selectedControldResolver() const
+{
+    for (const auto &device : settings_.controldDevices) {
+        if (device.second == settings_.upStream1) {
+            return device.second;
+        }
+    }
+    if (!settings_.controldDevices.isEmpty()) {
+        return settings_.controldDevices.first().second;
+    }
+    return QString();
+}
+
 void ConnectedDnsGroup::onControldDevicesFetched(CONTROLD_FETCH_RESULT result, const QList<QPair<QString, QString>> &devices)
 {
     isControldRequestInProgress_ = false;
@@ -335,35 +355,14 @@ void ConnectedDnsGroup::onControldDevicesFetched(CONTROLD_FETCH_RESULT result, c
         devicesList << qMakePair(device.first, QVariant(device.second));
     }
     if (!devicesList.isEmpty()) {
-        QVariant selectedDevice;
+        // Keep the current upstream1 if it matches a fetched device, otherwise fall back to the first.
+        QString resolver = selectedControldResolver();
+        settings_.upStream1 = resolver;
 
-        if (settings_.upStream1.isEmpty()) {
-            // No upstream1 set, use first device
-            selectedDevice = devicesList.first().second;
-            settings_.upStream1 = selectedDevice.toString();
-        } else {
-            // upstream1 already exists, try to find matching device
-            bool found = false;
-            for (const auto& device : devicesList) {
-                if (device.second.toString() == settings_.upStream1) {
-                    selectedDevice = device.second;
-                    found = true;
-                    break;
-                }
-            }
-            // If not found in list, use first device
-            if (!found) {
-                selectedDevice = devicesList.first().second;
-                settings_.upStream1 = selectedDevice.toString();
-            } else {
-                selectedDevice = settings_.upStream1;
-            }
-        }
-
-        comboBoxControldDevice_->setItems(devicesList, selectedDevice);
+        comboBoxControldDevice_->setItems(devicesList, resolver);
         comboBoxControldDevice_->setEnabled(true);
-        editBoxUpstream1_->setText(selectedDevice.toString());
-        onUpstream1Changed(selectedDevice.toString());
+        editBoxUpstream1_->setText(resolver);
+        onUpstream1Changed(resolver);
     } else {
         editBoxUpstream1_->setText("");
         onUpstream1Changed("");

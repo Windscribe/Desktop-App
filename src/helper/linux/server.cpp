@@ -187,7 +187,7 @@ void Server::run()
 
     std::error_code ec;
     {
-#ifdef NDEBUG
+#ifndef WINDSCRIBE_DEV_MODE
         UmaskGuard guard(0067);
 #else
         UmaskGuard guard(0);
@@ -197,7 +197,7 @@ void Server::run()
     if (ec) {
         spdlog::error("Failed to create " WS_LINUX_RUN_DIR ": {}", ec.message());
     }
-#ifdef NDEBUG // release build
+#ifndef WINDSCRIBE_DEV_MODE // secure (non-dev)
     Utils::createAppUserAndGroup();
     // Force uid=0 (not (uid_t)-1) so a pre-existing dir with a wrong owner is self-healed before
     // permissions runs — otherwise the chmod could hand owner-write to that wrong owner.
@@ -211,7 +211,7 @@ void Server::run()
     std::filesystem::permissions(WS_LINUX_RUN_DIR,
         std::filesystem::perms::owner_all | std::filesystem::perms::group_exec,
         ec);
-#else // debug build
+#else // dev mode
     std::filesystem::permissions(WS_LINUX_RUN_DIR,
         std::filesystem::perms::owner_all | std::filesystem::perms::group_all | std::filesystem::perms::others_all,
         ec);
@@ -220,7 +220,7 @@ void Server::run()
         spdlog::error("Failed to set permissions on " WS_LINUX_RUN_DIR ": {}", ec.message());
     }
     {
-#ifdef NDEBUG
+#ifndef WINDSCRIBE_DEV_MODE
         UmaskGuard guard(0077);
 #else
         UmaskGuard guard(0);
@@ -230,7 +230,7 @@ void Server::run()
     if (ec) {
         spdlog::error("Failed to create " WS_LINUX_TMP_DIR ": {}", ec.message());
     }
-#ifdef NDEBUG // release build
+#ifndef WINDSCRIBE_DEV_MODE // secure (non-dev)
     if (struct group *grp = getgrnam(WS_PRODUCT_NAME_LOWER)) {
         if (::lchown(WS_LINUX_TMP_DIR, 0, grp->gr_gid) != 0) {
             spdlog::error("Failed to chown " WS_LINUX_TMP_DIR ": {}", IO::strerror(errno));
@@ -239,7 +239,7 @@ void Server::run()
         spdlog::error("Could not get group info for " WS_PRODUCT_NAME_LOWER);
     }
     std::filesystem::permissions(WS_LINUX_TMP_DIR, std::filesystem::perms::owner_all, ec);
-#else // debug build
+#else // dev mode
     std::filesystem::permissions(WS_LINUX_TMP_DIR,
         std::filesystem::perms::owner_all | std::filesystem::perms::group_all | std::filesystem::perms::others_all,
         ec);
@@ -252,7 +252,7 @@ void Server::run()
     unlink(SOCK_PATH);
     boost::asio::local::stream_protocol::endpoint ep(SOCK_PATH);
     {
-#ifdef NDEBUG
+#ifndef WINDSCRIBE_DEV_MODE
         UmaskGuard guard(0007);
 #else
         UmaskGuard guard(0);
@@ -260,7 +260,7 @@ void Server::run()
         acceptor_ = new boost::asio::local::stream_protocol::acceptor(io_context_, ep);
     }
 
-#ifdef NDEBUG
+#ifndef WINDSCRIBE_DEV_MODE
     struct group *grp = getgrnam(WS_PRODUCT_NAME_LOWER);
     if (!grp || chown(SOCK_PATH, (uid_t)-1, grp->gr_gid) != 0) {
         // Do not have a group, or chown failed.

@@ -98,7 +98,7 @@ bool resolveExePath(const std::string &exePath, const std::string &executable, s
         return false;
     }
 
-#if defined(USE_SIGNATURE_CHECK)
+#ifndef WINDSCRIBE_DEV_MODE
     if (strcmp(canonicalPath, WS_MAC_APP_DIR "/Contents/Helpers") != 0) {
         // Don't execute arbitrary commands, only executables that are in our application directory
         spdlog::warn("Executable not in correct path, ignoring.");

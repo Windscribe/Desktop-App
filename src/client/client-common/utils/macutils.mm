@@ -211,7 +211,7 @@ bool MacUtils::dynamicStoreEntryHasKey(const QString &entry, const QString &key)
 bool MacUtils::verifyAppBundleIntegrity()
 {
     // Following code adapted from genSignatureForFileAndArch in signature.mm of the OSQuery project.
-#ifdef QT_DEBUG
+#ifndef USE_SIGNATURE_CHECK
     return true;
 #else
     QString mainBundlePath = getBundlePath();

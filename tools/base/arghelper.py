@@ -15,6 +15,7 @@ class ArgHelper:
     OPTION_HELP = "--help"
     OPTION_CLEAN_ONLY = "--clean-only"
     OPTION_DEBUG = "--debug"
+    OPTION_DEV_MODE = "--dev-mode"
     # signing
     OPTION_NOTARIZE = "--notarize"
     # partial builds
@@ -46,6 +47,7 @@ class ArgHelper:
     options.append((OPTION_HELP, "Prints this help menu"))
     options.append((OPTION_CLEAN_ONLY, "Cleans the temporary files created during building"))
     options.append((OPTION_DEBUG, "Build project as debug (note: uses x64-windows-static vcpkg triplet on Windows to produce release and debug deps)"))
+    options.append((OPTION_DEV_MODE, "Developer build: disable signature verification and relax security checks. Never use for release builds."))
     options.append(("\nSigning", ""))
     options.append((OPTION_NOTARIZE, "Notarizes the app after building (Mac only, CI-only)"))
     options.append(("\nBuild specific components", ""))
@@ -79,6 +81,7 @@ class ArgHelper:
         self.mode_clean_only = ArgHelper.OPTION_CLEAN_ONLY in program_arg_list
         self.mode_help = ArgHelper.OPTION_HELP in program_arg_list
         self.mode_debug = ArgHelper.OPTION_DEBUG in program_arg_list
+        self.mode_dev = ArgHelper.OPTION_DEV_MODE in program_arg_list
 
         # building
         self.mode_clean = ArgHelper.OPTION_CLEAN in program_arg_list
@@ -127,6 +130,9 @@ class ArgHelper:
 
     def ci_mode(self):
         return self.mode_ci
+
+    def dev_mode(self):
+        return self.mode_dev
 
     def build_symbols(self):
         return self.mode_build_symbols

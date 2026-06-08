@@ -24,12 +24,6 @@ find_package(spdlog CONFIG REQUIRED)
 
 include("${CMAKE_CURRENT_LIST_DIR}/../../cmake/fetch_wsnet.cmake")
 
-# build_all.py sets this option when invoked with the '--sign' flag. Disabled by default
-option(DEFINE_USE_SIGNATURE_CHECK_MACRO "Add define USE_SIGNATURE_CHECK to project" OFF)
-if(DEFINE_USE_SIGNATURE_CHECK_MACRO)
-    add_definitions(-DUSE_SIGNATURE_CHECK)
-endif(DEFINE_USE_SIGNATURE_CHECK_MACRO)
-
 # if a build identifier is provided, add it to the project.
 option(DEFINE_USE_BUILD_ID_MACRO "Add define BUILD_ID to project" "")
 if(DEFINE_USE_BUILD_ID_MACRO)

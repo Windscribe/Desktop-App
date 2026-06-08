@@ -208,6 +208,9 @@ void ConnectionManager::blockingDisconnect(bool isSleepEvent)
             }
             connector_->blockSignals(false);
             doMacRestoreProcedures();
+#if defined(Q_OS_LINUX)
+            helper_->setGaiIpv4PriorityEnabled(false);
+#endif
             stunnelManager_->killProcess();
             wstunnelManager_->killProcess();
             ctrldManager_->killProcess();
@@ -342,6 +345,21 @@ void ConnectionManager::onConnectionConnected(const AdapterGatewayInfo &connecti
     timerReconnection_.stop();
     connectingTimer_.stop();
     state_ = STATE_CONNECTED;
+
+#if defined(Q_OS_LINUX)
+    // Prioritize IPv4 in gai.conf only when the tunnel does not carry IPv6 egress, otherwise
+    // applications that prefer IPv6 stall waiting for blocked v6 traffic. The tunnel egresses
+    // IPv6 only for a dual-stack WireGuard node when the user has not forced IPv4 Only; this
+    // mirrors the dual-stack decision in onGetWireGuardConfigAnswer(). OpenVPN and IKEv2 never
+    // carry IPv6 today, so they always get the IPv4 priority.
+    const bool ipv6Egress = currentConnectionDescr_.protocol.isWireGuardProtocol()
+                            && currentConnectionDescr_.isIpv6Support
+                            && lastRequest_.ipStackEgress == IpStack::kAuto;
+    if (!ipv6Egress) {
+        helper_->setGaiIpv4PriorityEnabled(true);
+    }
+#endif
+
     emit connected();
 }
 
@@ -358,6 +376,9 @@ void ConnectionManager::onConnectionDisconnected()
 
     testVPNTunnel_->stopTests();
     doMacRestoreProcedures();
+#if defined(Q_OS_LINUX)
+    helper_->setGaiIpv4PriorityEnabled(false);
+#endif
 
     // Delete the connector to ensure we do not receive any additional events from it, even events
     // already queued to our event queue.  We cannot use connector_->disconnect() here since we connect

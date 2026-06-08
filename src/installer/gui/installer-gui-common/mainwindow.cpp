@@ -214,12 +214,14 @@ void MainWindow::onInstallerCallback()
     case wsl::STATE_EXTRACTED:
         // No UI created when running in silent mode.
         if (initialWindow_) {
-            QMetaObject::invokeMethod(initialWindow_, "setProgress", Qt::QueuedConnection, Q_ARG(int, installerShim_->progress()));
+            QMetaObject::invokeMethod(initialWindow_, &InitialWindow::setProgress, Qt::QueuedConnection, installerShim_->progress());
         }
         break;
     case wsl::STATE_CANCELED:
     case wsl::STATE_LAUNCHED:
-        qApp->exit();
+        // Worker-thread callback: post the exit to the GUI thread; a direct cross-thread qApp->exit()
+        // intermittently fails to return from exec().
+        QMetaObject::invokeMethod(qApp, &QCoreApplication::exit, Qt::QueuedConnection, 0);
         break;
     case wsl::STATE_FINISHED:
         installerShim_->finish();
@@ -258,11 +260,11 @@ void MainWindow::onInstallerCallback()
         if (options_.silent) {
             // On Windows this will go to the system debugger (e.g. Debug View app).
             qDebug() << errorMsg;
-            qApp->exit();
+            // Posted to the GUI thread: see STATE_LAUNCHED above.
+            QMetaObject::invokeMethod(qApp, &QCoreApplication::exit, Qt::QueuedConnection, 0);
         }
         else {
-            QMetaObject::invokeMethod(this, "showError", Qt::QueuedConnection, Q_ARG(QString, tr("Installation failed")),
-                                      Q_ARG(QString, errorMsg), Q_ARG(bool, true));
+            QMetaObject::invokeMethod(this, &MainWindow::showError, Qt::QueuedConnection, tr("Installation failed"), errorMsg, true);
         }
         break;
     }

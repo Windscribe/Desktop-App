@@ -144,8 +144,13 @@ void Routes::revertRoutes()
 
     for (MIB_IPFORWARD_ROW2 &row : addedRoutes_) {
         DWORD dwErr = DeleteIpForwardEntry2(&row);
-        if (dwErr != NO_ERROR)
-            spdlog::error("Routes::revertRoutes(), DeleteIpForwardEntry2 failed with error: {}", dwErr);
+        if (dwErr != NO_ERROR) {
+            if (dwErr == ERROR_NOT_FOUND) {
+                spdlog::info("Routes::revertRoutes(), DeleteIpForwardEntry2 did not find interface index {}", row.InterfaceIndex);
+            } else {
+                spdlog::error("Routes::revertRoutes(), DeleteIpForwardEntry2 failed with error: {}", dwErr);
+            }
+        }
     }
     addedRoutes_.clear();
 }

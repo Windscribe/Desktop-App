@@ -30,7 +30,7 @@ bool ReinstallWanIkev2::enableDevice()
 
             if (SetupDiGetDeviceRegistryProperty(hDevInfo, &deviceInfoData, SPDRP_DEVICEDESC, &ulPropertyType, (BYTE*)szBuffer, sizeof(szBuffer), &dwSize))
             {
-                _wcslwr(szBuffer);  //to lower case
+                _wcslwr_s(szBuffer);  //to lower case
                 if (wcsstr(szBuffer, L"wan miniport") != 0 && wcsstr(szBuffer, L"(ikev2)") != 0)
                 {
                     bIkev2DeviceFound = true;
@@ -55,35 +55,27 @@ bool ReinstallWanIkev2::enableDevice()
         if (bIkev2DeviceFound)
         {
             spdlog::info("ReinstallWanIkev2::enableDevice, WAN Miniport (IKEv2) found");
+            if (bIkev2DeviceEnabled)
+                spdlog::info("ReinstallWanIkev2::enableDevice, WAN Miniport (IKEv2) enabled");
+            else
+                spdlog::info("ReinstallWanIkev2::enableDevice, WAN Miniport (IKEv2) failed enable");
         }
         else
         {
             spdlog::info("ReinstallWanIkev2::enableDevice, WAN Miniport (IKEv2) not found");
         }
-        if (bIkev2DeviceEnabled)
-        {
-            spdlog::info("ReinstallWanIkev2::enableDevice, WAN Miniport (IKEv2) enabled");
-        }
-        else
-        {
-            spdlog::info("ReinstallWanIkev2::enableDevice, WAN Miniport (IKEv2) failed enable");
-        }
 
         if (bWanIpDeviceFound)
         {
             spdlog::info("ReinstallWanIkev2::enableDevice, WAN Miniport (IP) found");
+            if (bWanIpDeviceEnabled)
+                spdlog::info("ReinstallWanIkev2::enableDevice, WAN Miniport (IP) enabled");
+            else
+                spdlog::info("ReinstallWanIkev2::enableDevice, WAN Miniport (IP) failed enable");
         }
         else
         {
-            spdlog::info("ReinstallWanIkev2::uninstallDevice, WAN Miniport (IP) not found");
-        }
-        if (bWanIpDeviceEnabled)
-        {
-            spdlog::info("ReinstallWanIkev2::uninstallDevice, WAN Miniport (IP) enabled");
-        }
-        else
-        {
-            spdlog::info("ReinstallWanIkev2::uninstallDevice, WAN Miniport (IP) failed enable");
+            spdlog::info("ReinstallWanIkev2::enableDevice, WAN Miniport (IP) not found");
         }
 
         return bIkev2DeviceFound && bIkev2DeviceEnabled && bWanIpDeviceFound && bWanIpDeviceEnabled;
@@ -120,7 +112,7 @@ bool ReinstallWanIkev2::uninstallDevice()
 
             if (SetupDiGetDeviceRegistryProperty(hDevInfo, &deviceInfoData, SPDRP_DEVICEDESC, &ulPropertyType, (BYTE*)szBuffer, sizeof(szBuffer), &dwSize))
             {
-                _wcslwr(szBuffer);  //to lower case
+                _wcslwr_s(szBuffer);  //to lower case
                 if (wcsstr(szBuffer, L"wan miniport") != 0 && wcsstr(szBuffer, L"(ikev2)") != 0)
                 {
                     bIkev2DeviceFound = true;
@@ -145,35 +137,27 @@ bool ReinstallWanIkev2::uninstallDevice()
         if (bIkev2DeviceFound)
         {
             spdlog::info("ReinstallWanIkev2::uninstallDevice, WAN Miniport (IKEv2) found");
+            if (bIkev2DeviceUninstalled)
+                spdlog::info("ReinstallWanIkev2::uninstallDevice, WAN Miniport (IKEv2) uninstalled");
+            else
+                spdlog::info("ReinstallWanIkev2::uninstallDevice, WAN Miniport (IKEv2) failed uninstall");
         }
         else
         {
             spdlog::info("ReinstallWanIkev2::uninstallDevice, WAN Miniport (IKEv2) not found");
         }
-        if (bIkev2DeviceUninstalled)
-        {
-            spdlog::info("ReinstallWanIkev2::uninstallDevice, WAN Miniport (IKEv2) uninstalled");
-        }
-        else
-        {
-            spdlog::info("ReinstallWanIkev2::uninstallDevice, WAN Miniport (IKEv2) failed uninstall");
-        }
 
         if (bWanIpDeviceFound)
         {
             spdlog::info("ReinstallWanIkev2::uninstallDevice, WAN Miniport (IP) found");
+            if (bWanIpDeviceUninstalled)
+                spdlog::info("ReinstallWanIkev2::uninstallDevice, WAN Miniport (IP) uninstalled");
+            else
+                spdlog::info("ReinstallWanIkev2::uninstallDevice, WAN Miniport (IP) failed uninstall");
         }
         else
         {
             spdlog::info("ReinstallWanIkev2::uninstallDevice, WAN Miniport (IP) not found");
-        }
-        if (bWanIpDeviceUninstalled)
-        {
-            spdlog::info("ReinstallWanIkev2::uninstallDevice, WAN Miniport (IP) uninstalled");
-        }
-        else
-        {
-            spdlog::info("ReinstallWanIkev2::uninstallDevice, WAN Miniport (IP) failed uninstall");
         }
 
 

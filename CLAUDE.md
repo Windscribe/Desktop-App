@@ -309,6 +309,9 @@ From the `tools/` directory:
 # Debug build
 ./build_all --debug
 
+# Developer build (disables signature verification and relaxes path/permission/gid checks)
+./build_all --dev-mode
+
 # Build app only (no installer)
 ./build_all --build-app
 
@@ -607,6 +610,7 @@ pproxy &
 4. **CMake cache issues**: Delete `build/CMakeCache.txt` and `build/CMakeFiles/` if experiencing configure errors
 5. **Code signing failures**: Ensure certificates are properly installed and paths in `executable_signature_defs.h` are correct
 6. **Test failures**: Ensure `pproxy` is running before executing wsnet tests
+7. **Signature/path check failures on local builds**: Signature verification and path/permission/gid checks are now enforced on all builds, including local `--debug` builds. A plain local build that is unsigned (or signed with a non-Windscribe certificate) will fail these checks. Build with `--dev-mode` to disable them during development. `--dev-mode` cannot be combined with `--ci-mode` or any signing/notarization flag.
 
 ## Contributing
 

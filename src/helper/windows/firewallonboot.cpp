@@ -76,15 +76,15 @@ bool FirewallOnBootManager::disable()
         return false;
     }
 
-    if (registry.TryContainsValue(kRegistryValue)) {
-        result = registry.TryDeleteValue(kRegistryValue);
-        if (!result) {
-            spdlog::error(L"FirewallOnBootManager::disable failed deleting value {}: error {}", kRegistryValue, result.Code());
-            return false;
+    result = registry.TryDeleteValue(kRegistryValue);
+    if (!result) {
+        if (result.Code() == ERROR_FILE_NOT_FOUND) {
+            return true;
         }
-
-        spdlog::info("Firewall on boot disabled");
+        spdlog::error(L"FirewallOnBootManager::disable failed deleting value {}: error {}", kRegistryValue, result.Code());
+        return false;
     }
 
+    spdlog::info("Firewall on boot disabled");
     return true;
 }

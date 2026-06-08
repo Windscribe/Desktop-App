@@ -2,8 +2,6 @@
 
 #import <Foundation/Foundation.h>
 
-#include <codecvt>
-
 #include "executable_signature.h"
 #include "executable_signature_defs.h"
 #include "utils/wsscopeguard.h"
@@ -18,12 +16,14 @@ ExecutableSignaturePrivate::~ExecutableSignaturePrivate()
 
 bool ExecutableSignaturePrivate::verify(const std::wstring& exePath)
 {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-    std::string converted = converter.to_bytes(exePath);
-    return verify(converted);
-#pragma clang diagnostic pop
+    NSString* path = [[NSString alloc] initWithBytes:exePath.data()
+                                              length:exePath.size() * sizeof(wchar_t)
+                                            encoding:NSUTF32LittleEndianStringEncoding];
+    if (path == nil) {
+        lastError_ << "Failed to convert wide path to UTF-8";
+        return false;
+    }
+    return verify(std::string([path UTF8String]));
 }
 
 bool ExecutableSignaturePrivate::verify(const std::string &exePath)

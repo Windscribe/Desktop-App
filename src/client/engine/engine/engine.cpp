@@ -1117,6 +1117,11 @@ void Engine::logoutImplAfterDisconnect(bool keepFirewallOn)
     }
 
     GetWireGuardConfig::removeWireGuardSettings();
+
+    if (connectionManager_) {
+        connectionManager_->removeIkev2ConnectionFromOS();
+    }
+
     if (!keepFirewallOn)
     {
         firewallController_->firewallOff();
@@ -2379,6 +2384,7 @@ void Engine::setIgnoreSslErrors(bool bIgnore)
         ignoreSslErrors_ = bIgnore;
         WSNet::instance()->serverAPI()->setIgnoreSslErrors(bIgnore);
         WSNet::instance()->bridgeAPI()->setIgnoreSslErrors(bIgnore);
+        WSNet::instance()->serverAPI()->resetFailover();
     });
 }
 

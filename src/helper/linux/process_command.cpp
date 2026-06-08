@@ -498,10 +498,7 @@ std::string setGaiIpv4PriorityEnabled(const std::string &pars)
     bool enabled;
     deserializePars(pars, enabled);
     spdlog::debug("Set gai IPv4 priority: {}", enabled ? "enabled" : "disabled");
-    // We only handle the down case; the 'up' trigger for this script happens in the DNS manager script
-    if (!enabled) {
-        Utils::executeCommand(WS_LINUX_INSTALL_DIR "/scripts/gai-ipv4-priority", {"down"});
-    }
+    Utils::executeCommand(WS_LINUX_INSTALL_DIR "/scripts/gai-ipv4-priority", {enabled ? "up" : "down"});
     return std::string();
 }
 

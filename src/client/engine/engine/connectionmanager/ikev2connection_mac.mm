@@ -300,6 +300,56 @@ void IKEv2Connection_mac::continueWithPassword(const QString &password)
 
 void IKEv2Connection_mac::removeIkev2ConnectionFromOS()
 {
+    static QWaitCondition waitCondition;
+    static QMutex mutex;
+
+    mutex.lock();
+
+    NEVPNManager *manager = [NEVPNManager sharedManager];
+    if (manager)
+    {
+        [manager loadFromPreferencesWithCompletionHandler:^(NSError *err)
+        {
+            mutex.lock();
+            if (err)
+            {
+                qCWarning(LOG_IKEV2) << "Failed to load IKEv2 preferences before removal:" << QString::fromNSString(err.localizedDescription);
+                waitCondition.wakeAll();
+                mutex.unlock();
+                return;
+            }
+
+            const bool isWindscribeIkev2Profile = [manager.localizedDescription isEqualToString:@WS_MAC_VPN_DESCRIPTION] == YES &&
+                [[manager protocolConfiguration] isKindOfClass:[NEVPNProtocolIKEv2 class]];
+            if (!isWindscribeIkev2Profile)
+            {
+                waitCondition.wakeAll();
+                mutex.unlock();
+                return;
+            }
+
+            [manager removeFromPreferencesWithCompletionHandler:^(NSError *removeErr)
+            {
+                mutex.lock();
+                if (removeErr)
+                {
+                    qCWarning(LOG_IKEV2) << "Failed to remove IKEv2 preferences:" << QString::fromNSString(removeErr.localizedDescription);
+                }
+                else
+                {
+                    qCInfo(LOG_IKEV2) << "Removed Windscribe IKEv2 profile from system preferences";
+                }
+                waitCondition.wakeAll();
+                mutex.unlock();
+            }];
+            mutex.unlock();
+        }];
+
+        waitCondition.wait(&mutex);
+    }
+
+    mutex.unlock();
+
     KeyChainUtils::removeKeychainItem();
 }
 

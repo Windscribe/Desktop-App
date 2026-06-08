@@ -2,12 +2,6 @@ find_package(Boost REQUIRED COMPONENTS serialization thread)
 find_package(skyr-url CONFIG REQUIRED)
 find_package(spdlog CONFIG REQUIRED)
 
-# build_all.py sets this option when invoked with the '--sign' flag. Disabled by default
-option(DEFINE_USE_SIGNATURE_CHECK_MACRO "Add define USE_SIGNATURE_CHECK to project" OFF)
-if(DEFINE_USE_SIGNATURE_CHECK_MACRO)
-    ADD_DEFINITIONS(-DUSE_SIGNATURE_CHECK)
-endif(DEFINE_USE_SIGNATURE_CHECK_MACRO)
-
 set(SOURCES
     ../../client/client-common/types/ipaddress.cpp
     ../../client/client-common/types/ipaddress.h

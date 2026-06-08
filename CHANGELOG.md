@@ -1,3 +1,25 @@
+2.23.6 (08/06/2026)
+All:
+   * Improved release build security by enabling signature/path verification checks by default with an explicit local development opt-out. #1851
+   * Improved Russian and Ukrainian translations in the desktop app, installer, and CLI from GitHub user WkdXeqtr. #1858
+   * Fixed Control D via API Key connections failing when an IPv6 bootstrap IP from Custom DNS was retained without native IPv6. #1835
+   * Fixed Ignore SSL Errors runtime bypass handling to reset wsnet failovers before retrying failed requests. #1834
+   * Fixed IP pinning fallback when an Advanced Parameters remote IP does not match the selected location. #1852
+   * Fixed memory leak when handling CLI IPC commands. #1855
+   * Updated wsnet to 1.5.20.
+Windows:
+   * Improved Windows IKEv2 connector stability to mitigate possible crashes. #1856
+   * Improved debug logs by removing false positives that could mislead automated log analysis. #1857
+   * Fixed Windows installer progress handling near completion when uninstalling previous components and launching the app. #1755
+   * Fixed periodic reconnects on Windows IKEv2 connections caused by transient OS status checks. #1766
+macOS:
+   * Fixed logout/session deletion leaving the Windscribe IKEv2 VPN profile in macOS System Settings. #1849
+   * Fixed macOS builds against Xcode 26.5 and enabled ARC for client-common Objective-C++ code. #1860
+Linux:
+   * Fixed Linux address selection so IPv6-capable VPN connections do not incorrectly prefer IPv4 via Windscribe gai.conf handling. #1844
+   * Fixed deb/rpm packages installing scripts or helper files with world-writable permissions. #1853
+   
+   
 2.23.5 (02/06/2026)
 All:
    * Improved Belarusian translations in the desktop app, installer, and CLI from GitHub user dubovy-achvelak. #1846
@@ -87,6 +109,12 @@ Linux:
    * Improved Flatpak app split tunneling by matching Flatpak app IDs instead of relying only on executable/command name matching. #1789
    * Fixed generated OpenVPN config files and runtime directories using overly broad permissions that could expose VPN key material to local users. #1799
    * Fixed stunnel/wstunnel relay listeners binding to all interfaces instead of loopback only. #1800
+
+
+2.22.10 (21/05/2026)
+All:
+   * Fixed application blocked by TLS fingerprinting in Russia. #1822
+   * Fixed AmneziaWG custom configs with valid H1-H4 ranges rejected by the security validator. #1823
 
 
 2.22.9 (06/05/2026)

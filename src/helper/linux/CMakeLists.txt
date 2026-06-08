@@ -1,9 +1,3 @@
-# build_all.py sets this option when invoked with the '--sign' flag. Disabled by default
-option(DEFINE_USE_SIGNATURE_CHECK_MACRO "Add define USE_SIGNATURE_CHECK to project" OFF)
-if(DEFINE_USE_SIGNATURE_CHECK_MACRO)
-    add_definitions(-DUSE_SIGNATURE_CHECK)
-endif(DEFINE_USE_SIGNATURE_CHECK_MACRO)
-
 project(helper)
 
 find_package(Boost CONFIG REQUIRED COMPONENTS serialization thread filesystem)

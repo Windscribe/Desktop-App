@@ -29,6 +29,7 @@ macro(linux_copy_files DEST_DIR TARGET_NAME)
         list(GET _pair 1 _dest)
         add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different "${_src}" "${DEST_DIR}${WS_LINUX_INSTALL_DIR}/${_dest}"
+            COMMAND chmod 0755 "${DEST_DIR}${WS_LINUX_INSTALL_DIR}/${_dest}"
         )
     endforeach()
 
@@ -139,7 +140,7 @@ if(BUILD_DEB)
     if(DPKG_DEB_EXECUTABLE)
         add_custom_command(TARGET package-deb POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E echo "Building DEB package..."
-            COMMAND ${DPKG_DEB_EXECUTABLE} --build "${DEB_PACKAGE_DIR}/${DEB_PACKAGE_NAME}"
+            COMMAND ${DPKG_DEB_EXECUTABLE} --root-owner-group --build "${DEB_PACKAGE_DIR}/${DEB_PACKAGE_NAME}"
             COMMAND ${CMAKE_COMMAND} -E copy_if_different
                     "${DEB_PACKAGE_DIR}/${DEB_PACKAGE_NAME}.deb"
                     "${BUILD_EXE_DIR}/"

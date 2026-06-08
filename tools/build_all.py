@@ -41,6 +41,7 @@ def get_cmake_configure_args():
     args.append(f"-DBUILD_TESTS={'ON' if arghelper.build_tests() else 'OFF'}")
     args.append(f"-DSTATIC_ANALYSIS={'ON' if arghelper.static_analysis() else 'OFF'}")
     args.append(f"-DCI_MODE={'ON' if arghelper.ci_mode() else 'OFF'}")
+    args.append(f"-DDEV_MODE={'ON' if arghelper.dev_mode() else 'OFF'}")
     args.append(f"-DBUILD_SYMBOLS={'ON' if arghelper.build_symbols() else 'OFF'}")
     args.append(f"-DUPDATE_TRANSLATIONS={'ON' if arghelper.update_translations() else 'OFF'}")
 

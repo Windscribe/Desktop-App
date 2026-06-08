@@ -2,6 +2,7 @@
 
 #include <chrono>
 #include <iostream>
+#include <memory>
 #include <QTimer>
 #include <thread>
 #ifdef CLI_ONLY
@@ -46,6 +47,8 @@ void BackendCommander::initAndSend()
 
 void BackendCommander::onConnectionNewCommand(IPC::Command *command, IPC::Connection * /*connection*/)
 {
+    std::unique_ptr<IPC::Command> owner(command);
+
     if (command->getStringId() == IPC::CliCommands::Acknowledge::getCommandStringId()) {
         IPC::CliCommands::Acknowledge *ackCmd = static_cast<IPC::CliCommands::Acknowledge *>(command);
         onAcknowledge(ackCmd);

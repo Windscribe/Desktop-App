@@ -54,9 +54,12 @@ AutoConnSettingsPolicy::AutoConnSettingsPolicy(QSharedPointer<locationsmodel::Ba
     }
 
     QString remoteOverride = ExtraConfig::instance().getRemoteIpFromExtraConfig();
+    bool isNodeSelected = false;
     if (NetworkingValidation::isIp(remoteOverride) && attempts_.size() > 0 && attempts_[0].protocol == types::Protocol::WIREGUARD && !remoteOverride.isEmpty()) {
-        locationInfo_->selectNodeByIp(remoteOverride);
-    } else if (!preferredNodeHostname.isEmpty()) {
+        isNodeSelected = locationInfo_->selectNodeByIp(remoteOverride);
+    }
+
+    if (!isNodeSelected && !preferredNodeHostname.isEmpty()) {
         qCInfo(LOG_CONNECTION) << "Selecting preferred node by hostname: " << preferredNodeHostname;
         if (locationInfo_->selectNodeByHostname(preferredNodeHostname)) {
             qCInfo(LOG_CONNECTION) << "Found matching node: " << locationInfo_->getLogString();
@@ -86,14 +89,17 @@ void AutoConnSettingsPolicy::putFailedConnection()
         curAttempt_++;
         if (attempts_[curAttempt_].changeNode) {
             QString remoteOverride = ExtraConfig::instance().getRemoteIpFromExtraConfig();
+            bool isNodeSelected = false;
             if (NetworkingValidation::isIp(remoteOverride) && attempts_[curAttempt_].protocol == types::Protocol::WIREGUARD) {
-                locationInfo_->selectNodeByIp(remoteOverride);
-            } else if (!preferredNodeHostname_.isEmpty()) {
+                isNodeSelected = locationInfo_->selectNodeByIp(remoteOverride);
+            }
+
+            if (!isNodeSelected && !preferredNodeHostname_.isEmpty()) {
                 qCInfo(LOG_CONNECTION) << "Selecting preferred node by hostname on retry: " << preferredNodeHostname_;
                 if (!locationInfo_->selectNodeByHostname(preferredNodeHostname_)) {
                     locationInfo_->selectNextNode();
                 }
-            } else {
+            } else if (!isNodeSelected) {
                 locationInfo_->selectNextNode();
             }
         }

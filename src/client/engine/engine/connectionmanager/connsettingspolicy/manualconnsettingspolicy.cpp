@@ -14,9 +14,12 @@ ManualConnSettingsPolicy::ManualConnSettingsPolicy(QSharedPointer<locationsmodel
     WS_ASSERT(!locationInfo_->locationId().isCustomConfigsLocation());
 
     QString remoteOverride = ExtraConfig::instance().getRemoteIpFromExtraConfig();
+    bool isNodeSelected = false;
     if (!remoteOverride.isEmpty() && NetworkingValidation::isIp(remoteOverride) && connectionSettings_.protocol().isWireGuardProtocol()) {
-        locationInfo_->selectNodeByIp(remoteOverride);
-    } else if (!preferredNodeHostname.isEmpty()) {
+        isNodeSelected = locationInfo_->selectNodeByIp(remoteOverride);
+    }
+
+    if (!isNodeSelected && !preferredNodeHostname.isEmpty()) {
         qCInfo(LOG_CONNECTION) << "Selecting preferred node by hostname: " << preferredNodeHostname;
         if (locationInfo_->selectNodeByHostname(preferredNodeHostname)) {
             qCInfo(LOG_CONNECTION) << "Found matching node: " << locationInfo_->getLogString();
@@ -45,14 +48,17 @@ void ManualConnSettingsPolicy::putFailedConnection()
 
     if (failedManualModeCounter_ < 2) {
         QString remoteOverride = ExtraConfig::instance().getRemoteIpFromExtraConfig();
+        bool isNodeSelected = false;
         if (!remoteOverride.isEmpty() && NetworkingValidation::isIp(remoteOverride) && connectionSettings_.protocol().isWireGuardProtocol()) {
-            locationInfo_->selectNodeByIp(remoteOverride);
-        } else if (!preferredNodeHostname_.isEmpty()) {
+            isNodeSelected = locationInfo_->selectNodeByIp(remoteOverride);
+        }
+
+        if (!isNodeSelected && !preferredNodeHostname_.isEmpty()) {
             qCInfo(LOG_CONNECTION) << "Selecting preferred node by hostname on retry: " << preferredNodeHostname_;
             if (!locationInfo_->selectNodeByHostname(preferredNodeHostname_)) {
                 locationInfo_->selectNextNode();
             }
-        } else {
+        } else if (!isNodeSelected) {
             locationInfo_->selectNextNode();
         }
     } else {

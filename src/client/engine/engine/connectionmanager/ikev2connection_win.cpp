@@ -159,6 +159,7 @@ void IKEv2Connection_win::onTimerControlConnection()
             DWORD err = RasGetConnectStatus(connHandle_, &status);
             if (err == ERROR_INVALID_HANDLE || err == ERROR_NO_CONNECTION)
             {
+                qCWarning(LOG_IKEV2) << "RasGetConnectStatus indicates the connection is down:" << err;
                 connHandle_ = NULL;
                 timerControlConnection_.stop();
                 helper_->disableDnsLeaksProtection();
@@ -337,9 +338,20 @@ void IKEv2Connection_win::doConnect()
     memset(&rasEntry, 0, sizeof(rasEntry));
     rasEntry.dwSize = sizeof(RASENTRY);
 
-    wcscpy_s(rasEntry.szLocalPhoneNumber, initialUrl_.toStdWString().c_str());
-    wcscpy_s(rasEntry.szDeviceName, devInfo.szDeviceName);
-    wcscpy_s(rasEntry.szDeviceType, devInfo.szDeviceType);
+    // Use the truncating form (_TRUNCATE) so an over-long source string returns a non-zero errno instead
+    // of invoking the secure-CRT invalid-parameter handler, which terminates the process.  szLocalPhoneNumber
+    // is fed by the server-supplied hostname, so fail (rather than silently truncate) if it doesn't fit.
+    errno_t ret = wcsncpy_s(rasEntry.szLocalPhoneNumber, initialUrl_.toStdWString().c_str(), _TRUNCATE);
+    if (ret != 0) {
+        qCCritical(LOG_IKEV2) << "Failed to copy hostname to RAS phone number field, error:" << ret;
+        state_ = STATE_DISCONNECTED;
+        emit error(CONNECT_ERROR::IKEV_FAILED_SET_ENTRY_WIN);
+        return;
+    }
+    // szDeviceName/szDeviceType come from RasEnumDevices into identically-sized fields, so they cannot
+    // overflow; use the truncating form anyway for consistency.
+    wcsncpy_s(rasEntry.szDeviceName, devInfo.szDeviceName, _TRUNCATE);
+    wcsncpy_s(rasEntry.szDeviceType, devInfo.szDeviceType, _TRUNCATE);
 
     rasEntry.dwfOptions = RASEO_RequireEAP  /*| RASEO_RemoteDefaultGateway*/;
     if (initialEnableIkev2Compression_)
@@ -347,7 +359,7 @@ void IKEv2Connection_win::doConnect()
         rasEntry.dwfOptions = rasEntry.dwfOptions | RASEO_IpHeaderCompression | RASEO_SwCompression;
     }
 
-    rasEntry.dwfOptions2 = RASEO2_DontNegotiateMultilink | RASEO2_ReconnectIfDropped /*| RASEO2_IPv6RemoteDefaultGateway*/ | RASEO2_IPv4ExplicitMetric | RASEO2_IPv6ExplicitMetric | RASEO2_SecureFileAndPrint;
+    rasEntry.dwfOptions2 = RASEO2_DontNegotiateMultilink | RASEO2_IPv4ExplicitMetric | RASEO2_IPv6ExplicitMetric | RASEO2_SecureFileAndPrint;
     rasEntry.dwFramingProtocol = RASFP_Ppp;
     rasEntry.dwEncryptionType = ET_RequireMax;
     rasEntry.dwType = RASET_Vpn;
@@ -357,26 +369,19 @@ void IKEv2Connection_win::doConnect()
     rasEntry.dwRedialPause = 60;
     rasEntry.dwIPv4InterfaceMetric = 1;  // minimum ipv4 metric
     rasEntry.dwIPv6InterfaceMetric = 1;  // minimum ipv6 metric
-    rasEntry.dwIdleDisconnectSeconds = 60;  // 60 sec disconnect timeout
-    //rasEntry.dwNetworkOutageTime = 60; // it's unclear whether this works or not.
-
+    rasEntry.dwIdleDisconnectSeconds = RASIDS_Disabled;
+    // dwNetworkOutageTime is the ceiling, in minutes, on how long Windows keeps a dormant tunnel alive (retransmitting IKE packets) before declaring it dead.
+    // If connectivity returns within that window — same or different interface — MOBIKE re-attaches the same SA with no re-dial, no re-auth, no app-visible
+    // reconnect.
+    // rasEntry.dwNetworkOutageTime = 1;
 
     DWORD dwErr = RasSetEntryProperties(NULL, IKEV2_CONNECTION_NAME, &rasEntry, rasEntry.dwSize, NULL, NULL);
     if (dwErr != ERROR_SUCCESS)
     {
-        if (dwErr == ERROR_INVALID_SIZE)
-        {
-            // try manual size (bug in 17133.1, https://answers.microsoft.com/en-us/insider/forum/insider_wintp-insider_update-insiderplat_pc/ras-error-632-on-windows-insider-build-17083/aacf68b9-3171-4342-ab9e-cbd4e278d4a7?page=2)
-            rasEntry.dwSize = 6720;
-            dwErr = RasSetEntryProperties(NULL, IKEV2_CONNECTION_NAME, &rasEntry, rasEntry.dwSize, NULL, NULL);
-        }
-        if (dwErr != ERROR_SUCCESS)
-        {
-            qCCritical(LOG_IKEV2) << "RasSetEntryProperties failed with error:" << dwErr;
-            state_ = STATE_DISCONNECTED;
-            emit error(CONNECT_ERROR::IKEV_FAILED_SET_ENTRY_WIN);
-            return;
-        }
+        qCCritical(LOG_IKEV2) << "RasSetEntryProperties failed with error:" << dwErr;
+        state_ = STATE_DISCONNECTED;
+        emit error(CONNECT_ERROR::IKEV_FAILED_SET_ENTRY_WIN);
+        return;
     }
 
     connHandle_ = NULL;
@@ -386,9 +391,23 @@ void IKEv2Connection_win::doConnect()
     dialparams.dwSize = sizeof(dialparams);
     dialparams.dwCallbackId = (ULONG_PTR)this;
 
-    wcscpy_s(dialparams.szEntryName, IKEV2_CONNECTION_NAME);
-    wcscpy_s(dialparams.szUserName, initialUsername_.toStdWString().c_str());
-    wcscpy_s(dialparams.szPassword, initialPassword_.toStdWString().c_str());
+    // szEntryName is a branded compile-time constant and cannot overflow; the username and password are
+    // session credentials fed in from outside, so fail if they don't fit rather than silently truncate.
+    wcsncpy_s(dialparams.szEntryName, IKEV2_CONNECTION_NAME, _TRUNCATE);
+    ret = wcsncpy_s(dialparams.szUserName, initialUsername_.toStdWString().c_str(), _TRUNCATE);
+    if (ret != 0) {
+        qCCritical(LOG_IKEV2) << "Failed to copy username to RAS dial params, error:" << ret;
+        state_ = STATE_DISCONNECTED;
+        emit error(CONNECT_ERROR::IKEV_FAILED_SET_ENTRY_WIN);
+        return;
+    }
+    ret = wcsncpy_s(dialparams.szPassword, initialPassword_.toStdWString().c_str(), _TRUNCATE);
+    if (ret != 0) {
+        qCCritical(LOG_IKEV2) << "Failed to copy password to RAS dial params, error:" << ret;
+        state_ = STATE_DISCONNECTED;
+        emit error(CONNECT_ERROR::IKEV_FAILED_SET_ENTRY_WIN);
+        return;
+    }
 
     dwErr = RasSetEntryDialParams(NULL, &dialparams, FALSE);
     if (dwErr != ERROR_SUCCESS)
@@ -517,6 +536,12 @@ bool IKEv2Connection_win::getIKEv2Device(tagRASDEVINFOW *outDevInfo)
     if (dwErr != ERROR_BUFFER_TOO_SMALL && dwErr != ERROR_SUCCESS)
     {
         qCCritical(LOG_IKEV2) << "RasEnumDevices failed with error:" << dwErr;
+        return false;
+    }
+
+    // It is possible for RasEnumDevices to return ERROR_SUCCESS and dwSize == 0, for example on broken/missing RAS installs.
+    if (dwSize < sizeof(RASDEVINFO)) {
+        qCCritical(LOG_IKEV2) << "RasEnumDevices returned an invalid buffer size:" << dwSize;
         return false;
     }
 

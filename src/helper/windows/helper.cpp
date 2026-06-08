@@ -183,9 +183,11 @@ void Helper::sendRequestResult(HANDLE hIOEvent, const std::string &data)
 
 void Helper::processClientRequests()
 {
+#if !defined(WINDSCRIBE_DEV_MODE)
     if (!Utils::verifyAppProcessPath(clientPipe_.getHandle())) {
         return;
     }
+#endif
 
     Win32Handle ioCompletedEvent(::CreateEvent(NULL, TRUE, TRUE, NULL));
     if (!ioCompletedEvent.isValid()) {
