@@ -35,11 +35,12 @@ void Connection::connect()
     QObject::connect(localSocket_, &QLocalSocket::readyRead, this, &Connection::onReadyRead);
     QObject::connect(localSocket_, &QLocalSocket::errorOccurred, this, &Connection::onSocketError);
 #if defined(Q_OS_MACOS)
-    const QString runtimeDir = QStandardPaths::writableLocation(QStandardPaths::TempLocation);
-    localSocket_->connectToServer(runtimeDir + "/windscribe-localipc.sock");
+    const QString runtimeDir = QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) +
+        "/" WS_SETTINGS_ORG "/ipc";
+    localSocket_->connectToServer(runtimeDir + "/" WS_PRODUCT_NAME_LOWER "-localipc.sock");
 #elif defined(Q_OS_LINUX)
     const QString runtimeDir = QStandardPaths::writableLocation(QStandardPaths::RuntimeLocation);
-    localSocket_->connectToServer(runtimeDir + "/windscribe-localipc.sock");
+    localSocket_->connectToServer(runtimeDir + "/" WS_PRODUCT_NAME_LOWER "-localipc.sock");
 #else
     localSocket_->connectToServer(WS_APP_IDENTIFIER "8rM7bza5OR");
 #endif

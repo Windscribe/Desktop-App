@@ -197,6 +197,11 @@ void ProxySettings::validate()
             qCWarning(LOG_BASIC) << "ProxySettings: invalid port, disabling proxy";
             needsReset = true;
         }
+    } else {
+        address_.clear();
+        port_ = 0;
+        username_.clear();
+        password_.clear();
     }
 
     constexpr int kMaxCredentialLen = 255;

@@ -163,6 +163,14 @@ struct SplitTunnelingNetworkRoute
     void validate()
     {
         type = SPLIT_TUNNELING_NETWORK_ROUTE_TYPE_fromInt(static_cast<int>(type));
+        // The name shape is authoritative; a mismatched declared type is corrected.
+        if (!name.isEmpty()) {
+            if (NetworkingValidation::isIpCidr(name)) {
+                type = SPLIT_TUNNELING_NETWORK_ROUTE_TYPE_IP;
+            } else {
+                type = SPLIT_TUNNELING_NETWORK_ROUTE_TYPE_HOSTNAME;
+            }
+        }
     }
 
 private:

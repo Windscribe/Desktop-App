@@ -69,6 +69,10 @@ struct FirewallSettings
     {
         mode = FIREWALL_MODE_fromInt(static_cast<int>(mode));
         when = FIREWALL_WHEN_fromInt(static_cast<int>(when));
+        // 'when' is only used in automatic mode.
+        if (mode != FIREWALL_MODE_AUTOMATIC) {
+            when = FIREWALL_WHEN_BEFORE_CONNECTION;
+        }
     }
 
     friend QDataStream& operator <<(QDataStream &stream, const FirewallSettings &o)

@@ -86,6 +86,11 @@ bool isValidMacAddress(const std::string &macAddress);
 // smuggled newline could be reinterpreted as a new record.
 bool isPrintableSingleLineAscii(const std::string &v);
 
+// Returns true if the value is non-empty and passes isPrintableSingleLineAscii; otherwise
+// logs an error naming fieldName and returns false. Used for WireGuard UAPI key fields
+// (private_key/public_key/preshared_key) before they are written as line-oriented records.
+bool isValidUapiKeyField(const char *fieldName, const std::string &value);
+
 // Normalize an address string (IP, domain, or URL).
 // Returns the address unchanged if it's a valid IPv4 or domain;
 // otherwise attempts to parse and serialize as a URL.

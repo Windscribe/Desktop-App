@@ -834,6 +834,7 @@ void Backend::handleNetworkChange(types::NetworkInterface networkInterface, bool
         if (!currentNetworkInterface_.sameNetworkInterface(networkInterface) || manual) {
             triggerAutoConnect(foundInterface);
             currentNetworkInterface_ = networkInterface;
+            currentNetworkInterface_.trustType = foundInterface.trustType;
         }
 
         // Even if not a real network change we want to update the UI with current network info.

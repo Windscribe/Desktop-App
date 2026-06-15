@@ -72,7 +72,7 @@ void ConnectedDnsInfo::normalize()
     }
 }
 
-QJsonObject ConnectedDnsInfo::toJson() const
+QJsonObject ConnectedDnsInfo::toJson(bool isForDebugLog) const
 {
     QJsonObject json;
     json[kJsonTypeProp] = static_cast<int>(type);
@@ -86,7 +86,11 @@ QJsonObject ConnectedDnsInfo::toJson() const
     }
     json[kJsonHostnamesProp] = hostnamesArray;
 
-    json[kJsonControldApiKeyProp] = Utils::toBase64(controldApiKey);
+    if (isForDebugLog) {
+        json[kJsonControldApiKeyProp] = controldApiKey.isEmpty() ? "empty" : "set";
+    } else {
+        json[kJsonControldApiKeyProp] = Utils::toBase64(controldApiKey);
+    }
 
     return json;
 }
@@ -142,6 +146,15 @@ void ConnectedDnsInfo::validate()
         upStream2.clear();
     }
 
+    constexpr int kMaxApiKeyLen = 255;
+    if (controldApiKey.size() > kMaxApiKeyLen || controldApiKey.contains(QChar(0))) {
+        qCWarning(LOG_BASIC) << "ConnectedDnsInfo: controldApiKey out of bounds, clearing";
+        controldApiKey.clear();
+        if (type == CONNECTED_DNS_TYPE_CONTROLD) {
+            type = CONNECTED_DNS_TYPE_AUTO;
+        }
+    }
+
     normalize();
 
     constexpr int kMaxHostnames = 1024;
@@ -159,6 +172,21 @@ void ConnectedDnsInfo::validate()
         }
     }
     hostnames = filtered;
+
+    // Clear fields that are not relevant to the selected type.
+    if (type == CONNECTED_DNS_TYPE_AUTO || type == CONNECTED_DNS_TYPE_LOCAL) {
+        upStream1.clear();
+        isSplitDns = false;
+        controldApiKey.clear();
+        controldDevices.clear();
+    } else if (type == CONNECTED_DNS_TYPE_CUSTOM) {
+        controldApiKey.clear();
+        controldDevices.clear();
+    }
+    if (!isSplitDns) {
+        upStream2.clear();
+        hostnames.clear();
+    }
 }
 
 bool ConnectedDnsInfo::operator==(const ConnectedDnsInfo &other) const

@@ -111,13 +111,15 @@ int WireguardRingLogger::nextIndex()
 {
     qint32 value;
     memcpy(&value, logData_ + kWGLogIndexOffset, sizeof(value));
-    return value % kWGLogMessageRingSize;
+    return ((value % kWGLogMessageRingSize) + kWGLogMessageRingSize) % kWGLogMessageRingSize;
 }
 
 void WireguardRingLogger::process(int index)
 {
-    WS_ASSERT(index >= 0);
-    WS_ASSERT(index < kWGLogMessageRingSize);
+    if (index < 0 || index >= kWGLogMessageRingSize) {
+        qCWarning(LOG_WIREGUARD) << "Ignoring invalid WireGuard ring log index" << index;
+        return;
+    }
     size_t offset = static_cast<size_t>(index) * (kWGLogTimestampSize + kWGLogMessageSize);
     uchar* data = logData_ + kWGLogHeaderSize + offset;
 

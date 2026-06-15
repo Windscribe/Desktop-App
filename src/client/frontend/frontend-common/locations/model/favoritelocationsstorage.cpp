@@ -7,6 +7,8 @@
 #include <QJsonObject>
 #include <QSettings>
 
+#include "utils/log/categories.h"
+#include "utils/networkingvalidation.h"
 #include "utils/simplecrypt.h"
 #include "types/global_consts.h"
 
@@ -161,14 +163,26 @@ QJsonArray FavoriteLocationsStorage::toJson() const
 
 void FavoriteLocationsStorage::fromJson(const QJsonArray &arr)
 {
+    constexpr int kMaxFavorites = 4096;
+    constexpr int kMaxHostnameLen = 253;
+
     favoriteLocations_.clear();
     for (const QJsonValue &val : arr) {
+        if (favoriteLocations_.size() >= kMaxFavorites) {
+            qCWarning(LOG_BASIC) << "FavoriteLocationsStorage: favorites over cap, ignoring the rest";
+            break;
+        }
         if (!val.isObject())
             continue;
         QJsonObject entry = val.toObject();
         if (!entry.contains("type") || !entry.contains("id") || !entry.contains("city"))
             continue;
-        LocationID loc(entry["type"].toInt(), entry["id"].toInt(), entry["city"].toString());
+        QString city = entry["city"].toString();
+        if (city.size() > kMaxHostnameLen || city.contains(QChar(0))) {
+            qCWarning(LOG_BASIC) << "FavoriteLocationsStorage: invalid city, skipping entry";
+            continue;
+        }
+        LocationID loc(entry["type"].toInt(), entry["id"].toInt(), city);
         FavoriteData data;
         // Store only the subdomain portion so pinned IPs still work when the server TLD changes.
         QString hostname = entry["pinnedHostname"].toString();
@@ -176,8 +190,17 @@ void FavoriteLocationsStorage::fromJson(const QJsonArray &arr)
         if (dotIndex != -1) {
             hostname = hostname.left(dotIndex);
         }
+        if (hostname.size() > kMaxHostnameLen || hostname.contains(QChar(0))) {
+            qCWarning(LOG_BASIC) << "FavoriteLocationsStorage: invalid pinnedHostname, clearing";
+            hostname.clear();
+        }
         data.pinnedHostname = hostname;
-        data.pinnedIp = entry["pinnedIp"].toString();
+        QString pinnedIp = entry["pinnedIp"].toString();
+        if (!pinnedIp.isEmpty() && !NetworkingValidation::isIp(pinnedIp)) {
+            qCWarning(LOG_BASIC) << "FavoriteLocationsStorage: invalid pinnedIp, clearing";
+            pinnedIp.clear();
+        }
+        data.pinnedIp = pinnedIp;
         favoriteLocations_.insert(loc, data);
     }
     isFavoriteLocationsSetModified_ = true;

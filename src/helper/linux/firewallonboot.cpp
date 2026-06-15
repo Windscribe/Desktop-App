@@ -214,6 +214,14 @@ bool FirewallOnBootManager::enable(bool allowLanTraffic) {
     // resolution entirely — even an explicit unicast ACCEPT from v6IpTableRules
     // becomes unreachable because the host can't resolve the gateway's MAC.
     // IPv4 doesn't need an equivalent because ARP is L2 and bypasses iptables.
+    //
+    // Connectivity-critical ICMPv6 error types (1-4) are deliberately NOT accepted here, unlike the
+    // runtime ruleset (firewallcontroller_linux.cpp). There they are accepted only on the VPN
+    // interface — to keep a Packet-Too-Big from a (possibly ULA) in-tunnel hop from being dropped —
+    // and no VPN interface exists in the boot→engine window, so there is nothing to mirror. A blanket
+    // accept at boot would instead reopen a kill-switch covert channel: types 1-4 are globally
+    // routable and carry up to ~1200 bytes of the triggering packet. Permitted v6 in this transient
+    // window is small-packet whitelisted endpoints + local LAN, so PMTUD here is a non-issue.
     for (int icmpv6Type : {130, 131, 132, 133, 134, 135, 136, 137, 143}) {
         const std::string t = std::to_string(icmpv6Type);
         rules << "-A " WS_PRODUCT_NAME_LOWER "_input -p ipv6-icmp --icmpv6-type " + t + " -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
@@ -226,6 +234,19 @@ bool FirewallOnBootManager::enable(bool allowLanTraffic) {
     // at L3 (ICMPv6) and is subject to ip6tables, unlike v4 ARP.
     rules << "-A " WS_PRODUCT_NAME_LOWER "_input -s ff00::/8 -j " + action + " -m comment --comment \"" + comment_ + "\"\n";
     rules << "-A " WS_PRODUCT_NAME_LOWER "_output -d ff00::/8 -j " + action + " -m comment --comment \"" + comment_ + "\"\n";
+
+    // IPv6 unique local addresses (RFC 4193): the v6 analog of the RFC1918 private ranges, gated on
+    // allowLanTraffic the same way as the v4 ranges above. Mirrors the engine-side fc00::/7 rule in
+    // firewallcontroller_linux.cpp so ULA LAN devices stay reachable in the boot→engine window.
+    // Unscoped (no tunnel carve-out) because no VPN interface exists when this ruleset is generated.
+    // Caveat: the boot blob shares the windscribe_input/output chains with the runtime rules and is
+    // restored (with -F) by this manager's constructor on every helper start — including a helper
+    // restart while already connected. In that transient window this unscoped fc00::/7 ACCEPT (when
+    // allowLanTraffic is on) can briefly let ULA into the tunnel until the engine re-applies the
+    // runtime tunnel-scoped DROPs. Benign (ULA is non-routable — it dies at the VPN server) and
+    // pre-existing: the v4 RFC1918 ranges above have the identical property. Not a hard guarantee.
+    rules << "-A " WS_PRODUCT_NAME_LOWER "_input -s fc00::/7 -j " + action + " -m comment --comment \"" + comment_ + "\"\n";
+    rules << "-A " WS_PRODUCT_NAME_LOWER "_output -d fc00::/7 -j " + action + " -m comment --comment \"" + comment_ + "\"\n";
 
     // v6 entries from ipTable_ (e.g. v6 DNS server IPs). Defensive — currently
     // the engine sends mostly v4 IPs, but UniqueIpList does not filter by family

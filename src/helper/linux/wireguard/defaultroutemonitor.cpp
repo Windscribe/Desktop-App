@@ -97,7 +97,7 @@ bool DefaultRouteMonitor::executeCommandWithLogging(const std::string &program, 
     std::string output;
     const auto status = Utils::executeCommand(program, args, &output);
     if (!output.empty())
-        spdlog::info(output);
+        spdlog::info("{}", output);
     return status == 0;
 }
 

@@ -87,6 +87,44 @@ void Routes::deleteRoute(const IpForwardTable &curRouteTable,
     }
 }
 
+void Routes::deleteRouteByInterface(const IpForwardTable &curRouteTable,
+                                    const types::IpAddress &destIp, UINT8 prefixLength,
+                                    unsigned long ifIndex)
+{
+    spdlog::debug("Routes::deleteRouteByInterface(), destIp={}, prefixLength={}, ifIndex={}",
+                  destIp.toString(), prefixLength, ifIndex);
+
+    if (!destIp.isValid()) {
+        spdlog::error("Routes::deleteRouteByInterface(): destIp invalid");
+        return;
+    }
+
+    SOCKADDR_INET destSockaddr;
+    fillSockaddrInet(&destSockaddr, destIp);
+
+    for (ULONG i = 0; i < curRouteTable.count(); ++i) {
+        const MIB_IPFORWARD_ROW2 *row = curRouteTable.getByIndex(i);
+        if (!row)
+            continue;
+        if (row->DestinationPrefix.Prefix.si_family != destSockaddr.si_family)
+            continue;
+        if (row->DestinationPrefix.PrefixLength != prefixLength)
+            continue;
+        if (row->InterfaceIndex != ifIndex)
+            continue;
+        if (!sameAddrBytes(row->DestinationPrefix.Prefix, destSockaddr))
+            continue;
+
+        MIB_IPFORWARD_ROW2 rowCopy = *row;
+        DWORD dwErr = DeleteIpForwardEntry2(&rowCopy);
+        if (dwErr == NO_ERROR) {
+            deletedRoutes_.push_back(*row);
+        } else {
+            spdlog::error("Routes::deleteRouteByInterface(), DeleteIpForwardEntry2 failed with error: {}", dwErr);
+        }
+    }
+}
+
 void Routes::addRoute(const IpForwardTable &curRouteTable,
                       const types::IpAddress &destIp, UINT8 prefixLength,
                       const types::IpAddress &gatewayIp, unsigned long ifIndex,

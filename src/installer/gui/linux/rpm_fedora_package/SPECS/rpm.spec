@@ -103,6 +103,7 @@ else
 fi
 
 %files
+%defattr(-,root,root,-)
 %config /etc/windscribe/autostart/windscribe.desktop
 /opt/windscribe/*
 /usr/lib/systemd/system-preset/69-windscribe-helper.preset

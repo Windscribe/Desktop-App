@@ -1,6 +1,7 @@
 #pragma once
 
 #include "types/enums.h"
+#include "utils/log/categories.h"
 
 #include <QJsonObject>
 #include <QSettings>
@@ -54,6 +55,16 @@ struct PacketSize
     {
         settings.setValue(kIniIsAutomaticProp, TOGGLE_MODE_toString(isAutomatic ? TOGGLE_MODE_AUTO : TOGGLE_MODE_MANUAL));
         settings.setValue(kIniMTUProp, mtu);
+    }
+
+    void validate()
+    {
+        // MTU is unset, or must be a minimum of 68 per RFC 791 and can't exceed maximum IP packet size of 65535
+        if (mtu != -1 && (mtu < 68 || mtu >= 65536)) {
+            qCWarning(LOG_BASIC) << "PacketSize: invalid MTU, resetting";
+            mtu = -1;
+            isAutomatic = true;
+        }
     }
 
     QJsonObject toJson() const

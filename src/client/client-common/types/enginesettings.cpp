@@ -453,6 +453,7 @@ void EngineSettingsData::validate()
     connectionSettings.validate();
     firewallSettings.validate();
     decoyTrafficSettings.validate();
+    packetSize.validate();
 
     constexpr int kMaxNetworkPreferred = 256;
     constexpr int kMaxSsidLen = 256;
@@ -582,7 +583,7 @@ QJsonObject EngineSettingsData::toJson(bool isForDebugLog) const
 {
     QJsonObject json;
 
-    json[kJsonConnectedDnsInfoProp] = connectedDnsInfo.toJson();
+    json[kJsonConnectedDnsInfoProp] = connectedDnsInfo.toJson(isForDebugLog);
     json[kJsonConnectionSettingsProp] = connectionSettings.toJson(isForDebugLog);
 #if defined(Q_OS_LINUX)
     json[kJsonDnsManagerProp] = static_cast<int>(dnsManager);

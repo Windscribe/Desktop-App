@@ -479,6 +479,18 @@ std::vector<std::string> FirewallController::lanTrafficRules(bool allowLanTraffi
     rules.push_back(action + " out quick inet6 from any to ff00::/8");
     rules.push_back(action + " in quick inet6 from ff00::/8 to any");
 
+    // IPv6 unique local addresses (RFC 4193) — the v6 analog of the RFC1918 private ranges, used
+    // by typical LAN/VM-bridge setups. Gated on allowLanTraffic the same way as the v4 ranges.
+    // Deliberately NO v6 "reserved subnet" escape mirroring the v4 10.255.255.0/24 pass above: this
+    // anchor is evaluated (quick) ahead of vpn_traffic, so with allowLanTraffic off the block here
+    // also pre-empts the tunnel's "pass inet6 from any to any" — but that is intended, because every
+    // in-tunnel service is v4-only (WG DNS is 10.255.255.1) and ordinary v6 traffic targets global
+    // (2000::/3) addresses, not ULA. If a future non-custom tunnel ever exposes an in-tunnel v6
+    // service on a ULA address, add a "pass quick inet6 ... to <reserved>" ahead of this block (and
+    // mirror it in the Linux runtime/boot rulesets) — otherwise it is silently dropped by default.
+    rules.push_back(action + " out quick inet6 from any to fc00::/7");
+    rules.push_back(action + " in quick inet6 from fc00::/7 to any");
+
     // UPnP
     rules.push_back(action + " out quick inet proto udp from any to any port = 1900");
     rules.push_back(action + " in quick proto udp from any to any port = 1900");
@@ -536,6 +548,11 @@ std::vector<std::string> FirewallController::vpnTrafficRules(const FirewallConfi
             rules.push_back("block in quick on " + iface + " inet6 from fe80::/10 to any");
             rules.push_back("block out quick on " + iface + " inet6 from any to ff00::/8");
             rules.push_back("block in quick on " + iface + " inet6 from ff00::/8 to any");
+            // Intentionally NO fc00::/7 (ULA) block here. Unlike Linux's single linear chain, the
+            // lan_traffic anchor is evaluated (quick) before vpn_traffic, so it already decides every
+            // fc00::/7 packet — a block here would never match. It would be dead and, worse,
+            // misleading (reading as if the tunnel were protected). fc00::/7 is governed entirely by
+            // lanTrafficRules; see the comment there for the deliberate v4-analogous LAN behavior.
         }
 
         // Allow other traffic on VPN interface

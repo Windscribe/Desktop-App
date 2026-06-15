@@ -90,6 +90,7 @@ else
 fi
 
 %files
+%defattr(-,root,root,-)
 /opt/windscribe/*
 /usr/lib/systemd/system-preset/69-windscribe-helper.preset
 /usr/lib/systemd/system/windscribe-helper.service

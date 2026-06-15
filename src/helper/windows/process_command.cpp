@@ -15,6 +15,7 @@
 #include "active_processes.h"
 #include "utils/executable_signature/executable_signature.h"
 #include "utils/systemlibloader.h"
+#include "utils/win32handle.h"
 #include "changeics/icsmanager.h"
 #include "clear_wifi_history/clear_wifi_history.h"
 #include "close_tcp_connections.h"
@@ -810,20 +811,37 @@ std::string installerStageAndVerify(const std::string &pars)
     std::wstring srcPath;
     deserializePars(pars, srcPath);
 
-    // Reject reparse points (symlinks, junctions). CopyFileW follows reparse points on the
-    // source side, so without this check a caller could redirect the helper into reading
-    // an arbitrary path the helper has access to as SYSTEM.
-    const DWORD srcAttrs = ::GetFileAttributesW(srcPath.c_str());
-    if (srcAttrs == INVALID_FILE_ATTRIBUTES) {
-        spdlog::error("installerStageAndVerify: GetFileAttributes failed ({})", ::GetLastError());
+    // Open the downloaded installer once and bind every subsequent check and the copy itself to
+    // this exact handle. FILE_FLAG_OPEN_REPARSE_POINT opens a reparse-point source as the reparse
+    // point itself instead of following it, so we can reject symlinks/junctions on the handle.
+    // This closes a source-side TOCTOU: srcPath lives in the per-user, user-writable download dir,
+    // so a same-user attacker could otherwise swap it for a symlink between a path-based attribute
+    // check and a path-based CopyFileW, redirecting the SYSTEM helper into reading an arbitrary
+    // file it can access but the user cannot — and staging it where Users have read access.
+    // FILE_SHARE_READ only (no write/delete) pins the object for the lifetime of the copy.
+    wsl::Win32Handle srcHandle(::CreateFileW(srcPath.c_str(), GENERIC_READ, FILE_SHARE_READ, NULL,
+                                             OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT | FILE_FLAG_SEQUENTIAL_SCAN, NULL));
+    if (!srcHandle.isValid()) {
+        spdlog::error("installerStageAndVerify: failed to open source ({})", ::GetLastError());
         return serializeResult(std::wstring(), false);
     }
-    if (srcAttrs & FILE_ATTRIBUTE_REPARSE_POINT) {
+
+    BY_HANDLE_FILE_INFORMATION srcInfo;
+    if (!::GetFileInformationByHandle(srcHandle.getHandle(), &srcInfo)) {
+        spdlog::error("installerStageAndVerify: GetFileInformationByHandle failed ({})", ::GetLastError());
+        return serializeResult(std::wstring(), false);
+    }
+    if (srcInfo.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) {
         spdlog::error("installerStageAndVerify: refusing reparse-point source");
         return serializeResult(std::wstring(), false);
     }
-    if (srcAttrs & FILE_ATTRIBUTE_DIRECTORY) {
-        spdlog::error("installerStageAndVerify: refusing directory source");
+    // A hard link is not a reparse point, so the attribute check above does not catch it. A
+    // freshly downloaded installer always has exactly one link; anything more means the source
+    // name is an extra link aliasing a file we wouldn't otherwise read (the classic hard-link
+    // redirect). Modern Windows already blocks creating a hard link to a file the caller can't
+    // write, but this keeps the guarantee independent of OS version.
+    if (srcInfo.nNumberOfLinks != 1) {
+        spdlog::error("installerStageAndVerify: refusing multi-link source ({} links)", srcInfo.nNumberOfLinks);
         return serializeResult(std::wstring(), false);
     }
 
@@ -838,6 +856,9 @@ std::string installerStageAndVerify(const std::string &pars)
     }
     std::error_code dirEc;
     std::filesystem::remove_all(updateDir, dirEc);
+    if (dirEc) {
+        spdlog::warn("installerStageAndVerify: failed to wipe update dir: {}", dirEc.message());
+    }
     std::filesystem::create_directories(updateDir, dirEc);
     if (dirEc) {
         spdlog::error("installerStageAndVerify: failed to recreate update dir: {}", dirEc.message());
@@ -846,8 +867,49 @@ std::string installerStageAndVerify(const std::string &pars)
 
     const std::wstring stagedPath = updateDir + L"\\installer.exe";
 
-    if (!::CopyFileW(srcPath.c_str(), stagedPath.c_str(), FALSE)) {
-        spdlog::error("installerStageAndVerify: CopyFileW failed ({})", ::GetLastError());
+    // Copy bytes from the validated handle rather than re-opening srcPath by name. Re-opening
+    // (as CopyFileW does internally) would reintroduce the swap window the handle above closes.
+    // The destination lives in the Admins-only update dir we just recreated, so its path is not
+    // attacker-controllable; the new file inherits the Program Files ACL just as CopyFileW's would.
+    bool copyOk = false;
+    {
+        wsl::Win32Handle dstHandle(::CreateFileW(stagedPath.c_str(), GENERIC_WRITE, 0, NULL,
+                                                 CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL | FILE_FLAG_SEQUENTIAL_SCAN, NULL));
+        if (!dstHandle.isValid()) {
+            spdlog::error("installerStageAndVerify: failed to create staged file ({})", ::GetLastError());
+            return serializeResult(std::wstring(), false);
+        }
+
+        copyOk = true;
+        std::vector<BYTE> buf(64 * 1024);
+        for (;;) {
+            DWORD bytesRead = 0;
+            if (!::ReadFile(srcHandle.getHandle(), buf.data(), static_cast<DWORD>(buf.size()), &bytesRead, NULL)) {
+                spdlog::error("installerStageAndVerify: ReadFile failed ({})", ::GetLastError());
+                copyOk = false;
+                break;
+            }
+            if (bytesRead == 0) {
+                break;
+            }
+            DWORD offset = 0;
+            while (offset < bytesRead) {
+                DWORD bytesWritten = 0;
+                if (!::WriteFile(dstHandle.getHandle(), buf.data() + offset, bytesRead - offset, &bytesWritten, NULL)) {
+                    spdlog::error("installerStageAndVerify: WriteFile failed ({})", ::GetLastError());
+                    copyOk = false;
+                    break;
+                }
+                offset += bytesWritten;
+            }
+            if (!copyOk) {
+                break;
+            }
+        }
+    }
+
+    if (!copyOk) {
+        ::DeleteFileW(stagedPath.c_str());
         return serializeResult(std::wstring(), false);
     }
 

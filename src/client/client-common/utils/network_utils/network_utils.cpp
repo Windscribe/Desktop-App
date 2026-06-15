@@ -51,17 +51,10 @@ QString NetworkUtils::formatMacAddress(QString macAddress)
 QString NetworkUtils::normalizeMacAddress(const QString &str)
 {
     QString macAddr = str;
-    macAddr.remove(":");
+    // Strip all standard MAC separators (colon, hyphen, and Cisco-style dot) so that
+    // addresses imported in any valid notation normalize to the canonical 12-char hex form.
+    macAddr.remove(QRegularExpression("[:.-]"));
     return macAddr.toUpper();
-}
-
-bool NetworkUtils::isValidMacAddress(const QString &macAddress)
-{
-    // Check if the MAC address is in the format XX:XX:XX:XX:XX:XX, where X is a hex digit.
-    QRegularExpression macAddressRegex1("([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}");
-    // Same but no colons
-    QRegularExpression macAddressRegex2("([0-9A-Fa-f]{12})");  // Fixed missing closing parenthesis
-    return macAddressRegex1.match(macAddress).hasMatch() || macAddressRegex2.match(macAddress).hasMatch();
 }
 
 QVector<types::NetworkInterface> NetworkUtils::interfacesExceptOne(const QVector<types::NetworkInterface> &interfaces, const types::NetworkInterface &exceptInterface)

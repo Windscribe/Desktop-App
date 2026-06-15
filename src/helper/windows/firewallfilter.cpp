@@ -321,6 +321,14 @@ void FirewallFilter::addFilters(HANDLE engineHandle, const wchar_t *connectingIp
     if (!ret) {
         spdlog::error("Could not add IPv6 multicast allow/block filter.");
     }
+
+    // NOTE (#1687): no fc00::/7 (IPv6 ULA) LAN permit here yet — unlike Linux/macOS, "Allow LAN
+    // traffic" does not reach ULA LAN devices on Windows. This is an intentional descope, not an
+    // oversight: while connected the Ipv6Firewall sublayer (ipv6_firewall.cpp) blocks all non-tunnel
+    // IPv6 regardless of this setting, so a lone permit here would be ineffective in the common case
+    // and misleading. Full Windows IPv6 ULA LAN support requires the dual-stack v6 work (stop
+    // disabling IPv6 while connected, permit tunnel v6, gate ULA on Allow LAN in both sublayers) and
+    // is tracked separately as a follow-up to #1687.
 }
 
 void FirewallFilter::addPermitFilterForVpnAndSystemServices(HANDLE engineHandle, const wchar_t *connectingIp)

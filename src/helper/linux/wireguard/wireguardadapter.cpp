@@ -29,7 +29,7 @@ bool RunBlockingCommands(const std::vector<CmdEntry> &cmdlist)
         output.clear();
         const auto status = Utils::executeCommand(cmd.program, cmd.args, &output);
         if (!output.empty())
-            spdlog::debug(output);
+            spdlog::debug("{}", output);
         if (status != 0) {
             spdlog::error("Failed to run command: \"{}\" (exit status {})", cmd.program, status);
             return false;

@@ -118,28 +118,49 @@ static bool GetCommandLineArgumentIndex(LPCWSTR argumentToCheck, int *valueIndex
     return result;
 }
 
-static void replaceAll(std::wstring &inout, std::wstring_view what, std::wstring_view with)
+static std::wstring quoteCommandLineArg(const std::wstring &arg)
 {
-    for (std::wstring::size_type pos{}; inout.npos != (pos = inout.find(what.data(), pos, what.length())); pos += with.length()) {
-        inout.replace(pos, what.length(), with.data(), with.length());
+    if (!arg.empty() && arg.find_first_of(L" \t\"") == std::wstring::npos) {
+        return arg;
     }
+
+    std::wstring quoted = L"\"";
+    size_t numBackslashes = 0;
+    for (wchar_t ch : arg) {
+        if (ch == L'\\') {
+            numBackslashes++;
+            continue;
+        }
+        if (ch == L'\"') {
+            quoted.append(numBackslashes * 2 + 1, L'\\');
+        } else {
+            quoted.append(numBackslashes, L'\\');
+        }
+        numBackslashes = 0;
+        quoted += ch;
+    }
+    quoted.append(numBackslashes * 2, L'\\');
+    quoted += L"\"";
+    return quoted;
 }
 
-static std::wstring sanitizedCommandLine(const std::wstring &exeName, const std::wstring &username, const std::wstring &password)
+static std::wstring sanitizedCommandLine(const std::wstring &exeName)
 {
-    std::wstring cmdLine(::GetCommandLine());
-    if (!exeName.empty()) {
-        replaceAll(cmdLine, argList[0], exeName);
+    if (!argList) {
+        argList = CommandLineToArgvW(GetCommandLine(), &argCount);
     }
 
-    if (!username.empty()) {
-        std::wstring oldVal = L"\"" + username + L"\"";
-        replaceAll(cmdLine, oldVal, std::wstring(L"\"********\""));
-    }
+    std::wstring cmdLine;
+    for (int i = 0; i < argCount; ++i) {
+        std::wstring arg = (i == 0 && !exeName.empty()) ? exeName : argList[i];
+        if ((i > 0) && (!wcscmp(argList[i - 1], L"-username") || !wcscmp(argList[i - 1], L"-password"))) {
+            arg = L"********";
+        }
 
-    if (!password.empty()) {
-        std::wstring oldVal = L"\"" + password + L"\"";
-        replaceAll(cmdLine, oldVal, std::wstring(L"\"********\""));
+        if (!cmdLine.empty()) {
+            cmdLine += L" ";
+        }
+        cmdLine += quoteCommandLineArg(arg);
     }
 
     return cmdLine;
@@ -377,7 +398,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
     spdlog::info(L"Installing Windscribe version {}", ApplicationInfo::version());
     std::wstring exeName = argList[0];
     exeName = exeName.substr(exeName.find_last_of(L"/\\") + 1);
-    spdlog::info(L"Command-line args: {}", sanitizedCommandLine(exeName, ops.username.toStdWString(), ops.password.toStdWString()));
+    spdlog::info(L"Command-line args: {}", sanitizedCommandLine(exeName));
 
     auto isAdmin = isElevated();
     if (!isAdmin.has_value()) {

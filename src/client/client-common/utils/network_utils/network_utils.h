@@ -11,7 +11,6 @@ namespace NetworkUtils
     QString generateRandomMacAddress();
     QString formatMacAddress(QString macAddress);
     QString normalizeMacAddress(const QString &macAddress);
-    bool isValidMacAddress(const QString &macAddress);
 
     // Network
     QVector<types::NetworkInterface> interfacesExceptOne(const QVector<types::NetworkInterface> &interfaces, const types::NetworkInterface &exceptInterface);

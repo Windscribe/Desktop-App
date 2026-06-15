@@ -222,6 +222,12 @@ bool WireGuardGoCommunicator::configure(const std::string &clientPrivateKey, con
         }
     }
 
+    if (!Validation::isValidUapiKeyField("private_key", clientPrivateKey) ||
+        !Validation::isValidUapiKeyField("public_key", peerPublicKey) ||
+        (!peerPresharedKey.empty() && !Validation::isValidUapiKeyField("preshared_key", peerPresharedKey))) {
+        return false;
+    }
+
     // Send set command.
     // Note: UAPI protocol requires device-level parameters (private_key, s1-s4, h1-h4, etc.)
     // to be sent BEFORE peer-level parameters (public_key, endpoint, etc.).

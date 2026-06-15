@@ -25,7 +25,7 @@ struct ConnectedDnsInfo
 
     static QList<CONNECTED_DNS_TYPE> allAvailableTypes();
 
-    QJsonObject toJson() const;
+    QJsonObject toJson(bool isForDebugLog = false) const;
     void fromIni(const QSettings &settings);
     void toIni(QSettings &settings) const;
 

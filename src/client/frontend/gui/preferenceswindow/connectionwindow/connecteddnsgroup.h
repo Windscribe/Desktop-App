@@ -38,7 +38,7 @@ private slots:
     void onControldApiKeyChanged(QString v);
     void onControldApiKeyRefreshClick();
     void onControldDeviceChanged(QVariant v);
-    void onUpstream1Changed(QString v);
+    void onUpstream1Changed(QString v, bool checkLeak = true);
     void onUpstream2Changed(QString v);
     void onSplitDnsStateChanged(bool checked);
     void onDomainsClick();

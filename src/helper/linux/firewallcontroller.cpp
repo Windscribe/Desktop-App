@@ -401,17 +401,59 @@ std::string FirewallController::buildRulesV6(const FirewallConfig &config, bool 
     r += "-A " WS_PRODUCT_NAME_LOWER "_input -p udp --sport 547 --dport 546 -j ACCEPT" + c;
     r += "-A " WS_PRODUCT_NAME_LOWER "_output -p udp --sport 546 --dport 547 -j ACCEPT" + c;
 
-    // ICMPv6 NDP/MLD (RFC 4890): carve-out so the DROP branch doesn't kill neighbor resolution.
+    // ICMPv6 NDP/MLD (RFC 4890 §4.4.1): NS/NA/RS/RA/Redirect (133-137) and MLDv1/v2 (130-132, 143).
+    // Accepted on every interface and ahead of the address-based DROPs below so the DROP branch /
+    // fc00::/7 carve-out can't break neighbor resolution or SLAAC. Safe to accept globally: these are
+    // link-local, hop-limit-255-constrained control messages and are not globally routable.
     for (int icmpv6Type : {130, 131, 132, 133, 134, 135, 136, 137, 143}) {
         const std::string t = std::to_string(icmpv6Type);
         r += "-A " WS_PRODUCT_NAME_LOWER "_input -p ipv6-icmp --icmpv6-type " + t + " -j ACCEPT" + c;
         r += "-A " WS_PRODUCT_NAME_LOWER "_output -p ipv6-icmp --icmpv6-type " + t + " -j ACCEPT" + c;
     }
 
-    // IPv6 application-layer multicast (mDNS, SSDP, LLMNR, etc.) per allowLanTraffic / custom config.
+    // ICMPv6 connectivity-critical error messages (RFC 4890 §4.3.1): Destination Unreachable (1),
+    // Packet Too Big (2), Time Exceeded (3), Parameter Problem (4). Scoped to the VPN interface, and
+    // only when it carries v6: a Packet-Too-Big from a (server-controlled, possibly ULA) in-tunnel hop
+    // must survive the fc00::/7 tunnel/generic DROPs below so IPv6 PMTUD doesn't blackhole. Unlike
+    // NDP/MLD these types ARE globally routable and carry up to ~1200 bytes of the triggering packet,
+    // so accepting them on the physical interface would punch a covert-channel / presence-disclosure
+    // hole through the kill switch — hence the -i/-o iface scope. On the tunnel they'd be covered by
+    // the -i/-o iface ACCEPT below anyway; this only moves them ahead of the DROPs.
+    if (!iface.empty() && hasV6Addr) {
+        for (int icmpv6Type : {1, 2, 3, 4}) {
+            const std::string t = std::to_string(icmpv6Type);
+            r += "-A " WS_PRODUCT_NAME_LOWER "_input -i " + iface + " -p ipv6-icmp --icmpv6-type " + t + " -j ACCEPT" + c;
+            r += "-A " WS_PRODUCT_NAME_LOWER "_output -o " + iface + " -p ipv6-icmp --icmpv6-type " + t + " -j ACCEPT" + c;
+        }
+    }
+
     const std::string actionV6 = (config.allowLanTraffic || config.isCustomConfig) ? "ACCEPT" : "DROP";
+
+    // Disallow ULA and application-layer multicast LAN traffic from going into the tunnel, mirroring
+    // the v4 RFC1918 (fc00::/7 ~ 192.168/10/172.16) and 224.0.0.0/4 (ff00::/8) tunnel carve-outs.
+    // Only emitted when allowLanTraffic makes actionV6 == ACCEPT: the carve-out must precede those
+    // generic ACCEPTs below, otherwise allowLanTraffic would also open these ranges *into* the tunnel
+    // whenever routing sends an off-link ULA / a multicast packet (e.g. mDNS to ff02::fb from an
+    // all-interfaces avahi) to the default route. With LAN off the generic fc00::/7 + ff00::/8 DROPs
+    // below already cover the tunnel, so the scoped pair would be a verdict-equivalent no-op — gating
+    // on allowLanTraffic keeps the ruleset free of dead, packet-shadowing rules. (Unlike v4, whose
+    // unconditional tunnel ACCEPT immediately follows its carve-out and so requires it in every
+    // state.) NDP/MLD survive via the ICMPv6 carve-out above, so only non-ICMP multicast lands here.
+    if (!iface.empty() && !config.isCustomConfig && config.allowLanTraffic) {
+        r += "-A " WS_PRODUCT_NAME_LOWER "_input -i " + iface + " -s fc00::/7 -j DROP" + c;
+        r += "-A " WS_PRODUCT_NAME_LOWER "_output -o " + iface + " -d fc00::/7 -j DROP" + c;
+        r += "-A " WS_PRODUCT_NAME_LOWER "_input -i " + iface + " -s ff00::/8 -j DROP" + c;
+        r += "-A " WS_PRODUCT_NAME_LOWER "_output -o " + iface + " -d ff00::/8 -j DROP" + c;
+    }
+
+    // IPv6 application-layer multicast (mDNS, SSDP, LLMNR, etc.) per allowLanTraffic / custom config.
     r += "-A " WS_PRODUCT_NAME_LOWER "_input -s ff00::/8 -j " + actionV6 + c;
     r += "-A " WS_PRODUCT_NAME_LOWER "_output -d ff00::/8 -j " + actionV6 + c;
+
+    // IPv6 unique local addresses (RFC 4193) — the v6 analog of the RFC1918 private ranges, used
+    // by typical LAN/VM-bridge setups. Gated on allowLanTraffic the same way as the v4 ranges.
+    r += "-A " WS_PRODUCT_NAME_LOWER "_input -s fc00::/7 -j " + actionV6 + c;
+    r += "-A " WS_PRODUCT_NAME_LOWER "_output -d fc00::/7 -j " + actionV6 + c;
 
     // Conditional VPN-adapter permit. Only enabled when a non-link-local v6 address is actually
     // present on the tunnel — gated to avoid leaks for v4-only tunnels.

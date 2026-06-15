@@ -32,7 +32,7 @@ ConnectedDnsGroup::ConnectedDnsGroup(ScalableGraphicsObject *parent, const QStri
     addItem(comboBoxControldDevice_);
 
     editBoxUpstream1_ = new VerticalEditBoxItem(this);
-    connect(editBoxUpstream1_, &VerticalEditBoxItem::textChanged, this, &ConnectedDnsGroup::onUpstream1Changed);
+    connect(editBoxUpstream1_, &VerticalEditBoxItem::textChanged, this, [this](const QString &v) { onUpstream1Changed(v); });
     addItem(editBoxUpstream1_);
 
     splitDnsCheckBox_ = new ToggleItem(this);
@@ -106,6 +106,11 @@ void ConnectedDnsGroup::setConnectedDnsInfo(const types::ConnectedDnsInfo &dns)
             editBoxUpstream1_->setText("127.0.0.1");
             settings_.upStream1 = "127.0.0.1";
             onUpstream1Changed("127.0.0.1");
+        } else if (dns.type == CONNECTED_DNS_TYPE_CONTROLD) {
+            // In Control D mode editBoxUpstream1_ is the user's custom Upstream 1 field and must not
+            // show the device resolver, so leave it untouched; settings_.upStream1 already carries
+            // the resolver. This lets the custom value be restored when switching back to Custom.
+            splitDnsCheckBox_->setEnabled(!settings_.upStream1.isEmpty());
         } else {
             editBoxUpstream1_->setText(dns.upStream1);
             onUpstream1Changed(dns.upStream1);
@@ -173,10 +178,11 @@ void ConnectedDnsGroup::onConnectedDnsModeChanged(QVariant v)
             // upStream1 is shared across DNS modes, so switching back into Control D can leave a
             // custom value (e.g. an IPv6 bootstrap IP entered in Custom mode) in upStream1, which
             // would then be sent to ctrld as the upstream and rejected. If the current value isn't
-            // one of the fetched Control D devices, re-derive it from the device list.
+            // one of the fetched Control D devices, re-derive it from the device list. Leave the
+            // custom value in editBoxUpstream1_ (hidden in Control D mode) so it can be restored
+            // when switching back to Custom.
             QString resolver = selectedControldResolver();
             if (resolver != settings_.upStream1) {
-                editBoxUpstream1_->setText(resolver);
                 if (!resolver.isEmpty()) {
                     comboBoxControldDevice_->setCurrentItem(resolver);
                 }
@@ -184,7 +190,15 @@ void ConnectedDnsGroup::onConnectedDnsModeChanged(QVariant v)
             }
         }
 
-        if (v.toInt() == CONNECTED_DNS_TYPE_CUSTOM) {
+        if (settings_.type == CONNECTED_DNS_TYPE_CUSTOM) {
+            // editBoxUpstream1_ is the source of truth for the Custom upstream. Other modes leave a
+            // different value in the shared upStream1 (Control D stores the device resolver there),
+            // so re-sync it from the text field — otherwise the resolver would silently be used as
+            // the custom upstream while the field still shows the user's value. Suppress the
+            // commit's own leak check so both upstreams are covered by a single combined check below.
+            if (settings_.upStream1 != editBoxUpstream1_->text()) {
+                onUpstream1Changed(editBoxUpstream1_->text(), false);
+            }
             checkDnsLeak(settings_.upStream1, settings_.isSplitDns ? settings_.upStream2 : "");
         }
 
@@ -201,9 +215,10 @@ void ConnectedDnsGroup::onControldApiKeyChanged(QString v)
         settings_.controldDevices.clear();
         settings_.upStream1.clear();
         comboBoxControldDevice_->clear();
-        editBoxUpstream1_->setText("");
         editBoxControldApiKey_->setError("");
         editBoxControldApiKey_->setRefreshButtonVisible(false);
+        // Don't touch editBoxUpstream1_: it is solely the Custom mode upstream and must survive a
+        // Control D API key change.
         onUpstream1Changed("");
 
         if (!v.isEmpty()) {
@@ -226,7 +241,8 @@ void ConnectedDnsGroup::onControldApiKeyRefreshClick()
     settings_.controldDevices.clear();
     settings_.upStream1.clear();
     comboBoxControldDevice_->clear();
-    editBoxUpstream1_->setText("");
+    // Don't touch editBoxUpstream1_: it is solely the Custom mode upstream and must survive a
+    // Control D API key refresh.
     onUpstream1Changed("");
 
     updateMode();
@@ -244,7 +260,7 @@ void ConnectedDnsGroup::onControldDeviceChanged(QVariant v)
     }
 }
 
-void ConnectedDnsGroup::onUpstream1Changed(QString v)
+void ConnectedDnsGroup::onUpstream1Changed(QString v, bool checkLeak)
 {
     if (v.isEmpty()) {
         splitDnsCheckBox_->setState(false);
@@ -264,7 +280,9 @@ void ConnectedDnsGroup::onUpstream1Changed(QString v)
         // and synchronously runs validateAndUpdateIfNeeded(). If the new value isn't committed yet,
         // that validation sees the stale upstream and reverts a valid custom DNS to ROBERT.
         emit connectedDnsInfoChanged(settings_);
-        checkDnsLeak(v);
+        if (checkLeak) {
+            checkDnsLeak(v);
+        }
     }
 }
 
@@ -357,14 +375,16 @@ void ConnectedDnsGroup::onControldDevicesFetched(CONTROLD_FETCH_RESULT result, c
     if (!devicesList.isEmpty()) {
         // Keep the current upstream1 if it matches a fetched device, otherwise fall back to the first.
         QString resolver = selectedControldResolver();
-        settings_.upStream1 = resolver;
-
         comboBoxControldDevice_->setItems(devicesList, resolver);
         comboBoxControldDevice_->setEnabled(true);
-        editBoxUpstream1_->setText(resolver);
-        onUpstream1Changed(resolver);
-    } else {
-        editBoxUpstream1_->setText("");
+
+        // Only adopt the resolver as the active upstream when Control D is the selected mode. In other
+        // modes upStream1 is the user's own value and editBoxUpstream1_ holds it; a device fetch (which
+        // can complete asynchronously) must not overwrite either.
+        if (settings_.type == CONNECTED_DNS_TYPE_CONTROLD) {
+            onUpstream1Changed(resolver);
+        }
+    } else if (settings_.type == CONNECTED_DNS_TYPE_CONTROLD) {
         onUpstream1Changed("");
     }
 

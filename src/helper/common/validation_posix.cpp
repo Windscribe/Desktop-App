@@ -373,4 +373,13 @@ bool isPrintableSingleLineAscii(const std::string &v)
     return true;
 }
 
+bool isValidUapiKeyField(const char *fieldName, const std::string &value)
+{
+    if (value.empty() || !isPrintableSingleLineAscii(value)) {
+        spdlog::error("Validation: rejecting UAPI {} with empty or non-printable characters", fieldName);
+        return false;
+    }
+    return true;
+}
+
 } // namespace Validation

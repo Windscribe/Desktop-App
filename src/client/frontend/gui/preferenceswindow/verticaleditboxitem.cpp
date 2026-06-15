@@ -97,6 +97,11 @@ void VerticalEditBoxItem::setCaption(const QString &caption)
     update();
 }
 
+QString VerticalEditBoxItem::text() const
+{
+    return text_;
+}
+
 void VerticalEditBoxItem::setText(const QString &text)
 {
     text_ = text;

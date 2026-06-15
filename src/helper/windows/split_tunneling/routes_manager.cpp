@@ -128,12 +128,15 @@ void RoutesManager::doActionsForInclusiveModeIkev2(const ConnectStatus &connectS
     IpForwardTable table;
     const auto &vpn = connectStatus.vpnAdapter;
 
-    ikev2Routes_.deleteRoute(table, types::IpAddress("0.0.0.0"), 0, vpn.adapterIp, vpn.ifIndex);
+    // Windows/RAS can install the IKEv2 default route as on-link (NextHop 0.0.0.0)
+    // instead of vpn.adapterIp. Delete the adapter default by destination/interface so
+    // the low-metric /0 cannot keep tunneling everything in inclusive split-tunnel mode.
+    ikev2Routes_.deleteRouteByInterface(table, types::IpAddress("0.0.0.0"), 0, vpn.ifIndex);
     boundRoute_.addRoute(table, types::IpAddress("0.0.0.0"), 0, vpn.adapterIp, vpn.ifIndex, true);
 
     // IKEv2 is typically v4-only, but handle a v6 default route on the adapter if present.
     if (vpn.adapterIpV6.isValid()) {
-        ikev2Routes_.deleteRoute(table, types::IpAddress("::"), 0, vpn.adapterIpV6, vpn.ifIndex);
+        ikev2Routes_.deleteRouteByInterface(table, types::IpAddress("::"), 0, vpn.ifIndex);
         boundRoute_.addRoute(table, types::IpAddress("::"), 0, vpn.adapterIpV6, vpn.ifIndex, true);
     }
 }

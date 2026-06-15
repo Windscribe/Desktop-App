@@ -48,7 +48,7 @@ struct MacAddrSpoofing
         if (json.contains(kJsonNetworkInterfacesProp) && json[kJsonNetworkInterfacesProp].isArray()) {
             QJsonArray networkInterfacesArray = json[kJsonNetworkInterfacesProp].toArray();
             networkInterfaces.clear();
-            for (const QJsonValue &ifaceValue : networkInterfacesArray) {
+            for (const QJsonValue &ifaceValue : std::as_const(networkInterfacesArray)) {
                 if (ifaceValue.isObject()) {
                     NetworkInterface iface(ifaceValue.toObject());
                     networkInterfaces.append(iface);

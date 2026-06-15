@@ -19,6 +19,7 @@ public:
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
     void setCaption(const QString &caption);
+    QString text() const;
     void setText(const QString &text);
     void setPrompt(const QString &prompt);
     void setValidator(QRegularExpressionValidator *validator);

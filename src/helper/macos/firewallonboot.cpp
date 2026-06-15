@@ -121,6 +121,14 @@ bool FirewallOnBootManager::enable(bool allowLanTraffic) {
         rules << "pass out quick inet6 from any to ff00::/8\n";
         rules << "pass in quick inet6 from ff00::/8 to any\n";
 
+        // IPv6 unique local addresses (RFC 4193): the v6 analog of the RFC1918 private ranges,
+        // allowed here only because we're inside the allowLanTraffic block — mirrors the v4 ranges
+        // above and the engine-side lanTrafficRules fc00::/7 pair in firewallcontroller_mac.cpp, so
+        // ULA LAN devices stay reachable in the boot→engine window. No tunnel-scoped block here: the
+        // _vpn_traffic anchor is empty before the engine connects, so no VPN interface exists yet.
+        rules << "pass out quick inet6 from any to fc00::/7\n";
+        rules << "pass in quick inet6 from fc00::/7 to any\n";
+
         // UPnP
         rules << "pass out quick inet proto udp from any to any port = 1900\n";
         rules << "pass in quick proto udp from any to any port = 1900\n";

@@ -1,3 +1,14 @@
+2.23.7 (15/06/2026)
+All:
+   * Improved app hardening from the Fable 5 audit, including WireGuard key validation, Control D API key log redaction, IPC exposure hardening, safer logging, installer argument redaction, and package/dependency handling fixes. #1868
+   * Fixed data-remaining counter showing 0 bytes after an expired/blocked account state and newly logged into account has remaining data. #1871
+   * Fixed networks marked Unsecured being treated as Secured on launch, which could incorrectly trigger auto-connect. #1865
+   * Fixed imported dashed MAC spoof values showing incorrectly and reporting MAC spoofing failure even though the spoof was applied. #1867
+Windows:
+   * Fixed IKEv2 Inclusive split tunneling leaving a low-metric default tunnel route active, causing non-included traffic to route through the VPN. #1869
+   * Fixed Windows installer/updater staging TOCTOU allowing the privileged helper to copy from a different source path than the one it validated. #1873
+   
+
 2.23.6 (08/06/2026)
 All:
    * Improved release build security by enabling signature/path verification checks by default with an explicit local development opt-out. #1851
@@ -18,8 +29,8 @@ macOS:
 Linux:
    * Fixed Linux address selection so IPv6-capable VPN connections do not incorrectly prefer IPv4 via Windscribe gai.conf handling. #1844
    * Fixed deb/rpm packages installing scripts or helper files with world-writable permissions. #1853
-   
-   
+
+
 2.23.5 (02/06/2026)
 All:
    * Improved Belarusian translations in the desktop app, installer, and CLI from GitHub user dubovy-achvelak. #1846

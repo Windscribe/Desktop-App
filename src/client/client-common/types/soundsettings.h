@@ -1,6 +1,7 @@
 #pragma once
 
 #include "types/enums.h"
+#include "utils/log/categories.h"
 
 #include <filesystem>
 #include <QDebug>
@@ -20,7 +21,7 @@ struct SoundSettings
     SoundSettings(const QJsonObject &json)
     {
         if (json.contains(kJsonDisconnectedSoundTypeProp) && json[kJsonDisconnectedSoundTypeProp].isDouble()) {
-            disconnectedSoundType = static_cast<SOUND_NOTIFICATION_TYPE>(json[kJsonDisconnectedSoundTypeProp].toInt());
+            disconnectedSoundType = SOUND_NOTIFICATION_TYPE_fromInt(json[kJsonDisconnectedSoundTypeProp].toInt());
         }
 
         if (json.contains(kJsonSoundDisconnectedProp) && json[kJsonSoundDisconnectedProp].isString()) {
@@ -28,7 +29,7 @@ struct SoundSettings
         }
 
         if (json.contains(kJsonConnectedSoundTypeProp) && json[kJsonConnectedSoundTypeProp].isDouble()) {
-            connectedSoundType = static_cast<SOUND_NOTIFICATION_TYPE>(json[kJsonConnectedSoundTypeProp].toInt());
+            connectedSoundType = SOUND_NOTIFICATION_TYPE_fromInt(json[kJsonConnectedSoundTypeProp].toInt());
         }
 
         if (json.contains(kJsonSoundConnectedProp) && json[kJsonSoundConnectedProp].isString()) {
@@ -59,6 +60,14 @@ struct SoundSettings
         json[kJsonDisconnectedSoundTypeProp] = static_cast<int>(disconnectedSoundType);
         json[kJsonConnectedSoundTypeProp] = static_cast<int>(connectedSoundType);
         return json;
+    }
+
+    void validate()
+    {
+        disconnectedSoundType = SOUND_NOTIFICATION_TYPE_fromInt(static_cast<int>(disconnectedSoundType));
+        connectedSoundType = SOUND_NOTIFICATION_TYPE_fromInt(static_cast<int>(connectedSoundType));
+        validatePair(disconnectedSoundType, disconnectedSoundPath);
+        validatePair(connectedSoundType, connectedSoundPath);
     }
 
     friend QDataStream& operator <<(QDataStream &stream, const SoundSettings &o)
@@ -94,6 +103,37 @@ struct SoundSettings
     }
 
 private:
+    static void validatePair(SOUND_NOTIFICATION_TYPE &type, QString &path)
+    {
+        if (type == SOUND_NOTIFICATION_TYPE_NONE) {
+            path.clear();
+            return;
+        }
+        if (type == SOUND_NOTIFICATION_TYPE_BUNDLED) {
+            if (!path.startsWith(":/sounds/")) {
+                qCWarning(LOG_BASIC) << "SoundSettings: bundled sound path is not a sound resource, resetting";
+                type = SOUND_NOTIFICATION_TYPE_NONE;
+                path.clear();
+            }
+            return;
+        }
+        // SOUND_NOTIFICATION_TYPE_CUSTOM
+        constexpr int kMaxPathLen = 4096;
+        if (path.size() > kMaxPathLen || path.contains(QChar(0))) {
+            qCWarning(LOG_BASIC) << "SoundSettings: custom sound path out of bounds, resetting";
+            type = SOUND_NOTIFICATION_TYPE_NONE;
+            path.clear();
+            return;
+        }
+        std::error_code ec;
+        std::filesystem::path p(path.toStdString());
+        if (!p.is_absolute() || !std::filesystem::is_regular_file(p, ec)) {
+            qCWarning(LOG_BASIC) << "SoundSettings: custom sound path is not a valid absolute file, resetting";
+            type = SOUND_NOTIFICATION_TYPE_NONE;
+            path.clear();
+        }
+    }
+
     static const inline QString kJsonDisconnectedSoundTypeProp = "disconnectedSoundType";
     static const inline QString kJsonSoundDisconnectedProp = "disconnectedSoundPath";
     static const inline QString kJsonConnectedSoundTypeProp = "connectedSoundType";

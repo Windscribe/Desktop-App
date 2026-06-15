@@ -1,6 +1,7 @@
 #pragma once
 
 #include "types/enums.h"
+#include "utils/log/categories.h"
 
 #include <filesystem>
 #include <QDebug>
@@ -78,6 +79,19 @@ struct BackgroundSettings
         return json;
     }
 
+    void validate()
+    {
+        aspectRatioMode = ASPECT_RATIO_MODE_fromInt(static_cast<int>(aspectRatioMode));
+        disconnectedBackgroundType = BACKGROUND_TYPE_fromInt(static_cast<int>(disconnectedBackgroundType));
+        connectedBackgroundType = BACKGROUND_TYPE_fromInt(static_cast<int>(connectedBackgroundType));
+        validatePair(disconnectedBackgroundType, backgroundImageDisconnected);
+        validatePair(connectedBackgroundType, backgroundImageConnected);
+        // The aspect ratio is only used when at least one side shows an image.
+        if (!usesImage(disconnectedBackgroundType) && !usesImage(connectedBackgroundType)) {
+            aspectRatioMode = ASPECT_RATIO_MODE_FILL;
+        }
+    }
+
     friend QDataStream& operator <<(QDataStream &stream, const BackgroundSettings &o)
     {
         stream << versionForSerialization_;
@@ -110,6 +124,42 @@ struct BackgroundSettings
     }
 
 private:
+    static bool usesImage(BACKGROUND_TYPE type)
+    {
+        return type == BACKGROUND_TYPE_CUSTOM || type == BACKGROUND_TYPE_BUNDLED;
+    }
+
+    static void validatePair(BACKGROUND_TYPE &type, QString &imagePath)
+    {
+        if (type == BACKGROUND_TYPE_NONE || type == BACKGROUND_TYPE_COUNTRY_FLAGS) {
+            imagePath.clear();
+            return;
+        }
+        if (type == BACKGROUND_TYPE_BUNDLED) {
+            if (!imagePath.startsWith(":/png/bg/")) {
+                qCWarning(LOG_BASIC) << "BackgroundSettings: bundled background path is not a background resource, resetting";
+                type = BACKGROUND_TYPE_COUNTRY_FLAGS;
+                imagePath.clear();
+            }
+            return;
+        }
+        // BACKGROUND_TYPE_CUSTOM
+        constexpr int kMaxPathLen = 4096;
+        if (imagePath.size() > kMaxPathLen || imagePath.contains(QChar(0))) {
+            qCWarning(LOG_BASIC) << "BackgroundSettings: custom background path out of bounds, resetting";
+            type = BACKGROUND_TYPE_COUNTRY_FLAGS;
+            imagePath.clear();
+            return;
+        }
+        std::error_code ec;
+        std::filesystem::path p(imagePath.toStdString());
+        if (!p.is_absolute() || !std::filesystem::is_regular_file(p, ec)) {
+            qCWarning(LOG_BASIC) << "BackgroundSettings: custom background path is not a valid absolute file, resetting";
+            type = BACKGROUND_TYPE_COUNTRY_FLAGS;
+            imagePath.clear();
+        }
+    }
+
     static const inline QString kJsonBackgroundTypeProp = "backgroundType";
     static const inline QString kJsonDisconnectedBackgroundTypeProp = "disconnectedBackgroundType";
     static const inline QString kJsonConnectedBackgroundTypeProp = "connectedBackgroundType";

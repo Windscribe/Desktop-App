@@ -2039,7 +2039,11 @@ void MainWindow::onBackendSessionStatusChanged(const api_responses::SessionStatu
                 mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_UPGRADE);
             }
 
-            setDataRemaining(0, 0);
+            if (sessionStatus.getTrafficMax() == -1) {
+                setDataRemaining(-1, -1);
+            } else {
+                setDataRemaining(sessionStatus.getTrafficUsed(), sessionStatus.getTrafficMax());
+            }
             if (!blockConnect_.isBlocked()) {
                 blockConnect_.setBlockedExceedTraffic();
             }

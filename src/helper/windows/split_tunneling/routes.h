@@ -23,6 +23,10 @@ public:
                      const types::IpAddress &destIp, UINT8 prefixLength,
                      const types::IpAddress &gatewayIp, unsigned long ifIndex);
 
+    void deleteRouteByInterface(const IpForwardTable &curRouteTable,
+                                const types::IpAddress &destIp, UINT8 prefixLength,
+                                unsigned long ifIndex);
+
     void addRoute(const IpForwardTable &curRouteTable,
                   const types::IpAddress &destIp, UINT8 prefixLength,
                   const types::IpAddress &gatewayIp, unsigned long ifIndex,

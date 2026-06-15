@@ -100,6 +100,8 @@ struct GuiSettings
         trayIconColor = TRAY_ICON_COLOR_fromInt(static_cast<int>(trayIconColor));
         multiDesktopBehavior = MULTI_DESKTOP_BEHAVIOR_fromInt(static_cast<int>(multiDesktopBehavior));
 
+        backgroundSettings.validate();
+        soundSettings.validate();
         shareSecureHotspot.validate();
         shareProxyGateway.validate();
         splitTunneling.validate();
