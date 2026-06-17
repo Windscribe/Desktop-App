@@ -60,8 +60,11 @@ systemctl preset windscribe-helper || true
 systemctl restart windscribe-helper || true
 
 %post
+# Ensure the windscribe service group and user exist
+getent group windscribe >/dev/null 2>&1 || groupadd windscribe
+id -u windscribe >/dev/null 2>&1 || useradd -r -g windscribe -s /bin/false windscribe
 ln -sf /opt/windscribe/windscribe-cli /usr/bin/windscribe-cli
-setcap cap_setgid+ep /opt/windscribe/Windscribe
+chgrp windscribe /opt/windscribe/Windscribe && chmod 2755 /opt/windscribe/Windscribe
 mkdir -p /etc/windscribe
 echo linux_rpm_opensuse_x64_cli > /etc/windscribe/platform
 

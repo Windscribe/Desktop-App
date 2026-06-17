@@ -5,7 +5,6 @@
 #include <QRegularExpression>
 #include <QTextStream>
 
-#include <grp.h>
 #include <sys/types.h>
 #include <sys/utsname.h>
 #include <unistd.h>
@@ -359,15 +358,6 @@ QString getDistroName()
     }
 
     return distro;
-}
-
-gid_t getAppGid()
-{
-    struct group *grp = getgrnam(WS_PRODUCT_NAME_LOWER);
-    if (grp == nullptr) {
-        return -1;
-    }
-    return grp->gr_gid;
 }
 
 bool isImmutableDistro() {

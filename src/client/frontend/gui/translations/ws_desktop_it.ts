@@ -1786,14 +1786,6 @@ Se il problema persiste dopo un riavvio, inviare un registro di debug e aprire u
         <source>Need help? Garry can help you with most issues, go talk to him.</source>
         <translation>Hai bisogno di aiuto? Garry può aiutarti con la maggior parte dei problemi, vai a parlare con lui.</translation>
     </message>
-    <message>
-        <source>Contact Humans</source>
-        <translation>Contatta gli esseri umani</translation>
-    </message>
-    <message>
-        <source>Have a problem that Garry can&apos;t resolve? Contact human support.</source>
-        <translation>Hai un problema che Garry non riesce a risolvere? Contatta l&apos;assistenza umana.</translation>
-    </message>
 </context>
 <context>
     <name>PreferencesWindow::LookAndFeelWindowItem</name>

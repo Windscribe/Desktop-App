@@ -26,7 +26,6 @@ signals:
 private slots:
     void onSendLogClick();
     void onLanguageChanged();
-    void onIsPremiumChanged(bool isPremium);
 
 private:
     enum SEND_LOG_STATE {
@@ -41,8 +40,6 @@ private:
     LinkItem *knowledgeBaseItem_;
     PreferenceGroup *talkToGarryGroup_;
     LinkItem *talkToGarryItem_;
-    PreferenceGroup *contactHumansGroup_;
-    LinkItem *contactHumansItem_;
     PreferenceGroup *communitySupportGroup_;
     LinkItem *communitySupportItem_;
     LinkItem *redditItem_;
@@ -52,11 +49,6 @@ private:
     PreferenceGroup *sendLogGroup_;
     LinkItem *sendLogItem_;
 
-    AccountInfo *accountInfo_;
-    bool loggedIn_;
-    bool isPremium_;
-
-    void updateContactHumansVisibility();
 };
 
 } // namespace PreferencesWindow

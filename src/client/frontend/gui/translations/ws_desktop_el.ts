@@ -1759,14 +1759,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Μίλα με τον Γκάρι</translation>
     </message>
     <message>
-        <source>Have a problem that Garry can&apos;t resolve? Contact human support.</source>
-        <translation>Έχετε κάποιο πρόβλημα που ο Γκάρι δεν μπορεί να λύσει; Επικοινωνήστε με την ανθρώπινη υποστήριξη.</translation>
-    </message>
-    <message>
-        <source>Contact Humans</source>
-        <translation>Επικοινωνήστε με τους ανθρώπους</translation>
-    </message>
-    <message>
         <source>Best places to help and get help from other users.</source>
         <translation>Τα καλύτερα μέρη για να βοηθήσετε και να λάβετε βοήθεια από άλλους χρήστες.</translation>
     </message>

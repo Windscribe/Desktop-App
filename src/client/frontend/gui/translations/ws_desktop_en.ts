@@ -1786,14 +1786,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>Need help? Garry can help you with most issues, go talk to him.</source>
         <translation>Need help? Garry can help you with most issues, go talk to him.</translation>
     </message>
-    <message>
-        <source>Contact Humans</source>
-        <translation>Contact Humans</translation>
-    </message>
-    <message>
-        <source>Have a problem that Garry can&apos;t resolve? Contact human support.</source>
-        <translation>Have a problem that Garry can&apos;t resolve? Contact human support.</translation>
-    </message>
 </context>
 <context>
     <name>PreferencesWindow::LookAndFeelWindowItem</name>

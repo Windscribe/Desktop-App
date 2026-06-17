@@ -134,19 +134,6 @@ std::string getDnsScript(CmdDnsManager mgr)
     }
 }
 
-void createAppUserAndGroup()
-{
-    bool exists = !Utils::executeCommand("id", {WS_PRODUCT_NAME_LOWER});
-    if (exists) {
-        return;
-    }
-
-    // Create group
-    Utils::executeCommand("groupadd", {WS_PRODUCT_NAME_LOWER});
-    // Create user
-    Utils::executeCommand("useradd", {"-r", "-g", WS_PRODUCT_NAME_LOWER, "-s", "/bin/false", WS_PRODUCT_NAME_LOWER});
-}
-
 bool hasWhitespaceInString(const std::string &str)
 {
     return str.find_first_of(" \n\r\t") != std::string::npos;

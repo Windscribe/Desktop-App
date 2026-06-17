@@ -1786,14 +1786,6 @@ Wenn das Problem nach einem Neustart weiterhin besteht, senden Sie bitte ein Deb
         <source>Need help? Garry can help you with most issues, go talk to him.</source>
         <translation>Brauchen Sie Hilfe? Garry kann dir bei den meisten Problemen helfen, sprich mit ihm.</translation>
     </message>
-    <message>
-        <source>Contact Humans</source>
-        <translation>Kontakt Menschen</translation>
-    </message>
-    <message>
-        <source>Have a problem that Garry can&apos;t resolve? Contact human support.</source>
-        <translation>Haben Sie ein Problem, das Garry nicht lösen kann? Wenden Sie sich an den menschlichen Support.</translation>
-    </message>
 </context>
 <context>
     <name>PreferencesWindow::LookAndFeelWindowItem</name>

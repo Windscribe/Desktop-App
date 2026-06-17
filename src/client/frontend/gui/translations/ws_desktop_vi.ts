@@ -1786,14 +1786,6 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
         <source>Need help? Garry can help you with most issues, go talk to him.</source>
         <translation>Cần giúp đỡ? Garry có thể giúp bạn với hầu hết các vấn đề, hãy nói chuyện với anh ấy.</translation>
     </message>
-    <message>
-        <source>Contact Humans</source>
-        <translation>Liên hệ với con người</translation>
-    </message>
-    <message>
-        <source>Have a problem that Garry can&apos;t resolve? Contact human support.</source>
-        <translation>Có một vấn đề mà Garry không thể giải quyết? Liên hệ với bộ phận hỗ trợ của con người.</translation>
-    </message>
 </context>
 <context>
     <name>PreferencesWindow::LookAndFeelWindowItem</name>

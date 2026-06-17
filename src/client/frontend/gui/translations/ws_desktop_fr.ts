@@ -1786,14 +1786,6 @@ Si le problème persiste après un redémarrage, envoyez un journal de débogage
         <source>Need help? Garry can help you with most issues, go talk to him.</source>
         <translation>Besoin d&amp;apos;aide ? Garry peut vous aider avec la plupart des problèmes, allez lui parler.</translation>
     </message>
-    <message>
-        <source>Contact Humans</source>
-        <translation>Humains de contact</translation>
-    </message>
-    <message>
-        <source>Have a problem that Garry can&apos;t resolve? Contact human support.</source>
-        <translation>Vous avez un problème que Garry n’arrive pas à résoudre ? Contactez l’assistance humaine.</translation>
-    </message>
 </context>
 <context>
     <name>PreferencesWindow::LookAndFeelWindowItem</name>

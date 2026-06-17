@@ -1786,14 +1786,6 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
         <source>Need help? Garry can help you with most issues, go talk to him.</source>
         <translation>Potřebujete pomoc? Garry vám může pomoci s většinou problémů, běžte si s ním promluvit.</translation>
     </message>
-    <message>
-        <source>Contact Humans</source>
-        <translation>Kontaktujte lidi</translation>
-    </message>
-    <message>
-        <source>Have a problem that Garry can&apos;t resolve? Contact human support.</source>
-        <translation>Máte problém, který Garry nedokáže vyřešit? Obraťte se na lidskou podporu.</translation>
-    </message>
 </context>
 <context>
     <name>PreferencesWindow::LookAndFeelWindowItem</name>

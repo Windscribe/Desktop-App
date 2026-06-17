@@ -1,3 +1,13 @@
+2.23.8 (17/06/2026)
+All:
+   * Removed the Contact Humans preference/control from the desktop app preferences/help UI. #1876
+Windows:
+   * Fixed DLL planting vulnerability in the Windows bootstrapper and uninstaller. #1877
+Linux:
+   * Fixed local privilege escalation security vulnerability from app retaining SETGID capability after group switch. #1882
+   * Fixed launch on startup mechanism may fail to apply during a reboot. #1881
+
+
 2.23.7 (15/06/2026)
 All:
    * Improved app hardening from the Fable 5 audit, including WireGuard key validation, Control D API key log redaction, IPC exposure hardening, safer logging, installer argument redaction, and package/dependency handling fixes. #1868
@@ -7,7 +17,7 @@ All:
 Windows:
    * Fixed IKEv2 Inclusive split tunneling leaving a low-metric default tunnel route active, causing non-included traffic to route through the VPN. #1869
    * Fixed Windows installer/updater staging TOCTOU allowing the privileged helper to copy from a different source path than the one it validated. #1873
-   
+
 
 2.23.6 (08/06/2026)
 All:
@@ -54,7 +64,7 @@ Linux:
    * Fixed IPv6 DNS leak protection missing ip6tables rules for IPv6 DNS resolvers. #1832
    * Fixed Linux split-tunneling process monitor skipping proc events after the first netlink read. #1836
    * Fixed Linux split-tunneling setup failures being reported as successful. #1837
-   
+
 
 2.23.4 (21/05/2026)
 All:
@@ -178,8 +188,8 @@ All:
 Linux:
    * Fixed advanced parameters not parsed after being written. #1765
    * Fixed potential privilege escalation during app update process. #1763
-   
-   
+
+
 2.22.5 (15/04/2026)
 All:
    * Fixed dropdown menus in Preferences scrolling to the wrong position. #1692
@@ -295,7 +305,7 @@ All:
    * Added sound preview for sound notifications. #1582
    * Fixed emergency connect icon opacity. #1674
    * Fixed an Italian translation. #1675
-   * Fixed more incorrect window ordering issues. #1673 
+   * Fixed more incorrect window ordering issues. #1673
    * Fixed IP utilities sometimes not available after changing from custom config to regular location. #1677
 Windows:
    * Improved adapter network identification state detection on Windows. #1680
@@ -417,7 +427,7 @@ Linux:
 
 2.20.2 (19/12/2025)
 All:
-   * Added a reset password endpoint to wsnet. #1603 
+   * Added a reset password endpoint to wsnet. #1603
    * Improved locations resizing behaviour. #1566
    * Improved logging & detection for abusers. #1564
    * Fixed text alignment in preferences. #825

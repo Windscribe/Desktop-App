@@ -1,10 +1,15 @@
 #!/bin/bash
 # This file will be overwritten by rpm specific script which is passed to fpm in build script
 # So if multi-platform change is needed remember to change that file as well
+
+# Ensure the windscribe service group and user exist
+getent group windscribe >/dev/null 2>&1 || groupadd windscribe
+id -u windscribe >/dev/null 2>&1 || useradd -r -g windscribe -s /bin/false windscribe
+
 systemctl enable windscribe-helper
 systemctl start windscribe-helper
 ln -sf /opt/windscribe/windscribe-cli /usr/bin/windscribe-cli
-setcap cap_setgid+ep /opt/windscribe/Windscribe
+chgrp windscribe /opt/windscribe/Windscribe && chmod 2755 /opt/windscribe/Windscribe
 update-desktop-database || true
 
 # delete/migrate previous temporary files if any

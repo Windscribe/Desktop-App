@@ -1786,14 +1786,6 @@ Se o problema persistir após uma reinicialização, envie um log de depuração
         <source>Need help? Garry can help you with most issues, go talk to him.</source>
         <translation>Precisa de ajuda? Garry pode ajudá-lo com a maioria dos problemas, vá falar com ele.</translation>
     </message>
-    <message>
-        <source>Contact Humans</source>
-        <translation>Entre em contato com humanos</translation>
-    </message>
-    <message>
-        <source>Have a problem that Garry can&apos;t resolve? Contact human support.</source>
-        <translation>Tem um problema que Garry não consegue resolver? Entre em contato com o suporte humano.</translation>
-    </message>
 </context>
 <context>
     <name>PreferencesWindow::LookAndFeelWindowItem</name>

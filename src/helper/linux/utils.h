@@ -30,8 +30,6 @@ namespace Utils
     // get dns script associated with a particular dns manager
     std::string getDnsScript(CmdDnsManager mgr);
 
-    void createAppUserAndGroup();
-
     // check if string has whitespace
     bool hasWhitespaceInString(const std::string &str);
 

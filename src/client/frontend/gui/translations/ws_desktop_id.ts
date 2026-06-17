@@ -1786,14 +1786,6 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
         <source>Need help? Garry can help you with most issues, go talk to him.</source>
         <translation>Butuh bantuan? Garry dapat membantu Anda dengan sebagian besar masalah, bicaralah dengannya.</translation>
     </message>
-    <message>
-        <source>Contact Humans</source>
-        <translation>Kontak Manusia</translation>
-    </message>
-    <message>
-        <source>Have a problem that Garry can&apos;t resolve? Contact human support.</source>
-        <translation>Punya masalah yang tidak bisa diselesaikan Garry? Hubungi dukungan manusia.</translation>
-    </message>
 </context>
 <context>
     <name>PreferencesWindow::LookAndFeelWindowItem</name>

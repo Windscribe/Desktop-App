@@ -198,7 +198,6 @@ void Server::run()
         spdlog::error("Failed to create " WS_LINUX_RUN_DIR ": {}", ec.message());
     }
 #ifndef WINDSCRIBE_DEV_MODE // secure (non-dev)
-    Utils::createAppUserAndGroup();
     // Force uid=0 (not (uid_t)-1) so a pre-existing dir with a wrong owner is self-healed before
     // permissions runs — otherwise the chmod could hand owner-write to that wrong owner.
     if (struct group *grp = getgrnam(WS_PRODUCT_NAME_LOWER)) {

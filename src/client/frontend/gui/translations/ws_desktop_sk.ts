@@ -1786,14 +1786,6 @@ Ak problém pretrváva aj po reštarte, pošlite nám denník ladenia, otvorte �
         <source>Need help? Garry can help you with most issues, go talk to him.</source>
         <translation>Potrebujete pomoc? Garry vám môže pomôcť s väčšinou problémov, obráťte sa na neho.</translation>
     </message>
-    <message>
-        <source>Contact Humans</source>
-        <translation>Kontaktovať ľudí</translation>
-    </message>
-    <message>
-        <source>Have a problem that Garry can&apos;t resolve? Contact human support.</source>
-        <translation>Máte problém, ktorý Garry nedokáže vyriešiť? Kontaktujte ľudskú podporu.</translation>
-    </message>
 </context>
 <context>
     <name>PreferencesWindow::LookAndFeelWindowItem</name>

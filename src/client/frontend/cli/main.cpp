@@ -18,7 +18,6 @@
     #include <linux/limits.h>   // PATH_MAX
     #include <signal.h>
     #include <sys/socket.h>
-    #include <sys/types.h>      // gid_t
     #include "utils/linuxutils.h"
 #endif
 
@@ -42,21 +41,6 @@ void handler_sigterm(int signum)
 
 int main(int argc, char *argv[])
 {
-#if defined (Q_OS_LINUX)
-#ifndef WINDSCRIBE_DEV_MODE
-    gid_t gid = LinuxUtils::getAppGid();
-    if (gid == -1) {
-        qCCritical(LOG_BASIC) << "windscribe group does not exist";
-        return -1;
-    }
-    qCDebug(LOG_BASIC) << "Setting gid to:" << gid;
-    if (setgid(gid) < 0) {
-        qCCritical(LOG_BASIC) << "Could not set windscribe group";
-        return -1;
-    }
-#endif
-#endif
-
 #if defined (Q_OS_LINUX)
     signal(SIGTERM, handler_sigterm);
 

@@ -27,7 +27,6 @@ namespace LinuxUtils
     QString getLinuxKernelVersion();
     QString getDistroName();
     const QString getLastInstallPlatform();
-    gid_t getAppGid();
     bool isImmutableDistro();
 
     // CLI

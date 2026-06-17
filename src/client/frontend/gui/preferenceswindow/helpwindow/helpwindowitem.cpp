@@ -6,15 +6,14 @@
 namespace PreferencesWindow {
 
 HelpWindowItem::HelpWindowItem(ScalableGraphicsObject *parent, Preferences *preferences, PreferencesHelper *preferencesHelper, AccountInfo *accountInfo)
-  : CommonGraphics::BasePage(parent), sendLogState_(NOT_SENT), accountInfo_(accountInfo), loggedIn_(false), isPremium_(accountInfo->isPremium())
+  : CommonGraphics::BasePage(parent), sendLogState_(NOT_SENT)
 {
     Q_UNUSED(preferences);
     Q_UNUSED(preferencesHelper);
+    Q_UNUSED(accountInfo);
 
     setFlag(QGraphicsItem::ItemIsFocusable);
     setSpacerHeight(PREFERENCES_MARGIN_Y);
-
-    connect(accountInfo, &AccountInfo::isPremiumChanged, this, &HelpWindowItem::onIsPremiumChanged);
 
     knowledgeBaseGroup_ = new PreferenceGroup(this);
     knowledgeBaseItem_ = new LinkItem(knowledgeBaseGroup_,
@@ -33,17 +32,6 @@ HelpWindowItem::HelpWindowItem(ScalableGraphicsObject *parent, Preferences *pref
     talkToGarryItem_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/TALK_TO_GARRY"));
     talkToGarryGroup_->addItem(talkToGarryItem_);
     addItem(talkToGarryGroup_);
-
-    contactHumansGroup_ = new PreferenceGroup(this);
-    contactHumansItem_ = new LinkItem(contactHumansGroup_,
-                                      LinkItem::LinkType::EXTERNAL_LINK,
-                                      "",
-
-    QString("https://%1/support/ticket").arg(HardcodedSettings::instance().windscribeServerUrl()));
-    contactHumansItem_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/SEND_TICKET"));
-    contactHumansGroup_->addItem(contactHumansItem_);
-    addItem(contactHumansGroup_);
-    updateContactHumansVisibility();
 
     communitySupportGroup_ = new PreferenceGroup(this);
     communitySupportItem_ = new LinkItem(communitySupportGroup_, LinkItem::LinkType::TEXT_ONLY);
@@ -108,8 +96,6 @@ void HelpWindowItem::onLanguageChanged()
     knowledgeBaseItem_->setTitle(tr("Knowledge Base"));
     talkToGarryItem_->setDescription(tr("Need help? Garry can help you with most issues, go talk to him."));
     talkToGarryItem_->setTitle(tr("Talk to Garry"));
-    contactHumansItem_->setDescription(tr("Have a problem that Garry can't resolve? Contact human support."));
-    contactHumansItem_->setTitle(tr("Contact Humans"));
     communitySupportItem_->setDescription(tr("Best places to help and get help from other users."));
     communitySupportItem_->setTitle(tr("Community Support"));
     redditItem_->setTitle("Reddit"); // Don't translate company names.
@@ -129,19 +115,7 @@ void HelpWindowItem::onLanguageChanged()
 
 void HelpWindowItem::setLoggedIn(bool loggedIn)
 {
-    loggedIn_ = loggedIn;
-    updateContactHumansVisibility();
-}
-
-void HelpWindowItem::onIsPremiumChanged(bool isPremium)
-{
-    isPremium_ = isPremium;
-    updateContactHumansVisibility();
-}
-
-void HelpWindowItem::updateContactHumansVisibility()
-{
-    contactHumansGroup_->setVisible(loggedIn_ && isPremium_);
+    Q_UNUSED(loggedIn);
 }
 
 } // namespace PreferencesWindow

@@ -1786,14 +1786,6 @@ Jeśli problem nadal występuje po ponownym uruchomieniu, wyślij dziennik debug
         <source>Need help? Garry can help you with most issues, go talk to him.</source>
         <translation>Potrzebujesz pomocy? Garry może ci pomóc w większości problemów, porozmawiaj z nim.</translation>
     </message>
-    <message>
-        <source>Have a problem that Garry can&apos;t resolve? Contact human support.</source>
-        <translation>Masz problem, którego Garry nie może rozwiązać? Skontaktuj się z pomocą techniczną.</translation>
-    </message>
-    <message>
-        <source>Contact Humans</source>
-        <translation>Skontaktuj się z ludźmi</translation>
-    </message>
 </context>
 <context>
     <name>PreferencesWindow::LookAndFeelWindowItem</name>

@@ -38,7 +38,7 @@ set_source_files_properties(installer.rc OBJECT_DEPENDS ${CMAKE_CURRENT_SOURCE_D
 set_property(TARGET bootstrap PROPERTY COMPILE_WARNING_AS_ERROR ON)
 set_property(TARGET bootstrap PROPERTY VS_DPI_AWARE "PerMonitor")
 set_property(TARGET bootstrap PROPERTY COMPILE_FLAGS "/Gy /Oi /sdl")
-set_property(TARGET bootstrap PROPERTY LINK_FLAGS "/DELAYLOAD:dwmapi.dll /DELAYLOAD:uxtheme.dll /DELAYLOAD:wldp.dll")
+set_property(TARGET bootstrap PROPERTY LINK_FLAGS "/DELAYLOAD:bcrypt.dll /DELAYLOAD:dwmapi.dll /DELAYLOAD:uxtheme.dll /DELAYLOAD:wldp.dll")
 
 target_link_libraries(bootstrap
     PRIVATE
