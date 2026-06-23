@@ -1,10 +1,10 @@
 #pragma once
 
 #include <algorithm>
-#include <functional>
 #include <sstream>
 #include <string>
 #include <unordered_set>
+#include <spdlog/spdlog.h>
 
 // OpenVPN directive filter for the privileged helper.
 // This is the single source of truth for directive filtering.
@@ -23,8 +23,6 @@ inline const std::unordered_set<std::string>& allowedDirectives()
     static const std::unordered_set<std::string> directives = {
         // Connection & transport
         "client",
-        "dev",
-        "dev-type",
         "proto",
         "port",
         "remote",
@@ -158,6 +156,8 @@ inline const std::unordered_set<std::string>& ignoredDirectives()
         "management-hold",
         "http-proxy",
         "socks-proxy",
+        "dev",
+        "dev-type",
         "dev-node",
         "disable-dco",
     };
@@ -398,17 +398,42 @@ inline bool isAllowed(const std::string &line, bool &insideInlineBlock, bool all
     return true;
 }
 
-// Filter an entire OpenVPN config string, returning only allowed lines.
-// This is the main entry point for helper code. It performs:
-//   1. Balance check on inline block tags
-//   2. Line-by-line whitelist filtering with inline block context tracking
-// Blocked directives are reported via onBlocked; ignored directives (those the
-// helper overrides with its own value) are reported via onIgnored.
-// Lines are newline-terminated in the output.
-inline std::string filterConfig(const std::string &config,
-    std::function<void(const std::string &)> onBlocked = nullptr,
-    std::function<void(const std::string &)> onIgnored = nullptr)
+// OpenVPN configs are line-oriented text. Embedded NUL (and other control bytes) make the
+// helper's filter and the OpenVPN parser disagree on line and token boundaries: the helper
+// rejects "</ca>\0suffix" as a tag and keeps inline-block pass-through enabled, while OpenVPN
+// truncates the line at the NUL, exits the block, and parses a following directive. That
+// disagreement lets a blocked directive survive filtering. A legitimate config never contains
+// these bytes, so reject any config that does. Tab, newline, and carriage return are the only
+// permitted control characters.
+inline bool hasUnsafeControlBytes(const std::string &config)
 {
+    for (unsigned char c : config) {
+        if (c == '\t' || c == '\n' || c == '\r') {
+            continue;
+        }
+        if (c < 0x20 || c == 0x7f) {
+            return true;
+        }
+    }
+    return false;
+}
+
+// Filter an entire OpenVPN config string into 'out', returning only allowed lines.
+// This is the main entry point for helper code. It performs:
+//   1. Outright rejection of configs containing unsafe control bytes (returns false)
+//   2. Balance check on inline block tags
+//   3. Line-by-line whitelist filtering with inline block context tracking
+// Blocked directives are logged as warnings; ignored directives (those the helper
+// overrides with its own value) are logged at info.
+// Lines are newline-terminated in the output. Returns false (leaving 'out' unchanged)
+// when the config must be rejected; callers must not write the config in that case.
+inline bool filterConfig(const std::string &config, std::string &out)
+{
+    if (hasUnsafeControlBytes(config)) {
+        spdlog::error("Rejecting OpenVPN config containing control bytes");
+        return false;
+    }
+
     const bool balancedBlocks = hasBalancedInlineBlocks(config);
 
     std::istringstream stream(config);
@@ -430,11 +455,9 @@ inline std::string filterConfig(const std::string &config,
             std::string name = extractDirectiveName(line);
             if (!name.empty()) {
                 if (ignoredDirectives().count(name) > 0) {
-                    if (onIgnored) {
-                        onIgnored(name);
-                    }
-                } else if (onBlocked) {
-                    onBlocked(name);
+                    spdlog::info("Ignored OpenVPN directive: {}", name);
+                } else {
+                    spdlog::warn("Blocked non-whitelisted OpenVPN directive: {}", name);
                 }
             }
             continue;
@@ -444,7 +467,8 @@ inline std::string filterConfig(const std::string &config,
         result += '\n';
     }
 
-    return result;
+    out = std::move(result);
+    return true;
 }
 
 } // namespace OvpnDirectiveWhitelist

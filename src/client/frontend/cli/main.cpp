@@ -19,6 +19,7 @@
     #include <signal.h>
     #include <sys/socket.h>
     #include "utils/linuxutils.h"
+    #include "utils/helperconnector_linux.h"
 #endif
 
 static int fds[2];
@@ -104,6 +105,16 @@ int main(int argc, char *argv[])
     qCInfo(LOG_BASIC) << "UI languages:" << QLocale::system().uiLanguages();
 
     ExtraConfig::instance().logExtraConfig();
+
+#if defined (Q_OS_LINUX)
+    // Open the helper connection while we still hold the 'windscribe' group (from the binary's setgid
+    // bit); the engine adopts the connected fd later. Must precede the drop so the connect thread
+    // inherits the group; the connect itself is async.
+    HelperConnector::startConnect();
+    if (!LinuxUtils::dropHelperGroup()) {
+        return -1;
+    }
+#endif
 
     // We do this here so that the service constructor happeens after log initialization & changing gid
     MainService *service = new MainService();

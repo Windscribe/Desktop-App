@@ -21,7 +21,7 @@
 #include "process_command.h"
 #include "utils.h"
 
-#define SOCK_PATH WS_LINUX_RUN_DIR "/helper.sock"
+#define SOCK_PATH WS_LINUX_HELPER_SOCKET
 
 namespace {
 // Scope-local umask override. Restores the previous umask in the destructor so an exception during the guarded

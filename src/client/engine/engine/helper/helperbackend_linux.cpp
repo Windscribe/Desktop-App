@@ -1,20 +1,21 @@
 #include "helperbackend_linux.h"
+
+#include <unistd.h>
+
 #include <QMutexLocker>
 #include "../../../../helper/common/helper_commands.h"
+#include "utils/helperconnector_linux.h"
 #include "utils/log/categories.h"
 
-#define SOCK_PATH WS_LINUX_RUN_DIR "/helper.sock"
-
 HelperBackend_linux::HelperBackend_linux(QObject *parent) :
-    IHelperBackend(parent),
-    ep_(SOCK_PATH)
+    IHelperBackend(parent)
 {
 
 }
 
 HelperBackend_linux::~HelperBackend_linux()
 {
-    io_context_.stop();
+    stopRequested_ = true;
     wait();
 }
 
@@ -36,31 +37,46 @@ bool HelperBackend_linux::reinstallHelper()
 
 void HelperBackend_linux::run()
 {
-    io_context_.restart();
-    reconnectElapsedTimer_.start();
+    stopRequested_ = false;
+    {
+        QMutexLocker locker(&mutex_);
+        curState_ = State::kInit;
+    }
     socket_.reset(new boost::asio::local::stream_protocol::socket(io_context_));
-    socket_->async_connect(ep_, std::bind(&HelperBackend_linux::connectHandler, this, boost::asio::placeholders::error));
-    io_context_.run();
-}
 
-void HelperBackend_linux::connectHandler(const boost::system::error_code &ec)
-{
+    // The helper connection was opened at startup, before this process dropped the 'windscribe'
+    // group (see HelperConnector / main.cpp). Adopt that fd here rather than connecting, since this
+    // thread no longer holds the group. Poll so the destructor's stop request can break the wait.
+    int fd = -1;
+    while (!HelperConnector::tryGetConnectedFd(fd)) {
+        if (stopRequested_) {
+            // Give up before the fd was handed over; close it if/when the connect completes.
+            HelperConnector::abandon();
+            QMutexLocker locker(&mutex_);
+            curState_ = State::kFailedConnect;
+            return;
+        }
+        msleep(10);
+    }
+
+    boost::system::error_code ec;
+    if (fd >= 0) {
+        socket_->assign(boost::asio::local::stream_protocol(), fd, ec);
+        if (ec) {
+            // assign() did not take ownership of the fd; close it so it is not leaked.
+            ::close(fd);
+        }
+    } else {
+        ec = boost::asio::error::not_connected;
+    }
+
+    QMutexLocker locker(&mutex_);
     if (!ec) {
-        // we connected
         curState_ = State::kConnected;
         qCInfo(LOG_BASIC) << "connected to helper socket";
     } else {
-        if (reconnectElapsedTimer_.elapsed() > kMaxWaitHelper) {
-            qCCritical(LOG_BASIC) << "Error while connecting to helper: " << ec.value();
-            curState_ = State::kFailedConnect;
-        } else {
-            // try reconnect
-            msleep(10);
-            {
-                QMutexLocker locker(&mutexSocket_);
-                socket_->async_connect(ep_, std::bind(&HelperBackend_linux::connectHandler, this, boost::asio::placeholders::error));
-            }
-        }
+        qCCritical(LOG_BASIC) << "Error while connecting to helper: " << ec.value();
+        curState_ = State::kFailedConnect;
     }
 }
 

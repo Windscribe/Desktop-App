@@ -5,6 +5,7 @@
 #include <QRegularExpression>
 #include <QTextStream>
 
+#include <sys/syscall.h>
 #include <sys/types.h>
 #include <sys/utsname.h>
 #include <unistd.h>
@@ -14,6 +15,18 @@
 
 namespace LinuxUtils
 {
+
+bool dropHelperGroup()
+{
+    // Raw per-thread setresgid, not glibc's wrapper: glibc broadcasts the change to every thread (the
+    // setxid mechanism), which would strip the group from the connect thread (HelperConnector) before
+    // it finishes connecting. Dropping the saved gid too makes the drop permanent.
+    if (syscall(SYS_setresgid, getgid(), getgid(), getgid()) != 0) {
+        qCCritical(LOG_BASIC) << "Could not drop group";
+        return false;
+    }
+    return true;
+}
 
 QString getOsVersionString()
 {

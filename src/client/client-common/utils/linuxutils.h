@@ -29,6 +29,11 @@ namespace LinuxUtils
     const QString getLastInstallPlatform();
     bool isImmutableDistro();
 
+    // Permanently drops the 'windscribe' group (acquired via the binary's setgid bit) from the
+    // calling thread. Call after HelperConnector::startConnect() so the connect thread keeps the
+    // group long enough to connect. Returns false on failure.
+    bool dropHelperGroup();
+
     // CLI
     bool isAppAlreadyRunning();
 

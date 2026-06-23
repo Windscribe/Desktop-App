@@ -13,17 +13,19 @@ namespace OVPN
 bool writeOVPNFile(const std::string &dnsScript, unsigned int port, const std::string &config, const std::string &httpProxy,
                    unsigned int httpPort, const std::string &socksProxy, unsigned int socksPort)
 {
-    // open()'s mode is ignored on pre-existing files; unlink first to force the intended perms
+    // open()'s mode is ignored on pre-existing files; unlink first to force the intended perms.
+    // Unlinking before filterConfig also ensures a rejected config never leaves a stale file behind.
     unlink(WS_POSIX_CONFIG_DIR "/config.ovpn");
+
+    std::string filtered;
+    if (!OvpnDirectiveWhitelist::filterConfig(config, filtered)) {
+        return false;
+    }
     int fd = open(WS_POSIX_CONFIG_DIR "/config.ovpn", O_CREAT | O_WRONLY | O_TRUNC, S_IRUSR | S_IWUSR);
     if (fd < 0) {
         spdlog::error("Could not open config for writing");
         return false;
     }
-
-    std::string filtered = OvpnDirectiveWhitelist::filterConfig(config,
-        [](const std::string &name) { spdlog::warn("Blocked non-whitelisted OpenVPN directive: {}", name); },
-        [](const std::string &name) { spdlog::info("Ignored OpenVPN directive: {}", name); });
 
     if (!IO::writeAll(fd, filtered)) {
         spdlog::error("Could not write openvpn config: {}", IO::strerror(errno));
@@ -43,6 +45,7 @@ bool writeOVPNFile(const std::string &dnsScript, unsigned int port, const std::s
 
     // add management and other options
     std::string opts = \
+        "dev tun\n" \
         "management 127.0.0.1 " + std::to_string(port) + "\n" \
         "management-query-passwords\n" \
         "management-hold\n" \

@@ -1,3 +1,14 @@
+2.23.9 beta (23/06/2026)
+All:
+   * Improved Belarusian translations in the GUI and CLI from GitHub user dubovy-achvelak. #1890
+   * Fixed Always On+ firewall state eventually showing the Ignore SSL errors prompt during blocked or delayed connectivity. #1889
+   * Fixed OpenVPN custom config filtering to handle embedded NULL/control characters consistently and reject unsafe directives. #1886
+Linux:
+   * Fixed tray icon and desktop notifications missing on Arch using KDE Plasma and Wayland regression introduced in 2.23.8. #1888
+   * Fixed custom OpenVPN device names that could bypass Linux DNS leak protection by using wildcard-style interface names. #1885
+   * Fixed possible local privilege escalation chain involving external-link opening and OpenVPN directive validation bypass. #1886
+
+
 2.23.8 (17/06/2026)
 All:
    * Removed the Contact Humans preference/control from the desktop app preferences/help UI. #1876

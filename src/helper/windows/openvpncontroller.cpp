@@ -4,6 +4,7 @@
 #include <codecvt>
 #include <fstream>
 #include <sstream>
+#include <stdexcept>
 #include <spdlog/spdlog.h>
 
 #include <boost/algorithm/string.hpp>
@@ -144,6 +145,15 @@ bool OpenVPNController::writeOVPNFile(std::wstring &config, unsigned int port, c
         boost::ireplace_all(config, L":AES-256-CBC:", L":");
     }
 
+    std::string narrowConfig;
+    try {
+        std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+        narrowConfig = converter.to_bytes(config);
+    } catch (const std::range_error &) {
+        spdlog::error("OpenVPN config is not valid UTF-16");
+        return false;
+    }
+
     std::wstring filePath = Utils::getConfigPath();
     if (filePath.empty()) {
         spdlog::error("Could not get config path");
@@ -151,6 +161,15 @@ bool OpenVPNController::writeOVPNFile(std::wstring &config, unsigned int port, c
     }
 
     filePath += L"\\config.ovpn";
+
+    // Remove any prior config before filtering so a rejected config never leaves a stale file behind.
+    DeleteFileW(filePath.c_str());
+
+    std::string filtered;
+    if (!OvpnDirectiveWhitelist::filterConfig(narrowConfig, filtered)) {
+        return false;
+    }
+
     spdlog::debug("Writing OpenVPN config");
 
     std::wofstream file(filePath.c_str(), std::ios::out | std::ios::trunc);
@@ -158,12 +177,6 @@ bool OpenVPNController::writeOVPNFile(std::wstring &config, unsigned int port, c
         spdlog::error("Could not open config file: {}", GetLastError());
         return false;
     }
-
-    std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-    const std::string narrowConfig = converter.to_bytes(config);
-    std::string filtered = OvpnDirectiveWhitelist::filterConfig(narrowConfig,
-        [](const std::string &name) { spdlog::warn("Blocked non-whitelisted OpenVPN directive: {}", name); },
-        [](const std::string &name) { spdlog::info("Ignored OpenVPN directive: {}", name); });
 
     // Write filtered config (filterConfig outputs \n; Windows needs \r\n but
     // OpenVPN handles both, and the helper-appended options below use \r\n)
@@ -175,9 +188,9 @@ bool OpenVPNController::writeOVPNFile(std::wstring &config, unsigned int port, c
     file << L"management-hold\r\n";
     file << L"verb 3\r\n";
 
-    // The --dev tun option is already included in ovpnData by the server API.
     // We use the --dev-node option to ensure OpenVPN will only use the DCO/wintun adapter instance we create and not possibly
     // attempt to use an adapter created by other software (e.g. the vanilla OpenVPN client app).
+    file << L"dev tun\r\n";
     file << L"dev-node " + std::wstring(kOpenVPNAdapterIdentifier) + L"\r\n";
     // OpenVPN 2.7 removed --windows-driver; the driver is now auto-selected from DCO availability.
     // For the non-DCO path we must explicitly disable DCO, otherwise OpenVPN picks DCO whenever the

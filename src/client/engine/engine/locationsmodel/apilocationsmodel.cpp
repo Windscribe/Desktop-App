@@ -120,12 +120,11 @@ QSharedPointer<BaseLocationInfo> ApiLocationsModel::getMutableLocationInfoById(c
                         nodes << QSharedPointer<const ApiLocationNode>(new ApiLocationNode(ips, apiInfoNode.getHost(), apiInfoNode.getWeight(), group.getWgPubKey(), apiInfoNode.isIpv6Support()));
                     }
 
-                    // once API server list is updated so that the old WINDFLIX locations' dns_hostname matches that of the containing region this code can be removed
+                    // TODO: once API server list is updated so that the old WINDFLIX locations' dns_hostname matches that of the containing region this code can be removed
                     QString dnsHostname;
                     if (!group.getDnsHostName().isEmpty())
                     {
                         dnsHostname = group.getDnsHostName();
-                        qCDebug(LOG_BASIC) << "Overriding DNS hostname for old WINDFLIX location with: " << dnsHostname;
                     }
                     else
                     {

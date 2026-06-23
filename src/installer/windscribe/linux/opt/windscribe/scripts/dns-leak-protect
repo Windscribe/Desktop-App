@@ -53,6 +53,15 @@ log_warn() {
     return 0
 }
 
+is_valid_iface()
+{
+    local ifc="$1"
+    [[ -n $ifc ]] || return 1
+    (( ${#ifc} < 16 )) || return 1
+    [[ $ifc =~ ^[A-Za-z0-9._-]+$ ]] || return 1
+    return 0
+}
+
 # Strict IPv6 syntax check. The extraction gate (`[0-9a-fA-F:]+` + `NF>=3`) is
 # permissive enough to pass incomplete/malformed tokens (e.g. `2606:4700:4700`,
 # `:::::`, or >8 groups) that `ip6tables-restore` rejects. Because a family's
@@ -252,6 +261,11 @@ dnsleak_protection_up()
     local vpn_iface="$1"
     shift
     allowed=("$@")
+
+    if ! is_valid_iface "$vpn_iface"; then
+        log_warn "ignoring invalid tunnel interface name '$vpn_iface'; DNS leak protection rules will still be installed"
+        vpn_iface=""
+    fi
 
     if ! command -v resolvectl &> /dev/null; then
         get_os_default_dnsservers_NMCLI_v4

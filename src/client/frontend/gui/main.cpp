@@ -36,6 +36,7 @@
     #include <signal.h>
     #include <sys/socket.h>
     #include "utils/linuxutils.h"
+    #include "utils/helperconnector_linux.h"
 #endif
 
 void applyScalingFactor(qreal ldpi, MainWindow &mw);
@@ -109,6 +110,31 @@ int main(int argc, char *argv[])
         pluginsPath << QString::fromStdString(path) + "/plugins";
         QCoreApplication::setLibraryPaths(pluginsPath);
     #endif
+#endif
+
+#if defined(Q_OS_LINUX)
+#ifndef WINDSCRIBE_DEV_MODE
+    // SGID 'windscribe' GUI: neutralize env that could load attacker code, then drop the group.
+    // Must precede the gid drop: some loaders (e.g. Mesa) re-honor these once egid == gid.
+    // GL is disabled (pure Widgets, no GL context); QT_QPA_PLATFORM_PLUGIN_PATH is read separately
+    // from setLibraryPaths above, so unset it to keep the platform plugin in the bundled dir.
+    if (!qputenv("QT_XCB_GL_INTEGRATION", "none") || !qunsetenv("QT_QPA_PLATFORM_PLUGIN_PATH")) {
+        qCCritical(LOG_BASIC) << "Could not neutralize environment";
+        return -1;
+    }
+#endif
+
+    // Open the helper connection now, on a background thread, while we still hold the 'windscribe'
+    // group (from the binary's setgid bit). The engine adopts the connected fd later. This must run
+    // before the group drop below so the thread inherits the group; the connect itself is async.
+    HelperConnector::startConnect();
+
+    // Permanently drop 'windscribe' from this (main/GUI) thread: libdbus refuses the session bus
+    // (tray, notifications) whenever the saved gid differs from the real gid, and the first bus
+    // access happens during MainWindow construction.
+    if (!LinuxUtils::dropHelperGroup()) {
+        return -1;
+    }
 #endif
 
     Q_INIT_RESOURCE(images);

@@ -258,23 +258,26 @@ void FirewallFilter::addFilters(HANDLE engineHandle, const wchar_t *connectingIp
         }
     }
 
-    // add permit filter for DHCP
-    ret = Utils::addFilterV4(engineHandle, nullptr, FWP_ACTION_PERMIT, 3, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, nullptr, nullptr, 68);
+    // add permit filter for DHCP.
+    // Weight must be higher than the LAN block below (weight 4): DHCP lease renewal is unicast to
+    // the DHCP server, which usually lives in a private range. With a lower weight the veto LAN
+    // block would override this permit when "Allow LAN" is off, breaking renewal and dropping Wi-Fi.
+    ret = Utils::addFilterV4(engineHandle, nullptr, FWP_ACTION_PERMIT, 5, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, nullptr, nullptr, 68);
     if (!ret) {
         spdlog::error("Could not add DHCP allow filter (68)");
     }
     // add permit filter for DHCP
-    ret = Utils::addFilterV4(engineHandle, nullptr, FWP_ACTION_PERMIT, 3, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, nullptr, nullptr, 67);
+    ret = Utils::addFilterV4(engineHandle, nullptr, FWP_ACTION_PERMIT, 5, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, nullptr, nullptr, 67);
     if (!ret) {
         spdlog::error("Could not add DHCP allow filter (67)");
     }
 
     // DHCPv6 (client port 546, server port 547)
-    ret = Utils::addFilterV6(engineHandle, nullptr, FWP_ACTION_PERMIT, 3, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, nullptr, nullptr, 546);
+    ret = Utils::addFilterV6(engineHandle, nullptr, FWP_ACTION_PERMIT, 5, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, nullptr, nullptr, 546);
     if (!ret) {
         spdlog::error("Could not add DHCPv6 allow filter (546)");
     }
-    ret = Utils::addFilterV6(engineHandle, nullptr, FWP_ACTION_PERMIT, 3, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, nullptr, nullptr, 547);
+    ret = Utils::addFilterV6(engineHandle, nullptr, FWP_ACTION_PERMIT, 5, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, nullptr, nullptr, 547);
     if (!ret) {
         spdlog::error("Could not add DHCPv6 allow filter (547)");
     }

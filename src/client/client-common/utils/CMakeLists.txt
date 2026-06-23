@@ -71,6 +71,8 @@ elseif(UNIX)
         dns_utils/dnsutils_linux.cpp
         executable_signature/executablesignature_linux.cpp
         executable_signature/executablesignature_linux.h
+        helperconnector_linux.cpp
+        helperconnector_linux.h
         linuxutils.cpp
         linuxutils.h
         network_utils/network_utils_linux.cpp

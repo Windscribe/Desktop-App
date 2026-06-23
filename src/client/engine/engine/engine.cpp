@@ -620,8 +620,6 @@ void Engine::initPart2()
     connect(networkDetectionManager_, &INetworkDetectionManager::onlineStateChanged, this, &Engine::onNetworkOnlineStateChange);
     connect(networkDetectionManager_, &INetworkDetectionManager::networkChanged, this, &Engine::onNetworkChange);
 
-    WSNet::instance()->setConnectivityState(networkDetectionManager_->isOnline());
-
     macAddressController_ = CrossPlatformObjectFactory::createMacAddressController(this, networkDetectionManager_, helper_);
     macAddressController_->initMacAddrSpoofing(macAddrSpoofing);
     connect(macAddressController_, &IMacAddressController::macAddrSpoofingChanged, this, &Engine::onMacAddressSpoofingChanged);
@@ -645,6 +643,10 @@ void Engine::initPart2()
 
     firewallController_ = CrossPlatformObjectFactory::createFirewallController(this, helper_);
     updateFirewallOnBoot();
+
+    // Push the initial connectivity state to wsnet now that the firewall controller exists, so that an
+    // active Always On+ (on-boot) firewall is reflected as "offline" before any API request is made.
+    updateWsnetConnectivityState();
 
     // do not return from this function until Engine::onHostIPsChanged() is finished
     // callback comes from another thread, so synchronization is needed
@@ -1290,6 +1292,19 @@ void Engine::setSettingsImpl(const types::EngineSettings &engineSettings)
 
     if (isAllowLanTrafficChanged || isDnsPolicyChanged || isFirewallSettingsChanged)
         updateFirewallSettings();
+
+    if (isFirewallSettingsChanged) {
+        // Always On+ blocks API access, so a firewall mode change can flip the effective connectivity
+        // that wsnet sees.
+        updateWsnetConnectivityState();
+
+        // If a login was deferred because the Always On+ firewall was blocking API access, retry it now
+        // that the firewall settings changed and access is no longer blocked.
+        if (tryLoginNextConnectOrDisconnect_ && !isApiAccessBlockedByAlwaysOnPlusFirewall()) {
+            tryLoginNextConnectOrDisconnect_ = false;
+            loginImpl(true, QString(), QString(), QString());
+        }
+    }
 
     if (isUpdateChannelChanged)
         doCheckUpdate();
@@ -2219,7 +2234,7 @@ void Engine::onNetworkOnlineStateChange(bool isOnline)
         qCInfo(LOG_BASIC) << "Internet lost during packet size detection -- stopping";
         stopPacketDetection();
     }
-    WSNet::instance()->setConnectivityState(isOnline);
+    updateWsnetConnectivityState();
     if (isOnline && tryLoginNextConnectOrDisconnect_) {
         tryLoginNextConnectOrDisconnect_ = false;
         loginImpl(true, QString(), QString(), QString());
@@ -2563,6 +2578,32 @@ void Engine::updateServerLocations(const api_responses::ServerList &serverLocati
     locationsModel_->setCustomConfigLocations(customConfigs_->getConfigs());
 }
 
+bool Engine::isApiAccessBlockedByAlwaysOnPlusFirewall() const
+{
+    // In Always On+ mode, while not connected to the VPN the firewall whitelists only the IP we are
+    // connecting to (see updateFirewallSettings/getIPAddressesForFirewallForConnectedState), so all API
+    // and DNS traffic is blocked. Treat the resulting failover failure as a connectivity issue, not SSL.
+    // The firewall controller is created later during init, so it may not exist yet on early calls
+    // (e.g. an onlineStateChanged signal arriving before initPart2 creates it).
+    if (!firewallController_) {
+        return false;
+    }
+    return firewallController_->firewallActualState() &&
+           engineSettings_.firewallSettings().mode == FIREWALL_MODE_ALWAYS_ON_PLUS &&
+           connectStateController_->currentState() != CONNECT_STATE_CONNECTED;
+}
+
+void Engine::updateWsnetConnectivityState()
+{
+    // Feed wsnet the *effective* connectivity state. When the Always On+ firewall blocks all API/DNS
+    // traffic (while not connected to the VPN), report "offline" so wsnet short-circuits every serverAPI/
+    // bridgeAPI request to kNoNetworkConnection instead of probing the failover endlessly (which would
+    // also produce a misleading SSL error prompt). Must be re-evaluated whenever the real connectivity,
+    // the connect state, or the firewall settings change.
+    const bool effectiveOnline = networkDetectionManager_->isOnline() && !isApiAccessBlockedByAlwaysOnPlusFirewall();
+    WSNet::instance()->setConnectivityState(effectiveOnline);
+}
+
 void Engine::updateFirewallSettings(bool forceTurnOn)
 {
     if (forceTurnOn || firewallController_->firewallActualState()) {
@@ -2812,6 +2853,10 @@ void Engine::onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON /*reas
     QString pinnedIp = (state == CONNECT_STATE_CONNECTED) ? pinnedNode_.second : QString();
     types::Protocol protocol = (state == CONNECT_STATE_CONNECTED) ? connectionManager_->currentProtocol() : types::Protocol();
     bridgeApiManager_->setConnectedState(state == CONNECT_STATE_CONNECTED, nodeAddress, protocol, pinnedIp);
+
+    // The Always On+ firewall blocks API access only while disconnected, so the effective connectivity
+    // for wsnet changes together with the connect state.
+    updateWsnetConnectivityState();
 
 #ifdef Q_OS_WIN
 

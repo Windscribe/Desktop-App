@@ -444,6 +444,8 @@ private:
     void signupImpl(const QString &username, const QString &password, const QString &referringUsername, const QString &email, const QString &voucherCode);
     void updateServerLocations(const api_responses::ServerList &serverLocations, const api_responses::StaticIps &staticIps);
     void updateFirewallSettings(bool forceTurnOn = false);
+    bool isApiAccessBlockedByAlwaysOnPlusFirewall() const;
+    void updateWsnetConnectivityState();
 
     void addCustomRemoteIpToFirewallIfNeed();
     void doConnect(bool bEmitAuthError);

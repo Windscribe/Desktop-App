@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ihelperbackend.h"
-#include <QElapsedTimer>
+#include <atomic>
 #include <QMutex>
 #include "utils/boost_includes.h"
 
@@ -26,15 +26,10 @@ private:
     State curState_ = State::kInit;
     mutable QMutex mutex_;
 
-    static constexpr int kMaxWaitHelper = 5000;
-
+    // Only the execution context for socket_; its event loop is not run (I/O is synchronous).
     boost::asio::io_context io_context_;
-    boost::asio::local::stream_protocol::endpoint ep_;
     boost::scoped_ptr<boost::asio::local::stream_protocol::socket> socket_;
-    QMutex mutexSocket_;
-    QElapsedTimer reconnectElapsedTimer_;
-
-    void connectHandler(const boost::system::error_code &ec);
+    std::atomic<bool> stopRequested_{false};
 
     bool sendCmdToHelper(int cmdId, const std::string &data);
     bool readAnswer(std::string &answer);

@@ -1496,7 +1496,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Configure egress IP stack for VPN connections (WireGuard only).</source>
-        <translation>Наладзьце IP-пратакол для VPN-злучэньняў (толькі WireGuard).</translation>
+        <translation>Наладзьце выходны IP-стэк для VPN-злучэньняў (толькі WireGuard).</translation>
     </message>
     <message>
         <source>Clear Wi-Fi History</source>

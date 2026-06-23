@@ -182,12 +182,6 @@ void OvpnCustomConfig::process()
             } else if (openVpnLine.type == ParseOvpnConfigLine::OVPN_CMD_IGNORE_REDIRECT_GATEWAY) {
                 isAllowFirewallAfterConnection_ = false;
                 qDebug(LOG_CUSTOM_OVPN) << "Extracted information: ignore redirect-gateway (" << line << ")";
-            } else if (openVpnLine.type == ParseOvpnConfigLine::OVPN_CMD_DEVICE) { // dev cmd
-                if (!openVpnLine.protocol.trimmed().compare("tap", Qt::CaseInsensitive)) {
-                    qDebug(LOG_CUSTOM_OVPN) << "Override dev command to tun in custom ovpn file";
-                    ovpnData_ += "dev tun\n";
-                    continue;
-                }
             }
             ovpnData_ += line + "\n";
         }
