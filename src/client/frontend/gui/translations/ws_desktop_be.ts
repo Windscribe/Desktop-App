@@ -448,7 +448,7 @@
     </message>
     <message>
         <source>Session is expired. Please login again</source>
-        <translation>Сесія скончаная. Увайдзіце зноў</translation>
+        <translation>Сэсія скончылася. Увайдзіце зноў</translation>
     </message>
     <message>
         <source>Your username should not be an email address. Please try again.</source>
@@ -671,7 +671,7 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
     </message>
     <message>
         <source>SSL requests may be intercepted on your network. Ignoring SSL errors disables TLS certificate validation for this session: anyone able to intercept your traffic can then impersonate Windscribe and read or alter your data, and we can&apos;t guarantee your security while it&apos;s on. Ignore SSL errors?</source>
-        <translation>SSL-запыты могуць быць перахоплены ў вашай сетцы. Ігнараванне памылак SSL адключае праверку TLS-сертыфікатаў у гэтай сесіі: кожны, хто здольны перахапіць ваш трафік, можа выдаваць сябе за Windscribe і чытаць або змяняць вашы дадзеныя, і мы не можам гарантаваць вашу бяспеку, пакуль ён уключаны. Ігнараваць памылкі SSL?</translation>
+        <translation>SSL-запыты могуць быць перахопленыя ў вашай сетцы. Іґнараваньне памылак SSL адключае праверку TLS-сэртыфікатаў для гэтай сэсіі: кожны, хто можа перахапіць ваш трафік, можа выдаць сябе за Windscribe і прачытаць або зьмяніць вашы дадзеныя, таму мы не можам гарантаваць вашую бясьпеку, пакуль іґнараваньне памылак SSL ўключанае. Іґнараваць памылкі SSL?</translation>
     </message>
     <message>
         <source>Connected to </source>
@@ -1091,7 +1091,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     <name>Preferences</name>
     <message>
         <source>Invalid DNS Settings</source>
-        <translation>Няспраўныя налады DNS</translation>
+        <translation>Няправільныя налады DNS</translation>
     </message>
     <message>
         <source>&apos;Connected DNS&apos; was not configured with a valid Upstream 1 (IP/DNS-over-HTTPS/TLS). DNS was reverted to ROBERT (default).</source>
@@ -1496,7 +1496,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Configure egress IP stack for VPN connections (WireGuard only).</source>
-        <translation>Наладзіць IP-стэк выходу для VPN-злучэнняў (толькі WireGuard).</translation>
+        <translation>Наладзьце IP-пратакол для VPN-злучэньняў (толькі WireGuard).</translation>
     </message>
     <message>
         <source>Clear Wi-Fi History</source>
@@ -2668,7 +2668,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>AmneziaWG init parameter contains invalid characters</source>
-        <translation>Параметр init AmneziaWG змяшчае няправільныя сімвалы</translation>
+        <translation>Парамэтар init AmneziaWG змяшчае недапушчальныя знакі</translation>
     </message>
     <message>
         <source>Static IPs</source>
