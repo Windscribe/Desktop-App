@@ -5,109 +5,90 @@ ParseOvpnConfigLine::OpenVpnLine ParseOvpnConfigLine::processLine(const QString 
     OpenVpnLine openVpnLine;
     openVpnLine.type = OVPN_CMD_UNKNOWN;
 
-    if (line.contains("remote", Qt::CaseInsensitive))
+    const QString trimmedLine = line.trimmed();
+    if (trimmedLine.isEmpty() || trimmedLine.startsWith('#') || trimmedLine.startsWith(';'))
     {
-        QStringList strs = splitLine(line);
+        return openVpnLine;
+    }
 
-        if (strs.count() > 0 && strs[0].compare("remote", Qt::CaseInsensitive) == 0)
+    const QStringList strs = splitLine(trimmedLine);
+    if (strs.isEmpty())
+    {
+        return openVpnLine;
+    }
+
+    const QString &directive = strs[0];
+    if (directive.compare("remote", Qt::CaseInsensitive) == 0)
+    {
+        if (strs.count() >= 2)
         {
-            if (strs.count() >= 2)
+            openVpnLine.type = OVPN_CMD_REMOTE_IP;
+            openVpnLine.host = strs[1];
+
+            if (strs.count() >= 3)
             {
-                openVpnLine.type = OVPN_CMD_REMOTE_IP;
-                openVpnLine.host = strs[1];
+                openVpnLine.port = strs[2].toUInt();
 
-                if (strs.count() >= 3)
+                if (strs.count() >= 4)
                 {
-                    openVpnLine.port = strs[2].toUInt();
-
-                    if (strs.count() >= 4)
-                    {
-                        openVpnLine.protocol = strs[3].trimmed();
-                    }
+                    openVpnLine.protocol = strs[3].trimmed();
                 }
             }
         }
     }
-    else if (line.contains("proto", Qt::CaseInsensitive))
+    else if (directive.compare("proto", Qt::CaseInsensitive) == 0)
     {
-        QStringList strs = splitLine(line);
-
-        if (strs.count() > 0 && strs[0].compare("proto", Qt::CaseInsensitive) == 0)
+        if (strs.count() >= 2)
         {
-            if (strs.count() >= 2)
-            {
-                openVpnLine.type = OVPN_CMD_PROTO;
-                openVpnLine.protocol = strs[1].trimmed();
-            }
+            openVpnLine.type = OVPN_CMD_PROTO;
+            openVpnLine.protocol = strs[1].trimmed();
         }
     }
-    else if (line.contains("port", Qt::CaseInsensitive))
+    else if (directive.compare("port", Qt::CaseInsensitive) == 0)
     {
-        QStringList strs = splitLine(line);
-
-        if (strs.count() > 0 && strs[0].compare("port", Qt::CaseInsensitive) == 0)
+        if (strs.count() >= 2)
         {
-            if (strs.count() >= 2)
-            {
-                openVpnLine.type = OVPN_CMD_PORT;
-                openVpnLine.port = strs[1].toUInt();
-            }
+            openVpnLine.type = OVPN_CMD_PORT;
+            openVpnLine.port = strs[1].toUInt();
         }
     }
-    else if (line.contains("verb", Qt::CaseInsensitive))
+    else if (directive.compare("verb", Qt::CaseInsensitive) == 0)
     {
-        QStringList strs = splitLine(line);
-
-        if (strs.count() > 0 && strs[0].compare("verb", Qt::CaseInsensitive) == 0)
+        if (strs.count() >= 2)
         {
-            if (strs.count() >= 2)
-            {
-                openVpnLine.type = OVPN_CMD_VERB;
-                openVpnLine.verb = strs[1].toUInt();
-            }
+            openVpnLine.type = OVPN_CMD_VERB;
+            openVpnLine.verb = strs[1].toUInt();
         }
     }
-    else if (line.contains("cipher", Qt::CaseInsensitive))
+    else if (directive.compare("cipher", Qt::CaseInsensitive) == 0)
     {
-        QStringList strs = splitLine(line);
-
-        if (strs.count() > 0 && strs[0].compare("cipher", Qt::CaseInsensitive) == 0)
+        if (strs.count() >= 2)
         {
-            if (strs.count() >= 2)
-            {
-                openVpnLine.type = OVPN_CMD_CIPHER;
-                openVpnLine.protocol = strs[1];
-            }
+            openVpnLine.type = OVPN_CMD_CIPHER;
+            openVpnLine.protocol = strs[1];
         }
     }
-    else if (line.contains("script-security", Qt::CaseInsensitive))
+    else if (directive.compare("script-security", Qt::CaseInsensitive) == 0)
     {
-        QStringList strs = splitLine(line);
-
-        if (strs.count() > 0 && strs[0].compare("script-security", Qt::CaseInsensitive) == 0)
+        if (strs.count() >= 2)
         {
-            if (strs.count() >= 2)
-            {
-                openVpnLine.type = OVPN_CMD_SCRIPT_SECURITY;
-                openVpnLine.verb = strs[1].toUInt();
-            }
+            openVpnLine.type = OVPN_CMD_SCRIPT_SECURITY;
+            openVpnLine.verb = strs[1].toUInt();
         }
     }
-    else if (line.contains("route-nopull", Qt::CaseInsensitive) ||
-             line.contains("route-noexec", Qt::CaseInsensitive))
+    else if (directive.compare("route-nopull", Qt::CaseInsensitive) == 0 ||
+             directive.compare("route-noexec", Qt::CaseInsensitive) == 0)
     {
         openVpnLine.type = OVPN_CMD_IGNORE_REDIRECT_GATEWAY;
     }
-    else if (line.contains("pull-filter", Qt::CaseInsensitive))
+    else if (directive.compare("pull-filter", Qt::CaseInsensitive) == 0)
     {
-        QStringList strs = splitLine(line);
         if (strs.count() > 2 &&
-            strs[0].compare("pull-filter", Qt::CaseInsensitive) == 0 &&
             strs[1].compare("ignore", Qt::CaseInsensitive) == 0 &&
             strs[2].compare("redirect-gateway", Qt::CaseInsensitive) == 0)
             openVpnLine.type = OVPN_CMD_IGNORE_REDIRECT_GATEWAY;
     }
-    else if (line.contains("block-outside-dns", Qt::CaseInsensitive))
+    else if (directive.compare("block-outside-dns", Qt::CaseInsensitive) == 0)
     {
         openVpnLine.type = OVPN_CMD_BLOCK_OUTSIDE_DNS;
     }

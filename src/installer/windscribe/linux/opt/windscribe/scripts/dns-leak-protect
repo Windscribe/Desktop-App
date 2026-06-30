@@ -201,15 +201,12 @@ build_and_load_rules()
     printf -v rules '%s:windscribe_dnsleaks - [0:0]\n' "$rules"
     printf -v rules '%s-I OUTPUT -j windscribe_dnsleaks %s\n' "$rules" "$marker"
 
-    # A DNS query only leaks if it physically leaves via a non-tunnel,
-    # non-loopback interface. The destination-IP DROPs below cannot tell the
-    # egress interface apart, so let loopback and tunnel traffic RETURN to
-    # OUTPUT before them — this protects the user's local resolver (127.0.0.1)
-    # and the tunnel DNS regardless of how an address ended up in the list.
+    # Loopback never leaves the host, so local resolvers must stay reachable.
+    # Do not RETURN all tunnel-interface DNS here: querying a pre-VPN / OS DNS
+    # server is still a privacy leak even if routing sends it through the VPN.
+    # The real tunnel DNS stays reachable because remove_allowed_from_arrays
+    # strips the allowed servers from the DROP candidates before this builder runs.
     printf -v rules '%s-A windscribe_dnsleaks -o lo -j RETURN %s\n' "$rules" "$marker"
-    if [[ -n $vpn_iface ]]; then
-        printf -v rules '%s-A windscribe_dnsleaks -o %s -j RETURN %s\n' "$rules" "$vpn_iface" "$marker"
-    fi
 
     local dnsIp
     for dnsIp in "${servers[@]}"; do

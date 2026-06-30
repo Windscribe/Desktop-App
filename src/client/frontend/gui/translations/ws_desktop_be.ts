@@ -1232,7 +1232,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>App Preferences</source>
-        <translation>Кіраваньне DNS</translation>
+        <translation>Налады праграмы</translation>
     </message>
     <message>
         <source>Export</source>
@@ -2958,7 +2958,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>5 days left</source>
-        <translation>Засталося 2 дзён</translation>
+        <translation>Засталося 5 дзён</translation>
     </message>
     <message>
         <source>%1 days left</source>

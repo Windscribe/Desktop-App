@@ -41,6 +41,9 @@ public:
     QRect trayIconRect();
     void setLoggedIn(bool loggedIn);
     bool isTrayIconPositionAvailable() const;
+#if defined(Q_OS_MACOS)
+    void showTrayMenu();
+#endif
 
 signals:
     void activated(QSystemTrayIcon::ActivationReason reason);

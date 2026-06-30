@@ -69,10 +69,12 @@ bool Helper_win::sendConnectStatus(bool isConnected, bool isTerminateSocket, boo
     }
 
     fillAdapterInfo(defaultAdapter, defaultAdapterInfo);
-    sendCommand(HelperCommand::sendConnectStatus, isConnected, isTerminateSocket, isKeepLocalSocket, cmdProtocol, defaultAdapterInfo, vpnAdapterInfo,
-                types::IpAddress(connectedIp.toStdString()), vpnAdapter.remoteIp());
+    auto result = sendCommand(HelperCommand::sendConnectStatus, isConnected, isTerminateSocket, isKeepLocalSocket, cmdProtocol, defaultAdapterInfo, vpnAdapterInfo,
+                              types::IpAddress(connectedIp.toStdString()), vpnAdapter.remoteIp());
 
-    return true;
+    bool success = false;
+    deserializeAnswer(result, success);
+    return success;
 }
 
 void Helper_win::changeMtu(const QString &adapter, int mtu)

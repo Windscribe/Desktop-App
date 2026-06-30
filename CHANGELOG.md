@@ -1,3 +1,14 @@
+2.23.10 (30/06/2026)
+All:
+   * Fixed OpenVPN custom config parsing so commented `route-nopull` / `route-noexec` text cannot disable automatic firewall handling for crafted custom profiles. #1900
+Windows:
+   * Fixed split tunneling service startup failures not showing the expected user-facing warning prompt. #1895
+macOS:
+   * Fixed a crash when clicking the menu bar icon on affected macOS 27 beta builds. #1897
+Linux:
+   * Fixed DNS leak protection allowing pre-VPN OS DNS resolvers when DNS traffic egressed over the VPN interface. #1898
+
+
 2.23.9 beta (23/06/2026)
 All:
    * Improved Belarusian translations in the GUI and CLI from GitHub user dubovy-achvelak. #1890

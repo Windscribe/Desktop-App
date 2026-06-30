@@ -3406,6 +3406,24 @@ void MainWindow::onTrayActivated(QSystemTrayIcon::ActivationReason reason)
                 setBackendAppActiveState(false);
             }
             break;
+#elif defined(Q_OS_MACOS)
+        case QSystemTrayIcon::Trigger:
+        case QSystemTrayIcon::DoubleClick:
+            deactivationTimer_.stop();
+            if (backend_->getPreferences()->isDockedToTray()) {
+                onDockIconClicked();
+            } else {
+                // WORKAROUND (Qt 6.11.1 / macOS 27): pop the menu manually instead of relying on a
+                // native context menu attached to the status item. See the setContextMenu guard in
+                // TrayIcon's constructor. Revert to the shared handling once Qt is fixed upstream.
+                trayIcon_->showTrayMenu();
+            }
+            break;
+        case QSystemTrayIcon::Context:
+            if (!backend_->getPreferences()->isDockedToTray()) {
+                trayIcon_->showTrayMenu();
+            }
+            break;
 #else
         case QSystemTrayIcon::Trigger:
         case QSystemTrayIcon::DoubleClick:

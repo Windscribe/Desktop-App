@@ -43,11 +43,13 @@ TrayIcon::TrayIcon(QObject *parent, Backend *backend, Preferences *preferences)
     // Calling createTrayMenuItems() once here makes everything work.
     createMenuItems();
 
-#ifdef Q_OS_MACOS
-    if (!preferences_->isDockedToTray()) {
-        trayIcon_.setContextMenu(&trayMenu_);
-    }
-#else
+#ifndef Q_OS_MACOS
+    // WORKAROUND (Qt 6.11.1 / macOS 27): on macOS the menu is popped up manually in
+    // MainWindow::onTrayActivated() rather than attached as the status item's native context menu.
+    // Attaching it triggers a crash in Qt's status item menu tracking (QCocoaSystemTrayIcon::emitActivated),
+    // which reads NSApp.currentEvent.clickCount without checking the event is a mouse event; on
+    // macOS 27 the begin-tracking notification arrives outside the mouse event context.
+    // Remove this guard (and the manual-popup workaround) once Qt guards the event type.
     trayIcon_.setContextMenu(&trayMenu_);
 #endif
     connect(&trayMenu_, &QMenu::aboutToShow, this, &TrayIcon::onMenuAboutToShow);
@@ -145,6 +147,17 @@ void TrayIcon::onTrayActivated(QSystemTrayIcon::ActivationReason reason)
 {
     emit activated(reason);
 }
+
+#if defined(Q_OS_MACOS)
+// WORKAROUND (Qt 6.11.1 / macOS 27): manual menu popup that replaces the status item's native
+// context menu, which crashes in Qt's menu tracking on macOS 27. See the setContextMenu guard in
+// the constructor. This whole method can be removed once the Qt bug is fixed upstream.
+void TrayIcon::showTrayMenu()
+{
+    const QRect rc = trayIconRect();
+    trayMenu_.popup(QPoint(rc.left(), rc.bottom()));
+}
+#endif
 
 void TrayIcon::onMenuAboutToShow()
 {
@@ -452,13 +465,8 @@ void TrayIcon::checkTrayIconPosition()
 
 void TrayIcon::onDockedModeChanged(bool isDocked)
 {
-#ifdef Q_OS_MACOS
-    if (isDocked) {
-        trayIcon_.setContextMenu(nullptr);
-    } else {
-        trayIcon_.setContextMenu(&trayMenu_);
-    }
-#else
+    // WORKAROUND (Qt 6.11.1 / macOS 27): no native context menu is attached/detached here because
+    // macOS pops the menu manually (see showTrayMenu). When the Qt crash is fixed upstream, restore
+    // the setContextMenu(nullptr)/setContextMenu(menu) swap for the docked/undocked transition.
     Q_UNUSED(isDocked);
-#endif
 }
