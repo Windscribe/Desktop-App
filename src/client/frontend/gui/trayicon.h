@@ -101,4 +101,7 @@ private:
     bool trayIconPositionAvailable_;
     QRect initialTrayIconRect_;
     QElapsedTimer elapsedTimer_;
+#if defined(Q_OS_MACOS)
+    QElapsedTimer menuHideTimer_;
+#endif
 };

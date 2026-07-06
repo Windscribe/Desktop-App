@@ -1,3 +1,8 @@
+2.23.11 (03/07/2026)
+macOS:
+   * Fixed clicking the menu bar icon while the menu is open doesn't close the menu. #1897
+
+
 2.23.10 (30/06/2026)
 All:
    * Fixed OpenVPN custom config parsing so commented `route-nopull` / `route-noexec` text cannot disable automatic firewall handling for crafted custom profiles. #1900

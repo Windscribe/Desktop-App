@@ -154,6 +154,15 @@ void TrayIcon::onTrayActivated(QSystemTrayIcon::ActivationReason reason)
 // the constructor. This whole method can be removed once the Qt bug is fixed upstream.
 void TrayIcon::showTrayMenu()
 {
+    // Toggle: a native context menu hides on a second click, so mimic that here. Clicking the
+    // status item while the menu is open first dismisses the popup (an outside click), so on some
+    // machines the menu has already closed by the time this fires; treat a click right after a
+    // hide as the toggle-off and don't re-open.
+    if (trayMenu_.isVisible() || (menuHideTimer_.isValid() && menuHideTimer_.elapsed() < 250)) {
+        trayMenu_.hide();
+        menuHideTimer_.invalidate();
+        return;
+    }
     const QRect rc = trayIconRect();
     trayMenu_.popup(QPoint(rc.left(), rc.bottom()));
 }
@@ -169,6 +178,9 @@ void TrayIcon::onMenuAboutToHide()
 {
 #ifdef Q_OS_WIN
     locationsMenu_.clear();
+#endif
+#if defined(Q_OS_MACOS)
+    menuHideTimer_.restart();
 #endif
 }
 
