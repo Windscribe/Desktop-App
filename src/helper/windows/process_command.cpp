@@ -39,30 +39,6 @@
 #include "wireguard/wireguardcontroller.h"
 #include "wmi_utils.h"
 
-// SetInterfaceDnsSettings / DNS_INTERFACE_SETTINGS were added in Windows 10 2004 (build 19041)
-// and are only declared by netioapi.h when targeting NTDDI_WIN10_VB or later. The helper builds
-// with _WIN32_WINNT=0x0601, so declare the minimum we need locally and resolve the symbol at
-// runtime via SystemLibLoader. The #ifndef guard lets this block disappear if the SDK floor is
-// raised later.
-// TODO: JDRM remove this block when we bump the _WIN32_WINNT and NTDDI_VERSION values in 5.0
-#ifndef DNS_SETTING_NAMESERVER
-#define DNS_INTERFACE_SETTINGS_VERSION1 1
-#define DNS_SETTING_NAMESERVER 0x1
-#define DNS_SETTING_IPV6 0x10
-typedef struct _DNS_INTERFACE_SETTINGS {
-    ULONG Version;
-    ULONG64 Flags;
-    PWSTR Domain;
-    PWSTR NameServer;
-    PWSTR SearchList;
-    ULONG RegistrationEnabled;
-    ULONG RegisterAdapterName;
-    ULONG EnableLLMNR;
-    ULONG QueryAdapterName;
-    PWSTR ProfileNameServer;
-} DNS_INTERFACE_SETTINGS;
-#endif
-
 struct SPLIT_TUNNELING_PARS
 {
     bool isEnabled;
@@ -343,6 +319,10 @@ std::string setCustomDnsWhileConnected(const std::string &pars)
     // through a typed field instead of being interpolated into a command line. The IP is
     // validated above, so command injection isn't reachable today, but the typed call
     // closes the netsh parsing sink entirely as defense-in-depth.
+    //
+    // Resolve the symbol at runtime rather than calling it directly: it exists only on
+    // build 19041+, and a static import would prevent the service from starting on the
+    // older Windows 10 builds we still support. The netsh path below is the downlevel fallback.
     try {
         wsl::SystemLibLoader iphlpapi("iphlpapi.dll");
         const auto pSetInterfaceDnsSettings = iphlpapi.getFunction<DWORD WINAPI(GUID, const DNS_INTERFACE_SETTINGS *)>("SetInterfaceDnsSettings");
@@ -527,13 +507,13 @@ std::string resetAndStartRAS(const std::string &pars)
 
 std::string setIPv6EnabledInFirewall(const std::string &pars)
 {
-    bool bEnable;
-    deserializePars(pars, bEnable);
-    spdlog::debug("setIPv6EnabledInFirewall, {}", bEnable);
+    bool bEnable, bAllowLanTraffic, bIsCustomConfig;
+    deserializePars(pars, bEnable, bAllowLanTraffic, bIsCustomConfig);
+    spdlog::debug("setIPv6EnabledInFirewall, enable={}, allowLanTraffic={}, isCustomConfig={}", bEnable, bAllowLanTraffic, bIsCustomConfig);
     if (bEnable) {
         Ipv6Firewall::instance().enableIPv6();
     } else {
-        Ipv6Firewall::instance().disableIPv6();
+        Ipv6Firewall::instance().disableIPv6(bAllowLanTraffic, bIsCustomConfig);
     }
     return std::string();
 }

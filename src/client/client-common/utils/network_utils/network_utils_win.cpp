@@ -742,6 +742,85 @@ std::optional<bool> NetworkUtils_win::haveInternetConnectivity()
     return false;
 }
 
+static std::optional<bool> haveDefaultRouteForFamily(ADDRESS_FAMILY family)
+{
+    PMIB_IPFORWARD_TABLE2 pTable = nullptr;
+    DWORD result = GetIpForwardTable2(family, &pTable);
+    if (result != NO_ERROR || pTable == nullptr) {
+        qCWarning(LOG_BASIC) << "haveDefaultRouteForFamily: GetIpForwardTable2 failed" << result;
+        return std::nullopt;
+    }
+
+    // A default route is the entry whose destination prefix length is zero (0.0.0.0/0 or ::/0).
+    bool found = false;
+    for (ULONG i = 0; i < pTable->NumEntries; i++) {
+        if (pTable->Table[i].DestinationPrefix.PrefixLength == 0) {
+            found = true;
+            break;
+        }
+    }
+
+    FreeMibTable(pTable);
+    return found;
+}
+
+std::optional<bool> NetworkUtils_win::haveDefaultRouteV4()
+{
+    return haveDefaultRouteForFamily(AF_INET);
+}
+
+std::optional<bool> NetworkUtils_win::haveDefaultRouteV6()
+{
+    return haveDefaultRouteForFamily(AF_INET6);
+}
+
+void NetworkUtils_win::interfaceAddressPresence(unsigned long ifIndex, bool &hasIpv4, bool &hasGlobalIpv6)
+{
+    hasIpv4 = false;
+    hasGlobalIpv6 = false;
+
+    ULONG bufSize = sizeof(IP_ADAPTER_ADDRESSES_LH) * 32;
+    QByteArray buf(bufSize, Qt::Uninitialized);
+
+    ULONG result = ::GetAdaptersAddresses(AF_UNSPEC, GAA_FLAG_INCLUDE_PREFIX, NULL,
+                                          (PIP_ADAPTER_ADDRESSES)buf.data(), &bufSize);
+    if (result == ERROR_BUFFER_OVERFLOW) {
+        buf.resize(bufSize);
+        result = ::GetAdaptersAddresses(AF_UNSPEC, GAA_FLAG_INCLUDE_PREFIX, NULL,
+                                        (PIP_ADAPTER_ADDRESSES)buf.data(), &bufSize);
+    }
+    if (result != NO_ERROR) {
+        if (result != ERROR_NO_DATA) {
+            qCWarning(LOG_BASIC) << "interfaceAddressPresence: GetAdaptersAddresses failed" << result;
+        }
+        return;
+    }
+
+    for (PIP_ADAPTER_ADDRESSES aa = (PIP_ADAPTER_ADDRESSES)buf.data(); aa != nullptr; aa = aa->Next) {
+        // A single adapter entry carries both its IPv4 (IfIndex) and IPv6 (Ipv6IfIndex) addresses.
+        if (aa->IfIndex != ifIndex && aa->Ipv6IfIndex != ifIndex) {
+            continue;
+        }
+        for (PIP_ADAPTER_UNICAST_ADDRESS_LH ua = aa->FirstUnicastAddress; ua != nullptr; ua = ua->Next) {
+            if (ua->Address.lpSockaddr == nullptr) {
+                continue;
+            }
+            const ADDRESS_FAMILY family = ua->Address.lpSockaddr->sa_family;
+            if (family == AF_INET) {
+                hasIpv4 = true;
+            } else if (family == AF_INET6) {
+                const sockaddr_in6 *addr6 = reinterpret_cast<const sockaddr_in6 *>(ua->Address.lpSockaddr);
+                const IN6_ADDR *in6 = &addr6->sin6_addr;
+                // Only count routable, globally-scoped addresses; ignore link-local/site-local/loopback/multicast.
+                if (!IN6_IS_ADDR_LINKLOCAL(in6) && !IN6_IS_ADDR_SITELOCAL(in6) &&
+                    !IN6_IS_ADDR_LOOPBACK(in6) && !IN6_IS_ADDR_MULTICAST(in6)) {
+                    hasGlobalIpv6 = true;
+                }
+            }
+        }
+    }
+}
+
 QString NetworkUtils_win::getRoutingTable()
 {
     const QString cmd = WinUtils::getSystemDir() + QString("\\route.exe print");

@@ -275,10 +275,6 @@
         <translation>Günlükler gönderildi.</translation>
     </message>
     <message>
-        <source>Preferences reloaded.</source>
-        <translation>Tercihler yeniden yüklendi.</translation>
-    </message>
-    <message>
         <source>Key limit behaviour is set.</source>
         <translation>Anahtar sınırı davranışı ayarlandı.</translation>
     </message>

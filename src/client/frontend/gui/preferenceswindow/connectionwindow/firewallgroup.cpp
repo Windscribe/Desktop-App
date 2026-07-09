@@ -69,9 +69,9 @@ void FirewallGroup::onFirewallWhenChanged(QVariant value)
 void FirewallGroup::onLanguageChanged()
 {
     firewallModeItem_->setLabelCaption(tr("Firewall Mode"));
-    firewallModeItem_->setItems(FIREWALL_MODE_toList(), settings_.mode);
+    firewallModeItem_->setItems(enumToList<FIREWALL_MODE>(), settings_.mode);
     firewallWhenItem_->setLabelCaption(tr("When?"));
-    firewallWhenItem_->setItems(FIREWALL_WHEN_toList(), settings_.when);
+    firewallWhenItem_->setItems(enumToList<FIREWALL_WHEN>(), settings_.when);
 }
 
 void FirewallGroup::setDescription(const QString &desc, const QString &descUrl)

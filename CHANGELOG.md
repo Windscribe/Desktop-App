@@ -1,3 +1,56 @@
+2.24.2 guinea pig (08/07/2026)
+All:
+   * Added custom SNI support for stunnel/wstunnel anti-censorship connections. #1794
+   * Added cross-platform diagnostics for API connectivity login failures so logs can better distinguish DNS, routing, proxy, IPv4/IPv6, and local security-policy failures. #1884
+   * Added a wsnet advanced parameter to suppress automatic Bridge/node API `/v1/token` requests when manual Bridge API testing is needed. #1903 wsnet #31
+   * Improved firewall behavior consistency across platforms and firewall modes. #1880
+   * Improved Always On/Always On+ firewall handling with Allow LAN Traffic by disabling risky LAN allowance on mode enable and warning when LAN traffic is explicitly re-enabled. #1915
+   * Improved dependency build integrity by pinning or verifying wstunnel and AmneziaWG prebuilt source dependencies. #1901
+   * Fixed static IP OpenVPN/TCP connections prompting for credentials instead of supplying stored Static IP credentials internally. #1894
+   * Fixed remembered credentials for external `.ovpn` custom configs not being persisted immediately across restart/reboot. #1910
+   * Fixed Polish free-data counter text overlapping the upgrade CTA and locations-list chevron. #1907
+   * Fixed hashed-login failures caused by user accidentally including leading/trailing whitespace in their input. #1923
+   * Fixed security audit findings covering macOS signature validation, Windows WireGuard config permissions, local IPC robustness, AmneziaWG input validation, and sensitive logging paths. #1918
+   * Fixed WireGuard connection mode unavailable when Always On+ firewall mode in enabled and cached WireGuard connection information is available. #1916
+   * Updated cURL to 8.21, c-ares to 1.34.7, OpenVPN to 2.7.5, OpenSSL to 4.0.1, and wsnet to 1.5.27 for security updates. #1921
+Windows:
+   * Improved the IKEv2 connector.  A complete rewrite of the code to improve connection setup speed and connection robustness. #1891
+   * Fixed c-ares Windows DNS server detection regression that could leave only 127.0.0.1:53 and cause DNS resolution failures. #1878
+   * Fixed the Windscribe service getting stuck in the stop pending state when a stop is requested while the desktop app is running. #1899
+   * Fixed a possible crash when enabling Secure Hotspot after connecting the VPN. #1919
+   * Updated WireGuard for Windows to 1.1. #1920
+macOS:
+   * Improved macOS installer/update code paths and installer flow. #1912
+   * Fixed a rare crash when launching at startup before macOS screen information is available. #1908
+   * Updated wireguard-go to 0.0.20250522. #1920
+Linux:
+   * Improved Linux firewall implementation by replacing iptables shell calls with libnftables. #1893
+   * Improved Linux firewall/routing fwmark handling by centralizing fwmark use and avoiding incorrect WireGuard mark behavior. #1906
+   * Improved Linux split tunneling so non-tunneled apps can preserve ISP IPv6 on native dual-stack networks while tunneled apps remain leak-protected. #1902
+   * Fixed Linux firewall block rule ordering so Windscribe's kill-switch block path takes precedence over UFW/third-party allow rules. #1892
+   * Fixed openSUSE Tumbleweed RPM install failure related to the libcap-progs dependency path. #1911
+   * Updated wireguard-go to 0.0.20250522. #1920
+
+
+2.24.1 (23/06/2026)
+All:
+   * Improved anti-censorship startup and failover by supporting parallel backup domain testing in wsnet. #1850
+   * Improved firewall behavior consistency across platforms and firewall modes. #1880
+   * Improved enum conversion internals to reduce duplicated conversion code while preserving behavior. #1883
+Windows:
+   * Improved hardening for elevated Windows executables using Windows process mitigation APIs where applicable. #1879
+   * Improved Windows compiler and linker security hardening, including Control Flow Guard and related mitigation settings. #1872
+   * Improved Windows build targeting to Windows 10 2004 so newer Windows APIs can be used without changing the minimum install version. #1864
+   * Fixed Allow LAN traffic not applying correctly to IPv6 LAN and multicast traffic while connected. #1874
+macOS:
+   * Improved split tunneling error handling so startup failures can show the usual Split Tunneling failed alert. #1875
+   * Improved Objective-C memory management consistency by enabling ARC uniformly across the project. #1866
+   * Fixed missing warning when split tunneling is enabled while the macOS split tunneling extension has been manually disabled. #1862
+   * Fixed Allow LAN traffic IPv6 behavior so ULA and multicast traffic are blocked on the VPN interface while remaining reachable on the physical LAN. #1870
+Linux:
+   * Improved CLI-only behavior by automatically watching config file changes instead of requiring `windscribe-cli preferences reload`. #1863
+
+
 2.23.12 (08/07/2026)
 Windows:
    * Fixed WireGuard connection may hang/timeout due to phantom ROOT/WireGuard device nodes created by the Windows feature update process. #1922
@@ -32,7 +85,7 @@ Linux:
 
 2.23.8 (17/06/2026)
 All:
-   * Removed the Contact Humans preference/control from the desktop app preferences/help UI. #1876
+   * Removed the Contact Humans preference from the help UI. #1876
 Windows:
    * Fixed DLL planting vulnerability in the Windows bootstrapper and uninstaller. #1877
 Linux:
@@ -71,8 +124,8 @@ macOS:
 Linux:
    * Fixed Linux address selection so IPv6-capable VPN connections do not incorrectly prefer IPv4 via Windscribe gai.conf handling. #1844
    * Fixed deb/rpm packages installing scripts or helper files with world-writable permissions. #1853
-
-
+   
+   
 2.23.5 (02/06/2026)
 All:
    * Improved Belarusian translations in the desktop app, installer, and CLI from GitHub user dubovy-achvelak. #1846
@@ -96,7 +149,7 @@ Linux:
    * Fixed IPv6 DNS leak protection missing ip6tables rules for IPv6 DNS resolvers. #1832
    * Fixed Linux split-tunneling process monitor skipping proc events after the first netlink read. #1836
    * Fixed Linux split-tunneling setup failures being reported as successful. #1837
-
+   
 
 2.23.4 (21/05/2026)
 All:
@@ -220,8 +273,8 @@ All:
 Linux:
    * Fixed advanced parameters not parsed after being written. #1765
    * Fixed potential privilege escalation during app update process. #1763
-
-
+   
+   
 2.22.5 (15/04/2026)
 All:
    * Fixed dropdown menus in Preferences scrolling to the wrong position. #1692
@@ -337,7 +390,7 @@ All:
    * Added sound preview for sound notifications. #1582
    * Fixed emergency connect icon opacity. #1674
    * Fixed an Italian translation. #1675
-   * Fixed more incorrect window ordering issues. #1673
+   * Fixed more incorrect window ordering issues. #1673 
    * Fixed IP utilities sometimes not available after changing from custom config to regular location. #1677
 Windows:
    * Improved adapter network identification state detection on Windows. #1680
@@ -459,7 +512,7 @@ Linux:
 
 2.20.2 (19/12/2025)
 All:
-   * Added a reset password endpoint to wsnet. #1603
+   * Added a reset password endpoint to wsnet. #1603 
    * Improved locations resizing behaviour. #1566
    * Improved logging & detection for abusers. #1564
    * Fixed text alignment in preferences. #825

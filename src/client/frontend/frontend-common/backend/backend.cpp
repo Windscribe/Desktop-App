@@ -3,6 +3,9 @@
 #include <QCoreApplication>
 
 #include "engine/engine.h"
+#ifdef CLI_ONLY
+#include "iniwatcher.h"
+#endif
 #include "persistentstate.h"
 #include "locations/locationsmodel_roles.h"
 #include "utils/dns_utils/dnsutils.h"
@@ -32,6 +35,13 @@ Backend::Backend(QObject *parent) : QObject(parent),
 {
 
     preferences_.loadGuiSettings();
+
+#ifdef CLI_ONLY
+    // Auto-reload preferences when the user edits the ini file directly, so they don't have to run
+    // 'windscribe-cli preferences reload'.
+    IniWatcher *iniWatcher = new IniWatcher(this);
+    connect(iniWatcher, &IniWatcher::changed, &preferences_, &Preferences::loadIni);
+#endif
 
 #ifdef Q_OS_LINUX
     // work around an issue on Linux where after an update in which the autostart file changed
@@ -70,7 +80,7 @@ void Backend::init()
     connect(engine_, &Engine::firewallStateChanged, this, &Backend::onEngineFirewallStateChanged);
     connect(engine_, &Engine::loginFinished, this, &Backend::onEngineLoginFinished);
     connect(engine_, &Engine::captchaRequired, this, &Backend::captchaRequired);
-    connect(engine_, &Engine::tryingBackupEndpoint, this, &Backend::onEngineTryingBackupEndpoint);
+    connect(engine_, &Engine::tryingBackupEndpoint, this, &Backend::tryingBackupEndpoint);
     connect(engine_, &Engine::notificationsUpdated, this, &Backend::onEngineNotificationsUpdated);
     connect(engine_, &Engine::checkUpdateUpdated, this, &Backend::onEngineCheckUpdateUpdated);
     connect(engine_, &Engine::updateDownloaded, this, &Backend::onEngineUpdateDownloaded);
@@ -513,11 +523,6 @@ void Backend::onEngineLoginError(wsnet::LoginResult retCode, const QString &erro
     loginState_ = LOGIN_STATE_LOGIN_ERROR;
     lastLoginError_ = retCode;
     emit loginError(retCode, errorMessage);
-}
-
-void Backend::onEngineTryingBackupEndpoint(int num, int cnt)
-{
-    emit tryingBackupEndpoint(num, cnt);
 }
 
 void Backend::onEngineSessionDeleted()

@@ -25,10 +25,12 @@ DEP_TITLE = "AmneziaWG"
 REPO_TITLE_WIN = "amneziawg-windows"
 REPO_URL_WIN = "https://github.com/amnezia-vpn/amneziawg-windows.git"
 REPO_TAG_WIN = '0.1.8'
+REPO_COMMIT_WIN = 'd70c30aecb955fd56c8be802d16f3215562f318d'
 
 REPO_TITLE_GNU = "amneziawg-go"
 REPO_URL_GNU = "https://github.com/amnezia-vpn/amneziawg-go.git"
 REPO_TAG_GNU = '0.2.16'
+REPO_COMMIT_GNU = '730d6c39d0c4e348a3d080bebe496664215e5c99'
 
 
 def BuildDependencyWindows(product_name, configured_go):
@@ -89,6 +91,8 @@ def InstallDependency():
     with utl.PushDir(temp_dir):
         iutl.RunCommand(["git", "clone", (REPO_URL_WIN if isWindowsBuild else REPO_URL_GNU), "."])
         iutl.RunCommand(["git", "checkout", "tags/v{}".format(REPO_TAG_WIN if isWindowsBuild else REPO_TAG_GNU)])
+        iutl.VerifyGitCommit(REPO_TITLE_WIN if isWindowsBuild else REPO_TITLE_GNU,
+                             REPO_COMMIT_WIN if isWindowsBuild else REPO_COMMIT_GNU)
         if isWindowsBuild:
             template_in = os.path.join(TOOLS_DIR, "deps", "custom_amneziawg-windows", "conf", "path_windows.go.in")
             configured_go = os.path.join(os.path.dirname(temp_dir), "path_windows.go")

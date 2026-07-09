@@ -34,8 +34,10 @@ public:
     }
 
     QJsonObject toJson() const;
+#ifdef CLI_ONLY
     void fromIni(const QSettings &settings);
     void toIni(QSettings &settings) const;
+#endif
 
     void validate();
 

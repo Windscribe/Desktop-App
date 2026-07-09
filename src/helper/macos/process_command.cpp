@@ -73,9 +73,9 @@ std::string sendConnectStatus(const std::string &pars)
         return serializeResult(false);
     }
 
-    // Forward the full dual-stack DNS list to the kill-switch pf table. setVpnDns drops
+    // Forward the full dual-stack DNS list to the firewall pf table. setVpnDns drops
     // invalid entries internally; an empty list (disconnected, or all entries invalid) flushes
-    // <windscribe_dns> back to "no DNS permitted through the kill-switch".
+    // <windscribe_dns> back to "no DNS permitted through the firewall".
     FirewallController::instance().setVpnDns(
         cs.isConnected ? cs.vpnAdapter.dnsServers : std::vector<types::IpAddress>{});
     RoutesManager::instance().setConnectStatus(cs);
@@ -327,7 +327,7 @@ std::string setFirewallRules(const std::string &pars)
     deserializePars(pars, config);
 
     // Sanitize every token the helper will interpolate into pf rules. A single bad entry must not
-    // drop the whole kill-switch update (that could leave the firewall off and leak), so invalid
+    // drop the whole firewall update (that could leave the firewall off and leak), so invalid
     // values are stripped rather than aborting: the firewall still comes up from the valid remainder
     // and the offending allow-rule simply isn't emitted. The helper never builds a rule from
     // unvalidated client input.
@@ -362,7 +362,8 @@ std::string startStunnel(const std::string &pars)
     std::string hostname;
     unsigned int port, localPort;
     bool extraPadding;
-    deserializePars(pars, hostname, port, localPort, extraPadding);
+    std::string customSniDomain;
+    deserializePars(pars, hostname, port, localPort, extraPadding, customSniDomain);
 
     spdlog::info("Starting stunnel");
 
@@ -386,6 +387,10 @@ std::string startStunnel(const std::string &pars)
         "--remoteAddress", "https://" + hostname + ":" + std::to_string(port),
         "--logFilePath", "",
     };
+    if (!customSniDomain.empty()) {
+        args.push_back("-s");
+        args.push_back(customSniDomain);
+    }
     if (extraPadding) {
         args.push_back("--extraTlsPadding");
     }
@@ -410,7 +415,8 @@ std::string startWstunnel(const std::string &pars)
 {
     std::string hostname;
     unsigned int port, localPort;
-    deserializePars(pars, hostname, port, localPort);
+    std::string customSniDomain;
+    deserializePars(pars, hostname, port, localPort, customSniDomain);
 
     spdlog::info("Starting wstunnel");
 
@@ -434,6 +440,10 @@ std::string startWstunnel(const std::string &pars)
         "--remoteAddress", "wss://" + hostname + ":" + std::to_string(port) + "/tcp/127.0.0.1/1194",
         "--logFilePath", "",
     };
+    if (!customSniDomain.empty()) {
+        args.push_back("-s");
+        args.push_back(customSniDomain);
+    }
 
     Spawn::Options opts;
     opts.runAsUser = WS_PRODUCT_NAME_LOWER;

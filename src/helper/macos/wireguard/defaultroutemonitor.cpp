@@ -1,5 +1,6 @@
 #include "defaultroutemonitor.h"
 #include "../utils.h"
+#include "../../common/validation_posix.h"
 #include <spdlog/spdlog.h>
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/classification.hpp>
@@ -112,8 +113,15 @@ std::string DefaultRouteMonitor::getDefaultGateway() const
         std::vector<std::string> gateways;
         boost::trim(output);
         boost::split(gateways, output, boost::is_any_of("\n"), boost::token_compress_on);
-        if (!gateways.empty() && !gateways[0].empty())
-            return gateways[0];
+        // Return the first line that is a valid IPv4 address rather than blindly taking gateways[0]:
+        // stderr is merged into the captured output, so an interleaved error line could otherwise be
+        // returned as the gateway.
+        for (auto &gateway : gateways) {
+            boost::trim(gateway);
+            if (Validation::isValidIpv4Address(gateway)) {
+                return gateway;
+            }
+        }
     }
     spdlog::error("Failed to get default gateway ({})", output);
     return "";

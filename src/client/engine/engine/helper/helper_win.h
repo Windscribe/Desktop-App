@@ -57,7 +57,9 @@ public:
     bool enableBFE();
     QString resetAndStartRAS();
 
-    void setIPv6EnabledInFirewall(bool b);
+    // bAllowLanTraffic/bIsCustomConfig are only meaningful when disabling IPv6 (b == false):
+    // they gate the LAN (fc00::/7, ff00::/8) permits in the helper's Ipv6Firewall sublayer.
+    void setIPv6EnabledInFirewall(bool b, bool bAllowLanTraffic = false, bool bIsCustomConfig = false);
     void setFirewallOnBoot(bool b);
 
     bool clearWifiHistoryData();

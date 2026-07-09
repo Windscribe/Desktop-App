@@ -21,7 +21,7 @@ struct SoundSettings
     SoundSettings(const QJsonObject &json)
     {
         if (json.contains(kJsonDisconnectedSoundTypeProp) && json[kJsonDisconnectedSoundTypeProp].isDouble()) {
-            disconnectedSoundType = SOUND_NOTIFICATION_TYPE_fromInt(json[kJsonDisconnectedSoundTypeProp].toInt());
+            disconnectedSoundType = enumFromInt<SOUND_NOTIFICATION_TYPE>(json[kJsonDisconnectedSoundTypeProp].toInt());
         }
 
         if (json.contains(kJsonSoundDisconnectedProp) && json[kJsonSoundDisconnectedProp].isString()) {
@@ -29,7 +29,7 @@ struct SoundSettings
         }
 
         if (json.contains(kJsonConnectedSoundTypeProp) && json[kJsonConnectedSoundTypeProp].isDouble()) {
-            connectedSoundType = SOUND_NOTIFICATION_TYPE_fromInt(json[kJsonConnectedSoundTypeProp].toInt());
+            connectedSoundType = enumFromInt<SOUND_NOTIFICATION_TYPE>(json[kJsonConnectedSoundTypeProp].toInt());
         }
 
         if (json.contains(kJsonSoundConnectedProp) && json[kJsonSoundConnectedProp].isString()) {
@@ -64,8 +64,8 @@ struct SoundSettings
 
     void validate()
     {
-        disconnectedSoundType = SOUND_NOTIFICATION_TYPE_fromInt(static_cast<int>(disconnectedSoundType));
-        connectedSoundType = SOUND_NOTIFICATION_TYPE_fromInt(static_cast<int>(connectedSoundType));
+        disconnectedSoundType = enumFromInt<SOUND_NOTIFICATION_TYPE>(static_cast<int>(disconnectedSoundType));
+        connectedSoundType = enumFromInt<SOUND_NOTIFICATION_TYPE>(static_cast<int>(connectedSoundType));
         validatePair(disconnectedSoundType, disconnectedSoundPath);
         validatePair(connectedSoundType, connectedSoundPath);
     }

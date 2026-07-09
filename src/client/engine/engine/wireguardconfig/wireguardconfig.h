@@ -33,6 +33,11 @@ public:
     void setClientDnsAddress(const QString &dns) { client_.dnsAddress = dns; }
     bool haveServerGeneratedPeerParams() const;
 
+    // True when the persisted fields (client keypair + server-generated peer params + client IP)
+    // are sufficient to bring up a tunnel without an API round-trip. Peer public key/endpoint come
+    // from the node descriptor at connect time, so they are intentionally not part of this check.
+    bool haveCompleteConfig() const;
+
     QString generateConfigFile() const;
 
     bool generateKeyPair();
@@ -45,6 +50,7 @@ public:
     friend QDataStream& operator >>(QDataStream &stream, WireGuardConfig &c);
 
     bool haveAmneziawgParam() const { return client_.amneziawgParam.isValid(); }
+    bool hasValidAmneziawgParams() const;
     void setAmneziawgParam(const api_responses::AmneziawgUnblockParam &param) { client_.amneziawgParam = param; }
     AmneziawgConfig amneziawgParamToHelperConfig() const;
     QString amneziawgParamTitle() const { return client_.amneziawgParam.title; }

@@ -1,6 +1,6 @@
 ---
 name: windscribe-vpn
-description: "Controls Windscribe VPN via the windscribe-cli command-line tool. Use when installing Windscribe, connecting or disconnecting VPN, switching server locations or protocols, checking VPN status, managing the firewall kill switch, listing available locations, troubleshooting VPN issues, automating privacy and security workflows, or testing geo-dependent features across regions. All operations use shell commands via windscribe-cli. Not for Windscribe account management, billing, or browser extension control."
+description: "Controls Windscribe VPN via the windscribe-cli command-line tool. Use when installing Windscribe, connecting or disconnecting VPN, switching server locations or protocols, checking VPN status, managing the firewall, listing available locations, troubleshooting VPN issues, automating privacy and security workflows, or testing geo-dependent features across regions. All operations use shell commands via windscribe-cli. Not for Windscribe account management, billing, or browser extension control."
 ---
 
 # Windscribe VPN — AI Integration Skill
@@ -82,11 +82,11 @@ windscribe-cli locations static       # Static IPs (Pro)
 
 Format: `Region - City - Nickname`. Use nickname, city, region, or country code with `connect`.
 
-## Firewall (Kill Switch)
+## Firewall
 
 ```bash
 windscribe-cli firewall on            # Block all non-VPN traffic
-windscribe-cli firewall off           # Disable kill switch
+windscribe-cli firewall off           # Disable firewall
 ```
 
 "Always On" mode (set in GUI) prevents CLI from disabling the firewall.

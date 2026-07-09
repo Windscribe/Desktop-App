@@ -195,6 +195,19 @@ struct FirewallConfig
     std::vector<unsigned int> staticPorts;  // static-IP TCP ports (macOS only; Linux ignores)
 };
 
+// Linux DNS-leak protection intent. The helper snapshots the OS-default resolvers and installs a
+// drop chain blocking port 53 to every snapshotted resolver except the tunnel's own DNS servers
+// (allowedDnsServers). vpnInterfaceName identifies the tunnel link so the helper excludes it from the
+// resolver snapshot and skips its default route; the blocking is destination-based, with no
+// interface-egress RETURN exemption (see dnsleakprotect.cpp). The helper is the sole author of the
+// rules; only this validated intent crosses the IPC boundary.
+struct DnsLeakProtectConfig
+{
+    bool enabled = false;
+    std::string vpnInterfaceName;            // tunnel adapter (e.g. wgN/tunN), may be empty
+    std::vector<std::string> allowedDnsServers;  // tunnel DNS servers to never blacklist (v4/v6)
+};
+
 struct AmneziawgConfig
 {
     std::string title;
@@ -286,6 +299,14 @@ void serialize(Archive &ar, FirewallConfig &c, const unsigned int /*version*/)
     ar & c.isCustomConfig;
     ar & c.vpnInterfaceName;
     ar & c.staticPorts;
+}
+
+template<class Archive>
+void serialize(Archive &ar, DnsLeakProtectConfig &c, const unsigned int /*version*/)
+{
+    ar & c.enabled;
+    ar & c.vpnInterfaceName;
+    ar & c.allowedDnsServers;
 }
 
 template<class Archive>

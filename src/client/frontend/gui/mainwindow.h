@@ -189,7 +189,7 @@ private slots:
 
     void onBackendCaptchaRequired(bool isAsciiCaptcha, const QString &asciiArt, const QString &background, const QString &slider, int top);
     void onBackendLoginFinished();
-    void onBackendTryingBackupEndpoint(int num, int cnt);
+    void onBackendTryingBackupEndpoint();
     void onBackendLoginError(wsnet::LoginResult loginError, const QString &errorMessage);
 
     void onBackendSessionStatusChanged(const api_responses::SessionStatus &sessionStatus);
@@ -230,7 +230,7 @@ private slots:
     void onBackendSyncRobertResult(bool success);
     void onBackendProtocolStatusChanged(const QVector<types::ProtocolStatus> &status, bool isAutomaticMode);
     void onLocalDnsServerNotAvailable();
-    void onSplitTunnelingStartFailed();
+    void onSplitTunnelingStartFailed(SPLIT_TUNNEL_START_FAIL_REASON reason);
     void onBackendBridgeApiAvailabilityChanged(bool isAvailable);
     void onBackendIpRotateResult(bool success);
     void onBackendClearWifiHistoryFinished(bool bSuccess);

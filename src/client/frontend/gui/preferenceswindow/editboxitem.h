@@ -20,6 +20,7 @@ public:
 
     void setCaption(const QString &caption);
     void setText(const QString &text);
+    QString text() const { return text_; }
     void setPrompt(const QString &prompt);
     void setValidator(QRegularExpressionValidator *validator);
     void setMinimumLength(int length);

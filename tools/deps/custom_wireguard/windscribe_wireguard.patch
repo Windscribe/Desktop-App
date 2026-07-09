@@ -1,6 +1,6 @@
-diff -ruN wireguard-windows-1.0/embeddable-dll-service/build.bat wireguard-windows-1.0-modified/embeddable-dll-service/build.bat
---- wireguard-windows-1.0/embeddable-dll-service/build.bat	2026-04-18 08:51:04.000000000 -0400
-+++ wireguard-windows-1.0-modified/embeddable-dll-service/build.bat	2026-04-22 13:33:46.938465500 -0400
+diff -ruN wireguard-windows-1.1/embeddable-dll-service/build.bat wireguard-windows-1.1-modified/embeddable-dll-service/build.bat
+--- wireguard-windows-1.1/embeddable-dll-service/build.bat	2026-04-18 08:51:04.000000000 -0400
++++ wireguard-windows-1.1-modified/embeddable-dll-service/build.bat	2026-04-22 13:33:46.938465500 -0400
 @@ -19,7 +19,7 @@
  	set GOROOT=%BUILDDIR%..\.deps
  	set CGO_ENABLED=1
@@ -22,9 +22,9 @@ diff -ruN wireguard-windows-1.0/embeddable-dll-service/build.bat wireguard-windo
  	echo [+] Building library %1
  	go build -buildmode c-shared -ldflags="-w -s" -trimpath -v -o "%~1/tunnel.dll" || exit /b 1
  	del "%~1\tunnel.h"
-diff -ruN wireguard-windows-1.0/embeddable-dll-service/version_info.rc.in wireguard-windows-1.0-modified/embeddable-dll-service/version_info.rc.in
---- wireguard-windows-1.0/embeddable-dll-service/version_info.rc.in	1969-12-31 19:00:00.000000000 -0500
-+++ wireguard-windows-1.0-modified/embeddable-dll-service/version_info.rc.in	2026-04-22 13:33:58.338009200 -0400
+diff -ruN wireguard-windows-1.1/embeddable-dll-service/version_info.rc.in wireguard-windows-1.1-modified/embeddable-dll-service/version_info.rc.in
+--- wireguard-windows-1.1/embeddable-dll-service/version_info.rc.in	1969-12-31 19:00:00.000000000 -0500
++++ wireguard-windows-1.1-modified/embeddable-dll-service/version_info.rc.in	2026-04-22 13:33:58.338009200 -0400
 @@ -0,0 +1,39 @@
 +#include <windows.h>
 +

@@ -61,3 +61,13 @@ bool FwpmWrapper::endTransaction()
     }
     return true;
 }
+
+bool FwpmWrapper::abortTransaction()
+{
+    DWORD dwFwAPiRetCode = FwpmTransactionAbort0(engineHandle_);
+    if (dwFwAPiRetCode != ERROR_SUCCESS) {
+        spdlog::error("FwpmWrapper::abortTransaction(), FwpmTransactionAbort0 failed, {}", dwFwAPiRetCode);
+        return false;
+    }
+    return true;
+}

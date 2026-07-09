@@ -112,7 +112,17 @@ void DownloadHelper::onReplyFinished(std::uint64_t requestId, std::shared_ptr<WS
 
     // if any reply fails, we fail
     if (!error->isSuccess()) {
-        qCWarning(LOG_DOWNLOADER) << "Download failed";
+        qCWarning(LOG_DOWNLOADER) << "Download failed:" << QString::fromStdString(error->toString());
+        deleteAllCurrentReplies();
+        busy_ = false;
+        emit finished(DOWNLOAD_STATE_FAIL);
+        return;
+    }
+
+    // isSuccess() is transport-level only (CURLE_OK); an HTTP error page completes "successfully"
+    // and would otherwise be saved as the downloaded artifact.
+    if (error->httpResponseCode() != 200) {
+        qCWarning(LOG_DOWNLOADER) << "Download failed with HTTP status:" << error->httpResponseCode();
         deleteAllCurrentReplies();
         busy_ = false;
         emit finished(DOWNLOAD_STATE_FAIL);

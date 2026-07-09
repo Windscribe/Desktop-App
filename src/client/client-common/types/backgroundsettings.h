@@ -25,20 +25,20 @@ struct BackgroundSettings
     {
         // For backward compatibility, if JSON contains backgroundType, use it for both disconnectedBackgroundType and connectedBackgroundType
         if (json.contains(kJsonBackgroundTypeProp) && json[kJsonBackgroundTypeProp].isDouble()) {
-            disconnectedBackgroundType = BACKGROUND_TYPE_fromInt(json[kJsonBackgroundTypeProp].toInt());
-            connectedBackgroundType = BACKGROUND_TYPE_fromInt(json[kJsonBackgroundTypeProp].toInt());
+            disconnectedBackgroundType = enumFromInt<BACKGROUND_TYPE>(json[kJsonBackgroundTypeProp].toInt());
+            connectedBackgroundType = enumFromInt<BACKGROUND_TYPE>(json[kJsonBackgroundTypeProp].toInt());
         } else {
             // Otherwise, use the new values
             if (json.contains(kJsonDisconnectedBackgroundTypeProp) && json[kJsonDisconnectedBackgroundTypeProp].isDouble()) {
-                disconnectedBackgroundType = BACKGROUND_TYPE_fromInt(json[kJsonDisconnectedBackgroundTypeProp].toInt());
+                disconnectedBackgroundType = enumFromInt<BACKGROUND_TYPE>(json[kJsonDisconnectedBackgroundTypeProp].toInt());
             }
             if (json.contains(kJsonConnectedBackgroundTypeProp) && json[kJsonConnectedBackgroundTypeProp].isDouble()) {
-                connectedBackgroundType = BACKGROUND_TYPE_fromInt(json[kJsonConnectedBackgroundTypeProp].toInt());
+                connectedBackgroundType = enumFromInt<BACKGROUND_TYPE>(json[kJsonConnectedBackgroundTypeProp].toInt());
             }
         }
 
         if (json.contains(kJsonAspectRatioModeProp) && json[kJsonAspectRatioModeProp].isDouble()) {
-            aspectRatioMode = ASPECT_RATIO_MODE_fromInt(json[kJsonAspectRatioModeProp].toInt());
+            aspectRatioMode = enumFromInt<ASPECT_RATIO_MODE>(json[kJsonAspectRatioModeProp].toInt());
         }
 
         if (json.contains(kJsonBackgroundImageDisconnectedProp) && json[kJsonBackgroundImageDisconnectedProp].isString()) {
@@ -81,9 +81,9 @@ struct BackgroundSettings
 
     void validate()
     {
-        aspectRatioMode = ASPECT_RATIO_MODE_fromInt(static_cast<int>(aspectRatioMode));
-        disconnectedBackgroundType = BACKGROUND_TYPE_fromInt(static_cast<int>(disconnectedBackgroundType));
-        connectedBackgroundType = BACKGROUND_TYPE_fromInt(static_cast<int>(connectedBackgroundType));
+        aspectRatioMode = enumFromInt<ASPECT_RATIO_MODE>(static_cast<int>(aspectRatioMode));
+        disconnectedBackgroundType = enumFromInt<BACKGROUND_TYPE>(static_cast<int>(disconnectedBackgroundType));
+        connectedBackgroundType = enumFromInt<BACKGROUND_TYPE>(static_cast<int>(connectedBackgroundType));
         validatePair(disconnectedBackgroundType, backgroundImageDisconnected);
         validatePair(connectedBackgroundType, backgroundImageConnected);
         // The aspect ratio is only used when at least one side shows an image.

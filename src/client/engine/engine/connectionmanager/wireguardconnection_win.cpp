@@ -111,7 +111,15 @@ void WireGuardConnection::run()
         helper_->stopWireGuard();
     });
 
-    helper_->configureWireGuard(wireGuardConfig_);
+    if (!helper_->configureWireGuard(wireGuardConfig_)) {
+        qCCritical(LOG_CONNECTION) << WS_PRODUCT_NAME " service could not configure the WireGuard service";
+        stopWireGuard.dismiss();
+        helper_->stopWireGuard();
+        // Delay emiting signals until we have cleaned up all our resources.
+        emit error(CONNECT_ERROR::WIREGUARD_CONNECTION_ERROR);
+        emit disconnected();
+        return;
+    }
 
     resetLogReader();
 

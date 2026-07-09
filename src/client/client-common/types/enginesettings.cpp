@@ -36,7 +36,7 @@ void EngineSettings::saveToSettings()
               d->macAddrSpoofing << d->dnsPolicy << d->tapAdapter << d->customOvpnConfigsPath << d->isKeepAliveEnabled <<
               d->connectedDnsInfo << d->dnsManager << d->networkPreferredProtocols <<
               d->isAPIAntiCensorship << d->decoyTrafficSettings << d->amneziawgPreset << d->serverRoutingMethod << d->protocolTweaksMethod <<
-              static_cast<int>(d->IpStackEgress);
+              static_cast<int>(d->IpStackEgress) << d->customSniDomain;
     }
 
     QSettings settings;
@@ -106,7 +106,10 @@ bool EngineSettings::loadFromSettings()
             if (version >= 11) {
                 int ipStackEgressInt;
                 ds >> ipStackEgressInt;
-                d->IpStackEgress = ipStackFromInt(ipStackEgressInt);
+                d->IpStackEgress = enumFromInt<IpStack>(ipStackEgressInt);
+            }
+            if (version >= 13) {
+                ds >> d->customSniDomain;
             }
         }
 
@@ -157,6 +160,16 @@ QString EngineSettings::amneziawgPreset() const
 void EngineSettings::setAmneziawgPreset(const QString &preset)
 {
     d->amneziawgPreset = preset;
+}
+
+QString EngineSettings::customSniDomain() const
+{
+    return d->customSniDomain;
+}
+
+void EngineSettings::setCustomSniDomain(const QString &domain)
+{
+    d->customSniDomain = domain;
 }
 
 bool EngineSettings::isTerminateSockets() const
@@ -382,6 +395,7 @@ bool EngineSettings::operator==(const EngineSettings &other) const
             other.d->decoyTrafficSettings == d->decoyTrafficSettings &&
             other.d->networkPreferredProtocols == d->networkPreferredProtocols &&
             other.d->amneziawgPreset == d->amneziawgPreset &&
+            other.d->customSniDomain == d->customSniDomain &&
             other.d->serverRoutingMethod == d->serverRoutingMethod &&
             other.d->protocolTweaksMethod == d->protocolTweaksMethod &&
             other.d->IpStackEgress == d->IpStackEgress;
@@ -399,6 +413,7 @@ QJsonObject EngineSettings::toJson(bool isForDebugLog) const
     return json;
 }
 
+#ifdef CLI_ONLY
 void EngineSettings::fromIni(QSettings &settings)
 {
     d->fromIni(settings);
@@ -409,6 +424,7 @@ void EngineSettings::toIni(QSettings &settings) const
 {
     d->toIni(settings);
 }
+#endif
 
 QDebug operator<<(QDebug dbg, const EngineSettings &es)
 {
@@ -441,11 +457,11 @@ void EngineSettingsData::validate()
         amneziawgPreset.clear();
     }
 
-    dnsPolicy = DNS_POLICY_TYPE_fromInt(static_cast<int>(dnsPolicy));
-    dnsManager = DNS_MANAGER_TYPE_fromInt(static_cast<int>(dnsManager));
-    updateChannel = UPDATE_CHANNEL_fromInt(static_cast<int>(updateChannel));
-    serverRoutingMethod = SERVER_ROUTING_METHOD_TYPE_fromInt(static_cast<int>(serverRoutingMethod));
-    protocolTweaksMethod = PROTOCOL_TWEAKS_METHOD_TYPE_fromInt(static_cast<int>(protocolTweaksMethod));
+    dnsPolicy = enumFromInt<DNS_POLICY_TYPE>(static_cast<int>(dnsPolicy));
+    dnsManager = enumFromInt<DNS_MANAGER_TYPE>(static_cast<int>(dnsManager));
+    updateChannel = enumFromInt<UPDATE_CHANNEL>(static_cast<int>(updateChannel));
+    serverRoutingMethod = enumFromInt<SERVER_ROUTING_METHOD_TYPE>(static_cast<int>(serverRoutingMethod));
+    protocolTweaksMethod = enumFromInt<PROTOCOL_TWEAKS_METHOD_TYPE>(static_cast<int>(protocolTweaksMethod));
 
     proxySettings.validate();
     connectedDnsInfo.validate();
@@ -496,12 +512,12 @@ void EngineSettingsData::fromJson(const QJsonObject &json)
 
 #if defined(Q_OS_LINUX)
     if (json.contains(kJsonDnsManagerProp) && json[kJsonDnsManagerProp].isDouble()) {
-        dnsManager = DNS_MANAGER_TYPE_fromInt(json[kJsonDnsManagerProp].toInt());
+        dnsManager = enumFromInt<DNS_MANAGER_TYPE>(json[kJsonDnsManagerProp].toInt());
     }
 #endif
 
     if (json.contains(kJsonDnsPolicyProp) && json[kJsonDnsPolicyProp].isDouble()) {
-        dnsPolicy = DNS_POLICY_TYPE_fromInt(json[kJsonDnsPolicyProp].toInt());
+        dnsPolicy = enumFromInt<DNS_POLICY_TYPE>(json[kJsonDnsPolicyProp].toInt());
     }
 
     if (json.contains(kJsonDecoyTrafficSettingsProp) && json[kJsonDecoyTrafficSettingsProp].isObject()) {
@@ -538,16 +554,20 @@ void EngineSettingsData::fromJson(const QJsonObject &json)
         amneziawgPreset = json[kJsonAmneziawgPresetProp].toString();
     }
 
+    if (json.contains(kJsonCustomSniDomainProp) && json[kJsonCustomSniDomainProp].isString()) {
+        customSniDomain = json[kJsonCustomSniDomainProp].toString();
+    }
+
     if (json.contains(kJsonServerRoutingMethodProp) && json[kJsonServerRoutingMethodProp].isDouble()) {
-        serverRoutingMethod = SERVER_ROUTING_METHOD_TYPE_fromInt(json[kJsonServerRoutingMethodProp].toInt());
+        serverRoutingMethod = enumFromInt<SERVER_ROUTING_METHOD_TYPE>(json[kJsonServerRoutingMethodProp].toInt());
     }
 
     if (json.contains(kJsonProtocolTweaksMethodProp) && json[kJsonProtocolTweaksMethodProp].isDouble()) {
-        protocolTweaksMethod = PROTOCOL_TWEAKS_METHOD_TYPE_fromInt(json[kJsonProtocolTweaksMethodProp].toInt());
+        protocolTweaksMethod = enumFromInt<PROTOCOL_TWEAKS_METHOD_TYPE>(json[kJsonProtocolTweaksMethodProp].toInt());
     }
 
     if (json.contains(kJsonIpStackEgressProp) && json[kJsonIpStackEgressProp].isDouble()) {
-        IpStackEgress = ipStackFromInt(json[kJsonIpStackEgressProp].toInt());
+        IpStackEgress = enumFromInt<IpStack>(json[kJsonIpStackEgressProp].toInt());
     }
 
     if (json.contains(kJsonMacAddrSpoofingProp) && json[kJsonMacAddrSpoofingProp].isObject()) {
@@ -563,7 +583,7 @@ void EngineSettingsData::fromJson(const QJsonObject &json)
     }
 
     if (json.contains(kJsonUpdateChannelProp) && json[kJsonUpdateChannelProp].isDouble()) {
-        updateChannel = UPDATE_CHANNEL_fromInt(json[kJsonUpdateChannelProp].toInt());
+        updateChannel = enumFromInt<UPDATE_CHANNEL>(json[kJsonUpdateChannelProp].toInt());
     }
 
     if (json.contains(kJsonNetworkPreferredProtocolsProp) && json[kJsonNetworkPreferredProtocolsProp].isObject()) {
@@ -597,6 +617,7 @@ QJsonObject EngineSettingsData::toJson(bool isForDebugLog) const
     json[kJsonIsTerminateSocketsProp] = isTerminateSockets;
     json[kJsonLanguageProp] = language;
     json[kJsonAmneziawgPresetProp] = amneziawgPreset;
+    json[kJsonCustomSniDomainProp] = customSniDomain;
     json[kJsonServerRoutingMethodProp] = static_cast<int>(serverRoutingMethod);
     json[kJsonProtocolTweaksMethodProp] = static_cast<int>(protocolTweaksMethod);
     json[kJsonIpStackEgressProp] = static_cast<int>(IpStackEgress);
@@ -616,23 +637,24 @@ QJsonObject EngineSettingsData::toJson(bool isForDebugLog) const
 
     if (isForDebugLog) {
         // For log readability by humans/AI.
-        json["dnsManagerDesc"] = DNS_MANAGER_TYPE_toString(dnsManager);
-        json["dnsPolicyDesc"] = DNS_POLICY_TYPE_toString(dnsPolicy);
-        json["serverRoutingMethodDesc"] = SERVER_ROUTING_METHOD_TYPE_toString(serverRoutingMethod);
-        json["protocolTweaksMethodDesc"] = PROTOCOL_TWEAKS_METHOD_TYPE_toString(protocolTweaksMethod);
-        json["ipStackEgressDesc"] = ipStackToString(IpStackEgress);
-        json["updateChannelDesc"] = UPDATE_CHANNEL_toString(updateChannel);
+        json["dnsManagerDesc"] = enumToString(dnsManager);
+        json["dnsPolicyDesc"] = enumToString(dnsPolicy);
+        json["serverRoutingMethodDesc"] = enumToString(serverRoutingMethod);
+        json["protocolTweaksMethodDesc"] = enumToString(protocolTweaksMethod);
+        json["ipStackEgressDesc"] = enumToString(IpStackEgress);
+        json["updateChannelDesc"] = enumToString(updateChannel);
     } else {
         json[kJsonCustomOvpnConfigsPathProp] = Utils::toBase64(customOvpnConfigsPath);
     }
     return json;
 }
 
+#ifdef CLI_ONLY
 void EngineSettingsData::fromIni(QSettings &settings)
 {
     language = settings.value(kIniLanguageProp, language).toString();
 
-    updateChannel = UPDATE_CHANNEL_fromString(settings.value(kIniUpdateChannelProp, UPDATE_CHANNEL_toString(updateChannel)).toString());
+    updateChannel = enumFromString<UPDATE_CHANNEL>(settings.value(kIniUpdateChannelProp, enumToString(updateChannel)).toString());
 
     settings.beginGroup(QString("Networks"));
     QMap<QString, types::ConnectionSettings> networkPreferredProtocols;
@@ -653,23 +675,24 @@ void EngineSettingsData::fromIni(QSettings &settings)
     decoyTrafficSettings.fromIni(settings);
     isAPIAntiCensorship = settings.value(kIniIsAntiCensorshipProp, isAPIAntiCensorship).toBool();
     amneziawgPreset = settings.value(kIniAmneziawgPresetProp, amneziawgPreset).toString();
-    serverRoutingMethod = SERVER_ROUTING_METHOD_TYPE_fromInt(settings.value(kIniServerRoutingMethodProp, static_cast<int>(serverRoutingMethod)).toInt());
-    protocolTweaksMethod = PROTOCOL_TWEAKS_METHOD_TYPE_fromInt(settings.value(kIniProtocolTweaksMethodProp, static_cast<int>(protocolTweaksMethod)).toInt());
-    IpStackEgress = ipStackFromString(settings.value(kIniIpStackEgressProp, ipStackToString(IpStackEgress)).toString());
+    customSniDomain = settings.value(kIniCustomSniDomainProp, customSniDomain).toString();
+    serverRoutingMethod = enumFromInt<SERVER_ROUTING_METHOD_TYPE>(settings.value(kIniServerRoutingMethodProp, static_cast<int>(serverRoutingMethod)).toInt());
+    protocolTweaksMethod = enumFromInt<PROTOCOL_TWEAKS_METHOD_TYPE>(settings.value(kIniProtocolTweaksMethodProp, static_cast<int>(protocolTweaksMethod)).toInt());
+    IpStackEgress = enumFromString<IpStack>(settings.value(kIniIpStackEgressProp, enumToString(IpStackEgress)).toString());
     settings.endGroup();
 
     settings.beginGroup(QString("Advanced"));
 #ifdef Q_OS_LINUX
-    dnsManager = DNS_MANAGER_TYPE_fromString(settings.value(kIniDnsManagerProp, DNS_MANAGER_TYPE_toString(dnsManager)).toString());
+    dnsManager = enumFromString<DNS_MANAGER_TYPE>(settings.value(kIniDnsManagerProp, enumToString(dnsManager)).toString());
 #endif
-    dnsPolicy = DNS_POLICY_TYPE_fromString(settings.value(kIniDnsPolicyProp, DNS_POLICY_TYPE_toString(dnsPolicy)).toString());
+    dnsPolicy = enumFromString<DNS_POLICY_TYPE>(settings.value(kIniDnsPolicyProp, enumToString(dnsPolicy)).toString());
     settings.endGroup();
 }
 
 void EngineSettingsData::toIni(QSettings &settings) const
 {
     settings.setValue(kIniLanguageProp, language);
-    settings.setValue(kIniUpdateChannelProp, UPDATE_CHANNEL_toString(updateChannel));
+    settings.setValue(kIniUpdateChannelProp, enumToString(updateChannel));
 
     settings.beginGroup(QString("Networks"));
     for (const auto& key : networkPreferredProtocols.keys()) {
@@ -688,17 +711,19 @@ void EngineSettingsData::toIni(QSettings &settings) const
     decoyTrafficSettings.toIni(settings);
     settings.setValue(kIniIsAntiCensorshipProp, isAPIAntiCensorship);
     settings.setValue(kIniAmneziawgPresetProp, amneziawgPreset);
+    settings.setValue(kIniCustomSniDomainProp, customSniDomain);
     settings.setValue(kIniServerRoutingMethodProp, static_cast<int>(serverRoutingMethod));
     settings.setValue(kIniProtocolTweaksMethodProp, static_cast<int>(protocolTweaksMethod));
-    settings.setValue(kIniIpStackEgressProp, ipStackToString(IpStackEgress));
+    settings.setValue(kIniIpStackEgressProp, enumToString(IpStackEgress));
     settings.endGroup();
 
     settings.beginGroup(QString("Advanced"));
-    settings.setValue(kIniDnsPolicyProp, DNS_POLICY_TYPE_toString(dnsPolicy));
+    settings.setValue(kIniDnsPolicyProp, enumToString(dnsPolicy));
 #ifdef Q_OS_LINUX
-    settings.setValue(kIniDnsManagerProp, DNS_MANAGER_TYPE_toString(dnsManager));
+    settings.setValue(kIniDnsManagerProp, enumToString(dnsManager));
 #endif
     settings.endGroup();
 }
+#endif
 
 } // types namespace

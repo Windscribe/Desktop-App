@@ -32,6 +32,7 @@ private slots:
     void onBackendMyIpChanged(const QString &ip, bool isFromDisconnectedState);
     void onBackendSessionDeleted();
 
+    void onPreferencesAutoConnectChanged(bool on);
     void onPreferencesAllowLanTrafficChanged(bool allowLanTraffic);
     void onPreferencesFirewallSettingsChanged(const types::FirewallSettings &fm);
     void onPreferencesLaunchOnStartupChanged(bool enabled);

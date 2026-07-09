@@ -43,13 +43,13 @@ void FinishActiveConnections::finishOpenVpnActiveConnections_win(Helper *helper)
 
 void FinishActiveConnections::finishIkev2ActiveConnections_win(Helper *helper)
 {
-    const QVector<HRASCONN> v = IKEv2Connection_win::getActiveAppConnections();
+    const QVector<HRASCONN> v = IKEv2Connection_win::getActiveIkev2Connections();
 
     if (!v.isEmpty())
     {
         for (HRASCONN hRas : v)
         {
-            IKEv2ConnectionDisconnectLogic_win::blockingDisconnect(hRas);
+            IKEv2Connection_win::blockingDisconnect(hRas);
         }
 
         helper->disableDnsLeaksProtection();

@@ -40,7 +40,7 @@ set(WS_TS_FILES
 
 # Using the -extensions flag to skip processing the .ui files in the test projects.  Otherwise, the
 # strings in said ui files will be added to the .ts output files.
-if (UPDATE_TRANSLATIONS AND NOT DEFINE_QT_CREATOR_DEV_BUILD_MACRO)
+if (UPDATE_TRANSLATIONS)
     qt6_create_translation(WS_QM_FILES ${CMAKE_CURRENT_SOURCE_DIR}/../.. ${WS_TS_FILES} OPTIONS -extensions cpp,h -locations none)
 endif()
 
@@ -97,13 +97,9 @@ qt_add_resources(gui "translations"
 
 target_link_libraries(gui PRIVATE Qt6::Core Qt6::Network Qt6::Widgets Qt6::Svg wsnet::wsnet spdlog::spdlog Boost::serialization)
 
-if (WIN32)
-    target_compile_definitions(gui PRIVATE CMAKE_LIBRARY_LIBRARY
-                                  WINVER=0x0601
-                                  _WIN32_WINNT=0x0601
-                                  WIN32_LEAN_AND_MEAN
-                                  PIO_APC_ROUTINE_DEFINED)
-endif (WIN32)
+if(WIN32)
+    target_compile_definitions(gui PRIVATE CMAKE_LIBRARY_LIBRARY WIN32_LEAN_AND_MEAN PIO_APC_ROUTINE_DEFINED)
+endif()
 
 if (UNIX AND (NOT APPLE))
     find_package(Qt6 REQUIRED COMPONENTS DBus)

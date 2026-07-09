@@ -46,6 +46,9 @@ public:
     void setApiSuggestedAmneziawgPreset(const QString &preset);
     QString apiSuggestedAmneziawgPreset() const;
 
+    void setApiSuggestedCustomSni(const QString &domain);
+    QString apiSuggestedCustomSni() const;
+
 signals:
     void portMapChanged();
     void wifiSharingSupportedChanged(bool bSupported);
@@ -56,6 +59,7 @@ signals:
     void currentProtocolChanged(const types::Protocol &protocol);
     void amneziawgPresetsChanged(const QStringList &presets);
     void apiSuggestedAmneziawgPresetChanged(const QString &preset);
+    void apiSuggestedCustomSniChanged(const QString &domain);
 
 private:
     QStringList availableLanguageCodes_;
@@ -71,4 +75,5 @@ private:
     types::Protocol currentProtocol_;
     QStringList amneziawgPresets_;
     QString apiSuggestedAmneziawgPreset_;
+    QString apiSuggestedCustomSni_;
 };

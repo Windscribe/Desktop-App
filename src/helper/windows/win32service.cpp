@@ -12,20 +12,10 @@ Win32Service::Win32Service(const std::wstring &serviceName)
 {
     pThis_ = this;
 
-    ::ZeroMemory(&serviceStatus, sizeof(serviceStatus));
-    serviceStatus.dwServiceType = SERVICE_WIN32_OWN_PROCESS;
-    serviceStatus.dwCurrentState = SERVICE_STOPPED;
-    serviceStatus.dwControlsAccepted = SERVICE_ACCEPT_STOP | SERVICE_ACCEPT_SHUTDOWN;
-}
-
-void Win32Service::setServiceExitCode(DWORD code)
-{
-    serviceStatus.dwWin32ExitCode = code;
-}
-
-DWORD Win32Service::serviceExitCode(void) const
-{
-    return serviceStatus.dwWin32ExitCode;
+    ::ZeroMemory(&serviceStatus_, sizeof(serviceStatus_));
+    serviceStatus_.dwServiceType = SERVICE_WIN32_OWN_PROCESS;
+    serviceStatus_.dwCurrentState = SERVICE_STOPPED;
+    serviceStatus_.dwControlsAccepted = SERVICE_ACCEPT_STOP | SERVICE_ACCEPT_SHUTDOWN;
 }
 
 const std::wstring &Win32Service::serviceName(void) const
@@ -35,27 +25,31 @@ const std::wstring &Win32Service::serviceName(void) const
 
 bool Win32Service::serviceExiting(void) const
 {
-    return ((serviceStatus.dwCurrentState == SERVICE_STOP_PENDING) ||
-            (serviceStatus.dwCurrentState == SERVICE_STOPPED));
+    std::lock_guard<std::mutex> lock(statusMutex_);
+    return ((serviceStatus_.dwCurrentState == SERVICE_STOP_PENDING) ||
+            (serviceStatus_.dwCurrentState == SERVICE_STOPPED));
 }
 
 void Win32Service::setStatus(DWORD state, DWORD waitHint)
 {
-    serviceStatus.dwCurrentState = state;
-    serviceStatus.dwWaitHint     = waitHint;
+    std::lock_guard<std::mutex> lock(statusMutex_);
+
+    serviceStatus_.dwCurrentState = state;
+    serviceStatus_.dwWaitHint     = waitHint;
 
     switch (state) {
     case SERVICE_STOP_PENDING:
     case SERVICE_START_PENDING:
-        serviceStatus.dwCheckPoint += 1L;
+        serviceStatus_.dwCheckPoint += 1L;
         break;
     default:
-        serviceStatus.dwCheckPoint = 0L;
+        serviceStatus_.dwCheckPoint = 0L;
         break;
     }
 
+    // Report to the SCM outside the lock, using a consistent snapshot taken under it.
     if (serviceStatusHandle_ != NULL) {
-        ::SetServiceStatus(serviceStatusHandle_, &serviceStatus);
+        ::SetServiceStatus(serviceStatusHandle_, &serviceStatus_);
     }
 }
 
@@ -95,7 +89,6 @@ void WINAPI Win32Service::serviceMain(DWORD dwArgc, wchar_t* lpszArgv[])
 
     pThis_->setStatus(SERVICE_START_PENDING, 1000);
     if (pThis_->onInit()) {
-        pThis_->serviceStatus.dwWin32ExitCode = NO_ERROR;
         pThis_->setStatus(SERVICE_RUNNING);
         pThis_->runService();
     }
@@ -110,9 +103,11 @@ DWORD WINAPI Win32Service::SCMHandler(DWORD controlCode, DWORD eventType, LPVOID
         break;
 
     // Requests the service to immediately report its current status information to the SCM.
-    case SERVICE_CONTROL_INTERROGATE:
-        ::SetServiceStatus(pThis_->serviceStatusHandle_, &pThis_->serviceStatus);
+    case SERVICE_CONTROL_INTERROGATE: {
+        std::lock_guard<std::mutex> lock(pThis_->statusMutex_);
+        ::SetServiceStatus(pThis_->serviceStatusHandle_, &pThis_->serviceStatus_);
         break;
+    }
 
     case SERVICE_CONTROL_SHUTDOWN:
         pThis_->onWindowsShutdown();

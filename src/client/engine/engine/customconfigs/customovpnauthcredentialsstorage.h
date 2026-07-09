@@ -16,7 +16,6 @@ public:
     void setPrivKeyPassword(const QString &ovpnFileName, const QString &password);
     void removeCredentials(const QString &ovpnFileName);
     void removePrivKeyPassword(const QString &ovpnFileName);
-    void removeUnusedCredentials(const QStringList &existingOvpnFileNames);
 
     void clearCredentials();
 

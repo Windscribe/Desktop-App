@@ -1,5 +1,6 @@
 #pragma once
 
+#include <QByteArray>
 #include <QJsonObject>
 #include <QObject>
 #include <QMap>
@@ -54,6 +55,9 @@ public:
 
     QString amneziawgPreset() const;
     void setAmneziawgPreset(const QString &preset);
+
+    QString customSniDomain() const;
+    void setCustomSniDomain(const QString &domain);
 
     ORDER_LOCATION_TYPE locationOrder() const;
     void setLocationOrder(ORDER_LOCATION_TYPE o);
@@ -233,6 +237,7 @@ signals:
     void reportErrorToUser(QString title, QString desc);
 
     void amneziawgPresetChanged(const QString &preset);
+    void customSniDomainChanged(const QString &domain);
 
 private:
     types::EngineSettings engineSettings_;
@@ -241,6 +246,12 @@ private:
     bool isSettingEngineSettings_;
 
     void emitEngineSettingsChanged();
+
+#ifdef CLI_ONLY
+    // The exact contents saveIni() last wrote, used to ignore the file-watcher event our own write
+    // triggers. mutable because saveIni() is const.
+    mutable QByteArray lastWrittenIniData_;
+#endif
 
     static const inline QString kJsonEngineSettingsProp = "engineSettings";
     static const inline QString kJsonGuiSettingsProp = "guiSettings";

@@ -45,8 +45,10 @@ public:
         return !(*this == other);
     }
 
+#ifdef CLI_ONLY
     void fromIni(const QSettings &settings);
     void toIni(QSettings &settings) const;
+#endif
     QJsonObject toJson(bool isForDebugLog) const;
 
     void validate();

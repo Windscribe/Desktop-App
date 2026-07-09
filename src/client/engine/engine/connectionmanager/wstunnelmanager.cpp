@@ -30,7 +30,7 @@ WstunnelManager::~WstunnelManager()
     killProcess();
 }
 
-bool WstunnelManager::runProcess(const QString &hostname, unsigned int port)
+bool WstunnelManager::runProcess(const QString &hostname, unsigned int port, const QString &customSni)
 {
     bool ret = false;
 #if defined(Q_OS_WIN)
@@ -46,12 +46,16 @@ bool WstunnelManager::runProcess(const QString &hostname, unsigned int port)
     QString hostaddr = QString("wss://%1:%2/tcp/127.0.0.1/1194").arg(hostname).arg(port);
     args << "--listenAddress" << addr;
     args << "--remoteAddress" << hostaddr;
+    if (!customSni.isEmpty()) {
+        args << "-s" << customSni;
+    }
     args << "--logFilePath" << "";
+    
     process_->start(wstunnelExePath_, args);
     ret = true;
 #else
     Helper_posix *helper_posix = dynamic_cast<Helper_posix *>(helper_);
-    ret = helper_posix->startWstunnel(hostname, port, port_);
+    ret = helper_posix->startWstunnel(hostname, port, port_, customSni);
     if (ret) {
         emit wstunnelStarted();
     }

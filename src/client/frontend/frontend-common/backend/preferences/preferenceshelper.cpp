@@ -1,5 +1,6 @@
 #include "preferenceshelper.h"
 #include "utils/languagesutil.h"
+#include "utils/log/categories.h"
 #include "version/appversion.h"
 
 PreferencesHelper::PreferencesHelper(QObject *parent) : QObject(parent),
@@ -153,4 +154,17 @@ void PreferencesHelper::setApiSuggestedAmneziawgPreset(const QString &preset)
 QString PreferencesHelper::apiSuggestedAmneziawgPreset() const
 {
     return apiSuggestedAmneziawgPreset_;
+}
+
+void PreferencesHelper::setApiSuggestedCustomSni(const QString &domain)
+{
+    if (apiSuggestedCustomSni_ != domain) {
+        apiSuggestedCustomSni_ = domain;
+        emit apiSuggestedCustomSniChanged(apiSuggestedCustomSni_);
+    }
+}
+
+QString PreferencesHelper::apiSuggestedCustomSni() const
+{
+    return apiSuggestedCustomSni_;
 }

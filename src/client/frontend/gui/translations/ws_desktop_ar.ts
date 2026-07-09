@@ -666,10 +666,6 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
         <translation>فشل البدء</translation>
     </message>
     <message>
-        <source>Trying Backup Endpoints %1/%2</source>
-        <translation>محاولة النسخ الاحتياطي لنقاط النهاية %1/%2</translation>
-    </message>
-    <message>
         <source>SSL Error</source>
         <translation>خطأ SSL</translation>
     </message>
@@ -696,6 +692,10 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
     <message>
         <source>Later</source>
         <translation>لاحقا</translation>
+    </message>
+    <message>
+        <source>Trying Backup Endpoints...</source>
+        <translation>تجربة نقاط النهاية الاحتياطية...</translation>
     </message>
     <message>
         <source>SSL requests may be intercepted on your network. Ignoring SSL errors disables TLS certificate validation for this session: anyone able to intercept your traffic can then impersonate Windscribe and read or alter your data, and we can&apos;t guarantee your security while it&apos;s on. Ignore SSL errors?</source>
@@ -828,10 +828,6 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>You have reached your limit of WireGuard public keys. Do you want to delete your oldest key?</source>
         <translation>لقد وصلت إلى الحد الأقصى لمفاتيح WireGuard العامة. هل تريد حذف أقدم مفتاح لديك؟</translation>
-    </message>
-    <message>
-        <source>Error Starting Service</source>
-        <translation>خطأ في بدء تشغيل الخدمة</translation>
     </message>
     <message>
         <source>The split tunneling feature could not be started, and has been disabled in Preferences.</source>
@@ -1427,10 +1423,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>الاتصال التلقائي</translation>
     </message>
     <message>
-        <source>Control the mode of behaviour of the Windscribe firewall.</source>
-        <translation>تحكم في وضع سلوك جدار الحماية Windscribe.</translation>
-    </message>
-    <message>
         <source>Connection Mode</source>
         <translation>وضع الاتصال</translation>
     </message>
@@ -1457,6 +1449,10 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Configure your TV, gaming console, or other devices that support proxy servers.</source>
         <translation>قم بتكوين التلفزيون أو وحدة التحكم في الألعاب أو الأجهزة الأخرى التي تدعم الخوادم الوكيلة.</translation>
+    </message>
+    <message>
+        <source>The firewall is in an Always On mode. Allowing LAN traffic can leak your DNS and other traffic to your local network while you are disconnected. Are you sure you want to enable it?</source>
+        <translation>جدار الحماية في وضع &quot;دائما على التشغيل&quot;. السماح بحركة الشبكة المحلية قد يؤدي إلى تسريب DNS وحركة المرور الأخرى إلى شبكتك المحلية أثناء انقطاعك. هل أنت متأكد أنك تريد تفعيله؟</translation>
     </message>
     <message>
         <source>Settings Conflict</source>
@@ -1493,6 +1489,10 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>In this firewall mode, the Windscribe API will not be available while disconnected, this could have unintended consequences. Use at own risk.</source>
         <translation>في وضع جدار الحماية هذا ، لن تكون واجهة برمجة تطبيقات Windscribe متاحة أثناء قطع الاتصال ، وقد يكون لذلك عواقب غير مقصودة. استخدم على مسؤوليتهم الخاصة.</translation>
+    </message>
+    <message>
+        <source>Control the mode of behaviour of the Windscribe firewall. Always On modes disable Allow LAN Traffic to prevent DNS leaks.</source>
+        <translation>التحكم في نمط سلوك جدار الحماية في ويندوسكرايب. أوضاع Always On تعطل حركة مرور LAN للسماح ب LAN لمنع تسريبات DNS.</translation>
     </message>
     <message>
         <source>Configure egress IP stack for VPN connections (WireGuard only).</source>
@@ -2081,6 +2081,10 @@ Connect to a network first</source>
 </context>
 <context>
     <name>PreferencesWindow::ProtocolTweaksGroup</name>
+    <message>
+        <source>Custom SNI Domain</source>
+        <translation>نطاق SNI مخصص</translation>
+    </message>
     <message>
         <source>Protocol Tweaks</source>
         <translation>تعديلات البروتوكول</translation>

@@ -275,10 +275,6 @@
         <translation>Logs sent.</translation>
     </message>
     <message>
-        <source>Preferences reloaded.</source>
-        <translation>Preferences reloaded.</translation>
-    </message>
-    <message>
         <source>Key limit behaviour is set.</source>
         <translation>Key limit behaviour is set.</translation>
     </message>

@@ -101,6 +101,11 @@ bool WireGuardController::configure(const std::wstring &config)
         return false;
     }
 
+    // The config holds the WireGuard private and preshared keys.
+    if (!Utils::createRestrictedFile(confFile)) {
+        return false;
+    }
+
     std::wofstream file(confFile.c_str(), std::ios::out | std::ios::trunc);
     if (!file) {
         spdlog::error("WireGuardController::configure - could not open config file for writing");
@@ -109,6 +114,10 @@ bool WireGuardController::configure(const std::wstring &config)
 
     file << config;
     file.flush();
+    if (file.fail()) {
+        spdlog::error("WireGuardController::configure - failed to write config file");
+        return false;
+    }
     file.close();
 
     return true;

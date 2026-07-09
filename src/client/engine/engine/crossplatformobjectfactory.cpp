@@ -7,6 +7,7 @@
     #include "firewall/firewallcontroller_win.h"
     #include "macaddresscontroller/macaddresscontroller_win.h"
     #include "connectionmanager/ctrldmanager/ctrldmanager_win.h"
+    #include "connectivitydiagnostic/connectivitydiagnosticcollector_win.h"
 
 #elif defined Q_OS_MACOS
     #include "helper/helperbackend_mac.h"
@@ -14,12 +15,14 @@
     #include "firewall/firewallcontroller_mac.h"
     #include "macaddresscontroller/macaddresscontroller_mac.h"
     #include "connectionmanager/ctrldmanager/ctrldmanager_posix.h"
+    #include "connectivitydiagnostic/connectivitydiagnosticcollector_mac.h"
 #elif defined Q_OS_LINUX
     #include "helper/helperbackend_linux.h"
     #include "networkdetectionmanager/networkdetectionmanager_linux.h"
     #include "firewall/firewallcontroller_linux.h"
     #include "macaddresscontroller/macaddresscontroller_linux.h"
     #include "connectionmanager/ctrldmanager/ctrldmanager_posix.h"
+    #include "connectivitydiagnostic/connectivitydiagnosticcollector_linux.h"
 #endif
 
 Helper *CrossPlatformObjectFactory::createHelper(QObject *parent)
@@ -79,4 +82,19 @@ ICtrldManager *CrossPlatformObjectFactory::createCtrldManager(QObject *parent, H
     return new CtrldManager_posix(parent, helper, isCreateLog);
 #endif
 
+}
+
+IConnectivityDiagnosticCollector *CrossPlatformObjectFactory::createConnectivityDiagnosticCollector(QObject *parent, FirewallController *firewallController)
+{
+#ifdef Q_OS_WIN
+    return new ConnectivityDiagnosticCollector_win(parent, firewallController);
+#elif defined Q_OS_MACOS
+    return new ConnectivityDiagnosticCollector_mac(parent, firewallController);
+#elif defined Q_OS_LINUX
+    return new ConnectivityDiagnosticCollector_linux(parent, firewallController);
+#else
+    Q_UNUSED(parent);
+    Q_UNUSED(firewallController);
+    return nullptr;
+#endif
 }

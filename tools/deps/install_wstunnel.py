@@ -71,11 +71,14 @@ def InstallDependency():
     dep_version_str = os.environ.get(dep_version_var, None)
     if not dep_version_str:
         raise iutl.InstallError("{} not defined.".format(dep_version_var))
+    dep_commit_var = dep_version_var.replace("VERSION_", "COMMIT_")
+    dep_commit_str = os.environ.get(dep_commit_var, None)
     # Prepare output.
     temp_dir = iutl.PrepareTempDirectory(dep_name)
     with utl.PushDir(temp_dir):
         iutl.RunCommand(["git", "clone", DEP_URL, "."])
         iutl.RunCommand(["git", "checkout", "tags/{}".format(dep_version_str)])
+        iutl.VerifyGitCommit(DEP_TITLE, dep_commit_str)
     # Build the dependency.
     msg.Info("Building: {}".format(DEP_TITLE))
     exe_base = "{}wstunnel".format(product_name)

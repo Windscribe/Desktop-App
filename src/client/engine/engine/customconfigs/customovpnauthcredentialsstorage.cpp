@@ -26,6 +26,7 @@ void CustomOvpnAuthCredentialsStorage::setAuthCredentials(const QString &ovpnFil
         c.password = password;
         hash_[ovpnFileName] = c;
     }
+    writeToSettings();
 }
 
 void CustomOvpnAuthCredentialsStorage::setPrivKeyPassword(const QString &ovpnFileName, const QString &privKeyPassword)
@@ -39,6 +40,7 @@ void CustomOvpnAuthCredentialsStorage::setPrivKeyPassword(const QString &ovpnFil
         c.privKeyPassword = privKeyPassword;
         hash_[ovpnFileName] = c;
     }
+    writeToSettings();
 }
 
 void CustomOvpnAuthCredentialsStorage::removeCredentials(const QString &ovpnFileName)
@@ -48,6 +50,10 @@ void CustomOvpnAuthCredentialsStorage::removeCredentials(const QString &ovpnFile
     if (it != hash_.end()) {
         it->username.clear();
         it->password.clear();
+        if (it->privKeyPassword.isEmpty()) {
+            hash_.erase(it);
+        }
+        writeToSettings();
     }
 }
 
@@ -57,12 +63,11 @@ void CustomOvpnAuthCredentialsStorage::removePrivKeyPassword(const QString &ovpn
     auto it = hash_.find(ovpnFileName);
     if (it != hash_.end()) {
         it->privKeyPassword.clear();
+        if (it->username.isEmpty() && it->password.isEmpty()) {
+            hash_.erase(it);
+        }
+        writeToSettings();
     }
-}
-
-void CustomOvpnAuthCredentialsStorage::removeUnusedCredentials(const QStringList & /*existingOvpnFileNames*/)
-{
-    QMutexLocker locker(&mutex_);
 }
 
 CustomOvpnAuthCredentialsStorage::Credentials CustomOvpnAuthCredentialsStorage::getAuthCredentials(const QString &ovpnFileName)
@@ -80,6 +85,7 @@ void CustomOvpnAuthCredentialsStorage::clearCredentials()
 {
     QMutexLocker locker(&mutex_);
     hash_.clear();
+    writeToSettings();
 }
 
 void CustomOvpnAuthCredentialsStorage::readFromSettings()

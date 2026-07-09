@@ -10,7 +10,7 @@ namespace types {
 ConnectedDnsInfo::ConnectedDnsInfo(const QJsonObject &json)
 {
     if (json.contains(kJsonTypeProp) && json[kJsonTypeProp].isDouble()) {
-        type = CONNECTED_DNS_TYPE_fromInt(json[kJsonTypeProp].toInt());
+        type = enumFromInt<CONNECTED_DNS_TYPE>(json[kJsonTypeProp].toInt());
     }
 
     if (json.contains(kJsonUpStream1Prop) && json[kJsonUpStream1Prop].isString()) {
@@ -95,9 +95,10 @@ QJsonObject ConnectedDnsInfo::toJson(bool isForDebugLog) const
     return json;
 }
 
+#ifdef CLI_ONLY
 void ConnectedDnsInfo::fromIni(const QSettings &settings)
 {
-    type = CONNECTED_DNS_TYPE_fromString(settings.value(kIniTypeProp, "Auto").toString());
+    type = enumFromString<CONNECTED_DNS_TYPE>(settings.value(kIniTypeProp, "Auto").toString());
 
     // If using CLI-only, this type is not supported, change it to custom instead.
     if (type == CONNECTED_DNS_TYPE_CONTROLD) {
@@ -118,7 +119,7 @@ void ConnectedDnsInfo::toIni(QSettings &settings) const
         typeToWrite = CONNECTED_DNS_TYPE_CUSTOM;
     }
 
-    settings.setValue(kIniTypeProp, CONNECTED_DNS_TYPE_toString(typeToWrite));
+    settings.setValue(kIniTypeProp, enumToString(typeToWrite));
     settings.setValue(kIniUpStream1Prop, upStream1);
     settings.setValue(kIniIsSplitDnsProp, isSplitDns);
     settings.setValue(kIniUpStream2Prop, upStream2);
@@ -128,10 +129,11 @@ void ConnectedDnsInfo::toIni(QSettings &settings) const
         settings.setValue(kIniHostnamesProp, hostnames);
     }
 }
+#endif
 
 void ConnectedDnsInfo::validate()
 {
-    type = CONNECTED_DNS_TYPE_fromInt(static_cast<int>(type));
+    type = enumFromInt<CONNECTED_DNS_TYPE>(static_cast<int>(type));
     if (type == CONNECTED_DNS_TYPE_FORCED) {
         type = CONNECTED_DNS_TYPE_AUTO;
     }

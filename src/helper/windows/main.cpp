@@ -7,6 +7,7 @@
 #include "utils.h"
 #include "utils/crashhandler.h"
 #include "utils/log/spdlog_utils.h"
+#include "utils/wsprocessmitigations.h"
 #include "helper.h"
 
 static bool configureSpdlog()

@@ -638,10 +638,6 @@ Jika Anda kehilangan hash akun, itu akan hilang selamanya dan dukungan tidak dap
         <translation>Gagal Memulai</translation>
     </message>
     <message>
-        <source>Trying Backup Endpoints %1/%2</source>
-        <translation>Mencoba Titik Akhir Pencadangan %1/%2</translation>
-    </message>
-    <message>
         <source>SSL Error</source>
         <translation>Kesalahan SSL</translation>
     </message>
@@ -668,6 +664,10 @@ Jika Anda kehilangan hash akun, itu akan hilang selamanya dan dukungan tidak dap
     <message>
         <source>Later</source>
         <translation>Nanti</translation>
+    </message>
+    <message>
+        <source>Trying Backup Endpoints...</source>
+        <translation>Mencoba Titik Akhir Cadangan...</translation>
     </message>
     <message>
         <source>SSL requests may be intercepted on your network. Ignoring SSL errors disables TLS certificate validation for this session: anyone able to intercept your traffic can then impersonate Windscribe and read or alter your data, and we can&apos;t guarantee your security while it&apos;s on. Ignore SSL errors?</source>
@@ -828,10 +828,6 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
     <message>
         <source>You have reached your limit of WireGuard public keys. Do you want to delete your oldest key?</source>
         <translation>Anda telah mencapai batas kunci publik WireGuard. Apakah Anda ingin menghapus kunci terlama Anda?</translation>
-    </message>
-    <message>
-        <source>Error Starting Service</source>
-        <translation>Kesalahan Memulai Layanan</translation>
     </message>
     <message>
         <source>The split tunneling feature could not be started, and has been disabled in Preferences.</source>
@@ -1427,10 +1423,6 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
         <translation>Hubungkan Otomatis</translation>
     </message>
     <message>
-        <source>Control the mode of behaviour of the Windscribe firewall.</source>
-        <translation>Kontrol mode perilaku firewall Windscribe.</translation>
-    </message>
-    <message>
         <source>Connection Mode</source>
         <translation>Mode Koneksi</translation>
     </message>
@@ -1463,6 +1455,10 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
         <translation>Konfigurasikan TV, konsol game, atau perangkat lain yang mendukung server proxy.</translation>
     </message>
     <message>
+        <source>The firewall is in an Always On mode. Allowing LAN traffic can leak your DNS and other traffic to your local network while you are disconnected. Are you sure you want to enable it?</source>
+        <translation>Firewall dalam mode Always On. Mengizinkan lalu lintas LAN dapat membocorkan DNS Anda dan lalu lintas lainnya ke jaringan lokal Anda saat Anda terputus. Apakah Anda yakin ingin mengaktifkannya?</translation>
+    </message>
+    <message>
         <source>Settings Conflict</source>
         <translation>Konflik Pengaturan</translation>
     </message>
@@ -1493,6 +1489,10 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
     <message>
         <source>In this firewall mode, the Windscribe API will not be available while disconnected, this could have unintended consequences. Use at own risk.</source>
         <translation>Dalam mode firewall ini, API Windscribe tidak akan tersedia saat terputus, ini dapat memiliki konsekuensi yang tidak diinginkan. Gunakan dengan risiko sendiri.</translation>
+    </message>
+    <message>
+        <source>Control the mode of behaviour of the Windscribe firewall. Always On modes disable Allow LAN Traffic to prevent DNS leaks.</source>
+        <translation>Kontrol mode perilaku firewall Windscribe. Mode Selalu Aktif menonaktifkan Izinkan Lalu Lintas LAN untuk mencegah kebocoran DNS.</translation>
     </message>
     <message>
         <source>Configure egress IP stack for VPN connections (WireGuard only).</source>
@@ -2081,6 +2081,10 @@ Menyambungkan ke jaringan terlebih dahulu</translation>
 </context>
 <context>
     <name>PreferencesWindow::ProtocolTweaksGroup</name>
+    <message>
+        <source>Custom SNI Domain</source>
+        <translation>Domain SNI Kustom</translation>
+    </message>
     <message>
         <source>Protocol Tweaks</source>
         <translation>Penyesuaian Protokol</translation>

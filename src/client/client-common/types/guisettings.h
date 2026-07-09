@@ -67,6 +67,7 @@ struct GuiSettings
         return !(*this == other);
     }
 
+#ifdef CLI_ONLY
     void fromIni(QSettings &settings)
     {
         isLaunchOnStartup = settings.value(kIniIsLaunchOnStartupProp, isLaunchOnStartup).toBool();
@@ -92,13 +93,14 @@ struct GuiSettings
         splitTunneling.toIni(settings);
         settings.endGroup();
     }
+#endif
 
     void validate()
     {
-        appSkin = APP_SKIN_fromInt(static_cast<int>(appSkin));
-        orderLocation = ORDER_LOCATION_TYPE_fromInt(static_cast<int>(orderLocation));
+        appSkin = enumFromInt<APP_SKIN>(static_cast<int>(appSkin));
+        orderLocation = enumFromInt<ORDER_LOCATION_TYPE>(static_cast<int>(orderLocation));
         trayIconColor = TRAY_ICON_COLOR_fromInt(static_cast<int>(trayIconColor));
-        multiDesktopBehavior = MULTI_DESKTOP_BEHAVIOR_fromInt(static_cast<int>(multiDesktopBehavior));
+        multiDesktopBehavior = enumFromInt<MULTI_DESKTOP_BEHAVIOR>(static_cast<int>(multiDesktopBehavior));
 
         backgroundSettings.validate();
         soundSettings.validate();
@@ -131,8 +133,8 @@ struct GuiSettings
         json[kJsonVersionProp] = static_cast<int>(versionForSerialization_);
 
         if (isForDebugLog) {
-            json["appSkinDesc"] = APP_SKIN_toString(appSkin);
-            json["orderLocationDesc"] = ORDER_LOCATION_TYPE_toString(orderLocation);
+            json["appSkinDesc"] = enumToString(appSkin);
+            json["orderLocationDesc"] = enumToString(orderLocation);
             json["trayIconColourDesc"] = TRAY_ICON_COLOR_toString(trayIconColor);
         }
 
@@ -242,7 +244,7 @@ private:
 inline GuiSettings::GuiSettings(const QJsonObject &json)
 {
     if (json.contains(kJsonAppSkinProp) && json[kJsonAppSkinProp].isDouble()) {
-        appSkin = APP_SKIN_fromInt(json[kJsonAppSkinProp].toInt());
+        appSkin = enumFromInt<APP_SKIN>(json[kJsonAppSkinProp].toInt());
     }
 
     if (json.contains(kJsonBackgroundSettingsProp) && json[kJsonBackgroundSettingsProp].isObject()) {
@@ -290,7 +292,7 @@ inline GuiSettings::GuiSettings(const QJsonObject &json)
     }
 
     if (json.contains(kJsonOrderLocationProp) && json[kJsonOrderLocationProp].isDouble()) {
-        orderLocation = ORDER_LOCATION_TYPE_fromInt(json[kJsonOrderLocationProp].toInt());
+        orderLocation = enumFromInt<ORDER_LOCATION_TYPE>(json[kJsonOrderLocationProp].toInt());
     }
 
 #if defined(Q_OS_LINUX) || defined(Q_OS_WIN)
@@ -317,9 +319,9 @@ inline GuiSettings::GuiSettings(const QJsonObject &json)
 
 #if defined(Q_OS_MACOS)
     if (json.contains(kJsonMultiDesktopBehaviourProp) && json[kJsonMultiDesktopBehaviourProp].isDouble()) {
-        multiDesktopBehavior = MULTI_DESKTOP_BEHAVIOR_fromInt(json[kJsonMultiDesktopBehaviourProp].toInt());
+        multiDesktopBehavior = enumFromInt<MULTI_DESKTOP_BEHAVIOR>(json[kJsonMultiDesktopBehaviourProp].toInt());
     } else if (json.contains(kJsonMultiDesktopBehaviorProp) && json[kJsonMultiDesktopBehaviorProp].isDouble()) {
-        multiDesktopBehavior = MULTI_DESKTOP_BEHAVIOR_fromInt(json[kJsonMultiDesktopBehaviorProp].toInt());
+        multiDesktopBehavior = enumFromInt<MULTI_DESKTOP_BEHAVIOR>(json[kJsonMultiDesktopBehaviorProp].toInt());
     }
 #endif
 

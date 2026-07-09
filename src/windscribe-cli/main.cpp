@@ -97,8 +97,8 @@ int main(int argc, char *argv[])
         std::cout << std::endl;
 #ifdef CLI_ONLY
         std::cout << "Managing preferences" << std::endl;
-        std::cout << "    preferences reload" << std::endl;
-        std::cout << "        " << "Reload the preference conf file (located at ~/.config/Windscribe/windscribe_cli.conf)" << std::endl;
+        std::cout << "    The preferences conf file is located at ~/.config/Windscribe/windscribe_cli.conf." << std::endl;
+        std::cout << "    Changes are applied automatically as soon as the file is saved." << std::endl;
         std::cout << std::endl;
 #endif
         std::cout << "Managing VPN and firewall" << std::endl;
@@ -150,6 +150,13 @@ int main(int argc, char *argv[])
         std::cout << "        " << "Update to the latest available version" << std::endl;
         return 0;
     }
+
+#ifdef CLI_ONLY
+    if (cliArgs.cliCommand() == CLI_COMMAND_RELOAD_CONFIG) {
+        std::cout << "Preferences are applied automatically as soon as the conf file is saved; reloading is no longer necessary." << std::endl;
+        return 0;
+    }
+#endif
 
     // If logging in, prompt for any missing credentials
     if (cliArgs.cliCommand() == CLI_COMMAND_LOGIN) {

@@ -86,7 +86,6 @@ ReachAbilityEvents::ReachAbilityEvents(QObject *parent) : QObject(parent)
 
 ReachAbilityEvents::~ReachAbilityEvents()
 {
-    [g_MacReachabilityEvents release];
     g_MacReachabilityEvents = nil;
     g_ReachabilityEvents = NULL;
 }

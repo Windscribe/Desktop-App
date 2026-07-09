@@ -183,9 +183,26 @@ void Uninstaller::RunSecondPhase()
     // open uninstall screen in browser
     wstring userId;
     Registry::RegQueryStringValue(HKEY_CURRENT_USER, L"Software\\Windscribe\\Windscribe2\\", L"userId", userId);
-    if (!userId.empty()) {
+
+    // Validate userId to block a value containing a double-quote or whitespace from breaking out of the quoted
+    // argument and injecting additional tokens that explorer would treat as further items to launch.
+    const bool userIdIsValid = !userId.empty() &&
+        userId.find_first_not_of(L"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789") == wstring::npos;
+    if (userIdIsValid) {
         wstring urlStr = L"https://windscribe.com/uninstall/desktop?user=" + userId;
-        ::ShellExecute(nullptr, L"open", urlStr.c_str(), L"", L"", SW_SHOW);
+
+        // Hand the URL to the shell out-of-process via explorer.exe rather than using ShellExecute,
+        // so no shell32 verb/protocol-handler extension is loaded into this process -- that is what
+        // keeps the uninstaller compatible with the Microsoft-signed-only load policy.  explorer
+        // opens the user's default browser in its own (de-elevated) process.
+        wchar_t windowsDir[MAX_PATH];
+        const UINT len = ::GetWindowsDirectory(windowsDir, MAX_PATH);
+        if (len > 0 && len < MAX_PATH) {
+            const wstring explorerPath = Path::append(windowsDir, L"explorer.exe");
+            Utils::instExec(explorerPath, L"\"" + urlStr + L"\"", 0, SW_SHOWNORMAL);
+        } else {
+            spdlog::warn(L"Failed to locate Windows directory to open the uninstall page ({})", ::GetLastError());
+        }
     }
 
     // remove any existing MAC spoofs from registry

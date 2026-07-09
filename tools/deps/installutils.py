@@ -100,6 +100,17 @@ def CheckChecksum(localfilename, expected_checksum):
                             format(localfilename, expected_checksum, actual_checksum))
 
 
+def VerifyGitCommit(dep_title, expected_commit):
+    if not expected_commit:
+        raise InstallError("No pinned commit defined for {}.".format(dep_title))
+    actual_commit = proc.ExecuteAndGetOutput(["git", "rev-parse", "HEAD"]).lower()
+    if actual_commit != expected_commit.lower():
+        raise ChecksumError("Commit mismatch for {}. Expected: {}, Actual: {}. "
+                            "The checked-out tag may have been moved or the upstream repository tampered with.".
+                            format(dep_title, expected_commit, actual_commit))
+    msg.Info("Verified {} commit: {}".format(dep_title, actual_commit))
+
+
 def DownloadFile(webfilename, localfilename, checksum=None):
     msg.Verbose("Downloading: \"{}\" to \"{}\"".format(webfilename, localfilename))
     if os.path.exists(localfilename):

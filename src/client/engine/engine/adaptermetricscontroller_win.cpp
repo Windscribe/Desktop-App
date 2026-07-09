@@ -41,7 +41,7 @@ void AdapterMetricsController_win::updateMetrics(const QString &adapterName, Hel
 
     PIP_ADAPTER_ADDRESSES aa = (PIP_ADAPTER_ADDRESSES)addresses.data();
     while (aa) {
-        QString adapterDescr = QString::fromUtf16((const ushort *)aa->Description);
+        QString adapterDescr = QString::fromUtf16((const char16_t *)aa->Description);
         //qDebug() << "adapterName:" << adapterName << ";" << "adapterDescr:" << adapterDescr;
 
         if (adapterName == adapterDescr) {

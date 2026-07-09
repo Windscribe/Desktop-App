@@ -196,6 +196,26 @@ static QString getAdapterIpV6(const QString &interface)
     return ip;
 }
 
+// True when the interface carries IFF_POINTOPOINT (PPP, cellular, tun). A gateway-less
+// default is only usable dev-only on such links; on a broadcast interface the kernel would
+// NDP every off-link destination on-link and blackhole it, so those must keep a real gateway.
+static bool isPointToPoint(const QString &interface)
+{
+    struct ifaddrs *ifaddr = nullptr;
+    if (getifaddrs(&ifaddr) != 0) {
+        return false;
+    }
+    auto freeGuard = qScopeGuard([&] { freeifaddrs(ifaddr); });
+
+    const QByteArray nameBytes = interface.toUtf8();
+    for (struct ifaddrs *ifa = ifaddr; ifa != nullptr; ifa = ifa->ifa_next) {
+        if (qstrcmp(ifa->ifa_name, nameBytes.constData()) == 0) {
+            return (ifa->ifa_flags & IFF_POINTOPOINT) != 0;
+        }
+    }
+    return false;
+}
+
 void getDefaultRoute(QString &outGatewayIp, QString &outInterfaceName, QString &outAdapterIp, bool ignoreTun)
 {
     outInterfaceName.clear();
@@ -258,8 +278,10 @@ void getDefaultRouteV6(QString &outGatewayIp, QString &outInterfaceName, QString
     // Flags come from include/uapi/linux/route.h (shared with v4); we care about:
     //   RTF_UP      = 0x0001
     //   RTF_GATEWAY = 0x0002
+    //   RTF_REJECT  = 0x0200  (unreachable / blackhole / prohibit)
     constexpr int kRtfUp = 0x0001;
     constexpr int kRtfGateway = 0x0002;
+    constexpr int kRtfReject = 0x0200;
 
     FILE *f = fopen("/proc/net/ipv6_route", "r");
     if (f == nullptr) {
@@ -269,6 +291,7 @@ void getDefaultRouteV6(QString &outGatewayIp, QString &outInterfaceName, QString
     auto exitGuard = qScopeGuard([&] { fclose(f); });
 
     uint32_t lowestMetric = UINT32_MAX;
+    bool lowestHasGateway = false;
 
     char buf[1024];
     while (fgets(buf, sizeof(buf), f) != nullptr) {
@@ -279,7 +302,7 @@ void getDefaultRouteV6(QString &outGatewayIp, QString &outInterfaceName, QString
         }
 
         const QString interface = split[9];
-        if (ignoreTun && (interface.startsWith("tun") || interface.startsWith("utun"))) {
+        if (interface == QStringLiteral("lo") || (ignoreTun && (interface.startsWith("tun") || interface.startsWith("utun")))) {
             continue;
         }
 
@@ -298,12 +321,27 @@ void getDefaultRouteV6(QString &outGatewayIp, QString &outInterfaceName, QString
         // would treat them as out-of-range for int32_t). Real-world values stay
         // well below 0x80000000, but the unsigned parse matches the source format.
         const uint32_t flags = split[8].toUInt(&ok, 16);
-        if (!ok || (flags & (kRtfUp | kRtfGateway)) != (kRtfUp | kRtfGateway)) {
+        // Skip reject routes (unreachable/blackhole/prohibit ::/0, e.g. NetworkManager
+        // ipv6.method=disabled): they sit on lo with no gateway and are not a real egress.
+        // The old RTF_GATEWAY requirement excluded them implicitly; the relaxed check below
+        // must filter them explicitly.
+        if (!ok || !(flags & kRtfUp) || (flags & kRtfReject)) {
             continue;
         }
 
-        const QString gateway = hexToIpV6String(split[4]);
-        if (gateway.isEmpty() || gateway == QStringLiteral("::")) {
+        // Point-to-point defaults (PPP, cellular) have no RTF_GATEWAY and a :: nexthop; they
+        // are reachable via the interface alone, so report them with an empty gateway rather
+        // than discarding them. A gateway route must carry a usable nexthop, so a malformed/::
+        // one is still skipped. A gateway-less default on a broadcast interface is NOT usable
+        // dev-only (the kernel would NDP off-link destinations on-link and blackhole them), so
+        // require IFF_POINTOPOINT before accepting it.
+        QString gateway;
+        if (flags & kRtfGateway) {
+            gateway = hexToIpV6String(split[4]);
+            if (gateway.isEmpty() || gateway == QStringLiteral("::")) {
+                continue;
+            }
+        } else if (!isPointToPoint(interface)) {
             continue;
         }
 
@@ -313,9 +351,13 @@ void getDefaultRouteV6(QString &outGatewayIp, QString &outInterfaceName, QString
         }
 
         // Same rationale as the v4 default-route pick: pick lowest metric to avoid stale
-        // not-yet-connectivity-checked routes that NetworkManager bumps by +20000.
-        if (metric < lowestMetric) {
+        // not-yet-connectivity-checked routes that NetworkManager bumps by +20000. On a
+        // metric tie, prefer a gatewayed default over a gateway-less one so we don't drop a
+        // usable router in favour of a same-metric on-link entry.
+        const bool hasGateway = !gateway.isEmpty();
+        if (metric < lowestMetric || (metric == lowestMetric && hasGateway && !lowestHasGateway)) {
             lowestMetric = metric;
+            lowestHasGateway = hasGateway;
             outInterfaceName = interface;
             outGatewayIp = gateway;
             outAdapterIp = getAdapterIpV6(interface);

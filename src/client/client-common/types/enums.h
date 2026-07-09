@@ -1,5 +1,7 @@
 #pragma once
 
+#include <QList>
+#include <QPair>
 #include <QString>
 #include <QVariant>
 
@@ -160,6 +162,16 @@ enum USER_WARNING_TYPE {
     USER_WARNING_CHECK_UPDATE_INVALID_PLATFORM = 4
 };
 
+enum SPLIT_TUNNEL_START_FAIL_REASON {
+    // Generic start failure: the privileged service/helper, or the macOS extension session, could not
+    // start split tunneling.  Shows the generic "could not be started" message on every platform.
+    SPLIT_TUNNEL_START_FAIL_REASON_DEFAULT = 0,
+    // macOS only: the system extension is not enabled in System Settings, so the user is guided to
+    // enable it.  Used only for the genuine not-enabled case -- not for a session that failed while the
+    // extension was enabled, where that guidance would be wrong.
+    SPLIT_TUNNEL_START_FAIL_REASON_MAC_EXTENSION_NOT_ENABLED = 1
+};
+
 enum INIT_STATE {
     INIT_STATE_CLEAN = 0,
     INIT_STATE_SUCCESS = 1,
@@ -318,97 +330,27 @@ enum SOUND_NOTIFICATION_TYPE {
     SOUND_NOTIFICATION_TYPE_CUSTOM
 };
 
-// utils for enums
-DNS_POLICY_TYPE DNS_POLICY_TYPE_fromInt(int t);
-DNS_POLICY_TYPE DNS_POLICY_TYPE_fromString(const QString &s);
-QString DNS_POLICY_TYPE_toString(DNS_POLICY_TYPE d);
-QList<QPair<QString, QVariant>> DNS_POLICY_TYPE_toList();
+// Generic enum <-> int/string/list helpers.
+//
+// Each enum's metadata (string mapping, defaults, translatable strings) lives in a single table in
+// enums.cpp, and these function templates are explicitly instantiated there for every supported
+// enum.  Adding conversions for a new enum only requires adding its table/specialization and the
+// explicit instantiations in enums.cpp -- no per-enum declarations are needed here.
+//
+// Usage:
+//   QString s = enumToString(value);        // E is deduced from the argument
+//   E v       = enumFromInt<E>(intValue);
+//   E v       = enumFromString<E>(str);
+//   auto list = enumToList<E>();             // for combo-box population (label + int value)
+template <typename E> E enumFromInt(int t);
+template <typename E> E enumFromString(const QString &s);
+template <typename E> QString enumToString(E value);
+template <typename E> QList<QPair<QString, QVariant>> enumToList();
 
-CONNECTED_DNS_TYPE CONNECTED_DNS_TYPE_fromInt(int t);
-CONNECTED_DNS_TYPE CONNECTED_DNS_TYPE_fromString(const QString &s);
-QString CONNECTED_DNS_TYPE_toString(CONNECTED_DNS_TYPE t);
-
-SPLIT_TUNNELING_MODE SPLIT_TUNNELING_MODE_fromInt(int t);
-SPLIT_TUNNELING_MODE SPLIT_TUNNELING_MODE_fromString(const QString &s);
-QString SPLIT_TUNNELING_MODE_toString(SPLIT_TUNNELING_MODE t);
-SPLIT_TUNNELING_NETWORK_ROUTE_TYPE SPLIT_TUNNELING_NETWORK_ROUTE_TYPE_fromInt(int t);
-SPLIT_TUNNELING_APP_TYPE SPLIT_TUNNELING_APP_TYPE_fromInt(int t);
-
-PROXY_SHARING_TYPE PROXY_SHARING_TYPE_fromInt(int t);
-PROXY_SHARING_TYPE PROXY_SHARING_TYPE_fromString(const QString &s);
-QString PROXY_SHARING_TYPE_toString(PROXY_SHARING_TYPE t);
-QList<QPair<QString, QVariant>> PROXY_SHARING_TYPE_toList();
-
-ORDER_LOCATION_TYPE ORDER_LOCATION_TYPE_fromInt(int t);
-QString ORDER_LOCATION_TYPE_toString(ORDER_LOCATION_TYPE p);
-QList<QPair<QString, QVariant>> ORDER_LOCATION_TYPE_toList();
-
-SERVER_ROUTING_METHOD_TYPE SERVER_ROUTING_METHOD_TYPE_fromInt(int t);
-QString SERVER_ROUTING_METHOD_TYPE_toString(SERVER_ROUTING_METHOD_TYPE p);
-QList<QPair<QString, QVariant>> SERVER_ROUTING_METHOD_TYPE_toList();
-
-PROTOCOL_TWEAKS_METHOD_TYPE PROTOCOL_TWEAKS_METHOD_TYPE_fromInt(int t);
-QString PROTOCOL_TWEAKS_METHOD_TYPE_toString(PROTOCOL_TWEAKS_METHOD_TYPE p);
-QList<QPair<QString, QVariant>> PROTOCOL_TWEAKS_METHOD_TYPE_toList();
-
-BACKGROUND_TYPE BACKGROUND_TYPE_fromInt(int t);
-SOUND_NOTIFICATION_TYPE SOUND_NOTIFICATION_TYPE_fromInt(int t);
-
-QString TAP_ADAPTER_TYPE_toString(TAP_ADAPTER_TYPE t);
-
-FIREWALL_MODE FIREWALL_MODE_fromInt(int t);
-FIREWALL_MODE FIREWALL_MODE_fromString(const QString &s);
-QString FIREWALL_MODE_toString(FIREWALL_MODE t);
-QList<QPair<QString, QVariant>> FIREWALL_MODE_toList();
-
-FIREWALL_WHEN FIREWALL_WHEN_fromInt(int t);
-FIREWALL_WHEN FIREWALL_WHEN_fromString(const QString &s);
-QString FIREWALL_WHEN_toString(FIREWALL_WHEN t);
-QList<QPair<QString, QVariant>> FIREWALL_WHEN_toList();
-
-NETWORK_INTERFACE_TYPE NETWORK_INTERFACE_TYPE_fromInt(int t);
-
-NETWORK_TRUST_TYPE NETWORK_TRUST_TYPE_fromInt(int t);
-NETWORK_TRUST_TYPE NETWORK_TRUST_TYPE_fromString(const QString &s);
-QString NETWORK_TRUST_TYPE_toString(NETWORK_TRUST_TYPE t);
-
-PROXY_OPTION PROXY_OPTION_fromInt(int t);
-PROXY_OPTION PROXY_OPTION_fromString(const QString &s);
-QString PROXY_OPTION_toString(PROXY_OPTION t);
-QList<QPair<QString, QVariant>> PROXY_OPTION_toList();
-
-UPDATE_CHANNEL UPDATE_CHANNEL_fromInt(int t);
-UPDATE_CHANNEL UPDATE_CHANNEL_fromString(const QString &s);
-QString UPDATE_CHANNEL_toString(UPDATE_CHANNEL t);
-QList<QPair<QString, QVariant>> UPDATE_CHANNEL_toList();
-
-DNS_MANAGER_TYPE DNS_MANAGER_TYPE_fromInt(int t);
-DNS_MANAGER_TYPE DNS_MANAGER_TYPE_fromString(const QString &s);
-QString DNS_MANAGER_TYPE_toString(DNS_MANAGER_TYPE t);
-QList<QPair<QString, QVariant>> DNS_MANAGER_TYPE_toList();
-
-APP_SKIN APP_SKIN_fromInt(int t);
-QString APP_SKIN_toString(APP_SKIN s);
-QList<QPair<QString, QVariant>> APP_SKIN_toList();
-
+// TRAY_ICON_COLOR has platform-dependent behavior (default value, available options and OS-theme
+// handling differ per OS), so it keeps dedicated helpers instead of the generic tables.
 TRAY_ICON_COLOR TRAY_ICON_COLOR_default();
 TRAY_ICON_COLOR TRAY_ICON_COLOR_fromInt(int t);
 QString TRAY_ICON_COLOR_toString(TRAY_ICON_COLOR c);
 QList<QPair<QString, QVariant>> TRAY_ICON_COLOR_toList();
-
-TOGGLE_MODE TOGGLE_MODE_fromString(const QString &s);
-QString TOGGLE_MODE_toString(TOGGLE_MODE t);
-
-MULTI_DESKTOP_BEHAVIOR MULTI_DESKTOP_BEHAVIOR_fromInt(int t);
-QString MULTI_DESKTOP_BEHAVIOR_toString(MULTI_DESKTOP_BEHAVIOR t);
-QList<QPair<QString, QVariant>> MULTI_DESKTOP_BEHAVIOR_toList();
-
-ASPECT_RATIO_MODE ASPECT_RATIO_MODE_fromInt(int t);
-QString ASPECT_RATIO_MODE_toString(ASPECT_RATIO_MODE t);
-QList<QPair<QString, QVariant>> ASPECT_RATIO_MODE_toList();
-
-IpStack ipStackFromInt(int t);
-IpStack ipStackFromString(const QString &s);
-QString ipStackToString(IpStack s);
-QList<QPair<QString, QVariant>> ipStackToList();
 

@@ -45,7 +45,8 @@ namespace KeyChainUtils
             CFTypeRef result = NULL;
             SecItemCopyMatching((__bridge CFDictionaryRef)dict, &result);
 
-            return (NSData *)result;
+            // SecItemCopyMatching returns a +1 reference; CFBridgingRelease transfers ownership to ARC.
+            return (NSData *)CFBridgingRelease(result);
     }
 
     bool createKeychainItem(const char *username, const char *password)
@@ -213,9 +214,9 @@ void IKEv2Connection_mac::startConnect(const StartConnectParams &params)
                                 }
                                 else
                                 {
-                                    notificationId_ = [[NSNotificationCenter defaultCenter] addObserverForName: (NSString *)NEVPNStatusDidChangeNotification object: manager.connection queue: nil usingBlock: ^ (NSNotification *notification)
+                                    notificationId_ = (__bridge void *)[[NSNotificationCenter defaultCenter] addObserverForName: (NSString *)NEVPNStatusDidChangeNotification object: manager.connection queue: nil usingBlock: ^ (NSNotification *notification)
                                     {
-                                        this->handleNotification(notification);
+                                        this->handleNotification((__bridge void *)notification);
                                     }];
 
                                     qCInfo(LOG_IKEV2) << "NEVPNConnection current status:" << (int)manager.connection.status;
@@ -225,7 +226,7 @@ void IKEv2Connection_mac::startConnect(const StartConnectParams &params)
                                     if (startError)
                                     {
                                         qCWarning(LOG_IKEV2) << "Error starting ikev2 connection:" << QString::fromNSString(startError.localizedDescription);
-                                        [[NSNotificationCenter defaultCenter] removeObserver: (id)notificationId_ name: (NSString *)NEVPNStatusDidChangeNotification object: manager.connection];
+                                        [[NSNotificationCenter defaultCenter] removeObserver: (__bridge id)notificationId_ name: (NSString *)NEVPNStatusDidChangeNotification object: manager.connection];
                                         state_ = STATE_DISCONNECTED;
                                         emit error(IKEV_FAILED_START_MAC);
                                     }
@@ -265,7 +266,7 @@ void IKEv2Connection_mac::startDisconnect()
         //       Without this check we will start connecting to the Wireguard when IKEv2 connecting process hasn't finished yet.
         if (manager.connection.status == NEVPNStatusDisconnected && isConnectingStateReachedAfterStartingConnection_)
         {
-            [[NSNotificationCenter defaultCenter] removeObserver: (id)notificationId_ name: (NSString *)NEVPNStatusDidChangeNotification object: manager.connection];
+            [[NSNotificationCenter defaultCenter] removeObserver: (__bridge id)notificationId_ name: (NSString *)NEVPNStatusDidChangeNotification object: manager.connection];
             state_ = STATE_DISCONNECTED;
             statisticsTimer_.stop();
             emit disconnected();
@@ -395,7 +396,7 @@ void IKEv2Connection_mac::handleNotificationImpl(int status)
     if (status == NEVPNStatusInvalid)
     {
         qCInfo(LOG_IKEV2) << "Connection status changed: NEVPNStatusInvalid";
-        [[NSNotificationCenter defaultCenter] removeObserver: (id)notificationId_ name: (NSString *)NEVPNStatusDidChangeNotification object: manager.connection];
+        [[NSNotificationCenter defaultCenter] removeObserver: (__bridge id)notificationId_ name: (NSString *)NEVPNStatusDidChangeNotification object: manager.connection];
         state_ = STATE_DISCONNECTED;
         statisticsTimer_.stop();
         emit disconnected();
@@ -406,7 +407,7 @@ void IKEv2Connection_mac::handleNotificationImpl(int status)
 
         if (state_ == STATE_DISCONNECTING_ANY_ERROR)
         {
-            [[NSNotificationCenter defaultCenter] removeObserver: (id)notificationId_ name: (NSString *)NEVPNStatusDidChangeNotification object: manager.connection];
+            [[NSNotificationCenter defaultCenter] removeObserver: (__bridge id)notificationId_ name: (NSString *)NEVPNStatusDidChangeNotification object: manager.connection];
             state_ = STATE_DISCONNECTED;
             emit error(IKEV_FAILED_TO_CONNECT);
         }
@@ -417,7 +418,7 @@ void IKEv2Connection_mac::handleNotificationImpl(int status)
                 emit error(AUTH_ERROR);
             }
 
-            [[NSNotificationCenter defaultCenter] removeObserver: (id)notificationId_ name: (NSString *)NEVPNStatusDidChangeNotification object: manager.connection];
+            [[NSNotificationCenter defaultCenter] removeObserver: (__bridge id)notificationId_ name: (NSString *)NEVPNStatusDidChangeNotification object: manager.connection];
             state_ = STATE_DISCONNECTED;
             statisticsTimer_.stop();
             emit disconnected();
@@ -443,7 +444,7 @@ void IKEv2Connection_mac::handleNotificationImpl(int status)
         // note: route gateway not used for ikev2 in AdapterGatewayInfo. IKEv2 is v4-only on
         // macOS (Windscribe server doesn't push a v6 client address, NEVPNManager has no
         // v6-default-route flag), so we only populate v4 here — any v6 traffic on the IKEv2
-        // adapter is blocked by the v6 conditional kill-switch.
+        // adapter is blocked by the v6 conditional firewall.
         AdapterGatewayInfo cai;
         ipsecAdapterName_ = NetworkUtils_mac::lastConnectedNetworkInterfaceName();
         cai.setAdapterName(ipsecAdapterName_);
@@ -453,7 +454,7 @@ void IKEv2Connection_mac::handleNotificationImpl(int status)
         // Runtime canary: if Windscribe's IKEv2 endpoints ever start pushing a v6 client
         // address, the v4-only assumption above silently rots — the adapter would have a
         // global v6 the AdapterGatewayInfo never learns about, and the v6 conditional
-        // kill-switch is the only thing keeping it from leaking. Log loudly so the drift
+        // firewall is the only thing keeping it from leaking. Log loudly so the drift
         // shows up in support bundles before it becomes a bug report.
         const QString ipV6Str = NetworkUtils_mac::ipAddressByInterfaceNameV6(ipsecAdapterName_);
         if (!ipV6Str.isEmpty()) {
@@ -576,7 +577,7 @@ bool IKEv2Connection_mac::setKeyChain(const QString &username, const QString &pa
 void IKEv2Connection_mac::handleNotification(void *notification)
 {
     QMutexLocker locker(&mutex_);
-    NSNotification *nsNotification = (NSNotification *)notification;
+    NSNotification *nsNotification = (__bridge NSNotification *)notification;
     NEVPNConnection *connection = nsNotification.object;
     QMetaObject::invokeMethod(this, "handleNotificationImpl", Q_ARG(int, (int)connection.status));
 }

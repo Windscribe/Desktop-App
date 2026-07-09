@@ -103,22 +103,31 @@ bool FirewallController::applyTargeted(const FirewallConfig &config, bool force)
     if (force || !sameIpSet(config.allowedIps, lastConfig_.allowedIps)) {
         ok = loadTableDef(ipsTableDef(config.allowedIps)) && ok;
     }
-    // lanTrafficRules' pass/block action is (allowLanTraffic || isCustomConfig), so isCustomConfig
-    // flips the LAN rules just as allowLanTraffic does — gate on both. Otherwise switching to/from a
-    // custom config without an allowLanTraffic change would leave the LAN anchor stale (custom
-    // config's private gateway/DNS blocked, or LAN left open after switching back).
-    if (force ||
-        config.allowLanTraffic != lastConfig_.allowLanTraffic ||
-        config.isCustomConfig != lastConfig_.isCustomConfig) {
-        ok = loadAnchor(WS_PRODUCT_NAME_LOWER "_lan_traffic", lanTrafficRules(config.allowLanTraffic, config.isCustomConfig)) && ok;
+    // One getifaddrs walk feeds both anchor builders (the LAN anchor's tunnel carve-out needs the
+    // adapter's local v4 addresses, the VPN anchor needs the v6 capability), mirroring the single
+    // probe in the Linux enable() flow.
+    std::vector<std::string> localV4Addrs;
+    bool hasV6Addr = false;
+    probeInterfaceAddresses(config.vpnInterfaceName, localV4Addrs, hasV6Addr);
+
+    // Both anchors bake in live interface state (the VPN interface name and the adapter's local v4
+    // addresses in the LAN anchor's tunnel carve-out; the v6 capability in the VPN anchor) that is
+    // not part of FirewallConfig or changes without any other config-field change (connect/reconnect
+    // swaps utun4 -> utun5; the tunnel can gain a v6 address or have its v4 address reassigned). So
+    // gate each on its generated rules rather than on config fields — otherwise the anchor would go
+    // stale, e.g. the LAN carve-out left blocking on a previous connection's interface. Comparing
+    // the generated text subsumes the allowLanTraffic/isCustomConfig/connectingIp/vpnInterfaceName
+    // checks, which all alter it. Mirrors the <disallowed_dns> diff-gate below.
+    const std::vector<std::string> lanRules = lanTrafficRules(config, localV4Addrs, hasV6Addr);
+    bool lanReloaded = false;
+    if (force || lanRules != lastLanTrafficRules_) {
+        if (loadAnchor(WS_PRODUCT_NAME_LOWER "_lan_traffic", lanRules)) {
+            lanReloaded = true;
+        } else {
+            ok = false;
+        }
     }
-    // vpnTrafficRules bakes in live interface state (the adapter's local v4 addresses and whether it
-    // carries a non-link-local v6 address) that is not part of FirewallConfig, so gate on the
-    // generated rules rather than the config fields alone — otherwise a tunnel that gains a v6
-    // address or has its v4 address reassigned without a config-field change would keep stale rules.
-    // Comparing the generated text subsumes the connectingIp/isCustomConfig/vpnInterfaceName checks,
-    // which all alter it. Mirrors the <disallowed_dns> diff-gate below.
-    const std::vector<std::string> vpnRules = vpnTrafficRules(config);
+    const std::vector<std::string> vpnRules = vpnTrafficRules(config, hasV6Addr);
     bool vpnReloaded = false;
     if (force || vpnRules != lastVpnTrafficRules_) {
         if (loadAnchor(WS_PRODUCT_NAME_LOWER "_vpn_traffic", vpnRules)) {
@@ -148,6 +157,9 @@ bool FirewallController::applyTargeted(const FirewallConfig &config, bool force)
     // by enable() on failure, so leaving these stale too keeps the next push's diff-gate consistent
     // (it re-evaluates and re-applies rather than skipping a piece that never actually landed).
     if (ok) {
+        if (lanReloaded) {
+            lastLanTrafficRules_ = lanRules;
+        }
         if (vpnReloaded) {
             lastVpnTrafficRules_ = vpnRules;
         }
@@ -163,11 +175,15 @@ bool FirewallController::fullApply(const FirewallConfig &config)
     // Read the OS-resolver set once and cache it so applyTargeted's diff-gate has a baseline (and
     // doesn't redundantly reload <disallowed_dns> on the first steady-state push after this apply).
     lastDisallowedDnsDef_ = disallowedDnsTableDef();
-    // Cache the vpn_traffic rules built from the current live interface state so applyTargeted's
-    // diff-gate has a baseline; pass them into buildPfConf so the written ruleset and the cache come
-    // from a single interface probe and can't diverge.
-    lastVpnTrafficRules_ = vpnTrafficRules(config);
-    const std::string pf = buildPfConf(config, lastDisallowedDnsDef_, lastVpnTrafficRules_);
+    // Cache the lan_traffic/vpn_traffic rules built from the current live interface state so
+    // applyTargeted's diff-gates have baselines; pass them into buildPfConf so the written ruleset
+    // and the caches come from a single interface probe and can't diverge.
+    std::vector<std::string> localV4Addrs;
+    bool hasV6Addr = false;
+    probeInterfaceAddresses(config.vpnInterfaceName, localV4Addrs, hasV6Addr);
+    lastLanTrafficRules_ = lanTrafficRules(config, localV4Addrs, hasV6Addr);
+    lastVpnTrafficRules_ = vpnTrafficRules(config, hasV6Addr);
+    const std::string pf = buildPfConf(config, lastDisallowedDnsDef_, lastLanTrafficRules_, lastVpnTrafficRules_);
 
     if (!IO::writeFile(WS_POSIX_CONFIG_DIR "/pf.conf", pf, 0600)) {
         spdlog::error("Could not write firewall rules: {}", IO::strerror(errno));
@@ -269,6 +285,7 @@ bool FirewallController::disable(bool keepPfEnabled)
     hasLastConfig_ = false;
     lastConfig_ = FirewallConfig();
     lastDisallowedDnsDef_.clear();
+    lastLanTrafficRules_.clear();
     lastVpnTrafficRules_.clear();
     return ok;
 }
@@ -373,7 +390,7 @@ std::vector<std::string> FirewallController::staticPortsRules(const std::vector<
     return rules;
 }
 
-std::string FirewallController::buildPfConf(const FirewallConfig &config, const std::string &disallowedDnsDef, const std::vector<std::string> &vpnTrafficRulesText)
+std::string FirewallController::buildPfConf(const FirewallConfig &config, const std::string &disallowedDnsDef, const std::vector<std::string> &lanTrafficRulesText, const std::vector<std::string> &vpnTrafficRulesText)
 {
     std::string pf;
     pf += "# Automatically generated by " WS_PRODUCT_NAME ". Any manual change will be overridden.\n";
@@ -392,7 +409,7 @@ std::string FirewallController::buildPfConf(const FirewallConfig &config, const 
     pf += "load anchor \"com.apple\" from \"/etc/pf.anchors/com.apple\"\n";
 
     // skip awdl and p2p interfaces (awdl Apple Wireless Direct Link and p2p related to AWDL features)
-    for (const auto &iface : getAwdlP2pInterfaces()) {
+    for (const auto &iface : Utils::getAwdlP2pInterfaces()) {
         pf += "pass quick on " + iface + "\n";
     }
 
@@ -427,9 +444,11 @@ std::string FirewallController::buildPfConf(const FirewallConfig &config, const 
 
     // this table is filled in by the helper (loadDnsTable)
     pf += "table <" WS_PRODUCT_NAME_LOWER "_dns> persist\n";
-    // Allow VPN DNS, disallow other DNS
-    pf += "pass out quick proto udp from any to <" WS_PRODUCT_NAME_LOWER "_dns> port 53\n";
-    pf += "pass in quick proto udp from <" WS_PRODUCT_NAME_LOWER "_dns> port 53 to any\n";
+    // Allow VPN DNS, disallow other DNS. "no state" (like the ips table above) so a query to a
+    // resolver that setVpnDns later drops from the table can't outlive it via a stale pf state — the
+    // table reloads without flushing state. The in+out pair covers returns, so state is unneeded.
+    pf += "pass out quick proto udp from any to <" WS_PRODUCT_NAME_LOWER "_dns> port 53 no state\n";
+    pf += "pass in quick proto udp from <" WS_PRODUCT_NAME_LOWER "_dns> port 53 to any no state\n";
 
     pf += disallowedDnsDef + "\n";
     pf += "block out quick proto {tcp, udp} from any to <disallowed_dns> port 53\n";
@@ -437,16 +456,17 @@ std::string FirewallController::buildPfConf(const FirewallConfig &config, const 
 
     // LAN traffic rules have precedence over split tunnel rules. On an inclusive tunnel, whether
     // included apps can reach the LAN is controlled by the "Allow LAN traffic" setting.
-    pf += anchorBlock(WS_PRODUCT_NAME_LOWER "_lan_traffic", lanTrafficRules(config.allowLanTraffic, config.isCustomConfig)) + "\n";
+    pf += anchorBlock(WS_PRODUCT_NAME_LOWER "_lan_traffic", lanTrafficRulesText) + "\n";
     pf += anchorBlock(WS_PRODUCT_NAME_LOWER "_vpn_traffic", vpnTrafficRulesText) + "\n";
     pf += anchorBlock(WS_PRODUCT_NAME_LOWER "_static_ports_traffic", staticPortsRules(config.staticPorts)) + "\n";
 
     return pf;
 }
 
-std::vector<std::string> FirewallController::lanTrafficRules(bool allowLanTraffic, bool isCustomConfig)
+std::vector<std::string> FirewallController::lanTrafficRules(const FirewallConfig &config, const std::vector<std::string> &localV4Addrs, bool hasV6Addr)
 {
     std::vector<std::string> rules;
+    const std::string &iface = config.vpnInterfaceName;
 
     // Always allow localhost (IPv4 and IPv6)
     rules.push_back("pass out quick inet from any to 127.0.0.0/8");
@@ -458,26 +478,106 @@ std::vector<std::string> FirewallController::lanTrafficRules(bool allowLanTraffi
     rules.push_back("pass out quick inet6 from any to fe80::/10");
     rules.push_back("pass in quick inet6 from fe80::/10 to any");
 
+    // ICMPv6 NDP/MLD (types 130-137, 143): always allow, independent of allowLanTraffic, so
+    // neighbor/router discovery and multicast-listener messages keep working even when LAN traffic
+    // is blocked. NS/RS and MLD reports use multicast destinations that would otherwise be gated by
+    // the ff00::/8 rule, so the fe80::/10 permit above is not sufficient on its own. Mirrors the
+    // Linux runtime rules and the macOS boot ruleset.
+    rules.push_back("pass out quick inet6 proto icmp6 icmp6-type { 130, 131, 132, 133, 134, 135, 136, 137, 143 }");
+    rules.push_back("pass in quick inet6 proto icmp6 icmp6-type { 130, 131, 132, 133, 134, 135, 136, 137, 143 }");
+
+    // ICMPv6 connectivity-critical error messages (RFC 4890 §4.3.1): Destination Unreachable (1),
+    // Packet Too Big (2), Time Exceeded (3), Parameter Problem (4). Scoped to the VPN interface and
+    // only when it actually carries v6 — mirrors the Linux runtime exemption. A Packet-Too-Big from
+    // a (server-controlled, possibly ULA-addressed) in-tunnel hop must survive this anchor's
+    // fc00::/7 blocks (the scoped carve-out below with LAN on, the unscoped pairs further down with
+    // LAN off) or IPv6 PMTUD over the tunnel blackholes. pf's default-stateful matching already
+    // passes ICMPv6 errors tied to an existing state ahead of ruleset evaluation, so in practice
+    // this covers stateless edge cases — kept for robustness and parity with Linux. Deliberately
+    // NOT emitted unscoped: these types are globally routable and carry up to ~1200 bytes of the
+    // triggering packet, so accepting them on the physical interface would punch a covert-channel /
+    // presence-disclosure hole through the firewall. Emitted regardless of allowLanTraffic
+    // (unlike the carve-out below: the LAN-off unscoped blocks need it too); gated on
+    // !isCustomConfig because custom configs never block these ranges in this anchor, which would
+    // leave the pair as dead, packet-shadowing rules.
+    if (!iface.empty() && !config.isCustomConfig && hasV6Addr) {
+        rules.push_back("pass out quick on " + iface + " inet6 proto icmp6 icmp6-type { 1, 2, 3, 4 }");
+        rules.push_back("pass in quick on " + iface + " inet6 proto icmp6 icmp6-type { 1, 2, 3, 4 }");
+    }
+
+    // The in-tunnel WireGuard DNS (10.255.255.0/24) must stay reachable over the tunnel in every
+    // mode — Allow-LAN on or off, custom config or not — so its tunnel-scoped pass is emitted
+    // whenever a VPN interface exists, ahead of both the tunnel-scoped 10.0.0.0/8 block in the
+    // carve-out below and the global block further down. Mirrors the Linux runtime rules
+    // (buildFirewallRules): tunnel pass then global block, so the address works in-tunnel but is
+    // dropped if it ever egresses the physical NIC.
+    if (!iface.empty()) {
+        rules.push_back("pass out quick on " + iface + " inet from any to 10.255.255.0/24");
+        rules.push_back("pass in quick on " + iface + " inet from 10.255.255.0/24 to any");
+    }
+
+    // Tunnel carve-out: with "Allow LAN traffic" on, the unscoped passes below would otherwise also
+    // open these ranges *into* the tunnel whenever routing sends an off-link RFC1918/ULA packet (or
+    // a multicast packet, e.g. mDNS to ff02::fb from an all-interfaces responder) to the default
+    // route. pf's quick makes the first match final and this anchor is evaluated before
+    // windscribe_vpn_traffic, so the tunnel-scoped blocks must live here, ahead of those passes —
+    // a block in vpnTrafficRules would never see the packet. Mirrors the Linux runtime carve-out
+    // (buildFirewallRules in the Linux FirewallController) so the setting behaves the same
+    // on both platforms. The adapter's own addresses must stay reachable over the tunnel, so their
+    // scoped passes precede the scoped blocks, in the same order as Linux (the reserved
+    // 10.255.255.0/24 in-tunnel DNS subnet is handled by the unconditional tunnel pass above).
+    // Gated on allowLanTraffic because with LAN off the unscoped blocks below already cover the
+    // tunnel (the scoped pairs would be verdict-equivalent dead rules), and on !isCustomConfig
+    // because custom configs legitimately use private gateway/DNS addresses inside the tunnel.
+    if (!iface.empty() && !config.isCustomConfig && config.allowLanTraffic) {
+        for (const auto &addr : localV4Addrs) {
+            rules.push_back("pass out quick on " + iface + " inet from any to " + addr + "/32");
+            rules.push_back("pass in quick on " + iface + " inet from " + addr + "/32 to any");
+        }
+        rules.push_back("block out quick on " + iface + " inet from any to 192.168.0.0/16");
+        rules.push_back("block in quick on " + iface + " inet from 192.168.0.0/16 to any");
+        rules.push_back("block out quick on " + iface + " inet from any to 172.16.0.0/12");
+        rules.push_back("block in quick on " + iface + " inet from 172.16.0.0/12 to any");
+        rules.push_back("block out quick on " + iface + " inet from any to 169.254.0.0/16");
+        rules.push_back("block in quick on " + iface + " inet from 169.254.0.0/16 to any");
+        rules.push_back("block out quick on " + iface + " inet from any to 10.0.0.0/8");
+        rules.push_back("block in quick on " + iface + " inet from 10.0.0.0/8 to any");
+        rules.push_back("block out quick on " + iface + " inet from any to 224.0.0.0/4");
+        rules.push_back("block in quick on " + iface + " inet from 224.0.0.0/4 to any");
+        rules.push_back("block out quick on " + iface + " inet6 from any to fc00::/7");
+        rules.push_back("block in quick on " + iface + " inet6 from fc00::/7 to any");
+        rules.push_back("block out quick on " + iface + " inet6 from any to ff00::/8");
+        rules.push_back("block in quick on " + iface + " inet6 from ff00::/8 to any");
+    }
+
     // Custom configs need private ranges allowed so third-party VPN DNS/gateway/routes work
-    const std::string action = (allowLanTraffic || isCustomConfig) ? "pass" : "block";
+    const std::string action = (config.allowLanTraffic || config.isCustomConfig) ? "pass" : "block";
+
+    // Pass form is "no state" so a live flow (e.g. mDNS to 224.0.0.251) can't outlive the flip to
+    // block when Allow LAN turns off — this anchor reloads without flushing pf state. Safe: each
+    // range has an explicit in+out pair, so returns don't depend on state. Only on pass ("block
+    // ... no state" is invalid).
+    const std::string stateOpt = (action == "pass") ? " no state" : "";
 
     // Allow or block local network traffic based on setting.
-    rules.push_back(action + " out quick inet from any to 192.168.0.0/16");
-    rules.push_back(action + " in quick inet from 192.168.0.0/16 to any");
-    rules.push_back(action + " out quick inet from any to 172.16.0.0/12");
-    rules.push_back(action + " in quick inet from 172.16.0.0/12 to any");
-    rules.push_back(action + " out quick inet from any to 169.254.0.0/16");
-    rules.push_back(action + " in quick inet from 169.254.0.0/16 to any");
-    rules.push_back("pass out quick inet from any to 10.255.255.0/24");
-    rules.push_back("pass in quick inet from 10.255.255.0/24 to any");
-    rules.push_back(action + " out quick inet from any to 10.0.0.0/8");
-    rules.push_back(action + " in quick inet from 10.0.0.0/8 to any");
+    rules.push_back(action + " out quick inet from any to 192.168.0.0/16" + stateOpt);
+    rules.push_back(action + " in quick inet from 192.168.0.0/16 to any" + stateOpt);
+    rules.push_back(action + " out quick inet from any to 172.16.0.0/12" + stateOpt);
+    rules.push_back(action + " in quick inet from 172.16.0.0/12 to any" + stateOpt);
+    rules.push_back(action + " out quick inet from any to 169.254.0.0/16" + stateOpt);
+    rules.push_back(action + " in quick inet from 169.254.0.0/16 to any" + stateOpt);
+    // 10.255.255.0/24 (in-tunnel WG DNS) is always blocked on the physical side regardless of the
+    // LAN setting; the tunnel pass above keeps it reachable in-tunnel. Matches the Linux global DROP.
+    rules.push_back("block out quick inet from any to 10.255.255.0/24");
+    rules.push_back("block in quick inet from 10.255.255.0/24 to any");
+    rules.push_back(action + " out quick inet from any to 10.0.0.0/8" + stateOpt);
+    rules.push_back(action + " in quick inet from 10.0.0.0/8 to any" + stateOpt);
 
     // Multicast addresses (IPv4 and IPv6)
-    rules.push_back(action + " out quick inet from any to 224.0.0.0/4");
-    rules.push_back(action + " in quick inet from 224.0.0.0/4 to any");
-    rules.push_back(action + " out quick inet6 from any to ff00::/8");
-    rules.push_back(action + " in quick inet6 from ff00::/8 to any");
+    rules.push_back(action + " out quick inet from any to 224.0.0.0/4" + stateOpt);
+    rules.push_back(action + " in quick inet from 224.0.0.0/4 to any" + stateOpt);
+    rules.push_back(action + " out quick inet6 from any to ff00::/8" + stateOpt);
+    rules.push_back(action + " in quick inet6 from ff00::/8 to any" + stateOpt);
 
     // IPv6 unique local addresses (RFC 4193) — the v6 analog of the RFC1918 private ranges, used
     // by typical LAN/VM-bridge setups. Gated on allowLanTraffic the same way as the v4 ranges.
@@ -488,74 +588,29 @@ std::vector<std::string> FirewallController::lanTrafficRules(bool allowLanTraffi
     // (2000::/3) addresses, not ULA. If a future non-custom tunnel ever exposes an in-tunnel v6
     // service on a ULA address, add a "pass quick inet6 ... to <reserved>" ahead of this block (and
     // mirror it in the Linux runtime/boot rulesets) — otherwise it is silently dropped by default.
-    rules.push_back(action + " out quick inet6 from any to fc00::/7");
-    rules.push_back(action + " in quick inet6 from fc00::/7 to any");
-
-    // UPnP
-    rules.push_back(action + " out quick inet proto udp from any to any port = 1900");
-    rules.push_back(action + " in quick proto udp from any to any port = 1900");
-    rules.push_back(action + " out quick inet proto udp from any to any port = 1901");
-    rules.push_back(action + " in quick proto udp from any to any port = 1901");
-
-    rules.push_back(action + " out quick inet proto udp from any to any port = 5350");
-    rules.push_back(action + " in quick proto udp from any to any port = 5350");
-    rules.push_back(action + " out quick inet proto udp from any to any port = 5351");
-    rules.push_back(action + " in quick proto udp from any to any port = 5351");
-    rules.push_back(action + " out quick inet proto udp from any to any port = 5353");
-    rules.push_back(action + " in quick proto udp from any to any port = 5353");
+    rules.push_back(action + " out quick inet6 from any to fc00::/7" + stateOpt);
+    rules.push_back(action + " in quick inet6 from fc00::/7 to any" + stateOpt);
 
     return rules;
 }
 
-std::vector<std::string> FirewallController::vpnTrafficRules(const FirewallConfig &config)
+std::vector<std::string> FirewallController::vpnTrafficRules(const FirewallConfig &config, bool hasV6Addr)
 {
     std::vector<std::string> rules;
     const std::string &iface = config.vpnInterfaceName;
 
     if (!iface.empty()) {
-        // One getifaddrs walk feeds both the local-address allow rules and the v6 capability gate.
-        std::vector<std::string> localV4Addrs;
-        bool hasV6Addr = false;
-        probeInterfaceAddresses(iface, localV4Addrs, hasV6Addr);
+        // Intentionally NO local/RFC1918/multicast/ULA rules here. Unlike Linux's single linear
+        // chain, the lan_traffic anchor is evaluated (quick) before vpn_traffic, so it already
+        // decides every packet in those ranges: via its always-pass rules (127.0.0.0/8, ::1,
+        // fe80::/10, 10.255.255.0/24), its tunnel carve-out (scoped passes/blocks when "Allow LAN
+        // traffic" is on), or its unscoped per-setting pass/block pairs. Scoped rules here would be
+        // dead and, worse, misleading (reading as if this anchor protected the tunnel) — the
+        // fc00::/7 block was removed on those grounds in #1687, and the remaining shadowed pairs
+        // (local addresses, RFC1918, reserved subnet, 224.0.0.0/4, ::1/fe80::/10/ff00::/8) followed
+        // when the tunnel carve-out moved into lanTrafficRules.
 
-        if (!config.isCustomConfig) {
-            // Allow local addresses
-            for (const auto &addr : localV4Addrs) {
-                rules.push_back("pass out quick on " + iface + " inet from any to " + addr + "/32");
-                rules.push_back("pass in quick on " + iface + " inet from " + addr + "/32 to any");
-            }
-            // Disallow RFC1918/link local/loopback traffic to go over tunnel
-            rules.push_back("block out quick on " + iface + " inet from any to 192.168.0.0/16");
-            rules.push_back("block in quick on " + iface + " inet from 192.168.0.0/16 to any");
-            rules.push_back("block out quick on " + iface + " inet from any to 172.16.0.0/12");
-            rules.push_back("block in quick on " + iface + " inet from 172.16.0.0/12 to any");
-            rules.push_back("block out quick on " + iface + " inet from any to 169.254.0.0/16");
-            rules.push_back("block in quick on " + iface + " inet from 169.254.0.0/16 to any");
-            // Allow reserved subnet
-            rules.push_back("pass out quick on " + iface + " inet from any to 10.255.255.0/24");
-            rules.push_back("pass in quick on " + iface + " inet from 10.255.255.0/24 to any");
-            // Disallow RFC1918/link local/loopback traffic to go over tunnel (cont'd)
-            rules.push_back("block out quick on " + iface + " inet from any to 10.0.0.0/8");
-            rules.push_back("block in quick on " + iface + " inet from 10.0.0.0/8 to any");
-            rules.push_back("block out quick on " + iface + " inet from any to 127.0.0.0/8");
-            rules.push_back("block in quick on " + iface + " inet from 127.0.0.0/8 to any");
-            rules.push_back("block out quick on " + iface + " inet from any to 224.0.0.0/4");
-            rules.push_back("block in quick on " + iface + " inet from 224.0.0.0/4 to any");
-            // Disallow IPv6 local/link-local/multicast traffic to go over tunnel
-            rules.push_back("block out quick on " + iface + " inet6 from any to ::1");
-            rules.push_back("block in quick on " + iface + " inet6 from ::1 to any");
-            rules.push_back("block out quick on " + iface + " inet6 from any to fe80::/10");
-            rules.push_back("block in quick on " + iface + " inet6 from fe80::/10 to any");
-            rules.push_back("block out quick on " + iface + " inet6 from any to ff00::/8");
-            rules.push_back("block in quick on " + iface + " inet6 from ff00::/8 to any");
-            // Intentionally NO fc00::/7 (ULA) block here. Unlike Linux's single linear chain, the
-            // lan_traffic anchor is evaluated (quick) before vpn_traffic, so it already decides every
-            // fc00::/7 packet — a block here would never match. It would be dead and, worse,
-            // misleading (reading as if the tunnel were protected). fc00::/7 is governed entirely by
-            // lanTrafficRules; see the comment there for the deliberate v4-analogous LAN behavior.
-        }
-
-        // Allow other traffic on VPN interface
+        // Allow traffic on VPN interface
         rules.push_back("pass out quick on " + iface + " inet from any to any");
         rules.push_back("pass in quick on " + iface + " inet from any to any");
 
@@ -622,27 +677,4 @@ void FirewallController::probeInterfaceAddresses(const std::string &iface, std::
     }
 
     freeifaddrs(ifap);
-}
-
-std::vector<std::string> FirewallController::getAwdlP2pInterfaces()
-{
-    std::vector<std::string> ret;
-    std::string output;
-    Utils::executeCommand("ifconfig", {"-l", "-u"}, &output);
-
-    std::istringstream stream(output);
-    std::string name;
-    while (stream >> name) {
-        if (name.rfind("p2p", 0) == 0 || name.rfind("awdl", 0) == 0 || name.rfind("llw", 0) == 0) {
-            // Validate before interpolating into pf rule text ("pass quick on <iface>"), same as the
-            // client-supplied vpnInterfaceName and the Linux getHotspotAdapter path: a name carrying
-            // pf grammar characters must not reach the rule body.
-            if (!Validation::isValidInterfaceName(name)) {
-                spdlog::error("getAwdlP2pInterfaces: invalid interface name \"{}\", ignoring", name);
-                continue;
-            }
-            ret.push_back(name);
-        }
-    }
-    return ret;
 }

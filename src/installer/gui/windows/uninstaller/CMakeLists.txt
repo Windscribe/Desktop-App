@@ -27,7 +27,20 @@ set(SOURCES
 )
 
 add_executable(uninstall WIN32 ${SOURCES})
-set_property(TARGET uninstall PROPERTY LINK_FLAGS "/MANIFESTUAC:\"level='requireAdministrator' uiAccess='false'\" /DELAYLOAD:bcrypt.dll /DELAYLOAD:dwmapi.dll /DELAYLOAD:uxtheme.dll /DELAYLOAD:wldp.dll")
+set_property(TARGET uninstall PROPERTY LINK_FLAGS "/MANIFESTUAC:\"level='requireAdministrator' uiAccess='false'\"")
+
+# Enable the process mitigations applied from the TLS callback in wsprocessmitigations.h (already
+# included by main.cpp).  This elevated uninstaller deletes directories, so MicrosoftSignedOnly,
+# image-load restrictions (anti DLL-planting) and redirection trust (anti symlink/junction
+# redirection) are all apt.  MicrosoftSignedOnly is safe here because the uninstaller loads no
+# non-Microsoft DLL.  The shell folder-path calls load only Microsoft-signed shell32.
+# DisableExtensionPoints (EXTENSION_POINT) is opted out because it would block legacy assistive
+# tech / IME for the confirmation dialogs.
+target_compile_definitions(uninstall
+                           PRIVATE
+                           WS_ENABLE_PROCESS_MITIGATIONS
+                           WS_DISABLE_EXTENSION_POINT_POLICY
+)
 
 
 target_include_directories(uninstall
@@ -40,7 +53,6 @@ target_include_directories(uninstall
 target_link_libraries(uninstall
                       PRIVATE
                       bcrypt
-                      delayimp
                       shlwapi
                       fmt::fmt-header-only
                       spdlog::spdlog_header_only

@@ -682,10 +682,6 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
         <translation>Δεν ήταν δυνατή η σύνδεση με την υπηρεσία Windscribe.  Το Windscribe θα βγει τώρα.  Επικοινωνήστε με την υποστήριξη.</translation>
     </message>
     <message>
-        <source>Trying Backup Endpoints %1/%2</source>
-        <translation>Δοκιμή τελικών σημείων δημιουργίας αντιγράφων ασφαλείας %1/%2</translation>
-    </message>
-    <message>
         <source>SSL Error</source>
         <translation>Σφάλμα SSL</translation>
     </message>
@@ -720,6 +716,10 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
     <message>
         <source>Later</source>
         <translation>Αργότερα</translation>
+    </message>
+    <message>
+        <source>Trying Backup Endpoints...</source>
+        <translation>Δοκιμάζοντας τα τελικά σημεία δημιουργίας αντιγράφων ασφαλείας...</translation>
     </message>
     <message>
         <source>SSL requests may be intercepted on your network. Ignoring SSL errors disables TLS certificate validation for this session: anyone able to intercept your traffic can then impersonate Windscribe and read or alter your data, and we can&apos;t guarantee your security while it&apos;s on. Ignore SSL errors?</source>
@@ -964,10 +964,6 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>You have reached your limit of WireGuard public keys. Do you want to delete your oldest key?</source>
         <translation>Έχετε φτάσει το όριο των δημόσιων κλειδιών WireGuard. Θέλετε να διαγράψετε το παλαιότερο κλειδί σας;</translation>
-    </message>
-    <message>
-        <source>Error Starting Service</source>
-        <translation>Σφάλμα κατά την έναρξη της υπηρεσίας</translation>
     </message>
     <message>
         <source>The split tunneling feature could not be started, and has been disabled in Preferences.</source>
@@ -1435,10 +1431,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Αυτόματη σύνδεση</translation>
     </message>
     <message>
-        <source>Control the mode of behaviour of the Windscribe firewall.</source>
-        <translation>Ελέγξτε τον τρόπο συμπεριφοράς του τείχους προστασίας Windscrib.</translation>
-    </message>
-    <message>
         <source>Connection Mode</source>
         <translation>Λειτουργία σύνδεσης</translation>
     </message>
@@ -1479,6 +1471,10 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Διαμορφώστε την τηλεόραση, την κονσόλα παιχνιδιών ή άλλες συσκευές που υποστηρίζουν διακομιστές μεσολάβησης.</translation>
     </message>
     <message>
+        <source>The firewall is in an Always On mode. Allowing LAN traffic can leak your DNS and other traffic to your local network while you are disconnected. Are you sure you want to enable it?</source>
+        <translation>Το τείχος προστασίας βρίσκεται σε λειτουργία Always On. Αν επιτρέψετε την κυκλοφορία LAN, μπορεί να διαρρεύσει το DNS και άλλη κίνηση στο τοπικό σας δίκτυο ενώ είστε αποσυνδεδεμένοι. Είστε βέβαιοι ότι θέλετε να το ενεργοποιήσετε;</translation>
+    </message>
+    <message>
         <source>Settings Conflict</source>
         <translation>Διένεξη ρυθμίσεων</translation>
     </message>
@@ -1497,6 +1493,10 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Clear Wi-Fi History</source>
         <translation>Εκκαθάριση ιστορικού Wi-Fi</translation>
+    </message>
+    <message>
+        <source>Control the mode of behaviour of the Windscribe firewall. Always On modes disable Allow LAN Traffic to prevent DNS leaks.</source>
+        <translation>Ελέγξτε τον τρόπο συμπεριφοράς του τείχους προστασίας Windscrib. Οι λειτουργίες Always On απενεργοποιούν την επιλογή Allow LAN Traffic για την αποτροπή διαρροών DNS.</translation>
     </message>
     <message>
         <source>Configure egress IP stack for VPN connections (WireGuard only).</source>
@@ -2081,6 +2081,10 @@ Connect to a network first</source>
 </context>
 <context>
     <name>PreferencesWindow::ProtocolTweaksGroup</name>
+    <message>
+        <source>Custom SNI Domain</source>
+        <translation>Προσαρμοσμένος τομέας SNI</translation>
+    </message>
     <message>
         <source>Protocol Tweaks</source>
         <translation>Τροποποιήσεις πρωτοκόλλου</translation>

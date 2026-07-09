@@ -6,14 +6,39 @@
 #include <filesystem>
 #include <sstream>
 #include <sys/stat.h>
+#include <sys/wait.h>
 #include <thread>
 #include <spdlog/spdlog.h>
 
 #include "3rdparty/pstream.h"
 #include "firewallonboot.h"
+#include "../common/validation_posix.h"
 
 namespace Utils
 {
+
+std::vector<std::string> getAwdlP2pInterfaces()
+{
+    std::vector<std::string> ret;
+    std::string output;
+    executeCommand("ifconfig", {"-l", "-u"}, &output);
+
+    std::istringstream stream(output);
+    std::string name;
+    while (stream >> name) {
+        if (name.rfind("p2p", 0) == 0 || name.rfind("awdl", 0) == 0 || name.rfind("llw", 0) == 0) {
+            // Validate before interpolating into pf rule text ("pass quick on <iface>"), same as the
+            // client-supplied vpnInterfaceName and the Linux getHotspotAdapter path: a name carrying
+            // pf grammar characters must not reach the rule body.
+            if (!Validation::isValidInterfaceName(name)) {
+                spdlog::error("getAwdlP2pInterfaces: invalid interface name \"{}\", ignoring", name);
+                continue;
+            }
+            ret.push_back(name);
+        }
+    }
+    return ret;
+}
 
 // based on 3rd party lib (http://pstreams.sourceforge.net/)
 int executeCommand(const std::string &cmd, const std::vector<std::string> &args,
@@ -39,37 +64,41 @@ int executeCommand(const std::string &cmd, const std::vector<std::string> &args,
         pOutputStr->clear();
     }
 
-    redi::ipstream proc(cmdLine, redi::pstreams::pstdout | redi::pstreams::pstderr);
+    // Merge stderr into stdout via a subshell and read only that one pipe: draining two pipes
+    // separately can deadlock if the child fills the one we aren't reading. The ( ) wrapper makes
+    // the redirect cover every stage of a pipeline, not just the last, and leaves the exit status
+    // unchanged.
+    if (appendFromStdErr) {
+        cmdLine = "( " + cmdLine + " ) 2>&1";
+    } else {
+        cmdLine = "( " + cmdLine + " ) 2>/dev/null";
+    }
+
+    redi::ipstream proc(cmdLine, redi::pstreams::pstdout);
     std::string line;
-    // read child's stdout
-    while (std::getline(proc.out(), line))
-    {
-        if (pOutputStr)
-        {
+    // read child's stdout (with stderr merged in when requested)
+    while (std::getline(proc.out(), line)) {
+        if (pOutputStr) {
             *pOutputStr += line + "\n";
         }
     }
     // if reading stdout stopped at EOF then reset the state:
-    if (proc.eof() && proc.fail())
-    {
+    if (proc.eof() && proc.fail()) {
         proc.clear();
-    }
-
-    if (appendFromStdErr) {
-        // read child's stderr
-        while (std::getline(proc.err(), line))
-        {
-            if (pOutputStr)
-            {
-                *pOutputStr += line + "\n";
-            }
-        }
     }
 
     proc.close();
     if (proc.rdbuf()->exited())
     {
-        return proc.rdbuf()->status();
+        const int status = proc.rdbuf()->status();
+        // status() is the raw waitpid() value; return the decoded exit code so callers that log the
+        // result see the real code (e.g. 1) rather than the encoded status (e.g. 256).
+        if (WIFEXITED(status)) {
+            return WEXITSTATUS(status);
+        }
+        // Terminated by a signal, so report abnormal rather than a status callers might read as an
+        // exit code.
+        return -1;
     }
     // The child did not exit normally (signal, stop, etc.). Callers compare the return
     // value to 0 to decide success, so a 0 here would falsely report success.

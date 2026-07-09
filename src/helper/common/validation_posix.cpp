@@ -22,7 +22,7 @@ bool isValidIpAddress(const std::string &ip)
     // Reject a scope-id suffix (e.g. "fe80::1%en0"): make_address parses it as valid, but callers
     // interpolate the result verbatim into pf/iptables tables and the OpenVPN config, none of which
     // accept "%zone" syntax. A scoped address must not be treated as a bare literal — a single one
-    // reaching `pfctl -T load` rejects the whole <disallowed_dns> table and fails the kill switch.
+    // reaching `pfctl -T load` rejects the whole <disallowed_dns> table and fails the firewall.
     if (ip.find('%') != std::string::npos) {
         return false;
     }
@@ -240,7 +240,7 @@ bool isValidInterfaceName(const std::string &interfaceName)
     // Whitelist the characters real interface names use (alphanumerics plus '.', '_', '-'). This is
     // intentionally stricter than "reject obvious separators": the name is interpolated verbatim
     // into iptables/pf rule text, so anything outside this set is rejected. In particular it bars
-    // the iptables/pf wildcard '+' (which would match all interfaces and weaken the kill switch)
+    // the iptables/pf wildcard '+' (which would match all interfaces and weaken the firewall)
     // and pf grammar characters such as '}' (which could prematurely close an anchor block).
     for (unsigned char c : interfaceName) {
         if (!std::isalnum(c) && c != '.' && c != '_' && c != '-') {
@@ -378,6 +378,23 @@ bool isValidUapiKeyField(const char *fieldName, const std::string &value)
     if (value.empty() || !isPrintableSingleLineAscii(value)) {
         spdlog::error("Validation: rejecting UAPI {} with empty or non-printable characters", fieldName);
         return false;
+    }
+    return true;
+}
+
+bool isValidAmneziawgObfuscationFields(const AmneziawgConfig &config)
+{
+    for (const auto &iValue : config.iValues) {
+        if (!iValue.empty() && !isPrintableSingleLineAscii(iValue)) {
+            spdlog::error("Validation: rejecting AmneziaWG I-value with non-printable characters");
+            return false;
+        }
+    }
+    for (const auto &hValue : {config.h1, config.h2, config.h3, config.h4}) {
+        if (!hValue.empty() && !isPrintableSingleLineAscii(hValue)) {
+            spdlog::error("Validation: rejecting AmneziaWG H-value with non-printable characters");
+            return false;
+        }
     }
     return true;
 }

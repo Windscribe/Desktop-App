@@ -37,9 +37,19 @@ int executeCommand(const std::string &cmd, const std::vector<std::string> &args,
         pOutputStr->clear();
     }
 
-    redi::ipstream proc(cmdLine, redi::pstreams::pstdout | redi::pstreams::pstderr);
+    // Merge stderr into stdout via a subshell and read only that one pipe: draining two pipes
+    // separately can deadlock if the child fills the one we aren't reading. The ( ) wrapper makes
+    // the redirect cover every stage of a pipeline, not just the last, and leaves the exit status
+    // unchanged.
+    if (appendFromStdErr) {
+        cmdLine = "( " + cmdLine + " ) 2>&1";
+    } else {
+        cmdLine = "( " + cmdLine + " ) 2>/dev/null";
+    }
+
+    redi::ipstream proc(cmdLine, redi::pstreams::pstdout);
     std::string line;
-    // read child's stdout
+    // read child's stdout (with stderr merged in when requested)
     while (std::getline(proc.out(), line)) {
         if (pOutputStr) {
             *pOutputStr += line + "\n";
@@ -50,24 +60,22 @@ int executeCommand(const std::string &cmd, const std::vector<std::string> &args,
         proc.clear();
     }
 
-    if (appendFromStdErr) {
-        // read child's stderr
-        while (std::getline(proc.err(), line)) {
-            if (pOutputStr) {
-                *pOutputStr += line + "\n";
-            }
-        }
-    }
-
     proc.close();
     if (proc.rdbuf()->exited()) {
-        // status() is the raw wait-status from waitpid (e.g. exit code 2 -> 512), which
-        // is misleading when logged. Normalize to the real exit code so callers and logs
-        // see what the command actually returned. exited() == WIFEXITED, so WEXITSTATUS
-        // is well-defined here.
-        return WEXITSTATUS(proc.rdbuf()->status());
+        const int status = proc.rdbuf()->status();
+        // status() is the raw wait-status from waitpid (e.g. exit code 2 -> 512), which is
+        // misleading when logged. Normalize to the real exit code so callers and logs see what
+        // the command actually returned.
+        if (WIFEXITED(status)) {
+            return WEXITSTATUS(status);
+        }
+        // Terminated by a signal, so report abnormal rather than a status callers might read as an
+        // exit code.
+        return -1;
     }
-    return 0;
+    // The child did not exit normally (signal, stop, etc.). Callers compare the return value to 0
+    // to decide success, so a 0 here would falsely report success.
+    return -1;
 }
 
 

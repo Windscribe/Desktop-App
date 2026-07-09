@@ -149,7 +149,11 @@ void Connection::onReadyRead()
     while (canReadCommand())
     {
         Command *cmd = readCommand();
-        emit newCommand(cmd, this);
+        // An unrecognized command id yields a null command; readCommand still consumes the frame,
+        // so drop it here rather than forwarding a null pointer to the newCommand slots.
+        if (cmd != nullptr) {
+            emit newCommand(cmd, this);
+        }
     }
 }
 
@@ -202,6 +206,10 @@ Command *Connection::readCommand()
     std::string strId(readBuf_.data() + sizeof(int) * 2, sizeOfId);
 
     Command *cmd = CommandFactory::makeCommand(strId, readBuf_.data() + sizeof(int) * 2 + sizeOfId, sizeOfCmd);
+    if (cmd == nullptr) {
+        qCWarning(LOG_IPC) << "Dropping IPC command with unrecognized id:"
+                           << QString::fromStdString(strId.substr(0, 64)) << "(id length" << sizeOfId << ")";
+    }
     readBuf_.remove(0, sizeof(int) * 2 + sizeOfId + sizeOfCmd);
     return cmd;
 }

@@ -219,15 +219,8 @@ bool WireGuardCommunicator::configure(const std::string &clientPrivateKey,
         return false;
     }
 
-    // Defense in depth: refuse to write a UAPI record whose value contains anything
-    // outside printable ASCII. Engine validates I-values at custom-config import; this
-    // stops a malformed value from any future engine path being interpreted as extra
-    // newline-delimited UAPI records by the AmneziaWG-go control socket.
-    for (const auto &iValue : amneziawgConfig.iValues) {
-        if (!iValue.empty() && !Validation::isPrintableSingleLineAscii(iValue)) {
-            spdlog::error("WireGuardCommunicator::configure(): rejecting AmneziaWG I-value with non-printable characters");
-            return false;
-        }
+    if (!Validation::isValidAmneziawgObfuscationFields(amneziawgConfig)) {
+        return false;
     }
 
     if (!Validation::isValidUapiKeyField("private_key", clientPrivateKey) ||

@@ -5,6 +5,7 @@
 #include "firewall/firewallcontroller.h"
 #include "macaddresscontroller/imacaddresscontroller.h"
 #include "connectionmanager/ctrldmanager/ictrldmanager.h"
+#include "connectivitydiagnostic/iconnectivitydiagnosticcollector.h"
 
 namespace CrossPlatformObjectFactory
 {
@@ -13,4 +14,5 @@ namespace CrossPlatformObjectFactory
     FirewallController *createFirewallController(QObject *parent, Helper *helper);
     IMacAddressController *createMacAddressController(QObject *parent, INetworkDetectionManager *ndManager, Helper *helper);
     ICtrldManager *createCtrldManager(QObject *parent, Helper *helper, bool isCreateLog);
+    IConnectivityDiagnosticCollector *createConnectivityDiagnosticCollector(QObject *parent, FirewallController *firewallController);
 }

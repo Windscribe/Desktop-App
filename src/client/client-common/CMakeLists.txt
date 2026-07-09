@@ -21,14 +21,9 @@ set(PROJECT_SOURCES
 add_library(client-common STATIC ${PROJECT_SOURCES})
 
 target_link_libraries(client-common PRIVATE Qt6::Core Qt6::Network OpenSSL::Crypto spdlog::spdlog wsnet::wsnet)
-target_compile_definitions(client-common PRIVATE CMAKE_LIBRARY_LIBRARY
-                                  WINVER=0x0601
-                                  _WIN32_WINNT=0x0601
-                                  WIN32_LEAN_AND_MEAN
-                                  PIO_APC_ROUTINE_DEFINED)
 
-if(APPLE)
-    target_compile_options(client-common PRIVATE "-fobjc-arc")
+if(WIN32)
+    target_compile_definitions(client-common PRIVATE CMAKE_LIBRARY_LIBRARY WIN32_LEAN_AND_MEAN PIO_APC_ROUTINE_DEFINED)
 endif()
 
 add_subdirectory(api_responses)
@@ -36,4 +31,3 @@ add_subdirectory(ipc)
 add_subdirectory(tests)
 add_subdirectory(types)
 add_subdirectory(utils)
-

@@ -14,7 +14,7 @@ public:
     void release();
 
     void enableIPv6();
-    void disableIPv6();
+    void disableIPv6(bool allowLanTraffic, bool isCustomConfig);
 
 private:
     explicit Ipv6Firewall(FwpmWrapper &fwpmWrapper);
@@ -22,5 +22,5 @@ private:
     FwpmWrapper &fwpmWrapper_;
     GUID subLayerGUID_;
     bool isDisabled_ = false;
-    void addFilters(HANDLE engineHandle);
+    void addFilters(HANDLE engineHandle, bool allowLanTraffic, bool isCustomConfig);
 };

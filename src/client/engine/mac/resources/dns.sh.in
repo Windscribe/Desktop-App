@@ -56,7 +56,7 @@ _EOF
     # a v6 client address (and for OpenVPN/Stunnel/Wstunnel/IKEv2 paths, which never set a v6
     # address on the tunnel). The IPv6 scutil writes below are gated on this — when empty, the
     # host's existing State:/Network/Global/IPv6 stays untouched and v6 leaks are blocked by
-    # the conditional kill-switch in firewallcontroller_mac.cpp.
+    # the conditional firewall in firewallcontroller_mac.cpp.
     VPN_ROUTER_V6=`ifconfig -v ${VPN_IF} 2>/dev/null | awk '/inet6 / && $2 !~ /^fe80/ {print $2; exit}'`
 
     echo "Creating new network service with UUID: ${SERVICE_UUID}"

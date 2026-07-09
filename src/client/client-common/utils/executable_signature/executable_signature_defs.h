@@ -4,8 +4,17 @@
 // signed executable's file properties dialog.
 #define WINDOWS_CERT_SUBJECT_NAME L"Windscribe Limited"
 
-// This should match the 'Name' displayed for your Developer ID Application certificate in Keychain Access.
-#define MACOS_CERT_DEVELOPER_ID "Developer ID Application: Windscribe Limited (GYZJYS7XUG)"
+// The Apple Developer Team ID (the subject.OU of the Developer ID Application certificate).
+// Runtime code-signing requirement strings pin this rather than the CN (which embeds the organization
+// name and would change on a legal-entity rename), and cmake/signing.cmake extracts it as
+// DEVELOPMENT_TEAM for codesigning, plist substitution, and entitlements.
+#define MACOS_CERT_TEAM_ID "GYZJYS7XUG"
+
+// Codesigning requirement shared by the client-side and helper-side verifiers: a genuine Apple-anchored
+// Developer ID chain (marker OIDs) with the leaf pinned to Windscribe's team ID.
+#define MACOS_DEVID_REQUIREMENT "anchor apple generic and certificate 1[field.1.2.840.113635.100.6.2.6] and " \
+                                "certificate leaf[field.1.2.840.113635.100.6.1.13] and " \
+                                "certificate leaf[subject.OU] = \"" MACOS_CERT_TEAM_ID "\""
 
 // Accepted V4 fingerprints (40 hex chars, uppercase, no spaces) of the Windscribe Linux Packaging
 // master keys. The helper rejects any in-app update whose downloaded .pub does not contain a primary

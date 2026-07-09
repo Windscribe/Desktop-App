@@ -31,7 +31,7 @@ GetWireGuardConfig::~GetWireGuardConfig()
     SAFE_CANCEL_AND_DELETE_WSNET_REQUEST(request_);
 }
 
-void GetWireGuardConfig::getWireGuardConfig(const QString &serverName, bool deleteOldestKey)
+void GetWireGuardConfig::getWireGuardConfig(const QString &serverName, bool deleteOldestKey, bool useCachedConfigOnly)
 {
     WS_ASSERT(request_ == nullptr);
 
@@ -42,9 +42,22 @@ void GetWireGuardConfig::getWireGuardConfig(const QString &serverName, bool dele
     wireGuardConfig_.reset();
     WireGuardConfig storedConfig = readWireGuardConfigFromSettings();
     const bool forceReinit = forceReinitOnNextCall_;
+
+    // Serve a complete cached config directly, bypassing the API and the isInitConfigWasCallAtleastOnce_
+    // gate. forceReinitOnNextCall_ is intentionally left untouched: this path can't re-register, so the
+    // caller's snapshot decides usability and its attempt cap bounds a stale config.
+    if (useCachedConfigOnly) {
+        if (storedConfig.haveCompleteConfig()) {
+            wireGuardConfig_ = storedConfig;
+            emit getWireGuardConfigAnswer(WireGuardConfigRetCode::kSuccess, wireGuardConfig_);
+        } else {
+            emit getWireGuardConfigAnswer(WireGuardConfigRetCode::kFailed, wireGuardConfig_);
+        }
+        return;
+    }
+
     forceReinitOnNextCall_ = false;
-    if (!forceReinit && isInitConfigWasCallAtleastOnce_ && storedConfig.haveKeyPair() &&
-        storedConfig.haveServerGeneratedPeerParams() && !storedConfig.clientIpAddress().isEmpty()) {
+    if (!forceReinit && isInitConfigWasCallAtleastOnce_ && storedConfig.haveCompleteConfig()) {
         wireGuardConfig_ = storedConfig;
         emit getWireGuardConfigAnswer(WireGuardConfigRetCode::kSuccess, wireGuardConfig_);
     } else if (storedConfig.haveKeyPair()) {
@@ -58,6 +71,14 @@ void GetWireGuardConfig::getWireGuardConfig(const QString &serverName, bool dele
 void GetWireGuardConfig::forceReinitOnNextCall()
 {
     forceReinitOnNextCall_ = true;
+}
+
+bool GetWireGuardConfig::hasUsableStoredConfig()
+{
+    if (forceReinitOnNextCall_) {
+        return false;
+    }
+    return readWireGuardConfigFromSettings().haveCompleteConfig();
 }
 
 void GetWireGuardConfig::onWgConfigsInitAnswer(wsnet::ApiRetCode serverApiRetCode, const std::string &jsonData)
@@ -183,7 +204,8 @@ WireGuardConfig GetWireGuardConfig::readWireGuardConfigFromSettings()
         QString s = settings.value(KEY_WIREGUARD_CONFIG, "").toString();
         if (!s.isEmpty())
         {
-            QByteArray arr = simpleCrypt_.decryptToByteArray(s);
+            SimpleCrypt simpleCrypt(SIMPLE_CRYPT_KEY);
+            QByteArray arr = simpleCrypt.decryptToByteArray(s);
             QDataStream ds(&arr, QIODevice::ReadOnly);
 
             quint32 magic, version;

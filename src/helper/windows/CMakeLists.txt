@@ -3,7 +3,7 @@ if(DEFINE_RUN_AS_CONSOLE_APP_MACRO)
     add_definitions(-DRUN_AS_CONSOLE_APP)
 endif(DEFINE_RUN_AS_CONSOLE_APP_MACRO)
 
-add_definitions(-DUNICODE -D_UNICODE -DWINDSCRIBE_SERVICE -D_WIN32_WINNT=0x0601 -DWIN32_LEAN_AND_MEAN)
+add_definitions(-DUNICODE -D_UNICODE -DWINDSCRIBE_SERVICE -DWIN32_LEAN_AND_MEAN)
 
 find_package(Boost REQUIRED COMPONENTS serialization)
 find_package(spdlog CONFIG REQUIRED)
@@ -26,7 +26,6 @@ set(SOURCES
     hostsedit.cpp
     ikev2ipsec.cpp
     ikev2route.cpp
-    ioutils.cpp
     ipv6_firewall.cpp
     macaddressspoof.cpp
     main.cpp
@@ -70,6 +69,19 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/version.rc.in ${CMAKE_CURRENT_BINARY_
 
 add_executable(${WS_APP_IDENTIFIER}Service ${SOURCES})
 set_property(TARGET ${WS_APP_IDENTIFIER}Service PROPERTY COMPILE_WARNING_AS_ERROR ON)
+
+# Enable the process mitigations applied from the TLS callback in wsprocessmitigations.h.  This is
+# a native, statically-linked (/MT) SYSTEM service with no Qt.  MicrosoftSignedOnly (SIGNATURE) and
+# DisableExtensionPoints (EXTENSION_POINT) are opted out: the service does in-process networking via
+# wsnet and uses ICS (netshell COM) and WMI, which can legitimately load third-party Winsock LSPs /
+# DNS NSPs and in-proc COM handlers depending on the end user's machine.  The remaining policies
+# (dynamic code, image-load, strict handle, redirection trust) are environment-independent.
+target_compile_definitions(${WS_APP_IDENTIFIER}Service
+                           PRIVATE
+                           WS_ENABLE_PROCESS_MITIGATIONS
+                           WS_DISABLE_SIGNATURE_POLICY
+                           WS_DISABLE_EXTENSION_POINT_POLICY
+)
 
 target_link_libraries(${WS_APP_IDENTIFIER}Service
                       PRIVATE

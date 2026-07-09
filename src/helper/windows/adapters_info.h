@@ -18,6 +18,11 @@ public:
     std::vector<NET_IFINDEX> getTAPAdapters();
     std::vector<std::string> getAdapterAddresses(NET_IFINDEX idx);
 
+    // True if the adapter has at least one non-link-local (global or ULA) IPv6 address, i.e. it
+    // actually carries routable IPv6. The auto-configured fe80::/10 is skipped (every v6-capable
+    // adapter has one). Mirrors the macOS/Linux probeInterfaceAddresses IN6_IS_ADDR_LINKLOCAL check.
+    bool hasNonLinkLocalV6(NET_IFINDEX idx) const;
+
 private:
     std::unique_ptr< unsigned char[] > adapterInfoBuffer_;
     PIP_ADAPTER_ADDRESSES pAdapterInfo_ = NULL;

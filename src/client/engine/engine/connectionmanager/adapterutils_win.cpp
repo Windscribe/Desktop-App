@@ -78,7 +78,7 @@ AdapterGatewayInfo AdapterUtils_win::getAdapterInfo(bool byIfIndex, unsigned lon
             if ((byIfIndex && aa->IfIndex == ifIndex) || (!byIfIndex && (adapterIdentifier.compare(aa->FriendlyName) == 0)))
             {
                 info.setIfIndex(aa->IfIndex);
-                info.setAdapterName(QString::fromUtf16((const ushort *)aa->Description));
+                info.setAdapterName(QString::fromUtf16((const char16_t *)aa->Description));
 
                 info.addAdapterIp(findAddressOfFamily(aa->FirstUnicastAddress, AF_INET));
                 info.addAdapterIp(findAddressOfFamily(aa->FirstUnicastAddress, AF_INET6));

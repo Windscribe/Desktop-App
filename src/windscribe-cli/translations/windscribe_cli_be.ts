@@ -275,10 +275,6 @@
         <translation>Журналы адасланыя.</translation>
     </message>
     <message>
-        <source>Preferences reloaded.</source>
-        <translation>Налады перазагружаныя.</translation>
-    </message>
-    <message>
         <source>Key limit behaviour is set.</source>
         <translation>Паводзіны пры дасягненьні ліміту ключоў зададзеныя.</translation>
     </message>

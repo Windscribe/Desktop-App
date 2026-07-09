@@ -13,6 +13,8 @@ namespace MacUtils
     QString getOsVersion();
     QString getBundlePath();
 
+    bool hasActiveDisplay();
+
     void hideDockIcon();
     void showDockIcon();
     void setHandCursor();

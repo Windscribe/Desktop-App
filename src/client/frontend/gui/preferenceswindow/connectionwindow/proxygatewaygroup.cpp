@@ -165,7 +165,7 @@ void ProxyGatewayGroup::onLanguageChanged()
 {
     checkBoxEnable_->setCaption(tr("Proxy Gateway"));
     comboBoxProxyType_->setLabelCaption(tr("Proxy Type"));
-    comboBoxProxyType_->setItems(PROXY_SHARING_TYPE_toList(), settings_.proxySharingMode);
+    comboBoxProxyType_->setItems(enumToList<PROXY_SHARING_TYPE>(), settings_.proxySharingMode);
     checkBoxWhileConnected_->setCaption(tr("Only when VPN is connected"));
     editBoxPort_->setCaption(tr("Port"));
     checkBoxRequireAuth_->setCaption(tr("Require Authentication"));

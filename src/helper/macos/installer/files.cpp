@@ -43,9 +43,12 @@ int Files::executeStep()
         return -1;
     }
 
-    auto status = Utils::executeCommand("tar", {"-xovf", archiveTempPath_.c_str(), "-C", installPath.c_str()}, &lastError_);
+    // No -v: the verbose file listing is never consumed and would only add noise. stderr is
+    // captured so a failure's actual error text reaches the log; extraction writes files to
+    // disk and produces no stdout, so draining stderr here cannot deadlock.
+    auto status = Utils::executeCommand("tar", {"-xof", archiveTempPath_.c_str(), "-C", installPath.c_str()}, &lastError_, true);
     if (status != 0) {
-        spdlog::error("Files: failed to untar the app archive: {}", lastError_);
+        spdlog::error("Files: failed to untar the app archive (exit code {}): {}", status, lastError_);
         return -1;
     }
 

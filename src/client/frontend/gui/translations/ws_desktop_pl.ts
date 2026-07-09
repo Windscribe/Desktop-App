@@ -638,10 +638,6 @@ Jeśli stracisz hash konta, znika na zawsze i wsparcie nie pomoże ci go odzyska
         <translation>Nie udało się wystartować</translation>
     </message>
     <message>
-        <source>Trying Backup Endpoints %1/%2</source>
-        <translation>Próbowanie punktów końcowych backupu %1/%2</translation>
-    </message>
-    <message>
         <source>SSL Error</source>
         <translation>Błąd SSL</translation>
     </message>
@@ -668,6 +664,10 @@ Jeśli stracisz hash konta, znika na zawsze i wsparcie nie pomoże ci go odzyska
     <message>
         <source>Later</source>
         <translation>Później</translation>
+    </message>
+    <message>
+        <source>Trying Backup Endpoints...</source>
+        <translation>Próba tworzenia punktów zapasowych...</translation>
     </message>
     <message>
         <source>SSL requests may be intercepted on your network. Ignoring SSL errors disables TLS certificate validation for this session: anyone able to intercept your traffic can then impersonate Windscribe and read or alter your data, and we can&apos;t guarantee your security while it&apos;s on. Ignore SSL errors?</source>
@@ -828,10 +828,6 @@ Jeśli problem nadal występuje po ponownym uruchomieniu, wyślij dziennik debug
     <message>
         <source>You have reached your limit of WireGuard public keys. Do you want to delete your oldest key?</source>
         <translation>Osiągnąłeś limit kluczy publicznych WireGuard. Czy chcesz usunąć najstarszy klucz?</translation>
-    </message>
-    <message>
-        <source>Error Starting Service</source>
-        <translation>Błąd uruchamiania usługi</translation>
     </message>
     <message>
         <source>The split tunneling feature could not be started, and has been disabled in Preferences.</source>
@@ -1427,10 +1423,6 @@ Jeśli problem nadal występuje po ponownym uruchomieniu, wyślij dziennik debug
         <translation>Auto-łączenie</translation>
     </message>
     <message>
-        <source>Control the mode of behaviour of the Windscribe firewall.</source>
-        <translation>Kontroluj tryb zachowania zapory sieciowej Windscribe.</translation>
-    </message>
-    <message>
         <source>Connection Mode</source>
         <translation>Tryb połączenia</translation>
     </message>
@@ -1463,6 +1455,10 @@ Jeśli problem nadal występuje po ponownym uruchomieniu, wyślij dziennik debug
         <translation>Skonfiguruj telewizor, konsolę do gier lub inne urządzenia obsługujące serwery proxy.</translation>
     </message>
     <message>
+        <source>The firewall is in an Always On mode. Allowing LAN traffic can leak your DNS and other traffic to your local network while you are disconnected. Are you sure you want to enable it?</source>
+        <translation>Zapora sieciowa działa w trybie Zawsze włączony. Pozwolenie na ruch LAN może wycieknąć DNS i inne ruchy do lokalnej sieci, gdy jesteś rozłączony. Jesteś pewien, że chcesz to włączyć?</translation>
+    </message>
+    <message>
         <source>Settings Conflict</source>
         <translation>Konflikt ustawień</translation>
     </message>
@@ -1493,6 +1489,10 @@ Jeśli problem nadal występuje po ponownym uruchomieniu, wyślij dziennik debug
     <message>
         <source>In this firewall mode, the Windscribe API will not be available while disconnected, this could have unintended consequences. Use at own risk.</source>
         <translation>W tym trybie zapory interfejs API Windscribe nie będzie dostępny po rozłączeniu, co może mieć niezamierzone konsekwencje. Używaj na własne ryzyko.</translation>
+    </message>
+    <message>
+        <source>Control the mode of behaviour of the Windscribe firewall. Always On modes disable Allow LAN Traffic to prevent DNS leaks.</source>
+        <translation>Kontroluj tryb zachowania zapory Windscribe. Tryby Always On wyłączają Zezwalaj na ruch LAN, aby zapobiec wyciekom DNS.</translation>
     </message>
     <message>
         <source>Configure egress IP stack for VPN connections (WireGuard only).</source>
@@ -2081,6 +2081,10 @@ Najpierw połącz się z siecią</translation>
 </context>
 <context>
     <name>PreferencesWindow::ProtocolTweaksGroup</name>
+    <message>
+        <source>Custom SNI Domain</source>
+        <translation>Niestandardowa domena SNI</translation>
+    </message>
     <message>
         <source>Protocol Tweaks</source>
         <translation>Zmiany protokołu</translation>
@@ -2919,18 +2923,18 @@ Jeśli ponowna instalacja nie pomoże, skontaktuj się z pomocą techniczną Win
     <name>UpgradeBanner</name>
     <message>
         <source>Unlock full access to Windscribe</source>
-        <translation>Odblokuj pełny dostęp do Windscribe</translation>
+        <translation>Odblokuj pełny dostęp</translation>
     </message>
     <message>
         <source>Go Pro for unlimited everything</source>
-        <translation>Przejdź na wersję Pro i ciesz się nieograniczoną liczbą rzeczy</translation>
+        <translation>Przejdź na Pro — wszystko bez limitów</translation>
     </message>
 </context>
 <context>
     <name>UpgradeWidget::UpgradeWidgetItem</name>
     <message>
         <source>Get more data</source>
-        <translation>Uzyskiwanie większej ilości danych</translation>
+        <translation>Więcej danych</translation>
     </message>
     <message>
         <source>%1 left</source>

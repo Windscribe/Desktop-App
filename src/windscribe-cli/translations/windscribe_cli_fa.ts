@@ -275,10 +275,6 @@
         <translation>سیاهههای مربوط ارسال شد.</translation>
     </message>
     <message>
-        <source>Preferences reloaded.</source>
-        <translation>تنظیمات برگزیده دوباره بارگذاری شد.</translation>
-    </message>
-    <message>
         <source>Key limit behaviour is set.</source>
         <translation>رفتار حد کلید تنظیم شده است.</translation>
     </message>

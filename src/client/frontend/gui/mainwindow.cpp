@@ -1899,9 +1899,9 @@ void MainWindow::onBackendLoginFinished()
     }
 }
 
-void MainWindow::onBackendTryingBackupEndpoint(int num, int cnt)
+void MainWindow::onBackendTryingBackupEndpoint()
 {
-    QString additionalMessage = tr("Trying Backup Endpoints %1/%2").arg(num).arg(cnt);
+    QString additionalMessage = tr("Trying Backup Endpoints...");
     mainWindowController_->getLoggingInWindow()->setAdditionalMessage(additionalMessage);
 }
 
@@ -3916,22 +3916,46 @@ void MainWindow::onSelectedLocationRemoved()
     }
 }
 
-void MainWindow::onSplitTunnelingStartFailed()
+void MainWindow::onSplitTunnelingStartFailed(SPLIT_TUNNEL_START_FAIL_REASON reason)
 {
-    mainWindowController_->getConnectWindow()->setSplitTunnelingState(false);
-    mainWindowController_->getPreferencesWindow()->setSplitTunnelingActive(false);
+    // The connect-status path emits this on any post-connect helper failure, which is not specific to
+    // split tunneling; ignore it entirely unless the feature is actually on, so a user who never
+    // enabled split tunneling is not shown a "split tunneling could not be started" dialog.  This gate
+    // is also what dedups overlapping failures: the disable below clears the flag synchronously, so a
+    // second emission arriving while the dialog is still up returns here rather than relying on the
+    // alert system to suppress a duplicate.
+    if (!backend_->getPreferences()->splitTunnelingSettings().active) {
+        return;
+    }
 
-#if defined(Q_OS_WIN)
-    GeneralMessageController::instance().showMessage("WARNING_YELLOW",
-                                           tr("Error Starting Service"),
-                                           tr("The split tunneling feature could not be started, and has been disabled in Preferences."),
-                                           GeneralMessageController::tr(GeneralMessageController::kOk));
-#elif defined(Q_OS_MACOS)
+    // Disable the feature at the source of truth right away, before the dialog is shown.  This emits
+    // splitTunnelingChanged, which updates the Preferences UI and notifies the engine; the connect
+    // window toggle is driven by a separate signal, so it is cleared explicitly.
+    types::SplitTunnelingSettings settings = backend_->getPreferences()->splitTunnelingSettings();
+    settings.active = false;
+    backend_->getPreferences()->setSplitTunnelingSettings(settings);
+
+    mainWindowController_->getConnectWindow()->setSplitTunnelingState(false);
+
+#if defined(Q_OS_MACOS)
+    if (reason == SPLIT_TUNNEL_START_FAIL_REASON_MAC_EXTENSION_NOT_ENABLED) {
+        // The extension couldn't run (disabled in System Settings, or a dead session ambiguous between
+        // a crash and a not-yet-seen disable).  Guide the user to System Settings -- actionable for both
+        // (re-enabling restarts a crashed provider).  Only the connect-status failure falls through.
+        GeneralMessageController::instance().showMessage("WARNING_YELLOW",
+                                               tr("Error Starting Split Tunneling"),
+                                               tr("The split tunneling feature has been disabled because the Windscribe split tunnel extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again."),
+                                               GeneralMessageController::tr(GeneralMessageController::kOk));
+        return;
+    }
+#else
+    Q_UNUSED(reason);
+#endif
+
     GeneralMessageController::instance().showMessage("WARNING_YELLOW",
                                            tr("Error Starting Split Tunneling"),
-                                           tr("The split tunneling feature has been disabled because the Windscribe split tunnel extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again."),
+                                           tr("The split tunneling feature could not be started, and has been disabled in Preferences."),
                                            GeneralMessageController::tr(GeneralMessageController::kOk));
-#endif
 }
 
 types::Protocol MainWindow::getDefaultProtocolForNetwork(const QString &network)

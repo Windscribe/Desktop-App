@@ -31,6 +31,7 @@ MainService::MainService() : QObject(), isExitingAfterUpdate_(false), keyLimitDe
     connect(backend_->getPreferences(), &Preferences::firewallSettingsChanged, this, &MainService::onPreferencesFirewallSettingsChanged);
     connect(backend_->getPreferences(), &Preferences::shareProxyGatewayChanged, this, &MainService::onPreferencesShareProxyGatewayChanged);
     connect(backend_->getPreferences(), &Preferences::splitTunnelingChanged, this, &MainService::onPreferencesSplitTunnelingChanged);
+    connect(backend_->getPreferences(), &Preferences::isAutoConnectChanged, this, &MainService::onPreferencesAutoConnectChanged);
     connect(backend_->getPreferences(), &Preferences::isAllowLanTrafficChanged, this, &MainService::onPreferencesAllowLanTrafficChanged);
     connect(backend_->getPreferences(), &Preferences::isLaunchOnStartupChanged, this, &MainService::onPreferencesLaunchOnStartupChanged);
 
@@ -363,6 +364,14 @@ void MainService::onPreferencesShareProxyGatewayChanged(const types::ShareProxyG
     } else {
         backend_->stopProxySharing();
     }
+}
+
+void MainService::onPreferencesAutoConnectChanged(bool /*on*/)
+{
+    // Re-evaluate auto-connect against the current network (manual=true forces the check even though
+    // the network itself didn't change), so toggling Auto-Connect on connects immediately when the
+    // current network is secured. Mirrors MainWindow::onAutoConnectUpdated in the GUI.
+    backend_->handleNetworkChange(backend_->getCurrentNetworkInterface(), true);
 }
 
 void MainService::onPreferencesAllowLanTrafficChanged(bool /*allowLanTraffic*/)

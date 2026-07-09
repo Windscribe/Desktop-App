@@ -35,11 +35,11 @@ struct NetworkInterface
         }
 
         if (json.contains(kJsonInterfaceTypeProp) && json[kJsonInterfaceTypeProp].isDouble()) {
-            interfaceType = NETWORK_INTERFACE_TYPE_fromInt(json[kJsonInterfaceTypeProp].toInt(NETWORK_INTERFACE_NONE));
+            interfaceType = enumFromInt<NETWORK_INTERFACE_TYPE>(json[kJsonInterfaceTypeProp].toInt(NETWORK_INTERFACE_NONE));
         }
 
         if (json.contains(kJsonTrustTypeProp) && json[kJsonTrustTypeProp].isDouble()) {
-            trustType = NETWORK_TRUST_TYPE_fromInt(json[kJsonTrustTypeProp].toInt(NETWORK_TRUST_SECURED));
+            trustType = enumFromInt<NETWORK_TRUST_TYPE>(json[kJsonTrustTypeProp].toInt(NETWORK_TRUST_SECURED));
         }
 
         if (json.contains(kJsonActiveProp) && json[kJsonActiveProp].isBool()) {
@@ -106,8 +106,8 @@ struct NetworkInterface
 
     void validate()
     {
-        interfaceType = NETWORK_INTERFACE_TYPE_fromInt(static_cast<int>(interfaceType));
-        trustType = NETWORK_TRUST_TYPE_fromInt(static_cast<int>(trustType));
+        interfaceType = enumFromInt<NETWORK_INTERFACE_TYPE>(static_cast<int>(interfaceType));
+        trustType = enumFromInt<NETWORK_TRUST_TYPE>(static_cast<int>(trustType));
 
         constexpr int kMaxStringLen = 256;
         if (!interfaceName.isEmpty() && !isNoNetworkInterface() &&

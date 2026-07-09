@@ -321,9 +321,14 @@ void OpenVPNConnection::handleRead(const boost::system::error_code &err, size_t 
                 snprintf(message, 1024, "username \"Auth\" \"%s\"\n", sanitizeString(username_).toUtf8().data());
                 boost::asio::write(*stateVariables_.socket, boost::asio::buffer(message,strlen(message)), boost::asio::transfer_all(), write_error);
             }
-            else
+            else if (isCustomConfig_)
             {
                 emit requestUsername();
+            }
+            else
+            {
+                // Only custom configs prompt for credentials; for API/static IP locations a missing one is an auth failure.
+                emitAuthErrorAndSigTerm(write_error);
             }
         }
         else if (serverReply.contains("PASSWORD:Need 'Private Key' password", Qt::CaseInsensitive))
@@ -361,19 +366,19 @@ void OpenVPNConnection::handleRead(const boost::system::error_code &err, size_t 
                 snprintf(message, 1024, "password \"Auth\" \"%s\"\n", sanitizeString(password_).toUtf8().data());
                 boost::asio::write(*stateVariables_.socket, boost::asio::buffer(message, strlen(message)), boost::asio::transfer_all(), write_error);
             }
-            else
+            else if (isCustomConfig_)
             {
                 emit requestPassword();
+            }
+            else
+            {
+                // Only custom configs prompt for credentials; for API/static IP locations a missing one is an auth failure.
+                emitAuthErrorAndSigTerm(write_error);
             }
         }
         else if (serverReply.contains("PASSWORD:Verification Failed: 'Auth'", Qt::CaseInsensitive))
         {
-            emit error(CONNECT_ERROR::AUTH_ERROR);
-            if (!stateVariables_.bSigTermSent)
-            {
-                boost::asio::write(*stateVariables_.socket, boost::asio::buffer("signal SIGTERM\n"), boost::asio::transfer_all(), write_error);
-                stateVariables_.bSigTermSent = true;
-            }
+            emitAuthErrorAndSigTerm(write_error);
         }
         else if (serverReply.contains("FATAL:Error: private key password verification failed", Qt::CaseInsensitive))
         {
@@ -592,6 +597,16 @@ void OpenVPNConnection::checkErrorAndContinue(boost::system::error_code &write_e
     {
         boost::system::error_code new_write_error;
         boost::asio::write(*stateVariables_.socket, boost::asio::buffer("signal SIGTERM\n"), boost::asio::transfer_all(), new_write_error);
+        stateVariables_.bSigTermSent = true;
+    }
+}
+
+void OpenVPNConnection::emitAuthErrorAndSigTerm(boost::system::error_code &write_error)
+{
+    emit error(CONNECT_ERROR::AUTH_ERROR);
+    if (!stateVariables_.bSigTermSent)
+    {
+        boost::asio::write(*stateVariables_.socket, boost::asio::buffer("signal SIGTERM\n"), boost::asio::transfer_all(), write_error);
         stateVariables_.bSigTermSent = true;
     }
 }

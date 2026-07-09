@@ -101,7 +101,7 @@ void LookAndFeelWindowItem::onLanguageChanged()
 {
     appSkinItem_->setDescription(tr("Choose between the classic GUI or the \"earless\" alternative GUI."));
     appSkinItem_->setLabelCaption(tr("App Skin"));
-    appSkinItem_->setItems(APP_SKIN_toList(), preferences_->appSkin());
+    appSkinItem_->setItems(enumToList<APP_SKIN>(), preferences_->appSkin());
 
 #if defined(Q_OS_LINUX) || defined(Q_OS_WIN)
     trayIconColorItem_->setDescription(tr("Choose between white and black tray icon."));

@@ -209,6 +209,7 @@ void PersistentState::setIgnoreNotificationDisabled(bool suppress)
     save();
 }
 
+#ifdef CLI_ONLY
 void PersistentState::fromIni(QSettings &settings)
 {
     QVector<types::NetworkInterface> networks = state_.networkWhiteList;
@@ -217,7 +218,7 @@ void PersistentState::fromIni(QSettings &settings)
     settings.beginGroup(kIniNetworksProp);
     for (auto network : networks) {
         settings.beginGroup(network.networkOrSsid);
-        network.trustType = NETWORK_TRUST_TYPE_fromString(settings.value(kIniNetworkTrustTypeProp, NETWORK_TRUST_TYPE_toString(network.trustType)).toString());
+        network.trustType = enumFromString<NETWORK_TRUST_TYPE>(settings.value(kIniNetworkTrustTypeProp, enumToString(network.trustType)).toString());
         settings.endGroup();
         out << network;
     }
@@ -233,12 +234,13 @@ void PersistentState::toIni(QSettings &settings)
     settings.beginGroup(kIniNetworksProp);
     for (auto network : state_.networkWhiteList) {
         settings.beginGroup(network.networkOrSsid);
-        settings.setValue(kIniNetworkTrustTypeProp, NETWORK_TRUST_TYPE_toString(network.trustType));
+        settings.setValue(kIniNetworkTrustTypeProp, enumToString(network.trustType));
         settings.endGroup();
     }
     settings.endGroup();
     save();
 }
+#endif
 
 void PersistentState::fromJson(const QJsonObject &json)
 {

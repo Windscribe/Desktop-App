@@ -19,21 +19,24 @@ PermissionMonitor_mac *g_PermissionMonitor_mac = NULL;
 @end
 
 PermissionMonitor *g_PermissionMonitor = nil;
+CLLocationManager *g_LocationManager = nil;
 
 PermissionMonitor_mac::PermissionMonitor_mac(QObject *parent)
 {
     g_PermissionMonitor_mac  = this;
     g_PermissionMonitor = [[PermissionMonitor alloc] init];
 
-    CLLocationManager *locationManager = [[CLLocationManager alloc] init];
-    locationManager.delegate = g_PermissionMonitor;
+    // Hold the location manager in a file-scope variable so it outlives this constructor; a local would
+    // be released immediately under ARC and the permission-change callbacks would never fire.
+    g_LocationManager = [[CLLocationManager alloc] init];
+    g_LocationManager.delegate = g_PermissionMonitor;
 }
 
 PermissionMonitor_mac::~PermissionMonitor_mac()
 {
-    [(id)g_PermissionMonitor_mac release];
     g_PermissionMonitor_mac = nil;
-    g_PermissionMonitor = NULL;
+    g_PermissionMonitor = nil;
+    g_LocationManager = nil;
 }
 
 void PermissionMonitor_mac::onLocationPermissionUpdated()

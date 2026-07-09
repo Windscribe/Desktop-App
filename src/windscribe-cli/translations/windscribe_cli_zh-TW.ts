@@ -275,10 +275,6 @@
         <translation>已發送的日誌。</translation>
     </message>
     <message>
-        <source>Preferences reloaded.</source>
-        <translation>首選項已重新載入。</translation>
-    </message>
-    <message>
         <source>Key limit behaviour is set.</source>
         <translation>設置了金鑰限制行為。</translation>
     </message>

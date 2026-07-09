@@ -46,7 +46,6 @@ PathMonitor::PathMonitor(): curIsOnline_(true), debounceTimer_(nullptr)
 PathMonitor::~PathMonitor()
 {
   nw_path_monitor_cancel(monitor_);
-  nw_release(monitor_);
   cancelOfflineDebounce();
 }
 

@@ -53,8 +53,10 @@ public:
     void setIgnoreNotificationDisabled(bool suppress);
     bool isIgnoreNotificationDisabled() const;
 
+#ifdef CLI_ONLY
     void fromIni(QSettings &settings);
     void toIni(QSettings &settings);
+#endif
 
     void fromJson(const QJsonObject &json);
     QJsonObject toJson();

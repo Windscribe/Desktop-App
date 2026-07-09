@@ -36,8 +36,6 @@ if (WIN32)
         adapterutils_win.h
         ikev2connection_win.cpp
         ikev2connection_win.h
-        ikev2connectiondisconnectlogic_win.cpp
-        ikev2connectiondisconnectlogic_win.h
         sleepevents_win.cpp
         sleepevents_win.h
         wireguardconnection_win.cpp

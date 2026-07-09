@@ -76,8 +76,6 @@ configure_file(
 add_executable(${WS_MAC_HELPER_BUNDLE_ID} ${SOURCES})
 set_property(TARGET ${WS_MAC_HELPER_BUNDLE_ID} PROPERTY COMPILE_WARNING_AS_ERROR ON)
 
-target_compile_options(${WS_MAC_HELPER_BUNDLE_ID} PRIVATE "-fobjc-arc")
-
 target_link_libraries(${WS_MAC_HELPER_BUNDLE_ID}
                       PRIVATE
                       Boost::serialization

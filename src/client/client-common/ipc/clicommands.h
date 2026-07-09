@@ -441,29 +441,6 @@ public:
     static std::string getCommandStringId() { return "CliCommands::Update";  }
 };
 
-class ReloadConfig : public Command
-{
-public:
-    ReloadConfig() {}
-    explicit ReloadConfig(char *buf, int size)
-    {
-        Q_UNUSED(buf);
-        Q_UNUSED(size);
-    }
-
-    std::vector<char> getData() const override
-    {
-        return std::vector<char>();
-    }
-
-    std::string getStringId() const override { return getCommandStringId(); }
-    std::string getDebugString() const override
-    {
-        return "CliCommands::ReloadConfig debug string";
-    }
-    static std::string getCommandStringId() { return "CliCommands::ReloadConfig";  }
-};
-
 class SetKeyLimitBehavior: public Command
 {
 public:

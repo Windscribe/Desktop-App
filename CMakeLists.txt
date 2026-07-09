@@ -10,14 +10,24 @@ set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)  # option() honors normal variables
 # Set macOS deployment target and architecture before project()
 set(CMAKE_OSX_DEPLOYMENT_TARGET "13" CACHE STRING "Minimum OS X deployment version")
 
-# Detect and set macOS architecture to match host unless in CI mode (which builds universal)
-if(APPLE AND NOT CI_MODE AND NOT DEFINED CMAKE_OSX_ARCHITECTURES)
-    execute_process(
-        COMMAND uname -m
-        OUTPUT_VARIABLE MACOS_HOST_ARCH
-        OUTPUT_STRIP_TRAILING_WHITESPACE
-    )
-    set(CMAKE_OSX_ARCHITECTURES "${MACOS_HOST_ARCH}" CACHE STRING "macOS architecture")
+# Set the macOS architecture(s) BEFORE project() so the value is in effect when wsnet's targets are
+# created during the FetchContent fetch below.  wsnet is a SHARED lib (libwsnet.dylib) on macOS, and a
+# target's architectures are captured from CMAKE_OSX_ARCHITECTURES at creation time; if it is still
+# unset when wsnet is configured, wsnet builds for the host arch only and the universal CI link fails
+# with "found architecture 'arm64', required architecture 'x86_64'".  CI builds universal; a local
+# build matches the host CPU.  This is the single source of truth for the arch -- architectures.cmake
+# only sets the build-libs path.
+if(APPLE)
+    if(CI_MODE)
+        set(CMAKE_OSX_ARCHITECTURES "arm64;x86_64" CACHE STRING "macOS architectures" FORCE)
+    elseif(NOT DEFINED CMAKE_OSX_ARCHITECTURES)
+        execute_process(
+            COMMAND uname -m
+            OUTPUT_VARIABLE MACOS_HOST_ARCH
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+        )
+        set(CMAKE_OSX_ARCHITECTURES "${MACOS_HOST_ARCH}" CACHE STRING "macOS architectures")
+    endif()
 endif()
 
 # Enable vcpkg dependency installation
@@ -29,6 +39,23 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # MSVC runtime library (static linkage)
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+
+# Windows target OS floor: pin to Windows 10 2004 (build 19041 / NTDDI_WIN10_VB) so every
+# Windows target builds against the same minimum-supported-OS API surface. This provides a
+# compile-time guard against accidentally using APIs newer than the floor, and makes the
+# effective target independent of whichever Windows SDK happens to be installed. Applied
+# globally here rather than per-target so the installer, services and utilities share it too.
+# TODO: remove the X_WARNING defines and fix the code to use non-deprecated APIs.
+if(WIN32)
+    add_compile_definitions(
+        WINVER=0x0A00
+        _WIN32_WINNT=0x0A00
+        NTDDI_VERSION=0x0A000008
+        _SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING
+        _CRT_SECURE_NO_WARNINGS
+        _WINSOCK_DEPRECATED_NO_WARNINGS
+    )
+endif()
 
 
 # ------------------------------------------------------------------------------
@@ -100,6 +127,66 @@ if(BUILD_APP OR BUILD_INSTALLER OR BUILD_BOOTSTRAP)
 endif()
 
 project(WS LANGUAGES CXX C)
+
+# Install the vcpkg dependencies right after project(), BEFORE the wsnet fetch below.  wsnet's
+# CMakeLists runs find_package(c-ares/CURL/OpenSSL/...) at configure time, which only resolves once
+# these packages exist in ${VCPKG_ROOT}/installed.  On a clean CI machine that directory is empty
+# until this macro runs; locally it is already populated from prior builds, which is why fetching
+# wsnet ahead of the install only fails on CI.  The macro depends solely on state established before
+# project() (VCPKG_ROOT, VCPKG_TARGET_TRIPLET, CMAKE_BUILD_TYPE, the manifest root), so hoisting it
+# here is safe.
+if(BUILD_APP OR BUILD_INSTALLER OR BUILD_BOOTSTRAP)
+    install_vcpkg_dependencies()
+endif()
+
+# Fetch wsnet here, in a pristine directory scope, BEFORE any project-wide compile/link options
+# exist: the Objective-C ARC option and the Windows hardening flags below, the AUTOMOC/AUTOUIC/
+# AUTORCC defaults set per-target, and the WS_* branding defines added after the integration config.
+# FetchContent pulls wsnet in via add_subdirectory, which snapshots this scope's options at this
+# point, so wsnet builds with only its own settings rather than inheriting ours.
+# The include(fetch_wsnet.cmake) calls in src/windscribe-cli, src/client and src/helper then become
+# no-ops via their `if(NOT TARGET wsnet::wsnet)` guard, kept as a fallback for building those subdirs
+# standalone.
+if(BUILD_APP)
+    include("${CMAKE_SOURCE_DIR}/cmake/fetch_wsnet.cmake")
+endif()
+
+# Enable Objective-C ARC for every Objective-C / Objective-C++ source in one place, rather than per
+# target.  The OBJC/OBJCXX languages must be enabled so .m/.mm are classified as Objective-C(++) and the
+# compile-language genex applies -fobjc-arc to them only, never to plain C/C++ sources.
+if(APPLE)
+    enable_language(OBJC)
+    enable_language(OBJCXX)
+    set(CMAKE_OBJCXX_STANDARD ${CMAKE_CXX_STANDARD})
+    set(CMAKE_OBJCXX_STANDARD_REQUIRED ON)
+    add_compile_options("$<$<COMPILE_LANGUAGE:OBJC,OBJCXX>:-fobjc-arc>")
+endif()
+
+# Windows binary hardening: compile- and link-time exploit mitigations for every target in this
+# tree (client, CLI, helper service, install/wireguard helpers, installer, uninstaller, bootstrap).
+if(WIN32)
+    add_compile_options(
+        "$<$<COMPILE_LANGUAGE:C,CXX>:/guard:cf>"    # Control Flow Guard
+        "$<$<COMPILE_LANGUAGE:C,CXX>:/sdl>"         # additional security checks (superset of /GS)
+        "$<$<COMPILE_LANGUAGE:C,CXX>:/Qspectre>"    # Spectre v1 mitigation
+        "$<$<COMPILE_LANGUAGE:C,CXX>:/ZH:SHA_256>"  # SHA-256 source hashing in debug info (BinSkim BA2004)
+    )
+    add_link_options(
+        /guard:cf
+        /DYNAMICBASE                # ASLR (linker default; asserted so it cannot regress silently)
+        /NXCOMPAT                   # DEP
+        /HIGHENTROPYVA              # 64-bit ASLR
+        /DEPENDENTLOADFLAG:0x800    # resolve imports/delay-loads from System32 only (anti DLL-planting)
+    )
+    if(NOT BUILD_ARM64)
+        # CET shadow stack compatibility (x64-only flag).  /guard:ehcont is deliberately absent:
+        # unlike /guard:cf, the linker refuses to mix ehcont and non-ehcont objects, so it cannot
+        # be enabled until the vcpkg static libs (Qt, OpenSSL, ...) are also compiled with it in
+        # the ws-vcpkg-registry triplets.  Without EHCONT metadata CET still protects returns;
+        # only the opt-in strict-mode exception validation is unavailable.
+        add_link_options(/CETCOMPAT)
+    endif()
+endif()
 
 include(cmake/architectures.cmake)
 
@@ -214,10 +301,6 @@ endif()
 message(STATUS "==================================================")
 message(STATUS "")
 
-if(BUILD_APP OR BUILD_INSTALLER OR BUILD_BOOTSTRAP)
-    install_vcpkg_dependencies()
-endif()
-
 # ------------------------------------------------------------------------------
 # Custom Dependencies (WireGuard, WSTunnel, Wintun, OpenVPN DCO)
 # ------------------------------------------------------------------------------
@@ -259,9 +342,6 @@ if(BUILD_APP)
 
     add_subdirectory(src/helper)
     add_subdirectory(src/client)
-
-    # Load wsnet from the separate repository
-    include("${CMAKE_SOURCE_DIR}/cmake/fetch_wsnet.cmake")
 
     if(WIN32)
         add_custom_target(build-app ALL DEPENDS ${WS_WIN_APP_TARGETS})

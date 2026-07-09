@@ -275,10 +275,6 @@
         <translation>送信されたログ。</translation>
     </message>
     <message>
-        <source>Preferences reloaded.</source>
-        <translation>設定が再読み込みされました。</translation>
-    </message>
-    <message>
         <source>Key limit behaviour is set.</source>
         <translation>キー制限の動作が設定されます。</translation>
     </message>

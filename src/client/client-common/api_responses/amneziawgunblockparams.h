@@ -25,6 +25,7 @@ struct AmneziawgUnblockParam
     QStringList iValues;
 
     bool isValid() const;
+    bool hasPrintableObfuscationValues() const;
     void setDefault();
 };
 

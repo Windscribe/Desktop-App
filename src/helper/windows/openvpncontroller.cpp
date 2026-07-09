@@ -172,6 +172,11 @@ bool OpenVPNController::writeOVPNFile(std::wstring &config, unsigned int port, c
 
     spdlog::debug("Writing OpenVPN config");
 
+    // The filtered config can carry custom-config inline keys and credentials.
+    if (!Utils::createRestrictedFile(filePath)) {
+        return false;
+    }
+
     std::wofstream file(filePath.c_str(), std::ios::out | std::ios::trunc);
     if (!file) {
         spdlog::error("Could not open config file: {}", GetLastError());
@@ -218,6 +223,11 @@ bool OpenVPNController::writeOVPNFile(std::wstring &config, unsigned int port, c
         file << L"route 128.0.0.0 128.0.0.0 vpn_gateway\r\n";
     }
 
+    file.flush();
+    if (file.fail()) {
+        spdlog::error("OpenVPNController::writeOVPNFile - failed to write config file");
+        return false;
+    }
     file.close();
 
     filename = filePath;

@@ -638,10 +638,6 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
         <translation>启动失败</translation>
     </message>
     <message>
-        <source>Trying Backup Endpoints %1/%2</source>
-        <translation>正在尝试备份终结点 %1/%2</translation>
-    </message>
-    <message>
         <source>SSL Error</source>
         <translation>SSL 错误</translation>
     </message>
@@ -668,6 +664,10 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
     <message>
         <source>Later</source>
         <translation>后续</translation>
+    </message>
+    <message>
+        <source>Trying Backup Endpoints...</source>
+        <translation>尝试备份终端......</translation>
     </message>
     <message>
         <source>SSL requests may be intercepted on your network. Ignoring SSL errors disables TLS certificate validation for this session: anyone able to intercept your traffic can then impersonate Windscribe and read or alter your data, and we can&apos;t guarantee your security while it&apos;s on. Ignore SSL errors?</source>
@@ -828,10 +828,6 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>You have reached your limit of WireGuard public keys. Do you want to delete your oldest key?</source>
         <translation>您已达到 WireGuard 公钥的限制。是否要删除最旧的密钥？</translation>
-    </message>
-    <message>
-        <source>Error Starting Service</source>
-        <translation>启动服务时出错</translation>
     </message>
     <message>
         <source>The split tunneling feature could not be started, and has been disabled in Preferences.</source>
@@ -1427,10 +1423,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>自动连接</translation>
     </message>
     <message>
-        <source>Control the mode of behaviour of the Windscribe firewall.</source>
-        <translation>控制 Windscribe 防火墙的行为模式。</translation>
-    </message>
-    <message>
         <source>Connection Mode</source>
         <translation>连接模式</translation>
     </message>
@@ -1457,6 +1449,10 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Configure your TV, gaming console, or other devices that support proxy servers.</source>
         <translation>配置电视、游戏机或其他支持代理服务器的设备。</translation>
+    </message>
+    <message>
+        <source>The firewall is in an Always On mode. Allowing LAN traffic can leak your DNS and other traffic to your local network while you are disconnected. Are you sure you want to enable it?</source>
+        <translation>防火墙处于“始终在线”模式。允许局域网流量可能会在断开连接时将你的DNS和其他流量泄露到本地网络。你确定要启用它吗？</translation>
     </message>
     <message>
         <source>Settings Conflict</source>
@@ -1493,6 +1489,10 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>In this firewall mode, the Windscribe API will not be available while disconnected, this could have unintended consequences. Use at own risk.</source>
         <translation>在这种防火墙模式下，Windscribe API 在断开连接时将不可用，这可能会产生意想不到的后果。使用风险自负。</translation>
+    </message>
+    <message>
+        <source>Control the mode of behaviour of the Windscribe firewall. Always On modes disable Allow LAN Traffic to prevent DNS leaks.</source>
+        <translation>控制Windscribe防火墙的行为模式。始终开机模式会禁用允许局域网流量以防止DNS泄露。</translation>
     </message>
     <message>
         <source>Configure egress IP stack for VPN connections (WireGuard only).</source>
@@ -2081,6 +2081,10 @@ Connect to a network first</source>
 </context>
 <context>
     <name>PreferencesWindow::ProtocolTweaksGroup</name>
+    <message>
+        <source>Custom SNI Domain</source>
+        <translation>自定义 SNI 域名</translation>
+    </message>
     <message>
         <source>Protocol Tweaks</source>
         <translation>协议调整</translation>

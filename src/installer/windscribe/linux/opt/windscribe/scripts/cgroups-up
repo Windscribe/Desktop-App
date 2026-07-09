@@ -9,10 +9,18 @@ remote_ip=$6
 netclass=$7
 allow_lan=$8
 mode=$9
-# v6 default-gateway and v6 VPN-gateway. Empty when no IPv6 is configured;
-# the v6 blocks below are gated on these being non-empty.
+# v6 default-gateway, v6 VPN-gateway, physical v6 default interface, and physical v6
+# default address. Empty when no IPv6 is configured. def_ip_v6 is the authoritative
+# "host has physical v6" signal: def_interface_v6 falls back to the v4 interface name on
+# the engine side, so its presence alone does not mean the host has a v6 default.
 def_gateway_v6=${10}
 vpn_gateway_v6=${11}
+def_interface_v6=${12}
+def_ip_v6=${13}
+# WireGuard fwmark in hex (e.g. "0xca6c"), matching iproute2's `ip rule show` output. Used to
+# locate the WG `not fwmark` rule independently of its routing-table id, which may vary. Must
+# track marks::kWireGuardFwMark in the helper (passed in by cgroups.cpp).
+wg_fwmark=${14}
 
 net_cls_root="`mount -l -t cgroup | grep "net_cls on" | cut -d ' ' -f 3 | head -n 1`"
 if [ ! -f "$net_cls_root/windscribe/net_cls.classid" ]; then
@@ -65,14 +73,23 @@ if [ ! -f "$net_cls_root/windscribe/net_cls.classid" ]; then
     ip route add "$remote_ip" dev "$def_interface" table windscribe_include
 
     # IPv6 sibling of the rules above. 10.255.255.0/24 and $remote_ip are v4-only
-    # and have no v6 counterpart.
-    if [ -n "$def_gateway_v6" ] || [ -n "$vpn_gateway_v6" ]; then
+    # and have no v6 counterpart. Use the v6 default interface for the physical route;
+    # the engine already falls it back to the v4 interface name when no distinct v6
+    # interface exists, so it is non-empty whenever a v6 default was found.
+    v6_iface="$def_interface_v6"
+    if [ -n "$def_gateway_v6" ] || [ -n "$def_ip_v6" ] || [ -n "$vpn_gateway_v6" ]; then
         ip -6 rule add fwmark "$mark" priority 16384 table windscribe
     fi
     if [ -n "$def_gateway_v6" ]; then
-        ip -6 route add default via "$def_gateway_v6" dev "$def_interface" table windscribe
+        ip -6 route add default via "$def_gateway_v6" dev "$v6_iface" table windscribe
+    elif [ -n "$def_ip_v6" ]; then
+        # Dual-stack host whose v6 default route is on-link / point-to-point (no nexthop):
+        # route marked v6 out the physical v6 interface directly. Gated on a real physical
+        # v6 address, not the interface name (which falls back to the v4 NIC), so a v4-only
+        # host or a ::/0 reject route does not install a bogus default here.
+        ip -6 route add default dev "$v6_iface" table windscribe
     elif [ -n "$vpn_gateway_v6" ]; then
-        # v4-only host with a dual-stack VPN: terminate marked v6 packets here so
+        # Genuinely v4-only host with a dual-stack VPN: terminate marked v6 packets here so
         # they don't fall through to the WG 'not fwmark' rule and leak into the tunnel.
         ip -6 route add unreachable default table windscribe
     fi
@@ -87,7 +104,9 @@ fi
 
 # Allow IP rules to consult main routing table first, ignoring /0 or /1 routes
 ip rule add priority 16383 table main suppress_prefixlength 1
-priority="`ip rule show | grep 51820 | cut -d ":" -f1`" # priority of WireGuard rule, if it exists
+# head -n1: the fwmark is a fixed constant, so a stale WG rule surviving an unclean disconnect
+# would make grep return multiple lines and break the $((priority - 1)) arithmetic below.
+priority="`ip rule show | grep -i "$wg_fwmark" | cut -d ":" -f1 | head -n1`" # priority of WireGuard rule (matched by fwmark), if it exists
 if [ -n "$priority" ]; then
     # WG uses the same ip rule mechanism, just adjust the WG rule
     ip rule add priority $((priority - 1)) table main suppress_prefixlength 0
@@ -96,10 +115,10 @@ else
     ip rule del priority 16385 table windscribe_include
 fi
 
-# IPv6 sibling of the priority adjust above.
-if [ -n "$def_gateway_v6" ] || [ -n "$vpn_gateway_v6" ]; then
+# IPv6 sibling of the priority adjust above. Same gate as the windscribe-table v6 rule above.
+if [ -n "$def_gateway_v6" ] || [ -n "$def_ip_v6" ] || [ -n "$vpn_gateway_v6" ]; then
     ip -6 rule add priority 16383 table main suppress_prefixlength 1
-    priority_v6="`ip -6 rule show | grep 51820 | cut -d ":" -f1`"
+    priority_v6="`ip -6 rule show | grep -i "$wg_fwmark" | cut -d ":" -f1 | head -n1`"
     if [ -n "$priority_v6" ]; then
         ip -6 rule add priority $((priority_v6 - 1)) table main suppress_prefixlength 0
     else

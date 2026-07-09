@@ -275,10 +275,6 @@
         <translation>लॉग भेजे गए।</translation>
     </message>
     <message>
-        <source>Preferences reloaded.</source>
-        <translation>वरीयताएँ पुनः लोड की गईं।</translation>
-    </message>
-    <message>
         <source>Key limit behaviour is set.</source>
         <translation>कुंजी सीमा व्यवहार सेट है।</translation>
     </message>

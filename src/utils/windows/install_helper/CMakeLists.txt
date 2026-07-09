@@ -32,6 +32,11 @@ endif()
 add_executable(InstallHelper ${SOURCES})
 set_property(TARGET InstallHelper PROPERTY LINK_FLAGS "/MANIFESTUAC:\"level='requireAdministrator' uiAccess='false'\"")
 
+# Enable the "Microsoft-signed DLLs only" + related process mitigations, applied from the TLS
+# callback in wsprocessmitigations.h.  Safe here: this is a native, statically-linked (/MT) tool
+# that loads no non-Microsoft-signed DLL (only MS system DLLs, statically or at runtime).
+target_compile_definitions(InstallHelper PRIVATE WS_ENABLE_PROCESS_MITIGATIONS)
+
 target_include_directories(InstallHelper
     PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}

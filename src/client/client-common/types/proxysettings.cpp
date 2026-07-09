@@ -24,7 +24,7 @@ ProxySettings::ProxySettings(PROXY_OPTION option, const QString &address, uint p
 ProxySettings::ProxySettings(const QJsonObject &json) : option_(PROXY_OPTION_NONE), port_(0)
 {
     if (json.contains(kJsonOptionProp) && json[kJsonOptionProp].isDouble()) {
-        option_ = PROXY_OPTION_fromInt(json[kJsonOptionProp].toInt());
+        option_ = enumFromInt<PROXY_OPTION>(json[kJsonOptionProp].toInt());
     }
 
     if (json.contains(kJsonAddressProp) && json[kJsonAddressProp].isString()) {
@@ -44,9 +44,10 @@ ProxySettings::ProxySettings(const QJsonObject &json) : option_(PROXY_OPTION_NON
     }
 }
 
+#ifdef CLI_ONLY
 void ProxySettings::fromIni(const QSettings &settings)
 {
-    option_ = PROXY_OPTION_fromString(settings.value(kIniOptionProp, PROXY_OPTION_toString(option_)).toString());
+    option_ = enumFromString<PROXY_OPTION>(settings.value(kIniOptionProp, enumToString(option_)).toString());
     address_ = settings.value(kIniAddressProp).toString();
     port_ = settings.value(kIniPortProp, 0).toUInt();
     username_ = settings.value(kIniUsernameProp).toString();
@@ -55,12 +56,13 @@ void ProxySettings::fromIni(const QSettings &settings)
 
 void ProxySettings::toIni(QSettings &settings) const
 {
-    settings.setValue(kIniOptionProp, PROXY_OPTION_toString(option_));
+    settings.setValue(kIniOptionProp, enumToString(option_));
     settings.setValue(kIniAddressProp, address_);
     settings.setValue(kIniPortProp, static_cast<int>(port_));
     settings.setValue(kIniUsernameProp, username_);
     settings.setValue(kIniPasswordProp, password_);
 }
+#endif
 
 QJsonObject ProxySettings::toJson(bool isForDebugLog) const
 {
@@ -69,7 +71,7 @@ QJsonObject ProxySettings::toJson(bool isForDebugLog) const
     json[kJsonAddressProp] = address_;
     json[kJsonPortProp] = static_cast<int>(port_);
     if (isForDebugLog) {
-        json["optionDesc"] = PROXY_OPTION_toString(option_);
+        json["optionDesc"] = enumToString(option_);
     } else {
         json[kJsonUsernameProp] = username_;
         json[kJsonPasswordProp] = Utils::toBase64(password_);
@@ -182,7 +184,7 @@ bool ProxySettings::isProxyEnabled() const
 
 void ProxySettings::validate()
 {
-    option_ = PROXY_OPTION_fromInt(static_cast<int>(option_));
+    option_ = enumFromInt<PROXY_OPTION>(static_cast<int>(option_));
     if (option_ == PROXY_OPTION_AUTODETECT || option_ == PROXY_OPTION_SOCKS) {
         qCWarning(LOG_BASIC) << "ProxySettings: unsupported proxy option, resetting";
         option_ = PROXY_OPTION_NONE;

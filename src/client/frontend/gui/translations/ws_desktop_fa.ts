@@ -638,10 +638,6 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
         <translation>خرابی در اغاز</translation>
     </message>
     <message>
-        <source>Trying Backup Endpoints %1/%2</source>
-        <translation>تلاش برای پشتیبانگیری نقاط پایانی%1/%2</translation>
-    </message>
-    <message>
         <source>SSL Error</source>
         <translation>خطای SSL</translation>
     </message>
@@ -668,6 +664,10 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
     <message>
         <source>Later</source>
         <translation>بعدا</translation>
+    </message>
+    <message>
+        <source>Trying Backup Endpoints...</source>
+        <translation>دارم نقاط پایانی پشتیبان گیری را امتحان می کنم...</translation>
     </message>
     <message>
         <source>SSL requests may be intercepted on your network. Ignoring SSL errors disables TLS certificate validation for this session: anyone able to intercept your traffic can then impersonate Windscribe and read or alter your data, and we can&apos;t guarantee your security while it&apos;s on. Ignore SSL errors?</source>
@@ -828,10 +828,6 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>You have reached your limit of WireGuard public keys. Do you want to delete your oldest key?</source>
         <translation>شما به حد مجاز کلیدهای عمومی WireGuard رسیده اید. ایا می خواهید قدیمی ترین کلید خود را حذف کنید؟</translation>
-    </message>
-    <message>
-        <source>Error Starting Service</source>
-        <translation>خطا در شروع سرویس</translation>
     </message>
     <message>
         <source>The split tunneling feature could not be started, and has been disabled in Preferences.</source>
@@ -1427,10 +1423,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>اتصال خودکار</translation>
     </message>
     <message>
-        <source>Control the mode of behaviour of the Windscribe firewall.</source>
-        <translation>نحوه رفتار فایروال Windscribe را کنترل کنید.</translation>
-    </message>
-    <message>
         <source>Connection Mode</source>
         <translation>حالت اتصال</translation>
     </message>
@@ -1463,6 +1455,10 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>تلویزیون، کنسول بازی یا سایر دستگاه هایی را که از سرورهای پروکسی پشتیبانی می کنند پیکربندی کنید.</translation>
     </message>
     <message>
+        <source>The firewall is in an Always On mode. Allowing LAN traffic can leak your DNS and other traffic to your local network while you are disconnected. Are you sure you want to enable it?</source>
+        <translation>فایروال در حالت همیشه روشن است. اجازه دادن به ترافیک LAN می تواند DNS و سایر ترافیک ها را هنگام قطع اتصال به شبکه محلی شما نشت دهد. مطمئنی می خواهی آن را فعال کنی؟</translation>
+    </message>
+    <message>
         <source>Settings Conflict</source>
         <translation>ناسازگاری تنظیمات</translation>
     </message>
@@ -1493,6 +1489,10 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>In this firewall mode, the Windscribe API will not be available while disconnected, this could have unintended consequences. Use at own risk.</source>
         <translation>در این حالت فایروال، Windscribe API در هنگام قطع شدن در دسترس نخواهد بود، این می تواند عواقب ناخواسته ای داشته باشد. با مسئولیت خود استفاده کنید.</translation>
+    </message>
+    <message>
+        <source>Control the mode of behaviour of the Windscribe firewall. Always On modes disable Allow LAN Traffic to prevent DNS leaks.</source>
+        <translation>رفتار فایروال Windscribe را کنترل کنید. حالت های Always On را غیرفعال می کنند تا از نشت DNS جلوگیری کنند.</translation>
     </message>
     <message>
         <source>Configure egress IP stack for VPN connections (WireGuard only).</source>
@@ -2081,6 +2081,10 @@ Connect to a network first</source>
 </context>
 <context>
     <name>PreferencesWindow::ProtocolTweaksGroup</name>
+    <message>
+        <source>Custom SNI Domain</source>
+        <translation>دامنه SNI سفارشی</translation>
+    </message>
     <message>
         <source>Protocol Tweaks</source>
         <translation>اصلاحات پروتکل</translation>

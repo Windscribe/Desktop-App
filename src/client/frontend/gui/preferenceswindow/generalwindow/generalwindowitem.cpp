@@ -279,7 +279,7 @@ void GeneralWindowItem::onLanguageChanged()
     checkBoxShowLocationLoad_->setCaption(tr("Show Location Load"));
     comboBoxLocationOrder_->setDescription(tr("Arrange locations alphabetically, geographically, or by latency."));
     comboBoxLocationOrder_->setLabelCaption(tr("Location Order"));
-    comboBoxLocationOrder_->setItems(ORDER_LOCATION_TYPE_toList(), preferences_->locationOrder());
+    comboBoxLocationOrder_->setItems(enumToList<ORDER_LOCATION_TYPE>(), preferences_->locationOrder());
     comboBoxLanguage_->setDescription(tr("Localize Windscribe to supported languages."));
     comboBoxLanguage_->setLabelCaption(tr("Language"));
     comboBoxLanguage_->setItems(preferencesHelper_->availableLanguages(), preferences_->language());
@@ -288,13 +288,13 @@ void GeneralWindowItem::onLanguageChanged()
     multiDesktopBehaviorItem_->setDescription(tr("Select behaviour when window is activated with multiple desktops."),
                                               "https://github.com/Windscribe/Desktop-App/wiki/macOS-Multi%E2%80%90desktop-preference");
     multiDesktopBehaviorItem_->setLabelCaption(tr("Multi-Desktop"));
-    multiDesktopBehaviorItem_->setItems(MULTI_DESKTOP_BEHAVIOR_toList(), preferences_->multiDesktopBehavior());
+    multiDesktopBehaviorItem_->setItems(enumToList<MULTI_DESKTOP_BEHAVIOR>(), preferences_->multiDesktopBehavior());
 #endif
 
     comboBoxUpdateChannel_->setDescription(tr("Choose to receive stable, beta, or experimental builds."),
                                            QString("https://%1/features/update-channels").arg(HardcodedSettings::instance().windscribeServerUrl()));
     comboBoxUpdateChannel_->setLabelCaption(tr("Update Channel"));
-    QList<QPair<QString, QVariant>> updateChannelList = UPDATE_CHANNEL_toList();
+    QList<QPair<QString, QVariant>> updateChannelList = enumToList<UPDATE_CHANNEL>();
     for (auto item : updateChannelList) {
         if (item.second == UPDATE_CHANNEL_INTERNAL) {
             updateChannelList.removeOne(item);

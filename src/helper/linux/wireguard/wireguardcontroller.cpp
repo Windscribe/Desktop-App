@@ -9,6 +9,7 @@
 #include "userspace/wireguardgocommunicator.h"
 #include "kernelmodule/kernelmodulecommunicator.h"
 #include "defaultroutemonitor.h"
+#include "../network_marks.h"
 #include "../utils.h"
 
 WireGuardController::WireGuardController()
@@ -105,7 +106,7 @@ unsigned long WireGuardController::getStatus(
 
 
 bool WireGuardController::configureAdapter(const std::string &ipAddress, const std::string &dnsAddressList, const std::string &dnsScriptName,
-                                           const std::vector<std::string> &allowedIps, uint32_t fwmark)
+                                           const std::vector<std::string> &allowedIps, uint32_t fwmark, uint32_t routingTable)
 {
     UNUSED(dnsScriptName);
     UNUSED(dnsAddressList);
@@ -116,7 +117,7 @@ bool WireGuardController::configureAdapter(const std::string &ipAddress, const s
         return false;
     return adapter_->setIpAddress(ipAddress)
            && adapter_->setDnsServers(dnsAddressList, dnsScriptName)
-           && adapter_->enableRouting(allowedIps, fwmark);
+           && adapter_->enableRouting(allowedIps, fwmark, routingTable);
 }
 
 std::string WireGuardController::getAdapterName() const
@@ -147,11 +148,14 @@ WireGuardController::splitAndDeduplicateAllowedIps(const std::string &allowedIps
 }
 
 // static
-uint32_t WireGuardController::getFwmark()
+uint32_t WireGuardController::getRoutingTable()
 {
-    uint32_t fwmark = 51820;        // initial default fwmark (taken from wireguard tools sources)
+    // Pick an available routing-table id for the WG policy-routing rules. The fwmark is a
+    // separate, fixed value (marks::kWireGuardFwMark); only the table id may vary, so this
+    // probes table availability and never affects the mark.
+    uint32_t table = marks::kInitialRoutingTableId;   // initial default (taken from wireguard tools sources)
 
-    // check for the fwmark busy
+    // check for the routing table busy
     while (true)
     {
         std::vector<std::string> args;
@@ -159,7 +163,7 @@ uint32_t WireGuardController::getFwmark()
         args.push_back("route");
         args.push_back("show");
         args.push_back("table");
-        args.push_back(std::to_string(fwmark));
+        args.push_back(std::to_string(table));
 
         std::string outputIp4, outputIp6;
         Utils::executeCommand("ip", args, &outputIp4, false);
@@ -172,9 +176,9 @@ uint32_t WireGuardController::getFwmark()
         }
         else
         {
-            fwmark++;
+            table++;
         }
     }
 
-    return fwmark;
+    return table;
 }

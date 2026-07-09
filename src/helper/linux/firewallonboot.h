@@ -19,8 +19,6 @@ private:
     FirewallOnBootManager();
     ~FirewallOnBootManager();
 
-    std::string comment_;
-
     bool enable(bool allowLanTraffic);
     bool disable();
 

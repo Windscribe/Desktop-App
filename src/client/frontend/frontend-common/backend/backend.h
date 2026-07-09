@@ -142,7 +142,6 @@ private slots:
     void onEngineFirewallStateChanged(bool isEnabled);
     void onEngineLoginFinished(const api_responses::PortMap &portMap);
     void onEngineLoginError(wsnet::LoginResult retCode, const QString &errorMessage);
-    void onEngineTryingBackupEndpoint(int num, int cnt);
     void onEngineSessionDeleted();
     void onEngineUpdateSessionStatus(const api_responses::SessionStatus &sessionStatus);
     void onEngineNotificationsUpdated(const QVector<api_responses::Notification> &notifications);
@@ -208,7 +207,7 @@ signals:
 
     void captchaRequired(bool isAsciiCaptcha, const QString &asciiArt, const QString &background, const QString &slider, int top);
     void loginFinished();
-    void tryingBackupEndpoint(int num, int cnt);
+    void tryingBackupEndpoint();
     void loginError(wsnet::LoginResult loginError, const QString &errorMessage);
 
     void logoutFinished();
@@ -263,7 +262,7 @@ signals:
 
     void controldDevicesFetched(CONTROLD_FETCH_RESULT result, const QList<QPair<QString, QString>> &devices);
 
-    void splitTunnelingStartFailed();
+    void splitTunnelingStartFailed(SPLIT_TUNNEL_START_FAIL_REASON reason = SPLIT_TUNNEL_START_FAIL_REASON_DEFAULT);
     void connectionIdChanged(const QString &connId);
     void localDnsServerNotAvailable();
 

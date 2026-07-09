@@ -638,10 +638,6 @@ Pokud ztratíte hash účtu, je navždy pryč a podpora vám nemůže pomoci ho 
         <translation>Nepodařilo se spustit</translation>
     </message>
     <message>
-        <source>Trying Backup Endpoints %1/%2</source>
-        <translation>Zkouší koncové body zálohování %1/%2</translation>
-    </message>
-    <message>
         <source>SSL Error</source>
         <translation>Chyba SSL</translation>
     </message>
@@ -668,6 +664,10 @@ Pokud ztratíte hash účtu, je navždy pryč a podpora vám nemůže pomoci ho 
     <message>
         <source>Later</source>
         <translation>Později</translation>
+    </message>
+    <message>
+        <source>Trying Backup Endpoints...</source>
+        <translation>Zkouším záložní koncové body...</translation>
     </message>
     <message>
         <source>SSL requests may be intercepted on your network. Ignoring SSL errors disables TLS certificate validation for this session: anyone able to intercept your traffic can then impersonate Windscribe and read or alter your data, and we can&apos;t guarantee your security while it&apos;s on. Ignore SSL errors?</source>
@@ -828,10 +828,6 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
     <message>
         <source>You have reached your limit of WireGuard public keys. Do you want to delete your oldest key?</source>
         <translation>Dosáhli jste limitu veřejných klíčů WireGuard. Chcete odstranit nejstarší klíč?</translation>
-    </message>
-    <message>
-        <source>Error Starting Service</source>
-        <translation>Chyba při spuštění služby</translation>
     </message>
     <message>
         <source>The split tunneling feature could not be started, and has been disabled in Preferences.</source>
@@ -1427,10 +1423,6 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
         <translation>Automatické připojení</translation>
     </message>
     <message>
-        <source>Control the mode of behaviour of the Windscribe firewall.</source>
-        <translation>Ovládejte režim chování brány firewall Windscribe.</translation>
-    </message>
-    <message>
         <source>Connection Mode</source>
         <translation>Režim připojení</translation>
     </message>
@@ -1457,6 +1449,10 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
     <message>
         <source>Configure your TV, gaming console, or other devices that support proxy servers.</source>
         <translation>Nakonfigurujte televizor, herní konzoli nebo jiná zařízení, která podporují proxy servery.</translation>
+    </message>
+    <message>
+        <source>The firewall is in an Always On mode. Allowing LAN traffic can leak your DNS and other traffic to your local network while you are disconnected. Are you sure you want to enable it?</source>
+        <translation>Firewall je v režimu Always On. Povolení LAN provozu může uniknout váš DNS a další provoz do vaší lokální sítě, zatímco jste odpojeni. Jste si jistý, že to chcete povolit?</translation>
     </message>
     <message>
         <source>Settings Conflict</source>
@@ -1493,6 +1489,10 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
     <message>
         <source>In this firewall mode, the Windscribe API will not be available while disconnected, this could have unintended consequences. Use at own risk.</source>
         <translation>V tomto režimu brány firewall nebude rozhraní API Windscribe k dispozici, když bude odpojeno, což by mohlo mít nezamýšlené důsledky. Používejte na vlastní riziko.</translation>
+    </message>
+    <message>
+        <source>Control the mode of behaviour of the Windscribe firewall. Always On modes disable Allow LAN Traffic to prevent DNS leaks.</source>
+        <translation>Ovládejte režim chování firewallu Windscribe. Režimy Always Connected deaktivují Povolit LAN provoz, aby se zabránilo únikům DNS.</translation>
     </message>
     <message>
         <source>Configure egress IP stack for VPN connections (WireGuard only).</source>
@@ -2081,6 +2081,10 @@ Nejprve se připojte k síti</translation>
 </context>
 <context>
     <name>PreferencesWindow::ProtocolTweaksGroup</name>
+    <message>
+        <source>Custom SNI Domain</source>
+        <translation>Vlastní doména SNI</translation>
+    </message>
     <message>
         <source>Protocol Tweaks</source>
         <translation>Úpravy protokolu</translation>

@@ -43,19 +43,23 @@ struct EngineSettingsData : public QSharedData
     QMap<QString, types::ConnectionSettings> networkPreferredProtocols;
     QString language;
     QString amneziawgPreset;
+    QString customSniDomain;
     SERVER_ROUTING_METHOD_TYPE serverRoutingMethod = SERVER_ROUTING_METHOD_AUTO;
     PROTOCOL_TWEAKS_METHOD_TYPE protocolTweaksMethod = PROTOCOL_TWEAKS_METHOD_AUTO;
     IpStack IpStackEgress = IpStack::kAuto;
 
     void fromJson(const QJsonObject &json);
     QJsonObject toJson(bool isForDebugLog) const;
+#ifdef CLI_ONLY
     void fromIni(QSettings &settings);
     void toIni(QSettings &settings) const;
+#endif
 
     void validate();
 
 private:
     static const inline QString kIniAmneziawgPresetProp = "AmneziawgPreset";
+    static const inline QString kIniCustomSniDomainProp = "CustomSniDomain";
     static const inline QString kIniDnsManagerProp = "DNSManager";
     static const inline QString kIniServerRoutingMethodProp = "ServerRoutingMethod";
     static const inline QString kIniProtocolTweaksMethodProp = "ProtocolTweaksMethod";
@@ -68,6 +72,7 @@ private:
     static const inline QString kIniUpdateChannelProp = "UpdateChannel";
 
     static const inline QString kJsonAmneziawgPresetProp = "amneziawgPreset";
+    static const inline QString kJsonCustomSniDomainProp = "customSniDomain";
     static const inline QString kJsonServerRoutingMethodProp = "serverRoutingMethod";
     static const inline QString kJsonProtocolTweaksMethodProp = "protocolTweaksMethod";
     static const inline QString kJsonIpStackEgressProp = "ipStackEgress";
@@ -110,6 +115,8 @@ public:
     void setLanguage(const QString &lang);
     QString amneziawgPreset() const;
     void setAmneziawgPreset(const QString &preset);
+    QString customSniDomain() const;
+    void setCustomSniDomain(const QString &domain);
 
     bool isTerminateSockets() const;
     void setIsTerminateSockets(bool close);
@@ -161,8 +168,10 @@ public:
     bool operator==(const EngineSettings &other) const;
     bool operator!=(const EngineSettings &other) const;
     QJsonObject toJson(bool isForDebugLog) const;
+#ifdef CLI_ONLY
     void fromIni(QSettings &settings);
     void toIni(QSettings & settings) const;
+#endif
 
     friend QDebug operator<<(QDebug dbg, const EngineSettings &es);
 
@@ -175,7 +184,7 @@ private:
 
     // for serialization
     static constexpr quint32 magic_ = 0x7745C2AE;
-    static constexpr int versionForSerialization_ = 12;  // should increment the version if the data format is changed
+    static constexpr int versionForSerialization_ = 13;  // should increment the version if the data format is changed
 };
 
 } // types namespace

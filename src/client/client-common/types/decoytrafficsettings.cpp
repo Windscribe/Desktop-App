@@ -72,6 +72,7 @@ QJsonObject DecoyTrafficSettings::toJson() const
     return json;
 }
 
+#ifdef CLI_ONLY
 void DecoyTrafficSettings::fromIni(const QSettings &settings)
 {
     bEnabled_ = settings.value(kIniIsEnabledProp, false).toBool();
@@ -83,6 +84,7 @@ void DecoyTrafficSettings::toIni(QSettings &settings) const
     settings.setValue(kIniIsEnabledProp, bEnabled_);
     settings.setValue(kIniVolumeProp, decoyTrafficVolumeToString(volume_));
 }
+#endif
 
 QDataStream& operator <<(QDataStream &stream, const DecoyTrafficSettings &o)
 {

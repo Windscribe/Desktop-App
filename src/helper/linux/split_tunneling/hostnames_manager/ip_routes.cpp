@@ -63,6 +63,21 @@ buildRouteArgs(const std::string &op,
     return {std::move(args), std::move(desc)};
 }
 
+// True when the route must be installed `dev`-only (no `via`): either the gateway is one of
+// our own interface addresses (the WireGuard point-to-point hack, which the kernel rejects as
+// `via <local-addr>`), or there is no gateway at all but we have a real interface and local
+// address (an on-link / point-to-point v6 default, e.g. PPP/cellular, which has no nexthop).
+// The gateway-less case is v6-only: it exists for the "non-VPN IPv6" path, and getDefaultRoute
+// (v4) reports an on-link default's gateway as 0.0.0.0 (a valid address), so a v4 destination
+// with a genuinely absent gateway keeps its old skip-with-warning behavior.
+bool useDevOnlyRoute(const types::IpAddress &gw, const types::IpAddress &adapterIp, const std::string &iface)
+{
+    if (!adapterIp.isValid()) {
+        return false;
+    }
+    return gw == adapterIp || (!gw.isValid() && !iface.empty() && adapterIp.isV6());
+}
+
 } // namespace
 
 void IpRoutes::setIps(const types::IpAddress &gatewayV4,
@@ -107,7 +122,7 @@ void IpRoutes::setIps(const types::IpAddress &gatewayV4,
         const auto &gwForFamily = rd.ip.isV6() ? gatewayV6 : gatewayV4;
         const auto &adapterIpForFamily = rd.ip.isV6() ? adapterIpV6 : adapterIpV4;
         const auto &ifaceForFamily = rd.ip.isV6() ? ifaceV6 : ifaceV4;
-        const bool gwIsLocalNow = adapterIpForFamily.isValid() && (gwForFamily == adapterIpForFamily);
+        const bool gwIsLocalNow = useDevOnlyRoute(gwForFamily, adapterIpForFamily, ifaceForFamily);
         if (rd.defaultRouteIp != gwForFamily
             || rd.interfaceName != ifaceForFamily
             || rd.gatewayIsLocal != gwIsLocalNow
@@ -138,29 +153,30 @@ void IpRoutes::setIps(const types::IpAddress &gatewayV4,
             continue;
         }
 
-        // Pick the gateway by destination family; skip when the family's gateway is
-        // not configured (OpenVPN-on-Linux is v4-only, so v6 destinations end up here
-        // when inclusive-mode VPN is OpenVPN; v6-less LAN with exclude mode also
-        // lands here for v6 destinations).
+        // Pick the gateway and interface by destination family.
         const auto &gw = it->isV6() ? gatewayV6 : gatewayV4;
-        if (!gw.isValid()) {
-            spdlog::warn("IpRoutes::setIps(), no {} gateway for destination {}",
+        const auto &adapterIpForFamily = it->isV6() ? adapterIpV6 : adapterIpV4;
+        const std::string &ifaceForFamily = it->isV6() ? ifaceV6 : ifaceV4;
+
+        // WireGuard point-to-point (gateway == our own address — see addGatewayIp(ip) paired
+        // with addAdapterIp(ip) in wireguardconnection_posix.cpp) and gateway-less on-link /
+        // point-to-point defaults are both installed `dev`-only: the kernel refuses `via <addr>`
+        // for the former and there is no nexthop for the latter.
+        const bool gwIsLocal = useDevOnlyRoute(gw, adapterIpForFamily, ifaceForFamily);
+
+        // Skip only when there is neither a usable gateway nor a dev-only fallback: e.g. a v6
+        // destination on a v4-only host (no v6 gateway, no v6 address), or inclusive-mode
+        // OpenVPN-on-Linux which is v4-only.
+        if (!gw.isValid() && !gwIsLocal) {
+            spdlog::warn("IpRoutes::setIps(), no {} gateway or interface for destination {}",
                          it->isV6() ? "IPv6" : "IPv4", it->toString());
             continue;
         }
 
-        // Detect the WireGuard point-to-point case: the engine layer feeds the WG
-        // client address as both adapterIp and gatewayIp (see addGatewayIp(ip)
-        // paired with addAdapterIp(ip) in wireguardconnection_posix.cpp). For
-        // such "local" gateways the kernel refuses any `via <addr>` form
-        // ("Gateway can not be a local address."); fall back to `dev`-only.
-        const auto &adapterIpForFamily = it->isV6() ? adapterIpV6 : adapterIpV4;
-        const bool gwIsLocal = adapterIpForFamily.isValid() && (gw == adapterIpForFamily);
-
         RouteDescr rd;
         rd.ip = *it;
         rd.defaultRouteIp = gw;
-        rd.interfaceName = it->isV6() ? ifaceV6 : ifaceV4;
+        rd.interfaceName = ifaceForFamily;
         rd.gatewayIsLocal = gwIsLocal;
 
         // Negative cache: if this exact route was already rejected by the kernel, don't

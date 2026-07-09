@@ -275,10 +275,6 @@
         <translation>Wysłane dzienniki.</translation>
     </message>
     <message>
-        <source>Preferences reloaded.</source>
-        <translation>Preferencje zostały ponownie załadowane.</translation>
-    </message>
-    <message>
         <source>Key limit behaviour is set.</source>
         <translation>Zachowanie limitu klucza jest ustawione.</translation>
     </message>

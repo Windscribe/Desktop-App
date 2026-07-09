@@ -24,7 +24,7 @@ struct SplitTunnelingSettings
         }
 
         if (json.contains(kJsonModeProp) && json[kJsonModeProp].isDouble()) {
-            mode = SPLIT_TUNNELING_MODE_fromInt(json[kJsonModeProp].toInt());
+            mode = enumFromInt<SPLIT_TUNNELING_MODE>(json[kJsonModeProp].toInt());
         }
     }
 
@@ -48,7 +48,7 @@ struct SplitTunnelingSettings
         json[kJsonActiveProp] = active;
         json[kJsonModeProp] = static_cast<int>(mode);
         if (isForDebugLog) {
-            json["modeDesc"] = SPLIT_TUNNELING_MODE_toString(mode);
+            json["modeDesc"] = enumToString(mode);
         }
         return json;
     }
@@ -74,7 +74,7 @@ struct SplitTunnelingSettings
 
     void validate()
     {
-        mode = SPLIT_TUNNELING_MODE_fromInt(static_cast<int>(mode));
+        mode = enumFromInt<SPLIT_TUNNELING_MODE>(static_cast<int>(mode));
     }
 
 private:
@@ -95,7 +95,7 @@ struct SplitTunnelingNetworkRoute
     SplitTunnelingNetworkRoute(const QJsonObject &json)
     {
         if (json.contains(kJsonTypeProp) && json[kJsonTypeProp].isDouble()) {
-            type = SPLIT_TUNNELING_NETWORK_ROUTE_TYPE_fromInt(json[kJsonTypeProp].toInt());
+            type = enumFromInt<SPLIT_TUNNELING_NETWORK_ROUTE_TYPE>(json[kJsonTypeProp].toInt());
         }
 
         if (json.contains(kJsonNameProp) && json[kJsonNameProp].isString()) {
@@ -162,7 +162,7 @@ struct SplitTunnelingNetworkRoute
 
     void validate()
     {
-        type = SPLIT_TUNNELING_NETWORK_ROUTE_TYPE_fromInt(static_cast<int>(type));
+        type = enumFromInt<SPLIT_TUNNELING_NETWORK_ROUTE_TYPE>(static_cast<int>(type));
         // The name shape is authoritative; a mismatched declared type is corrected.
         if (!name.isEmpty()) {
             if (NetworkingValidation::isIpCidr(name)) {
@@ -189,7 +189,7 @@ struct SplitTunnelingApp
     SplitTunnelingApp(const QJsonObject &json)
     {
         if (json.contains(kJsonTypeProp) && json[kJsonTypeProp].isDouble()) {
-            type = SPLIT_TUNNELING_APP_TYPE_fromInt(json[kJsonTypeProp].toInt());
+            type = enumFromInt<SPLIT_TUNNELING_APP_TYPE>(json[kJsonTypeProp].toInt());
         }
 
         if (json.contains(kJsonNameProp) && json[kJsonNameProp].isString()) {
@@ -286,7 +286,7 @@ struct SplitTunnelingApp
 
     void validate()
     {
-        type = SPLIT_TUNNELING_APP_TYPE_fromInt(static_cast<int>(type));
+        type = enumFromInt<SPLIT_TUNNELING_APP_TYPE>(static_cast<int>(type));
     }
 
 private:
@@ -349,10 +349,11 @@ struct SplitTunneling
         return !(*this == other);
     }
 
+#ifdef CLI_ONLY
     void fromIni(const QSettings &s)
     {
         settings.active = s.value(kIniSplitTunnelingEnabledProp, settings.active).toBool();
-        settings.mode = SPLIT_TUNNELING_MODE_fromString(s.value(kIniSplitTunnelingModeProp, SPLIT_TUNNELING_MODE_toString(settings.mode)).toString());
+        settings.mode = enumFromString<SPLIT_TUNNELING_MODE>(s.value(kIniSplitTunnelingModeProp, enumToString(settings.mode)).toString());
 
         if (s.contains(kIniSplitTunnelingAppsProp)) {
             apps.clear();
@@ -407,7 +408,7 @@ struct SplitTunneling
     void toIni(QSettings &s) const
     {
         s.setValue(kIniSplitTunnelingEnabledProp, settings.active);
-        s.setValue(kIniSplitTunnelingModeProp, SPLIT_TUNNELING_MODE_toString(settings.mode));
+        s.setValue(kIniSplitTunnelingModeProp, enumToString(settings.mode));
 
         QStringList appsList;
         for (auto app : apps) {
@@ -433,6 +434,7 @@ struct SplitTunneling
             s.setValue(kIniSplitTunnelingRoutesProp, routesList);
         }
     }
+#endif
 
     QJsonObject toJson(bool isForDebugLog) const
     {

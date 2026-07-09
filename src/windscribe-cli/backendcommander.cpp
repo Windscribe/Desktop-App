@@ -297,10 +297,6 @@ void BackendCommander::sendCommand(IPC::CliCommands::State *state)
         IPC::CliCommands::Update cmd;
         connection_->sendCommand(cmd);
     }
-    else if (cliArgs_.cliCommand() == CLI_COMMAND_RELOAD_CONFIG) {
-        IPC::CliCommands::ReloadConfig cmd;
-        connection_->sendCommand(cmd);
-    }
     else if (cliArgs_.cliCommand() == CLI_COMMAND_SET_IGNORE_SSL_ERRORS) {
         if (cliArgs_.ignoreSslErrors() && state->loginError_ != wsnet::LoginResult::kSslError) {
             emit finished(1, QObject::tr("Ignoring SSL errors is only available when unable to log in."));
@@ -476,9 +472,6 @@ void BackendCommander::onAcknowledge(IPC::CliCommands::Acknowledge *ackCmd)
     }
     else if (cliArgs_.cliCommand() == CLI_COMMAND_SEND_LOGS) {
         emit(finished(0, QObject::tr("Logs sent.")));
-    }
-    else if (cliArgs_.cliCommand() == CLI_COMMAND_RELOAD_CONFIG) {
-        emit(finished(0, QObject::tr("Preferences reloaded.")));
     }
     else if (cliArgs_.cliCommand() == CLI_COMMAND_SET_IGNORE_SSL_ERRORS) {
         if (ackCmd->code_ != 0) {

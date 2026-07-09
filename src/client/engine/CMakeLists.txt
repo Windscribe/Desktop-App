@@ -17,12 +17,9 @@ add_library(engine STATIC)
 
 target_link_libraries(engine PRIVATE Qt6::Core Qt6::Network wsnet::wsnet OpenSSL::Crypto Boost::serialization spdlog::spdlog)
 
-target_compile_definitions(engine PRIVATE CMAKE_LIBRARY_LIBRARY
-                                  WINVER=0x0601
-                                  _WIN32_WINNT=0x0601
-                                  WIN32_LEAN_AND_MEAN
-                                  PIO_APC_ROUTINE_DEFINED)
-
+if(WIN32)
+    target_compile_definitions(engine PRIVATE CMAKE_LIBRARY_LIBRARY WIN32_LEAN_AND_MEAN PIO_APC_ROUTINE_DEFINED)
+endif()
 
 target_include_directories(engine PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/../client-common
@@ -30,5 +27,3 @@ target_include_directories(engine PRIVATE
 
 add_subdirectory(engine)
 add_subdirectory(utils)
-
-

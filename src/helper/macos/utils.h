@@ -11,6 +11,10 @@ namespace Utils
     inline constexpr const char *kInstallerStageDir = "/Library/Application Support/Windscribe/update";
 
     // execute cmd with args and return output from stdout and stderror to pOutputStr (if pOutputStr != NULL)
+    // When appendFromStdErr is true, stderr is merged into stdout via a subshell redirect, so error
+    // lines are interleaved with stdout in arrival order rather than appended after it. Callers must
+    // not assume stdout precedes stderr in pOutputStr (e.g. do not treat the first line as data);
+    // parse by matching an expected marker/pattern instead.
     int executeCommand(const std::string &cmd,
                        const std::vector<std::string> &args = std::vector<std::string>(),
                        std::string *pOutputStr = nullptr,
@@ -47,4 +51,11 @@ namespace Utils
     bool isValidDnsDynamicStoreEntry(const std::string &entry);
 
     bool isPortListening(unsigned int port, int maxRetries = 10, int delayMs = 100);
+
+    // Apple's link-local peer-to-peer interfaces (AWDL / p2p / llw — AirDrop, AirPlay, Handoff,
+    // Continuity). They carry no internet route, so passing them is not a firewall leak. Names are
+    // validated (Validation::isValidInterfaceName) before being returned so callers may interpolate
+    // them into pf rule text. Shared by the runtime ruleset (FirewallController) and the boot ruleset
+    // (FirewallOnBootManager) so the two stay in lockstep.
+    std::vector<std::string> getAwdlP2pInterfaces();
 };

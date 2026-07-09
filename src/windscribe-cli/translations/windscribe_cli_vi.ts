@@ -275,10 +275,6 @@
         <translation>Nhật ký đã gửi.</translation>
     </message>
     <message>
-        <source>Preferences reloaded.</source>
-        <translation>Tùy chọn được tải lại.</translation>
-    </message>
-    <message>
         <source>Key limit behaviour is set.</source>
         <translation>Hành vi giới hạn chính được đặt.</translation>
     </message>

@@ -4,8 +4,8 @@
 #include <spdlog/spdlog.h>
 #include "utils/executable_signature/executable_signature_defs.h"
 
-#define REQUIREMENT_STRING "anchor apple generic and (identifier \"" WS_MAC_GUI_BUNDLE_ID "\" or identifier \"" WS_MAC_INSTALLER_BUNDLE_ID "\")" \
-                           "and certificate leaf[subject.CN] = \"" MACOS_CERT_DEVELOPER_ID "\""
+#define REQUIREMENT_STRING MACOS_DEVID_REQUIREMENT \
+                           " and (identifier \"" WS_MAC_GUI_BUNDLE_ID "\" or identifier \"" WS_MAC_INSTALLER_BUNDLE_ID "\")"
 
 namespace HelperSecurity {
 static thread_local SecCodeRef tls_currentSecCode_ = NULL;

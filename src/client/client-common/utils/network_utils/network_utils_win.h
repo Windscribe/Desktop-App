@@ -26,6 +26,16 @@ namespace NetworkUtils_win
 
     std::optional<bool> haveInternetConnectivity();
 
+    // Default-route presence per address family. Returns nullopt (unknown) if the routing
+    // table could not be read, distinct from a definite false (no default route present).
+    std::optional<bool> haveDefaultRouteV4();
+    std::optional<bool> haveDefaultRouteV6();
+
+    // Reports whether the interface identified by ifIndex currently has a unicast IPv4 address
+    // and/or a global (non link-local, non loopback) unicast IPv6 address. Both outputs are set
+    // to false if the interface has no such address or no longer exists.
+    void interfaceAddressPresence(unsigned long ifIndex, bool &hasIpv4, bool &hasGlobalIpv6);
+
     bool isSsidAccessAvailable();
 
     QString currentNetworkInterfaceGuid();

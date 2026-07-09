@@ -129,6 +129,9 @@ bool Helper_win::stopWireGuard()
 
 bool Helper_win::configureWireGuard(const WireGuardConfig &config)
 {
+    if (!config.hasValidAmneziawgParams()) {
+        return false;
+    }
     auto result = sendCommand(HelperCommand::configureWireGuard, config.generateConfigFile().toStdWString());
     bool success = false;
     deserializeAnswer(result, success);
@@ -254,9 +257,9 @@ QString Helper_win::resetAndStartRAS()
     return QString::fromStdWString(log);
 }
 
-void Helper_win::setIPv6EnabledInFirewall(bool b)
+void Helper_win::setIPv6EnabledInFirewall(bool b, bool bAllowLanTraffic, bool bIsCustomConfig)
 {
-    sendCommand(HelperCommand::setIPv6EnabledInFirewall, b);
+    sendCommand(HelperCommand::setIPv6EnabledInFirewall, b, bAllowLanTraffic, bIsCustomConfig);
 }
 
 void Helper_win::setFirewallOnBoot(bool b)

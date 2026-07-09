@@ -67,7 +67,7 @@ private:
     // thread specific
     std::thread thread_;
     static void threadFunc(void *arg);
-    static void aresLookupFinishedCallback(void *arg, int status, int timeouts, struct hostent *host);
+    static void aresLookupFinishedCallback(void *arg, int status, int timeouts, const struct hostent *host);
 
     bool processChannel(ares_channel channel);
 };

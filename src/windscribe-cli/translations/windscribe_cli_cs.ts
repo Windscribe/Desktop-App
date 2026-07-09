@@ -275,10 +275,6 @@
         <translation>Odeslané protokoly.</translation>
     </message>
     <message>
-        <source>Preferences reloaded.</source>
-        <translation>Předvolby byly znovu načteny.</translation>
-    </message>
-    <message>
         <source>Key limit behaviour is set.</source>
         <translation>Je nastaveno chování klíčového limitu.</translation>
     </message>

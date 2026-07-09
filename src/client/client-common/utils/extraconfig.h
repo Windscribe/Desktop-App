@@ -56,6 +56,7 @@ public:
     bool getUsingScreenTransitionHotkeys();
     bool getUseICMPPings();
     bool getStealthExtraTLSPadding();
+    bool getSuppressApiToken();
 
     bool getWireGuardVerboseLogging();
     bool getNoPings();

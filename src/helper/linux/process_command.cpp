@@ -6,9 +6,11 @@
 #include <stdlib.h>
 #include <spdlog/spdlog.h>
 #include "clear_wifi_history/clear_wifi_history.h"
+#include "dnsleakprotect.h"
 #include "firewallcontroller.h"
 #include "firewallonboot.h"
 #include "installer_verifier.h"
+#include "network_marks.h"
 #include "ovpn.h"
 #include "split_tunneling/split_tunneling.h"
 #include "utils.h"
@@ -73,6 +75,40 @@ std::string sendConnectStatus(const std::string &pars)
     }
 
     bool success = SplitTunneling::instance().setConnectParams(cs);
+
+    // DNS-leak protection: snapshot the OS-default resolvers and (re)install the dnsleaks chain on
+    // connect, remove it on disconnect. This is the uniform trigger for both WireGuard and OpenVPN —
+    // cs carries the tunnel adapter name and its DNS servers for either protocol. The snapshot
+    // excludes the tunnel link and its DNS servers, and the tunnel's own DNS egresses the (accepted)
+    // tunnel interface, so blocking is limited to the physical link's OS-default resolvers.
+    //
+    // The DNS-leak result is deliberately NOT folded into `success`. This command's return is the
+    // split-tunnel start result: the engine maps a false return solely to splitTunnelingStartFailed()
+    // (engine.cpp), which alerts the user that split tunneling failed and disables it in the UI. A
+    // DNS-leak nft failure has nothing to do with split tunneling, so reporting it through that bool
+    // would show the wrong alert, wrongly disable split tunneling, and mask the real cause. Log the
+    // DNS-leak failure here instead (NftablesController::run also logs the underlying nft error).
+    if (cs.isConnected) {
+        std::vector<std::string> tunnelDns;
+        for (const auto &d : cs.vpnAdapter.dnsServers) {
+            if (d.isValid()) {
+                tunnelDns.push_back(d.toString());
+            }
+        }
+        // The physical default gateway is captured by the engine pre-VPN; pass it through rather than
+        // reading the live default route (which points at the tunnel by now).
+        const std::string defaultGatewayV4 = cs.defaultAdapter.gatewayIp.isValid()
+                                                 ? cs.defaultAdapter.gatewayIp.toString()
+                                                 : std::string();
+        if (!DnsLeakProtect::enable(cs.vpnAdapter.adapterName, tunnelDns, defaultGatewayV4)) {
+            spdlog::error("sendConnectStatus: DNS-leak protection enable failed; OS resolvers may stay reachable");
+        }
+    } else {
+        if (!DnsLeakProtect::disable()) {
+            spdlog::error("sendConnectStatus: DNS-leak protection disable failed; port-53 drops may remain installed");
+        }
+    }
+
     return serializeResult(success);
 }
 
@@ -132,7 +168,7 @@ std::string executeOpenVPN(const std::string &pars)
     Spawn::Options opts;
     opts.extraEnv = {{"OPENSSL_CONF", "/dev/null"}};
     opts.cwd = WS_LINUX_INSTALL_DIR;
-    std::vector<std::string> args = {"--mark", "20310", "--config", WS_LINUX_RUN_DIR "/config.ovpn"};
+    std::vector<std::string> args = {"--mark", std::to_string(marks::kOpenVpnFwMark), "--config", WS_LINUX_RUN_DIR "/config.ovpn"};
     return serializeResult(Spawn::spawnDetached(ovpnPath, args, opts));
 }
 
@@ -228,8 +264,11 @@ std::string configureWireGuard(const std::string &pars)
                 break;
             }
 
-            uint32_t fwmark = WireGuardController::instance().getFwmark();
-            spdlog::info("Fwmark = {}", fwmark);
+            // The fwmark is fixed so the kill-switch firewall and the WG socket mark always agree;
+            // only the routing-table id is chosen dynamically (it may already be occupied).
+            const uint32_t fwmark = marks::kWireGuardFwMark;
+            const uint32_t routingTable = WireGuardController::instance().getRoutingTable();
+            spdlog::info("Fwmark = {}, routing table = {}", fwmark, routingTable);
 
             if (!WireGuardController::instance().configure(clientPrivateKey,
                                                            peerPublicKey, peerPresharedKey,
@@ -251,7 +290,9 @@ std::string configureWireGuard(const std::string &pars)
             if (!WireGuardController::instance().configureAdapter(clientIpAddress,
                                                                   clientDnsAddressList,
                                                                   script,
-                                                                  allowed_ips_vector, fwmark)) {
+                                                                  allowed_ips_vector,
+                                                                  fwmark,
+                                                                  routingTable)) {
                 spdlog::error("WireGuard: configureAdapter() failed");
                 break;
             }
@@ -338,7 +379,7 @@ std::string setFirewallRules(const std::string &pars)
     deserializePars(pars, config);
 
     // Sanitize every token the helper will interpolate into iptables rules. A single bad entry must
-    // not drop the whole kill-switch update (that could leave the firewall off and leak), so invalid
+    // not drop the whole firewall update (that could leave the firewall off and leak), so invalid
     // values are stripped rather than aborting: the firewall still comes up from the valid remainder
     // and the offending allow-rule simply isn't emitted. The helper never builds a rule from
     // unvalidated client input.
@@ -364,7 +405,8 @@ std::string startStunnel(const std::string &pars)
     std::string hostname;
     unsigned int port, localPort;
     bool extraPadding;
-    deserializePars(pars, hostname, port, localPort, extraPadding);
+    std::string customSniDomain;
+    deserializePars(pars, hostname, port, localPort, extraPadding, customSniDomain);
 
     spdlog::debug("Starting stunnel");
 
@@ -382,6 +424,10 @@ std::string startStunnel(const std::string &pars)
         "--remoteAddress", "https://" + hostname + ":" + std::to_string(port),
         "--logFilePath", "",
     };
+    if (!customSniDomain.empty()) {
+        args.push_back("-s");
+        args.push_back(customSniDomain);
+    }
     if (extraPadding) {
         args.push_back("--extraTlsPadding");
     }
@@ -397,7 +443,8 @@ std::string startWstunnel(const std::string &pars)
 {
     std::string hostname;
     unsigned int port, localPort;
-    deserializePars(pars, hostname, port, localPort);
+    std::string customSniDomain;
+    deserializePars(pars, hostname, port, localPort, customSniDomain);
 
     spdlog::debug("Starting wstunnel");
 
@@ -415,6 +462,10 @@ std::string startWstunnel(const std::string &pars)
         "--remoteAddress", "wss://" + hostname + ":" + std::to_string(port) + "/tcp/127.0.0.1/1194",
         "--logFilePath", "",
     };
+    if (!customSniDomain.empty()) {
+        args.push_back("-s");
+        args.push_back(customSniDomain);
+    }
 
     Spawn::Options opts;
     opts.runAsUser = WS_PRODUCT_NAME_LOWER;
@@ -480,16 +531,33 @@ std::string setMacAddress(const std::string &pars)
 
 std::string setDnsLeakProtectEnabled(const std::string &pars)
 {
-    bool enabled;
-    deserializePars(pars, enabled);
-    spdlog::debug("Set DNS leak protect: {}", enabled ? "enabled" : "disabled");
-    // We only handle the down case; the 'up' trigger (chain install) happens in
-    // the DNS manager scripts at connect time. OUTPUT rule ordering on a late
-    // firewall enable is handled by FirewallController::outputJumpRule when the
-    // helper builds the rules, so there is no helper-driven replay.
-    if (!enabled) {
-        Utils::executeCommand(WS_LINUX_INSTALL_DIR "/scripts/dns-leak-protect", {"down"});
+    DnsLeakProtectConfig config;
+    deserializePars(pars, config);
+    spdlog::debug("Set DNS leak protect: {}", config.enabled ? "enabled" : "disabled");
+
+    if (!config.enabled) {
+        if (!DnsLeakProtect::disable()) {
+            spdlog::error("setDnsLeakProtectEnabled: DNS-leak protection disable failed; port-53 drops may remain installed");
+        }
+        return std::string();
     }
+
+    // INVARIANT: an enable here must carry the tunnel's resolvers in config.allowedDnsServers. They are
+    // the ONLY thing that keeps the tunnel's own DNS out of the drop list — DnsLeakProtect::enable
+    // snapshots the OS resolvers (which on a non-tunnel link can include the tunnel resolver) and strips
+    // allowedDnsServers from that snapshot; nothing else exempts them. Enabling with an EMPTY
+    // allowedDnsServers would blacklist the tunnel's own DNS and break all resolution on connect.
+    //
+    // This is why the enable path is driven helper-side from sendConnectStatus (which has the adapter,
+    // its DNS servers, and the pre-VPN gateway), NOT from the engine's HelperCommand::setDnsLeakProtectEnabled
+    // entry point — Helper_linux::setDnsLeakProtectEnabled only ever sends `enabled` (it is the explicit
+    // disconnect teardown and only sends false). Do NOT wire any caller to send enable=true through this
+    // command without also populating allowedDnsServers; if you think you need to, use sendConnectStatus.
+
+    // DnsLeakProtect::enable validates/canonicalizes allowedDnsServers itself (dropping invalid tokens),
+    // so pass the raw list through. The primary enable path is sendConnectStatus, which supplies the
+    // physical default gateway; this command carries no gateway, so pass none here.
+    DnsLeakProtect::enable(config.vpnInterfaceName, config.allowedDnsServers, std::string());
     return std::string();
 }
 

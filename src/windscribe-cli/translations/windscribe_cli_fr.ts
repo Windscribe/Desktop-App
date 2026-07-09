@@ -275,10 +275,6 @@
         <translation>Journaux envoyés.</translation>
     </message>
     <message>
-        <source>Preferences reloaded.</source>
-        <translation>Les préférences ont été rechargées.</translation>
-    </message>
-    <message>
         <source>Key limit behaviour is set.</source>
         <translation>Le comportement de la limite de touches est défini.</translation>
     </message>

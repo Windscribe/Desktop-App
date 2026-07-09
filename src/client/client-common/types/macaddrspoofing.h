@@ -137,6 +137,7 @@ struct MacAddrSpoofing
         return stream;
     }
 
+#ifdef CLI_ONLY
     void fromIni(const QSettings &settings)
     {
         isEnabled = settings.value(kIniIsEnabledProp, false).toBool();
@@ -159,6 +160,7 @@ struct MacAddrSpoofing
         settings.setValue(kIniIsAutoRotateProp, isAutoRotate);
         settings.setValue(kIniInterfaceProp, selectedNetworkInterface.interfaceName);
     }
+#endif
 
     void validate()
     {

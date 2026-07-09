@@ -301,7 +301,7 @@ void SharingFeaturesWindowItem::setHotspotSSID(QString ssid)
 
 void SharingFeaturesWindowItem::setProxyType(PROXY_SHARING_TYPE mode)
 {
-    QString proxyText = PROXY_SHARING_TYPE_toString(mode);
+    QString proxyText = enumToString(mode);
     proxyFeature_->setText(proxyText);
 }
 

@@ -18,7 +18,7 @@ Source0:	windscribe.tar
 Conflicts:	windscribe-cli
 
 Requires:	bash
-Requires:	iptables
+Requires:	nftables
 Requires:	glibc >= 2.35
 Requires:	libstdc++
 Requires:	glib2

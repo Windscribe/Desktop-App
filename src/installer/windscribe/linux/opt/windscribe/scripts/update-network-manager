@@ -12,8 +12,6 @@
 [ "$dev" ] || exit 0
 
 
-SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-DNS_LEAK_SCRIPT=$SCRIPT_DIR/dns-leak-protect
 CACHE_NAMESERVER_DIR="/var/lib/windscribe/windscribe_nameservers"
 CACHE_NAMESERVER_FILE="$CACHE_NAMESERVER_DIR/$DEV.nameserver"
 RESOLV_TMP_FILE="/var/lib/windscribe/resolv.conf"
@@ -50,8 +48,6 @@ case "$script_type" in
         fi
     done
 
-    "$DNS_LEAK_SCRIPT" "up" "$dev" "${servers[@]}"
-
     ;;
   down)
 
@@ -67,8 +63,6 @@ case "$script_type" in
             command -v restorecon >/dev/null 2>&1 && restorecon -F "$RESOLV_TARGET" 2>/dev/null || true
         done
     fi
-
-    "$DNS_LEAK_SCRIPT" "down"
 
     ;;
 esac

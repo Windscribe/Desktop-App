@@ -22,16 +22,10 @@ if(WIN32)
 endif()
 
 # macOS architecture handling
+# CMAKE_OSX_ARCHITECTURES is set before project() in the root CMakeLists -- it must precede the wsnet
+# FetchContent fetch so wsnet (a SHARED dylib) builds for the same archs as the app.  Only the
+# build-libs path is set here.
 if(APPLE)
-    if(CI_MODE)
-        set(CMAKE_OSX_ARCHITECTURES "arm64;x86_64" CACHE STRING "macOS architectures" FORCE)
-    elseif(NOT DEFINED CMAKE_OSX_ARCHITECTURES)
-        if(CMAKE_SYSTEM_PROCESSOR MATCHES "arm64")
-            set(CMAKE_OSX_ARCHITECTURES "arm64" CACHE STRING "macOS architectures" FORCE)
-        else()
-            set(CMAKE_OSX_ARCHITECTURES "x86_64" CACHE STRING "macOS architectures" FORCE)
-        endif()
-    endif()
     set(WINDSCRIBE_BUILD_LIBS_PATH "${CMAKE_CURRENT_SOURCE_DIR}/build-libs/${WS_BUILD_LIBS_SUBDIR}" CACHE PATH "Custom build libraries path")
 endif()
 

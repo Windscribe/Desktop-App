@@ -24,8 +24,6 @@ set(SOURCES
     helper/helper_installer.h
     installer/base_installer.h
     installer/base_installer.mm
-    installer/downloader.h
-    installer/downloader.mm
     installer/installer.h
     installer/installer.mm
     installer/installer_shim.mm
@@ -74,8 +72,6 @@ target_link_directories(installer
                         PRIVATE
                         ${CMAKE_SOURCE_DIR}/Frameworks
 )
-
-target_compile_options(installer PRIVATE "-fobjc-arc")
 
 target_link_libraries(installer
                       PRIVATE

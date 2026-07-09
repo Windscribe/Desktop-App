@@ -18,7 +18,7 @@ QPixmap WidgetUtils_mac::extractProgramIcon(const QString &filePath)
 
 void WidgetUtils_mac::allowMinimizeForFramelessWindow(QWidget *window)
 {
-    NSWindow* nsWindow = [(NSView*)(window->winId()) window];
+    NSWindow* nsWindow = [(__bridge NSView*)reinterpret_cast<void*>(window->winId()) window];
     [nsWindow setCollectionBehavior:NSWindowCollectionBehaviorCanJoinAllSpaces | NSWindowCollectionBehaviorTransient];
 
 #if defined __APPLE__ && __MAC_OS_X_VERSION_MAX_ALLOWED >= 101300
@@ -41,7 +41,7 @@ void WidgetUtils_mac::allowMinimizeForFramelessWindow(QWidget *window)
 
 void WidgetUtils_mac::allowMoveBetweenSpacesForWindow(QWidget *window, bool docked, bool moveWindow)
 {
-    NSWindow* nsWindow = [(NSView*)(window->winId()) window];
+    NSWindow* nsWindow = [(__bridge NSView*)reinterpret_cast<void*>(window->winId()) window];
     if (docked) {
         [nsWindow setCollectionBehavior:NSWindowCollectionBehaviorCanJoinAllSpaces | NSWindowCollectionBehaviorTransient];
     } else if (moveWindow) {
@@ -53,6 +53,6 @@ void WidgetUtils_mac::allowMoveBetweenSpacesForWindow(QWidget *window, bool dock
 
 void WidgetUtils_mac::setNeedsDisplayForWindow(QWidget *widget)
 {
-    NSWindow *nsWindow = [reinterpret_cast<NSView*>(widget->winId()) window];
+    NSWindow *nsWindow = [(__bridge NSView*)reinterpret_cast<void*>(widget->winId()) window];
     [[nsWindow contentView] setNeedsDisplay:YES];
 }

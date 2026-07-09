@@ -23,9 +23,12 @@ public:
 void getDefaultRoute(QString &outGatewayIp, QString &outInterfaceName, QString &outAdapterIp, bool ignoreTun = false);
 
 // IPv6 sibling of getDefaultRoute: parses /proc/net/ipv6_route to find the lowest-metric ::/0
-// route with RTF_GATEWAY set, then fills outAdapterIp with a global/ULA v6 address on that
-// interface (link-local addresses are intentionally skipped). All three out-params are left empty
-// if no v6 default route exists (IPv6 disabled, no upstream router advertisement, etc.).
+// route, then fills outAdapterIp with a global/ULA v6 address on that interface (link-local
+// addresses are intentionally skipped). Point-to-point defaults (no RTF_GATEWAY on an
+// IFF_POINTOPOINT link, e.g. PPP/cellular) are reported with an empty outGatewayIp but a
+// populated outInterfaceName; gateway-less defaults on broadcast interfaces and reject
+// (unreachable/blackhole) defaults are skipped. All out-params are left empty if no v6 default
+// route exists (IPv6 disabled, no upstream router advertisement, etc.).
 void getDefaultRouteV6(QString &outGatewayIp, QString &outInterfaceName, QString &outAdapterIp, bool ignoreTun = false);
 
 bool pingWithMtu(const QString &url, int mtu);

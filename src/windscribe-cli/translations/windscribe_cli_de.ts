@@ -275,10 +275,6 @@
         <translation>Gesendete Protokolle.</translation>
     </message>
     <message>
-        <source>Preferences reloaded.</source>
-        <translation>Einstellungen neu geladen.</translation>
-    </message>
-    <message>
         <source>Key limit behaviour is set.</source>
         <translation>Das Verhalten der Tastenbegrenzung ist festgelegt.</translation>
     </message>

@@ -3,5 +3,6 @@
 # Copyright (c) 2020-2026, Windscribe Limited. All rights reserved.
 # ------------------------------------------------------------------------------
 variables:
-  VERSION_WSTUNNEL: 'v1.0.6'
+  VERSION_WSTUNNEL: 'v1.0.7'
+  COMMIT_WSTUNNEL: 'e6c325eed099e746ee98f80de7b827e942416d20'
   ARTIFACT_WSTUNNEL: 'wstunnel.zip'

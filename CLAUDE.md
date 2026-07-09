@@ -34,7 +34,6 @@ This application provides secure, private internet access by routing your traffi
 ```
 client-desktop/
 ├── src/                    # All source code
-├── libs/                   # External/internal libraries (wsnet, wssecure)
 ├── tools/                  # Build scripts and utilities
 ├── cmake/                  # CMake configuration files
 ├── data/                   # Application resources and test data
@@ -118,10 +117,10 @@ Standalone CLI that can communicate with GUI or run independently:
 - **`mac/`** - macOS DMG installer
 - **`linux/`** - Linux package scripts
 
-### Libraries (`libs/`)
+### Libraries
 
-#### wsnet (`libs/wsnet/`)
-Windscribe's custom networking library with anti-censorship capabilities:
+#### wsnet (fetched via CMake FetchContent)
+Windscribe's custom networking library with anti-censorship capabilities. It is not vendored in this repository; it is fetched from its own Git repository at configure time via CMake FetchContent (see `cmake/fetch_wsnet.cmake`) and built from source. The paths below are relative to the fetched wsnet source tree:
 - `src/api/` - API interfaces (ServerAPI, BridgeAPI)
 - `src/dnsresolver/` - Custom DNS resolver
 - `src/httpnetworkmanager/` - HTTP client with TLS modifications
@@ -277,6 +276,11 @@ Install Python build dependencies:
 ```bash
 python3 -m pip install -r tools/requirements.txt
 ```
+
+**Linux only**: the privileged helper links libnftables, so the build host needs its development
+headers: `libnftables-dev` (Debian/Ubuntu), `nftables-devel` (Fedora/openSUSE), `nftables` (Arch;
+headers ship in the main package). The `nftables` runtime package is declared as a dependency in the
+Linux installers.
 
 ### Building Libraries (Required First)
 
@@ -461,7 +465,7 @@ The application follows a **layered architecture with privilege separation**. Th
 - Platform-specific implementations: `Helper_win`, `Helper_mac`, `Helper_linux`
 - Commands include: firewall control, DNS config, VPN protocol start/stop, split tunneling
 
-**wsnet Library** (`libs/wsnet/`):
+**wsnet Library** (fetched via FetchContent — see `cmake/fetch_wsnet.cmake`):
 - Cross-platform API access with anti-censorship bypass
 - Built-in failover mechanisms (16+ strategies)
 - ServerAPI interface for Windscribe backend
@@ -545,7 +549,7 @@ If modifying helper code on macOS (`src/helper/macos`), you **must** increment `
 
 **macOS** (required):
 1. Install Developer ID Application certificate in Keychain
-2. Update `client/common/utils/executable_signature/executable_signature_defs.h` with `MACOS_CERT_DEVELOPER_ID`
+2. Update `client/common/utils/executable_signature/executable_signature_defs.h` with `MACOS_CERT_TEAM_ID`
 
 ### Adding New Protocol Support
 
@@ -583,7 +587,7 @@ Configuration managed through helper commands and engine settings.
 ## Testing
 
 **Test Locations**:
-- `libs/wsnet/src/private/tests/` - wsnet library tests (Google Test)
+- `src/private/tests/` in the fetched wsnet source - wsnet library tests (Google Test)
 - `src/client/engine/engine/ping/tests/` - Ping subsystem tests
 - `src/client/engine/engine/apiresources/tests/` - API resources tests
 - `src/client/frontend/gui/tests/` - GUI component tests

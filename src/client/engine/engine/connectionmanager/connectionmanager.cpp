@@ -472,6 +472,7 @@ void ConnectionManager::onConnectionReconnecting()
                 if (bCheckFailsResult)
                 {
                     connSettingsPolicy_->reset();
+                    wgCachedConfigAttempts_ = 0;
                 }
                 state_ = STATE_RECONNECTING;
                 emit reconnecting();
@@ -522,6 +523,7 @@ void ConnectionManager::onConnectionReconnecting()
                 if (bCheckFailsResult)
                 {
                     connSettingsPolicy_->reset();
+                    wgCachedConfigAttempts_ = 0;
                 }
                 if (connector_) {
                     connector_->startDisconnect();
@@ -629,6 +631,7 @@ void ConnectionManager::onConnectionError(CONNECT_ERROR err)
                     if (bCheckFailsResult)
                     {
                         connSettingsPolicy_->reset();
+                        wgCachedConfigAttempts_ = 0;
                     }
 
                     if (state_ != STATE_RECONNECTING)
@@ -1012,7 +1015,7 @@ void ConnectionManager::doConnectPart2()
 
             if (currentConnectionDescr_.protocol == types::Protocol::STUNNEL) {
                 if (!stunnelManager_->runProcess(currentConnectionDescr_.ip, currentConnectionDescr_.port,
-                                                 ExtraConfig::instance().getStealthExtraTLSPadding() || !lastRequest_.amneziawgPreset.isEmpty())) {
+                                                 ExtraConfig::instance().getStealthExtraTLSPadding() || !lastRequest_.amneziawgPreset.isEmpty(), lastRequest_.customSni)) {
                     disconnect();
                     emit errorDuringConnection(CONNECT_ERROR::EXE_SUBPROCESS_FAILED);
                     return;
@@ -1020,7 +1023,7 @@ void ConnectionManager::doConnectPart2()
                 // call doConnectPart2 in onWstunnelStarted slot
                 return;
             } else if (currentConnectionDescr_.protocol == types::Protocol::WSTUNNEL) {
-                if (!wstunnelManager_->runProcess(currentConnectionDescr_.ip, currentConnectionDescr_.port)) {
+                if (!wstunnelManager_->runProcess(currentConnectionDescr_.ip, currentConnectionDescr_.port, lastRequest_.customSni)) {
                     disconnect();
                     emit errorDuringConnection(CONNECT_ERROR::EXE_SUBPROCESS_FAILED);
                     return;
@@ -1043,12 +1046,23 @@ void ConnectionManager::doConnectPart2()
         }
         else if (currentConnectionDescr_.protocol.isWireGuardProtocol())
         {
-            // We can't get a config with Firewall Always On+ mode
-            // In the normal logic of program execution, we should not here be
             if (isFirewallAlwaysOnPlusEnabled_) {
-                qCInfo(LOG_CONNECTION) << "Skip requesting WireGuard config since Firewall Always On+ mode is enabled";
-                disconnect();
-                emit errorDuringConnection(WIREGUARD_COULD_NOT_RETRIEVE_CONFIG);
+                // API is blocked, so WireGuard can only come up from a usable cached config (attempts
+                // capped, see wgCachedConfigAttempts_).
+                if (hasUsableCachedWgConfig_ && wgCachedConfigAttempts_ < kMaxWgCachedConfigAttempts) {
+                    wgCachedConfigAttempts_++;
+                    qCInfo(LOG_CONNECTION) << "Using cached WireGuard config under Firewall Always On+ mode for hostname =" << currentConnectionDescr_.hostname << "isIpv6Support = " << currentConnectionDescr_.isIpv6Support;
+                    getWireGuardConfig(currentConnectionDescr_.hostname, false, /*useCachedConfigOnly=*/true);
+                } else if (connSettingsPolicy_->isAutomaticMode()) {
+                    // Let the policy advance to a protocol that works without the API (IKEv2/OpenVPN).
+                    qCInfo(LOG_CONNECTION) << "Cached WireGuard config exhausted under Firewall Always On+ mode, advancing to next protocol";
+                    onGetWireGuardConfigAnswer(WireGuardConfigRetCode::kFailed, wireGuardConfig_);
+                } else {
+                    // Manual mode has no next protocol; surface the failure rather than looping.
+                    qCInfo(LOG_CONNECTION) << "Cached WireGuard config unavailable or exhausted under Firewall Always On+ mode, aborting connection";
+                    disconnect();
+                    emit errorDuringConnection(WIREGUARD_COULD_NOT_RETRIEVE_CONFIG);
+                }
             } else {
                 qCInfo(LOG_CONNECTION) << "Requesting WireGuard config for hostname =" << currentConnectionDescr_.hostname << "isIpv6Support = " << currentConnectionDescr_.isIpv6Support;
                 getWireGuardConfig(currentConnectionDescr_.hostname, false);
@@ -1341,6 +1355,12 @@ void ConnectionManager::onTunnelTestsFinished(bool bSuccess, const QString &ipAd
     int attempts = ExtraConfig::instance().getTunnelTestAttempts(hasAttempts);
     bool noError = ExtraConfig::instance().getIsTunnelTestNoError();
 
+    if (bSuccess) {
+        // A working tunnel refreshes the cached-WG budget so subsequent reconnects can retry it.
+        // Reset here rather than on handshake: a WG handshake can succeed while the tunnel is unusable.
+        wgCachedConfigAttempts_ = 0;
+    }
+
     if ((hasAttempts && attempts == 0) || (noError && !bSuccess)) {
         emit testTunnelResult(bSuccess, "");
     } else if (!bSuccess) {
@@ -1351,6 +1371,7 @@ void ConnectionManager::onTunnelTestsFinished(bool bSuccess, const QString &ipAd
             if (!bCheckFailsResult || bWasSuccessfullyConnectionAttempt_) {
                 if (bCheckFailsResult) {
                     connSettingsPolicy_->reset();
+                    wgCachedConfigAttempts_ = 0;
                 }
                 state_ = STATE_RECONNECTING;
                 emit reconnecting();
@@ -1562,14 +1583,21 @@ void ConnectionManager::updateConnectionSettingsPolicy(const types::ConnectionSe
         return;
     }
 
+    // Only relevant under Always On+; gate the decrypt so it stays off the common connect path.
+    hasUsableCachedWgConfig_ = isFirewallAlwaysOnPlusEnabled_ && GetWireGuardConfig::hasUsableStoredConfig();
+    wgCachedConfigAttempts_ = 0;
+
     if (lastRequest_.bli->locationId().isCustomConfigsLocation()) {
         connSettingsPolicy_.reset(new CustomConfigConnSettingsPolicy(lastRequest_.bli));
     } else if (connectionSettings.isAutomatic()) {
-        connSettingsPolicy_.reset(new AutoConnSettingsPolicy(lastRequest_.bli, portMap, proxySettings.isProxyEnabled(), isFirewallAlwaysOnPlusEnabled_, lastRequest_.preferredNodeHostname));
+        // Under Always On+ we can only attempt WireGuard from a usable cached config; otherwise skip it.
+        const bool skipWireguardProtocol = isFirewallAlwaysOnPlusEnabled_ && !hasUsableCachedWgConfig_;
+        connSettingsPolicy_.reset(new AutoConnSettingsPolicy(lastRequest_.bli, portMap, proxySettings.isProxyEnabled(), skipWireguardProtocol, lastRequest_.preferredNodeHostname));
     } else {
-        // override WireGuard protocol to ikev2 if Firewal is Awlays On+ mode enabled
+        // Manual mode is not a fallback chain: substitute WG (->IKEv2/OpenVPN UDP) only when it can't
+        // be attempted at all (no usable cached config under Always On+); otherwise attempt WG as-is.
         types::ConnectionSettings overrideConnectionSettings = connectionSettings;
-        if (isFirewallAlwaysOnPlusEnabled_ && connectionSettings.protocol().isWireGuardProtocol()) {
+        if (isFirewallAlwaysOnPlusEnabled_ && connectionSettings.protocol().isWireGuardProtocol() && !hasUsableCachedWgConfig_) {
             auto it = portMap.getPortItemByProtocolType(types::Protocol::IKEV2);
             // if no ikev2 in available protocol list then try UDP
             if (!it) {
@@ -1599,12 +1627,12 @@ void ConnectionManager::connectOrStartConnectTimer()
     }
 }
 
-void ConnectionManager::getWireGuardConfig(const QString &serverName, bool deleteOldestKey)
+void ConnectionManager::getWireGuardConfig(const QString &serverName, bool deleteOldestKey, bool useCachedConfigOnly)
 {
     SAFE_DELETE(getWireGuardConfig_);
     getWireGuardConfig_ = new GetWireGuardConfig(this);
     connect(getWireGuardConfig_, &GetWireGuardConfig::getWireGuardConfigAnswer, this, &ConnectionManager::onGetWireGuardConfigAnswer);
-    getWireGuardConfig_->getWireGuardConfig(serverName, deleteOldestKey);
+    getWireGuardConfig_->getWireGuardConfig(serverName, deleteOldestKey, useCachedConfigOnly);
 }
 
 QString ConnectionManager::dnsServersFromConnectedDnsInfo() const

@@ -5,6 +5,9 @@
 #include <QJsonObject>
 #include <QJsonArray>
 
+#include "utils/log/categories.h"
+#include "utils/networkingvalidation.h"
+
 namespace api_responses {
 
 bool AmneziawgUnblockParam::isValid() const
@@ -12,6 +15,18 @@ bool AmneziawgUnblockParam::isValid() const
     // We do not check title or countries, as a WG custom config with AmneziaWG params will not have these.
     return (jc > 0) || (jmin > 0) || (jmax > 0) || (s1 > 0) || (s2 > 0) || (s3 > 0) || (s4 > 0) ||
            (!h1.isEmpty()) || (!h2.isEmpty()) || (!h3.isEmpty()) || (!h4.isEmpty()) || (!iValues.isEmpty());
+}
+
+bool AmneziawgUnblockParam::hasPrintableObfuscationValues() const
+{
+    QStringList values = iValues;
+    values << h1 << h2 << h3 << h4;
+    for (const QString &value : std::as_const(values)) {
+        if (!value.isEmpty() && !NetworkingValidation::isPrintableSingleLineAscii(value)) {
+            return false;
+        }
+    }
+    return true;
 }
 
 void AmneziawgUnblockParam::setDefault()
@@ -126,6 +141,13 @@ AmneziawgUnblockParams::AmneziawgUnblockParams(const std::string &json)
                     param.iValues.append(value);
                 }
             }
+        }
+
+        // A value with control characters could smuggle extra lines into the line-oriented
+        // config/UAPI sinks downstream, so reject the whole preset at ingress.
+        if (!param.hasPrintableObfuscationValues()) {
+            qCWarning(LOG_BASIC) << "AmneziawgUnblockParams: dropping preset with non-printable obfuscation values:" << param.title;
+            continue;
         }
 
         params_.append(param);

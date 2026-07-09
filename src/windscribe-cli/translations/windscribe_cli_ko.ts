@@ -275,10 +275,6 @@
         <translation>로그가 전송되었습니다.</translation>
     </message>
     <message>
-        <source>Preferences reloaded.</source>
-        <translation>환경 설정을 다시 불러왔습니다.</translation>
-    </message>
-    <message>
         <source>Key limit behaviour is set.</source>
         <translation>키 제한 동작이 설정되었습니다.</translation>
     </message>

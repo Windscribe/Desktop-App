@@ -638,10 +638,6 @@ Se perdi l&apos;hash dell&apos;account, è sparito per sempre e il supporto non 
         <translation>Impossibile avviare</translation>
     </message>
     <message>
-        <source>Trying Backup Endpoints %1/%2</source>
-        <translation>Tentativo di endpoint di backup %1/%2</translation>
-    </message>
-    <message>
         <source>SSL Error</source>
         <translation>Errore SSL</translation>
     </message>
@@ -668,6 +664,10 @@ Se perdi l&apos;hash dell&apos;account, è sparito per sempre e il supporto non 
     <message>
         <source>Later</source>
         <translation>Successivamente</translation>
+    </message>
+    <message>
+        <source>Trying Backup Endpoints...</source>
+        <translation>Provando i backup degli endpoint...</translation>
     </message>
     <message>
         <source>SSL requests may be intercepted on your network. Ignoring SSL errors disables TLS certificate validation for this session: anyone able to intercept your traffic can then impersonate Windscribe and read or alter your data, and we can&apos;t guarantee your security while it&apos;s on. Ignore SSL errors?</source>
@@ -828,10 +828,6 @@ Se il problema persiste dopo un riavvio, inviare un registro di debug e aprire u
     <message>
         <source>You have reached your limit of WireGuard public keys. Do you want to delete your oldest key?</source>
         <translation>Hai raggiunto il limite di chiavi pubbliche WireGuard. Vuoi eliminare la tua chiave meno recente?</translation>
-    </message>
-    <message>
-        <source>Error Starting Service</source>
-        <translation>Errore durante l&apos;avvio del servizio</translation>
     </message>
     <message>
         <source>The split tunneling feature could not be started, and has been disabled in Preferences.</source>
@@ -1427,10 +1423,6 @@ Se il problema persiste dopo un riavvio, inviare un registro di debug e aprire u
         <translation>Connessione automatica</translation>
     </message>
     <message>
-        <source>Control the mode of behaviour of the Windscribe firewall.</source>
-        <translation>Controllare la modalità di comportamento del firewall Windscribe.</translation>
-    </message>
-    <message>
         <source>Connection Mode</source>
         <translation>Modalità di connessione</translation>
     </message>
@@ -1463,6 +1455,10 @@ Se il problema persiste dopo un riavvio, inviare un registro di debug e aprire u
         <translation>Configurare la TV, la console di gioco o altri dispositivi che supportano i server proxy.</translation>
     </message>
     <message>
+        <source>The firewall is in an Always On mode. Allowing LAN traffic can leak your DNS and other traffic to your local network while you are disconnected. Are you sure you want to enable it?</source>
+        <translation>Il firewall è in modalità Always On. Consentire il traffico LAN può far fuoriuscire il tuo DNS e altro traffico alla rete locale mentre sei disconnesso. Sei sicuro di volerlo attivare?</translation>
+    </message>
+    <message>
         <source>Settings Conflict</source>
         <translation>Conflitto di impostazioni</translation>
     </message>
@@ -1493,6 +1489,10 @@ Se il problema persiste dopo un riavvio, inviare un registro di debug e aprire u
     <message>
         <source>In this firewall mode, the Windscribe API will not be available while disconnected, this could have unintended consequences. Use at own risk.</source>
         <translation>In questa modalità firewall, l&apos;API Windscribe non sarà disponibile mentre è disconnessa, ciò potrebbe avere conseguenze indesiderate. Utilizzare a proprio rischio.</translation>
+    </message>
+    <message>
+        <source>Control the mode of behaviour of the Windscribe firewall. Always On modes disable Allow LAN Traffic to prevent DNS leaks.</source>
+        <translation>Controlla il modo di comportamento del firewall Windscribe. Le modalità Always On disabilitano Consentire traffico LAN per prevenire perdite DNS.</translation>
     </message>
     <message>
         <source>Configure egress IP stack for VPN connections (WireGuard only).</source>
@@ -2081,6 +2081,10 @@ Connettersi prima a una rete</translation>
 </context>
 <context>
     <name>PreferencesWindow::ProtocolTweaksGroup</name>
+    <message>
+        <source>Custom SNI Domain</source>
+        <translation>Dominio SNI personalizzato</translation>
+    </message>
     <message>
         <source>Protocol Tweaks</source>
         <translation>Modifiche al protocollo</translation>

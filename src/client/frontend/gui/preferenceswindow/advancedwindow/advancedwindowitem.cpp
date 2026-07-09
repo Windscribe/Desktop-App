@@ -135,12 +135,12 @@ void AdvancedWindowItem::onLanguageChanged()
     cbKeepAlive_->setCaption(tr("Client-Side Keepalive"));
     comboBoxAppInternalDns_->setDescription(tr("Windscribe uses this DNS server to resolve addresses outside the VPN.") + "\n" + tr("Warning: Using \"OS Default\" may sometimes cause DNS leaks during reconnects."));
     comboBoxAppInternalDns_->setLabelCaption(tr("App Internal DNS"));
-    comboBoxAppInternalDns_->setItems(DNS_POLICY_TYPE_toList(), preferences_->dnsPolicy());
+    comboBoxAppInternalDns_->setItems(enumToList<DNS_POLICY_TYPE>(), preferences_->dnsPolicy());
 
 #ifdef Q_OS_LINUX
     comboBoxDnsManager_->setDescription(tr("Select the DNS system service Windscribe enforces. Experienced users only."));
     comboBoxDnsManager_->setLabelCaption(tr("DNS Manager"));
-    comboBoxDnsManager_->setItems(DNS_MANAGER_TYPE_toList(), preferences_->dnsManager());
+    comboBoxDnsManager_->setItems(enumToList<DNS_MANAGER_TYPE>(), preferences_->dnsManager());
 #endif
 
     appPreferencesItem_->setTitle(tr("App Preferences"));

@@ -29,15 +29,14 @@ bool ExecutableSignaturePrivate::verify(const std::wstring& exePath)
 bool ExecutableSignaturePrivate::verify(const std::string &exePath)
 {
     SecStaticCodeRef staticCode = NULL;
-    CFDictionaryRef signingDetails = NULL;
+    SecRequirementRef requirement = NULL;
 
     auto exitGuard = wsl::wsScopeGuard([&] {
-        if (signingDetails != NULL) CFRelease(signingDetails);
+        if (requirement != NULL) CFRelease(requirement);
         if (staticCode != NULL) CFRelease(staticCode);
     });
 
-    NSString* path = [NSString stringWithCString:exePath.c_str()
-                               encoding:[NSString defaultCStringEncoding]];
+    NSString* path = [NSString stringWithUTF8String:exePath.c_str()];
     if (path == NULL) {
         lastError_ << "Failed to convert path to NSString";
         return false;
@@ -49,39 +48,19 @@ bool ExecutableSignaturePrivate::verify(const std::string &exePath)
         return false;
     }
 
-    SecCSFlags flags = kSecCSDefaultFlags;
-    status = SecStaticCodeCheckValidity(staticCode, flags, NULL);
+    // A NULL requirement would accept any internally-consistent seal, including a self-signed one.
+    status = SecRequirementCreateWithString(CFSTR(MACOS_DEVID_REQUIREMENT), kSecCSDefaultFlags, &requirement);
+    if (status != errSecSuccess) {
+        lastError_ << "SecRequirementCreateWithString failed: " << status;
+        return false;
+    }
+
+    SecCSFlags flags = kSecCSStrictValidate | kSecCSCheckAllArchitectures | kSecCSCheckNestedCode;
+    status = SecStaticCodeCheckValidity(staticCode, flags, requirement);
     if (status != errSecSuccess) {
         lastError_ << "SecStaticCodeCheckValidity failed: " << status;
         return false;
     }
 
-    status = SecCodeCopySigningInformation(staticCode, kSecCSSigningInformation, &signingDetails);
-    if (status != errSecSuccess) {
-        lastError_ << "SecCodeCopySigningInformation failed: " << status;
-        return false;
-    }
-
-    NSArray *certificateChain = [((__bridge NSDictionary*)signingDetails) objectForKey: (__bridge NSString*)kSecCodeInfoCertificates];
-    if (certificateChain.count == 0) {
-        lastError_ << "certificate chain count is zero";
-        return false;
-    }
-
-    for (NSUInteger index = 0; index < certificateChain.count; index++) {
-        SecCertificateRef certificate = (__bridge SecCertificateRef)([certificateChain objectAtIndex:index]);
-        CFStringRef commonName = NULL;
-        if ((errSecSuccess == SecCertificateCopyCommonName(certificate, &commonName))) {
-            if (NULL != commonName) {
-                auto releaseName = wsl::wsScopeGuard([&] {
-                    CFRelease(commonName);
-                });
-                if (CFEqual((CFTypeRef)commonName, (CFTypeRef)@MACOS_CERT_DEVELOPER_ID)) {
-                    return true;
-                }
-            }
-        }
-    }
-
-    return false;
+    return true;
 }

@@ -44,8 +44,8 @@ public:
     bool setFirewallRules(const FirewallConfig &config);
     bool getFirewallRules(CmdFirewallRulesQuery query, QString &rules);
     bool setFirewallOnBoot(bool enabled, const QSet<QString>& ipTable, bool allowLanTraffic);
-    bool startStunnel(const QString &hostname, unsigned int port, unsigned int localPort, bool extraPadding);
-    bool startWstunnel(const QString &hostname, unsigned int port, unsigned int localPort);
+    bool startStunnel(const QString &hostname, unsigned int port, unsigned int localPort, bool extraPadding, const QString &customSni = QString());
+    bool startWstunnel(const QString &hostname, unsigned int port, unsigned int localPort, const QString &customSni = QString());
     bool setMacAddress(const QString &interface, const QString &macAddress, const QString &network = "", bool isWifi = false);
 
     bool clearWifiHistoryData();

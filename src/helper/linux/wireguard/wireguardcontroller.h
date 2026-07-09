@@ -25,14 +25,14 @@ public:
                    const AmneziawgConfig &amneziawgConfig);
     unsigned long getStatus(unsigned int *errorCode, unsigned long long *bytesReceived, unsigned long long *bytesTransmitted) const;
     bool configureAdapter(const std::string &ipAddress, const std::string &dnsAddressList, const std::string &dnsScriptName,
-                          const std::vector<std::string> &allowedIps, uint32_t fwmark);
+                          const std::vector<std::string> &allowedIps, uint32_t fwmark, uint32_t routingTable);
     std::string getAdapterName() const;
     bool configureDefaultRouteMonitor(const std::string &peerEndpoint);
 
     bool isInitialized() const { return is_initialized_; }
 
     static std::vector<std::string> splitAndDeduplicateAllowedIps(const std::string &allowedIps);
-    static uint32_t getFwmark();
+    static uint32_t getRoutingTable();
 
 private:
     inline static std::string kDeviceName = "utun420";

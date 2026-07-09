@@ -51,10 +51,12 @@ ConnectionSettings::ConnectionSettings(const QJsonObject &json)
     checkForUnavailableProtocolAndFix();
 }
 
+#ifdef CLI_ONLY
 ConnectionSettings::ConnectionSettings(QSettings &settings, const QString &key)
 {
     fromIni(settings, key);
 }
+#endif
 
 void ConnectionSettings::setProtocolAndPort(Protocol protocol, uint port)
 {
@@ -85,15 +87,16 @@ QJsonObject ConnectionSettings::toJson(bool isForDebugLog) const
     return json;
 }
 
+#ifdef CLI_ONLY
 void ConnectionSettings::fromIni(QSettings &settings, const QString &key)
 {
-    QString prevMode = TOGGLE_MODE_toString(isAutomatic_ ? TOGGLE_MODE_AUTO : TOGGLE_MODE_MANUAL);
+    QString prevMode = enumToString(isAutomatic_ ? TOGGLE_MODE_AUTO : TOGGLE_MODE_MANUAL);
 
     if (!key.isEmpty()) {
         settings.beginGroup(key);
     }
 
-    TOGGLE_MODE mode = TOGGLE_MODE_fromString(settings.value(kIniIsAutomaticProp, prevMode).toString());
+    TOGGLE_MODE mode = enumFromString<TOGGLE_MODE>(settings.value(kIniIsAutomaticProp, prevMode).toString());
     isAutomatic_ = (mode == TOGGLE_MODE_AUTO);
     protocol_ = Protocol::fromString(settings.value(kIniProtocolProp, protocol_.toLongString()).toString());
     uint port = settings.value(kIniPortProp, port_).toUInt();
@@ -116,7 +119,7 @@ void ConnectionSettings::toIni(QSettings &settings, const QString &key) const
         settings.beginGroup(key);
     }
 
-    settings.setValue(kIniIsAutomaticProp, TOGGLE_MODE_toString(isAutomatic_ ? TOGGLE_MODE_AUTO : TOGGLE_MODE_MANUAL));
+    settings.setValue(kIniIsAutomaticProp, enumToString(isAutomatic_ ? TOGGLE_MODE_AUTO : TOGGLE_MODE_MANUAL));
     settings.setValue(kIniProtocolProp, protocol_.toLongString());
     settings.setValue(kIniPortProp, port_);
 
@@ -124,6 +127,7 @@ void ConnectionSettings::toIni(QSettings &settings, const QString &key) const
         settings.endGroup();
     }
 }
+#endif
 
 void ConnectionSettings::validate()
 {

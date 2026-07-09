@@ -7,7 +7,6 @@
 
 #include "utils/extraconfig.h"
 #include "utils/log/categories.h"
-#include "utils/networkingvalidation.h"
 #include "utils/openssl_utils.h"
 
 namespace {
@@ -35,9 +34,9 @@ QString stripIpv6Address(const QString &addressList)
     return stripIpv6Address(addressList.split(",", Qt::SkipEmptyParts));
 }
 
-// wireguard-windows (tunnel.dll) activates its own WFP kill-switch when AllowedIPs
+// wireguard-windows (tunnel.dll) activates its own WFP firewall when AllowedIPs
 // contains any /0 entry. Replace catch-all /0 with equivalent /1 pairs so the
-// kill-switch stays off and our helper manages the firewall instead.
+// firewall stays off and our helper manages the firewall instead.
 // https://git.zx2c4.com/wireguard-windows/about/docs/netquirk.md
 QString expandCatchAllRoutes(const QString &allowedIps)
 {
@@ -95,7 +94,9 @@ QString WireGuardConfig::generateConfigFile() const
         ts << "ListenPort = " << client_.listenPort << '\n';
     }
 
-    if (client_.amneziawgParam.isValid()) {
+    // Belt-and-suspenders for a future caller that bypasses the configureWireGuard gate: omit the whole
+    // obfuscation block rather than emit malformed values or a partial set (see hasValidAmneziawgParams).
+    if (client_.amneziawgParam.isValid() && hasValidAmneziawgParams()) {
         if (client_.amneziawgParam.jc > 0) {
             ts << "Jc = " << client_.amneziawgParam.jc << '\n';
         }
@@ -131,17 +132,9 @@ QString WireGuardConfig::generateConfigFile() const
         }
 
         // Send I1-I5 parameters (in order, only if they exist)
-        // Belt-and-suspenders against a malformed I-value reaching the line-oriented sinks
-        // downstream (wireguard.conf -> tunnel.dll on Windows; AmneziawgConfig -> UAPI socket
-        // on the POSIX helpers). wireguardcustomconfig.cpp hard-rejects such values at import,
-        // so this only catches values arriving from a future ingress path (e.g. API responses).
         for (auto i = 0; i < client_.amneziawgParam.iValues.size() && i < 5; ++i) {
             const QString &iv = client_.amneziawgParam.iValues[i];
             if (iv.isEmpty()) {
-                continue;
-            }
-            if (!NetworkingValidation::isPrintableSingleLineAscii(iv)) {
-                qCWarning(LOG_CONNECTION) << "WireGuardConfig::generateConfigFile skipping I" << i + 1 << "with non-printable characters";
                 continue;
             }
             ts << "I" << i + 1 << " = " << iv << '\n';
@@ -260,6 +253,22 @@ bool WireGuardConfig::haveServerGeneratedPeerParams() const
     return !peer_.presharedKey.isEmpty() && !peer_.allowedIps.isEmpty();
 }
 
+bool WireGuardConfig::haveCompleteConfig() const
+{
+    return haveKeyPair() && haveServerGeneratedPeerParams() && !client_.ipAddress.isEmpty();
+}
+
+bool WireGuardConfig::hasValidAmneziawgParams() const
+{
+    // H1-H4 must match the server as a set, so a malformed value fails the whole config rather than yielding a
+    // partial set that breaks the handshake. Both engine paths gate here; helper-side checks remain the backstop.
+    if (!client_.amneziawgParam.hasPrintableObfuscationValues()) {
+        qCWarning(LOG_CONNECTION) << "WireGuardConfig: AmneziaWG obfuscation value contains non-printable characters";
+        return false;
+    }
+    return true;
+}
+
 AmneziawgConfig WireGuardConfig::amneziawgParamToHelperConfig() const
 {
     AmneziawgConfig config;
@@ -277,10 +286,6 @@ AmneziawgConfig WireGuardConfig::amneziawgParamToHelperConfig() const
         config.h3 = client_.amneziawgParam.h3.toStdString();
         config.h4 = client_.amneziawgParam.h4.toStdString();
         for (const auto &iValue : client_.amneziawgParam.iValues) {
-            if (!NetworkingValidation::isPrintableSingleLineAscii(iValue)) {
-                qCWarning(LOG_CONNECTION) << "WireGuardConfig::amneziawgParamToHelperConfig skipping I-value with non-printable characters";
-                continue;
-            }
             config.iValues.push_back(iValue.toStdString());
         }
         if (ExtraConfig::instance().getWireGuardVerboseLogging()) {

@@ -22,6 +22,9 @@ namespace Utils
     std::wstring getSystemDir();
     bool isValidFileName(std::wstring &filename);
     bool isFileExists(const wchar_t *path);
+    // Creates an empty file (replacing any existing one) whose DACL grants access only to SYSTEM and
+    // Administrators, for secrets written under Program Files where files otherwise inherit read access for all users.
+    bool createRestrictedFile(const std::wstring &path);
     bool hasWhitespaceInString(const std::wstring &str);
     bool verifyAppProcessPath(HANDLE hPipe);
     bool iequals(const std::wstring &a, const std::wstring &b);
@@ -40,6 +43,13 @@ namespace Utils
                      GUID subLayerKey, wchar_t *subLayerName, PNET_LUID pluid = nullptr,
                      const std::vector<types::IpAddressRange> *range = nullptr,
                      uint16_t localPort = 0, uint16_t remotePort = 0, AppsIds *appsIds = nullptr, bool persistent = true);
+
+    // Permit ICMPv6 messages whose type is in [typeLow, typeHigh] (inclusive) at both ALE v6 layers.
+    // Used for NDP/MLD (types 130-137 and 143), which must be allowed regardless of the Allow LAN
+    // setting. FWPM_CONDITION_ICMP_TYPE aliases IP_LOCAL_PORT at the ALE layers, so it is paired with
+    // an IP_PROTOCOL == IPPROTO_ICMPV6 condition to avoid matching non-ICMP traffic on the same field.
+    bool addPermitFilterV6IcmpTypeRange(HANDLE engineHandle, uint16_t typeLow, uint16_t typeHigh, UINT8 weight,
+                     GUID subLayerKey, wchar_t *subLayerName, bool persistent = true);
 
     std::string ssidFromInterfaceGUID(const std::wstring &interfaceGUID);
 

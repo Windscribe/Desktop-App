@@ -43,6 +43,41 @@
     [Utils applyNetworkSettings:self completionHandler:completionHandler];
 }
 
+- (void)handleAppMessage:(NSData *)messageData completionHandler:(void (^ _Nullable)(NSData * _Nullable))completionHandler {
+    // A live routing-settings update (apps/IPs/hostnames/mode) from the client.  Interface changes never
+    // arrive this way -- they require a tunnel restart -- so the running proxy can apply this in place.
+    if (!settings_) {
+        spdlog::error("Received settings update before the proxy was started");
+        if (completionHandler) {
+            completionHandler(nil);
+        }
+        return;
+    }
+
+    NSError *error = nil;
+    id plist = [NSPropertyListSerialization propertyListWithData:messageData
+                                                         options:NSPropertyListImmutable
+                                                          format:nil
+                                                           error:&error];
+    if (![plist isKindOfClass:[NSDictionary class]]) {
+        spdlog::error("Failed to parse split tunnel settings update");
+        if (completionHandler) {
+            completionHandler(nil);
+        }
+        return;
+    }
+
+    spdlog::info("Applying live " WS_PRODUCT_NAME " split tunnel settings update");
+    [settings_ updateRoutingSettings:(NSDictionary *)plist];
+
+    if (completionHandler) {
+        // Non-empty reply acks that the update was applied; the client restarts the tunnel on an empty
+        // reply (the failure paths above) so the settings still reach us as start options.
+        const uint8_t ok = 1;
+        completionHandler([NSData dataWithBytes:&ok length:1]);
+    }
+}
+
 - (void)stopProxyWithReason:(NEProviderStopReason)reason completionHandler:(void (^)(void))completionHandler {
     spdlog::info("Stopping " WS_PRODUCT_NAME " split tunnel extension");
     [settings_ cleanup];

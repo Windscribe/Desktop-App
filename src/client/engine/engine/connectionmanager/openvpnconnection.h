@@ -133,6 +133,7 @@ private:
     void funcDisconnect();
 
     void checkErrorAndContinue(boost::system::error_code &write_error, bool bWithAsyncReadCall);
+    void emitAuthErrorAndSigTerm(boost::system::error_code &write_error);
     void continueWithUsernameImpl();
     void continueWithPasswordImpl();
     void continueWithPrivKeyPasswordImpl();

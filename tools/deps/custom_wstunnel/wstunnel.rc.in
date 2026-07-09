@@ -1,8 +1,8 @@
 #include <windows.h>
 
 VS_VERSION_INFO VERSIONINFO
-    FILEVERSION 1, 0, 5, 0
-    PRODUCTVERSION 1, 0, 5, 0
+    FILEVERSION 1, 0, 7, 0
+    PRODUCTVERSION 1, 0, 7, 0
     FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
     FILEFLAGS VS_FF_DEBUG
@@ -19,11 +19,11 @@ VS_VERSION_INFO VERSIONINFO
             BEGIN
                 VALUE "CompanyName", "@WS_VENDOR@\0"
                 VALUE "FileDescription", "@WS_PRODUCT_NAME@ wstunnel\0"
-                VALUE "FileVersion", "1.0.5\0"
+                VALUE "FileVersion", "1.0.7\0"
                 VALUE "LegalCopyright", "@WS_COPYRIGHT@\0"
                 VALUE "OriginalFilename", "@WS_PRODUCT_NAME_LOWER@wstunnel.exe\0"
                 VALUE "ProductName", "@WS_PRODUCT_NAME@ wstunnel\0"
-                VALUE "ProductVersion", "1.0.5\0"
+                VALUE "ProductVersion", "1.0.7\0"
             END
         END
         BLOCK "VarFileInfo"

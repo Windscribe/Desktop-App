@@ -124,7 +124,7 @@ void DnsResolver::cancelAll()
 }
 
 
-void DnsResolver::aresLookupFinishedCallback(void * arg, int status, int /*timeouts*/, struct hostent * host)
+void DnsResolver::aresLookupFinishedCallback(void * arg, int status, int /*timeouts*/, const struct hostent * host)
 {
     USER_ARG *userArg = static_cast<USER_ARG *>(arg);
 

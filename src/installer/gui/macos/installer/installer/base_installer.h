@@ -2,12 +2,6 @@
 
 #import <Foundation/Foundation.h>
 
-#include <list>
-#include <stdio.h>
-#include <string>
-#include <thread>
-
-#include "../helper/helper_mac.h"
 #include "installerenums.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -26,17 +20,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (id)initWithUpdatePath:(NSString *)path;
 
-- (void)setObjectForCallback: (SEL)aSelector withObject:(id)arg;
-
-- (BOOL)isFolderAlreadyExist;
-
 - (NSString *)getOldInstallPath;
 - (NSString *)getInstallPath;
-
-- (void)start;
-- (void)cancel;
-- (void)runLauncher;
-- (void)waitForCompletion;
 
 @end
 

@@ -22,6 +22,7 @@
 #include "wireguardconfig/getwireguardconfig.h"
 #include "proxy/proxyservercontroller.h"
 #include "connectstatecontroller/connectstatecontroller.h"
+#include "connectivitydiagnostic/connectivitydiagnostic.h"
 #include "crossplatformobjectfactory.h"
 #include "types/global_consts.h"
 #include "api_responses/amneziawgunblockparams.h"
@@ -98,7 +99,8 @@ Engine::Engine() : QObject(nullptr),
     overrideUpdateChannelWithInternal_(false),
     bPrevNetworkInterfaceInitialized_(false),
     connectionSettingsOverride_(types::Protocol(types::Protocol::TYPE::UNINITIALIZED), 0, true),
-    loginWaitForNetworkConnectivity_(nullptr)
+    loginWaitForNetworkConnectivity_(nullptr),
+    connectivityDiagnostic_(nullptr)
 {
 
     if (!engineSettings_.loadFromSettings()) {
@@ -669,16 +671,15 @@ void Engine::initPart2()
             self->onHostIPsChanged(hostIps);
             // resume callback from wsnet
             self->waitConditionForOnHostIPsChanged_.wakeAll();
-            qCDebug(LOG_BASIC) << "Return to WhitelistIpsCallback in wsnet";
 
         });
         waitConditionForOnHostIPsChanged_.wait(&mutexForOnHostIPsChanged_);
         mutexForOnHostIPsChanged_.unlock();
     });
 
-    WSNet::instance()->serverAPI()->setTryingBackupEndpointCallback([this](std::uint32_t num, std::uint32_t count) {
-        QMetaObject::invokeMethod(this, [this, num, count] {
-            onFailOverTryingBackupEndpoint(num, count);
+    WSNet::instance()->serverAPI()->setTryingBackupEndpointCallback([this]() {
+        QMetaObject::invokeMethod(this, [this] {
+            onFailOverTryingBackupEndpoint();
         });
     });
     WSNet::instance()->serverAPI()->setIgnoreSslErrors(ignoreSslErrors_);
@@ -745,6 +746,11 @@ void Engine::initPart2()
     connect(bridgeApiManager_, &BridgeApiManager::ipRotateFinished, this, &Engine::onIpRotateFinished);
     connect(bridgeApiManager_, &BridgeApiManager::apiAvailabilityChanged, this, &Engine::bridgeApiAvailabilityChanged);
 
+    connectivityDiagnostic_ = new ConnectivityDiagnostic(this,
+                                                         CrossPlatformObjectFactory::createConnectivityDiagnosticCollector(this, firewallController_),
+                                                         networkDetectionManager_,
+                                                         firewallController_);
+
 #ifdef Q_OS_MACOS
     autoUpdaterHelper_ = new AutoUpdaterHelper_mac();
 
@@ -754,6 +760,17 @@ void Engine::initPart2()
 
     // Connect system extension state change signal
     connect(SystemExtensions_mac::instance(), &SystemExtensions_mac::stateChanged, this, &Engine::onSystemExtensionStateChanged);
+
+    // The manager emits this when the proxy session dies while the cached extension state still reads
+    // active -- ambiguous between a provider crash and a System Settings disable the cache hasn't caught
+    // up to.  Surface MAC_EXTENSION_NOT_ENABLED for both: it's the actionable message (re-enabling also
+    // restarts a crashed provider) and matches the system-extension-state path, so an overlap shows one
+    // message.  Queued from the macOS main thread; `this` context drops the connection on destruction.
+    connect(&SplitTunnelExtensionManager::instance(), &SplitTunnelExtensionManager::startFailed, this, [this]() {
+        if (SplitTunnelExtensionManager::instance().isActive()) {
+            emit splitTunnelingStartFailed(SPLIT_TUNNEL_START_FAIL_REASON_MAC_EXTENSION_NOT_ENABLED);
+        }
+    }, Qt::QueuedConnection);
 #endif
 
 #ifdef Q_OS_WIN
@@ -919,6 +936,7 @@ void Engine::cleanupImpl(bool isUpdating)
 #endif
 
     SAFE_DELETE(loginWaitForNetworkConnectivity_);
+    SAFE_DELETE(connectivityDiagnostic_);
     SAFE_DELETE(vpnShareController_);
     SAFE_DELETE(emergencyController_);
     SAFE_DELETE(connectionManager_);
@@ -1017,6 +1035,11 @@ void Engine::connectClickImpl(const LocationID &locationId, const types::Connect
         if (!NetworkUtils::DnsChecker::checkAvailabilityBlocking()) {
             qCWarning(LOG_CONNECTION) << "Local DNS server is not available, abort connection";
             emit localDnsServerNotAvailable();
+            // Settle the state machine: a reconnect skipped the disconnected transition expecting this
+            // connect to proceed.  No error reason -- the localDnsServerNotAvailable handler shows the
+            // user message.  On macOS this transition also tears down the split tunnel extension.
+            connectStateController_->setDisconnectedState(DISCONNECTED_ITSELF, CONNECT_ERROR::NO_CONNECT_ERROR);
+            myIpManager_->getIP(1);
             return;
         }
     }
@@ -1293,6 +1316,15 @@ void Engine::setSettingsImpl(const types::EngineSettings &engineSettings)
     if (isAllowLanTrafficChanged || isDnsPolicyChanged || isFirewallSettingsChanged)
         updateFirewallSettings();
 
+#ifdef Q_OS_WIN
+    // The Ipv6Firewall sublayer is engaged whenever connected (even with the firewall off) and
+    // bakes in the Allow LAN setting at filter-add time, so re-push it or it goes stale when the
+    // user toggles Allow LAN while connected.
+    if (isAllowLanTrafficChanged && connectStateController_->currentState() == CONNECT_STATE_CONNECTED) {
+        helper_->setIPv6EnabledInFirewall(false, engineSettings_.isAllowLanTraffic(), locationId_.isCustomConfigsLocation());
+    }
+#endif
+
     if (isFirewallSettingsChanged) {
         // Always On+ blocks API access, so a firewall mode change can flip the effective connectivity
         // that wsnet sees.
@@ -1357,9 +1389,9 @@ void Engine::setSettingsImpl(const types::EngineSettings &engineSettings)
     updateProxySettings();
 }
 
-void Engine::onFailOverTryingBackupEndpoint(int num, int cnt)
+void Engine::onFailOverTryingBackupEndpoint()
 {
-    emit tryingBackupEndpoint(num, cnt);
+    emit tryingBackupEndpoint();
 }
 
 void Engine::onCheckUpdateUpdated(const api_responses::CheckUpdate &checkUpdate)
@@ -1444,7 +1476,7 @@ void Engine::onConnectionManagerConnected()
             qCCritical(LOG_CONNECTED_DNS) << "Failed to set Custom 'while connected' DNS";
         }
     }
-    helper_->setIPv6EnabledInFirewall(false);
+    helper_->setIPv6EnabledInFirewall(false, engineSettings_.isAllowLanTraffic(), locationId_.isCustomConfigsLocation());
 #endif
 
     bool result = helper_->sendConnectStatus(true, engineSettings_.isTerminateSockets(), engineSettings_.isAllowLanTraffic(),
@@ -1524,14 +1556,10 @@ void Engine::onConnectionManagerConnected()
     vpnShareController_->onConnectedToVPNEvent(adapterName);
 
 #ifdef Q_OS_MACOS
-    if (SystemExtensions_mac::instance()->getSystemExtensionState() == SystemExtensions_mac::SystemExtensionState::Active) {
-        types::NetworkInterface interface;
-        networkDetectionManager_->getCurrentNetworkInterface(interface, false);
-        // This may do nothing if split tunneling is not enabled
-        SplitTunnelExtensionManager::instance().startExtension(interface.interfaceName, adapterName);
-    } else if (SplitTunnelExtensionManager::instance().isActive()) {
-        // Split tunneling is enabled, but the extension is not active.
-        emit splitTunnelingStartFailed();
+    if (SplitTunnelExtensionManager::instance().isActive()) {
+        // Verify the extension is actually enabled before starting it (it may have been disabled in
+        // System Settings).  The async result is delivered via onSystemExtensionStateChanged.
+        SystemExtensions_mac::instance()->checkSystemExtensionState(false);
     }
 #endif
 
@@ -1574,9 +1602,6 @@ void Engine::onConnectionManagerDisconnected(DISCONNECT_REASON reason)
 
 #ifdef Q_OS_WIN
     DnsInfo_win::outputDebugDnsInfo();
-#elif defined(Q_OS_MACOS)
-    // Stop the proxy when disconnecting
-    SplitTunnelExtensionManager::instance().stopExtension();
 #endif
 
     if (senderSource == "logoutImpl")
@@ -1589,6 +1614,13 @@ void Engine::onConnectionManagerDisconnected(DISCONNECT_REASON reason)
     }
     else if (senderSource == "reconnect")
     {
+#ifdef Q_OS_MACOS
+        // A reconnect (e.g. a protocol switch) re-enters connectClickImpl without ever passing through
+        // CONNECT_STATE_DISCONNECTED, so the proxy is not torn down by onConnectStateChanged.  Stop it
+        // here: a live proxy with stale interfaces hijacks the new connection's own setup traffic, which
+        // delays the UDP-based protocols and breaks IKEv2.  It restarts once reconnected.
+        SplitTunnelExtensionManager::instance().stopExtension();
+#endif
         connectClickImpl(locationId_, connectionSettingsOverride_, pinnedNode_);
         return;
     }
@@ -1613,8 +1645,9 @@ void Engine::onConnectionManagerReconnecting()
 {
     qCDebug(LOG_BASIC) << "on reconnecting event";
 
-#if defined(Q_OS_MACOS)
-    // Stop the proxy when reconnecting
+#ifdef Q_OS_MACOS
+    // An automatic reconnect keeps the connect state out of DISCONNECTED, so stop the proxy here: a live
+    // proxy with stale interfaces hijacks the reconnect's own setup traffic.  It restarts once reconnected.
     SplitTunnelExtensionManager::instance().stopExtension();
 #endif
 
@@ -1629,27 +1662,27 @@ void Engine::onConnectionManagerError(CONNECT_ERROR err)
 {
     if (err == CONNECT_ERROR::AUTH_ERROR)
     {
-        if (connectionManager_->isCustomOvpnConfigCurrentConnection())
-        {
-            qCWarning(LOG_BASIC) << "Incorrect username or password for custom ovpn config";
-        }
-        else
-        {
-            qCWarning(LOG_BASIC) << "Incorrect username or password, refetch server credentials";
-        }
-
         doDisconnectRestoreStuff();
 
         if (connectionManager_->isCustomOvpnConfigCurrentConnection())
         {
+            qCWarning(LOG_BASIC) << "Incorrect username or password for custom ovpn config";
             auto credentials = customOvpnAuthCredentialsStorage_->getAuthCredentials(connectionManager_->getCustomOvpnConfigFileName());
             customOvpnAuthCredentialsStorage_->removeCredentials(connectionManager_->getCustomOvpnConfigFileName());
 
             isNeedReconnectAfterRequestAuth_ = true;
             emit requestUsernameAndPassword(credentials.username.isEmpty() ? lastUsernameForCustomConfig_ : credentials.username);
         }
+        else if (connectionManager_->isStaticIpsLocation())
+        {
+            // Static IP credentials come from the StaticIps API resource, which the client cannot
+            // force-refetch, so refetching server credentials won't help. Surface the auth error.
+            qCWarning(LOG_BASIC) << "Incorrect username or password for static IP location";
+            connectStateController_->setDisconnectedState(DISCONNECTED_WITH_ERROR, CONNECT_ERROR::AUTH_ERROR);
+        }
         else
         {
+            qCWarning(LOG_BASIC) << "Incorrect username or password, refetch server credentials";
             if (isLoggedIn_) {
                 // force update session status (for check blocked, banned account state)
                 WSNet::instance()->apiResourcersManager()->fetchSession();
@@ -1904,6 +1937,7 @@ void Engine::updateAdvancedParamsImpl()
     std::optional<QString> countryOverride = ExtraConfig::instance().serverlistCountryOverride();
     WSNet::instance()->advancedParameters()->setCountryOverrideValue(countryOverride.has_value() ? countryOverride->toStdString() : "");
     WSNet::instance()->advancedParameters()->setIgnoreCountryOverride(ExtraConfig::instance().serverListIgnoreCountryOverride());
+    WSNet::instance()->advancedParameters()->setSuppressBridgeApiTokenRequest(ExtraConfig::instance().getSuppressApiToken());
 }
 
 void Engine::onDownloadHelperProgressChanged(uint progressPercent)
@@ -2377,18 +2411,16 @@ void Engine::setSplitTunnelingSettingsImpl(bool isActive, bool isExclude, const 
     helper_->setSplitTunnelingSettings(isActive, isExclude, engineSettings_.isAllowLanTraffic(), files, ips, hosts);
 
 #ifdef Q_OS_MACOS
-    // Activate the extension if it's not already active
-    SystemExtensions_mac::instance()->setAppProxySystemExtensionActive(isActive);
-
-    // Make sure settings are set before (re)starting the extension.
+    // Identical resends are deduped by the manager; a real change restarts the session so the new
+    // start options deliver it.
     SplitTunnelExtensionManager::instance().setSplitTunnelSettings(isActive, isExclude, files, ips, hosts);
 
-    // Always stop the extension first.
-    SplitTunnelExtensionManager::instance().stopExtension();
-
-    // If extension active, trigger the state change signal to start/stop the extension.  This (re)starts the extension with the new settings, if any have changed.
     if (isActive) {
-        onSystemExtensionStateChanged(SystemExtensions_mac::instance()->getSystemExtensionState());
+        // Query the real extension state (installing/prompting if missing); the async result drives the
+        // UI warning and starts the extension via onSystemExtensionStateChanged.
+        SystemExtensions_mac::instance()->checkSystemExtensionState(true);
+    } else {
+        SplitTunnelExtensionManager::instance().stopExtension();
     }
 #endif
 }
@@ -2484,6 +2516,12 @@ void Engine::onApiResourcesManagerLoginFailed(LoginResult loginResult, const QSt
         emit loginError(LoginResult::kNoConnectivity, QString());
         tryLoginNextConnectOrDisconnect_ = true;
     } else if (loginResult == LoginResult::kNoApiConnectivity) {
+        // The connectivity diagnostic fires only on this kNoApiConnectivity branch
+        // (and its twin in onApiResourcesManagerAuthTokenFinished); there is no
+        // successful-login trigger. run() is self-rate-limited, so the repeated
+        // failover attempts that produce this result collapse to one run per window.
+        if (connectivityDiagnostic_)
+            connectivityDiagnostic_->run();
         if (ignoreSslErrors_) {
             emit loginError(LoginResult::kNoApiConnectivity, QString());
             tryLoginNextConnectOrDisconnect_ = true;
@@ -2527,6 +2565,10 @@ void Engine::onApiResourcesManagerAuthTokenFinished(LoginResult loginResult)
     if (loginResult == LoginResult::kNoConnectivity) {
         emit loginError(LoginResult::kNoConnectivity, QString());
     } else if (loginResult == LoginResult::kNoApiConnectivity) {
+        // See onApiResourcesManagerLoginFailed: the diagnostic only ever fires on
+        // kNoApiConnectivity, never on a successful login. run() self-rate-limits.
+        if (connectivityDiagnostic_)
+            connectivityDiagnostic_->run();
         if (ignoreSslErrors_) {
             emit loginError(LoginResult::kNoApiConnectivity, QString());
         } else {
@@ -2732,6 +2774,7 @@ void Engine::doConnect(bool bEmitAuthError)
         req.amneziawgParams = amneziawgParams_;
         req.amneziawgPreset = effectiveAmneziawgPreset();
         req.preferredNodeHostname = pinnedNode_.first;
+        req.customSni = effectiveCustomSni();
         req.ipStackEgress = engineSettings_.ipStackEgress();
         connectionManager_->clickConnect(req);
     }
@@ -2747,6 +2790,7 @@ void Engine::doConnect(bool bEmitAuthError)
         req.amneziawgParams = amneziawgParams_;
         req.amneziawgPreset = effectiveAmneziawgPreset();
         req.preferredNodeHostname = pinnedNode_.first;
+        req.customSni = effectiveCustomSni();
         req.ipStackEgress = engineSettings_.ipStackEgress();
         connectionManager_->clickConnect(req);
     }
@@ -2849,6 +2893,16 @@ void Engine::onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON /*reas
             helper_->sendConnectStatus(false, engineSettings_.isTerminateSockets(), engineSettings_.isAllowLanTraffic(), AdapterGatewayInfo::detectAndCreateDefaultAdapterInfo(), AdapterGatewayInfo(), QString(), types::Protocol());
         }
     }
+
+#ifdef Q_OS_MACOS
+    // Tear the proxy down whenever the connection settles into disconnected; no-op when not running.
+    // A reconnect never enters DISCONNECTED (the disconnect handler re-enters connectClickImpl before
+    // setting the state), so the reconnect/reconnecting handlers stop the proxy directly to keep it from
+    // hijacking the new connection's setup traffic.
+    if (state == CONNECT_STATE_DISCONNECTED) {
+        SplitTunnelExtensionManager::instance().stopExtension();
+    }
+#endif
     QString nodeAddress = (state == CONNECT_STATE_CONNECTED) ? lastConnectingHostname_ : QString();
     QString pinnedIp = (state == CONNECT_STATE_CONNECTED) ? pinnedNode_.second : QString();
     types::Protocol protocol = (state == CONNECT_STATE_CONNECTED) ? connectionManager_->currentProtocol() : types::Protocol();
@@ -3005,21 +3059,41 @@ void Engine::onConnectionManagerConnectionEnded()
 #ifdef Q_OS_MACOS
 void Engine::onSystemExtensionStateChanged(SystemExtensions_mac::SystemExtensionState newState)
 {
-    if (newState == SystemExtensions_mac::Active && helper_ && connectStateController_->currentState() == CONNECT_STATE_CONNECTED) {
+    const bool isConnected = connectStateController_->currentState() == CONNECT_STATE_CONNECTED;
+
+    if (newState == SystemExtensions_mac::Active && helper_ && isConnected) {
         types::NetworkInterface interface;
         networkDetectionManager_->getCurrentNetworkInterface(interface, false);
         // This may do nothing if split tunneling is not enabled
         SplitTunnelExtensionManager::instance().startExtension(interface.interfaceName, connectionManager_->getVpnAdapterInfo().adapterName());
-    } else if (newState == SystemExtensions_mac::Inactive) {
-        SplitTunnelExtensionManager::instance().stopExtension();
+    } else if (newState == SystemExtensions_mac::Inactive || newState == SystemExtensions_mac::Unknown) {
+        // Inactive is always a confirmed result: the OS reported the extension disabled or not installed
+        // (an unconfirmed query re-reports the last confirmed Active/PendingUserApproval, or Unknown --
+        // never Inactive), so tear down.  Unknown means twice-unconfirmed with no confirmed
+        // Active/Pending to fall back on, so nothing is running either way: when connected with the
+        // feature enabled, surface the failure rather than letting the user believe it works.
+        if (newState == SystemExtensions_mac::Inactive) {
+            // The extension was disabled/removed in System Settings; its cached manager is now stale, so
+            // stop the session and drop it so a later re-enable rebuilds from preferences.
+            SplitTunnelExtensionManager::instance().resetManager();
+        }
+        if (isConnected && SplitTunnelExtensionManager::instance().isActive()) {
+            emit splitTunnelingStartFailed(SPLIT_TUNNEL_START_FAIL_REASON_MAC_EXTENSION_NOT_ENABLED);
+        }
     }
+    // PendingUserApproval is not a failure: the user is mid-approval, so neither start nor turn off.
+    // Once approved, Active arrives from the activation's own callback or the next recheck.
 
     // No need to update the UI if we do not know the state.  Without this check, the UI will briefly display the
     // "system extension not enabled" error in the UI then clear it once we know the extension is active, or has
-    // been activated successfully.
+    // been activated successfully.  Re-emitting an unchanged availability is also skipped: rechecks now run
+    // on every app activation, and each emit triggers a preferences relayout.
     if (newState != SystemExtensions_mac::Unknown) {
-        bool available = (newState == SystemExtensions_mac::Active);
-        emit systemExtensionAvailabilityChanged(available);
+        const bool available = (newState == SystemExtensions_mac::Active);
+        if (lastSystemExtensionAvailability_ != available) {
+            lastSystemExtensionAvailability_ = available;
+            emit systemExtensionAvailabilityChanged(available);
+        }
     }
 }
 #endif
@@ -3076,6 +3150,22 @@ QString Engine::effectiveAmneziawgPreset() const
     } else {
         return QString();
     }
+}
+
+QString Engine::effectiveCustomSni() const
+{
+    // User-configured custom SNI takes precedence over API suggestion
+    QString userConfigured = engineSettings_.customSniDomain();
+    if (!userConfigured.isEmpty()) {
+        return userConfigured;
+    }
+
+    // Fall back to API suggestion if available
+    if (!apiSuggestedCustomSni_.isEmpty()) {
+        return apiSuggestedCustomSni_;
+    }
+
+    return QString();
 }
 
 void Engine::updateApiResolutionSettingsInWsnet()

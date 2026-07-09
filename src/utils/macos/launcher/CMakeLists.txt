@@ -19,8 +19,6 @@ configure_file(
 
 add_executable(${WS_MAC_LAUNCHER_TARGET} MACOSX_BUNDLE ${SOURCES})
 
-target_compile_options(${WS_MAC_LAUNCHER_TARGET} PRIVATE "-fobjc-arc")
-
 target_link_libraries(${WS_MAC_LAUNCHER_TARGET}
                       PRIVATE
                       "-framework AppKit"

@@ -64,18 +64,17 @@ bool IcsManager::change(const std::wstring &adapterName)
     HRESULT hr;
     CComPtr<INetConnection> pNetConnectionPublic;
     CComPtr<INetConnection> pNetConnectionPrivate;
-    VARIANT varItem;
 
     for (auto &it : pNetConnections) {
         NETCON_PROPERTIES *ppProps = NULL;
         hr = it->GetProperties(&ppProps);
         if (hr == S_OK) {
 
-            if (wcsstr(ppProps->pszwDeviceName, L"Microsoft Wi-Fi Direct Virtual Adapter") != nullptr) {
+            if (ppProps->pszwDeviceName != nullptr && wcsstr(ppProps->pszwDeviceName, L"Microsoft Wi-Fi Direct Virtual Adapter") != nullptr) {
                 pNetConnectionPrivate = it;
-            } else if (wcsstr(ppProps->pszwDeviceName, adapterName.c_str()) != nullptr) {
+            } else if (ppProps->pszwDeviceName != nullptr && wcsstr(ppProps->pszwDeviceName, adapterName.c_str()) != nullptr) {
                 pNetConnectionPublic = it;
-            } else if (wcsstr(ppProps->pszwName, adapterName.c_str()) != nullptr) {
+            } else if (ppProps->pszwName != nullptr && wcsstr(ppProps->pszwName, adapterName.c_str()) != nullptr) {
                 pNetConnectionPublic = it;
             }
 
@@ -166,6 +165,8 @@ bool IcsManager::change(const std::wstring &adapterName)
     hr = pNetConfigurationPrivate->EnableSharing(ICSSHARINGTYPE_PRIVATE);
     if (hr != S_OK) {
         spdlog::warn("EnableSharing failed for private guid, {}", hr);
+        pNetConfigurationPublic->DisableSharing();
+        pNetConfigurationPublic_ = nullptr;
         return false;
     } else {
         pNetConfigurationPrivate_ = pNetConfigurationPrivate;
@@ -223,13 +224,14 @@ std::vector<CComPtr<INetConnection> > IcsManager::getAllConnections(CComPtr<INet
 
     CComPtr<INetConnection> pNetConnection;
     VARIANT varItem;
+    VariantInit(&varItem);
 
     while (1) {
         pNetConnection = NULL;
         VariantClear(&varItem);
 
         hr = pNSEConn->Next(1, &varItem, NULL);
-        if (S_FALSE == hr) {
+        if (hr != S_OK) {
             break;
         }
 

@@ -33,6 +33,7 @@ const QString WS_SCREEN_TRANSITION_HOTKEYS = WS_PREFIX + "screen-transition-hotk
 const QString WS_USE_ICMP_PINGS = WS_PREFIX + "use-icmp-pings";
 
 const QString WS_STEALTH_EXTRA_TLS_PADDING = WS_PREFIX + "stealth-extra-tls-padding";
+const QString WS_SUPPRESS_API_TOKEN = WS_PREFIX + "suppress-api-token";
 
 const QString WS_SERVERLIST_COUNTRY_OVERRIDE = WS_PREFIX + "serverlist-country-override";
 
@@ -241,6 +242,11 @@ bool ExtraConfig::getUseICMPPings()
 bool ExtraConfig::getStealthExtraTLSPadding()
 {
     return getFlag(WS_STEALTH_EXTRA_TLS_PADDING);
+}
+
+bool ExtraConfig::getSuppressApiToken()
+{
+    return getFlag(WS_SUPPRESS_API_TOKEN);
 }
 
 bool ExtraConfig::getNoPings()

@@ -244,6 +244,13 @@ void ConnectionWindowItem::onFirewallPreferencesChangedByUser(const types::Firew
             std::function<void(bool)>(nullptr),
             GeneralMessage::kFromPreferences);
     }
+
+    // Always On modes keep the firewall active while disconnected. Allowing LAN traffic would let
+    // OS DNS leak to the local network (commonly the router) in that state, so silently disable it.
+    if (fm.isAlwaysOnMode() && preferences_->isAllowLanTraffic()) {
+        preferences_->setAllowLanTraffic(false);
+    }
+
     preferences_->setFirewallSettings(fm);
 }
 
@@ -361,7 +368,7 @@ void ConnectionWindowItem::onLanguageChanged()
 
     checkBoxAutoConnect_->setDescription(tr("Connects to last used location when the app launches or joins a network."));
     checkBoxAutoConnect_->setCaption(tr("Auto-Connect"));
-    firewallGroup_->setDescription(tr("Control the mode of behaviour of the Windscribe firewall."),
+    firewallGroup_->setDescription(tr("Control the mode of behaviour of the Windscribe firewall. Always On modes disable Allow LAN Traffic to prevent DNS leaks."),
                                    QString("https://%1/features/firewall").arg(HardcodedSettings::instance().windscribeServerUrl()));
     connectionModeGroup_->setTitle(tr("Connection Mode"));
     connectionModeGroup_->setDescription(tr("Automatically choose the VPN protocol, or select one manually. NOTE: \"Preferred Protocol\" will override this setting."),
@@ -373,7 +380,7 @@ void ConnectionWindowItem::onLanguageChanged()
                                   QString("https://%1/features/ipv6").arg(HardcodedSettings::instance().windscribeServerUrl()));
 
     comboBoxIpStack_->setLabelCaption(tr("IP Stack"));
-    comboBoxIpStack_->setItems(ipStackToList(), (int)preferences_->ipStackEgress());
+    comboBoxIpStack_->setItems(enumToList<IpStack>(), (int)preferences_->ipStackEgress());
 
     connectedDnsGroup_->setDescription(tr("Select the DNS server while connected to Windscribe."),
                                        QString("https://%1/features/flexible-dns").arg(HardcodedSettings::instance().windscribeServerUrl()));
@@ -407,6 +414,25 @@ void ConnectionWindowItem::onLanguageChanged()
 
 void ConnectionWindowItem::onIsAllowLanTrafficPreferencesChangedByUser(bool b)
 {
+    // In an Always On firewall mode the firewall stays active while disconnected. Allowing LAN
+    // traffic lets OS DNS (typically the router) leak to the local network in that state, so require
+    // explicit confirmation before enabling it.
+    if (b && preferences_->firewallSettings().isAlwaysOnMode()) {
+        GeneralMessageController::instance().showMessageWithRedAccept(
+            "WARNING_YELLOW",
+            tr("Are you sure?"),
+            tr("The firewall is in an Always On mode. Allowing LAN traffic can leak your DNS and other "
+               "traffic to your local network while you are disconnected. Are you sure you want to enable it?"),
+            tr("Allow LAN Traffic"),
+            GeneralMessageController::tr(GeneralMessageController::kCancel),
+            "",
+            [this](bool b) { preferences_->setAllowLanTraffic(true); },
+            [this](bool b) { checkBoxAllowLanTraffic_->setState(false); },
+            std::function<void(bool)>(nullptr),
+            GeneralMessage::kFromPreferences);
+        return;
+    }
+
     preferences_->setAllowLanTraffic(b);
 
     if (preferences_->shareProxyGateway().isEnabled && !b) {
@@ -581,7 +607,7 @@ void ConnectionWindowItem::onIsAutoConnectPreferencesChangedByUser(bool on)
 
 void ConnectionWindowItem::onIpStackComboBoxItemChanged(QVariant o)
 {
-    preferences_->setIpStackEgress(ipStackFromInt(o.toInt()));
+    preferences_->setIpStackEgress(enumFromInt<IpStack>(o.toInt()));
 }
 
 void ConnectionWindowItem::onIsAutoConnectPreferencesChanged(bool b)

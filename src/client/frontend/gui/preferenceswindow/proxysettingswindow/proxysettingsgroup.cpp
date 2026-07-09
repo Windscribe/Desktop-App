@@ -166,7 +166,7 @@ void ProxySettingsGroup::onLanguageChanged()
 {
     comboBoxProxyType_->setLabelCaption(tr("Proxy"));
     QList<QPair<QString, QVariant>> list;
-    for (const auto p : PROXY_OPTION_toList()) {
+    for (const auto p : enumToList<PROXY_OPTION>()) {
         if (IsProxyOptionAllowed(p.second.toInt())) {
             list << p;
         }

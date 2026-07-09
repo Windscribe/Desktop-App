@@ -27,7 +27,7 @@ set(WINDSCRIBE_TS_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/translations/windscribe_installer_zh-CN.ts
     ${CMAKE_CURRENT_SOURCE_DIR}/translations/windscribe_installer_zh-TW.ts
 )
-if (UPDATE_TRANSLATIONS AND NOT DEFINE_QT_CREATOR_DEV_BUILD_MACRO)
+if (UPDATE_TRANSLATIONS)
     qt6_create_translation(WINDSCRIBE_QM_FILES ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/../windows/installer ${WINDSCRIBE_TS_FILES} OPTIONS -extensions cpp,h -locations none)
 endif()
 

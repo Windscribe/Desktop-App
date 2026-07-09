@@ -131,6 +131,9 @@ bool Helper_posix::stopWireGuard()
 
 bool Helper_posix::configureWireGuard(const WireGuardConfig &config)
 {
+    if (!config.hasValidAmneziawgParams()) {
+        return false;
+    }
     std::string clientPrivateKey = QByteArray::fromBase64(config.clientPrivateKey().toLatin1()).toHex().data();
     std::string clientIpAddress = config.clientIpAddress().toLatin1().data();
     std::string clientDnsAddressList = config.clientDnsAddress().toLatin1().data();
@@ -263,17 +266,17 @@ bool Helper_posix::setFirewallOnBoot(bool enabled, const QSet<QString> &ipTable,
     return true;
 }
 
-bool Helper_posix::startStunnel(const QString &hostname, unsigned int port, unsigned int localPort, bool extraPadding)
+bool Helper_posix::startStunnel(const QString &hostname, unsigned int port, unsigned int localPort, bool extraPadding, const QString &customSni)
 {
-    auto result = sendCommand(HelperCommand::startStunnel, hostname.toStdString(), port, localPort, extraPadding);
+    auto result = sendCommand(HelperCommand::startStunnel, hostname.toStdString(), port, localPort, extraPadding, customSni.toStdString());
     bool success = false;
     deserializeAnswer(result, success);
     return success;
 }
 
-bool Helper_posix::startWstunnel(const QString &hostname, unsigned int port, unsigned int localPort)
+bool Helper_posix::startWstunnel(const QString &hostname, unsigned int port, unsigned int localPort, const QString &customSni)
 {
-    auto result = sendCommand(HelperCommand::startWstunnel, hostname.toStdString(), port, localPort);
+    auto result = sendCommand(HelperCommand::startWstunnel, hostname.toStdString(), port, localPort, customSni.toStdString());
     bool success = false;
     deserializeAnswer(result, success);
     return success;

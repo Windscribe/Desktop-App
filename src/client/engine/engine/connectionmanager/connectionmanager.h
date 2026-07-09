@@ -45,6 +45,7 @@ struct ConnectRequest
     bool bEmitAuthError = false;
     api_responses::AmneziawgUnblockParams amneziawgParams;
     QString amneziawgPreset;
+    QString customSni;
     QString preferredNodeHostname;
 
     // Controls whether IPv6 is enabled for VPN tunnels that can carry dual-stack traffic
@@ -208,6 +209,14 @@ private:
     bool bWakeSignalReceived_;
     bool isFirewallAlwaysOnPlusEnabled_ = false;
 
+    // Snapshot taken when the connection policy is built, so the policy decision and doConnectPart2
+    // stay consistent even if a forced re-registration is flagged asynchronously mid-connect.
+    bool hasUsableCachedWgConfig_ = false;
+    // Under Always On+ a stale cached config can't be refreshed (API blocked); cap the attempts so a
+    // config that never establishes can't loop forever. Reset on tunnel success and rotation restart.
+    int wgCachedConfigAttempts_ = 0;
+    static constexpr int kMaxWgCachedConfigAttempts = 2;
+
     types::Protocol currentProtocol_;
 
     CurrentConnectionDescr currentConnectionDescr_;
@@ -242,7 +251,7 @@ private:
         const api_responses::PortMap &portMap,
         const types::ProxySettings &proxySettings);
     void connectOrStartConnectTimer();
-    void getWireGuardConfig(const QString &serverName, bool deleteOldestKey);
+    void getWireGuardConfig(const QString &serverName, bool deleteOldestKey, bool useCachedConfigOnly = false);
     QString dnsServersFromConnectedDnsInfo() const;
 
     void disconnect();

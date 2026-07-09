@@ -20,3 +20,11 @@ target_sources(frontend-common PRIVATE
     types/upgrademodetype.cpp
     types/upgrademodetype.h
 )
+
+# INI-backed preferences are only used by the CLI build.
+if(FRONTEND_TYPE STREQUAL "cli")
+    target_sources(frontend-common PRIVATE
+        iniwatcher.cpp
+        iniwatcher.h
+    )
+endif()

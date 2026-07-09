@@ -20,6 +20,7 @@ public:
 
     bool beginTransaction();
     bool endTransaction();
+    bool abortTransaction();
 
 private:
     HANDLE engineHandle_ = nullptr;

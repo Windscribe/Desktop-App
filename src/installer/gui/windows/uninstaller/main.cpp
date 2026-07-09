@@ -10,8 +10,7 @@
 #include "../utils/applicationinfo.h"
 #include "../utils/path.h"
 #include "../../../../client/client-common/utils/log/spdlog_utils.h"
-
-#include "../../../libs/wssecure/wssecure_globals.h"
+#include "wsprocessmitigations.h"
 
 // Let's compare where the uninstall file is located with where the program was originally installed
 // If they are different then we do not uninstall, to avoid deleting 3-rd party files

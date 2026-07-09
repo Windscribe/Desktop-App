@@ -22,13 +22,9 @@ add_library(frontend-common STATIC ${PROJECT_SOURCES})
 
 target_link_libraries(frontend-common PRIVATE Qt6::Core Qt6::Network ${WS_CLIENT_EXTRA_LIBS} wsnet::wsnet spdlog::spdlog Boost::serialization)
 
-if (WIN32)
-    target_compile_definitions(frontend-common PRIVATE CMAKE_LIBRARY_LIBRARY
-                                  WINVER=0x0601
-                                  _WIN32_WINNT=0x0601
-                                  WIN32_LEAN_AND_MEAN
-                                  PIO_APC_ROUTINE_DEFINED)
-endif (WIN32)
+if(WIN32)
+    target_compile_definitions(frontend-common PRIVATE CMAKE_LIBRARY_LIBRARY WIN32_LEAN_AND_MEAN PIO_APC_ROUTINE_DEFINED)
+endif()
 
 target_include_directories(frontend-common PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/../../engine

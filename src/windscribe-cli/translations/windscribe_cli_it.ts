@@ -275,10 +275,6 @@
         <translation>Registri inviati.</translation>
     </message>
     <message>
-        <source>Preferences reloaded.</source>
-        <translation>Preferenze ricaricate.</translation>
-    </message>
-    <message>
         <source>Key limit behaviour is set.</source>
         <translation>Il comportamento del limite dei tasti è impostato.</translation>
     </message>

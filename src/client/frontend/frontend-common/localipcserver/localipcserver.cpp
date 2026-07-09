@@ -169,10 +169,6 @@ void LocalIPCServer::onConnectionCommandCallback(IPC::Command *command, IPC::Con
             emit update();
 #endif
         }
-    } else if (command->getStringId() == IPC::CliCommands::ReloadConfig::getCommandStringId()) {
-#ifdef CLI_ONLY
-        backend_->getPreferences()->loadIni();
-#endif
     } else if (command->getStringId() == IPC::CliCommands::SetKeyLimitBehavior::getCommandStringId()) {
         IPC::CliCommands::SetKeyLimitBehavior *cmd = static_cast<IPC::CliCommands::SetKeyLimitBehavior *>(command);
         emit setKeyLimitBehavior(cmd->keyLimitDelete_);

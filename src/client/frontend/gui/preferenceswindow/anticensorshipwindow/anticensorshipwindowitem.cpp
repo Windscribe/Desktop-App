@@ -16,9 +16,11 @@ AntiCensorshipWindowItem::AntiCensorshipWindowItem(ScalableGraphicsObject *paren
 
     connect(preferences, &Preferences::protocolTweaksMethodChanged, this, &AntiCensorshipWindowItem::onProtocolTweaksMethodPreferencesChanged);
     connect(preferences, &Preferences::amneziawgPresetChanged, this, &AntiCensorshipWindowItem::onAmneziawgPresetChanged);
+    connect(preferences, &Preferences::customSniDomainChanged, this, &AntiCensorshipWindowItem::onCustomSniDomainPreferencesChanged);
     connect(preferences, &Preferences::serverRoutingMethodChanged, this, &AntiCensorshipWindowItem::onServerRoutingMethodPreferencesChanged);
     connect(preferences, &Preferences::isAPIAntiCensorshipChanged, this, &AntiCensorshipWindowItem::onIsAPIAntiCensorshipPreferencesChanged);
     connect(preferencesHelper, &PreferencesHelper::amneziawgPresetsChanged, this, &AntiCensorshipWindowItem::onAmneziawgPresetsChanged);
+    connect(preferencesHelper, &PreferencesHelper::apiSuggestedCustomSniChanged, this, &AntiCensorshipWindowItem::onApiSuggestedCustomSniChanged);
 
     desc_ = new PreferenceGroup(this);
     addItem(desc_);
@@ -26,8 +28,10 @@ AntiCensorshipWindowItem::AntiCensorshipWindowItem(ScalableGraphicsObject *paren
     protocolTweaksGroup_ = new ProtocolTweaksGroup(this);
     connect(protocolTweaksGroup_, &ProtocolTweaksGroup::protocolTweaksMethodChanged, this, &AntiCensorshipWindowItem::onProtocolTweaksMethodChangedByUser);
     connect(protocolTweaksGroup_, &ProtocolTweaksGroup::amneziawgPresetChanged, this, &AntiCensorshipWindowItem::onAmneziawgPresetChangedByUser);
+    connect(protocolTweaksGroup_, &ProtocolTweaksGroup::customSniDomainChanged, this, &AntiCensorshipWindowItem::onCustomSniDomainChangedByUser);
     protocolTweaksGroup_->setProtocolTweaksMethod(preferences->protocolTweaksMethod());
     applyAmneziawgPresets(preferencesHelper->amneziawgPresets());
+    protocolTweaksGroup_->setCustomSniDomain(preferences->customSniDomain());
     addItem(protocolTweaksGroup_);
 
     serverRoutingGroup_ = new PreferenceGroup(this);
@@ -66,7 +70,7 @@ void AntiCensorshipWindowItem::onLanguageChanged()
 
     serverRoutingGroup_->setDescription(tr("Increases latency, but improves chances of being able to connect."));
     comboBoxServerRouting_->setLabelCaption(tr("Server Routing"));
-    comboBoxServerRouting_->setItems(SERVER_ROUTING_METHOD_TYPE_toList(), preferences_->serverRoutingMethod());
+    comboBoxServerRouting_->setItems(enumToList<SERVER_ROUTING_METHOD_TYPE>(), preferences_->serverRoutingMethod());
 
     toggleLargeTls_->setCaption(tr("Large TLS"));
     largeTlsGroup_->setDescription(tr("Artificially enlarge TLS packets, helps to circumvent censorship in some cases. Adds extra TLS padding to all API requests."));
@@ -80,6 +84,18 @@ void AntiCensorshipWindowItem::onProtocolTweaksMethodPreferencesChanged(PROTOCOL
 void AntiCensorshipWindowItem::onAmneziawgPresetChanged(const QString &preset)
 {
     protocolTweaksGroup_->setAmneziawgPreset(preset);
+}
+
+void AntiCensorshipWindowItem::onCustomSniDomainPreferencesChanged(const QString &domain)
+{
+    protocolTweaksGroup_->setCustomSniDomain(domain);
+}
+
+void AntiCensorshipWindowItem::onApiSuggestedCustomSniChanged(const QString &domain)
+{
+    // API suggestion is informational only - user can see it but we don't auto-apply it
+    // The user's configured value (if any) takes precedence
+    Q_UNUSED(domain);
 }
 
 void AntiCensorshipWindowItem::onAmneziawgPresetsChanged(const QStringList &presets)
@@ -111,6 +127,11 @@ void AntiCensorshipWindowItem::onProtocolTweaksMethodChangedByUser(PROTOCOL_TWEA
 void AntiCensorshipWindowItem::onAmneziawgPresetChangedByUser(const QString &preset)
 {
     preferences_->setAmneziawgPreset(preset);
+}
+
+void AntiCensorshipWindowItem::onCustomSniDomainChangedByUser(const QString &domain)
+{
+    preferences_->setCustomSniDomain(domain);
 }
 
 void AntiCensorshipWindowItem::onServerRoutingMethodPreferencesChanged(SERVER_ROUTING_METHOD_TYPE method)

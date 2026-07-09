@@ -275,10 +275,6 @@
         <translation>Log dikirim.</translation>
     </message>
     <message>
-        <source>Preferences reloaded.</source>
-        <translation>Preferensi dimuat ulang.</translation>
-    </message>
-    <message>
         <source>Key limit behaviour is set.</source>
         <translation>Perilaku batas kunci diatur.</translation>
     </message>

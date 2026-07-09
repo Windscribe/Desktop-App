@@ -1,5 +1,8 @@
 #include "preferences.h"
 
+#ifdef CLI_ONLY
+#include <QFile>
+#endif
 #include <QIODevice>
 #include <QSettings>
 #ifndef CLI_ONLY
@@ -477,6 +480,21 @@ void Preferences::setAmneziawgPreset(const QString &preset)
     }
 }
 
+QString Preferences::customSniDomain() const
+{
+    return engineSettings_.customSniDomain();
+}
+
+void Preferences::setCustomSniDomain(const QString &domain)
+{
+    if (engineSettings_.customSniDomain() != domain)
+    {
+        engineSettings_.setCustomSniDomain(domain);
+        emitEngineSettingsChanged();
+        emit customSniDomainChanged(domain);
+    }
+}
+
 const types::ShareSecureHotspot &Preferences::shareSecureHotspot() const
 {
     return guiSettings_.shareSecureHotspot;
@@ -767,6 +785,7 @@ void Preferences::setEngineSettings(const types::EngineSettings &es, bool fromJs
 #endif
     setAPIAntiCensorship(es.isAPIAntiCensorship());
     setAmneziawgPreset(es.amneziawgPreset());
+    setCustomSniDomain(es.customSniDomain());
     setAllowLanTraffic(es.isAllowLanTraffic());
     setFirewallSettings(es.firewallSettings());
     setConnectionSettings(es.connectionSettings());
@@ -920,9 +939,37 @@ void Preferences::loadGuiSettings()
 }
 
 #ifdef CLI_ONLY
+namespace {
+QByteArray readIniFileData(const QString &path)
+{
+    QFile file(path);
+    if (!file.open(QIODevice::ReadOnly)) {
+        return QByteArray();
+    }
+    return file.readAll();
+}
+}  // namespace
+
 void Preferences::loadIni()
 {
     QSettings settings(WS_SETTINGS_ORG, WS_SETTINGS_CLI);
+
+    // saveIni() rewrites this file, which re-fires the watcher that calls us. Ignore that echo: if the
+    // file is byte-for-byte what we last wrote, there is nothing new to apply. We compare raw bytes
+    // rather than parsed settings because fromIni()/validate() do not round-trip every field cleanly
+    // (e.g. empty hostnames, packet size), so a parsed comparison would never converge and would loop.
+    const QByteArray currentData = readIniFileData(settings.fileName());
+    if (currentData == lastWrittenIniData_) {
+        return;
+    }
+    lastWrittenIniData_ = currentData;
+
+    qCInfo(LOG_BASIC) << "windscribe_cli.conf changed on disk, reloading";
+
+    // QSettings caches parsed files process-wide, and our own saveIni() populated that cache, so a
+    // freshly constructed QSettings can hand back the stale pre-edit values. sync() re-reads the
+    // on-disk file so fromIni() below sees the user's changes.
+    settings.sync();
 
     // PersistentState can be updated directly as there are no signals to worry about
     PersistentState::instance().fromIni(settings);
@@ -932,7 +979,9 @@ void Preferences::loadIni()
     types::GuiSettings gs = guiSettings_;
     gs.fromIni(settings);
 
-    setAutoConnect(gs.isAutoConnect);
+    types::EngineSettings es = engineSettings_;
+    es.fromIni(settings);
+
     setAutoSecureNetworks(gs.isAutoSecureNetworks);
     setLaunchOnStartup(gs.isLaunchOnStartup);
 #if defined(Q_OS_MACOS)
@@ -942,10 +991,6 @@ void Preferences::loadIni()
     setSplitTunnelingApps(gs.splitTunneling.apps);
     setSplitTunnelingNetworkRoutes(gs.splitTunneling.networkRoutes);
     setSplitTunnelingSettings(gs.splitTunneling.settings);
-
-    // Same for engine settings
-    types::EngineSettings es = engineSettings_;
-    es.fromIni(settings);
 
     isSettingEngineSettings_ = true;
     setLanguage(es.language());
@@ -970,6 +1015,12 @@ void Preferences::loadIni()
     isSettingEngineSettings_ = false;
 
     emitEngineSettingsChanged();
+
+    // Apply auto-connect last: setAutoConnect() synchronously triggers a network re-evaluation that may
+    // start a connection (see MainService::onPreferencesAutoConnectChanged), and that connection must use
+    // the engine settings just applied above (e.g. protocol/port). Doing it after emitEngineSettingsChanged()
+    // ensures the engine receives the new settings before the connect request.
+    setAutoConnect(gs.isAutoConnect);
 }
 #endif
 
@@ -1028,5 +1079,8 @@ void Preferences::saveIni() const
     PersistentState::instance().toIni(settings);
 
     settings.sync();
+
+    // Remember what we just wrote so loadIni() can ignore the file-watcher event this write triggers.
+    lastWrittenIniData_ = readIniFileData(settings.fileName());
 }
 #endif

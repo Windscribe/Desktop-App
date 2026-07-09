@@ -15,7 +15,7 @@ find_package(Qt6 REQUIRED COMPONENTS
              LinguistTools)
 qt_standard_project_setup(REQUIRES 6.5)
 
-add_definitions(-DUNICODE -D_UNICODE /wd4090 -D_CRT_SECURE_NO_WARNINGS -D_SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING)
+add_definitions(-DUNICODE -D_UNICODE /wd4090)
 
 set(SOURCES
     ../../../../client/client-common/utils/languagesutil.cpp
@@ -54,8 +54,23 @@ set_source_files_properties(installer.rc OBJECT_DEPENDS ${CMAKE_CURRENT_SOURCE_D
 add_dependencies(installer prep-installer-windows)
 set_property(TARGET installer PROPERTY COMPILE_WARNING_AS_ERROR ON)
 set_property(TARGET installer PROPERTY VS_DPI_AWARE "PerMonitor")
-set_property(TARGET installer PROPERTY COMPILE_FLAGS "/Gy /Oi /sdl")
-set_property(TARGET installer PROPERTY LINK_FLAGS "/MANIFESTUAC:\"level='asInvoker' uiAccess='false'\" /DELAYLOAD:dwmapi.dll /DELAYLOAD:uxtheme.dll /DELAYLOAD:wldp.dll")
+set_property(TARGET installer PROPERTY COMPILE_FLAGS "/Gy /Oi")
+set_property(TARGET installer PROPERTY LINK_FLAGS "/MANIFESTUAC:\"level='asInvoker' uiAccess='false'\"")
+
+# Minimal process-mitigation profile from the TLS callback in wsprocessmitigations.h (included by
+# main.cpp).  This is an elevated (bootstrap-inherited token) Qt GUI app that writes to Program
+# Files, so image-load restrictions (anti DLL-planting) and redirection trust are apt.  Only those
+# two are enabled: SIGNATURE is off (GPU driver DLLs are vendor-signed, not Microsoft), DYNAMIC_CODE
+# off (graphics paths may use dynamic code), EXTENSION_POINT off (assistive tech / IME), and
+# STRICT_HANDLE_CHECK off (large framework, not worth the crash risk on a GUI app).
+target_compile_definitions(installer
+                           PRIVATE
+                           WS_ENABLE_PROCESS_MITIGATIONS
+                           WS_DISABLE_SIGNATURE_POLICY
+                           WS_DISABLE_DYNAMIC_CODE_POLICY
+                           WS_DISABLE_EXTENSION_POINT_POLICY
+                           WS_DISABLE_STRICT_HANDLE_CHECK_POLICY
+)
 
 target_link_directories(installer PRIVATE)
 
@@ -66,7 +81,6 @@ target_link_libraries(installer
     rpcrt4
     Fwpuclnt
     Ws2_32
-    delayimp
     Crypt32
     spdlog::spdlog_header_only
     fmt::fmt-header-only

@@ -638,10 +638,6 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
         <translation>Не вдалося запустити</translation>
     </message>
     <message>
-        <source>Trying Backup Endpoints %1/%2</source>
-        <translation>Спроба резервного копіювання кінцевих точок %1/%2</translation>
-    </message>
-    <message>
         <source>SSL Error</source>
         <translation>Помилка SSL</translation>
     </message>
@@ -668,6 +664,10 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
     <message>
         <source>Later</source>
         <translation>Пізніше</translation>
+    </message>
+    <message>
+        <source>Trying Backup Endpoints...</source>
+        <translation>Пробую резервні кінцеві точки...</translation>
     </message>
     <message>
         <source>SSL requests may be intercepted on your network. Ignoring SSL errors disables TLS certificate validation for this session: anyone able to intercept your traffic can then impersonate Windscribe and read or alter your data, and we can&apos;t guarantee your security while it&apos;s on. Ignore SSL errors?</source>
@@ -828,10 +828,6 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>You have reached your limit of WireGuard public keys. Do you want to delete your oldest key?</source>
         <translation>Ви досягли свого ліміту публічних ключів WireGuard. Бажаєте видалити свій найстаріший ключ?</translation>
-    </message>
-    <message>
-        <source>Error Starting Service</source>
-        <translation>Помилка запуску сервісу</translation>
     </message>
     <message>
         <source>The split tunneling feature could not be started, and has been disabled in Preferences.</source>
@@ -1427,10 +1423,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Автопідключення</translation>
     </message>
     <message>
-        <source>Control the mode of behaviour of the Windscribe firewall.</source>
-        <translation>Керуйте режимом поведінки брандмауера Windscribe.</translation>
-    </message>
-    <message>
         <source>Connection Mode</source>
         <translation>Режим підключення</translation>
     </message>
@@ -1463,6 +1455,10 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Налаштуйте телевізор, ігрову консоль або інші пристрої, які підтримують проксі-сервери.</translation>
     </message>
     <message>
+        <source>The firewall is in an Always On mode. Allowing LAN traffic can leak your DNS and other traffic to your local network while you are disconnected. Are you sure you want to enable it?</source>
+        <translation>Фаєрвол працює в режимі Always On. Дозволити LAN-трафік може витікати ваш DNS та інший трафік у вашу локальну мережу, поки ви відключені. Ви впевнені, що хочете його увімкнути?</translation>
+    </message>
+    <message>
         <source>Settings Conflict</source>
         <translation>Конфлікт налаштувань</translation>
     </message>
@@ -1493,6 +1489,10 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>In this firewall mode, the Windscribe API will not be available while disconnected, this could have unintended consequences. Use at own risk.</source>
         <translation>У цьому режимі брандмауера API Windscribe не буде доступний у відключеному стані, це може мати непередбачені наслідки. Використання на свій ризик.</translation>
+    </message>
+    <message>
+        <source>Control the mode of behaviour of the Windscribe firewall. Always On modes disable Allow LAN Traffic to prevent DNS leaks.</source>
+        <translation>Контролюйте режим поведінки міжмережевого екрану Windscribe. Режими Always On, вимкніть Дозвольте LAN-трафік для запобігання витокам DNS.</translation>
     </message>
     <message>
         <source>Configure egress IP stack for VPN connections (WireGuard only).</source>
@@ -2081,6 +2081,10 @@ Connect to a network first</source>
 </context>
 <context>
     <name>PreferencesWindow::ProtocolTweaksGroup</name>
+    <message>
+        <source>Custom SNI Domain</source>
+        <translation>Користувацький домен SNI</translation>
+    </message>
     <message>
         <source>Protocol Tweaks</source>
         <translation>Коригування протоколу</translation>

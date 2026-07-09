@@ -4,11 +4,13 @@
 #include <Fwpmu.h>
 #include <ws2def.h>
 #include <Psapi.h>
+#include <sddl.h>
 #include <shlobj.h>
 #include <wlanapi.h>
 #include <SetupAPI.h>
 #include <devguid.h>
 
+#include <filesystem>
 #include <sstream>
 
 #include <spdlog/spdlog.h>
@@ -149,6 +151,36 @@ bool isFileExists(const wchar_t *path)
 {
     DWORD dwAttrib = GetFileAttributes(path);
     return (dwAttrib != INVALID_FILE_ATTRIBUTES && !(dwAttrib & FILE_ATTRIBUTE_DIRECTORY));
+}
+
+bool createRestrictedFile(const std::wstring &path)
+{
+    SECURITY_ATTRIBUTES sa;
+    sa.nLength = sizeof(SECURITY_ATTRIBUTES);
+    sa.bInheritHandle = FALSE;
+    if (!::ConvertStringSecurityDescriptorToSecurityDescriptor(L"D:P(A;;FA;;;SY)(A;;FA;;;BA)", SDDL_REVISION_1, &sa.lpSecurityDescriptor, NULL)) {
+        spdlog::error("createRestrictedFile - failed to build security descriptor: {}", ::GetLastError());
+        return false;
+    }
+    auto freeSD = wsl::wsScopeGuard([&] {
+        ::LocalFree(sa.lpSecurityDescriptor);
+    });
+
+    // Remove any stale file first; CREATE_NEW then guarantees the DACL is applied to a file we
+    // created, rather than silently retained from an existing file's descriptor.
+    std::error_code ec;
+    std::filesystem::remove(path, ec);
+    if (ec) {
+        spdlog::error("createRestrictedFile - could not remove stale file: {}", ec.message());
+        return false;
+    }
+
+    wsl::Win32Handle hFile(::CreateFileW(path.c_str(), GENERIC_WRITE, 0, &sa, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, NULL));
+    if (!hFile.isValid()) {
+        spdlog::error("createRestrictedFile - could not create file: {}", ::GetLastError());
+        return false;
+    }
+    return true;
 }
 
 bool hasWhitespaceInString(const std::wstring &str)
@@ -572,6 +604,66 @@ bool addFilterV6(HANDLE engineHandle, std::vector<UINT64> *filterId, FWP_ACTION_
             // Only record the id on success: on failure FwpmFilterAdd0 leaves it undefined and
             // a stale value would be picked up later by cleanup paths trying to delete filters.
             (*filterId).push_back(id);
+        }
+    }
+    return success;
+}
+
+bool addPermitFilterV6IcmpTypeRange(HANDLE engineHandle, uint16_t typeLow, uint16_t typeHigh, UINT8 weight,
+                 GUID subLayerKey, wchar_t *subLayerName, bool persistent)
+{
+    bool success = true;
+    GUID guids[2] = {FWPM_LAYER_ALE_AUTH_CONNECT_V6, FWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V6};
+
+    // The range storage must outlive the FwpmFilterAdd0 calls below, so it is declared here, ahead
+    // of the per-layer loop, and is identical for both layers.
+    FWP_VALUE0 rangeLow = {};
+    rangeLow.type = FWP_UINT16;
+    rangeLow.uint16 = typeLow;
+    FWP_VALUE0 rangeHigh = {};
+    rangeHigh.type = FWP_UINT16;
+    rangeHigh.uint16 = typeHigh;
+    FWP_RANGE0 typeRange = {};
+    typeRange.valueLow = rangeLow;
+    typeRange.valueHigh = rangeHigh;
+
+    for (int i = 0; i < 2; i++) {
+        FWPM_FILTER0 filter = { 0 };
+        std::vector<FWPM_FILTER_CONDITION0> conditions;
+
+        filter.subLayerKey = subLayerKey;
+        filter.displayData.name = subLayerName;
+        filter.layerKey = guids[i];
+        filter.action.type = FWP_ACTION_PERMIT;
+        filter.flags = 0;
+        if (persistent) {
+            filter.flags |= FWPM_FILTER_FLAG_PERSISTENT;
+        }
+        filter.weight.type = FWP_UINT8;
+        filter.weight.uint8 = weight;
+
+        FWPM_FILTER_CONDITION0 protoCondition;
+        protoCondition.fieldKey = FWPM_CONDITION_IP_PROTOCOL;
+        protoCondition.matchType = FWP_MATCH_EQUAL;
+        protoCondition.conditionValue.type = FWP_UINT8;
+        protoCondition.conditionValue.uint8 = IPPROTO_ICMPV6;
+        conditions.push_back(protoCondition);
+
+        FWPM_FILTER_CONDITION0 typeCondition;
+        typeCondition.fieldKey = FWPM_CONDITION_ICMP_TYPE;
+        typeCondition.matchType = FWP_MATCH_RANGE;
+        typeCondition.conditionValue.type = FWP_RANGE_TYPE;
+        typeCondition.conditionValue.rangeValue = &typeRange;
+        conditions.push_back(typeCondition);
+
+        filter.filterCondition = conditions.data();
+        filter.numFilterConditions = conditions.size();
+
+        UINT64 id = 0;
+        DWORD dwFwApiRetCode = FwpmFilterAdd0(engineHandle, &filter, NULL, &id);
+        if (dwFwApiRetCode != ERROR_SUCCESS) {
+            spdlog::error("Error adding ICMPv6 type filter: {}", dwFwApiRetCode);
+            success = false;
         }
     }
     return success;

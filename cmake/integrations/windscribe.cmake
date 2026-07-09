@@ -4,9 +4,9 @@
 # ------------------------------------------------------------------------------
 
 set(WS_VERSION_MAJOR 2)
-set(WS_VERSION_MINOR 23)
-set(WS_VERSION_BUILD 12)
-set(WS_BUILD_TYPE "stable")
+set(WS_VERSION_MINOR 24)
+set(WS_VERSION_BUILD 2)
+set(WS_BUILD_TYPE "guinea_pig")
 
 # WS_APP_IDENTIFIER: Internal identifier, no spaces. Used for service names,
 #   adapter names, pipe names, and other system identifiers.

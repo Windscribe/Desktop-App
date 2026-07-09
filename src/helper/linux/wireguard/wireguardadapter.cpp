@@ -1,6 +1,7 @@
 #include "wireguardadapter.h"
 #include "../../common/helper_commands.h"
 #include "../../common/io_posix.h"
+#include "../nftables/nftablescontroller.h"
 #include "../utils.h"
 #include "types/ipaddress.h"
 #include <boost/algorithm/string.hpp>
@@ -38,75 +39,11 @@ bool RunBlockingCommands(const std::vector<CmdEntry> &cmdlist)
     return true;
 }
 
-// Build the parallel *raw / *mangle rule block written to (ip6)tables-restore.
-// The same rule shape applies to both families: drop spoofed inbound, save/restore
-// the fwmark on UDP for the WG endpoint connection.
-std::vector<std::string> buildFirewallRuleLines(const std::string &iface,
-                                                const std::string &cidr,
-                                                uint32_t fwmark,
-                                                const std::string &comment)
-{
-    // Comment is wrapped in literal double-quotes so iptables-restore -n treats
-    // the whole phrase (which contains spaces) as a single argument. Matches
-    // the style used by firewallonboot.cpp / firewallcontroller.cpp.
-    const std::string quotedComment = "\"" + comment + "\"";
-
-    std::vector<std::string> lines;
-    lines.push_back("*raw");
-    lines.push_back("-I PREROUTING ! -i " + iface + " -d " + cidr +
-                    " -m addrtype ! --src-type LOCAL -j DROP -m comment --comment " + quotedComment);
-    lines.push_back("COMMIT");
-    lines.push_back("*mangle");
-    lines.push_back("-I POSTROUTING -m mark --mark " + std::to_string(fwmark) +
-                    " -p udp -j CONNMARK --save-mark -m comment --comment " + quotedComment);
-    lines.push_back("-I PREROUTING -p udp -j CONNMARK --restore-mark -m comment --comment " + quotedComment);
-    lines.push_back("COMMIT");
-    return lines;
-}
-
-// Write `lines` to `rulesPath`, feed the file to `restoreCommand` via the
-// argv-based Utils::executeCommand, and clean up the temp file regardless of
-// outcome. Returns true iff the restore command exited zero.
-bool runRestoreFromFile(const char *restoreCommand,
-                        const std::string &rulesPath,
-                        const std::vector<std::string> &lines)
-{
-    std::string buf;
-    for (const auto &line : lines) {
-        spdlog::debug("{} <<< {}", restoreCommand, line);
-        buf += line;
-        buf += '\n';
-    }
-
-    // open()'s mode is ignored on pre-existing files; unlink first to force the intended perms.
-    unlink(rulesPath.c_str());
-    int fd = open(rulesPath.c_str(), O_CREAT | O_WRONLY | O_TRUNC, S_IRUSR | S_IWUSR);
-    if (fd < 0) {
-        spdlog::error("Failed to open {}: {}", rulesPath, IO::strerror(errno));
-        return false;
-    }
-    if (!IO::writeAll(fd, buf)) {
-        spdlog::error("Write to {} failed: {}", rulesPath, IO::strerror(errno));
-        close(fd);
-        unlink(rulesPath.c_str());
-        return false;
-    }
-    close(fd);
-
-    const int rc = Utils::executeCommand(restoreCommand, {"-n", rulesPath});
-    unlink(rulesPath.c_str());
-    if (rc != 0) {
-        spdlog::error("{} failed: {}", restoreCommand, rc);
-        return false;
-    }
-    return true;
-}
-
-// Tear down the per-family fwmark rules previously added by enableRouting.
+// Tear down the per-family policy-routing rules previously added by enableRouting.
 // Idempotent: delete loops until `ip rule show` no longer matches our markers.
-void deleteFwmarkRulesForFamily(const char *family, uint32_t fwmark)
+void deleteFwmarkRulesForFamily(const char *family, uint32_t routingTable)
 {
-    const std::string match_str = "lookup " + std::to_string(fwmark);
+    const std::string match_str = "lookup " + std::to_string(routingTable);
     const std::string match_str2 = "from all lookup main suppress_prefixlength 0";
 
     while (true) {
@@ -116,7 +53,7 @@ void deleteFwmarkRulesForFamily(const char *family, uint32_t fwmark)
         bool bContinue = false;
         if (output.find(match_str) != std::string::npos) {
             std::vector<CmdEntry> cmdlist;
-            cmdlist.push_back({"ip", {family, "rule", "delete", "table", std::to_string(fwmark)}});
+            cmdlist.push_back({"ip", {family, "rule", "delete", "table", std::to_string(routingTable)}});
             RunBlockingCommands(cmdlist);
             bContinue = true;
         }
@@ -133,56 +70,12 @@ void deleteFwmarkRulesForFamily(const char *family, uint32_t fwmark)
     }
 }
 
-// Walk (ip6)tables-save output, find rules tagged with our comment, and replay
-// them as -D via the same family's restore binary fed from a temp file.
-bool removeFirewallRulesForFamily(const char *saveCommand,
-                                  const char *restoreCommand,
-                                  const std::string &rulesPath,
-                                  const std::string &comment)
-{
-    std::string output;
-    if (Utils::executeCommand(saveCommand, {}, &output) != 0) {
-        spdlog::error("{} failed", saveCommand);
-        return false;
-    }
-
-    // iptables-save renders --comment values with literal double-quotes around
-    // them (matching the form we feed to iptables-restore). Match the same
-    // quoted form so removeFirewallRules actually finds our rules on teardown.
-    const std::string match = "-m comment --comment \"" + comment + "\"";
-
-    std::vector<std::string> lines;
-    bool bFound = false;
-    std::stringstream ss(output);
-    std::string line;
-    while (std::getline(ss, line)) {
-        if ((line.rfind("*", 0) == 0) ||
-            (line.find("COMMIT") != std::string::npos) ||
-            ((line.rfind("-A", 0) == 0) && (line.find(match) != std::string::npos))) {
-            if (line.rfind("-A", 0) == 0) {
-                line[1] = 'D';
-                bFound = true;
-            }
-            lines.push_back(line);
-        }
-    }
-
-    if (!bFound) {
-        return true;
-    }
-
-    return runRestoreFromFile(restoreCommand, rulesPath, lines);
-}
-
 }
 
 WireGuardAdapter::WireGuardAdapter(const std::string &name)
     : name_(name), is_dns_server_set_(false),
-      has_default_route_v4_(false), has_default_route_v6_(false), fwmark_(0)
+      has_default_route_v4_(false), has_default_route_v6_(false), routingTable_(0)
 {
-    // Raw value only; rule emitters wrap this in literal double-quotes so
-    // iptables-restore parses the whole phrase as a single --comment argument.
-    comment_ = WS_PRODUCT_NAME " daemon rule for " + name_;
 }
 
 WireGuardAdapter::~WireGuardAdapter()
@@ -289,13 +182,13 @@ bool WireGuardAdapter::setDnsServers(const std::string &addressList, const std::
     return RunBlockingCommands(cmdlist);
 }
 
-bool WireGuardAdapter::enableRouting(const std::vector<std::string> &allowedIps, uint32_t fwmark)
+bool WireGuardAdapter::enableRouting(const std::vector<std::string> &allowedIps, uint32_t fwmark, uint32_t routingTable)
 {
     allowedIps_ = allowedIps;
-    fwmark_ = fwmark;
+    routingTable_ = routingTable;
 
-    spdlog::debug("WireGuardAdapter::enableRouting: allowedIps=[{}], fwmark={}",
-                  boost::algorithm::join(allowedIps, ", "), fwmark);
+    spdlog::debug("WireGuardAdapter::enableRouting: allowedIps=[{}], fwmark={}, routingTable={}",
+                  boost::algorithm::join(allowedIps, ", "), fwmark, routingTable);
 
     std::vector<CmdEntry> cmdlist;
     for (const auto &ip : allowedIps) {
@@ -308,7 +201,10 @@ bool WireGuardAdapter::enableRouting(const std::vector<std::string> &allowedIps,
 
         const char *family = r.isV6() ? "-6" : "-4";
         const std::string canonical = r.toString();
+        // The fwmark is fixed (matches the kill-switch firewall and the WG socket mark); only the
+        // routing-table id may vary. The `not fwmark` rule selects the table for unmarked packets.
         const std::string fwmarkStr = std::to_string(fwmark);
+        const std::string tableStr = std::to_string(routingTable);
 
         if (r.prefixLength() == 0) {
             if (r.isV4()) {
@@ -317,11 +213,11 @@ bool WireGuardAdapter::enableRouting(const std::vector<std::string> &allowedIps,
                 has_default_route_v6_ = true;
             }
 
-            spdlog::debug("WireGuardAdapter::enableRouting: \"{}\" -> default-route bypass via fwmark table {}",
-                          canonical, fwmark);
+            spdlog::debug("WireGuardAdapter::enableRouting: \"{}\" -> default-route bypass via fwmark {} table {}",
+                          canonical, fwmark, routingTable);
 
-            cmdlist.push_back({"ip", {family, "route", "add", canonical, "dev", getName(), "table", fwmarkStr}});
-            cmdlist.push_back({"ip", {family, "rule", "add", "not", "fwmark", fwmarkStr, "table", fwmarkStr}});
+            cmdlist.push_back({"ip", {family, "route", "add", canonical, "dev", getName(), "table", tableStr}});
+            cmdlist.push_back({"ip", {family, "rule", "add", "not", "fwmark", fwmarkStr, "table", tableStr}});
             cmdlist.push_back({"ip", {family, "rule", "add", "table", "main", "suppress_prefixlength", "0"}});
 
             if (!RunBlockingCommands(cmdlist)) {
@@ -348,8 +244,8 @@ bool WireGuardAdapter::enableRouting(const std::vector<std::string> &allowedIps,
         return false;
     }
 
-    // One firewall-rule pass at the end: emits parallel iptables / ip6tables blocks
-    // for whichever families ended up with a default route.
+    // One firewall-rule pass at the end: emits a single nftables inet transaction blocking
+    // whichever families ended up with a default route.
     if (has_default_route_v4_ || has_default_route_v6_) {
         if (!addFirewallRules(fwmark)) {
             return false;
@@ -361,16 +257,16 @@ bool WireGuardAdapter::enableRouting(const std::vector<std::string> &allowedIps,
 
 bool WireGuardAdapter::disableRouting()
 {
-    if (allowedIps_.empty() && fwmark_ == 0)
+    if (allowedIps_.empty() && routingTable_ == 0)
     {
         return true;
     }
 
     if (has_default_route_v4_) {
-        deleteFwmarkRulesForFamily("-4", fwmark_);
+        deleteFwmarkRulesForFamily("-4", routingTable_);
     }
     if (has_default_route_v6_) {
-        deleteFwmarkRulesForFamily("-6", fwmark_);
+        deleteFwmarkRulesForFamily("-6", routingTable_);
     }
 
     removeFirewallRules();
@@ -408,34 +304,52 @@ bool WireGuardAdapter::addFirewallRules(uint32_t fwmark)
                   ipv4Cidr_.empty() ? std::string("(none)") : ipv4Cidr_, has_default_route_v4_,
                   ipv6Cidr_.empty() ? std::string("(none)") : ipv6Cidr_, has_default_route_v6_, fwmark);
 
-    if (!ipv4Cidr_.empty() && has_default_route_v4_) {
-        // Required so packets from local sockets marked with our fwmark survive
-        // the kernel's reverse-path-filter check (no v6 analogue needed).
+    const bool v4 = !ipv4Cidr_.empty() && has_default_route_v4_;
+    const bool v6 = !ipv6Cidr_.empty() && has_default_route_v6_;
+    if (!v4 && !v6) {
+        return true;  // WG isn't the default route for either family; nothing to firewall.
+    }
+
+    if (v4) {
+        // Required so packets from local sockets marked with our fwmark survive the kernel's
+        // reverse-path-filter check (no v6 analogue needed).
         Utils::executeCommand("sysctl", {"-q", "net.ipv4.conf.all.src_valid_mark=1"});
-
-        const auto lines = buildFirewallRuleLines(getName(), ipv4Cidr_, fwmark, comment_);
-        if (!runRestoreFromFile("iptables-restore", WS_LINUX_TMP_DIR "/wg_firewall.v4", lines)) {
-            return false;
-        }
     }
 
-    if (!ipv6Cidr_.empty() && has_default_route_v6_) {
-        const auto lines = buildFirewallRuleLines(getName(), ipv6Cidr_, fwmark, comment_);
-        if (!runRestoreFromFile("ip6tables-restore", WS_LINUX_TMP_DIR "/wg_firewall.v6", lines)) {
-            // Best-effort rollback of the v4 install so we don't leave half-state.
-            removeFirewallRules();
-            return false;
-        }
+    const std::string iface = getName();
+    const std::string fwmarkStr = std::to_string(fwmark);
+
+    std::string buf = nft::addTable();
+    // (Re)build our WireGuard chains in the shared table: create-if-absent + flush (see nft::ensureChain
+    // for why a base chain is never delete+re-added). wg_mangle_pre stays at prerouting priority -150,
+    // ahead of FirewallController's st_pre_cm (-140), so the two connmark chains run in a defined order.
+    buf += nft::ensureChain("wg_raw_pre", "type filter hook prerouting priority -300;");
+    buf += nft::ensureChain("wg_mangle_post", "type filter hook postrouting priority -150;");
+    buf += nft::ensureChain("wg_mangle_pre", "type filter hook prerouting priority -150;");
+
+    // Drop spoofed inbound destined for the tunnel CIDR arriving on a non-tunnel interface
+    // (-m addrtype ! --src-type LOCAL -> fib saddr type != local).
+    if (v4) {
+        buf += nft::rule("wg_raw_pre", "iifname != \"" + iface + "\" ip daddr " + ipv4Cidr_ + " fib saddr type != local drop");
+    }
+    if (v6) {
+        buf += nft::rule("wg_raw_pre", "iifname != \"" + iface + "\" ip6 daddr " + ipv6Cidr_ + " fib saddr type != local drop");
     }
 
-    return true;
+    // Save/restore the fwmark on the WG endpoint UDP connection (family-agnostic, one set suffices in
+    // the inet table): CONNMARK --save-mark -> `ct mark set meta mark`; --restore-mark -> the reverse.
+    buf += nft::rule("wg_mangle_post", "meta mark " + fwmarkStr + " meta l4proto udp ct mark set meta mark");
+    buf += nft::rule("wg_mangle_pre", "meta l4proto udp meta mark set ct mark");
+
+    // One atomic transaction: on failure nothing is applied, so no rollback is needed.
+    return NftablesController::instance().run(buf);
 }
 
 bool WireGuardAdapter::removeFirewallRules()
 {
-    bool v4_ok = removeFirewallRulesForFamily("iptables-save", "iptables-restore",
-                                              WS_LINUX_TMP_DIR "/wg_firewall.v4", comment_);
-    bool v6_ok = removeFirewallRulesForFamily("ip6tables-save", "ip6tables-restore",
-                                              WS_LINUX_TMP_DIR "/wg_firewall.v6", comment_);
-    return v4_ok && v6_ok;
+    std::string buf = nft::addTable();
+    for (const char *ch : {"wg_raw_pre", "wg_mangle_post", "wg_mangle_pre"}) {
+        buf += nft::deleteChain(ch);
+    }
+    return NftablesController::instance().run(buf);
 }

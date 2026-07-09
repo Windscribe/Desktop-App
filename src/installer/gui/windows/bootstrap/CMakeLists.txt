@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 project(bootstrap)
 
-add_definitions(-DUNICODE -D_UNICODE /wd4090 -D_CRT_SECURE_NO_WARNINGS -D_SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING)
+add_definitions(-DUNICODE -D_UNICODE /wd4090)
 
 set(SOURCES
     ../utils/archive.cpp
@@ -37,13 +37,17 @@ endif()
 set_source_files_properties(installer.rc OBJECT_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/resources/windscribeinstaller.7z)
 set_property(TARGET bootstrap PROPERTY COMPILE_WARNING_AS_ERROR ON)
 set_property(TARGET bootstrap PROPERTY VS_DPI_AWARE "PerMonitor")
-set_property(TARGET bootstrap PROPERTY COMPILE_FLAGS "/Gy /Oi /sdl")
-set_property(TARGET bootstrap PROPERTY LINK_FLAGS "/DELAYLOAD:bcrypt.dll /DELAYLOAD:dwmapi.dll /DELAYLOAD:uxtheme.dll /DELAYLOAD:wldp.dll")
+set_property(TARGET bootstrap PROPERTY COMPILE_FLAGS "/Gy /Oi")
+set_property(TARGET bootstrap PROPERTY LINK_FLAGS "/MANIFESTUAC:\"level='requireAdministrator' uiAccess='false'\"")
+
+# Enable the "Microsoft-signed DLLs only" + "prohibit dynamic code" process mitigations,
+# applied from the TLS callback in wsprocessmitigations.h.  Safe here because the bootstrapper
+# loads no non-Microsoft-signed DLL (statically or at runtime).
+target_compile_definitions(bootstrap PRIVATE WS_ENABLE_PROCESS_MITIGATIONS)
 
 target_link_libraries(bootstrap
     PRIVATE
     bcrypt
-    delayimp
 )
 
 target_include_directories(bootstrap

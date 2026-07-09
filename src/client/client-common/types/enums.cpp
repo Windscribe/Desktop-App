@@ -13,573 +13,413 @@ const int typeIdConnectState = qRegisterMetaType<CONNECT_STATE>("CONNECT_STATE")
 const int typeIdDisconnectReason = qRegisterMetaType<DISCONNECT_REASON>("DISCONNECT_REASON");
 const int typeIdProxySharingType = qRegisterMetaType<PROXY_SHARING_TYPE>("PROXY_SHARING_TYPE");
 const int typeIdWebSessionPurpose = qRegisterMetaType<WEB_SESSION_PURPOSE>("WEB_SESSION_PURPOSE");
+const int typeIdSplitTunnelStartFailReason = qRegisterMetaType<SPLIT_TUNNEL_START_FAIL_REASON>("SPLIT_TUNNEL_START_FAIL_REASON");
 
 
-DNS_POLICY_TYPE DNS_POLICY_TYPE_fromInt(int t)
+// Table-driven implementation of the generic enum <-> int/string helpers declared in enums.h.
+//
+// Every enum is described once by an EnumInfo specialization: a {value, string, translate} table
+// plus its defaults/fallback.  This table is the single source of truth for all conversions.  The
+// translatable strings are marked with QT_TRANSLATE_NOOP("QObject", ...) so that lupdate keeps
+// extracting them under the same "QObject" context the original QObject::tr(...) calls used --
+// existing translations stay intact.  Numeric values are never altered, so serialization of these
+// enums is unaffected.
+//
+// At the bottom of this file the generic templates are explicitly instantiated for exactly the set
+// of enum/operation combinations that are used elsewhere; that is what callers link against.
+namespace {
+
+template <typename E>
+// NOLINTNEXTLINE(clang-analyzer-optin.performance.Padding)
+struct EnumDesc
 {
-    if (t == 0) return DNS_TYPE_OS_DEFAULT;
-    else if (t == 1) return DNS_TYPE_OPEN_DNS;
-    else if (t == 2) return DNS_TYPE_CLOUDFLARE;
-    else if (t == 3) return DNS_TYPE_GOOGLE;
-    else if (t == 4) return DNS_TYPE_CONTROLD;
-    else {
-        return DNS_TYPE_CLOUDFLARE;
+    E value;
+    const char *str;    // wrapped in QT_TRANSLATE_NOOP when 'translate' is true; "" when unused
+    bool translate;
+};
+
+// Specialized below for every enum that supports conversions.  Each specialization provides the
+// members required by the operations that enum needs:
+//   table              - always
+//   kDefaultInt        - if enumFromInt is used
+//   kDefaultString     - if enumFromString is used
+//   kFallback/kFallbackTranslate - if enumToString is used (returned when value is not in table)
+template <typename E>
+struct EnumInfo;
+
+template <>
+struct EnumInfo<DNS_POLICY_TYPE>
+{
+    static constexpr EnumDesc<DNS_POLICY_TYPE> table[] = {
+        { DNS_TYPE_OS_DEFAULT, QT_TRANSLATE_NOOP("QObject", "OS Default"), true },
+        { DNS_TYPE_OPEN_DNS,   "OpenDNS",    false },
+        { DNS_TYPE_CLOUDFLARE, "Cloudflare", false },
+        { DNS_TYPE_GOOGLE,     "Google",     false },
+        { DNS_TYPE_CONTROLD,   "Control D",  false },
+    };
+    static constexpr DNS_POLICY_TYPE kDefaultInt = DNS_TYPE_CLOUDFLARE;
+    static constexpr DNS_POLICY_TYPE kDefaultString = DNS_TYPE_OS_DEFAULT;
+    static constexpr const char *kFallback = QT_TRANSLATE_NOOP("QObject", "UNKNOWN");
+    static constexpr bool kFallbackTranslate = true;
+};
+
+template <>
+struct EnumInfo<CONNECTED_DNS_TYPE>
+{
+    static constexpr EnumDesc<CONNECTED_DNS_TYPE> table[] = {
+        { CONNECTED_DNS_TYPE_AUTO,     QT_TRANSLATE_NOOP("QObject", "Auto"),      true },
+        { CONNECTED_DNS_TYPE_CUSTOM,   QT_TRANSLATE_NOOP("QObject", "Custom"),    true },
+        { CONNECTED_DNS_TYPE_FORCED,   QT_TRANSLATE_NOOP("QObject", "Forced"),    true },
+        { CONNECTED_DNS_TYPE_LOCAL,    QT_TRANSLATE_NOOP("QObject", "Local DNS"), true },
+        { CONNECTED_DNS_TYPE_CONTROLD, "Control D", false },
+    };
+    static constexpr CONNECTED_DNS_TYPE kDefaultInt = CONNECTED_DNS_TYPE_AUTO;
+    static constexpr CONNECTED_DNS_TYPE kDefaultString = CONNECTED_DNS_TYPE_AUTO;
+    static constexpr const char *kFallback = QT_TRANSLATE_NOOP("QObject", "UNKNOWN");
+    static constexpr bool kFallbackTranslate = true;
+};
+
+template <>
+struct EnumInfo<SPLIT_TUNNELING_MODE>
+{
+    static constexpr EnumDesc<SPLIT_TUNNELING_MODE> table[] = {
+        { SPLIT_TUNNELING_MODE_EXCLUDE, QT_TRANSLATE_NOOP("QObject", "Exclude"), true },
+        { SPLIT_TUNNELING_MODE_INCLUDE, QT_TRANSLATE_NOOP("QObject", "Include"), true },
+    };
+    static constexpr SPLIT_TUNNELING_MODE kDefaultInt = SPLIT_TUNNELING_MODE_EXCLUDE;
+    static constexpr SPLIT_TUNNELING_MODE kDefaultString = SPLIT_TUNNELING_MODE_EXCLUDE;
+    static constexpr const char *kFallback = QT_TRANSLATE_NOOP("QObject", "UNKNOWN");
+    static constexpr bool kFallbackTranslate = true;
+};
+
+// Only an int conversion is needed for this enum.
+template <>
+struct EnumInfo<SPLIT_TUNNELING_NETWORK_ROUTE_TYPE>
+{
+    static constexpr EnumDesc<SPLIT_TUNNELING_NETWORK_ROUTE_TYPE> table[] = {
+        { SPLIT_TUNNELING_NETWORK_ROUTE_TYPE_IP,       "", false },
+        { SPLIT_TUNNELING_NETWORK_ROUTE_TYPE_HOSTNAME, "", false },
+    };
+    static constexpr SPLIT_TUNNELING_NETWORK_ROUTE_TYPE kDefaultInt = SPLIT_TUNNELING_NETWORK_ROUTE_TYPE_IP;
+};
+
+// Only an int conversion is needed for this enum.
+template <>
+struct EnumInfo<SPLIT_TUNNELING_APP_TYPE>
+{
+    static constexpr EnumDesc<SPLIT_TUNNELING_APP_TYPE> table[] = {
+        { SPLIT_TUNNELING_APP_TYPE_USER,   "", false },
+        { SPLIT_TUNNELING_APP_TYPE_SYSTEM, "", false },
+    };
+    static constexpr SPLIT_TUNNELING_APP_TYPE kDefaultInt = SPLIT_TUNNELING_APP_TYPE_USER;
+};
+
+template <>
+struct EnumInfo<PROXY_SHARING_TYPE>
+{
+    static constexpr EnumDesc<PROXY_SHARING_TYPE> table[] = {
+        { PROXY_SHARING_HTTP,  "HTTP",  false },
+        { PROXY_SHARING_SOCKS, "SOCKS", false },
+    };
+    static constexpr PROXY_SHARING_TYPE kDefaultInt = PROXY_SHARING_HTTP;
+    static constexpr PROXY_SHARING_TYPE kDefaultString = PROXY_SHARING_HTTP;
+    static constexpr const char *kFallback = QT_TRANSLATE_NOOP("QObject", "UNKNOWN");
+    static constexpr bool kFallbackTranslate = true;
+};
+
+template <>
+struct EnumInfo<ORDER_LOCATION_TYPE>
+{
+    static constexpr EnumDesc<ORDER_LOCATION_TYPE> table[] = {
+        { ORDER_LOCATION_BY_GEOGRAPHY,      QT_TRANSLATE_NOOP("QObject", "Geography"), true },
+        { ORDER_LOCATION_BY_ALPHABETICALLY, QT_TRANSLATE_NOOP("QObject", "Alphabet"),  true },
+        { ORDER_LOCATION_BY_LATENCY,        QT_TRANSLATE_NOOP("QObject", "Latency"),   true },
+    };
+    static constexpr ORDER_LOCATION_TYPE kDefaultInt = ORDER_LOCATION_BY_GEOGRAPHY;
+    static constexpr const char *kFallback = QT_TRANSLATE_NOOP("QObject", "UNKNOWN");
+    static constexpr bool kFallbackTranslate = true;
+};
+
+template <>
+struct EnumInfo<SERVER_ROUTING_METHOD_TYPE>
+{
+    static constexpr EnumDesc<SERVER_ROUTING_METHOD_TYPE> table[] = {
+        { SERVER_ROUTING_METHOD_AUTO,        QT_TRANSLATE_NOOP("QObject", "Auto"),      true },
+        { SERVER_ROUTING_METHOD_REGULAR,     QT_TRANSLATE_NOOP("QObject", "Regular"),   true },
+        { SERVER_ROUTING_METHOD_ALTERNATIVE, QT_TRANSLATE_NOOP("QObject", "Alternate"), true },
+    };
+    static constexpr SERVER_ROUTING_METHOD_TYPE kDefaultInt = SERVER_ROUTING_METHOD_AUTO;
+    static constexpr const char *kFallback = QT_TRANSLATE_NOOP("QObject", "UNKNOWN");
+    static constexpr bool kFallbackTranslate = true;
+};
+
+template <>
+struct EnumInfo<PROTOCOL_TWEAKS_METHOD_TYPE>
+{
+    static constexpr EnumDesc<PROTOCOL_TWEAKS_METHOD_TYPE> table[] = {
+        { PROTOCOL_TWEAKS_METHOD_AUTO,     QT_TRANSLATE_NOOP("QObject", "Auto"),     true },
+        { PROTOCOL_TWEAKS_METHOD_ENABLED,  QT_TRANSLATE_NOOP("QObject", "Enabled"),  true },
+        { PROTOCOL_TWEAKS_METHOD_DISABLED, QT_TRANSLATE_NOOP("QObject", "Disabled"), true },
+    };
+    static constexpr PROTOCOL_TWEAKS_METHOD_TYPE kDefaultInt = PROTOCOL_TWEAKS_METHOD_AUTO;
+    static constexpr const char *kFallback = QT_TRANSLATE_NOOP("QObject", "UNKNOWN");
+    static constexpr bool kFallbackTranslate = true;
+};
+
+// Only an int conversion is needed for this enum.
+template <>
+struct EnumInfo<BACKGROUND_TYPE>
+{
+    static constexpr EnumDesc<BACKGROUND_TYPE> table[] = {
+        { BACKGROUND_TYPE_NONE,          "", false },
+        { BACKGROUND_TYPE_COUNTRY_FLAGS, "", false },
+        { BACKGROUND_TYPE_CUSTOM,        "", false },
+        { BACKGROUND_TYPE_BUNDLED,       "", false },
+    };
+    static constexpr BACKGROUND_TYPE kDefaultInt = BACKGROUND_TYPE_NONE;
+};
+
+// Only an int conversion is needed for this enum.
+template <>
+struct EnumInfo<SOUND_NOTIFICATION_TYPE>
+{
+    static constexpr EnumDesc<SOUND_NOTIFICATION_TYPE> table[] = {
+        { SOUND_NOTIFICATION_TYPE_NONE,    "", false },
+        { SOUND_NOTIFICATION_TYPE_BUNDLED, "", false },
+        { SOUND_NOTIFICATION_TYPE_CUSTOM,  "", false },
+    };
+    static constexpr SOUND_NOTIFICATION_TYPE kDefaultInt = SOUND_NOTIFICATION_TYPE_NONE;
+};
+
+// Only a string conversion is needed for this enum.
+template <>
+struct EnumInfo<TAP_ADAPTER_TYPE>
+{
+    static constexpr EnumDesc<TAP_ADAPTER_TYPE> table[] = {
+        { DCO_ADAPTER, "DCO", false },
+        { TAP_ADAPTER, "TAP", false },
+    };
+    static constexpr const char *kFallback = QT_TRANSLATE_NOOP("QObject", "UNKNOWN");
+    static constexpr bool kFallbackTranslate = true;
+};
+
+template <>
+struct EnumInfo<FIREWALL_MODE>
+{
+    static constexpr EnumDesc<FIREWALL_MODE> table[] = {
+        { FIREWALL_MODE_MANUAL,         QT_TRANSLATE_NOOP("QObject", "Manual"),     true },
+        { FIREWALL_MODE_AUTOMATIC,      QT_TRANSLATE_NOOP("QObject", "Auto"),       true },
+        { FIREWALL_MODE_ALWAYS_ON,      QT_TRANSLATE_NOOP("QObject", "Always On"),  true },
+        { FIREWALL_MODE_ALWAYS_ON_PLUS, QT_TRANSLATE_NOOP("QObject", "Always On+"), true },
+    };
+    static constexpr FIREWALL_MODE kDefaultInt = FIREWALL_MODE_AUTOMATIC;
+    static constexpr FIREWALL_MODE kDefaultString = FIREWALL_MODE_AUTOMATIC;
+    static constexpr const char *kFallback = QT_TRANSLATE_NOOP("QObject", "UNKNOWN");
+    static constexpr bool kFallbackTranslate = true;
+};
+
+template <>
+struct EnumInfo<FIREWALL_WHEN>
+{
+    static constexpr EnumDesc<FIREWALL_WHEN> table[] = {
+        { FIREWALL_WHEN_BEFORE_CONNECTION, QT_TRANSLATE_NOOP("QObject", "Before Connection"), true },
+        { FIREWALL_WHEN_AFTER_CONNECTION,  QT_TRANSLATE_NOOP("QObject", "After Connection"),  true },
+    };
+    static constexpr FIREWALL_WHEN kDefaultInt = FIREWALL_WHEN_BEFORE_CONNECTION;
+    static constexpr FIREWALL_WHEN kDefaultString = FIREWALL_WHEN_BEFORE_CONNECTION;
+    static constexpr const char *kFallback = QT_TRANSLATE_NOOP("QObject", "UNKNOWN");
+    static constexpr bool kFallbackTranslate = true;
+};
+
+// Only an int conversion is needed for this enum.  NETWORK_INTERFACE_MOBILE_BROADBAND (value 4) is
+// intentionally omitted from the table so that fromInt() normalizes it to NONE, preserving the exact
+// behavior of the original NETWORK_INTERFACE_TYPE_fromInt(), which only accepted 0..3.  Letting value
+// 4 survive normalization is a deliberate behavior change tracked separately.
+template <>
+struct EnumInfo<NETWORK_INTERFACE_TYPE>
+{
+    static constexpr EnumDesc<NETWORK_INTERFACE_TYPE> table[] = {
+        { NETWORK_INTERFACE_NONE, "", false },
+        { NETWORK_INTERFACE_ETH,  "", false },
+        { NETWORK_INTERFACE_WIFI, "", false },
+        { NETWORK_INTERFACE_PPP,  "", false },
+    };
+    static constexpr NETWORK_INTERFACE_TYPE kDefaultInt = NETWORK_INTERFACE_NONE;
+};
+
+// NETWORK_TRUST_FORGET is a transitory state and is intentionally excluded from the table.  The
+// to-string fallback returns the (untranslated) "Secured", matching the original behavior.
+template <>
+struct EnumInfo<NETWORK_TRUST_TYPE>
+{
+    static constexpr EnumDesc<NETWORK_TRUST_TYPE> table[] = {
+        { NETWORK_TRUST_SECURED,   "Secured",   false },
+        { NETWORK_TRUST_UNSECURED, "Unsecured", false },
+    };
+    static constexpr NETWORK_TRUST_TYPE kDefaultInt = NETWORK_TRUST_SECURED;
+    static constexpr NETWORK_TRUST_TYPE kDefaultString = NETWORK_TRUST_SECURED;
+    static constexpr const char *kFallback = "Secured";
+    static constexpr bool kFallbackTranslate = false;
+};
+
+template <>
+struct EnumInfo<PROXY_OPTION>
+{
+    static constexpr EnumDesc<PROXY_OPTION> table[] = {
+        { PROXY_OPTION_NONE,       QT_TRANSLATE_NOOP("QObject", "None"),        true },
+        { PROXY_OPTION_AUTODETECT, QT_TRANSLATE_NOOP("QObject", "Auto-detect"), true },
+        { PROXY_OPTION_HTTP,       "HTTP",  false },
+        { PROXY_OPTION_SOCKS,      "SOCKS", false },
+    };
+    static constexpr PROXY_OPTION kDefaultInt = PROXY_OPTION_NONE;
+    static constexpr PROXY_OPTION kDefaultString = PROXY_OPTION_NONE;
+    static constexpr const char *kFallback = QT_TRANSLATE_NOOP("QObject", "UNKNOWN");
+    static constexpr bool kFallbackTranslate = true;
+};
+
+template <>
+struct EnumInfo<UPDATE_CHANNEL>
+{
+    static constexpr EnumDesc<UPDATE_CHANNEL> table[] = {
+        { UPDATE_CHANNEL_RELEASE,    QT_TRANSLATE_NOOP("QObject", "Release"),    true },
+        { UPDATE_CHANNEL_BETA,       QT_TRANSLATE_NOOP("QObject", "Beta"),       true },
+        { UPDATE_CHANNEL_GUINEA_PIG, QT_TRANSLATE_NOOP("QObject", "Guinea Pig"), true },
+        { UPDATE_CHANNEL_INTERNAL,   QT_TRANSLATE_NOOP("QObject", "Internal"),   true },
+    };
+    static constexpr UPDATE_CHANNEL kDefaultInt = UPDATE_CHANNEL_RELEASE;
+    static constexpr UPDATE_CHANNEL kDefaultString = UPDATE_CHANNEL_RELEASE;
+    static constexpr const char *kFallback = QT_TRANSLATE_NOOP("QObject", "UNKNOWN");
+    static constexpr bool kFallbackTranslate = true;
+};
+
+template <>
+struct EnumInfo<DNS_MANAGER_TYPE>
+{
+    static constexpr EnumDesc<DNS_MANAGER_TYPE> table[] = {
+        { DNS_MANAGER_AUTOMATIC,        QT_TRANSLATE_NOOP("QObject", "Auto"), true },
+        { DNS_MANAGER_RESOLV_CONF,      "resolvconf",       false },
+        { DNS_MANAGER_SYSTEMD_RESOLVED, "systemd-resolved", false },
+        { DNS_MANAGER_NETWORK_MANAGER,  "NetworkManager",   false },
+    };
+    static constexpr DNS_MANAGER_TYPE kDefaultInt = DNS_MANAGER_AUTOMATIC;
+    static constexpr DNS_MANAGER_TYPE kDefaultString = DNS_MANAGER_AUTOMATIC;
+    static constexpr const char *kFallback = QT_TRANSLATE_NOOP("QObject", "UNKNOWN");
+    static constexpr bool kFallbackTranslate = true;
+};
+
+template <>
+struct EnumInfo<APP_SKIN>
+{
+    static constexpr EnumDesc<APP_SKIN> table[] = {
+        { APP_SKIN_ALPHA,    QT_TRANSLATE_NOOP("QObject", "Alpha"),    true },
+        { APP_SKIN_VAN_GOGH, QT_TRANSLATE_NOOP("QObject", "Van Gogh"), true },
+    };
+    static constexpr APP_SKIN kDefaultInt = APP_SKIN_ALPHA;
+    static constexpr const char *kFallback = QT_TRANSLATE_NOOP("QObject", "UNKNOWN");
+    static constexpr bool kFallbackTranslate = true;
+};
+
+// TOGGLE_MODE strings are intentionally not translated (returned verbatim), matching the original.
+template <>
+struct EnumInfo<TOGGLE_MODE>
+{
+    static constexpr EnumDesc<TOGGLE_MODE> table[] = {
+        { TOGGLE_MODE_AUTO,   "Auto",   false },
+        { TOGGLE_MODE_MANUAL, "Manual", false },
+    };
+    static constexpr TOGGLE_MODE kDefaultString = TOGGLE_MODE_AUTO;
+    static constexpr const char *kFallback = "Auto";
+    static constexpr bool kFallbackTranslate = false;
+};
+
+template <>
+struct EnumInfo<MULTI_DESKTOP_BEHAVIOR>
+{
+    static constexpr EnumDesc<MULTI_DESKTOP_BEHAVIOR> table[] = {
+        { MULTI_DESKTOP_AUTO,        QT_TRANSLATE_NOOP("QObject", "Auto"),        true },
+        { MULTI_DESKTOP_DUPLICATE,   QT_TRANSLATE_NOOP("QObject", "Duplicate"),   true },
+        { MULTI_DESKTOP_MOVE_SPACES, QT_TRANSLATE_NOOP("QObject", "Move spaces"), true },
+        { MULTI_DESKTOP_MOVE_WINDOW, QT_TRANSLATE_NOOP("QObject", "Move window"), true },
+    };
+    static constexpr MULTI_DESKTOP_BEHAVIOR kDefaultInt = MULTI_DESKTOP_AUTO;
+    static constexpr const char *kFallback = QT_TRANSLATE_NOOP("QObject", "Auto");
+    static constexpr bool kFallbackTranslate = true;
+};
+
+template <>
+struct EnumInfo<ASPECT_RATIO_MODE>
+{
+    static constexpr EnumDesc<ASPECT_RATIO_MODE> table[] = {
+        { ASPECT_RATIO_MODE_STRETCH, QT_TRANSLATE_NOOP("QObject", "Stretch"), true },
+        { ASPECT_RATIO_MODE_FILL,    QT_TRANSLATE_NOOP("QObject", "Fill"),    true },
+        { ASPECT_RATIO_MODE_TILE,    QT_TRANSLATE_NOOP("QObject", "Tile"),    true },
+    };
+    static constexpr ASPECT_RATIO_MODE kDefaultInt = ASPECT_RATIO_MODE_STRETCH;
+    static constexpr const char *kFallback = QT_TRANSLATE_NOOP("QObject", "UNKNOWN");
+    static constexpr bool kFallbackTranslate = true;
+};
+
+template <>
+struct EnumInfo<IpStack>
+{
+    static constexpr EnumDesc<IpStack> table[] = {
+        { IpStack::kAuto,     QT_TRANSLATE_NOOP("QObject", "Auto"),      true },
+        { IpStack::kIPv4Only, QT_TRANSLATE_NOOP("QObject", "IPv4 Only"), true },
+    };
+    static constexpr IpStack kDefaultInt = IpStack::kAuto;
+    static constexpr IpStack kDefaultString = IpStack::kAuto;
+    static constexpr const char *kFallback = QT_TRANSLATE_NOOP("QObject", "UNKNOWN");
+    static constexpr bool kFallbackTranslate = true;
+};
+
+} // anonymous namespace
+
+
+template <typename E>
+E enumFromInt(int t)
+{
+    for (const auto &e : EnumInfo<E>::table) {
+        if (static_cast<int>(e.value) == t)
+            return e.value;
     }
+    return EnumInfo<E>::kDefaultInt;
 }
 
-DNS_POLICY_TYPE DNS_POLICY_TYPE_fromString(const QString &s)
+template <typename E>
+E enumFromString(const QString &s)
 {
-    if (s == "OS Default") {
-        return DNS_TYPE_OS_DEFAULT;
-    } else if (s == "OpenDNS") {
-        return DNS_TYPE_OPEN_DNS;
-    } else if (s == "Cloudflare") {
-        return DNS_TYPE_CLOUDFLARE;
-    } else if (s == "Google") {
-        return DNS_TYPE_GOOGLE;
-    } else if (s == "Control D") {
-        return DNS_TYPE_CONTROLD;
-    } else {
-        WS_ASSERT(false);
-        return DNS_TYPE_OS_DEFAULT;
+    for (const auto &e : EnumInfo<E>::table) {
+        if (s == QLatin1String(e.str))
+            return e.value;
     }
+    WS_ASSERT(false);
+    return EnumInfo<E>::kDefaultString;
 }
 
-QString DNS_POLICY_TYPE_toString(DNS_POLICY_TYPE d)
+template <typename E>
+QString enumToString(E value)
 {
-    if (d == DNS_TYPE_OS_DEFAULT) {
-        return QObject::tr("OS Default");
-    } else if (d == DNS_TYPE_OPEN_DNS) {
-        return "OpenDNS";
-    } else if (d == DNS_TYPE_CLOUDFLARE) {
-        return "Cloudflare";
-    } else if (d == DNS_TYPE_GOOGLE) {
-        return "Google";
-    } else if (d == DNS_TYPE_CONTROLD) {
-        return "Control D";
-    } else {
-        WS_ASSERT(false);
-        return QObject::tr("UNKNOWN");
+    for (const auto &e : EnumInfo<E>::table) {
+        if (e.value == value)
+            return e.translate ? QObject::tr(e.str) : QString::fromLatin1(e.str);
     }
+    WS_ASSERT(false);
+    return EnumInfo<E>::kFallbackTranslate ? QObject::tr(EnumInfo<E>::kFallback)
+                                           : QString::fromLatin1(EnumInfo<E>::kFallback);
 }
 
-PROXY_SHARING_TYPE PROXY_SHARING_TYPE_fromInt(int t)
-{
-    if (t == 0) return PROXY_SHARING_HTTP;
-    else if (t == 1) return PROXY_SHARING_SOCKS;
-    else {
-        return PROXY_SHARING_HTTP;
-    }
-}
-
-PROXY_SHARING_TYPE PROXY_SHARING_TYPE_fromString(const QString &s)
-{
-    if (s == "HTTP") return PROXY_SHARING_HTTP;
-    else if (s == "SOCKS") return PROXY_SHARING_SOCKS;
-    else {
-        WS_ASSERT(false);
-        return PROXY_SHARING_HTTP;
-    }
-}
-
-QString PROXY_SHARING_TYPE_toString(PROXY_SHARING_TYPE t)
-{
-    if (t == PROXY_SHARING_HTTP) return "HTTP";
-    else if (t == PROXY_SHARING_SOCKS) return "SOCKS";
-    else {
-        WS_ASSERT(false);
-        return QObject::tr("UNKNOWN");
-    }
-}
-
-ORDER_LOCATION_TYPE ORDER_LOCATION_TYPE_fromInt(int t)
-{
-    if (t == 0) return ORDER_LOCATION_BY_GEOGRAPHY;
-    else if (t == 1) return ORDER_LOCATION_BY_ALPHABETICALLY;
-    else if (t == 2) return ORDER_LOCATION_BY_LATENCY;
-    else {
-        return ORDER_LOCATION_BY_GEOGRAPHY;
-    }
-}
-
-QString ORDER_LOCATION_TYPE_toString(ORDER_LOCATION_TYPE p)
-{
-    if (p == ORDER_LOCATION_BY_GEOGRAPHY) return QObject::tr("Geography");
-    else if (p == ORDER_LOCATION_BY_ALPHABETICALLY) return QObject::tr("Alphabet");
-    else if (p == ORDER_LOCATION_BY_LATENCY) return QObject::tr("Latency");
-    else {
-        WS_ASSERT(false);
-        return QObject::tr("UNKNOWN");
-    }
-}
-
-BACKGROUND_TYPE BACKGROUND_TYPE_fromInt(int t)
-{
-    if (t == 0) return BACKGROUND_TYPE_NONE;
-    else if (t == 1) return BACKGROUND_TYPE_COUNTRY_FLAGS;
-    else if (t == 2) return BACKGROUND_TYPE_CUSTOM;
-    else if (t == 3) return BACKGROUND_TYPE_BUNDLED;
-    else {
-        return BACKGROUND_TYPE_NONE;
-    }
-}
-
-SOUND_NOTIFICATION_TYPE SOUND_NOTIFICATION_TYPE_fromInt(int t)
-{
-    if (t == 0) return SOUND_NOTIFICATION_TYPE_NONE;
-    else if (t == 1) return SOUND_NOTIFICATION_TYPE_BUNDLED;
-    else if (t == 2) return SOUND_NOTIFICATION_TYPE_CUSTOM;
-    else {
-        return SOUND_NOTIFICATION_TYPE_NONE;
-    }
-}
-
-QString TAP_ADAPTER_TYPE_toString(TAP_ADAPTER_TYPE t)
-{
-    if (t == DCO_ADAPTER) return "DCO";
-    else if (t == TAP_ADAPTER) return "TAP";
-    else {
-        WS_ASSERT(false);
-        return QObject::tr("UNKNOWN");
-    }
-}
-
-FIREWALL_MODE FIREWALL_MODE_fromInt(int t)
-{
-    if (t == 0) return FIREWALL_MODE_MANUAL;
-    else if (t == 1) return FIREWALL_MODE_AUTOMATIC;
-    else if (t == 2) return FIREWALL_MODE_ALWAYS_ON;
-    else if (t == 3) return FIREWALL_MODE_ALWAYS_ON_PLUS;
-    else {
-        return FIREWALL_MODE_AUTOMATIC;
-    }
-
-}
-
-FIREWALL_MODE FIREWALL_MODE_fromString(const QString &s)
-{
-    if (s == "Manual") return FIREWALL_MODE_MANUAL;
-    else if (s == "Auto") return FIREWALL_MODE_AUTOMATIC;
-    else if (s == "Always On") return FIREWALL_MODE_ALWAYS_ON;
-    else if (s == "Always On+") return FIREWALL_MODE_ALWAYS_ON_PLUS;
-    else {
-        WS_ASSERT(false);
-        return FIREWALL_MODE_AUTOMATIC;
-    }
-}
-
-QString FIREWALL_MODE_toString(FIREWALL_MODE t)
-{
-    if (t == FIREWALL_MODE_MANUAL) return QObject::tr("Manual");
-    else if (t == FIREWALL_MODE_AUTOMATIC) return QObject::tr("Auto");
-    else if (t == FIREWALL_MODE_ALWAYS_ON) return QObject::tr("Always On");
-    else if (t == FIREWALL_MODE_ALWAYS_ON_PLUS) return QObject::tr("Always On+");
-    else {
-        WS_ASSERT(false);
-        return QObject::tr("UNKNOWN");
-    }
-}
-
-QList<QPair<QString, QVariant>> FIREWALL_MODE_toList()
+template <typename E>
+QList<QPair<QString, QVariant>> enumToList()
 {
     QList<QPair<QString, QVariant>> l;
-    l << qMakePair(FIREWALL_MODE_toString(FIREWALL_MODE_MANUAL), FIREWALL_MODE_MANUAL);
-    l << qMakePair(FIREWALL_MODE_toString(FIREWALL_MODE_AUTOMATIC), FIREWALL_MODE_AUTOMATIC);
-    l << qMakePair(FIREWALL_MODE_toString(FIREWALL_MODE_ALWAYS_ON), FIREWALL_MODE_ALWAYS_ON);
-    l << qMakePair(FIREWALL_MODE_toString(FIREWALL_MODE_ALWAYS_ON_PLUS), FIREWALL_MODE_ALWAYS_ON_PLUS);
+    for (const auto &e : EnumInfo<E>::table)
+        l.append(qMakePair(enumToString<E>(e.value), QVariant(static_cast<int>(e.value))));
     return l;
 }
 
-FIREWALL_WHEN FIREWALL_WHEN_fromInt(int t)
-{
-    if (t == 0) return FIREWALL_WHEN_BEFORE_CONNECTION;
-    else if (t == 1) return FIREWALL_WHEN_AFTER_CONNECTION;
-    else {
-        return FIREWALL_WHEN_BEFORE_CONNECTION;
-    }
-}
 
-FIREWALL_WHEN FIREWALL_WHEN_fromString(const QString &s)
-{
-    if (s == "Before Connection") return FIREWALL_WHEN_BEFORE_CONNECTION;
-    else if (s == "After Connection") return FIREWALL_WHEN_AFTER_CONNECTION;
-    else {
-        WS_ASSERT(false);
-        return FIREWALL_WHEN_BEFORE_CONNECTION;
-    }
-}
-
-QString FIREWALL_WHEN_toString(FIREWALL_WHEN t)
-{
-    if (t == FIREWALL_WHEN_BEFORE_CONNECTION) return QObject::tr("Before Connection");
-    else if (t == FIREWALL_WHEN_AFTER_CONNECTION) return QObject::tr("After Connection");
-    else {
-        WS_ASSERT(false);
-        return QObject::tr("UNKNOWN");
-    }
-}
-
-NETWORK_INTERFACE_TYPE NETWORK_INTERFACE_TYPE_fromInt(int t)
-{
-    if (t == 0) return NETWORK_INTERFACE_NONE;
-    else if (t == 1) return NETWORK_INTERFACE_ETH;
-    else if (t == 2) return NETWORK_INTERFACE_WIFI;
-    else if (t == 3) return NETWORK_INTERFACE_PPP;
-    else {
-        return NETWORK_INTERFACE_NONE;
-    }
-}
-
-NETWORK_TRUST_TYPE NETWORK_TRUST_TYPE_fromInt(int t)
-{
-    if (t == 0) return NETWORK_TRUST_SECURED;
-    else if (t == 1) return NETWORK_TRUST_UNSECURED;
-    else {
-        // NETWORK_TRUST_FORGET is a transitory state and should never be here
-        return NETWORK_TRUST_SECURED;
-    }
-}
-
-NETWORK_TRUST_TYPE NETWORK_TRUST_TYPE_fromString(const QString &s)
-{
-    if (s == "Secured") return NETWORK_TRUST_SECURED;
-    else if (s == "Unsecured") return NETWORK_TRUST_UNSECURED;
-    else {
-        // NETWORK_TRUST_FORGET is a transitory state and should never be here
-        WS_ASSERT(false);
-        return NETWORK_TRUST_SECURED;
-    }
-}
-
-QString NETWORK_TRUST_TYPE_toString(NETWORK_TRUST_TYPE t)
-{
-    if (t == NETWORK_TRUST_SECURED) return "Secured";
-    else if (t == NETWORK_TRUST_UNSECURED) return "Unsecured";
-    else {
-        // NETWORK_TRUST_FORGET is a transitory state and should never be here
-        WS_ASSERT(false);
-        return "Secured";
-    }
-}
-
-QList<QPair<QString, QVariant>> FIREWALL_WHEN_toList()
-{
-    QList<QPair<QString, QVariant>> l;
-    l << qMakePair(FIREWALL_WHEN_toString(FIREWALL_WHEN_BEFORE_CONNECTION), FIREWALL_WHEN_BEFORE_CONNECTION);
-    l << qMakePair(FIREWALL_WHEN_toString(FIREWALL_WHEN_AFTER_CONNECTION), FIREWALL_WHEN_AFTER_CONNECTION);
-    return l;
-}
-
-QList<QPair<QString, QVariant>> PROXY_SHARING_TYPE_toList()
-{
-    QList<QPair<QString, QVariant>> l;
-    l << qMakePair(PROXY_SHARING_TYPE_toString(PROXY_SHARING_HTTP), PROXY_SHARING_HTTP);
-    l << qMakePair(PROXY_SHARING_TYPE_toString(PROXY_SHARING_SOCKS), PROXY_SHARING_SOCKS);
-    return l;
-}
-
-PROXY_OPTION PROXY_OPTION_fromInt(int t)
-{
-    if (t == 0) return PROXY_OPTION_NONE;
-    else if (t == 1) return PROXY_OPTION_AUTODETECT;
-    else if (t == 2) return PROXY_OPTION_HTTP;
-    else if (t == 3) return PROXY_OPTION_SOCKS;
-    else {
-        return PROXY_OPTION_NONE;
-    }
-}
-
-PROXY_OPTION PROXY_OPTION_fromString(const QString &s)
-{
-    if (s == "None") return PROXY_OPTION_NONE;
-    else if (s == "Auto-detect") return PROXY_OPTION_AUTODETECT;
-    else if (s == "HTTP") return PROXY_OPTION_HTTP;
-    else if (s == "SOCKS") return PROXY_OPTION_SOCKS;
-    else {
-        WS_ASSERT(false);
-        return PROXY_OPTION_NONE;
-    }
-
-}
-
-QString PROXY_OPTION_toString(PROXY_OPTION t)
-{
-    if (t == PROXY_OPTION_NONE) return QObject::tr("None");
-    else if (t == PROXY_OPTION_AUTODETECT) return QObject::tr("Auto-detect");
-    else if (t == PROXY_OPTION_HTTP) return "HTTP";
-    else if (t == PROXY_OPTION_SOCKS) return "SOCKS";
-    else {
-        WS_ASSERT(false);
-        return QObject::tr("UNKNOWN");
-    }
-}
-
-QList<QPair<QString, QVariant>> PROXY_OPTION_toList()
-{
-    QList<QPair<QString, QVariant>> l;
-    l << qMakePair(PROXY_OPTION_toString(PROXY_OPTION_NONE), PROXY_OPTION_NONE);
-    l << qMakePair(PROXY_OPTION_toString(PROXY_OPTION_AUTODETECT), PROXY_OPTION_AUTODETECT);
-    l << qMakePair(PROXY_OPTION_toString(PROXY_OPTION_HTTP), PROXY_OPTION_HTTP);
-    l << qMakePair(PROXY_OPTION_toString(PROXY_OPTION_SOCKS), PROXY_OPTION_SOCKS);
-    return l;
-}
-
-QList<QPair<QString, QVariant>> DNS_POLICY_TYPE_toList()
-{
-    QList<QPair<QString, QVariant>> l;
-    l << qMakePair(DNS_POLICY_TYPE_toString(DNS_TYPE_OS_DEFAULT), DNS_TYPE_OS_DEFAULT);
-    l << qMakePair(DNS_POLICY_TYPE_toString(DNS_TYPE_OPEN_DNS), DNS_TYPE_OPEN_DNS);
-    l << qMakePair(DNS_POLICY_TYPE_toString(DNS_TYPE_CLOUDFLARE), DNS_TYPE_CLOUDFLARE);
-    l << qMakePair(DNS_POLICY_TYPE_toString(DNS_TYPE_GOOGLE), DNS_TYPE_GOOGLE);
-    l << qMakePair(DNS_POLICY_TYPE_toString(DNS_TYPE_CONTROLD), DNS_TYPE_CONTROLD);
-    return l;
-}
-
-QList<QPair<QString, QVariant>> ORDER_LOCATION_TYPE_toList()
-{
-    QList<QPair<QString, QVariant>> l;
-    l << qMakePair(ORDER_LOCATION_TYPE_toString(ORDER_LOCATION_BY_GEOGRAPHY), ORDER_LOCATION_BY_GEOGRAPHY);
-    l << qMakePair(ORDER_LOCATION_TYPE_toString(ORDER_LOCATION_BY_ALPHABETICALLY), ORDER_LOCATION_BY_ALPHABETICALLY);
-    l << qMakePair(ORDER_LOCATION_TYPE_toString(ORDER_LOCATION_BY_LATENCY), ORDER_LOCATION_BY_LATENCY);
-    return l;
-
-}
-
-UPDATE_CHANNEL UPDATE_CHANNEL_fromInt(int t)
-{
-    if (t == 0) return UPDATE_CHANNEL_RELEASE;
-    else if (t == 1) return UPDATE_CHANNEL_BETA;
-    else if (t == 2) return UPDATE_CHANNEL_GUINEA_PIG;
-    else if (t == 3) return UPDATE_CHANNEL_INTERNAL;
-    else {
-        return UPDATE_CHANNEL_RELEASE;
-    }
-}
-
-QString UPDATE_CHANNEL_toString(UPDATE_CHANNEL t)
-{
-    if (t == UPDATE_CHANNEL_RELEASE) return QObject::tr("Release");
-    else if (t == UPDATE_CHANNEL_BETA) return QObject::tr("Beta");
-    else if (t == UPDATE_CHANNEL_GUINEA_PIG) return QObject::tr("Guinea Pig");
-    else if (t == UPDATE_CHANNEL_INTERNAL) return QObject::tr("Internal");
-    else {
-        WS_ASSERT(false);
-        return QObject::tr("UNKNOWN");
-    }
-}
-
-UPDATE_CHANNEL UPDATE_CHANNEL_fromString(const QString &s)
-{
-    if (s == "Release") return UPDATE_CHANNEL_RELEASE;
-    else if (s == "Beta") return UPDATE_CHANNEL_BETA;
-    else if (s == "Guinea Pig") return UPDATE_CHANNEL_GUINEA_PIG;
-    else if (s == "Internal") return UPDATE_CHANNEL_INTERNAL;
-    else {
-        WS_ASSERT(false);
-        return UPDATE_CHANNEL_RELEASE;
-    }
-}
-
-QList<QPair<QString, QVariant>> UPDATE_CHANNEL_toList()
-{
-    QList<QPair<QString, QVariant>> l;
-    l << qMakePair(UPDATE_CHANNEL_toString(UPDATE_CHANNEL_RELEASE), UPDATE_CHANNEL_RELEASE);
-    l << qMakePair(UPDATE_CHANNEL_toString(UPDATE_CHANNEL_BETA), UPDATE_CHANNEL_BETA);
-    l << qMakePair(UPDATE_CHANNEL_toString(UPDATE_CHANNEL_GUINEA_PIG), UPDATE_CHANNEL_GUINEA_PIG);
-    l << qMakePair(UPDATE_CHANNEL_toString(UPDATE_CHANNEL_INTERNAL), UPDATE_CHANNEL_INTERNAL);
-    return l;
-}
-
-DNS_MANAGER_TYPE DNS_MANAGER_TYPE_fromInt(int t)
-{
-    if (t == 0) return DNS_MANAGER_AUTOMATIC;
-    else if (t == 1) return DNS_MANAGER_RESOLV_CONF;
-    else if (t == 2) return DNS_MANAGER_SYSTEMD_RESOLVED;
-    else if (t == 3) return DNS_MANAGER_NETWORK_MANAGER;
-    else {
-        return DNS_MANAGER_AUTOMATIC;
-    }
-}
-
-QString DNS_MANAGER_TYPE_toString(DNS_MANAGER_TYPE t)
-{
-    if (t == DNS_MANAGER_AUTOMATIC) return QObject::tr("Auto");
-    else if (t == DNS_MANAGER_RESOLV_CONF) return "resolvconf";
-    else if (t == DNS_MANAGER_SYSTEMD_RESOLVED) return "systemd-resolved";
-    else if (t == DNS_MANAGER_NETWORK_MANAGER) return "NetworkManager";
-    else {
-        WS_ASSERT(false);
-        return QObject::tr("UNKNOWN");
-    }
-}
-
-DNS_MANAGER_TYPE DNS_MANAGER_TYPE_fromString(const QString &s)
-{
-    if (s == "Auto") return DNS_MANAGER_AUTOMATIC;
-    else if (s == "resolvconf") return DNS_MANAGER_RESOLV_CONF;
-    else if (s == "systemd-resolved") return DNS_MANAGER_SYSTEMD_RESOLVED;
-    else if (s == "NetworkManager") return DNS_MANAGER_NETWORK_MANAGER;
-    else {
-        WS_ASSERT(false);
-        return DNS_MANAGER_AUTOMATIC;
-    }
-}
-
-QList<QPair<QString, QVariant>> DNS_MANAGER_TYPE_toList()
-{
-    QList<QPair<QString, QVariant>> l;
-    l << qMakePair(DNS_MANAGER_TYPE_toString(DNS_MANAGER_AUTOMATIC), DNS_MANAGER_AUTOMATIC);
-    l << qMakePair(DNS_MANAGER_TYPE_toString(DNS_MANAGER_RESOLV_CONF), DNS_MANAGER_RESOLV_CONF);
-    l << qMakePair(DNS_MANAGER_TYPE_toString(DNS_MANAGER_SYSTEMD_RESOLVED), DNS_MANAGER_SYSTEMD_RESOLVED);
-    l << qMakePair(DNS_MANAGER_TYPE_toString(DNS_MANAGER_NETWORK_MANAGER), DNS_MANAGER_NETWORK_MANAGER);
-    return l;
-
-}
-
-CONNECTED_DNS_TYPE CONNECTED_DNS_TYPE_fromInt(int t)
-{
-    if (t == 0) return CONNECTED_DNS_TYPE_AUTO;
-    else if (t == 1) return CONNECTED_DNS_TYPE_CUSTOM;
-    else if (t == 2) return CONNECTED_DNS_TYPE_FORCED;
-    else if (t == 3) return CONNECTED_DNS_TYPE_LOCAL;
-    else if (t == 4) return CONNECTED_DNS_TYPE_CONTROLD;
-    else {
-        return CONNECTED_DNS_TYPE_AUTO;
-    }
-}
-
-QString CONNECTED_DNS_TYPE_toString(CONNECTED_DNS_TYPE t)
-{
-    if (t == CONNECTED_DNS_TYPE_AUTO) {
-        return QObject::tr("Auto");
-    }
-    else if (t == CONNECTED_DNS_TYPE_CUSTOM) {
-        return QObject::tr("Custom");
-    }
-    else if (t == CONNECTED_DNS_TYPE_FORCED) {
-        return QObject::tr("Forced");
-    }
-    else if (t == CONNECTED_DNS_TYPE_LOCAL) {
-        return QObject::tr("Local DNS");
-    }
-    else if (t == CONNECTED_DNS_TYPE_CONTROLD) {
-        return "Control D";
-    }
-    else {
-        WS_ASSERT(false);
-        return QObject::tr("UNKNOWN");
-    }
-}
-
-CONNECTED_DNS_TYPE CONNECTED_DNS_TYPE_fromString(const QString &s)
-{
-    if (s == "Auto") {
-        return CONNECTED_DNS_TYPE_AUTO;
-    }
-    else if (s == "Custom") {
-        return CONNECTED_DNS_TYPE_CUSTOM;
-    }
-    else if (s == "Forced") {
-        return CONNECTED_DNS_TYPE_FORCED;
-    }
-    else if (s == "Local DNS") {
-        return CONNECTED_DNS_TYPE_LOCAL;
-    }
-    else if (s == "Control D") {
-        return CONNECTED_DNS_TYPE_CONTROLD;
-    }
-    else {
-        WS_ASSERT(false);
-        return CONNECTED_DNS_TYPE_AUTO;
-    }
-}
-
-SPLIT_TUNNELING_MODE SPLIT_TUNNELING_MODE_fromInt(int t)
-{
-    if (t == 0) return SPLIT_TUNNELING_MODE_EXCLUDE;
-    else if (t == 1) return SPLIT_TUNNELING_MODE_INCLUDE;
-    else {
-        return SPLIT_TUNNELING_MODE_EXCLUDE;
-    }
-}
-
-SPLIT_TUNNELING_MODE SPLIT_TUNNELING_MODE_fromString(const QString &s)
-{
-    if (s == "Exclude") {
-        return SPLIT_TUNNELING_MODE_EXCLUDE;
-    }
-    else if (s == "Include") {
-        return SPLIT_TUNNELING_MODE_INCLUDE;
-    }
-    else {
-        WS_ASSERT(false);
-        return SPLIT_TUNNELING_MODE_EXCLUDE;
-    }
-}
-
-QString SPLIT_TUNNELING_MODE_toString(SPLIT_TUNNELING_MODE t)
-{
-    if (t == SPLIT_TUNNELING_MODE_EXCLUDE) {
-        return QObject::tr("Exclude");
-    }
-    else if (t == SPLIT_TUNNELING_MODE_INCLUDE) {
-        return QObject::tr("Include");
-    }
-    else {
-        WS_ASSERT(false);
-        return QObject::tr("UNKNOWN");
-    }
-}
-
-SPLIT_TUNNELING_NETWORK_ROUTE_TYPE SPLIT_TUNNELING_NETWORK_ROUTE_TYPE_fromInt(int t)
-{
-    if (t == 0) return SPLIT_TUNNELING_NETWORK_ROUTE_TYPE_IP;
-    else if (t == 1) return SPLIT_TUNNELING_NETWORK_ROUTE_TYPE_HOSTNAME;
-    else {
-        return SPLIT_TUNNELING_NETWORK_ROUTE_TYPE_IP;
-    }
-}
-
-SPLIT_TUNNELING_APP_TYPE SPLIT_TUNNELING_APP_TYPE_fromInt(int t)
-{
-    if (t == 0) return SPLIT_TUNNELING_APP_TYPE_USER;
-    else if (t == 1) return SPLIT_TUNNELING_APP_TYPE_SYSTEM;
-    else {
-        return SPLIT_TUNNELING_APP_TYPE_USER;
-    }
-}
-
-APP_SKIN APP_SKIN_fromInt(int t)
-{
-    if (t == 0) return APP_SKIN_ALPHA;
-    else if (t == 1) return APP_SKIN_VAN_GOGH;
-    else {
-        return APP_SKIN_ALPHA;
-    }
-}
-
-QList<QPair<QString, QVariant>> APP_SKIN_toList()
-{
-    QList<QPair<QString, QVariant>> l;
-    l << qMakePair(APP_SKIN_toString(APP_SKIN_ALPHA), APP_SKIN_ALPHA);
-    l << qMakePair(APP_SKIN_toString(APP_SKIN_VAN_GOGH), APP_SKIN_VAN_GOGH);
-    return l;
-}
-
-QString APP_SKIN_toString(APP_SKIN s)
-{
-    if (s == APP_SKIN_ALPHA) {
-        return QObject::tr("Alpha");
-    }
-    else if (s == APP_SKIN_VAN_GOGH) {
-        return QObject::tr("Van Gogh");
-    }
-    else {
-        WS_ASSERT(false);
-        return QObject::tr("UNKNOWN");
-    }
-}
-
+// TRAY_ICON_COLOR is platform-dependent (default value, available options and OS-theme handling all
+// differ per OS), so it keeps its hand-written implementation rather than using the generic tables.
 TRAY_ICON_COLOR TRAY_ICON_COLOR_default()
 {
 #if defined(Q_OS_MACOS) || defined(Q_OS_WIN)
@@ -635,200 +475,93 @@ QList<QPair<QString, QVariant>> TRAY_ICON_COLOR_toList()
     return l;
 }
 
-TOGGLE_MODE TOGGLE_MODE_fromString(const QString &s)
-{
-    if (s == "Auto") {
-        return TOGGLE_MODE_AUTO;
-    } else if (s == "Manual") {
-       return TOGGLE_MODE_MANUAL;
-    } else {
-        WS_ASSERT(false);
-        return TOGGLE_MODE_AUTO;
-    }
-}
 
-QString TOGGLE_MODE_toString(TOGGLE_MODE t)
-{
-    if (t == TOGGLE_MODE_AUTO) {
-        return "Auto";
-    } else if (t == TOGGLE_MODE_MANUAL) {
-        return "Manual";
-    } else {
-         WS_ASSERT(false);
-        return "Auto";
-    }
-}
+// Explicit instantiations: exactly the enum/operation combinations used across the codebase.
+template DNS_POLICY_TYPE enumFromInt<DNS_POLICY_TYPE>(int);
+template DNS_POLICY_TYPE enumFromString<DNS_POLICY_TYPE>(const QString &);
+template QString enumToString<DNS_POLICY_TYPE>(DNS_POLICY_TYPE);
+template QList<QPair<QString, QVariant>> enumToList<DNS_POLICY_TYPE>();
 
-MULTI_DESKTOP_BEHAVIOR MULTI_DESKTOP_BEHAVIOR_fromInt(int t)
-{
-    if (t == 0) return MULTI_DESKTOP_AUTO;
-    else if (t == 1) return MULTI_DESKTOP_DUPLICATE;
-    else if (t == 2) return MULTI_DESKTOP_MOVE_SPACES;
-    else if (t == 3) return MULTI_DESKTOP_MOVE_WINDOW;
-    else {
-        return MULTI_DESKTOP_AUTO;
-    }
-}
+template CONNECTED_DNS_TYPE enumFromInt<CONNECTED_DNS_TYPE>(int);
+template CONNECTED_DNS_TYPE enumFromString<CONNECTED_DNS_TYPE>(const QString &);
+template QString enumToString<CONNECTED_DNS_TYPE>(CONNECTED_DNS_TYPE);
 
-QString MULTI_DESKTOP_BEHAVIOR_toString(MULTI_DESKTOP_BEHAVIOR m)
-{
-    if (m == MULTI_DESKTOP_AUTO) {
-        return QObject::tr("Auto");
-    } else if (m == MULTI_DESKTOP_DUPLICATE) {
-        return QObject::tr("Duplicate");
-    } else if (m == MULTI_DESKTOP_MOVE_SPACES) {
-        return QObject::tr("Move spaces");
-    } else if (m == MULTI_DESKTOP_MOVE_WINDOW) {
-        return QObject::tr("Move window");
-    } else {
-        WS_ASSERT(false);
-        return QObject::tr("Auto");
-    }
-}
+template SPLIT_TUNNELING_MODE enumFromInt<SPLIT_TUNNELING_MODE>(int);
+template SPLIT_TUNNELING_MODE enumFromString<SPLIT_TUNNELING_MODE>(const QString &);
+template QString enumToString<SPLIT_TUNNELING_MODE>(SPLIT_TUNNELING_MODE);
 
-QList<QPair<QString, QVariant>> MULTI_DESKTOP_BEHAVIOR_toList()
-{
-    QList<QPair<QString, QVariant>> l;
-    l << qMakePair(MULTI_DESKTOP_BEHAVIOR_toString(MULTI_DESKTOP_AUTO), MULTI_DESKTOP_AUTO);
-    l << qMakePair(MULTI_DESKTOP_BEHAVIOR_toString(MULTI_DESKTOP_DUPLICATE), MULTI_DESKTOP_DUPLICATE);
-    l << qMakePair(MULTI_DESKTOP_BEHAVIOR_toString(MULTI_DESKTOP_MOVE_SPACES), MULTI_DESKTOP_MOVE_SPACES);
-    l << qMakePair(MULTI_DESKTOP_BEHAVIOR_toString(MULTI_DESKTOP_MOVE_WINDOW), MULTI_DESKTOP_MOVE_WINDOW);
-    return l;
-}
+template SPLIT_TUNNELING_NETWORK_ROUTE_TYPE enumFromInt<SPLIT_TUNNELING_NETWORK_ROUTE_TYPE>(int);
+template SPLIT_TUNNELING_APP_TYPE enumFromInt<SPLIT_TUNNELING_APP_TYPE>(int);
 
-ASPECT_RATIO_MODE ASPECT_RATIO_MODE_fromInt(int t)
-{
-    if (t == 0) return ASPECT_RATIO_MODE_STRETCH;
-    else if (t == 1) return ASPECT_RATIO_MODE_FILL;
-    else if (t == 2) return ASPECT_RATIO_MODE_TILE;
-    else {
-        return ASPECT_RATIO_MODE_STRETCH;
-    }
-}
+template PROXY_SHARING_TYPE enumFromInt<PROXY_SHARING_TYPE>(int);
+template PROXY_SHARING_TYPE enumFromString<PROXY_SHARING_TYPE>(const QString &);
+template QString enumToString<PROXY_SHARING_TYPE>(PROXY_SHARING_TYPE);
+template QList<QPair<QString, QVariant>> enumToList<PROXY_SHARING_TYPE>();
 
-QString ASPECT_RATIO_MODE_toString(ASPECT_RATIO_MODE t)
-{
-    if (t == ASPECT_RATIO_MODE_STRETCH) {
-        return QObject::tr("Stretch");
-    } else if (t == ASPECT_RATIO_MODE_FILL) {
-        return QObject::tr("Fill");
-    } else if (t == ASPECT_RATIO_MODE_TILE) {
-        return QObject::tr("Tile");
-    } else {
-        WS_ASSERT(false);
-        return QObject::tr("UNKNOWN");
-    }
-}
+template ORDER_LOCATION_TYPE enumFromInt<ORDER_LOCATION_TYPE>(int);
+template QString enumToString<ORDER_LOCATION_TYPE>(ORDER_LOCATION_TYPE);
+template QList<QPair<QString, QVariant>> enumToList<ORDER_LOCATION_TYPE>();
 
-QList<QPair<QString, QVariant>> ASPECT_RATIO_MODE_toList()
-{
-    QList<QPair<QString, QVariant>> l;
-    l << qMakePair(ASPECT_RATIO_MODE_toString(ASPECT_RATIO_MODE_STRETCH), ASPECT_RATIO_MODE_STRETCH);
-    l << qMakePair(ASPECT_RATIO_MODE_toString(ASPECT_RATIO_MODE_FILL), ASPECT_RATIO_MODE_FILL);
-    l << qMakePair(ASPECT_RATIO_MODE_toString(ASPECT_RATIO_MODE_TILE), ASPECT_RATIO_MODE_TILE);
-    return l;
-}
+template SERVER_ROUTING_METHOD_TYPE enumFromInt<SERVER_ROUTING_METHOD_TYPE>(int);
+template QString enumToString<SERVER_ROUTING_METHOD_TYPE>(SERVER_ROUTING_METHOD_TYPE);
+template QList<QPair<QString, QVariant>> enumToList<SERVER_ROUTING_METHOD_TYPE>();
 
-QList<QPair<QString, QVariant> > SERVER_ROUTING_METHOD_TYPE_toList()
-{
-    QList<QPair<QString, QVariant>> l;
-    l << qMakePair(SERVER_ROUTING_METHOD_TYPE_toString(SERVER_ROUTING_METHOD_AUTO), SERVER_ROUTING_METHOD_AUTO);
-    l << qMakePair(SERVER_ROUTING_METHOD_TYPE_toString(SERVER_ROUTING_METHOD_REGULAR), SERVER_ROUTING_METHOD_REGULAR);
-    l << qMakePair(SERVER_ROUTING_METHOD_TYPE_toString(SERVER_ROUTING_METHOD_ALTERNATIVE), SERVER_ROUTING_METHOD_ALTERNATIVE);
-    return l;
-}
+template PROTOCOL_TWEAKS_METHOD_TYPE enumFromInt<PROTOCOL_TWEAKS_METHOD_TYPE>(int);
+template QString enumToString<PROTOCOL_TWEAKS_METHOD_TYPE>(PROTOCOL_TWEAKS_METHOD_TYPE);
+template QList<QPair<QString, QVariant>> enumToList<PROTOCOL_TWEAKS_METHOD_TYPE>();
 
-QString SERVER_ROUTING_METHOD_TYPE_toString(SERVER_ROUTING_METHOD_TYPE p)
-{
-    if (p == SERVER_ROUTING_METHOD_AUTO) return QObject::tr("Auto");
-    else if (p == SERVER_ROUTING_METHOD_REGULAR) return QObject::tr("Regular");
-    else if (p == SERVER_ROUTING_METHOD_ALTERNATIVE) return QObject::tr("Alternate");
-    else {
-        WS_ASSERT(false);
-        return QObject::tr("UNKNOWN");
-    }
-}
+template BACKGROUND_TYPE enumFromInt<BACKGROUND_TYPE>(int);
+template SOUND_NOTIFICATION_TYPE enumFromInt<SOUND_NOTIFICATION_TYPE>(int);
 
-SERVER_ROUTING_METHOD_TYPE SERVER_ROUTING_METHOD_TYPE_fromInt(int t)
-{
-    if (t == 0) return SERVER_ROUTING_METHOD_AUTO;
-    else if (t == 1) return SERVER_ROUTING_METHOD_REGULAR;
-    else if (t == 2) return SERVER_ROUTING_METHOD_ALTERNATIVE;
-    else {
-        return SERVER_ROUTING_METHOD_AUTO;
-    }
-}
+template QString enumToString<TAP_ADAPTER_TYPE>(TAP_ADAPTER_TYPE);
 
-IpStack ipStackFromInt(int t)
-{
-    switch (t) {
-        case 0:
-            return IpStack::kAuto;
-        case 1:
-            return IpStack::kIPv4Only;
-        default:
-            WS_ASSERT(false);
-            return IpStack::kAuto;
-    }
-}
+template FIREWALL_MODE enumFromInt<FIREWALL_MODE>(int);
+template FIREWALL_MODE enumFromString<FIREWALL_MODE>(const QString &);
+template QString enumToString<FIREWALL_MODE>(FIREWALL_MODE);
+template QList<QPair<QString, QVariant>> enumToList<FIREWALL_MODE>();
 
-IpStack ipStackFromString(const QString &s)
-{
-    if (s == "Auto") return IpStack::kAuto;
-    else if (s == "IPv4 Only") return IpStack::kIPv4Only;
-    else {
-        WS_ASSERT(false);
-        return IpStack::kAuto;
-    }
-}
+template FIREWALL_WHEN enumFromInt<FIREWALL_WHEN>(int);
+template FIREWALL_WHEN enumFromString<FIREWALL_WHEN>(const QString &);
+template QString enumToString<FIREWALL_WHEN>(FIREWALL_WHEN);
+template QList<QPair<QString, QVariant>> enumToList<FIREWALL_WHEN>();
 
-QString ipStackToString(IpStack s)
-{
-    switch (s) {
-        case IpStack::kAuto:
-            return QObject::tr("Auto");
-        case IpStack::kIPv4Only:
-            return QObject::tr("IPv4 Only");
-        default:
-            WS_ASSERT(false);
-            return QObject::tr("UNKNOWN");
-    }
-}
+template NETWORK_INTERFACE_TYPE enumFromInt<NETWORK_INTERFACE_TYPE>(int);
 
-QList<QPair<QString, QVariant> > ipStackToList()
-{
-    QList<QPair<QString, QVariant>> l;
-    l << qMakePair(ipStackToString(IpStack::kAuto), (int)IpStack::kAuto);
-    l << qMakePair(ipStackToString(IpStack::kIPv4Only), (int)IpStack::kIPv4Only);
-    return l;
-}
+template NETWORK_TRUST_TYPE enumFromInt<NETWORK_TRUST_TYPE>(int);
+template NETWORK_TRUST_TYPE enumFromString<NETWORK_TRUST_TYPE>(const QString &);
+template QString enumToString<NETWORK_TRUST_TYPE>(NETWORK_TRUST_TYPE);
 
-QList<QPair<QString, QVariant> > PROTOCOL_TWEAKS_METHOD_TYPE_toList()
-{
-    QList<QPair<QString, QVariant>> l;
-    l << qMakePair(PROTOCOL_TWEAKS_METHOD_TYPE_toString(PROTOCOL_TWEAKS_METHOD_AUTO), PROTOCOL_TWEAKS_METHOD_AUTO);
-    l << qMakePair(PROTOCOL_TWEAKS_METHOD_TYPE_toString(PROTOCOL_TWEAKS_METHOD_ENABLED), PROTOCOL_TWEAKS_METHOD_ENABLED);
-    l << qMakePair(PROTOCOL_TWEAKS_METHOD_TYPE_toString(PROTOCOL_TWEAKS_METHOD_DISABLED), PROTOCOL_TWEAKS_METHOD_DISABLED);
-    return l;
-}
+template PROXY_OPTION enumFromInt<PROXY_OPTION>(int);
+template PROXY_OPTION enumFromString<PROXY_OPTION>(const QString &);
+template QString enumToString<PROXY_OPTION>(PROXY_OPTION);
+template QList<QPair<QString, QVariant>> enumToList<PROXY_OPTION>();
 
-QString PROTOCOL_TWEAKS_METHOD_TYPE_toString(PROTOCOL_TWEAKS_METHOD_TYPE p)
-{
-    if (p == PROTOCOL_TWEAKS_METHOD_AUTO) return QObject::tr("Auto");
-    else if (p == PROTOCOL_TWEAKS_METHOD_ENABLED) return QObject::tr("Enabled");
-    else if (p == PROTOCOL_TWEAKS_METHOD_DISABLED) return QObject::tr("Disabled");
-    else {
-        WS_ASSERT(false);
-        return QObject::tr("UNKNOWN");
-    }
-}
+template UPDATE_CHANNEL enumFromInt<UPDATE_CHANNEL>(int);
+template UPDATE_CHANNEL enumFromString<UPDATE_CHANNEL>(const QString &);
+template QString enumToString<UPDATE_CHANNEL>(UPDATE_CHANNEL);
+template QList<QPair<QString, QVariant>> enumToList<UPDATE_CHANNEL>();
 
-PROTOCOL_TWEAKS_METHOD_TYPE PROTOCOL_TWEAKS_METHOD_TYPE_fromInt(int t)
-{
-    if (t == 0) return PROTOCOL_TWEAKS_METHOD_AUTO;
-    else if (t == 1) return PROTOCOL_TWEAKS_METHOD_ENABLED;
-    else if (t == 2) return PROTOCOL_TWEAKS_METHOD_DISABLED;
-    else {
-        return PROTOCOL_TWEAKS_METHOD_AUTO;
-    }
-}
+template DNS_MANAGER_TYPE enumFromInt<DNS_MANAGER_TYPE>(int);
+template DNS_MANAGER_TYPE enumFromString<DNS_MANAGER_TYPE>(const QString &);
+template QString enumToString<DNS_MANAGER_TYPE>(DNS_MANAGER_TYPE);
+template QList<QPair<QString, QVariant>> enumToList<DNS_MANAGER_TYPE>();
+
+template APP_SKIN enumFromInt<APP_SKIN>(int);
+template QString enumToString<APP_SKIN>(APP_SKIN);
+template QList<QPair<QString, QVariant>> enumToList<APP_SKIN>();
+
+template TOGGLE_MODE enumFromString<TOGGLE_MODE>(const QString &);
+template QString enumToString<TOGGLE_MODE>(TOGGLE_MODE);
+
+template MULTI_DESKTOP_BEHAVIOR enumFromInt<MULTI_DESKTOP_BEHAVIOR>(int);
+template QString enumToString<MULTI_DESKTOP_BEHAVIOR>(MULTI_DESKTOP_BEHAVIOR);
+template QList<QPair<QString, QVariant>> enumToList<MULTI_DESKTOP_BEHAVIOR>();
+
+template ASPECT_RATIO_MODE enumFromInt<ASPECT_RATIO_MODE>(int);
+template QString enumToString<ASPECT_RATIO_MODE>(ASPECT_RATIO_MODE);
+template QList<QPair<QString, QVariant>> enumToList<ASPECT_RATIO_MODE>();
+
+template IpStack enumFromInt<IpStack>(int);
+template IpStack enumFromString<IpStack>(const QString &);
+template QString enumToString<IpStack>(IpStack);
+template QList<QPair<QString, QVariant>> enumToList<IpStack>();

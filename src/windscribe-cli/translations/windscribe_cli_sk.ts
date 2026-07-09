@@ -275,10 +275,6 @@
         <translation>Denník bol odoslaný.</translation>
     </message>
     <message>
-        <source>Preferences reloaded.</source>
-        <translation>Nastavenia boli znovu načítané.</translation>
-    </message>
-    <message>
         <source>Key limit behaviour is set.</source>
         <translation>Správanie limitu kľúča je nastavené.</translation>
     </message>

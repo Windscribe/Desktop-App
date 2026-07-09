@@ -117,7 +117,7 @@ set(TS_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/translations/windscribe_cli_zh-CN.ts
     ${CMAKE_CURRENT_SOURCE_DIR}/translations/windscribe_cli_zh-TW.ts
 )
-if (UPDATE_TRANSLATIONS AND NOT DEFINE_QT_CREATOR_DEV_BUILD_MACRO)
+if (UPDATE_TRANSLATIONS)
     qt6_create_translation(QM_FILES ${CMAKE_CURRENT_SOURCE_DIR} ${TS_FILES} OPTIONS -extensions cpp,h -locations none)
 endif()
 
@@ -129,10 +129,6 @@ qt_add_resources(${WS_CLI_TARGET} qm_files
     FILES
         ${QM_FILES}
 )
-
-if(APPLE)
-    set_property(TARGET ${WS_CLI_TARGET} APPEND_STRING PROPERTY COMPILE_FLAGS "-fobjc-arc")
-endif()
 
 target_link_libraries(${WS_CLI_TARGET}
                       PRIVATE

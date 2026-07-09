@@ -41,7 +41,6 @@ SleepEvents_mac::SleepEvents_mac(QObject *parent) : ISleepEvents(parent)
 
 SleepEvents_mac::~SleepEvents_mac()
 {
-    [g_MacSleepEvents release];
     g_MacSleepEvents = nil;
     g_SleepEvents = NULL;
 }

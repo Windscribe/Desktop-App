@@ -638,10 +638,6 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
         <translation>시작하지 못했습니다.</translation>
     </message>
     <message>
-        <source>Trying Backup Endpoints %1/%2</source>
-        <translation>백업 엔드포인트 %1/%2 시도 중</translation>
-    </message>
-    <message>
         <source>SSL Error</source>
         <translation>SSL 오류</translation>
     </message>
@@ -668,6 +664,10 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
     <message>
         <source>Later</source>
         <translation>나중에</translation>
+    </message>
+    <message>
+        <source>Trying Backup Endpoints...</source>
+        <translation>백업 엔드포인트를 시도 중...</translation>
     </message>
     <message>
         <source>SSL requests may be intercepted on your network. Ignoring SSL errors disables TLS certificate validation for this session: anyone able to intercept your traffic can then impersonate Windscribe and read or alter your data, and we can&apos;t guarantee your security while it&apos;s on. Ignore SSL errors?</source>
@@ -828,10 +828,6 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>You have reached your limit of WireGuard public keys. Do you want to delete your oldest key?</source>
         <translation>WireGuard 공개 키의 한도에 도달했습니다. 가장 오래된 키를 삭제할까요?</translation>
-    </message>
-    <message>
-        <source>Error Starting Service</source>
-        <translation>서비스 시작 중 오류 발생</translation>
     </message>
     <message>
         <source>The split tunneling feature could not be started, and has been disabled in Preferences.</source>
@@ -1427,10 +1423,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>자동 연결</translation>
     </message>
     <message>
-        <source>Control the mode of behaviour of the Windscribe firewall.</source>
-        <translation>Windscribe 방화벽의 동작 모드를 제어합니다.</translation>
-    </message>
-    <message>
         <source>Connection Mode</source>
         <translation>연결 모드</translation>
     </message>
@@ -1463,6 +1455,10 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>TV, 게임 콘솔 또는 프록시 서버를 지원하는 기타 장치를 구성합니다.</translation>
     </message>
     <message>
+        <source>The firewall is in an Always On mode. Allowing LAN traffic can leak your DNS and other traffic to your local network while you are disconnected. Are you sure you want to enable it?</source>
+        <translation>방화벽은 항상 켜져 있습니다. LAN 트래픽을 허용하면 연결이 끊긴 상태에서 DNS나 다른 트래픽이 로컬 네트워크로 유출될 수 있습니다. 정말 활성화하고 싶은 건가요?</translation>
+    </message>
+    <message>
         <source>Settings Conflict</source>
         <translation>설정 충돌</translation>
     </message>
@@ -1493,6 +1489,10 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>In this firewall mode, the Windscribe API will not be available while disconnected, this could have unintended consequences. Use at own risk.</source>
         <translation>이 방화벽 모드에서는 연결이 끊어진 동안에는 Windscribe API를 사용할 수 없으므로 의도하지 않은 결과가 발생할 수 있습니다. 자신의 책임하에 사용하십시오.</translation>
+    </message>
+    <message>
+        <source>Control the mode of behaviour of the Windscribe firewall. Always On modes disable Allow LAN Traffic to prevent DNS leaks.</source>
+        <translation>윈드스크라이브 방화벽의 동작 모드를 제어하세요. 항상 켜는 모드는 DNS 유출을 방지하기 위해 LAN 트래픽 허용을 비활성화합니다.</translation>
     </message>
     <message>
         <source>Configure egress IP stack for VPN connections (WireGuard only).</source>
@@ -2081,6 +2081,10 @@ Connect to a network first</source>
 </context>
 <context>
     <name>PreferencesWindow::ProtocolTweaksGroup</name>
+    <message>
+        <source>Custom SNI Domain</source>
+        <translation>사용자 지정 SNI 도메인</translation>
+    </message>
     <message>
         <source>Protocol Tweaks</source>
         <translation>프로토콜 조정</translation>

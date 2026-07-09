@@ -30,7 +30,9 @@ void HostnamesManager::enable(const types::IpAddress &gatewayIp,
         adapterNameV6_ = adapterNameV6;
         ipRoutes_.clear();
         ipRoutes_.setIps(gatewayIp_, gatewayIpV6_, adapterIp_, adapterIpV6_, adapterName_, adapterNameV6_, ipsLatest_);
-        FirewallController::instance().setSplitTunnelIpExceptions(ipsLatest_);
+        // Connect path: setSplitTunnelingEnabled() (and the resolveDomains callback below) apply right
+        // after, so defer to avoid a wasted intermediate transaction.
+        FirewallController::instance().setSplitTunnelIpExceptions(ipsLatest_, /*applyNow=*/false);
         isEnabled_ = true;
     }
 
@@ -50,7 +52,8 @@ void HostnamesManager::disable()
         isEnabled_ = false;
     }
     dnsResolver_.cancelAll();
-    FirewallController::instance().setSplitTunnelIpExceptions(std::vector<types::IpAddressRange>());
+    // Connect path: setSplitTunnelingEnabled() applies right after in setConnectParams, so defer.
+    FirewallController::instance().setSplitTunnelIpExceptions(std::vector<types::IpAddressRange>(), /*applyNow=*/false);
 }
 
 void HostnamesManager::setSettings(const std::vector<types::IpAddressRange> &ips,
@@ -93,6 +96,7 @@ void HostnamesManager::dnsResolverCallback(std::map<std::string, DnsResolver::Ho
 
     if (isEnabled_) {
         ipRoutes_.setIps(gatewayIp_, gatewayIpV6_, adapterIp_, adapterIpV6_, adapterName_, adapterNameV6_, hostsIps);
+        // Async path (not followed by setSplitTunnelingEnabled), so apply now (the default).
         FirewallController::instance().setSplitTunnelIpExceptions(hostsIps);
     }
 }

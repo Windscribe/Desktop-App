@@ -427,13 +427,13 @@ void ConnectedDnsGroup::populateDnsTypes(bool isLocalDnsAvailable)
 
     for (const auto t : types) {
         if (t != CONNECTED_DNS_TYPE_LOCAL) {
-            list << qMakePair(CONNECTED_DNS_TYPE_toString(t), t);
+            list << qMakePair(enumToString(t), t);
         }
     }
 
     // Add Local DNS option if available, or if it's already set to local
     if (isLocalDnsAvailable || settings_.type == CONNECTED_DNS_TYPE_LOCAL) {
-        list << qMakePair(CONNECTED_DNS_TYPE_toString(CONNECTED_DNS_TYPE_LOCAL), CONNECTED_DNS_TYPE_LOCAL);
+        list << qMakePair(enumToString(CONNECTED_DNS_TYPE_LOCAL), CONNECTED_DNS_TYPE_LOCAL);
     }
 
     comboBoxDns_->setItems(list, settings_.type);

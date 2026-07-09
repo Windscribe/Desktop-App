@@ -12,7 +12,9 @@ struct ConnectionSettings
     ConnectionSettings();
     explicit ConnectionSettings(Protocol protocol, uint port, bool isAutomatic);
     ConnectionSettings(const QJsonObject& jsonObject);
+#ifdef CLI_ONLY
     ConnectionSettings(QSettings &settings, const QString &key = "");
+#endif
 
     Protocol protocol() const { return protocol_; }
     uint port() const { return port_; }
@@ -35,8 +37,10 @@ struct ConnectionSettings
     }
 
     QJsonObject toJson(bool isForDebugLog) const;
+#ifdef CLI_ONLY
     void fromIni(QSettings &settings, const QString &key = "");
     void toIni(QSettings &settings, const QString &key = "") const;
+#endif
 
     void validate();
 

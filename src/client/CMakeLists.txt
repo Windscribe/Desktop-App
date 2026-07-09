@@ -30,11 +30,6 @@ if(DEFINE_USE_BUILD_ID_MACRO)
     add_definitions(-DUSE_BUILD_ID="${DEFINE_USE_BUILD_ID_MACRO}")
 endif(DEFINE_USE_BUILD_ID_MACRO)
 
-option(DEFINE_QT_CREATOR_DEV_BUILD_MACRO "Add define QT_CREATOR_DEV_BUILD to project" OFF)
-if(DEFINE_QT_CREATOR_DEV_BUILD_MACRO)
-    add_definitions(-DQT_CREATOR_DEV_BUILD)
-endif(DEFINE_QT_CREATOR_DEV_BUILD_MACRO)
-
 # This is a workaround for https://bugreports.qt.io/browse/QTBUG-89754 / #499
 # Without this flag, on Linux libOpenGL.so.0 will be linked instead of libGL,
 # which causes the application to not start on some distributions where libopengl0 is not
@@ -56,7 +51,6 @@ if (WIN32)
          pdh.lib
          Crypt32.lib
          Version.lib
-         # $<$<NOT:$<CONFIG:Debug>>:../libs/wssecure/wssecure>
     )
 
     configure_file(
@@ -104,7 +98,7 @@ qt_add_executable(${WS_APP_TARGET}
 )
 
 if (WIN32)
-    if (NOT DEFINE_QT_CREATOR_DEV_BUILD_MACRO)
+    if (NOT DEFINED ENV{QTC_RUN})
         foreach(_entry ${WS_BUNDLED_HELPERS})
             string(REPLACE "|" ";" _pair "${_entry}")
             list(GET _pair 0 _src)
@@ -115,7 +109,7 @@ if (WIN32)
     endif()
 elseif (APPLE)
     #postbuild copy commands for Mac
-    if (NOT DEFINE_QT_CREATOR_DEV_BUILD_MACRO)
+    if (NOT DEFINED ENV{QTC_RUN})
         # Ensure launcher is built before client
         add_dependencies(${WS_APP_TARGET} ${WS_MAC_LAUNCHER_TARGET})
         add_dependencies(${WS_APP_TARGET} ${WS_MAC_SPLIT_TUNNEL_BUNDLE_ID})
@@ -187,8 +181,6 @@ endif()
 
 if (WIN32)
     target_link_options(${WS_APP_TARGET} PRIVATE "/IGNORE:4099")
-elseif (APPLE)
-    set_property(TARGET ${WS_APP_TARGET} APPEND_STRING PROPERTY COMPILE_FLAGS "-fobjc-arc")
 endif()
 
 target_link_libraries(${WS_APP_TARGET} PRIVATE ${FRONTEND_TYPE} frontend-common ${WS_CLIENT_EXTRA_LIBS} engine client-common wsnet::wsnet spdlog::spdlog Qt6::Network ${OS_SPECIFIC_LIBRARIES})

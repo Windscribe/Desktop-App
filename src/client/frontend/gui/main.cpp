@@ -1,10 +1,13 @@
 #include "mainwindow.h"
 
 #include <QApplication>
+#include <QElapsedTimer>
+#include <QEventLoop>
 #include <QFileInfo>
 #include <QMessageBox>
 #include <QScreen>
 #include <QSocketNotifier>
+#include <QTimer>
 #include <QWindow>
 
 #include "dpiscalemanager.h"
@@ -22,9 +25,6 @@
     #include "utils/crashhandler.h"
     #include "utils/installedantiviruses_win.h"
     #include "utils/winutils.h"
-#ifndef _DEBUG
-    //#include "../libs/wssecure/wssecure.h"
-#endif
 #elif defined (Q_OS_MACOS)
     #include <sys/socket.h>
     #include <unistd.h>
@@ -64,24 +64,88 @@ void handler_sigterm(int signum)
 }
 #endif
 
+#ifdef Q_OS_MACOS
+constexpr int kDisplaySettleMs = 1000;
+constexpr int kDisplayWaitTimeoutMs = 60000;
+
+// True only when the display configuration is fully realized: the OS reports an active display, Qt
+// has a primary screen, and every QScreen has a live platform handle and real geometry.
+static bool displayConfigurationUsable()
+{
+    if (!MacUtils::hasActiveDisplay()) {
+        return false;
+    }
+    const QList<QScreen *> screens = QGuiApplication::screens();
+    if (screens.isEmpty() || QGuiApplication::primaryScreen() == nullptr) {
+        return false;
+    }
+    for (const QScreen *screen : screens) {
+        if (screen->handle() == nullptr || screen->geometry().isEmpty()) {
+            return false;
+        }
+    }
+    return true;
+}
+
+// When the app is autostarted at login (by the SMLoginItem launcher), the window server is still
+// publishing displays. The first native window we realize ends up deep in
+// QCocoaWindow::createNSWindow, which resolves the window's QCocoaScreen from QGuiApplication::screens();
+// if a display reconfiguration tears those screens down mid-construction (Qt processes the AppKit
+// screen-change events while the backend/engine init pumps the event loop), createNSWindow
+// dereferences a null QCocoaScreen and crashes. The state is transient, so an instantaneous "is there
+// a screen" check is not enough: it can pass and then a teardown can still land during construction.
+// Instead, wait until the configuration is usable AND has been quiescent (no screen add/remove/primary
+// change) for kDisplaySettleMs, i.e. until the login-time reconfiguration storm is over. Only autostart
+// launches pay this wait; a manual launch happens long after the window server has settled, so it takes
+// the instant fast path. Returns false if no stable configuration appears within the backstop window,
+// in which case the caller should exit cleanly rather than crash.
+static bool waitForUsableDisplay(bool launchedOnStartup)
+{
+    if (!launchedOnStartup && displayConfigurationUsable()) {
+        return true;
+    }
+
+    qCInfo(LOG_BASIC) << "Waiting for a stable display configuration before building the UI";
+    QElapsedTimer elapsed;
+    elapsed.start();
+
+    QEventLoop loop;
+
+    QTimer backstop;
+    backstop.setSingleShot(true);
+    QObject::connect(&backstop, &QTimer::timeout, &loop, &QEventLoop::quit);
+
+    QTimer settle;
+    settle.setSingleShot(true);
+    QObject::connect(&settle, &QTimer::timeout, &loop, [&loop]() {
+        if (displayConfigurationUsable()) {
+            loop.quit();
+        }
+    });
+
+    // Any configuration change restarts the quiet period, so we only proceed once the storm subsides.
+    auto onConfigChanged = [&settle](QScreen *) {
+        settle.start(kDisplaySettleMs);
+    };
+    QObject::connect(qApp, &QGuiApplication::screenAdded, &loop, onConfigChanged);
+    QObject::connect(qApp, &QGuiApplication::screenRemoved, &loop, onConfigChanged);
+    QObject::connect(qApp, &QGuiApplication::primaryScreenChanged, &loop, onConfigChanged);
+
+    backstop.start(kDisplayWaitTimeoutMs);
+    settle.start(kDisplaySettleMs);
+    loop.exec();
+
+    if (!displayConfigurationUsable()) {
+        qCWarning(LOG_BASIC) << "No stable display configuration after" << elapsed.elapsed() << "ms; exiting";
+        return false;
+    }
+    qCInfo(LOG_BASIC) << "Display configuration stable after" << elapsed.elapsed() << "ms; continuing startup";
+    return true;
+}
+#endif
+
 int main(int argc, char *argv[])
 {
-#if defined(Q_OS_WIN)
-#ifndef _DEBUG
-    /*
-    // Disabled for now since the mitigation is blocking 'legitimate' DLL injection (e.g. FileZilla Pro's shell extension DLL).
-
-    // We don't load the mitigations DLL in debug builds.
-    std::wstring errorMsg;
-    if (!verifyProcessMitigations(errorMsg)) {
-        qCCritical(LOG_BASIC) << "Process mitigations not enabled:" << QString::fromStdWString(errorMsg);
-        return -1;
-    }
-    qCInfo(LOG_BASIC) << "Process mitigations enabled";
-    */
-#endif
-#endif
-
 #if defined (Q_OS_MACOS) || defined (Q_OS_LINUX)
     if (::socketpair(AF_UNIX, SOCK_STREAM, 0, fds)) {
         qCCritical(LOG_BASIC) << "Could not open signal socket";
@@ -229,7 +293,7 @@ int main(int argc, char *argv[])
     }
 #endif
 
-#if !defined(QT_CREATOR_DEV_BUILD)
+#if !defined(WINDSCRIBE_DEV_MODE)
     if (!QFileInfo::exists(OpenVpnVersionController::instance().getOpenVpnFilePath())) {
         qCCritical(LOG_BASIC) << "OpenVPN executable not found";
         return 0;
@@ -247,6 +311,19 @@ int main(int argc, char *argv[])
     }
 #endif
     a.setStyle("fusion");
+
+#ifdef Q_OS_MACOS
+    // Mirrors the flags MainWindow::wasLaunchedOnStartup() recognizes; checked here without a
+    // QCommandLineParser since MainWindow does not exist yet and process() can exit on unknown args.
+    const QStringList appArgs = a.arguments();
+    const bool launchedOnStartup = appArgs.contains(QStringLiteral("--autostart"))
+        || appArgs.contains(QStringLiteral("-autostart"))
+        || appArgs.contains(QStringLiteral("--os_restart"))
+        || appArgs.contains(QStringLiteral("-os_restart"));
+    if (!waitForUsableDisplay(launchedOnStartup)) {
+        return 0;
+    }
+#endif
 
     DpiScaleManager::instance();    // init dpi scale manager
 

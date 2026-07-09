@@ -1,6 +1,7 @@
 #pragma once
 
 #include <windows.h>
+#include <mutex>
 #include <string>
 
 namespace wsl
@@ -10,7 +11,6 @@ class Win32Service
 {
 public:
     bool serviceExiting(void) const;
-    DWORD serviceExitCode(void) const;
 
     // Starts the service and does not return until the service, or console app, has exited.
     void startService();
@@ -24,7 +24,6 @@ protected:
     explicit Win32Service(const std::wstring &serviceName);
     virtual ~Win32Service(void) {};
 
-    void setServiceExitCode(DWORD code);
     void setStatus(DWORD state, DWORD waitHint = 0);
 
     // Called when the service is initializing.  If the initialization time is
@@ -76,7 +75,9 @@ private:
     const std::wstring serviceName_;
 
     SERVICE_STATUS_HANDLE serviceStatusHandle_ = NULL;
-    SERVICE_STATUS serviceStatus;
+
+    mutable std::mutex statusMutex_;
+    SERVICE_STATUS serviceStatus_;
 
     // WARNING: this limits the client app to only one Win32Service object.
     static Win32Service* pThis_;

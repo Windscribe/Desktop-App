@@ -29,23 +29,6 @@
     return self;
 }
 
-- (void)setObjectForCallback: (SEL)aSelector withObject:(id)arg
-{
-}
-
-- (BOOL)isFolderAlreadyExist
-{
-    return NO;
-}
-
--(void)start
-{
-}
-
--(void)cancel
-{
-}
-
 -(NSString *)getOldInstallPath
 {
     if (isUseUpdatePath_) {
@@ -58,15 +41,6 @@
 -(NSString *)getInstallPath
 {
     return [self.path stringByAppendingString:@"/Windscribe.app"];
-}
-
--(void)runLauncher
-{
-}
-
--(void)waitForCompletion
-{
-
 }
 
 -(NSString *)getDefaultInstallPath

@@ -47,6 +47,8 @@
 // all the functionality of the connections, firewall, helper, etc
 // need create in separate QThread
 
+class ConnectivityDiagnostic;
+
 class Engine : public QObject
 {
     Q_OBJECT
@@ -154,7 +156,7 @@ signals:
     void cleanupFinished();
     void captchaRequired(bool isAsciiCaptcha, const QString &asciiArt, const QString &background, const QString &slider, int top);
     void loginFinished(const api_responses::PortMap &portMap);
-    void tryingBackupEndpoint(int num, int cnt);
+    void tryingBackupEndpoint();
     void loginError(wsnet::LoginResult retCode, const QString &errorMessage);
     void sessionDeleted();
     void sessionStatusUpdated(const api_responses::SessionStatus &sessionStatus);
@@ -207,7 +209,7 @@ signals:
     void protocolStatusChanged(const QVector<types::ProtocolStatus> status, bool isAutomaticMode);
     void initCleanup(bool isUpdating);
 
-    void splitTunnelingStartFailed();
+    void splitTunnelingStartFailed(SPLIT_TUNNEL_START_FAIL_REASON reason = SPLIT_TUNNEL_START_FAIL_REASON_DEFAULT);
     void systemExtensionAvailabilityChanged(bool available);
 
     void connectionIdChanged(const QString &connId);
@@ -272,7 +274,7 @@ private slots:
 
     void onApiResourceManagerCallback(wsnet::ApiResourcesManagerNotification notification, wsnet::LoginResult loginResult, const std::string &errorMessage);
 
-    void onFailOverTryingBackupEndpoint(int num, int cnt);
+    void onFailOverTryingBackupEndpoint();
 
     void onCheckUpdateUpdated(const api_responses::CheckUpdate &checkUpdate);
     void onHostIPsChanged(const QSet<QString> &hostIps);
@@ -394,6 +396,9 @@ private:
     AutoUpdaterHelper_mac *autoUpdaterHelper_;
     QDateTime macSpoofTimerStart_;
     QTimer *macSpoofTimer_;
+    // Last reported split tunnel extension availability, so unchanged availability is not re-emitted
+    // on every recheck.
+    std::optional<bool> lastSystemExtensionAvailability_;
 #endif
 
     QMutex mutex_;
@@ -480,6 +485,7 @@ private:
 
     api_responses::AmneziawgUnblockParams amneziawgParams_;
     QString apiSuggestedAmneziawgPreset_;
+    QString apiSuggestedCustomSni_;
 
     static constexpr int kLoginWaitTimeForNoNetwork = 10000;    // 10 sec
     WaitForNetworkConnectivity *loginWaitForNetworkConnectivity_;
@@ -500,5 +506,14 @@ private:
     // means AmneziaWG should NOT be applied (i.e., regular WireGuard).
     QString effectiveAmneziawgPreset() const;
 
+    // Returns the effective custom SNI domain to use for stunnel/wstunnel.
+    // User-configured value takes precedence over API suggestion. Empty string
+    // means no custom SNI should be used.
+    QString effectiveCustomSni() const;
+
     BridgeApiManager *bridgeApiManager_;
+
+    // Diagnostic probes run on kNoApiConnectivity login failures. Fire-and-forget,
+    // self-rate-limited, logs to the local debug log only.
+    ConnectivityDiagnostic *connectivityDiagnostic_;
 };

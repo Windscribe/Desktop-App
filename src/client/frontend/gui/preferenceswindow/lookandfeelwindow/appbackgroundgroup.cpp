@@ -39,7 +39,7 @@ void AppBackgroundGroup::onLanguageChanged()
     titleItem_->setTitle(tr("App Background"));
 
     comboBoxAspectRatioMode_->setLabelCaption(tr("Aspect Ratio Mode"));
-    comboBoxAspectRatioMode_->setItems(ASPECT_RATIO_MODE_toList(), settings_.aspectRatioMode);
+    comboBoxAspectRatioMode_->setItems(enumToList<ASPECT_RATIO_MODE>(), settings_.aspectRatioMode);
 
     QList<QPair<QString, QVariant>> secondaryItems;
     secondaryItems << qMakePair(tr("Square"), ":/png/bg/bg1.png");

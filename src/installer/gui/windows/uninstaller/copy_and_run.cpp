@@ -15,14 +15,12 @@
 
 unsigned long CopyAndRun::runFirstPhase(const std::wstring& uninstExeFile, const char *lpszCmdParam)
 {
-    wchar_t *windowsPath = NULL;
-    auto memFree = wsl::wsScopeGuard([&] {
-        ::CoTaskMemFree(windowsPath);
-    });
-
-    HRESULT hr = ::SHGetKnownFolderPath(FOLDERID_Windows, 0, NULL, &windowsPath);
-    if (FAILED(hr)) {
-        spdlog::error(L"SHGetKnownFolderPath failed to locate Windows directory: {}", HRESULT_CODE(hr));
+    // Use GetWindowsDirectory rather than SHGetKnownFolderPath so that no shell32 code is loaded
+    // into this process, keeping it compatible with the Microsoft-signed-only load policy.
+    wchar_t windowsPath[MAX_PATH];
+    const UINT len = ::GetWindowsDirectory(windowsPath, MAX_PATH);
+    if (len == 0 || len >= MAX_PATH) {
+        spdlog::error(L"GetWindowsDirectory failed to locate Windows directory ({})", ::GetLastError());
         return MAXDWORD;
     }
 

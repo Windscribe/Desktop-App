@@ -10,6 +10,7 @@
 #include <spdlog/sinks/rotating_file_sink.h>
 
 #include "utils/log/spdlog_utils.h"
+#include "utils/wsprocessmitigations.h"
 
 // C:\Code\ThirdParty\Wireguard\wireguard-windows-0.5.3\docs\enterprise.md has useful info
 // on how this service works.

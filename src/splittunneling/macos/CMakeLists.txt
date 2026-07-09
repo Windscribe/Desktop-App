@@ -32,10 +32,6 @@ set_target_properties(${WS_MAC_SPLIT_TUNNEL_BUNDLE_ID} PROPERTIES
 )
 
 # Link against required frameworks and libraries
-target_compile_options(${WS_MAC_SPLIT_TUNNEL_BUNDLE_ID} PRIVATE
-    -fobjc-arc
-)
-
 target_link_libraries(${WS_MAC_SPLIT_TUNNEL_BUNDLE_ID} PRIVATE
     "-framework NetworkExtension"
     "-framework Foundation"

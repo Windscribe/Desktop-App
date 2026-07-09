@@ -14,11 +14,11 @@ struct FirewallSettings
     FirewallSettings(const QJsonObject &json)
     {
         if (json.contains(kJsonModeProp) && json[kJsonModeProp].isDouble()) {
-            mode = FIREWALL_MODE_fromInt(json[kJsonModeProp].toInt());
+            mode = enumFromInt<FIREWALL_MODE>(json[kJsonModeProp].toInt());
         }
 
         if (json.contains(kJsonWhenProp) && json[kJsonWhenProp].isDouble()) {
-            when = FIREWALL_WHEN_fromInt(json[kJsonWhenProp].toInt());
+            when = enumFromInt<FIREWALL_WHEN>(json[kJsonWhenProp].toInt());
         }
     }
 
@@ -47,28 +47,30 @@ struct FirewallSettings
         json[kJsonModeProp] = static_cast<int>(mode);
         json[kJsonWhenProp] = static_cast<int>(when);
         if (isForDebugLog) {
-            json["modeDesc"] = FIREWALL_MODE_toString(mode);
-            json["whenDesc"] = FIREWALL_WHEN_toString(when);
+            json["modeDesc"] = enumToString(mode);
+            json["whenDesc"] = enumToString(when);
         }
         return json;
     }
 
+#ifdef CLI_ONLY
     void fromIni(const QSettings &settings)
     {
-        mode = FIREWALL_MODE_fromString(settings.value(kIniModeProp, FIREWALL_MODE_toString(mode)).toString());
-        when = FIREWALL_WHEN_fromString(settings.value(kIniWhenProp, FIREWALL_WHEN_toString(when)).toString());
+        mode = enumFromString<FIREWALL_MODE>(settings.value(kIniModeProp, enumToString(mode)).toString());
+        when = enumFromString<FIREWALL_WHEN>(settings.value(kIniWhenProp, enumToString(when)).toString());
     }
 
     void toIni(QSettings &settings) const
     {
-        settings.setValue(kIniModeProp, FIREWALL_MODE_toString(mode));
-        settings.setValue(kIniWhenProp, FIREWALL_WHEN_toString(when));
+        settings.setValue(kIniModeProp, enumToString(mode));
+        settings.setValue(kIniWhenProp, enumToString(when));
     }
+#endif
 
     void validate()
     {
-        mode = FIREWALL_MODE_fromInt(static_cast<int>(mode));
-        when = FIREWALL_WHEN_fromInt(static_cast<int>(when));
+        mode = enumFromInt<FIREWALL_MODE>(static_cast<int>(mode));
+        when = enumFromInt<FIREWALL_WHEN>(static_cast<int>(when));
         // 'when' is only used in automatic mode.
         if (mode != FIREWALL_MODE_AUTOMATIC) {
             when = FIREWALL_WHEN_BEFORE_CONNECTION;

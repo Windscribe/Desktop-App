@@ -275,10 +275,6 @@
         <translation>Журналы отправлены.</translation>
     </message>
     <message>
-        <source>Preferences reloaded.</source>
-        <translation>Настройки перезагружены.</translation>
-    </message>
-    <message>
         <source>Key limit behaviour is set.</source>
         <translation>Поведение при достижении лимита ключей задано.</translation>
     </message>

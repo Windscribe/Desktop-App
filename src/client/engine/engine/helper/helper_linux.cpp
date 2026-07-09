@@ -6,7 +6,12 @@ Helper_linux::Helper_linux(std::unique_ptr<IHelperBackend> backend, spdlog::logg
 
 void Helper_linux::setDnsLeakProtectEnabled(bool bEnabled)
 {
-    sendCommand(HelperCommand::setDnsLeakProtectEnabled, bEnabled);
+    // The enable path (with tunnel interface + DNS servers) is driven helper-side from
+    // sendConnectStatus, which already carries that data for both protocols. This entry point is the
+    // explicit teardown used by the disconnect cleanup; send the config payload the helper now expects.
+    DnsLeakProtectConfig config;
+    config.enabled = bEnabled;
+    sendCommand(HelperCommand::setDnsLeakProtectEnabled, config);
 }
 
 void Helper_linux::setGaiIpv4PriorityEnabled(bool bEnabled)

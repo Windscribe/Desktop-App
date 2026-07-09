@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 
+struct AmneziawgConfig;
 struct FirewallConfig;
 
 namespace Validation {
@@ -69,7 +70,7 @@ bool isValidNetworkManagerConnectionName(const std::string &name);
 // iptables/pf rule text, in place. connectingIp and each allowedIps entry must be a valid IPv4
 // literal (the helper only emits these as v4 allow-rules and appends /32); vpnInterfaceName must
 // pass isValidInterfaceName; each staticPorts entry must be in the 1..65535 range. Invalid entries
-// are dropped/cleared rather than rejecting the whole command, so the kill switch still comes up
+// are dropped/cleared rather than rejecting the whole command, so the firewall still comes up
 // from the valid remainder instead of leaving the firewall off and leaking. Shared by the Linux and
 // macOS setFirewallRules handlers.
 void sanitizeFirewallConfig(FirewallConfig &config);
@@ -90,6 +91,11 @@ bool isPrintableSingleLineAscii(const std::string &v);
 // logs an error naming fieldName and returns false. Used for WireGuard UAPI key fields
 // (private_key/public_key/preshared_key) before they are written as line-oriented records.
 bool isValidUapiKeyField(const char *fieldName, const std::string &value);
+
+// Returns true if every AmneziaWG obfuscation string (I-values and H1-H4) is empty or passes
+// isPrintableSingleLineAscii, logging the offending field type on failure. Shared by the Linux and
+// macOS WireGuard communicators before the values are written as newline-delimited UAPI records.
+bool isValidAmneziawgObfuscationFields(const AmneziawgConfig &config);
 
 // Normalize an address string (IP, domain, or URL).
 // Returns the address unchanged if it's a valid IPv4 or domain;

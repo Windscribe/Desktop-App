@@ -132,6 +132,30 @@ std::vector<std::string> AdaptersInfo::getAdapterAddresses(NET_IFINDEX idx)
     return list;
 }
 
+bool AdaptersInfo::hasNonLinkLocalV6(NET_IFINDEX idx) const
+{
+    PIP_ADAPTER_ADDRESSES ai = pAdapterInfo_;
+    while (ai) {
+        if (idx == ai->IfIndex) {
+            PIP_ADAPTER_UNICAST_ADDRESS addr = ai->FirstUnicastAddress;
+            while (addr) {
+                if (addr->Address.lpSockaddr->sa_family == AF_INET6) {
+                    // Skip the auto-configured link-local (fe80::/10): every v6-capable adapter has
+                    // one, so only a global or ULA address indicates real v6 capability. Same check
+                    // as the macOS/Linux probeInterfaceAddresses.
+                    const struct sockaddr_in6 *sin6 = reinterpret_cast<const struct sockaddr_in6 *>(addr->Address.lpSockaddr);
+                    if (!IN6_IS_ADDR_LINKLOCAL(&sin6->sin6_addr)) {
+                        return true;
+                    }
+                }
+                addr = addr->Next;
+            }
+        }
+        ai = ai->Next;
+    }
+    return false;
+}
+
 bool AdaptersInfo::isAppVpnAdapter(PIP_ADAPTER_ADDRESSES ai) const
 {
     // Warning: we control the FriendlyName of the wireguard-nt adapter, but not the Description.

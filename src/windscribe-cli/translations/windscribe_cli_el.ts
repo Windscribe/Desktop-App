@@ -131,10 +131,6 @@
         <translation>Τα αρχεία καταγραφής στάλθηκαν.</translation>
     </message>
     <message>
-        <source>Preferences reloaded.</source>
-        <translation>Οι προτιμήσεις επαναφορτώθηκαν.</translation>
-    </message>
-    <message>
         <source>Ignoring SSL errors is only available when unable to log in.</source>
         <translation>Η παράβλεψη σφαλμάτων SSL είναι διαθέσιμη μόνο όταν δεν μπορείτε να συνδεθείτε.</translation>
     </message>

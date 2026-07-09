@@ -198,6 +198,11 @@ void FirewallFilter::addFilters(HANDLE engineHandle, const wchar_t *connectingIp
         spdlog::error("Could not add IPv6 block filter");
     }
 
+    // The per-interface (tunnel-scoped) filters in this loop are added with persistent=false: they
+    // are runtime-only and must NOT survive into the firewall-on-boot persisted ruleset, which should
+    // be the curated minimal set (default block + server IPs + DHCP + loopback + link-local + NDP/MLD
+    // + LAN carve-outs + the reserved-DNS block, all left persistent). The connecting-IP and
+    // split-tunnel permits below are non-persistent for the same reason.
     // add permit filter for TAP-adapters
     for (std::vector<NET_IFINDEX>::iterator it = taps.begin(); it != taps.end(); ++it) {
         NET_LUID luid;
@@ -206,7 +211,7 @@ void FirewallFilter::addFilters(HANDLE engineHandle, const wchar_t *connectingIp
         // Always allow 10.255.255.0/24 (Windscribe reserved) regardless of custom config,
         // because the Allow LAN flag later blocks the entire 10/8 range
         const std::vector<types::IpAddressRange> reserved = { types::IpAddressRange("10.255.255.0/24") };
-        ret = Utils::addFilterV4(engineHandle, nullptr, FWP_ACTION_PERMIT, 8, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, &luid, &reserved);
+        ret = Utils::addFilterV4(engineHandle, nullptr, FWP_ACTION_PERMIT, 8, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, &luid, &reserved, 0, 0, nullptr, false);
         if (!ret) {
             spdlog::error(L"Could not add reserved allow filter on VPN interface");
         }
@@ -215,29 +220,48 @@ void FirewallFilter::addFilters(HANDLE engineHandle, const wchar_t *connectingIp
             // We want to allow access to local VPN interface addresses regardless of which interface the packet will go through, not just a VPN interface
             const std::vector<types::IpAddressRange> localAddrs = types::IpAddressRange::fromStrings(ai.getAdapterAddresses(*it));
             if (!localAddrs.empty()) {
-                ret = Utils::addFilterV4(engineHandle, nullptr, FWP_ACTION_PERMIT, 8, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, nullptr, &localAddrs);
+                ret = Utils::addFilterV4(engineHandle, nullptr, FWP_ACTION_PERMIT, 8, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, nullptr, &localAddrs, 0, 0, nullptr, false);
                 if (!ret) {
                     spdlog::error("Could not add reserved allow filter on private address for VPN interface");
                 }
             }
-            // Disallow all other private, link-local, loopback networks from going over tunnel
-            const std::vector<types::IpAddressRange> priv = types::IpAddressRange::fromStrings(
-                {"10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16", "169.254.0.0/16", "224.0.0.0/4"});
-            ret = Utils::addFilterV4(engineHandle, nullptr, FWP_ACTION_BLOCK, 6, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, &luid, &priv);
-            if (!ret) {
-                spdlog::error("Could not add private network block filter on VPN interface");
+            // Carve-out (LAN-into-tunnel blocks): only needed when "Allow LAN traffic" is on. With
+            // LAN off, the weight-4 global LAN block already outranks the weight-1 tunnel permit, so
+            // these weight-6 blocks would be redundant. Gated on bAllowLocalTraffic to match the
+            // macOS/Linux runtime rulesets and avoid emitting dead rules.
+            if (bAllowLocalTraffic) {
+                // Disallow all other private, link-local, loopback networks from going over tunnel
+                const std::vector<types::IpAddressRange> priv = types::IpAddressRange::fromStrings(
+                    {"10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16", "169.254.0.0/16", "224.0.0.0/4"});
+                ret = Utils::addFilterV4(engineHandle, nullptr, FWP_ACTION_BLOCK, 6, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, &luid, &priv, 0, 0, nullptr, false);
+                if (!ret) {
+                    spdlog::error("Could not add private network block filter on VPN interface");
+                }
+
+                // Same carve-out for IPv6: LAN-destined ULA/multicast must not enter the (dual-stack)
+                // tunnel. Weight 6 outweighs the unscoped weight-4 LAN permits and the weight-1 tunnel
+                // permit, so these ranges are dropped on the tunnel but still pass on the physical NIC.
+                const std::vector<types::IpAddressRange> privV6 = { types::IpAddressRange("fc00::/7"), types::IpAddressRange("ff00::/8") };
+                ret = Utils::addFilterV6(engineHandle, nullptr, FWP_ACTION_BLOCK, 6, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, &luid, &privV6, 0, 0, nullptr, false);
+                if (!ret) {
+                    spdlog::error("Could not add private network IPv6 block filter on VPN interface");
+                }
             }
         }
 
         // Allow other IPv4 traffic on this interface
-        ret = Utils::addFilterV4(engineHandle, nullptr, FWP_ACTION_PERMIT, 1, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, &luid);
+        ret = Utils::addFilterV4(engineHandle, nullptr, FWP_ACTION_PERMIT, 1, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, &luid, nullptr, 0, 0, nullptr, false);
         if (!ret) {
             spdlog::error("Could not add IPv4 allow filter on VPN interface");
         }
-        // Allow IPv6 traffic on this interface
-        ret = Utils::addFilterV6(engineHandle, nullptr, FWP_ACTION_PERMIT, 1, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, &luid);
-        if (!ret) {
-            spdlog::error("Could not add IPv6 allow filter on VPN interface");
+        // Allow IPv6 traffic on this interface, but only when the tunnel actually carries a routable
+        // (non-link-local) v6 address — mirrors the macOS/Linux hasV6Addr gate (probeInterfaceAddresses)
+        // so v6 isn't blanket-permitted on a v4-only tunnel.
+        if (ai.hasNonLinkLocalV6(*it)) {
+            ret = Utils::addFilterV6(engineHandle, nullptr, FWP_ACTION_PERMIT, 1, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, &luid, nullptr, 0, 0, nullptr, false);
+            if (!ret) {
+                spdlog::error("Could not add IPv6 allow filter on VPN interface");
+            }
         }
     }
 
@@ -301,6 +325,20 @@ void FirewallFilter::addFilters(HANDLE engineHandle, const wchar_t *connectingIp
         spdlog::error("Could not add IPv6 link-local allow filter.");
     }
 
+    // ICMPv6 NDP/MLD (types 130-137, 143): always permit, independent of the Allow LAN setting, so
+    // neighbor/router discovery and multicast-listener messages keep working even when LAN traffic
+    // is blocked. NS/RS and MLD reports use ff02:: multicast destinations that would otherwise be
+    // caught by the gated ff00::/8 rule (block when LAN off) or the weight-0 block-all. Weight 8,
+    // like the other always-on essentials. Mirrors the Linux/macOS rulesets.
+    ret = Utils::addPermitFilterV6IcmpTypeRange(engineHandle, 130, 137, 8, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW);
+    if (!ret) {
+        spdlog::error("Could not add ICMPv6 NDP/MLD (130-137) allow filter.");
+    }
+    ret = Utils::addPermitFilterV6IcmpTypeRange(engineHandle, 143, 143, 8, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW);
+    if (!ret) {
+        spdlog::error("Could not add ICMPv6 MLDv2 (143) allow filter.");
+    }
+
     // add permit/block filters for Local Network.
     // We explicitly block if not allowed, since this setting should take precedence over split tunneling filters.
     // Custom configs need private ranges allowed so third-party VPN DNS/gateway/routes work.
@@ -310,6 +348,16 @@ void FirewallFilter::addFilters(HANDLE engineHandle, const wchar_t *connectingIp
     ret = Utils::addFilterV4(engineHandle, nullptr, bAllowLan ? FWP_ACTION_PERMIT : FWP_ACTION_BLOCK, 4, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, nullptr, &privV4);
     if (!ret) {
         spdlog::error("Could not add IPv4 LAN traffic allow/block filter.");
+    }
+
+    // 10.255.255.0/24 (in-tunnel WG DNS): always blocked off the tunnel, regardless of the Allow LAN
+    // setting. The weight-8 reserved permit on the VPN adapter (above) keeps it reachable in-tunnel;
+    // this weight-5 block outranks the weight-4 LAN rule (so it drops on the physical NIC) but is
+    // outranked by the weight-8 tunnel permit. Matches the Linux/macOS "tunnel pass, physical block".
+    const std::vector<types::IpAddressRange> reservedDns = { types::IpAddressRange("10.255.255.0/24") };
+    ret = Utils::addFilterV4(engineHandle, nullptr, FWP_ACTION_BLOCK, 5, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, nullptr, &reservedDns);
+    if (!ret) {
+        spdlog::error("Could not add reserved in-tunnel DNS block filter.");
     }
 
     // add permit/block filters for multicast
@@ -325,13 +373,14 @@ void FirewallFilter::addFilters(HANDLE engineHandle, const wchar_t *connectingIp
         spdlog::error("Could not add IPv6 multicast allow/block filter.");
     }
 
-    // NOTE (#1687): no fc00::/7 (IPv6 ULA) LAN permit here yet — unlike Linux/macOS, "Allow LAN
-    // traffic" does not reach ULA LAN devices on Windows. This is an intentional descope, not an
-    // oversight: while connected the Ipv6Firewall sublayer (ipv6_firewall.cpp) blocks all non-tunnel
-    // IPv6 regardless of this setting, so a lone permit here would be ineffective in the common case
-    // and misleading. Full Windows IPv6 ULA LAN support requires the dual-stack v6 work (stop
-    // disabling IPv6 while connected, permit tunnel v6, gate ULA on Allow LAN in both sublayers) and
-    // is tracked separately as a follow-up to #1687.
+    // IPv6 ULA (the v6 analogue of the private v4 ranges above). NOTE (#1687): while connected the
+    // Ipv6Firewall sublayer (ipv6_firewall.cpp) gates LAN v6 too, with the same allowLan condition,
+    // so the two sublayers must be kept in sync.
+    const std::vector<types::IpAddressRange> ulaV6 = { types::IpAddressRange("fc00::/7") };
+    ret = Utils::addFilterV6(engineHandle, nullptr, bAllowLan ? FWP_ACTION_PERMIT : FWP_ACTION_BLOCK, 4, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, nullptr, &ulaV6);
+    if (!ret) {
+        spdlog::error("Could not add IPv6 ULA LAN traffic allow/block filter.");
+    }
 }
 
 void FirewallFilter::addPermitFilterForVpnAndSystemServices(HANDLE engineHandle, const wchar_t *connectingIp)
@@ -346,7 +395,7 @@ void FirewallFilter::addPermitFilterForVpnAndSystemServices(HANDLE engineHandle,
 
     // add allow filter for connecting IP (IPv4-only — connectingIp is always IPv4)
     const std::vector<types::IpAddressRange> connectingIpAddr = { types::IpAddressRange(connectingIp) };
-    ret = Utils::addFilterV4(engineHandle, nullptr, FWP_ACTION_PERMIT, 2, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, nullptr, &connectingIpAddr, 0, 0, &allowedIds);
+    ret = Utils::addFilterV4(engineHandle, nullptr, FWP_ACTION_PERMIT, 2, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, nullptr, &connectingIpAddr, 0, 0, &allowedIds, false);
     if (!ret) {
         spdlog::error("Could not add connecting IP allow filter");
     }
@@ -357,12 +406,12 @@ void FirewallFilter::addPermitFilterForAppsIds(HANDLE engineHandle)
     bool ret = true;
     if (isSplitTunnelingExclusiveMode_) {
         if (appsIds_.count() > 0) {
-            ret = Utils::addFilterV4(engineHandle, &filterIdsApps_, FWP_ACTION_PERMIT, 2, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, nullptr, nullptr, 0, 0, &appsIds_);
-            ret = Utils::addFilterV6(engineHandle, &filterIdsApps_, FWP_ACTION_PERMIT, 2, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, nullptr, nullptr, 0, 0, &appsIds_) && ret;
+            ret = Utils::addFilterV4(engineHandle, &filterIdsApps_, FWP_ACTION_PERMIT, 2, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, nullptr, nullptr, 0, 0, &appsIds_, false);
+            ret = Utils::addFilterV6(engineHandle, &filterIdsApps_, FWP_ACTION_PERMIT, 2, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, nullptr, nullptr, 0, 0, &appsIds_, false) && ret;
         }
     } else {
-        ret = Utils::addFilterV4(engineHandle, &filterIdsApps_, FWP_ACTION_PERMIT, 2, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW);
-        ret = Utils::addFilterV6(engineHandle, &filterIdsApps_, FWP_ACTION_PERMIT, 2, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW) && ret;
+        ret = Utils::addFilterV4(engineHandle, &filterIdsApps_, FWP_ACTION_PERMIT, 2, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, nullptr, nullptr, 0, 0, nullptr, false);
+        ret = Utils::addFilterV6(engineHandle, &filterIdsApps_, FWP_ACTION_PERMIT, 2, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, nullptr, nullptr, 0, 0, nullptr, false) && ret;
     }
 
     if (!ret) {
@@ -378,11 +427,11 @@ void FirewallFilter::addPermitFilterForSplitRoutingWhitelistIps(HANDLE engineHan
 
     // addFilterV4/addFilterV6 internally filter the dual-stack vector by family and become
     // no-ops if no entries of their family are present. Pass the same container to both.
-    bool ret = Utils::addFilterV4(engineHandle, &filterIdsSplitRoutingIps_, FWP_ACTION_PERMIT, 2, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, nullptr, &splitRoutingIps_);
+    bool ret = Utils::addFilterV4(engineHandle, &filterIdsSplitRoutingIps_, FWP_ACTION_PERMIT, 2, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, nullptr, &splitRoutingIps_, 0, 0, nullptr, false);
     if (!ret) {
         spdlog::error("Could not add split tunnel IPv4 filters");
     }
-    ret = Utils::addFilterV6(engineHandle, &filterIdsSplitRoutingIps_, FWP_ACTION_PERMIT, 2, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, nullptr, &splitRoutingIps_);
+    ret = Utils::addFilterV6(engineHandle, &filterIdsSplitRoutingIps_, FWP_ACTION_PERMIT, 2, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, nullptr, &splitRoutingIps_, 0, 0, nullptr, false);
     if (!ret) {
         spdlog::error("Could not add split tunnel IPv6 filters");
     }

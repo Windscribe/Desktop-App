@@ -23,9 +23,13 @@ public:
     GetWireGuardConfig(QObject *parent);
     ~GetWireGuardConfig();
 
-    void getWireGuardConfig(const QString &serverName, bool deleteOldestKey);
+    void getWireGuardConfig(const QString &serverName, bool deleteOldestKey, bool useCachedConfigOnly = false);
     static void removeWireGuardSettings();
     static void forceReinitOnNextCall();
+
+    // True when the stored config is complete (see WireGuardConfig::haveCompleteConfig) and no forced
+    // re-registration is pending. Used to allow cached WireGuard connections under Always On+ mode.
+    static bool hasUsableStoredConfig();
 
 signals:
     void getWireGuardConfigAnswer(WireGuardConfigRetCode retCode, const WireGuardConfig &config);
@@ -49,7 +53,7 @@ private:
     QString generateClientIpv6Address(const QString &cidr);
 
     void setWireGuardKeyPair(const QString &publicKey, const QString &privateKey);
-    WireGuardConfig readWireGuardConfigFromSettings();
+    static WireGuardConfig readWireGuardConfigFromSettings();
     void writeWireGuardConfigToSettings(const WireGuardConfig &wgConfig);
 
     // for serialization

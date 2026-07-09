@@ -275,10 +275,6 @@
         <translation>Registros enviados.</translation>
     </message>
     <message>
-        <source>Preferences reloaded.</source>
-        <translation>Preferencias recargadas.</translation>
-    </message>
-    <message>
         <source>Key limit behaviour is set.</source>
         <translation>Se ha establecido el comportamiento del límite de claves.</translation>
     </message>

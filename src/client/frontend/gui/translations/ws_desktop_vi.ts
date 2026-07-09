@@ -638,10 +638,6 @@ Nếu bạn mất hàm băm tài khoản của mình, nó sẽ biến mất vĩn
         <translation>Không thể bắt đầu</translation>
     </message>
     <message>
-        <source>Trying Backup Endpoints %1/%2</source>
-        <translation>Thử sao lưu điểm cuối %1/%2</translation>
-    </message>
-    <message>
         <source>SSL Error</source>
         <translation>Lỗi SSL</translation>
     </message>
@@ -668,6 +664,10 @@ Nếu bạn mất hàm băm tài khoản của mình, nó sẽ biến mất vĩn
     <message>
         <source>Later</source>
         <translation>Sau này</translation>
+    </message>
+    <message>
+        <source>Trying Backup Endpoints...</source>
+        <translation>Thử các điểm cuối sao lưu...</translation>
     </message>
     <message>
         <source>SSL requests may be intercepted on your network. Ignoring SSL errors disables TLS certificate validation for this session: anyone able to intercept your traffic can then impersonate Windscribe and read or alter your data, and we can&apos;t guarantee your security while it&apos;s on. Ignore SSL errors?</source>
@@ -828,10 +828,6 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
     <message>
         <source>You have reached your limit of WireGuard public keys. Do you want to delete your oldest key?</source>
         <translation>Bạn đã đạt đến giới hạn khóa công khai WireGuard của mình. Bạn có muốn xóa khóa cũ nhất của mình không?</translation>
-    </message>
-    <message>
-        <source>Error Starting Service</source>
-        <translation>Lỗi khởi động dịch vụ</translation>
     </message>
     <message>
         <source>The split tunneling feature could not be started, and has been disabled in Preferences.</source>
@@ -1427,10 +1423,6 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
         <translation>Tự động kết nối</translation>
     </message>
     <message>
-        <source>Control the mode of behaviour of the Windscribe firewall.</source>
-        <translation>Kiểm soát chế độ hành vi của tường lửa Windscribe.</translation>
-    </message>
-    <message>
         <source>Connection Mode</source>
         <translation>Chế độ kết nối</translation>
     </message>
@@ -1463,6 +1455,10 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
         <translation>Định cấu hình TV, máy chơi game hoặc các thiết bị khác hỗ trợ máy chủ proxy.</translation>
     </message>
     <message>
+        <source>The firewall is in an Always On mode. Allowing LAN traffic can leak your DNS and other traffic to your local network while you are disconnected. Are you sure you want to enable it?</source>
+        <translation>Tường lửa đang ở chế độ Luôn bật. Cho phép lưu lượng mạng LAN có thể làm rò rỉ DNS và lưu lượng truy cập khác đến mạng cục bộ của bạn trong khi bạn bị ngắt kết nối. Bạn có chắc chắn muốn kích hoạt nó không?</translation>
+    </message>
+    <message>
         <source>Settings Conflict</source>
         <translation>Cài đặt xung đột</translation>
     </message>
@@ -1493,6 +1489,10 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
     <message>
         <source>In this firewall mode, the Windscribe API will not be available while disconnected, this could have unintended consequences. Use at own risk.</source>
         <translation>Ở chế độ tường lửa này, API Windscribe sẽ không khả dụng khi ngắt kết nối, điều này có thể gây ra những hậu quả không mong muốn. Tự chịu rủi ro khi sử dụng.</translation>
+    </message>
+    <message>
+        <source>Control the mode of behaviour of the Windscribe firewall. Always On modes disable Allow LAN Traffic to prevent DNS leaks.</source>
+        <translation>Kiểm soát chế độ hoạt động của tường lửa Windscribe. Chế độ Luôn bật tắt Cho phép lưu lượng mạng LAN để ngăn rò rỉ DNS.</translation>
     </message>
     <message>
         <source>Configure egress IP stack for VPN connections (WireGuard only).</source>
@@ -2081,6 +2081,10 @@ Kết nối với mạng trước</translation>
 </context>
 <context>
     <name>PreferencesWindow::ProtocolTweaksGroup</name>
+    <message>
+        <source>Custom SNI Domain</source>
+        <translation>Tên miền SNI tùy chỉnh</translation>
+    </message>
     <message>
         <source>Protocol Tweaks</source>
         <translation>Tinh chỉnh giao thức</translation>

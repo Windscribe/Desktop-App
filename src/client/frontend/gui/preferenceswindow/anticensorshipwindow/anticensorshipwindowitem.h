@@ -25,12 +25,15 @@ private slots:
     void onProtocolTweaksMethodPreferencesChanged(PROTOCOL_TWEAKS_METHOD_TYPE method);
     void onAmneziawgPresetChanged(const QString &preset);
     void onAmneziawgPresetsChanged(const QStringList &presets);
+    void onCustomSniDomainPreferencesChanged(const QString &domain);
+    void onApiSuggestedCustomSniChanged(const QString &domain);
     void onServerRoutingMethodPreferencesChanged(SERVER_ROUTING_METHOD_TYPE method);
     void onIsAPIAntiCensorshipPreferencesChanged(bool b);
 
     // slots for changes made by user
     void onProtocolTweaksMethodChangedByUser(PROTOCOL_TWEAKS_METHOD_TYPE method);
     void onAmneziawgPresetChangedByUser(const QString &preset);
+    void onCustomSniDomainChangedByUser(const QString &domain);
     void onServerRoutingMethodChangedByUser(QVariant method);
     void onLargeTlsToggleChangedByUser(bool isChecked);
 

@@ -275,10 +275,6 @@
         <translation>Logs enviados.</translation>
     </message>
     <message>
-        <source>Preferences reloaded.</source>
-        <translation>Preferências recarregadas.</translation>
-    </message>
-    <message>
         <source>Key limit behaviour is set.</source>
         <translation>O comportamento do limite de chave é definido.</translation>
     </message>

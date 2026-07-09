@@ -3,8 +3,6 @@
 #include <fileapi.h>
 #include <filesystem>
 #include <optional>
-#include <shellapi.h>
-#include <shlobj.h>
 #include <string>
 #include <tchar.h>
 #include <versionhelpers.h>
@@ -12,10 +10,9 @@
 #include "../utils/archive.h"
 #include "../utils/secure_dir.h"
 #include "global_consts.h"
-#include "wsscopeguard.h"
 #include "win32handle.h"
-
-#include "../../../../libs/wssecure/wssecure_globals.h"
+#include "wsprocessmitigations.h"
+#include "wsscopeguard.h"
 
 static std::optional<bool> isElevated()
 {
@@ -62,37 +59,41 @@ static void debugMessage(LPCTSTR szFormat, ...)
     ::OutputDebugString(Buf);
 }
 
-static DWORD executeProgram(const wchar_t *cmd, const wchar_t *params, bool wait, bool asAdmin, LPDWORD exitCode)
+// Launch exePath with the given command-line parameters and wait for it to exit, returning
+// the child's exit code via exitCode.  Uses CreateProcess rather than ShellExecuteEx so that
+// no shell32 code -- and therefore no third-party shell-extension DLL -- is loaded into this
+// process.  That is what keeps the bootstrapper compatible with the Microsoft-signed-only
+// load policy applied at startup (see wsprocessmitigations.h).  The child inherits this process's
+// (elevated) token, so no shell "runas" verb is needed to run it as administrator.
+static DWORD launchAndWait(const std::wstring &exePath, const wchar_t *params, DWORD *exitCode)
 {
-    SHELLEXECUTEINFO ei;
-    memset(&ei, 0, sizeof(SHELLEXECUTEINFO));
-
-    ei.cbSize = sizeof(SHELLEXECUTEINFO);
-    ei.fMask = SEE_MASK_NOCLOSEPROCESS;
-    ei.lpFile = cmd;
-    ei.lpParameters = params;
-    ei.nShow = SW_RESTORE;
-    if (asAdmin) {
-        ei.lpVerb = L"runas";
+    std::wstring cmdLine = L"\"" + exePath + L"\"";
+    if (params != nullptr && params[0] != L'\0') {
+        cmdLine += L' ';
+        cmdLine += params;
     }
 
-    BOOL result = ShellExecuteEx(&ei);
+    STARTUPINFOW si = {};
+    si.cb = sizeof(si);
+    PROCESS_INFORMATION pi = {};
 
+    // CreateProcessW may modify the command-line buffer in place, so it must be writable.
+    BOOL result = ::CreateProcessW(exePath.c_str(), cmdLine.data(), nullptr, nullptr, FALSE,
+                                   0, nullptr, nullptr, &si, &pi);
     if (!result) {
-        debugMessage(_T("Windscribe Installer - ShellExecuteEx failed: %lu"), GetLastError());
-        return GetLastError();
+        const DWORD err = ::GetLastError();
+        debugMessage(_T("Windscribe Installer - CreateProcess failed: %lu"), err);
+        return err;
     }
 
-    wsl::Win32Handle processHandle(ei.hProcess);
+    wsl::Win32Handle threadHandle(pi.hThread);
+    wsl::Win32Handle processHandle(pi.hProcess);
 
-    if (wait && processHandle.isValid()) {
-        auto waitResult = processHandle.wait(INFINITE);
-        if (waitResult == WAIT_OBJECT_0 && exitCode != nullptr) {
-            result = ::GetExitCodeProcess(processHandle.getHandle(), exitCode);
-            if (!result) {
-                exitCode = 0;
-                debugMessage(_T("Windscribe Installer - GetExitCodeProcess failed: %lu"), GetLastError());
-            }
+    processHandle.wait(INFINITE);
+    if (exitCode != nullptr) {
+        if (!::GetExitCodeProcess(processHandle.getHandle(), exitCode)) {
+            *exitCode = 0;
+            debugMessage(_T("Windscribe Installer - GetExitCodeProcess failed: %lu"), ::GetLastError());
         }
     }
 
@@ -105,20 +106,12 @@ static void deleteFolder(const std::filesystem::path &folder)
         return;
     }
 
-    // SHFileOperation requires file names to be terminated with two \0s
-    std::wstring dir = folder.c_str();
-    dir += L'\0';
-
-    SHFILEOPSTRUCT fos;
-    memset(&fos, 0, sizeof(SHFILEOPSTRUCT));
-
-    fos.wFunc = FO_DELETE;
-    fos.pFrom = dir.c_str();
-    fos.fFlags = FOF_NO_UI;
-
-    const auto result = ::SHFileOperation(&fos);
-    if (result != NO_ERROR && result != ERROR_FILE_NOT_FOUND) {
-        debugMessage(_T("Windscribe Installer - deleteFolder SHFileOperation failed: %d"), result);
+    // Use std::filesystem rather than SHFileOperation so that no shell32 code is loaded into
+    // this process (see launchAndWait).
+    std::error_code ec;
+    std::filesystem::remove_all(folder, ec);
+    if (ec) {
+        debugMessage(_T("Windscribe Installer - deleteFolder remove_all failed: %d"), ec.value());
     }
 }
 
@@ -149,11 +142,26 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpszC
         return -1;
     }
 
+    // The executable requests requireAdministrator, so the OS elevates this process at launch.  Verify elevation defensively.
     const auto isAdmin = isElevated();
     if (!isAdmin.has_value()) {
         showMessageBox(NULL, _T("Windscribe Installer"), MB_OK | MB_ICONSTOP,
                        _T("Couldn't determine if user has administrative rights."));
         return -1;
+    }
+    if (!isAdmin.value()) {
+        showMessageBox(NULL, _T("Windscribe Installer"), MB_OK | MB_ICONSTOP,
+                       _T("The Windscribe installer requires administrator privileges to run."));
+        return -1;
+    }
+
+    if (!isOSCompatible()) {
+        auto response = showMessageBox(NULL, _T("Windscribe Installer"), MB_YESNO | MB_ICONWARNING,
+                                       _T("The Windscribe app may not function correctly on this version of Windows.  It requires Windows 10"
+                                          " build %lu or newer for full functionality.\n\nDo you want to proceed with the install?"), kMinWindowsBuildNumber);
+        if (response != IDYES) {
+            return -1;
+        }
     }
 
     std::filesystem::path installPath;
@@ -161,45 +169,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpszC
         deleteFolder(installPath);
     });
 
-    if (!isAdmin.value()) {
-        if (!isOSCompatible()) {
-            auto response = showMessageBox(NULL, _T("Windscribe Installer"), MB_YESNO | MB_ICONWARNING,
-                                           _T("The Windscribe app may not function correctly on this version of Windows.  It requires Windows 10"
-                                              " build %lu or newer for full functionality.\n\nDo you want to proceed with the install?"), kMinWindowsBuildNumber);
-            if (response != IDYES) {
-                return -1;
-            }
-        }
-
-        // Attempt to run this program as admin
-        TCHAR buf[MAX_PATH];
-        DWORD result = GetModuleFileName(NULL, buf, MAX_PATH);
-        if (result == 0 || result == MAX_PATH) {
-            // 0 == failure; MAX_PATH == truncated (GetLastError() == ERROR_INSUFFICIENT_BUFFER) - reject either.
-            showMessageBox(NULL, _T("Windscribe Installer"), MB_OK | MB_ICONSTOP,
-                           _T("Couldn't get own exe path."));
-            return -1;
-        }
-
-        result = executeProgram(buf, lpszCmdParam, false, true, nullptr);
-        if (result == NO_ERROR) {
-            // Elevated process is running, exit this process
-            return 0;
-        } else if (result == ERROR_CANCELLED) {
-            // User declined the UAC prompt; the installer cannot proceed without elevation, and we
-            // intentionally do not extract anything to a Users-writable temp directory in this case.
-            showMessageBox(NULL, _T("Windscribe Installer"), MB_OK | MB_ICONSTOP,
-                           _T("The Windscribe installer requires administrator privileges to run."));
-            return -1;
-        } else {
-            // Some other error occurred launching the elevated process
-            showMessageBox(NULL, _T("Windscribe Installer"), MB_OK | MB_ICONSTOP,
-                           _T("Couldn't run installer as administrator."));
-            return -1;
-        }
-    }
-
-    // Elevated path: place the installer under C:\Windows\Temp in an Administrators+SYSTEM-only directory.
+    // Place the installer under C:\Windows\Temp in an Administrators+SYSTEM-only directory.
     auto randomSuffix = wsl::generateRandomSuffix();
     if (!randomSuffix) {
         showMessageBox(NULL, _T("Windscribe Installer"), MB_OK | MB_ICONSTOP,
@@ -208,21 +178,19 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpszC
     }
 
     {
-        wchar_t *windowsPath = NULL;
-        auto memFree = wsl::wsScopeGuard([&] {
-            ::CoTaskMemFree(windowsPath);
-        });
-
-        HRESULT hr = SHGetKnownFolderPath(FOLDERID_Windows, 0, NULL, &windowsPath);
-        if (FAILED(hr)) {
+        // Use GetWindowsDirectory rather than SHGetKnownFolderPath so that no shell32 code is
+        // loaded into this process (see launchAndWait).
+        wchar_t windowsDir[MAX_PATH];
+        const UINT len = ::GetWindowsDirectoryW(windowsDir, MAX_PATH);
+        if (len == 0 || len >= MAX_PATH) {
             showMessageBox(NULL, _T("Windscribe Installer"), MB_OK | MB_ICONSTOP,
-                           _T("Couldn't locate Windows directory (%lu)"), HRESULT_CODE(hr));
+                           _T("Couldn't locate Windows directory (%lu)"), ::GetLastError());
             return -1;
         }
 
-        installPath = windowsPath;
+        installPath = windowsDir;
         installPath.append(L"Temp");
-        installPath.append(L"WindscribeInstaller" + *randomSuffix);
+        installPath.append(L"WindscribeInstaller" + randomSuffix.value());
 
         // Atomically create the install directory with a DACL granting access to Administrators and
         // SYSTEM only, so there is no window in which a lower-privileged process can place files in it.
@@ -270,7 +238,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpszC
     app.append(WINDSCRIBE_INSTALLER_NAME);
 
     DWORD exitCode = 0;
-    auto result = executeProgram(app.c_str(), lpszCmdParam, true, isAdmin.value(), &exitCode);
+    auto result = launchAndWait(app.wstring(), lpszCmdParam, &exitCode);
     if (result != NO_ERROR) {
         showMessageBox(NULL, _T("Windscribe Installer"), MB_OK | MB_ICONSTOP,
                        _T("Windows was unable to launch the installer (%lu)"), result);

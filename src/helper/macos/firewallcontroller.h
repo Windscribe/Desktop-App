@@ -27,7 +27,7 @@ public:
     // contain a mix of IPv4 and IPv6 addresses; pf tables accept dual-stack entries natively
     // and the matching rules in firewallcontroller_mac.cpp use family-agnostic
     // `pass {out,in} quick proto udp from any to <windscribe_dns> port 53`. An empty / all-
-    // invalid list flushes the table (no DNS allowed through the kill-switch).
+    // invalid list flushes the table (no DNS allowed through the firewall).
     void setVpnDns(const std::vector<types::IpAddress> &dnsList);
 
 private:
@@ -60,16 +60,20 @@ private:
 
     // Rule construction, moved out of the engine so the client only sends intent. Shared by the
     // full build (buildPfConf) and the incremental anchor/table reloads. buildPfConf takes the
-    // <disallowed_dns> table definition and the vpn_traffic rules precomputed by the caller so the
-    // OS-resolver set (getOsDnsServers) and the interface probe each run only once per full apply.
-    std::string buildPfConf(const FirewallConfig &config, const std::string &disallowedDnsDef, const std::vector<std::string> &vpnTrafficRulesText);
+    // <disallowed_dns> table definition and the lan_traffic/vpn_traffic rules precomputed by the
+    // caller so the OS-resolver set (getOsDnsServers) and the interface probe each run only once
+    // per full apply. The caller runs probeInterfaceAddresses once and feeds both anchor builders:
+    // lanTrafficRules needs the adapter's local v4 addresses for its tunnel carve-out and the v6
+    // capability for its ICMPv6 error exemption, vpnTrafficRules needs the v6 capability for its
+    // conditional inet6 pass.
+    std::string buildPfConf(const FirewallConfig &config, const std::string &disallowedDnsDef, const std::vector<std::string> &lanTrafficRulesText, const std::vector<std::string> &vpnTrafficRulesText);
     std::string ipsTableDef(const std::vector<std::string> &ips);
     // The <disallowed_dns> table definition (the host's OS resolvers, each validated as an IP
     // literal before interpolation). Shared by the full build and the targeted refresh so a change
     // can never go to only one of them.
     std::string disallowedDnsTableDef();
-    std::vector<std::string> vpnTrafficRules(const FirewallConfig &config);
-    std::vector<std::string> lanTrafficRules(bool allowLanTraffic, bool isCustomConfig);
+    std::vector<std::string> vpnTrafficRules(const FirewallConfig &config, bool hasV6Addr);
+    std::vector<std::string> lanTrafficRules(const FirewallConfig &config, const std::vector<std::string> &localV4Addrs, bool hasV6Addr);
     std::vector<std::string> staticPortsRules(const std::vector<unsigned int> &ports);
 
     // Local-machine introspection, performed in the privileged helper rather than trusted from the
@@ -77,7 +81,6 @@ private:
     // carries a non-link-local v6 address (link-local is auto-configured on every v6-capable iface,
     // so it isn't a signal of real v6 capability).
     void probeInterfaceAddresses(const std::string &iface, std::vector<std::string> &v4Addrs, bool &hasNonLinkLocalV6);
-    std::vector<std::string> getAwdlP2pInterfaces();
 
     bool enabled_;
     std::vector<types::IpAddress> vpnDns_;
@@ -90,8 +93,11 @@ private:
     // Last <disallowed_dns> table definition we loaded, so applyTargeted only re-walks/reloads the
     // OS-resolver set when it actually changed instead of on every push.
     std::string lastDisallowedDnsDef_;
-    // Last vpn_traffic anchor rules we loaded. vpnTrafficRules depends on live interface state that
-    // isn't in FirewallConfig, so applyTargeted diffs the generated rules against this to reload the
-    // anchor whenever the tunnel's addresses/v6 capability change, not only on a config-field change.
+    // Last lan_traffic/vpn_traffic anchor rules we loaded. Both depend on live interface state that
+    // isn't in FirewallConfig (the LAN anchor's tunnel carve-out bakes in the VPN interface name and
+    // its local v4 addresses; the VPN anchor bakes in the v6 capability), so applyTargeted diffs the
+    // generated rules against these to reload an anchor whenever the tunnel's identity/addresses
+    // change — e.g. a reconnect swapping utun4 -> utun5 — not only on a config-field change.
+    std::vector<std::string> lastLanTrafficRules_;
     std::vector<std::string> lastVpnTrafficRules_;
 };

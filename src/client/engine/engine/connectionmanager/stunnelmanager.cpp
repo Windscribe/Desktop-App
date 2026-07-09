@@ -30,7 +30,7 @@ StunnelManager::~StunnelManager()
     killProcess();
 }
 
-bool StunnelManager::runProcess(const QString &hostname, unsigned int port, bool isExtraPadding)
+bool StunnelManager::runProcess(const QString &hostname, unsigned int port, bool isExtraPadding, const QString &customSni)
 {
     bool ret = false;
 
@@ -47,6 +47,9 @@ bool StunnelManager::runProcess(const QString &hostname, unsigned int port, bool
     QString hostaddr = QString("https://%1:%2").arg(hostname).arg(port);
     args << "--listenAddress" << addr;
     args << "--remoteAddress" << hostaddr;
+    if (!customSni.isEmpty()) {
+        args << "-s" << customSni;
+    }
     args << "--logFilePath" << "";
     args << "--tunnelType" << "2";
     if (isExtraPadding) {
@@ -56,7 +59,7 @@ bool StunnelManager::runProcess(const QString &hostname, unsigned int port, bool
     process_->start(stunnelExePath_, args);
     ret = true;
 #else
-    ret = helper_->startStunnel(hostname, port, port_, isExtraPadding);
+    ret = helper_->startStunnel(hostname, port, port_, isExtraPadding, customSni);
     if (ret) {
         emit stunnelStarted();
     }

@@ -299,7 +299,7 @@ void LoginWindowItem::attemptLogin()
             emit loginClick(username, password, current2FACode_);
         }
     } else {
-        QString hash = hashEntry_->getText();
+        QString hash = hashEntry_->getText().trimmed();
         if (HashUtil::isValidTruncatedSHA256(hash)) {
             emit loginClick(hash, hash, current2FACode_);
         } else {
@@ -352,8 +352,9 @@ void LoginWindowItem::onTwoFactorAuthClick()
         username = usernameEntry_->getText();
         password = passwordEntry_->getText();
     } else {
-        username = hashEntry_->getText();
-        password = hashEntry_->getText();
+        const QString hash = hashEntry_->getText().trimmed();
+        username = hash;
+        password = hash;
     }
     twoFactorAuthButton_->unhover();
     emit twoFactorAuthClick(username, password);
@@ -528,7 +529,7 @@ bool LoginWindowItem::isUsernameAndPasswordValid() const
     if (!isHashedMode_) {
         return !usernameEntry_->getText().isEmpty() && !passwordEntry_->getText().isEmpty();
     } else {
-        return !hashEntry_->getText().isEmpty();
+        return !hashEntry_->getText().trimmed().isEmpty();
     }
 }
 

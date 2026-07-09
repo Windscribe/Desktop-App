@@ -37,7 +37,7 @@ bool FirewallOnBootManager::enable(bool allowLanTraffic) {
     // family is emitted independently with its own non-empty guard below. Each entry is round-tripped
     // through types::IpAddress so we both classify by real family and drop anything that fails
     // inet_pton — defence in depth against a future producer widening the set to include malformed
-    // strings, which would otherwise wedge `pfctl -f` and break the boot-time killswitch entirely.
+    // strings, which would otherwise wedge `pfctl -f` and break the boot-time firewall entirely.
     std::string v4Ips;
     std::string v6Ips;
     for (const std::string &ip : ipTable_) {
@@ -85,11 +85,27 @@ bool FirewallOnBootManager::enable(bool allowLanTraffic) {
     // router advertisements on a v6 LAN segment before the engine takes over the rules.
     // Parity with the engine-side lanTrafficRules link-local permits in
     // firewallcontroller_mac.cpp, which are also outside the allowLanTraffic gate.
-    // Loopback ::1 is covered by `set skip on { lo0 }` above — no separate v6 loopback rule
-    // needed (and unlike Linux ip6tables, macOS pf doesn't filter v4/v6 ICMP NDP separately
-    // from the link-local match, so the fe80::/10 permit is sufficient for ND).
+    // Loopback ::1 is covered by `set skip on { lo0 }` above — no separate v6 loopback rule needed.
     rules << "pass out quick inet6 from any to fe80::/10\n";
     rules << "pass in quick inet6 from fe80::/10 to any\n";
+
+    // ICMPv6 NDP/MLD (types 130-137, 143): always allow, independent of allowLanTraffic, so
+    // neighbor/router discovery and multicast-listener messages keep working even when LAN
+    // traffic is blocked. NS/RS and MLD reports use multicast destinations (solicited-node,
+    // ff02::2, ff02::16) that would otherwise be gated by the allowLanTraffic ff00::/8 rule,
+    // so the fe80::/10 permit above is not sufficient on its own. Mirrors the Linux boot
+    // ruleset's icmpv6-type allow-list and the engine-side runtime rules.
+    rules << "pass out quick inet6 proto icmp6 icmp6-type { 130, 131, 132, 133, 134, 135, 136, 137, 143 }\n";
+    rules << "pass in quick inet6 proto icmp6 icmp6-type { 130, 131, 132, 133, 134, 135, 136, 137, 143 }\n";
+
+    // Skip Apple's link-local peer-to-peer interfaces (AWDL / p2p / llw): AirDrop, AirPlay, Handoff,
+    // Continuity, etc. They carry no internet route, so this is not a firewall leak, and it mirrors
+    // the runtime ruleset (which passes them unconditionally). Needed at boot because enabling
+    // firewall-on-boot disables the system pfctl service, so without this the boot->engine window
+    // would break those features.
+    for (const auto &iface : Utils::getAwdlP2pInterfaces()) {
+        rules << "pass quick on " << iface << "\n";
+    }
 
     if (allowLanTraffic) {
         rules << "anchor " WS_PRODUCT_NAME_LOWER "_lan_traffic all {\n";
@@ -112,8 +128,8 @@ bool FirewallOnBootManager::enable(bool allowLanTraffic) {
 
         // Multicast addresses (IPv4 + IPv6). The v6 ff00::/8 rule covers application-layer
         // multicast (mDNSv6, SSDPv6, MLD reports, etc.) per allowLanTraffic — mirrors the v4
-        // 224.0.0.0/4 rule above and the engine-side lanTrafficRules pair in
-        // firewallcontroller_mac.cpp. Not a true family-for-family mirror (v4 mDNS uses
+        // 224.0.0.0/4 rule above and the helper-side lanTrafficRules pair in
+        // firewallcontroller.cpp. Not a true family-for-family mirror (v4 mDNS uses
         // 224.0.0.251, v6 mDNS uses ff02::fb), but ff00::/8 is a strict superset of every
         // v6 multicast scope and matches the engine convention.
         rules << "pass out quick inet from any to 224.0.0.0/4\n";
@@ -123,24 +139,11 @@ bool FirewallOnBootManager::enable(bool allowLanTraffic) {
 
         // IPv6 unique local addresses (RFC 4193): the v6 analog of the RFC1918 private ranges,
         // allowed here only because we're inside the allowLanTraffic block — mirrors the v4 ranges
-        // above and the engine-side lanTrafficRules fc00::/7 pair in firewallcontroller_mac.cpp, so
-        // ULA LAN devices stay reachable in the boot→engine window. No tunnel-scoped block here: the
-        // _vpn_traffic anchor is empty before the engine connects, so no VPN interface exists yet.
+        // above and the helper-side lanTrafficRules fc00::/7 pair in firewallcontroller.cpp, so
+        // ULA LAN devices stay reachable in the boot→engine window. No tunnel carve-out here
+        // (unlike the runtime lanTrafficRules): no VPN interface exists before the engine connects.
         rules << "pass out quick inet6 from any to fc00::/7\n";
         rules << "pass in quick inet6 from fc00::/7 to any\n";
-
-        // UPnP
-        rules << "pass out quick inet proto udp from any to any port = 1900\n";
-        rules << "pass in quick proto udp from any to any port = 1900\n";
-        rules << "pass out quick inet proto udp from any to any port = 1901\n";
-        rules << "pass in quick proto udp from any to any port = 1901\n";
-
-        rules << "pass out quick inet proto udp from any to any port = 5350\n";
-        rules << "pass in quick proto udp from any to any port = 5350\n";
-        rules << "pass out quick inet proto udp from any to any port = 5351\n";
-        rules << "pass in quick proto udp from any to any port = 5351\n";
-        rules << "pass out quick inet proto udp from any to any port = 5353\n";
-        rules << "pass in quick proto udp from any to any port = 5353\n";
 
         rules << "}\n";
     }

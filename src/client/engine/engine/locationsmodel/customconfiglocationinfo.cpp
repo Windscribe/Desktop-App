@@ -86,7 +86,7 @@ void CustomConfigLocationInfo::resolveHostnamesForWireGuardConfig()
     {
         // IPv6 endpoint connections are not implemented yet (see also onDnsRequestFinished).
         // Skip literal v6 endpoints with a clear warning so they don't silently break the
-        // kill-switch path.
+        // firewall path.
         if (NetworkingValidation::isIpv6(remote))
         {
             qCWarning(LOG_CONNECTION) << "Custom WireGuard config endpoint" << remote
@@ -111,7 +111,7 @@ void CustomConfigLocationInfo::resolveHostnamesForWireGuardConfig()
             };
             // Custom configs may legitimately point at v6-only or dual-stack hostnames. We must
             // ask for both families so we can see when the resolver returns only IPv6 and warn
-            // the user clearly instead of silently failing the kill-switch path. The actual
+            // the user clearly instead of silently failing the firewall path. The actual
             // connection still uses IPv4 only — see onDnsRequestFinished().
             WSNet::instance()->dnsResolver()->lookup(remote.toStdString(), 0, IpFamily::kBoth, callback);
         }

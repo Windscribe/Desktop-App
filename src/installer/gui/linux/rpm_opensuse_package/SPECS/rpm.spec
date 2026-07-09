@@ -20,7 +20,7 @@ Source0:	windscribe.tar
 Conflicts:	windscribe-cli
 
 Requires:	bash
-Requires:	iptables
+Requires:	nftables
 Requires:	glibc >= 2.35
 Requires:	libstdc++6
 Requires:	glib2
@@ -39,7 +39,6 @@ Requires:	procps
 Requires:	polkit
 Requires:	pkexec
 Requires:	iproute2
-Requires:	libcap-progs
 Requires:	psmisc
 Requires:	coreutils
 Requires:	libgthread-2_0-0

@@ -29,7 +29,7 @@ bool InstallHelper_mac::installHelper(bool bForceDeleteOld, bool &isUserCanceled
         NSString*       installedPath           = [[installedHelperJobData objectForKey:@"ProgramArguments"] objectAtIndex:0];
         NSURL*          installedPathURL        = [NSURL fileURLWithPath:installedPath];
 
-        NSDictionary*   installedInfoPlist      = CFBridgingRelease(CFBundleCopyInfoDictionaryForURL((CFURLRef)installedPathURL));
+        NSDictionary*   installedInfoPlist      = CFBridgingRelease(CFBundleCopyInfoDictionaryForURL((__bridge CFURLRef)installedPathURL));
         NSString*       installedBundleVersion  = [installedInfoPlist objectForKey:@"CFBundleVersion"];
         NSInteger       installedVersion        = [installedBundleVersion integerValue];
 
@@ -39,7 +39,7 @@ bool InstallHelper_mac::installHelper(bool bForceDeleteOld, bool &isUserCanceled
         NSURL*          appBundleURL    = [appBundle bundleURL];
 
         NSURL*          currentHelperToolURL    = [appBundleURL URLByAppendingPathComponent:@WS_MAC_HELPER_BUNDLE_ID_PATH];
-        NSDictionary*   currentInfoPlist        = CFBridgingRelease(CFBundleCopyInfoDictionaryForURL((CFURLRef)currentHelperToolURL));
+        NSDictionary*   currentInfoPlist        = CFBridgingRelease(CFBundleCopyInfoDictionaryForURL((__bridge CFURLRef)currentHelperToolURL));
         NSString*       currentBundleVersion    = [currentInfoPlist objectForKey:@"CFBundleVersion"];
         NSInteger       currentVersion          = [currentBundleVersion integerValue];
 

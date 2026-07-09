@@ -5,16 +5,26 @@ find_package(OpenSSL REQUIRED)
 find_package(skyr-url CONFIG REQUIRED)
 find_package(spdlog CONFIG REQUIRED)
 
+# libnftables (system library): the helper manages the firewall via libnftables instead of shelling
+# out. Discovered with plain CMake find_* (the project intentionally does not use pkg-config). Build
+# hosts need the dev headers: libnftables-dev (Debian/Ubuntu), nftables-devel (Fedora/openSUSE),
+# nftables (Arch; headers ship in the main package). The runtime library is declared as a package
+# dependency in the Linux installers.
+find_library(NFTABLES_LIB nftables REQUIRED)
+find_path(NFTABLES_INCLUDE_DIR nftables/libnftables.h REQUIRED)
+
 set(SOURCES
     ../../client/client-common/types/ipaddress.cpp
     ../common/io_posix.cpp
     ../common/spawn_posix.cpp
     ../common/validation_posix.cpp
     clear_wifi_history/clear_wifi_history.cpp
+    dnsleakprotect.cpp
     firewallcontroller.cpp
     firewallonboot.cpp
     installer_verifier.cpp
     main.cpp
+    nftables/nftablescontroller.cpp
     ovpn.cpp
     process_command.cpp
     server.cpp
@@ -49,11 +59,13 @@ target_link_libraries(helper
                       OpenSSL::Crypto
                       skyr::skyr-url
                       spdlog::spdlog
+                      ${NFTABLES_LIB}
 )
 
 target_include_directories(helper PRIVATE
                            ../../posix_common
                            ../../client/client-common
+                           ${NFTABLES_INCLUDE_DIR}
 )
 
 install(TARGETS helper

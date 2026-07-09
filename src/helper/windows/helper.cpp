@@ -10,7 +10,6 @@
 #include "dns_firewall.h"
 #include "firewallfilter.h"
 #include "firewallonboot.h"
-#include "ioutils.h"
 #include "ipv6_firewall.h"
 #include "openvpncontroller.h"
 #include "process_command.h"
@@ -134,6 +133,11 @@ void Helper::stop()
 {
     // Inform the SCM that we are processing the stop/shutdown request.
     setStatus(SERVICE_STOP_PENDING, 1000);
+
+    if (clientPipe_.isValid()) {
+        ::CancelIoEx(clientPipe_.getHandle(), NULL);
+    }
+
     if (clientHandlerThread_.isValid()) {
         ::QueueUserAPC(stopClientHandlerThreadApc, clientHandlerThread_.getHandle(), 0);
     }
@@ -170,17 +174,6 @@ bool Helper::createClientPipe()
     return true;
 }
 
-void Helper::sendRequestResult(HANDLE hIOEvent, const std::string &data)
-{
-    // first 4 bytes - size of buffer
-    const auto sizeOfBuf = static_cast<unsigned long>(data.size());
-    if (IOUtils::writeAll(clientPipe_.getHandle(), hIOEvent, (char *)&sizeOfBuf, sizeof(sizeOfBuf))) {
-        if (sizeOfBuf > 0) {
-            IOUtils::writeAll(clientPipe_.getHandle(), hIOEvent, data.c_str(), sizeOfBuf);
-        }
-    }
-}
-
 void Helper::processClientRequests()
 {
 #if !defined(WINDSCRIBE_DEV_MODE)
@@ -196,46 +189,48 @@ void Helper::processClientRequests()
     }
 
     while (!serviceExiting()) {
-        int cmdId;
-        if (!IOUtils::readAll(clientPipe_.getHandle(), ioCompletedEvent.getHandle(), (char *)&cmdId, sizeof(cmdId))) {
+        if (!readAll(ioCompletedEvent.getHandle(), (char *)&clientMessage_.cmdId, sizeof(clientMessage_.cmdId))) {
             break;
         }
 
-        unsigned long sizeOfBuf;
-        if (!IOUtils::readAll(clientPipe_.getHandle(), ioCompletedEvent.getHandle(), (char *)&sizeOfBuf, sizeof(sizeOfBuf))) {
+        if (!readAll(ioCompletedEvent.getHandle(), (char *)&clientMessage_.requestSize, sizeof(clientMessage_.requestSize))) {
             break;
         }
 
         // Reject oversized frames before any size-derived allocation. Disconnecting
         // the client (break out of the request loop) is the safe response to any
         // local caller — authorized or otherwise — that produces a malformed frame.
-        if (sizeOfBuf > kMaxHelperFrameSize) {
-            spdlog::error("Helper IPC: rejecting frame with invalid length {}", sizeOfBuf);
+        if (clientMessage_.requestSize > kMaxHelperFrameSize) {
+            spdlog::error("Helper IPC: rejecting frame with invalid length {}", clientMessage_.requestSize);
             break;
         }
 
-        std::string strData;
-        if (sizeOfBuf > 0) {
+        clientMessage_.request.clear();
+        if (clientMessage_.requestSize > 0) {
             try {
-                std::vector<char> buffer(sizeOfBuf);
-                if (!IOUtils::readAll(clientPipe_.getHandle(), ioCompletedEvent.getHandle(), buffer.data(), sizeOfBuf)) {
+                clientMessage_.request.resize(clientMessage_.requestSize);
+                if (!readAll(ioCompletedEvent.getHandle(), clientMessage_.request.data(), clientMessage_.requestSize)) {
                     break;
                 }
-                strData = std::string(buffer.begin(), buffer.end());
             } catch (const std::bad_alloc &) {
-                spdlog::error("Helper IPC: bad_alloc for frame size {}", sizeOfBuf);
+                spdlog::error("Helper IPC: bad_alloc for frame size {}", clientMessage_.requestSize);
                 break;
             }
         }
 
-        std::string result;
+        clientMessage_.response.clear();
         try {
-            result = processCommand((HelperCommand)cmdId, strData);
+            clientMessage_.response = processCommand((HelperCommand)clientMessage_.cmdId, clientMessage_.request);
         } catch (const std::exception &ex) {
-            spdlog::error("Helper IPC: processCommand({}) exception: {}", cmdId, ex.what());
+            spdlog::error("Helper IPC: processCommand({}) exception: {}", clientMessage_.cmdId, ex.what());
         }
-        sendRequestResult(ioCompletedEvent.getHandle(), result);
-        ::FlushFileBuffers(clientPipe_.getHandle());
+
+        clientMessage_.responseSize = static_cast<unsigned long>(clientMessage_.response.size());
+        if (writeAll(ioCompletedEvent.getHandle(), (char *)&clientMessage_.responseSize, sizeof(clientMessage_.responseSize))) {
+            if (clientMessage_.responseSize > 0) {
+                writeAll(ioCompletedEvent.getHandle(), clientMessage_.response.c_str(), clientMessage_.responseSize);
+            }
+        }
     }
 }
 
@@ -254,7 +249,7 @@ DWORD WINAPI Helper::clientHandlerThreadProc(LPVOID lpParameter)
         return 0;
     }
 
-    while (true) {
+    while (!pThis->serviceExiting()) {
         OVERLAPPED overlapped;
         ::ZeroMemory(&overlapped, sizeof(overlapped));
         overlapped.hEvent = clientConnectedEvent.getHandle();
@@ -286,6 +281,96 @@ DWORD WINAPI Helper::clientHandlerThreadProc(LPVOID lpParameter)
     ::CoUninitialize();
 
     return 0;
+}
+
+bool Helper::readAll(HANDLE hIOEvent, char *buf, DWORD len)
+{
+    char* dataBuf = buf;
+    DWORD bytesToRead = len;
+
+    while (bytesToRead > 0) {
+        ::ZeroMemory(&overlapped_, sizeof(overlapped_));
+        overlapped_.hEvent = hIOEvent;
+
+        DWORD bytesRead = 0;
+        auto result = ::ReadFile(clientPipe_.getHandle(), dataBuf, bytesToRead, &bytesRead, &overlapped_);
+        if (result) {
+            // The asynchronous read request could be satisfied immediately.
+            bytesToRead -= bytesRead;
+            dataBuf += bytesRead;
+            continue;
+        }
+
+        auto lastError = ::GetLastError();
+        if (lastError != ERROR_IO_PENDING) {
+            spdlog::error("readAll ReadFile failed {}", lastError);
+            return false;
+        }
+
+        result = ::GetOverlappedResultEx(clientPipe_.getHandle(), &overlapped_, &bytesRead, INFINITE, TRUE);
+        if (result) {
+            bytesToRead -= bytesRead;
+            dataBuf += bytesRead;
+            continue;
+        }
+
+        // An APC is queued to this thread, or its pending IO is cancelled (CancelIoEx), to instruct
+        // it to stop.  No need to log a failure in those cases, or if the pipe has been closed by
+        // the client.
+        lastError = ::GetLastError();
+        if (lastError != WAIT_IO_COMPLETION && lastError != ERROR_BROKEN_PIPE && lastError != ERROR_OPERATION_ABORTED) {
+            spdlog::error("readAll GetOverlappedResultEx failed {}", lastError);
+        }
+
+        return false;
+    }
+
+    return true;
+}
+
+bool Helper::writeAll(HANDLE hIOEvent, const char *buf, DWORD len)
+{
+    const char* dataBuf = buf;
+    DWORD bytesToWrite = len;
+
+    while (bytesToWrite > 0) {
+        ::ZeroMemory(&overlapped_, sizeof(overlapped_));
+        overlapped_.hEvent = hIOEvent;
+
+        DWORD bytesWritten = 0;
+        auto result = ::WriteFile(clientPipe_.getHandle(), dataBuf, bytesToWrite, &bytesWritten, &overlapped_);
+        if (result) {
+            // The asynchronous write request could be satisfied immediately.
+            bytesToWrite -= bytesWritten;
+            dataBuf += bytesWritten;
+            continue;
+        }
+
+        auto lastError = ::GetLastError();
+        if (lastError != ERROR_IO_PENDING) {
+            spdlog::error("writeAll WriteFile failed {}", lastError);
+            return false;
+        }
+
+        result = ::GetOverlappedResultEx(clientPipe_.getHandle(), &overlapped_, &bytesWritten, INFINITE, TRUE);
+        if (result) {
+            bytesToWrite -= bytesWritten;
+            dataBuf += bytesWritten;
+            continue;
+        }
+
+        // An APC is queued to this thread, or its pending IO is cancelled (CancelIoEx), to instruct
+        // it to stop.  No need to log a failure in those cases, or if the pipe has been closed by
+        // the client.
+        lastError = ::GetLastError();
+        if (lastError != WAIT_IO_COMPLETION && lastError != ERROR_BROKEN_PIPE && lastError != ERROR_OPERATION_ABORTED) {
+            spdlog::error("writeAll GetOverlappedResultEx failed {}", lastError);
+        }
+
+        return false;
+    }
+
+    return true;
 }
 
 } // end namespace wsl

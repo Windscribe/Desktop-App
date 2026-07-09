@@ -176,6 +176,15 @@ QString MacUtils::getBundlePath()
     return QString::fromNSString([[NSBundle mainBundle] bundlePath]);
 }
 
+bool MacUtils::hasActiveDisplay()
+{
+    uint32_t displayCount = 0;
+    if (CGGetActiveDisplayList(0, nullptr, &displayCount) != kCGErrorSuccess) {
+        return false;
+    }
+    return displayCount > 0;
+}
+
 void MacUtils::getNSWindowCenter(void *nsView, int &outX, int &outY)
 {
     NSView *view = (__bridge NSView *)nsView;
@@ -363,7 +372,7 @@ QSet<QString> MacUtils::getOsDnsServers()
 
     // Diagnostic: split v4/v6 counts so a misclassified or missing IPv6 system resolver shows up
     // in logs. `MacUtils::getOsDnsServers()` feeds `firewallcontroller_mac.cpp`'s `<disallowed_dns>`
-    // pf table — if a host configured with a v6 ISP DNS server logs `ipv6=0` here, the kill-switch
+    // pf table — if a host configured with a v6 ISP DNS server logs `ipv6=0` here, the firewall
     // cannot block it and a v6 DNS leak is possible. macOS stores both families in a single flat
     // `ServerAddresses` array, so dual-stack hosts should always show non-zero on both counters.
     int v4Count = 0;
