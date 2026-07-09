@@ -1,3 +1,8 @@
+2.23.12 (08/07/2026)
+Windows:
+   * Fixed WireGuard connection may hang/timeout due to phantom ROOT/WireGuard device nodes created by the Windows feature update process. #1922
+
+
 2.23.11 (03/07/2026)
 macOS:
    * Fixed clicking the menu bar icon while the menu is open doesn't close the menu. #1897

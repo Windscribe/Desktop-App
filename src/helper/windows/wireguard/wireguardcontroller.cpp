@@ -16,6 +16,7 @@
 #include <sstream>
 #include <spdlog/spdlog.h>
 
+#include "phantom_wireguard_devices.h"
 #include "types/global_consts.h"
 #include "utils/servicecontrolmanager.h"
 #include "utils/win32handle.h"
@@ -40,6 +41,8 @@ bool WireGuardController::installService(bool isAmneziaWG)
     isAmneziaWG_ = isAmneziaWG;
     isInitialized_ = false;
     try {
+        PhantomWireGuardDevices::remove();
+
         exeName_ = L"WireguardService.exe";
         const std::wstring confFile = configFile();
         if (confFile.empty()) {

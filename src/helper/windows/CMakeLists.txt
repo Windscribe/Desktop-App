@@ -49,6 +49,7 @@ set(SOURCES
     split_tunneling/split_tunnel_service_manager.cpp
     utils.cpp
     win32service.cpp
+    wireguard/phantom_wireguard_devices.cpp
     wireguard/wireguardcontroller.cpp
     wmi_utils.cpp
     ${CMAKE_CURRENT_BINARY_DIR}/version.rc
@@ -97,3 +98,5 @@ target_include_directories(${WS_APP_IDENTIFIER}Service PRIVATE
 install(TARGETS ${WS_APP_IDENTIFIER}Service
     RUNTIME DESTINATION .
 )
+
+add_subdirectory(tests)
