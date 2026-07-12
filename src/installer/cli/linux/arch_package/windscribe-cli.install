@@ -24,10 +24,6 @@ post_install() {
         # Ensure the windscribe service group and user exist
         getent group windscribe >/dev/null 2>&1 || groupadd windscribe
         id -u windscribe >/dev/null 2>&1 || useradd -r -g windscribe -s /bin/false windscribe
-        systemctl enable NetworkManager.service || true
-        systemctl start NetworkManager.service || true
-        systemctl enable systemd-resolved || true
-        systemctl start systemd-resolved || true
         systemctl enable windscribe-helper
         systemctl start windscribe-helper
         ln -sf /opt/windscribe/windscribe-cli /usr/bin/windscribe-cli
