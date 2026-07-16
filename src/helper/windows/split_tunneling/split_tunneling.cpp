@@ -7,6 +7,7 @@
 
 #include "../close_tcp_connections.h"
 #include "../firewallfilter.h"
+#include "../ipv6_firewall.h"
 #include "../utils.h"
 
 SplitTunneling::SplitTunneling(FwpmWrapper& fwpmWrapper)
@@ -115,11 +116,13 @@ bool SplitTunneling::updateState()
                                  connectStatus_.defaultAdapter.ifIndex);
         FirewallFilter::instance().setSplitTunnelingAppsIds(appsIds);
         FirewallFilter::instance().setSplitTunnelingEnabled(isExclude_);
+        Ipv6Firewall::instance().setSplitTunnelingState(Ipv6Firewall::SplitTunnelMode::Disabled, AppsIds());
 
         calloutFilter_.disable();
         splitTunnelServiceManager_.stop();
     } else if (isSplitTunnelActive) {
         if (!splitTunnelServiceManager_.start()) {
+            Ipv6Firewall::instance().setSplitTunnelingState(Ipv6Firewall::SplitTunnelMode::Disabled, AppsIds());
             return false;
         }
 
@@ -150,13 +153,28 @@ bool SplitTunneling::updateState()
             vpnExecutablesForInclusive.addFrom(vpnMainExecutableId_);
             vpnExecutablesForInclusive.addFrom(ctrldExecutableId_);
         }
-        calloutFilter_.enable(localIp, vpnIp,
-                             connectStatus_.defaultAdapter.adapterIpV6,
-                             connectStatus_.vpnAdapter.adapterIpV6,
-                             appsIds, vpnExecutablesForInclusive, isExclude_, isAllowLanTraffic_,
-                             connectStatus_.vpnAdapter.ifIndex);
 
+        if (!calloutFilter_.enable(localIp, vpnIp,
+                                   connectStatus_.defaultAdapter.adapterIpV6,
+                                   connectStatus_.vpnAdapter.adapterIpV6,
+                                   appsIds, vpnExecutablesForInclusive, isExclude_, isAllowLanTraffic_,
+                                   connectStatus_.vpnAdapter.ifIndex)) {
+            spdlog::error("SplitTunneling::updateState(), CalloutFilter::enable() failed");
+            Ipv6Firewall::instance().setSplitTunnelingState(Ipv6Firewall::SplitTunnelMode::Disabled, AppsIds());
+            return false;
+        }
+
+        // Only after the callout is up: fail-closed if it didn't start.
+        if (isExclude_) {
+            Ipv6Firewall::instance().setSplitTunnelingState(Ipv6Firewall::SplitTunnelMode::Exclusive, appsIds);
+        } else {
+            AppsIds tunnelBoundApps = appsIds;  // included apps + vpnOtherExecutablesId_
+            tunnelBoundApps.addFrom(vpnMainExecutableId_);
+            tunnelBoundApps.addFrom(ctrldExecutableId_);
+            Ipv6Firewall::instance().setSplitTunnelingState(Ipv6Firewall::SplitTunnelMode::Inclusive, tunnelBoundApps);
+        }
     } else {
+        Ipv6Firewall::instance().setSplitTunnelingState(Ipv6Firewall::SplitTunnelMode::Disabled, AppsIds());
         calloutFilter_.disable();
         hostnamesManager_.disable();
         FirewallFilter::instance().setSplitTunnelingDisabled();

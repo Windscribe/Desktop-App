@@ -1,3 +1,25 @@
+2.24.3 guinea pig (16/07/2026)
+All:
+   * Improved Custom SNI handling by keeping Custom SNI Domain visible/editable independently of the Protocol Tweaks mode, while still applying it only to Stealth/stunnel and WSTunnel connections. #1935
+   * Improved wsnet/desktop hardening by validating values received from wsnet and applying wsnet security-audit fixes for URL construction, TLS/network handling, logging, parsing, and failover robustness. #1924 wsnet #32
+   * Fixed HTTP Proxy settings rejecting valid high port numbers in the 63536-65535 range. #1936
+   * Fixed Always On+ firewall mode skipping WireGuard when a valid cached WireGuard config is available. #1916
+   * Fixed Always On+ unsecured-network handling disconnecting during WireGuard-to-OpenVPN fallback when no cached WireGuard config is available. #1925
+   * Fixed insecure OpenVPN management interface behavior that could allow local management-port hijacking, spoofed VPN state, or credential capture. #1904
+   * Updated wsnet to 1.5.29, including security-audit hardening and a fix for Linux CA bundle loading with cURL 8.21. #1924 #1929 wsnet #32 wsnet #33
+Windows:
+   * Improved DNS leak firewall setup by de-duplicating DNS server entries before adding Windows firewall filters. #1933
+   * Fixed inclusive split tunneling with WireGuard tunneling non-included traffic through the VPN. #1932
+   * Fixed inclusive split tunneling blocking native ISP IPv6 for non-included apps on dual-stack networks. #1934
+macOS:
+   * Fixed split tunneling extension lifecycle bugs and improved cleanup. #1518
+Linux:
+   * Improved split tunneling so non-tunneled apps can preserve native ISP IPv6 on dual-stack networks while tunneled apps remain leak-protected. #1902
+   * Improved networking-service handling so installers avoid force-enabling NetworkManager/systemd-resolved and nmcli-dependent features degrade gracefully when unavailable. #1927
+   * Fixed openSUSE Tumbleweed SSL/API validation failures caused by missing Debian-style CA bundle path. #1929 wsnet #33
+   * Fixed local root escalation chain involving SGID helper descriptor reuse and OpenVPN custom config parser differences. #1928
+   
+
 2.24.2 guinea pig (08/07/2026)
 All:
    * Added custom SNI support for stunnel/wstunnel anti-censorship connections. #1794

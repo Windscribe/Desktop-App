@@ -75,15 +75,15 @@ void ProxySettingsGroup::onAddressChanged(const QString &text)
 void ProxySettingsGroup::onPortChanged(const QString &text)
 {
     if (QString::number(settings_.getPort()) != text) {
-        uint port = text.toUInt();
-        if (port < 63536) {
+        const uint port = text.toUInt();
+        if (NetworkingValidation::isValidPort(static_cast<int>(port))) {
             settings_.setPort(port);
             emit proxySettingsChanged(settings_);
         } else {
             GeneralMessageController::instance().showMessage(
                 "WARNING_WHITE",
                 tr("Invalid proxy port"),
-                tr("Proxy port is invalid. Please enter a valid port in the range 0-65535."),
+                tr("Proxy port is invalid. Please enter a valid port in the range 1-65535."),
                 GeneralMessageController::tr(GeneralMessageController::kOk),
                 "",
                 "",

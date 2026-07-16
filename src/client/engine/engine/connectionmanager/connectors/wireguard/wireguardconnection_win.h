@@ -2,8 +2,8 @@
 
 #include <QScopedPointer>
 
+#include "engine/connectionmanager/connectors/iconnection.h"
 #include "engine/wireguardconfig/wireguardconfig.h"
-#include "iconnection.h"
 #include "engine/helper/helper.h"
 #include "wireguardringlogger.h"
 #include "utils/win32handle.h"

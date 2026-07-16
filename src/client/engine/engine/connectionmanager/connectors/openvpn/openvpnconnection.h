@@ -3,12 +3,11 @@
 #include <QThread>
 #include <QElapsedTimer>
 #include <QTimer>
-#include <QMutex>
 
 #include <atomic>
 
+#include "engine/connectionmanager/connectors/iconnection.h"
 #include "engine/helper/helper.h"
-#include "iconnection.h"
 #include "types/protocol.h"
 #include "types/proxysettings.h"
 #include "utils/boost_includes.h"
@@ -47,13 +46,14 @@ private slots:
     void onKillControllerTimer();
 
 private:
-    static constexpr int DEFAULT_PORT = 9544;
     static constexpr int MAX_WAIT_OPENVPN_ON_START = 20000;
+    static constexpr int MANAGEMENT_SOCKET_RETRY_DELAY_MS = 100;
 
     Helper *helper_;
     std::atomic<bool> bStopThread_;
 
     boost::asio::io_context io_context_;
+    boost::asio::steady_timer connectRetryTimer_;
 
     QString config_;
     QString username_;
@@ -65,18 +65,23 @@ private:
     types::Protocol protocol_;
 
     enum CONNECTION_STATUS {STATUS_DISCONNECTED, STATUS_CONNECTING, STATUS_CONNECTED_TO_SOCKET, STATUS_CONNECTED};
-    CONNECTION_STATUS currentState_;
-    mutable QMutex mutexCurrentState_;
+    std::atomic<CONNECTION_STATUS> currentState_;
 
     void setCurrentState(CONNECTION_STATUS state);
     void setCurrentStateAndEmitDisconnected(CONNECTION_STATUS state);
     void setCurrentStateAndEmitError(CONNECTION_STATUS state, CONNECT_ERROR err);
     CONNECTION_STATUS getCurrentState() const;
-    bool runOpenVPN(unsigned int port);
+    bool runOpenVPN();
+
+#ifdef Q_OS_WIN
+    using ManagementSocket = boost::asio::ip::tcp::socket;
+#else
+    using ManagementSocket = boost::asio::local::stream_protocol::socket;
+#endif
 
     struct StateVariables
     {
-        boost::scoped_ptr<boost::asio::ip::tcp::socket> socket;
+        boost::scoped_ptr<ManagementSocket> socket;
         boost::scoped_ptr<boost::asio::streambuf> buffer;
         bool bTapErrorEmited;
         bool bWasStateNotification;
@@ -92,6 +97,7 @@ private:
         quint64 prevBytesXmited;
 
         unsigned int openVpnPort;
+        unsigned long openVpnPid;
 
         QElapsedTimer elapsedTimer;
 
@@ -113,6 +119,7 @@ private:
             prevBytesRcved = 0;
             prevBytesXmited = 0;
             openVpnPort = 0;
+            openVpnPid = 0;
             bWasSocketConnected = false;
             bNeedSendSigTerm = false;
             isAcceptSigTermCommand_ = false;
@@ -128,6 +135,11 @@ private:
     AdapterGatewayInfo connectionAdapterInfo_;
 
     void funcRunOpenVPN();
+    void asyncConnectToManagementSocket();
+    void retryConnectToManagementSocket(const boost::system::error_code& err);
+#ifdef Q_OS_WIN
+    bool verifyOpenVpnPeer();
+#endif
     void funcConnectToOpenVPN(const boost::system::error_code& err);
     void handleRead(const boost::system::error_code& err, size_t bytes_transferred);
     void funcDisconnect();

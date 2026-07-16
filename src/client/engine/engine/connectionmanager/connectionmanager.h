@@ -3,13 +3,13 @@
 #include <QElapsedTimer>
 #include <QObject>
 #include <QTimer>
-#include "stunnelmanager.h"
-#include "wstunnelmanager.h"
 #include "ctrldmanager/ictrldmanager.h"
-#include "makeovpnfile.h"
-#include "makeovpnfilefromcustom.h"
+#include "engine/connectionmanager/connectors/openvpn/makeovpnfile.h"
+#include "engine/connectionmanager/connectors/openvpn/makeovpnfilefromcustom.h"
+#include "engine/connectionmanager/connectors/openvpn/stunnelmanager.h"
+#include "engine/connectionmanager/connectors/openvpn/wstunnelmanager.h"
 
-#include "iconnection.h"
+#include "engine/connectionmanager/connectors/iconnection.h"
 #include "engine/wireguardconfig/wireguardconfig.h"
 #include "connsettingspolicy/baseconnsettingspolicy.h"
 #include "engine/customconfigs/customovpnauthcredentialsstorage.h"
@@ -26,9 +26,12 @@
     #include "restorednsmanager_mac.h"
 #endif
 
+class IConnectionFactory;
+class IConnectionPlatformPolicy;
+class IConnSettingsPolicyFactory;
+class IExtraConfigAccessor;
 class INetworkDetectionManager;
 class ISleepEvents;
-class IKEv2Connection;
 class TestVPNTunnel;
 enum class WireGuardConfigRetCode;
 class GetWireGuardConfig;
@@ -60,8 +63,15 @@ class ConnectionManager : public QObject
 {
     Q_OBJECT
 public:
+    // The seam parameters exist for tests; when null, the production implementations are created.
+    // ConnectionManager takes ownership of the seam objects, so they must be heap-allocated.
     explicit ConnectionManager(QObject *parent, Helper *helper, INetworkDetectionManager *networkDetectionManager,
-                               CustomOvpnAuthCredentialsStorage *customOvpnAuthCredentialsStorage);
+                               CustomOvpnAuthCredentialsStorage *customOvpnAuthCredentialsStorage,
+                               IConnectionFactory *connectionFactory = nullptr,
+                               IConnectionPlatformPolicy *platformPolicy = nullptr,
+                               IConnSettingsPolicyFactory *connSettingsPolicyFactory = nullptr,
+                               ISleepEvents *sleepEvents = nullptr,
+                               IExtraConfigAccessor *extraConfig = nullptr);
     ~ConnectionManager() override;
 
     void clickConnect(const ConnectRequest &req);
@@ -158,6 +168,12 @@ private slots:
     void onGetWireGuardConfigAnswer(WireGuardConfigRetCode retCode, const WireGuardConfig &config);
 
 private:
+#ifdef WINDSCRIBE_BUILD_TESTS
+    // Tests use real QTimers: they read timer state directly and simulate expiry by invoking the
+    // timeout slots (stopping single-shot timers first, matching what a real expiry leaves behind).
+    friend class TestConnectionManager;
+#endif
+
     enum {STATE_DISCONNECTED, STATE_CONNECTING_FROM_USER_CLICK, STATE_CONNECTED, STATE_RECONNECTING,
           STATE_DISCONNECTING_FROM_USER_CLICK, STATE_WAIT_FOR_NETWORK_CONNECTIVITY, STATE_RECONNECTION_TIME_EXCEED,
           STATE_SLEEP_MODE_NEED_RECONNECT, STATE_WAKEUP_RECONNECTING, STATE_AUTO_DISCONNECT, STATE_ERROR_DURING_CONNECTION};
@@ -165,6 +181,11 @@ private:
     Helper *helper_;
     INetworkDetectionManager *networkDetectionManager_;
     CustomOvpnAuthCredentialsStorage *customOvpnAuthCredentialsStorage_;
+
+    QScopedPointer<IConnectionFactory> connectionFactory_;
+    QScopedPointer<IConnectionPlatformPolicy> platformPolicy_;
+    QScopedPointer<IConnSettingsPolicyFactory> connSettingsPolicyFactory_;
+    QScopedPointer<IExtraConfigAccessor> extraConfig_;
 
     IConnection *connector_;
     ISleepEvents *sleepEvents_;

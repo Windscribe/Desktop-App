@@ -76,7 +76,7 @@ void Helper_posix::changeMtu(const QString &adapter, int mtu)
     sendCommand(HelperCommand::changeMtu, adapter.toStdString(), mtu);
 }
 
-bool Helper_posix::executeOpenVPN(const QString &config, unsigned int port, const QString &httpProxy, unsigned int httpPort, const QString &socksProxy, unsigned int socksPort)
+bool Helper_posix::executeOpenVPN(const QString &config, const QString &httpProxy, unsigned int httpPort, const QString &socksProxy, unsigned int socksPort)
 {
     CmdDnsManager dnsManager;
 #if defined(Q_OS_LINUX)
@@ -93,7 +93,7 @@ bool Helper_posix::executeOpenVPN(const QString &config, unsigned int port, cons
         break;
     }
 #endif
-    auto result = sendCommand(HelperCommand::executeOpenVPN, config.toStdString(), port, httpProxy.toStdString(), httpPort,
+    auto result = sendCommand(HelperCommand::executeOpenVPN, config.toStdString(), httpProxy.toStdString(), httpPort,
                               socksProxy.toStdString(), socksPort, dnsManager);
     bool success = false;
     deserializeAnswer(result, success);

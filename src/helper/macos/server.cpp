@@ -88,9 +88,14 @@ void Server::peer_event_handler(xpc_connection_t peer, xpc_object_t event)
             data = std::string((const char *)buf, length);
         }
 
+        // Pass the connection's kernel-verified peer uid down to the handler so per-user resources
+        // (executeOpenVPN's management socket) can be locked to the caller without trusting anything
+        // in the payload. It's passed as a call argument rather than stored in a shared global: peer
+        // events dispatch on the default concurrent queue, so a static would race across concurrent
+        // commands from different clients.
         std::string answer;
         try {
-            answer = processCommand((HelperCommand)cmdId, data);
+            answer = processCommand((HelperCommand)cmdId, data, xpc_connection_get_euid(peer));
         } catch (const std::exception &ex) {
             spdlog::error("Helper IPC: processCommand({}) exception: {}", (int)cmdId, ex.what());
             answer.clear();

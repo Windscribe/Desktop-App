@@ -9,6 +9,7 @@ class TestOvpnCredentialInliner : public QObject
 
 private slots:
     void initTestCase();
+    void cleanupTestCase();
 
     // Pass-through cases
     void testEmptyConfig();

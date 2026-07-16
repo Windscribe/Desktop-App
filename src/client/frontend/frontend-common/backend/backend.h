@@ -91,8 +91,6 @@ public:
     void continueWithCredentialsForOvpnConfig(const QString &username, const QString &password, bool bSave);
     void continueWithPrivKeyPasswordForOvpnConfig(const QString &password, bool bSave);
 
-    void sendAdvancedParametersChanged();
-
     gui_locations::LocationsModelManager *locationsModelManager();
 
     PreferencesHelper *getPreferencesHelper();

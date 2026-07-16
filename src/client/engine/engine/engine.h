@@ -133,7 +133,6 @@ public:
     void updateWindowInfo(qint32 windowCenterX, qint32 windowCenterY);
     void updateVersion(qint64 windowHandle);
     void stopUpdateVersion();
-    void updateAdvancedParams();
 
     void makeHostsFileWritableWin();
 

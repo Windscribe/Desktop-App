@@ -235,6 +235,7 @@ add_compile_definitions(
     WS_MAC_UID="${WS_MAC_UID}"
     WS_MAC_VPN_DESCRIPTION="${WS_MAC_VPN_DESCRIPTION}"
     WS_POSIX_CONFIG_DIR="${WS_POSIX_CONFIG_DIR}"
+    WS_OVPN_MGMT_SOCKET="${WS_OVPN_MGMT_SOCKET}"
     WS_PRODUCT_NAME="${WS_PRODUCT_NAME}"
     WS_PRODUCT_NAME_LOWER="${WS_PRODUCT_NAME_LOWER}"
     WS_PRODUCT_NAME_UPPER="${WS_PRODUCT_NAME_UPPER}"
@@ -332,6 +333,7 @@ include(cmake/signing.cmake)
 if(BUILD_APP)
     if(BUILD_TESTS)
         set(IS_BUILD_TESTS ON)
+        add_compile_definitions(WINDSCRIBE_BUILD_TESTS)
         enable_testing()
     endif()
 

@@ -1269,6 +1269,14 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
         <source>Artificially enlarge TLS packets, helps to circumvent censorship in some cases. Adds extra TLS padding to all API requests.</source>
         <translation>Phóng to các gói TLS một cách giả tạo, giúp vượt qua kiểm duyệt trong một số trường hợp. Thêm khoảng đệm TLS bổ sung cho tất cả các yêu cầu API.</translation>
     </message>
+    <message>
+        <source>Custom SNI Domain</source>
+        <translation>Tên miền SNI tùy chỉnh</translation>
+    </message>
+    <message>
+        <source>This setting applies to Stealth and Wstunnel protocols only.</source>
+        <translation>Cài đặt này chỉ áp dụng cho các giao thức Stealth và Wstunnel.</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::AppBackgroundGroup</name>
@@ -1445,6 +1453,10 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
     <message>
         <source>Spoof your device&apos;s physical address (MAC address).</source>
         <translation>Giả mạo địa chỉ thực của thiết bị (địa chỉ MAC).</translation>
+    </message>
+    <message>
+        <source>MAC spoofing requires NetworkManager to be installed and running.</source>
+        <translation>Giả mạo MAC yêu cầu cài đặt và chạy NetworkManager.</translation>
     </message>
     <message>
         <source>Close all active TCP sockets when the VPN tunnel is established.</source>
@@ -2082,10 +2094,6 @@ Kết nối với mạng trước</translation>
 <context>
     <name>PreferencesWindow::ProtocolTweaksGroup</name>
     <message>
-        <source>Custom SNI Domain</source>
-        <translation>Tên miền SNI tùy chỉnh</translation>
-    </message>
-    <message>
         <source>Protocol Tweaks</source>
         <translation>Tinh chỉnh giao thức</translation>
     </message>
@@ -2172,8 +2180,8 @@ Kết nối với mạng trước</translation>
         <translation>Cổng proxy không hợp lệ</translation>
     </message>
     <message>
-        <source>Proxy port is invalid. Please enter a valid port in the range 0-65535.</source>
-        <translation>Cổng proxy không hợp lệ. Vui lòng nhập cổng hợp lệ trong phạm vi 0-65535.</translation>
+        <source>Proxy port is invalid. Please enter a valid port in the range 1-65535.</source>
+        <translation>Cổng proxy không hợp lệ. Vui lòng nhập cổng hợp lệ trong phạm vi 1-65535.</translation>
     </message>
     <message>
         <source>Proxy address is invalid. Please enter a valid IP address.</source>
@@ -2311,6 +2319,10 @@ Kết nối với mạng trước</translation>
 </context>
 <context>
     <name>PreferencesWindow::SplitTunnelingAddressesGroup</name>
+    <message>
+        <source>There are too many IPs/CIDR ranges in the list. Please remove some before adding more.</source>
+        <translation>Có quá nhiều phạm vi IP/CIDR trong danh sách. Vui lòng xóa một số trước khi thêm thêm.</translation>
+    </message>
     <message>
         <source>IP or hostname already exists. Please enter a new IP or hostname.</source>
         <translation>IP hoặc tên máy chủ đã tồn tại. Vui lòng nhập IP hoặc tên máy chủ mới.</translation>

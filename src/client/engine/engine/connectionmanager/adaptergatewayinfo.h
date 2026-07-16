@@ -51,7 +51,7 @@ public:
 
     bool isEmpty() const;
 
-    QString makeLogString();
+    QString makeLogString() const;
 
 private:
     QString adapterName_;

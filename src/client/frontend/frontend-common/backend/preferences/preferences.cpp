@@ -533,7 +533,6 @@ const QString Preferences::debugAdvancedParameters() const
 void Preferences::setDebugAdvancedParameters(const QString &p)
 {
     ExtraConfig::instance().writeConfig(p);
-    emit debugAdvancedParametersChanged(p);
 }
 
 DNS_POLICY_TYPE Preferences::dnsPolicy() const

@@ -39,6 +39,7 @@ Requires:	procps
 Requires:	polkit
 Requires:	pkexec
 Requires:	iproute2
+Requires:	iw
 Requires:	psmisc
 Requires:	coreutils
 Requires:	libgthread-2_0-0

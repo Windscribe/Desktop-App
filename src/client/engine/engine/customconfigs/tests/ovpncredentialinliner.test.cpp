@@ -5,6 +5,7 @@
 #include <QByteArray>
 #include <QDir>
 #include <QFile>
+#include <QSettings>
 #include <QTemporaryDir>
 
 #ifdef Q_OS_UNIX
@@ -45,6 +46,12 @@ void TestOvpnCredentialInliner::initTestCase()
 {
     QCoreApplication::setOrganizationName("WindscribeTest");
     QCoreApplication::setApplicationName("ovpncredentialinliner.test");
+}
+
+void TestOvpnCredentialInliner::cleanupTestCase()
+{
+    QSettings settings;
+    settings.clear();
 }
 
 void TestOvpnCredentialInliner::testEmptyConfig()

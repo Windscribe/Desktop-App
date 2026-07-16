@@ -4,8 +4,8 @@
 #include <QMap>
 #include <QTimer>
 #include <QMutex>
+#include "engine/connectionmanager/connectors/iconnection.h"
 #include "engine/helper/helper.h"
-#include "iconnection.h"
 
 class IKEv2Connection_linux : public IConnection
 {

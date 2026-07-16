@@ -44,6 +44,7 @@ Requires:	procps-ng
 Requires:	polkit
 Requires:	iproute
 Requires:	iputils
+Requires:	iw
 Requires:	psmisc
 Requires:	libxkbcommon-x11
 Requires:	coreutils

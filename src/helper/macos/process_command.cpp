@@ -4,7 +4,6 @@
 #include <fcntl.h>
 #include <filesystem>
 #include <grp.h>
-#include <pwd.h>
 #include <stdint.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -23,12 +22,25 @@
 #include "utils/wsscopeguard.h"
 #include "wireguard/wireguardcontroller.h"
 #include "../common/io_posix.h"
+#include "../common/ovpn_mgmt_posix.h"
 #include "../common/spawn_posix.h"
 #include "../common/validation_posix.h"
 #include "clear_wifi_history/clear_wifi_history.h"
 
-std::string processCommand(HelperCommand cmdId, const std::string &pars)
+std::string processCommand(HelperCommand cmdId, const std::string &pars, uid_t clientUid)
 {
+    // executeOpenVPN is the only command that needs the caller's kernel-verified uid (to lock the
+    // OpenVPN management socket to that user), so it's dispatched directly with the uid rather than
+    // through kCommands (whose handlers take only the serialized parameters). Passing the uid as a
+    // call argument — instead of a shared static as implemented in the Linux helper — is what makes
+    // concurrent command dispatch on the default concurrent XPC queue safe: a second client's
+    // command (which we do not currently support, this is future-proofing) can no longer overwrite
+    // the uid mid-flight. clientUid is (uid_t)-1 when the server could not determine the peer uid.
+    // executeOpenVPN treats that as fatal rather than securing the socket to the wrong user.
+    if (cmdId == HelperCommand::executeOpenVPN) {
+        return executeOpenVPN(pars, clientUid);
+    }
+
     const auto command = kCommands.find(cmdId);
     if (command == kCommands.end()) {
         spdlog::error("Unknown command id: {}", (int)cmdId);
@@ -98,12 +110,12 @@ std::string changeMtu(const std::string &pars)
     return std::string();
 }
 
-std::string executeOpenVPN(const std::string &pars)
+std::string executeOpenVPN(const std::string &pars, uid_t clientUid)
 {
     std::string config, httpProxy, socksProxy;
-    unsigned int port, httpPort, socksPort;
+    unsigned int httpPort, socksPort;
     CmdDnsManager dnsManager;
-    deserializePars(pars, config, port, httpProxy, httpPort, socksProxy, socksPort, dnsManager);
+    deserializePars(pars, config, httpProxy, httpPort, socksProxy, socksPort, dnsManager);
 
     // The proxy address must be an IP literal: the GUI restricts it to one (NetworkingValidation::
     // isIp) and no other path sets it. Validate here too rather than trust the client — an invalid
@@ -119,7 +131,21 @@ std::string executeOpenVPN(const std::string &pars)
         socksProxy = "";
     }
 
-    if (!OVPN::writeOVPNFile(MacUtils::resourcePath() + "dns.sh", port, config, httpProxy, httpPort, socksProxy, socksPort)) {
+    // The management socket is locked to the client's user (chown + 0600, plus OpenVPN's
+    // management-client-user check). Without the client's uid we cannot secure it, and the config dir
+    // is world-traversable, so fail rather than fall back to a world-connectable socket.
+    if (clientUid == (uid_t)-1) {
+        spdlog::error("executeOpenVPN: client uid unknown; refusing to start OpenVPN");
+        return serializeResult(false);
+    }
+    std::string mgmtClientUser;
+    OvpnMgmt::mgmtClientUserForUid(clientUid, mgmtClientUser);
+
+    // Ensure any previous OpenVPN is fully gone before writeOVPNFile recreates the shared management
+    // socket and we spawn a new instance.
+    OvpnMgmt::killOpenVPN();
+
+    if (!OVPN::writeOVPNFile(MacUtils::resourcePath() + "dns.sh", config, httpProxy, httpPort, socksProxy, socksPort, mgmtClientUser)) {
         spdlog::error("Could not write OpenVPN config");
         return serializeResult(false);
     }
@@ -138,7 +164,20 @@ std::string executeOpenVPN(const std::string &pars)
     Spawn::Options opts;
     opts.cwd = WS_POSIX_CONFIG_DIR;
     std::vector<std::string> args = {"--config", WS_POSIX_CONFIG_DIR "/config.ovpn"};
-    return serializeResult(Spawn::spawnDetached(ovpnPath, args, opts));
+    pid_t ovpnPid = 0;
+    if (!Spawn::spawnDetached(ovpnPath, args, opts, &ovpnPid)) {
+        return serializeResult(false);
+    }
+
+    // The non-root client must be able to connect() to the management socket OpenVPN creates as
+    // root. If it never appears or can't be made connectable, this connection is unusable: report
+    // failure and kill the OpenVPN we just spawned so the client's retry doesn't leave an orphaned
+    // process fighting over the same socket path (mirrors the Windows path).
+    if (!OvpnMgmt::waitAndRelaxPerms(clientUid, ovpnPid)) {
+        OvpnMgmt::killOpenVPN();
+        return serializeResult(false);
+    }
+    return serializeResult(true);
 }
 
 std::string executeTaskKill(const std::string &pars)
@@ -156,10 +195,7 @@ std::string executeTaskKill(const std::string &pars)
         success = true;
     } else if (target == kTargetOpenVpn) {
         spdlog::info("Killing OpenVPN processes");
-        const std::vector<std::string> exes = Utils::getOpenVpnExeNames();
-        for (const auto &exe : exes) {
-            Utils::executeCommand("pkill", {"-f", exe.c_str()});
-        }
+        OvpnMgmt::killOpenVPN();
         success = true;
     } else if (target == kTargetStunnel) {
         spdlog::info("Killing Stunnel processes");

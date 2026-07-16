@@ -3,11 +3,11 @@
 #include <QHostInfo>
 #include <QObject>
 #include <wsnet/WSNet.h>
+#include "engine/connectionmanager/connectors/iconnection.h"
+#include "engine/connectionmanager/connectors/openvpn/makeovpnfile.h"
 #include "engine/helper/helper.h"
 #include "types/enums.h"
 #include "types/packetsize.h"
-#include "engine/connectionmanager/iconnection.h"
-#include "engine/connectionmanager/makeovpnfile.h"
 
 #ifdef Q_OS_MACOS
     #include "engine/connectionmanager/restorednsmanager_mac.h"

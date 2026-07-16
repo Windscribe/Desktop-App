@@ -5,6 +5,8 @@
 
 #include "mutablelocationinfo.h"
 #include "nodeselectionalgorithm.h"
+#include "utils/log/categories.h"
+#include "utils/networkingvalidation.h"
 
 namespace locationsmodel {
 
@@ -41,6 +43,10 @@ void ApiLocationsModel::setLocations(const QVector<api_responses::Location> &loc
             api_responses::Group group = l.getGroup(i);
             // Ping with Curl by hostname was introduced later, so the ping hostname may be empty when updating the program from an older version.
             if (!group.getPingHost().isEmpty()) {
+                if (!NetworkingValidation::isIp(group.getPingIp())) {
+                    qCWarning(LOG_PING) << "Skipping ping for group with invalid ping IP:" << group.getPingIp();
+                    continue;
+                }
                 ips << PingIpInfo { group.getPingIp(), group.getPingHost(), group.getCity(), group.getNick(), wsnet::PingType::kHttp };
             }
         }
@@ -50,6 +56,10 @@ void ApiLocationsModel::setLocations(const QVector<api_responses::Location> &loc
     for (int i = 0; i < staticIps_.getIpsCount(); ++i) {
         const api_responses::StaticIpDescr &sid = staticIps_.getIp(i);
         if (!sid.getPingHost().isEmpty()) {
+            if (!NetworkingValidation::isIp(sid.getPingIp())) {
+                qCWarning(LOG_PING) << "Skipping ping for static IP with invalid ping IP:" << sid.getPingIp();
+                continue;
+            }
             ips << PingIpInfo { sid.getPingIp(), sid.getPingHost(), sid.name, "staticIP", wsnet::PingType::kHttp };
         }
     }

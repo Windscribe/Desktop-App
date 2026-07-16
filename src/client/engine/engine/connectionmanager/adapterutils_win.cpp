@@ -31,6 +31,39 @@ types::IpAddress findAddressOfFamily(AddrEntry *head, int family)
     return types::IpAddress();
 }
 
+// Usable as the adapter's own v6 address: valid, v6, and not link-local (see the comment
+// on findNonLinkLocalV6Address for why fe80::/10 must be skipped).
+bool isUsableAdapterV6(const types::IpAddress &ip)
+{
+    if (!ip.isValid() || !ip.isV6())
+        return false;
+    const uint8_t *b = ip.bytes();
+    return !(b[0] == 0xfe && (b[1] & 0xc0) == 0x80);   // fe80::/10
+}
+
+// Adapter (unicast) IPv6 selection deliberately skips link-locals. Windows auto-assigns an
+// fe80::/10 to every interface with the IPv6 protocol bound, even when no router offers
+// IPv6, so "first v6 unicast" on a v4-only network is deterministically fe80. Every
+// consumer of adapterIpV6 needs an address usable with global destinations: the withV6
+// gating and the split tunnel driver's redirect target (CalloutFilter — redirecting an
+// excluded app's source to fe80 blackholes it instead of cleanly blocking v6), bound ::/0
+// route next-hops (RoutesManager), and the "IPv6 on default adapter" connect log. An
+// adapter whose only v6 is link-local must therefore report no v6 at all.
+// Gateways intentionally keep findAddressOfFamily: a v6 default gateway from RA is
+// legitimately the router's link-local.
+template <typename AddrEntry>
+types::IpAddress findNonLinkLocalV6Address(AddrEntry *head)
+{
+    for (auto *entry = head; entry; entry = entry->Next) {
+        if (entry->Address.lpSockaddr->sa_family != AF_INET6)
+            continue;
+        const types::IpAddress ip = sockaddrToIpAddress(entry->Address.lpSockaddr);
+        if (isUsableAdapterV6(ip))
+            return ip;
+    }
+    return types::IpAddress();
+}
+
 } // namespace
 
 AdapterGatewayInfo AdapterUtils_win::getDefaultAdapterInfo()
@@ -80,8 +113,24 @@ AdapterGatewayInfo AdapterUtils_win::getAdapterInfo(bool byIfIndex, unsigned lon
                 info.setIfIndex(aa->IfIndex);
                 info.setAdapterName(QString::fromUtf16((const char16_t *)aa->Description));
 
+                // Dump every unicast address: only one address per family is picked into
+                // info below (first v4; first non-link-local v6), and when an adapter has
+                // several v6 addresses (e.g. temporary + permanent + link-local) it matters
+                // for leak diagnostics which one was chosen.
+                {
+                    QStringList unicastAddrs;
+                    for (auto *ua = aa->FirstUnicastAddress; ua; ua = ua->Next) {
+                        const types::IpAddress ip = sockaddrToIpAddress(ua->Address.lpSockaddr);
+                        if (ip.isValid())
+                            unicastAddrs << QString::fromStdString(ip.toString());
+                    }
+                    qCDebug(LOG_CONNECTION) << "AdapterUtils_win::getAdapterInfo: adapter" << info.adapterName()
+                                            << "ifIndex" << aa->IfIndex
+                                            << "unicast addresses:" << unicastAddrs.join(", ");
+                }
+
                 info.addAdapterIp(findAddressOfFamily(aa->FirstUnicastAddress, AF_INET));
-                info.addAdapterIp(findAddressOfFamily(aa->FirstUnicastAddress, AF_INET6));
+                info.addAdapterIp(findNonLinkLocalV6Address(aa->FirstUnicastAddress));
                 info.addGatewayIp(findAddressOfFamily(aa->FirstGatewayAddress, AF_INET));
                 info.addGatewayIp(findAddressOfFamily(aa->FirstGatewayAddress, AF_INET6));
 

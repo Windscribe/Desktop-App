@@ -31,5 +31,5 @@ private:
 
     explicit DnsFirewall(FwpmWrapper &fwmpWrapper);
     void addFilters(HANDLE engineHandle);
-    std::vector<types::IpAddress> getDnsServers();
+    std::set<types::IpAddress> getDnsServers();
 };

@@ -7,6 +7,7 @@
     #include "firewall/firewallcontroller_win.h"
     #include "macaddresscontroller/macaddresscontroller_win.h"
     #include "connectionmanager/ctrldmanager/ctrldmanager_win.h"
+    #include "connectionmanager/sleepevents_win.h"
     #include "connectivitydiagnostic/connectivitydiagnosticcollector_win.h"
 
 #elif defined Q_OS_MACOS
@@ -15,6 +16,7 @@
     #include "firewall/firewallcontroller_mac.h"
     #include "macaddresscontroller/macaddresscontroller_mac.h"
     #include "connectionmanager/ctrldmanager/ctrldmanager_posix.h"
+    #include "connectionmanager/sleepevents_mac.h"
     #include "connectivitydiagnostic/connectivitydiagnosticcollector_mac.h"
 #elif defined Q_OS_LINUX
     #include "helper/helperbackend_linux.h"
@@ -82,6 +84,18 @@ ICtrldManager *CrossPlatformObjectFactory::createCtrldManager(QObject *parent, H
     return new CtrldManager_posix(parent, helper, isCreateLog);
 #endif
 
+}
+
+ISleepEvents *CrossPlatformObjectFactory::createSleepEvents(QObject *parent)
+{
+#ifdef Q_OS_WIN
+    return new SleepEvents_win(parent);
+#elif defined Q_OS_MACOS
+    return new SleepEvents_mac(parent);
+#else
+    Q_UNUSED(parent);
+    return nullptr;
+#endif
 }
 
 IConnectivityDiagnosticCollector *CrossPlatformObjectFactory::createConnectivityDiagnosticCollector(QObject *parent, FirewallController *firewallController)

@@ -2,6 +2,7 @@
 
 #include "commongraphics/baseitem.h"
 #include "preferenceswindow/preferencegroup.h"
+#include "types/splittunneling.h"
 #include "appincludeditem.h"
 #include "appsearchitem.h"
 #include "searchlineedititem.h"
@@ -13,7 +14,7 @@ class SplitTunnelingAppsGroup : public PreferenceGroup
 {
     Q_OBJECT
 public:
-    static const int kMaxApps = 50;
+    static constexpr int kMaxApps = types::SplitTunneling::kMaxApps;
 
     explicit SplitTunnelingAppsGroup(ScalableGraphicsObject *parent,
                                      const QString &desc = "",

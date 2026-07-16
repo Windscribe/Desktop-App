@@ -1,6 +1,7 @@
 #pragma once
 
 #include "backend/preferences/preferences.h"
+#include "types/splittunneling.h"
 #include "commongraphics/baseitem.h"
 #include "preferenceswindow/preferencegroup.h"
 #include "addressitem.h"
@@ -12,7 +13,8 @@ class SplitTunnelingAddressesGroup : public PreferenceGroup
 {
     Q_OBJECT
 public:
-    static const int kMaxDomains = 50;
+    static constexpr int kMaxDomains = types::SplitTunneling::kMaxHostnames;
+    static constexpr int kMaxIpRoutes = types::SplitTunneling::kMaxIpRoutes;
 
     explicit SplitTunnelingAddressesGroup(ScalableGraphicsObject *parent,
                                           const QString &desc = "",
@@ -50,6 +52,7 @@ private:
     NewAddressItem *newAddressItem_;
     QMap<AddressItem *, types::SplitTunnelingNetworkRoute> addresses_;
     int numDomains_;
+    int numIpRoutes_;
 };
 
 } // namespace PreferencesWindow

@@ -101,13 +101,21 @@ bool Helper_win::executeTaskKill(CmdKillTarget target)
     return success;
 }
 
-bool Helper_win::executeOpenVPN(const QString &config, unsigned int port, const QString &httpProxy, unsigned int httpPort,
-                            const QString &socksProxy, unsigned int socksPort)
+bool Helper_win::executeOpenVPN(const QString &config, const QString &httpProxy, unsigned int httpPort,
+                                const QString &socksProxy, unsigned int socksPort, unsigned int &outPort, unsigned long &outPid)
 {
-    auto result = sendCommand(HelperCommand::executeOpenVPN, config.toStdWString(), port, httpProxy.toStdWString(), httpPort,
+    auto result = sendCommand(HelperCommand::executeOpenVPN, config.toStdWString(), httpProxy.toStdWString(), httpPort,
                               socksProxy.toStdWString(), socksPort);
     bool success = false;
-    deserializeAnswer(result, success);
+    unsigned int port = 0;
+    unsigned long pid = 0;
+    deserializeAnswer(result, success, port, pid);
+    // Only surface the port/pid on success; on failure the helper may still return a non-zero pid
+    // (e.g. a process it spawned then killed), which must not be treated as a live OpenVPN.
+    if (success) {
+        outPort = port;
+        outPid = pid;
+    }
     return success;
 }
 
@@ -130,6 +138,9 @@ bool Helper_win::stopWireGuard()
 bool Helper_win::configureWireGuard(const WireGuardConfig &config)
 {
     if (!config.hasValidAmneziawgParams()) {
+        return false;
+    }
+    if (!config.hasValidServerValues()) {
         return false;
     }
     auto result = sendCommand(HelperCommand::configureWireGuard, config.generateConfigFile().toStdWString());

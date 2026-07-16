@@ -2,10 +2,10 @@
 #include <QCoreApplication>
 #include <QDir>
 #include <QStandardPaths>
+#include "../connectors/openvpn/availableport.h"
 #include "utils/log/logger.h"
 #include "utils/ws_assert.h"
 #include "utils/winutils.h"
-#include "../availableport.h"
 #include "utils/executable_signature/executable_signature.h"
 
 

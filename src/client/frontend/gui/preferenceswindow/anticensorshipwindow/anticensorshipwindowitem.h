@@ -4,6 +4,7 @@
 #include "backend/preferences/preferences.h"
 #include "preferenceswindow/preferencegroup.h"
 #include "preferenceswindow/toggleitem.h"
+#include "preferenceswindow/verticaleditboxitem.h"
 #include "backend/preferences/preferenceshelper.h"
 #include "protocoltweaksgroup.h"
 #include "types/enums.h"
@@ -49,6 +50,8 @@ private:
     ComboBoxItem *comboBoxServerRouting_;
     PreferenceGroup *largeTlsGroup_;
     ToggleItem *toggleLargeTls_;
+    PreferenceGroup *customSniGroup_;
+    VerticalEditBoxItem *customSniDomainEdit_;
 };
 
 } // namespace PreferencesWindow

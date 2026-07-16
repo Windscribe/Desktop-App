@@ -1269,6 +1269,14 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
         <source>Artificially enlarge TLS packets, helps to circumvent censorship in some cases. Adds extra TLS padding to all API requests.</source>
         <translation>Umělé zvětšení TLS paketů pomáhá v některých případech obejít cenzuru. Přidává další TLS vyplnění všem API požadavkům.</translation>
     </message>
+    <message>
+        <source>Custom SNI Domain</source>
+        <translation>Vlastní doména SNI</translation>
+    </message>
+    <message>
+        <source>This setting applies to Stealth and Wstunnel protocols only.</source>
+        <translation>Toto nastavení se vztahuje pouze na protokoly Stealth a Wstunnel.</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::AppBackgroundGroup</name>
@@ -1441,6 +1449,10 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
     <message>
         <source>Spoof your device&apos;s physical address (MAC address).</source>
         <translation>Falšování fyzické adresy (MAC adresy) zařízení.</translation>
+    </message>
+    <message>
+        <source>MAC spoofing requires NetworkManager to be installed and running.</source>
+        <translation>MAC spoofing vyžaduje instalaci a spuštění NetworkManageru.</translation>
     </message>
     <message>
         <source>Close all active TCP sockets when the VPN tunnel is established.</source>
@@ -2082,10 +2094,6 @@ Nejprve se připojte k síti</translation>
 <context>
     <name>PreferencesWindow::ProtocolTweaksGroup</name>
     <message>
-        <source>Custom SNI Domain</source>
-        <translation>Vlastní doména SNI</translation>
-    </message>
-    <message>
         <source>Protocol Tweaks</source>
         <translation>Úpravy protokolu</translation>
     </message>
@@ -2172,8 +2180,8 @@ Nejprve se připojte k síti</translation>
         <translation>Neplatný port proxy serveru</translation>
     </message>
     <message>
-        <source>Proxy port is invalid. Please enter a valid port in the range 0-65535.</source>
-        <translation>Port proxy serveru je neplatný. Zadejte platný port v rozsahu 0-65535.</translation>
+        <source>Proxy port is invalid. Please enter a valid port in the range 1-65535.</source>
+        <translation>Port proxy serveru je neplatný. Zadejte platný port v rozsahu 1-65535.</translation>
     </message>
     <message>
         <source>Proxy address is invalid. Please enter a valid IP address.</source>
@@ -2311,6 +2319,10 @@ Nejprve se připojte k síti</translation>
 </context>
 <context>
     <name>PreferencesWindow::SplitTunnelingAddressesGroup</name>
+    <message>
+        <source>There are too many IPs/CIDR ranges in the list. Please remove some before adding more.</source>
+        <translation>V seznamu je příliš mnoho rozsahů IP/CIDR. Prosím, odstraňte některé části, než přidáte další.</translation>
+    </message>
     <message>
         <source>IP or hostname already exists. Please enter a new IP or hostname.</source>
         <translation>IP adresa nebo název hostitele již existuje. Zadejte novou IP adresu nebo název hostitele.</translation>

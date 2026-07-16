@@ -16,6 +16,7 @@
 #include <sys/ioctl.h>
 #include <unistd.h>
 
+#include "../linuxutils.h"
 #include "../log/categories.h"
 #include "../utils.h"
 
@@ -465,47 +466,32 @@ static bool checkWirelessByIfName(const QString &ifname)
 
 static QString getNetworkForInterface(const QString &ifname)
 {
-#ifdef CLI_ONLY
-    // When using CLI only, the network is likely not managed by nmcli, even if network-manager is even installed.
-    // Instead, we use iwgetid to get the SSID if it is Wi-Fi.  Otherwise, the name is just the name of the interface.
-    if (!checkWirelessByIfName(ifname)) {
-        return ifname;
-    }
-
-    QString command = QString("iw dev ") + ifname + QString(" link | grep SSID | cut -d ' ' -f 2-");
-    FILE *file = popen(command.toStdString().c_str(), "r");
-    if (file) {
-        char szLine[1024];
-        char *ret = fgets(szLine, sizeof(szLine), file);
-        pclose(file);
-        if (ret != NULL) {
-            return QString(szLine).trimmed();
-        } else {
-            return "";
-        }
-    }
-#else
-    QString strReply;
-    FILE *file = popen("nmcli -t -f NAME,DEVICE c show", "r");
-    if (file) {
-        char szLine[4096];
-        while(fgets(szLine, sizeof(szLine), file) != 0) {
-            strReply += szLine;
-        }
-        pclose(file);
-    }
-
-    const QStringList lines = strReply.split('\n', Qt::SkipEmptyParts);
-    for (auto &it : lines) {
-        const QStringList pars = it.split(':', Qt::SkipEmptyParts);
-        if (pars.size() == 2) {
-            if (pars[1] == ifname) {
-                return pars[0];
+#ifndef CLI_ONLY
+    if (LinuxUtils::isNetworkManagerActive()) {
+        const QString strReply = Utils::execCmd("timeout 2 nmcli -t -f NAME,DEVICE c show");
+        const QStringList lines = strReply.split('\n', Qt::SkipEmptyParts);
+        for (auto &it : lines) {
+            // nmcli -t backslash-escapes ':' and '\' in values; DEVICE contains no colons, so the
+            // separator is the last colon.
+            const int sep = it.lastIndexOf(':');
+            if (sep >= 0 && it.mid(sep + 1) == ifname) {
+                QString name = it.left(sep);
+                name.replace("\\:", ":").replace("\\\\", "\\");
+                return name;
             }
         }
     }
 #endif
-    return QString();
+
+    // The network is not managed by NetworkManager (CLI-only build, the daemon is not running, or it has
+    // no connection for this interface).
+    // Instead, we use iw to get the SSID if it is Wi-Fi.  Otherwise, the name is just the name of the interface.
+    if (!checkWirelessByIfName(ifname)) {
+        return ifname;
+    }
+
+    const QString command = QString("iw dev ") + ifname + QString(" link | grep SSID | cut -d ' ' -f 2-");
+    return Utils::execCmd(command).trimmed();
 }
 
 static void populateInterface(const QString &ifname, types::NetworkInterface &interface)

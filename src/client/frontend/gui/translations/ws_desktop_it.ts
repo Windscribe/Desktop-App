@@ -1269,6 +1269,14 @@ Se il problema persiste dopo un riavvio, inviare un registro di debug e aprire u
         <source>Artificially enlarge TLS packets, helps to circumvent censorship in some cases. Adds extra TLS padding to all API requests.</source>
         <translation>Ingrandire artificialmente i pacchetti TLS aiuta a aggirare la censura in alcuni casi. Aggiunge ulteriore TLS padding a tutte le richieste API.</translation>
     </message>
+    <message>
+        <source>Custom SNI Domain</source>
+        <translation>Dominio SNI personalizzato</translation>
+    </message>
+    <message>
+        <source>This setting applies to Stealth and Wstunnel protocols only.</source>
+        <translation>Questa impostazione si applica solo ai protocolli Stealth e Wstunnel.</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::AppBackgroundGroup</name>
@@ -1445,6 +1453,10 @@ Se il problema persiste dopo un riavvio, inviare un registro di debug e aprire u
     <message>
         <source>Spoof your device&apos;s physical address (MAC address).</source>
         <translation>Falsificare l&apos;indirizzo fisico del dispositivo (indirizzo MAC).</translation>
+    </message>
+    <message>
+        <source>MAC spoofing requires NetworkManager to be installed and running.</source>
+        <translation>Lo spoofing MAC richiede che NetworkManager sia installato ed eseguito.</translation>
     </message>
     <message>
         <source>Close all active TCP sockets when the VPN tunnel is established.</source>
@@ -2082,10 +2094,6 @@ Connettersi prima a una rete</translation>
 <context>
     <name>PreferencesWindow::ProtocolTweaksGroup</name>
     <message>
-        <source>Custom SNI Domain</source>
-        <translation>Dominio SNI personalizzato</translation>
-    </message>
-    <message>
         <source>Protocol Tweaks</source>
         <translation>Modifiche al protocollo</translation>
     </message>
@@ -2172,8 +2180,8 @@ Connettersi prima a una rete</translation>
         <translation>Porta proxy non valida</translation>
     </message>
     <message>
-        <source>Proxy port is invalid. Please enter a valid port in the range 0-65535.</source>
-        <translation>La porta proxy non è valida. Inserire una porta valida nell&apos;intervallo 0-65535.</translation>
+        <source>Proxy port is invalid. Please enter a valid port in the range 1-65535.</source>
+        <translation>La porta proxy non è valida. Inserire una porta valida nell&apos;intervallo 1-65535.</translation>
     </message>
     <message>
         <source>Proxy address is invalid. Please enter a valid IP address.</source>
@@ -2311,6 +2319,10 @@ Connettersi prima a una rete</translation>
 </context>
 <context>
     <name>PreferencesWindow::SplitTunnelingAddressesGroup</name>
+    <message>
+        <source>There are too many IPs/CIDR ranges in the list. Please remove some before adding more.</source>
+        <translation>Ci sono troppi intervalli di IP/CIDR nella lista. Per favore, rimuovi alcune cose prima di aggiungerne altre.</translation>
+    </message>
     <message>
         <source>IP or hostname already exists. Please enter a new IP or hostname.</source>
         <translation>IP o nome host esiste già. Inserisci un nuovo IP o nome host.</translation>

@@ -11,7 +11,6 @@ namespace WinUtils
 {
     const std::wstring wmActivateGui = WS_APP_IDENTIFIER_W L"AppActivate";
 
-    bool reboot();
     bool isWindows10orGreater();
     bool isOSCompatible();
     bool isDohSupported();
@@ -46,4 +45,10 @@ namespace WinUtils
     HWND appMainWindowHandle();
 
     DWORD getOSBuildNumber();
+
+    // Finds the PID owning the IPv4 loopback TCP connection identified by (localPort, remotePort)
+    // in host byte order. Used to verify that the OpenVPN management socket we connected to is owned
+    // by the genuine, helper-spawned OpenVPN process. Returns false if no matching connection is
+    // found. Requires no special privileges (reads the system TCP table).
+    bool getTcpConnectionOwnerPid(quint16 localPort, quint16 remotePort, DWORD &outPid);
 }

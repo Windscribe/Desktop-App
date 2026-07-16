@@ -8,11 +8,11 @@
 #import <Foundation/Foundation.h>
 #include <QWaitCondition>
 
+#include "engine/connectionmanager/networkextensionlog_mac.h"
 #include "utils/ws_assert.h"
 #include "utils/log/categories.h"
 #include "utils/macutils.h"
 #include "utils/network_utils/network_utils_mac.h"
-#include "networkextensionlog_mac.h"
 
 #include <sys/sysctl.h>
 #include <netinet/in.h>

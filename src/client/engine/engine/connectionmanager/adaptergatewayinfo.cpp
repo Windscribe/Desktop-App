@@ -162,7 +162,7 @@ QStringList AdapterGatewayInfo::dnsServersAsStringList() const
     return result;
 }
 
-QString AdapterGatewayInfo::makeLogString()
+QString AdapterGatewayInfo::makeLogString() const
 {
     auto joinIps = [](const QVector<types::IpAddress> &ips) {
         QStringList strs;

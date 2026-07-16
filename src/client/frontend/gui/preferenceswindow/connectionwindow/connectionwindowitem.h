@@ -99,6 +99,10 @@ protected:
     void hideOpenPopups() override;
 
 private:
+    // Sets the MAC spoofing group's description for the current platform/support state, in the current
+    // language. Single source of truth shared by onLanguageChanged() and the show-time re-evaluation.
+    void updateMacSpoofingDescription();
+
     Preferences *preferences_;
     PreferencesHelper *preferencesHelper_;
     NetworkUtils::DnsChecker dnsChecker_;
@@ -115,6 +119,11 @@ private:
     ComboBoxItem *comboBoxIpStack_;
 
     MacSpoofingGroup *macSpoofingGroup_;
+#ifdef Q_OS_LINUX
+    // Whether MAC spoofing is usable, decided once at construction (needs NetworkManager running). Reused by
+    // onLanguageChanged() so it only re-translates the string and never re-probes NM state.
+    bool isMacSpoofingSupported_ = true;
+#endif
     PreferenceGroup *allowLanTrafficGroup_;
     PreferenceGroup *autoConnectGroup_;
     ToggleItem *checkBoxAutoConnect_;

@@ -357,7 +357,6 @@ MainWindow::MainWindow() :
     connect(backend_->getPreferences(), &Preferences::isDockedToTrayChanged, this, &MainWindow::onPreferencesIsDockedToTrayChanged);
     connect(backend_->getPreferences(), &Preferences::updateChannelChanged, this, &MainWindow::onPreferencesUpdateChannelChanged);
     connect(backend_->getPreferences(), &Preferences::customConfigsPathChanged, this, &MainWindow::onPreferencesCustomConfigsPathChanged);
-    connect(backend_->getPreferences(), &Preferences::debugAdvancedParametersChanged, this, &MainWindow::onPreferencesAdvancedParametersChanged);
     connect(backend_->getPreferences(), &Preferences::reportErrorToUser, this, &MainWindow::onPreferencesReportErrorToUser);
 #if defined(Q_OS_MACOS)
     connect(backend_->getPreferences(), &Preferences::hideFromDockChanged, this, &MainWindow::onPreferencesHideFromDockChanged);
@@ -1461,12 +1460,6 @@ void MainWindow::onPreferencesCustomConfigsPathChanged(QString path)
     locationsWindow_->setCustomConfigsPath(path);
 }
 
-void MainWindow::onPreferencesAdvancedParametersChanged(const QString &advParams)
-{
-    Q_UNUSED(advParams);
-    backend_->sendAdvancedParametersChanged();
-}
-
 void MainWindow::onPreferencesUpdateChannelChanged(UPDATE_CHANNEL updateChannel)
 {
     Q_UNUSED(updateChannel);
@@ -2149,7 +2142,9 @@ void MainWindow::onBackendMyIpChanged(QString ip, bool isFromDisconnectedState)
 
                 // Show alert only on the initial IP after connecting (not on subsequent rotations)
                 // if location has a pinned IP but the actual IP is different, indicating either the node is not available, or the pin IP action failed.
-                if (!isFromDisconnectedState && !receivedInitialIpAfterConnect_ && !pinnedIp.isEmpty() && !isPinned) {
+                // No alert when API token requests are suppressed -- the engine doesn't attempt the pin.
+                if (!isFromDisconnectedState && !receivedInitialIpAfterConnect_ && !pinnedIp.isEmpty() && !isPinned
+                    && !ExtraConfig::instance().getSuppressApiToken()) {
                     GeneralMessageController::instance().showMessage(
                         "garry_tools",
                         tr("Could not pin IP"),

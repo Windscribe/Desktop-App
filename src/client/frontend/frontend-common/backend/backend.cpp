@@ -405,11 +405,6 @@ void Backend::continueWithPrivKeyPasswordForOvpnConfig(const QString &password, 
     engine_->continueWithPrivKeyPassword(password, bSave);
 }
 
-void Backend::sendAdvancedParametersChanged()
-{
-    engine_->updateAdvancedParams();
-}
-
 gui_locations::LocationsModelManager *Backend::locationsModelManager()
 {
     return locationsModelManager_;
@@ -513,7 +508,11 @@ void Backend::onEngineLoginFinished(const api_responses::PortMap &portMap)
     lastLoginError_ = wsnet::LoginResult::kSuccess;
     preferencesHelper_.setPortMap(portMap);
 
-    triggerAutoConnect(currentNetworkInterface_);
+    // Under Always On+ the firewall blocks the API until the tunnel is up, so login completes after connect;
+    // an existing connection must not be torn down by the unsecured-network disconnect in triggerAutoConnect().
+    if (connectStateHelper_.isDisconnected()) {
+        triggerAutoConnect(currentNetworkInterface_);
+    }
 
     emit loginFinished();
 }

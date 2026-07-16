@@ -23,11 +23,7 @@ ProtocolTweaksGroup::ProtocolTweaksGroup(ScalableGraphicsObject *parent, const Q
     connect(amneziawgPreset_, &ComboBoxItem::currentItemChanged, this, &ProtocolTweaksGroup::onAmneziawgPresetChanged);
     addItem(amneziawgPreset_);
 
-    customSniDomainEdit_ = new EditBoxItem(this, tr("Custom SNI Domain"), "example.com");
-    connect(customSniDomainEdit_, &EditBoxItem::textChanged, this, &ProtocolTweaksGroup::onCustomSniDomainChanged);
-    addItem(customSniDomainEdit_);
-
-    hideItems(indexOf(amneziawgPreset_), indexOf(customSniDomainEdit_), DISPLAY_FLAGS::FLAG_NO_ANIMATION);
+    hideItems(indexOf(amneziawgPreset_), -1, DISPLAY_FLAGS::FLAG_NO_ANIMATION);
 
     connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &ProtocolTweaksGroup::onLanguageChanged);
     onLanguageChanged();
@@ -63,16 +59,6 @@ void ProtocolTweaksGroup::setAmneziawgPresets(const QStringList &presets)
     updateMode();
 }
 
-void ProtocolTweaksGroup::setCustomSniDomain(const QString &domain)
-{
-    customSniDomainEdit_->setText(domain);
-}
-
-QString ProtocolTweaksGroup::customSniDomain() const
-{
-    return customSniDomainEdit_->text();
-}
-
 void ProtocolTweaksGroup::onComboBoxModeChanged(const QVariant &value)
 {
     method_ = enumFromInt<PROTOCOL_TWEAKS_METHOD_TYPE>(value.toInt());
@@ -85,24 +71,13 @@ void ProtocolTweaksGroup::onAmneziawgPresetChanged(const QVariant &value)
     emit amneziawgPresetChanged(value.toString());
 }
 
-void ProtocolTweaksGroup::onCustomSniDomainChanged(const QString &domain)
-{
-    emit customSniDomainChanged(domain);
-}
-
 void ProtocolTweaksGroup::updateMode()
 {
-    if (method_ == PROTOCOL_TWEAKS_METHOD_ENABLED) {
-        // An empty preset combobox must stay hidden even in Enabled mode, but the custom SNI
-        // field is an independent preference and must be reachable regardless of preset availability.
-        if (amneziawgPreset_->hasItems()) {
-            showItems(indexOf(amneziawgPreset_));
-        } else {
-            hideItems(indexOf(amneziawgPreset_));
-        }
-        showItems(indexOf(customSniDomainEdit_));
+    // An empty preset combobox must stay hidden even in Enabled mode.
+    if (method_ == PROTOCOL_TWEAKS_METHOD_ENABLED && amneziawgPreset_->hasItems()) {
+        showItems(indexOf(amneziawgPreset_));
     } else {
-        hideItems(indexOf(amneziawgPreset_), size() - 1);
+        hideItems(indexOf(amneziawgPreset_));
     }
 }
 
@@ -111,8 +86,6 @@ void ProtocolTweaksGroup::onLanguageChanged()
     comboBoxMode_->setLabelCaption(tr("Protocol Tweaks"));
     comboBoxMode_->setItems(enumToList<PROTOCOL_TWEAKS_METHOD_TYPE>(), method_);
     amneziawgPreset_->setLabelCaption(tr("Amnezia Config"));
-    customSniDomainEdit_->setCaption(tr("Custom SNI Domain"));
-    customSniDomainEdit_->setPrompt("example.com");
     updateMode();
 }
 

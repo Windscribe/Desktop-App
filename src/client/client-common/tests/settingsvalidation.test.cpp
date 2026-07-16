@@ -473,18 +473,89 @@ void TestSettingsValidation::testSplitTunneling_dropInvalidRoute()
     QCOMPARE(st.networkRoutes[0].name, QString("10.0.0.0/8"));
 }
 
-void TestSettingsValidation::testSplitTunneling_capRoutes()
+void TestSettingsValidation::testSplitTunneling_capApps()
 {
     types::SplitTunneling st;
-    for (int i = 0; i < 2000; ++i) {
+    for (int i = 0; i < types::SplitTunneling::kMaxApps + 10; ++i) {
+        types::SplitTunnelingApp app;
+        app.fullName = QString("/Applications/App%1.app").arg(i);
+        app.name = QString("App%1").arg(i);
+        app.active = true;
+        st.apps << app;
+    }
+    st.validate();
+    QCOMPARE(st.apps.size(), types::SplitTunneling::kMaxApps);
+}
+
+void TestSettingsValidation::testSplitTunneling_capHostnames()
+{
+    types::SplitTunneling st;
+    for (int i = 0; i < types::SplitTunneling::kMaxHostnames + 10; ++i) {
         types::SplitTunnelingNetworkRoute r;
-        r.name = QString("10.0.%1.0/24").arg(i % 256);
+        r.name = QString("host%1.example.com").arg(i);
+        r.type = SPLIT_TUNNELING_NETWORK_ROUTE_TYPE_HOSTNAME;
+        r.active = true;
+        st.networkRoutes << r;
+    }
+    st.validate();
+    QCOMPARE(st.networkRoutes.size(), types::SplitTunneling::kMaxHostnames);
+    for (const types::SplitTunnelingNetworkRoute &r : st.networkRoutes) {
+        QCOMPARE(r.type, SPLIT_TUNNELING_NETWORK_ROUTE_TYPE_HOSTNAME);
+    }
+}
+
+void TestSettingsValidation::testSplitTunneling_capIpRoutes()
+{
+    types::SplitTunneling st;
+    for (int i = 0; i < types::SplitTunneling::kMaxIpRoutes + 10; ++i) {
+        types::SplitTunnelingNetworkRoute r;
+        r.name = QString("2001:db8:%1::/48").arg(i, 0, 16);
         r.type = SPLIT_TUNNELING_NETWORK_ROUTE_TYPE_IP;
         r.active = true;
         st.networkRoutes << r;
     }
     st.validate();
-    QVERIFY(st.networkRoutes.size() <= 1024);
+    QCOMPARE(st.networkRoutes.size(), types::SplitTunneling::kMaxIpRoutes);
+    for (const types::SplitTunnelingNetworkRoute &r : st.networkRoutes) {
+        QCOMPARE(r.type, SPLIT_TUNNELING_NETWORK_ROUTE_TYPE_IP);
+    }
+}
+
+void TestSettingsValidation::testSplitTunneling_mixedRouteCapsKeepIpRoutes()
+{
+    types::SplitTunneling st;
+    constexpr int kIpRouteCount = 128;
+    for (int i = 0; i < kIpRouteCount; ++i) {
+        if (i < types::SplitTunneling::kMaxHostnames + 10) {
+            types::SplitTunnelingNetworkRoute hostname;
+            hostname.name = QString("host%1.example.com").arg(i);
+            hostname.type = SPLIT_TUNNELING_NETWORK_ROUTE_TYPE_HOSTNAME;
+            hostname.active = true;
+            st.networkRoutes << hostname;
+        }
+
+        types::SplitTunnelingNetworkRoute ipRoute;
+        ipRoute.name = (i % 2 == 0)
+            ? QString("10.%1.0.0/16").arg(i)
+            : QString("203.0.113.%1").arg(i);
+        ipRoute.type = SPLIT_TUNNELING_NETWORK_ROUTE_TYPE_IP;
+        ipRoute.active = true;
+        st.networkRoutes << ipRoute;
+    }
+
+    st.validate();
+
+    int numHostnames = 0;
+    int numIpRoutes = 0;
+    for (const types::SplitTunnelingNetworkRoute &r : st.networkRoutes) {
+        if (r.type == SPLIT_TUNNELING_NETWORK_ROUTE_TYPE_HOSTNAME) {
+            numHostnames++;
+        } else if (r.type == SPLIT_TUNNELING_NETWORK_ROUTE_TYPE_IP) {
+            numIpRoutes++;
+        }
+    }
+    QCOMPARE(numHostnames, types::SplitTunneling::kMaxHostnames);
+    QCOMPARE(numIpRoutes, kIpRouteCount);
 }
 
 void TestSettingsValidation::testSplitTunneling_dropEmptyFullNameApp()

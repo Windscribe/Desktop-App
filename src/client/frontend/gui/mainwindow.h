@@ -133,7 +133,6 @@ private slots:
     void onPreferencesWindowDetectPacketSizeClick();
     void onPreferencesAdvancedParametersClicked();
     void onPreferencesCustomConfigsPathChanged(QString path);
-    void onPreferencesAdvancedParametersChanged(const QString &advParams);
     void onPreferencesCustomConfigPathNeedsUpdate(const QString &path);
     void onPreferencesShowNotificationsChanged();
     void onPreferencesExportLocationNamesClick();

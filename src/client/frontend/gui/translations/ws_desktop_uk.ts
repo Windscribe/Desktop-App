@@ -1269,6 +1269,14 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>Artificially enlarge TLS packets, helps to circumvent censorship in some cases. Adds extra TLS padding to all API requests.</source>
         <translation>Штучне збільшення TLS-пакетів допомагає обійти цензуру в деяких випадках. Додає додаткову TLS-підкладку до всіх запитів API.</translation>
     </message>
+    <message>
+        <source>Custom SNI Domain</source>
+        <translation>Користувацький домен SNI</translation>
+    </message>
+    <message>
+        <source>This setting applies to Stealth and Wstunnel protocols only.</source>
+        <translation>Це налаштування застосовується лише до протоколів Stealth і Wstunnel.</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::AppBackgroundGroup</name>
@@ -1445,6 +1453,10 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Spoof your device&apos;s physical address (MAC address).</source>
         <translation>Підмініть фізичну адресу пристрою (MAC-адресу).</translation>
+    </message>
+    <message>
+        <source>MAC spoofing requires NetworkManager to be installed and running.</source>
+        <translation>Підробка MAC вимагає встановлення та запуску NetworkManager.</translation>
     </message>
     <message>
         <source>Close all active TCP sockets when the VPN tunnel is established.</source>
@@ -2082,10 +2094,6 @@ Connect to a network first</source>
 <context>
     <name>PreferencesWindow::ProtocolTweaksGroup</name>
     <message>
-        <source>Custom SNI Domain</source>
-        <translation>Користувацький домен SNI</translation>
-    </message>
-    <message>
         <source>Protocol Tweaks</source>
         <translation>Коригування протоколу</translation>
     </message>
@@ -2172,8 +2180,8 @@ Connect to a network first</source>
         <translation>Невірний порт проксі</translation>
     </message>
     <message>
-        <source>Proxy port is invalid. Please enter a valid port in the range 0-65535.</source>
-        <translation>Порт проксі неприпустимий. Будь ласка, введіть дійсний порт у діапазоні 0-65535.</translation>
+        <source>Proxy port is invalid. Please enter a valid port in the range 1-65535.</source>
+        <translation>Порт проксі неприпустимий. Будь ласка, введіть дійсний порт у діапазоні 1-65535.</translation>
     </message>
     <message>
         <source>Proxy address is invalid. Please enter a valid IP address.</source>
@@ -2311,6 +2319,10 @@ Connect to a network first</source>
 </context>
 <context>
     <name>PreferencesWindow::SplitTunnelingAddressesGroup</name>
+    <message>
+        <source>There are too many IPs/CIDR ranges in the list. Please remove some before adding more.</source>
+        <translation>У списку занадто багато IP/CIDR діапазонів. Будь ласка, видаліть деякі перед додаванням нових.</translation>
+    </message>
     <message>
         <source>IP or hostname already exists. Please enter a new IP or hostname.</source>
         <translation>IP-адреса або ім&apos;я хоста вже існує. Будь ласка, введіть нову IP-адресу або ім&apos;я хоста.</translation>

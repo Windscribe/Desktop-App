@@ -12,6 +12,7 @@
 #include "utils/log/mergelog.h"
 #include "utils/log/logger.h"
 #include "utils/dns_utils/dnsserversconfiguration.h"
+#include "utils/dns_utils/dnsutils.h"
 #include "utils/network_utils/dnschecker.h"
 #include "utils/extraconfig.h"
 #include "utils/hardcodedsettings.h"
@@ -141,6 +142,8 @@ Engine::Engine() : QObject(nullptr),
     }
 
     WSNet::instance()->advancedParameters()->setAPIExtraTLSPadding(engineSettings_.isAPIAntiCensorship());
+
+    connect(&ExtraConfig::instance(), &ExtraConfig::changed, this, &Engine::updateAdvancedParamsImpl);
 
     connectStateController_ = new ConnectStateController(nullptr);
     connect(connectStateController_, &ConnectStateController::stateChanged, this, &Engine::onConnectStateChanged);
@@ -537,11 +540,6 @@ void Engine::updateVersion(qint64 windowHandle)
     QMetaObject::invokeMethod(this, "updateVersionImpl", Q_ARG(qint64, windowHandle));
 }
 
-void Engine::updateAdvancedParams()
-{
-    QMetaObject::invokeMethod(this, "updateAdvancedParamsImpl");
-}
-
 void Engine::stopUpdateVersion()
 {
     QMetaObject::invokeMethod(this, "stopUpdateVersionImpl");
@@ -623,12 +621,14 @@ void Engine::initPart2()
     connect(networkDetectionManager_, &INetworkDetectionManager::networkChanged, this, &Engine::onNetworkChange);
 
     macAddressController_ = CrossPlatformObjectFactory::createMacAddressController(this, networkDetectionManager_, helper_);
-    macAddressController_->initMacAddrSpoofing(macAddrSpoofing);
     connect(macAddressController_, &IMacAddressController::macAddrSpoofingChanged, this, &Engine::onMacAddressSpoofingChanged);
     connect(macAddressController_, &IMacAddressController::sendUserWarning, this, &Engine::onMacAddressControllerSendUserWarning);
 #ifdef Q_OS_MACOS
     connect(macAddressController_, &IMacAddressController::macSpoofApplied, this, &Engine::onMacAddressControllerMacSpoofApplied);
 #endif
+    // Init after the connects: initMacAddrSpoofing applies the spoof synchronously and can emit
+    // (e.g. an init-time hard-disable on failure).
+    macAddressController_->initMacAddrSpoofing(macAddrSpoofing);
 
     packetSizeControllerThread_ = new QThread(this);
 
@@ -780,7 +780,7 @@ void Engine::initPart2()
 #endif
 
     updateProxySettings();
-    updateAdvancedParams();
+    updateAdvancedParamsImpl();
 
     QMetaObject::invokeMethod(this, &Engine::onApiResourcesManagerAmneziawgUnblockParamsFetched);
 }
@@ -877,6 +877,10 @@ void Engine::cleanupImpl(bool isUpdating)
     if (macSpoofTimer_) {
         macSpoofTimer_->stop();
     }
+
+    // Before the blocking disconnects: the proxy must stop before the tunnel drops (as on reconnect),
+    // and the stop is queued to the macOS main queue, which only pumps until cleanup finishes.
+    SplitTunnelExtensionManager::instance().stopExtension();
 #endif
 
     if (emergencyController_) {
@@ -1003,6 +1007,10 @@ void Engine::connectClickImpl(const LocationID &locationId, const types::Connect
     locationId_ = locationId;
     connectionSettingsOverride_ = connectionSettings;
     pinnedNode_ = pinnedNode;
+    // with bridge API token requests suppressed, pinIp is a successful no-op that would report an unverified IP, so drop the pin
+    if (ExtraConfig::instance().getSuppressApiToken()) {
+        pinnedNode_.second.clear();
+    }
 
     // if connected, then first disconnect
     if (!connectionManager_->isDisconnected())
@@ -1430,6 +1438,11 @@ void Engine::onConnectionManagerConnected()
 #elif defined (Q_OS_MACOS) || defined (Q_OS_LINUX)
     firewallController_->setVpnInterface_posix(adapterName);
 #endif
+#ifdef Q_OS_LINUX
+    // Record the tunnel's interface and DNS so the OS default DNS read (firewall exceptions, including the
+    // boot ruleset that can be written while connected) scopes them out and returns the physical resolvers.
+    DnsUtils::setVpnContext(adapterName, connectionManager_->getVpnAdapterInfo().dnsServersAsStringList());
+#endif
 
     bool isFirewallAlreadyEnabled = false;
     if (engineSettings_.firewallSettings().mode == FIREWALL_MODE_AUTOMATIC) {
@@ -1478,6 +1491,24 @@ void Engine::onConnectionManagerConnected()
     }
     helper_->setIPv6EnabledInFirewall(false, engineSettings_.isAllowLanTraffic(), locationId_.isCustomConfigsLocation());
 #endif
+
+    // IPv6 summary for split tunneling leak analysis. Both adapters are already dumped in full
+    // elsewhere ("Default adapter and gateway:" in ConnectionManager::doConnect, "VPN adapter
+    // and gateway:" in onConnectionConnected); this one-liner classifies the v6 state so user
+    // debug logs directly answer "does this machine have IPv6 on the physical adapter".
+    {
+        auto v6State = [](const types::IpAddress &ip) -> QString {
+            if (!ip.isValid() || !ip.isV6())
+                return "none";
+            const uint8_t *b = ip.bytes();
+            if (b[0] == 0xfe && (b[1] & 0xc0) == 0x80)   // fe80::/10
+                return "link-local only";
+            return "global";
+        };
+        qCInfo(LOG_CONNECTION) << "IPv6 on default adapter:" << v6State(connectionManager_->getDefaultAdapterInfo().adapterIpV6())
+                               << "; IPv6 on VPN adapter:" << (connectionManager_->getVpnAdapterInfo().adapterIpV6().isValid() ? "yes" : "no")
+                               << "; IpStack mode:" << enumToString(engineSettings_.ipStackEgress());
+    }
 
     bool result = helper_->sendConnectStatus(true, engineSettings_.isTerminateSockets(), engineSettings_.isAllowLanTraffic(),
                                              connectionManager_->getDefaultAdapterInfo(), connectionManager_->getVpnAdapterInfo(),
@@ -1923,6 +1954,12 @@ void Engine::stopUpdateVersionImpl()
 
 void Engine::updateAdvancedParamsImpl()
 {
+    // The ExtraConfig connection is made in the constructor, so a watcher event can land here before
+    // initPart2()'s baseline call; drop it -- that call picks up the current values anyway.
+    if (!bInitialized_ || isCleanup_) {
+        return;
+    }
+
     bool newOverrideUpdateChannel = ExtraConfig::instance().getOverrideUpdateChannelToInternal();
 
     // only trigger the check update if override changed
@@ -2167,6 +2204,12 @@ void Engine::onEmergencyControllerConnected()
     WSNet::instance()->httpNetworkManager()->setProxySettings();
     DnsServersConfiguration::instance().setConnectedState(emergencyController_->getVpnAdapterInfo().dnsServersAsStringList());
     WSNet::instance()->dnsResolver()->setDnsServers(DnsServersConfiguration::instance().getCurrentDnsServers());
+#ifdef Q_OS_LINUX
+    // Record the emergency tunnel's interface and DNS so the OS default DNS read scopes them out, matching
+    // the normal connect path.
+    DnsUtils::setVpnContext(emergencyController_->getVpnAdapterInfo().adapterName(),
+                            emergencyController_->getVpnAdapterInfo().dnsServersAsStringList());
+#endif
 
     emergencyConnectStateController_->setConnectedState(LocationID());
     emit emergencyConnected();
@@ -2181,6 +2224,10 @@ void Engine::onEmergencyControllerDisconnected(DISCONNECT_REASON reason)
     WSNet::instance()->httpNetworkManager()->setProxySettings(proxySettings.curlAddress().toStdString(), proxySettings.getUsername().toStdString(), proxySettings.getPassword().toStdString());
     DnsServersConfiguration::instance().setDisconnectedState();
     WSNet::instance()->dnsResolver()->setDnsServers(DnsServersConfiguration::instance().getCurrentDnsServers());
+#ifdef Q_OS_LINUX
+    // Tunnel is down; stop scoping it out of the OS default DNS read.
+    DnsUtils::setVpnContext("", QStringList());
+#endif
 
     emergencyConnectStateController_->setDisconnectedState(reason, CONNECT_ERROR::NO_CONNECT_ERROR);
     emit emergencyDisconnected();
@@ -2417,7 +2464,8 @@ void Engine::setSplitTunnelingSettingsImpl(bool isActive, bool isExclude, const 
 
     if (isActive) {
         // Query the real extension state (installing/prompting if missing); the async result drives the
-        // UI warning and starts the extension via onSystemExtensionStateChanged.
+        // UI warning and starts the extension via onSystemExtensionStateChanged.  After an app update
+        // the query also stages the bundled extension as a replacement of the stale installed copy.
         SystemExtensions_mac::instance()->checkSystemExtensionState(true);
     } else {
         SplitTunnelExtensionManager::instance().stopExtension();
@@ -2810,6 +2858,10 @@ void Engine::doDisconnectRestoreStuff()
 #if defined (Q_OS_MACOS) || defined(Q_OS_LINUX)
     firewallController_->setVpnInterface_posix("");
 #endif
+#ifdef Q_OS_LINUX
+    // Tunnel is down; stop scoping it out of the OS default DNS read.
+    DnsUtils::setVpnContext("", QStringList());
+#endif
 
     bool bChanged;
     firewallExceptions_.setConnectingIp("", bChanged);
@@ -3062,10 +3114,20 @@ void Engine::onSystemExtensionStateChanged(SystemExtensions_mac::SystemExtension
     const bool isConnected = connectStateController_->currentState() == CONNECT_STATE_CONNECTED;
 
     if (newState == SystemExtensions_mac::Active && helper_ && isConnected) {
-        types::NetworkInterface interface;
-        networkDetectionManager_->getCurrentNetworkInterface(interface, false);
-        // This may do nothing if split tunneling is not enabled
-        SplitTunnelExtensionManager::instance().startExtension(interface.interfaceName, connectionManager_->getVpnAdapterInfo().adapterName());
+        if (SystemExtensions_mac::instance()->isEnabledVersionMismatch()) {
+            // Usable but stale: the update replacement kills the running provider's flows when it
+            // lands.  Fail rather than run on the old binary (the alert disables the feature).
+            // No retry once the replacement lands: the swap staged at settings-apply finishes well
+            // before login + connect does, so reaching here connected means it is genuinely stuck.
+            if (SplitTunnelExtensionManager::instance().isActive()) {
+                emit splitTunnelingStartFailed(SPLIT_TUNNEL_START_FAIL_REASON_DEFAULT);
+            }
+        } else {
+            types::NetworkInterface interface;
+            networkDetectionManager_->getCurrentNetworkInterface(interface, false);
+            // This may do nothing if split tunneling is not enabled
+            SplitTunnelExtensionManager::instance().startExtension(interface.interfaceName, connectionManager_->getVpnAdapterInfo().adapterName());
+        }
     } else if (newState == SystemExtensions_mac::Inactive || newState == SystemExtensions_mac::Unknown) {
         // Inactive is always a confirmed result: the OS reported the extension disabled or not installed
         // (an unconfirmed query re-reports the last confirmed Active/PendingUserApproval, or Unknown --

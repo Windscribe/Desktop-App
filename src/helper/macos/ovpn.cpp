@@ -10,12 +10,18 @@
 namespace OVPN
 {
 
-bool writeOVPNFile(const std::string &dnsScript, unsigned int port, const std::string &config, const std::string &httpProxy,
-                   unsigned int httpPort, const std::string &socksProxy, unsigned int socksPort)
+bool writeOVPNFile(const std::string &dnsScript, const std::string &config, const std::string &httpProxy,
+                   unsigned int httpPort, const std::string &socksProxy, unsigned int socksPort,
+                   const std::string &mgmtClientUser)
 {
     // open()'s mode is ignored on pre-existing files; unlink first to force the intended perms.
     // Unlinking before filterConfig also ensures a rejected config never leaves a stale file behind.
     unlink(WS_POSIX_CONFIG_DIR "/config.ovpn");
+
+    // Remove any stale management socket so OpenVPN re-creates it fresh. The socket lives in the
+    // root-owned config dir, so only root can create it here — a non-root process cannot pre-create
+    // it to impersonate OpenVPN's management interface.
+    unlink(WS_OVPN_MGMT_SOCKET);
 
     std::string filtered;
     if (!OvpnDirectiveWhitelist::filterConfig(config, filtered)) {
@@ -43,13 +49,23 @@ bool writeOVPNFile(const std::string &dnsScript, unsigned int port, const std::s
         return false;
     }
 
-    // add management and other options
+    // add management and other options.
+    // The management interface is a unix domain socket in the root-owned config dir (not a loopback
+    // TCP port), which removes the local port-grab/impersonation attack surface entirely.
     std::string opts = \
         "dev tun\n" \
-        "management 127.0.0.1 " + std::to_string(port) + "\n" \
+        "management " WS_OVPN_MGMT_SOCKET " unix\n" \
         "management-query-passwords\n" \
         "management-hold\n" \
         "verb 3\n";
+
+    // Restrict the management interface to the specific user running the client. OpenVPN verifies the
+    // connecting peer's credentials (getpeereid) and rejects any other uid, so even if the socket file
+    // perms were somehow widened, only this user's client can drive the management interface. The
+    // username is derived from the client's kernel-reported uid (XPC euid), never from client input.
+    if (!mgmtClientUser.empty()) {
+        opts += "management-client-user " + mgmtClientUser + "\n";
+    }
 
     if (httpProxy.length() > 0) {
         opts += "http-proxy " + httpProxy + " " + std::to_string(httpPort) + " auto\n";

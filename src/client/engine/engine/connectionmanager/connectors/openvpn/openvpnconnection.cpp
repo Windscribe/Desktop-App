@@ -1,5 +1,7 @@
 #include "openvpnconnection.h"
-#include "availableport.h"
+
+#include <chrono>
+
 #include "types/enums.h"
 #include "utils/crashhandler.h"
 #include "utils/log/categories.h"
@@ -9,20 +11,24 @@
 #include "utils/ws_assert.h"
 
 #ifdef Q_OS_WIN
-    #include "adapterutils_win.h"
+    #include "engine/connectionmanager/adapterutils_win.h"
     #include "types/global_consts.h"
     #include "utils/extraconfig.h"
+    #include "utils/winutils.h"
 #elif defined (Q_OS_LINUX)
+    #include <sys/socket.h>
     #include "engine/helper/helper_posix.h"
     #include "engine/helper/helper_linux.h"
     #include "utils/extraconfig.h"
 #elif defined (Q_OS_MACOS)
+    #include <sys/types.h>
+    #include <unistd.h>
     #include "engine/helper/helper_posix.h"
 #endif
 
 
 OpenVPNConnection::OpenVPNConnection(QObject *parent, Helper *helper) : IConnection(parent), helper_(helper),
-    bStopThread_(false), currentState_(STATUS_DISCONNECTED),
+    bStopThread_(false), connectRetryTimer_(io_context_), currentState_(STATUS_DISCONNECTED),
     isAllowFirewallAfterCustomConfigConnection_(false), privKeyPassword_("")
 {
     connect(&killControllerTimer_, &QTimer::timeout, this, &OpenVPNConnection::onKillControllerTimer);
@@ -106,35 +112,29 @@ void OpenVPNConnection::continueWithPrivKeyPassword(const QString &password)
 
 void OpenVPNConnection::setCurrentState(CONNECTION_STATUS state)
 {
-    QMutexLocker locker(&mutexCurrentState_);
     currentState_ = state;
 }
 
 void OpenVPNConnection::setCurrentStateAndEmitDisconnected(OpenVPNConnection::CONNECTION_STATUS state)
 {
-    QMutexLocker locker(&mutexCurrentState_);
-    // If we have already gotten to the disconnected state, do not send a duplicate signal
-    if (currentState_ != STATUS_DISCONNECTED) {
+    if (currentState_.exchange(state) != STATUS_DISCONNECTED) {
         QTimer::singleShot(0, &killControllerTimer_, SLOT(stop()));
-        currentState_ = state;
         emit disconnected();
     }
 }
 
 void OpenVPNConnection::setCurrentStateAndEmitError(OpenVPNConnection::CONNECTION_STATUS state, CONNECT_ERROR err)
 {
-    QMutexLocker locker(&mutexCurrentState_);
     currentState_ = state;
     emit error(err);
 }
 
 OpenVPNConnection::CONNECTION_STATUS OpenVPNConnection::getCurrentState() const
 {
-    QMutexLocker locker(&mutexCurrentState_);
-    return currentState_;
+    return currentState_.load();
 }
 
-bool OpenVPNConnection::runOpenVPN(unsigned int port)
+bool OpenVPNConnection::runOpenVPN()
 {
     QString httpProxy, socksProxy;
     unsigned int httpPort = 0, socksPort = 0;
@@ -155,7 +155,21 @@ bool OpenVPNConnection::runOpenVPN(unsigned int port)
 
     qCInfo(LOG_CONNECTION) << "OpenVPN version:" << OpenVpnVersionController::instance().getOpenVpnVersion();
 
-    return helper_->executeOpenVPN(config_, port, httpProxy, httpPort, socksProxy, socksPort);
+#ifdef Q_OS_WIN
+    // OpenVPN selects its own management port; the helper reports the resolved port and the OpenVPN
+    // PID so we can verify the management peer once connected.
+    unsigned int port = 0;
+    unsigned long pid = 0;
+    const bool ok = helper_->executeOpenVPN(config_, httpProxy, httpPort, socksProxy, socksPort, port, pid);
+    if (ok) {
+        stateVariables_.openVpnPort = port;
+        stateVariables_.openVpnPid = pid;
+    }
+    return ok;
+#else
+    // On POSIX the management interface is a root-owned unix domain socket (fixed path); no port.
+    return helper_->executeOpenVPN(config_, httpProxy, httpPort, socksProxy, socksPort);
+#endif
 }
 
 void OpenVPNConnection::run()
@@ -201,14 +215,13 @@ void OpenVPNConnection::onKillControllerTimer()
 
 void OpenVPNConnection::funcRunOpenVPN()
 {
-    stateVariables_.openVpnPort = AvailablePort::getAvailablePort(DEFAULT_PORT);
-
     stateVariables_.elapsedTimer.start();
 
     int retries = 0;
 
-    // run openvpn process
-    while(!runOpenVPN(stateVariables_.openVpnPort))
+    // run openvpn process. On Windows this also populates stateVariables_.openVpnPort/openVpnPid
+    // (OpenVPN picks its own management port and the helper reports it back).
+    while(!runOpenVPN())
     {
         qCDebug(LOG_CONNECTION) << "Can't run OpenVPN";
 
@@ -228,19 +241,86 @@ void OpenVPNConnection::funcRunOpenVPN()
         msleep(1000);
     }
 
-    qCInfo(LOG_CONNECTION) << "ran openvpn process: " << stateVariables_.openVpnPort;
+#ifdef Q_OS_WIN
+    qCInfo(LOG_CONNECTION) << "ran openvpn process, management port:" << stateVariables_.openVpnPort;
+#else
+    // POSIX using domain sockets, so no port to report..
+    qCInfo(LOG_CONNECTION) << "ran openvpn process";
+#endif
 
+    asyncConnectToManagementSocket();
+}
+
+void OpenVPNConnection::asyncConnectToManagementSocket()
+{
+#ifdef Q_OS_WIN
     boost::asio::ip::tcp::endpoint endpoint;
     endpoint.port(stateVariables_.openVpnPort);
     endpoint.address(boost::asio::ip::make_address("127.0.0.1"));
-    stateVariables_.socket.reset(new boost::asio::ip::tcp::socket(io_context_));
+#else
+    boost::asio::local::stream_protocol::endpoint endpoint(WS_OVPN_MGMT_SOCKET);
+#endif
+    stateVariables_.socket.reset(new ManagementSocket(io_context_));
     stateVariables_.socket->async_connect(endpoint, boost::bind(&OpenVPNConnection::funcConnectToOpenVPN, this,
                                                                 boost::asio::placeholders::error));
 }
 
+#ifdef Q_OS_WIN
+bool OpenVPNConnection::verifyOpenVpnPeer()
+{
+    if (!stateVariables_.socket) {
+        return false;
+    }
+
+    boost::system::error_code ec;
+    const auto localEp = stateVariables_.socket->local_endpoint(ec);
+    if (ec) {
+        qCCritical(LOG_CONNECTION) << "verifyOpenVpnPeer: local_endpoint failed:" << QString::fromStdString(ec.message());
+        return false;
+    }
+
+    const quint16 localPort = localEp.port();                                          // engine end (E)
+    const quint16 managementPort = static_cast<quint16>(stateVariables_.openVpnPort);  // OpenVPN end (P)
+
+    // The OpenVPN-side connection entry has local port == management port (P) and remote port == our
+    // local port (E). Its owning PID must match the PID the helper reported for the process it
+    // spawned (whose binary the helper signature-verified before launch, and whose handle the helper
+    // keeps open so the PID cannot be reused while OpenVPN runs).
+    DWORD ownerPid = 0;
+    if (!WinUtils::getTcpConnectionOwnerPid(managementPort, localPort, ownerPid)) {
+        qCCritical(LOG_CONNECTION) << "verifyOpenVpnPeer: could not find owner PID for the management connection";
+        return false;
+    }
+
+    if (stateVariables_.openVpnPid == 0 || ownerPid != stateVariables_.openVpnPid) {
+        qCCritical(LOG_CONNECTION) << "verifyOpenVpnPeer: management peer PID mismatch, expected"
+                                   << stateVariables_.openVpnPid << "got" << ownerPid;
+        return false;
+    }
+
+    qCInfo(LOG_CONNECTION) << "OpenVPN management peer verified (pid" << ownerPid << ", port" << managementPort << ")";
+    return true;
+}
+#endif
+
 void OpenVPNConnection::funcConnectToOpenVPN(const boost::system::error_code& err)
 {
     if (err.value() == 0) {
+        // Before exchanging anything (credentials, control commands) over the management interface,
+        // verify the peer is the genuine, helper-spawned OpenVPN. This defeats a local attacker that
+        // grabbed/co-bound the management socket to impersonate OpenVPN and harvest credentials or
+        // spoof connection state.
+#ifdef Q_OS_WIN
+        if (!verifyOpenVpnPeer())
+        {
+            qCCritical(LOG_CONNECTION) << "OpenVPN management peer verification failed; aborting connection";
+            QTimer::singleShot(0, &killControllerTimer_, SLOT(stop()));
+            stateVariables_.socket.reset();
+            helper_->executeTaskKill(kTargetOpenVpn);
+            setCurrentStateAndEmitError(STATUS_DISCONNECTED, CONNECT_ERROR::NO_OPENVPN_SOCKET);
+            return;
+        }
+#endif
         qCInfo(LOG_CONNECTION) << "Program connected to openvpn socket";
         setCurrentState(STATUS_CONNECTED_TO_SOCKET);
         stateVariables_.buffer.reset(new boost::asio::streambuf());
@@ -266,13 +346,29 @@ void OpenVPNConnection::funcConnectToOpenVPN(const boost::system::error_code& er
             return;
         }
 
-        boost::asio::ip::tcp::endpoint endpoint;
-        endpoint.port(stateVariables_.openVpnPort);
-        endpoint.address(boost::asio::ip::make_address("127.0.0.1"));
-        stateVariables_.socket.reset(new boost::asio::ip::tcp::socket(io_context_));
-        stateVariables_.socket->async_connect(endpoint, boost::bind(&OpenVPNConnection::funcConnectToOpenVPN, this,
-                                                                    boost::asio::placeholders::error));
+        // Back off before retrying. The connect can fail immediately (in particular a POSIX
+        // unix-domain connect() while OpenVPN is still binding its socket), so re-arming with no
+        // delay would busy-spin the io_context thread until the timeout above. Use an async timer
+        // rather than a blocking sleep so the event loop stays responsive.
+        connectRetryTimer_.expires_after(std::chrono::milliseconds(MANAGEMENT_SOCKET_RETRY_DELAY_MS));
+        connectRetryTimer_.async_wait(boost::bind(&OpenVPNConnection::retryConnectToManagementSocket, this,
+                                                  boost::asio::placeholders::error));
     }
+}
+
+void OpenVPNConnection::retryConnectToManagementSocket(const boost::system::error_code& err)
+{
+    // Timer cancelled (teardown) — do not re-arm the connect.
+    if (err == boost::asio::error::operation_aborted) {
+        return;
+    }
+
+    if (bStopThread_) {
+        // Let the kill timer terminate the OpenVPN process we're unable to connect to.
+        return;
+    }
+
+    asyncConnectToManagementSocket();
 }
 
 void OpenVPNConnection::handleRead(const boost::system::error_code &err, size_t bytes_transferred)
@@ -507,7 +603,8 @@ void OpenVPNConnection::handleRead(const boost::system::error_code &err, size_t 
                      serverReply.contains("Connection refused", Qt::CaseInsensitive))
             {
                 qCInfo(LOG_CONNECTION) << "Localhost proxy (stunnel/wstunnel) connection refused, force-killing OpenVPN immediately";
-                killControllerTimer_.stop();
+                // We are on the io_context worker thread; marshal stop() to the timer's (engine) thread.
+                QTimer::singleShot(0, &killControllerTimer_, SLOT(stop()));
                 helper_->executeTaskKill(kTargetOpenVpn);
                 setCurrentStateAndEmitDisconnected(STATUS_DISCONNECTED);
                 return;

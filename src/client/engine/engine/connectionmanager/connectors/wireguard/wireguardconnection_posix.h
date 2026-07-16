@@ -1,6 +1,6 @@
 #pragma once
 
-#include "iconnection.h"
+#include "engine/connectionmanager/connectors/iconnection.h"
 #include <atomic>
 #include <QMutex>
 #include <QTimer>

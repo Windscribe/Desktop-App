@@ -19,6 +19,9 @@ namespace Utils
                        const std::vector<std::string> &args = std::vector<std::string>(),
                        std::string *pOutputStr = nullptr, bool appendFromStdErr = true);
 
+    // true if the NetworkManager systemd unit is currently active
+    bool isNetworkManagerActive();
+
     // find case insensitive sub string in a given substring
     size_t findCaseInsensitive(std::string data, std::string toSearch, size_t pos = 0);
 

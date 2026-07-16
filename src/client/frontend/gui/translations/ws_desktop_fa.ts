@@ -1269,6 +1269,14 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>Artificially enlarge TLS packets, helps to circumvent censorship in some cases. Adds extra TLS padding to all API requests.</source>
         <translation>بزرگ نمایی مصنوعی بسته های TLS در برخی موارد به دور زدن سانسور کمک می کند. افزودن پدینگ TLS اضافی به همه درخواست های API.</translation>
     </message>
+    <message>
+        <source>Custom SNI Domain</source>
+        <translation>دامنه SNI سفارشی</translation>
+    </message>
+    <message>
+        <source>This setting applies to Stealth and Wstunnel protocols only.</source>
+        <translation>این تنظیمات فقط برای پروتکل های Stealth و Wstunnel اعمال می شود.</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::AppBackgroundGroup</name>
@@ -1445,6 +1453,10 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Spoof your device&apos;s physical address (MAC address).</source>
         <translation>ادرس فیزیکی دستگاه خود را جعل کنید (ادرس MAC).</translation>
+    </message>
+    <message>
+        <source>MAC spoofing requires NetworkManager to be installed and running.</source>
+        <translation>جعل MAC نیازمند نصب و اجرای NetworkManager است.</translation>
     </message>
     <message>
         <source>Close all active TCP sockets when the VPN tunnel is established.</source>
@@ -2082,10 +2094,6 @@ Connect to a network first</source>
 <context>
     <name>PreferencesWindow::ProtocolTweaksGroup</name>
     <message>
-        <source>Custom SNI Domain</source>
-        <translation>دامنه SNI سفارشی</translation>
-    </message>
-    <message>
         <source>Protocol Tweaks</source>
         <translation>اصلاحات پروتکل</translation>
     </message>
@@ -2172,8 +2180,8 @@ Connect to a network first</source>
         <translation>پورت پروکسی نامعتبر</translation>
     </message>
     <message>
-        <source>Proxy port is invalid. Please enter a valid port in the range 0-65535.</source>
-        <translation>پورت پروکسی نامعتبر است. لطفا یک پورت معتبر در محدوده 0-65535 وارد کنید.</translation>
+        <source>Proxy port is invalid. Please enter a valid port in the range 1-65535.</source>
+        <translation>پورت پروکسی نامعتبر است. لطفا یک پورت معتبر در محدوده 1-65535 وارد کنید.</translation>
     </message>
     <message>
         <source>Proxy address is invalid. Please enter a valid IP address.</source>
@@ -2311,6 +2319,10 @@ Connect to a network first</source>
 </context>
 <context>
     <name>PreferencesWindow::SplitTunnelingAddressesGroup</name>
+    <message>
+        <source>There are too many IPs/CIDR ranges in the list. Please remove some before adding more.</source>
+        <translation>در لیست تعداد زیادی IP/بازه CIDR وجود دارد. لطفا قبل از اضافه کردن بیشتر، مقداری را حذف کنید.</translation>
+    </message>
     <message>
         <source>IP or hostname already exists. Please enter a new IP or hostname.</source>
         <translation>IP یا نام میزبان در حال حاضر وجود دارد. لطفا یک IP یا نام میزبان جدید وارد کنید.</translation>

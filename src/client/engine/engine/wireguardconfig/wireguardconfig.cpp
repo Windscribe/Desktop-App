@@ -7,6 +7,7 @@
 
 #include "utils/extraconfig.h"
 #include "utils/log/categories.h"
+#include "utils/networkingvalidation.h"
 #include "utils/openssl_utils.h"
 
 namespace {
@@ -264,6 +265,23 @@ bool WireGuardConfig::hasValidAmneziawgParams() const
     // partial set that breaks the handshake. Both engine paths gate here; helper-side checks remain the backstop.
     if (!client_.amneziawgParam.hasPrintableObfuscationValues()) {
         qCWarning(LOG_CONNECTION) << "WireGuardConfig: AmneziaWG obfuscation value contains non-printable characters";
+        return false;
+    }
+    return true;
+}
+
+bool WireGuardConfig::hasValidServerValues() const
+{
+    // Written verbatim into the line-oriented wireguard.conf on Windows (posix validates helper-side); reject empty
+    // required fields and a smuggled newline that would inject a spurious directive.
+    const bool ok =
+        !peer_.publicKey.isEmpty() && NetworkingValidation::isPrintableSingleLineAscii(peer_.publicKey) &&
+        NetworkingValidation::isPrintableSingleLineAscii(peer_.presharedKey) &&
+        !peer_.allowedIps.isEmpty() && NetworkingValidation::isPrintableSingleLineAscii(peer_.allowedIps) &&
+        !client_.ipAddress.isEmpty() && NetworkingValidation::isPrintableSingleLineAscii(client_.ipAddress) &&
+        NetworkingValidation::isPrintableSingleLineAscii(client_.dnsAddress);
+    if (!ok) {
+        qCWarning(LOG_CONNECTION) << "WireGuardConfig: server-provided value is empty or contains unsafe characters";
         return false;
     }
     return true;

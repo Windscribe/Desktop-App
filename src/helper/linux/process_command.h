@@ -3,13 +3,14 @@
 #include <sstream>
 #include <map>
 #include <string>
+#include <sys/types.h>
 #include "../common/helper_commands.h"
 
 std::string getHelperVersion(const std::string &pars);
 std::string setSplitTunnelingSettings(const std::string &pars);
 std::string sendConnectStatus(const std::string &pars);
 std::string changeMtu(const std::string &pars);
-std::string executeOpenVPN(const std::string &pars);
+std::string executeOpenVPN(const std::string &pars, uid_t clientUid);
 std::string executeTaskKill(const std::string &pars);
 std::string startWireGuard(const std::string &pars);
 std::string stopWireGuard(const std::string &pars);
@@ -36,7 +37,7 @@ static const std::map<const HelperCommand, std::function<std::string(const std::
     { HelperCommand::setSplitTunnelingSettings, setSplitTunnelingSettings },
     { HelperCommand::sendConnectStatus, sendConnectStatus },
     { HelperCommand::changeMtu, changeMtu },
-    { HelperCommand::executeOpenVPN, executeOpenVPN },
+    // executeOpenVPN is intentionally absent: it requires the caller's uid and is dispatched directly by processCommand.
     { HelperCommand::executeTaskKill, executeTaskKill },
     { HelperCommand::startWireGuard, startWireGuard },
     { HelperCommand::stopWireGuard, stopWireGuard },
@@ -59,4 +60,4 @@ static const std::map<const HelperCommand, std::function<std::string(const std::
     { HelperCommand::installerCleanupStaged, installerCleanupStaged }
 };
 
-std::string processCommand(HelperCommand cmdId, const std::string &pars);
+std::string processCommand(HelperCommand cmdId, const std::string &pars, uid_t clientUid);

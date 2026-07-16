@@ -1258,6 +1258,10 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Штучна павялічвае памер TLS-пакетаў, што ў некаторых выпадках дапамагае абысьці цэнзуру. Дадае дадатковыя запаўнялінікі TLS да ўсіх запытаў API.</translation>
     </message>
     <message>
+        <source>This setting applies to Stealth and Wstunnel protocols only.</source>
+        <translation>Гэта налада прымяняецца толькі да пратаколаў Stealth і Wstunnel.</translation>
+    </message>
+    <message>
         <source>Protocol-level changes made to WireGuard, OpenVPN, and Stealth protocols.</source>
         <translation>Зьмены на ўзроўні пратаколу ў пратаколах WireGuard, OpenVPN і Stealth.</translation>
     </message>
@@ -1268,6 +1272,10 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>These degrade performance, enable only if Windscribe doesn&apos;t connect normally.</source>
         <translation>Гэтыя функцыі пагаршаюць прадукцыйнасьць. Уключайце іх толькі тады, калі Windscribe не падлучаецца звычайным чынам.</translation>
+    </message>
+    <message>
+        <source>Custom SNI Domain</source>
+        <translation>Карыстальніцкі дамен SNI</translation>
     </message>
 </context>
 <context>
@@ -1445,6 +1453,10 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Spoof your device&apos;s physical address (MAC address).</source>
         <translation>Падмяніць фізычны адрас прылады (MAC-адрас).</translation>
+    </message>
+    <message>
+        <source>MAC spoofing requires NetworkManager to be installed and running.</source>
+        <translation>Падробка MAC патрабуе ўстаноўкі і запуску NetworkManager.</translation>
     </message>
     <message>
         <source>Close all active TCP sockets when the VPN tunnel is established.</source>
@@ -2082,10 +2094,6 @@ Connect to a network first</source>
 <context>
     <name>PreferencesWindow::ProtocolTweaksGroup</name>
     <message>
-        <source>Custom SNI Domain</source>
-        <translation>Карыстальніцкі дамен SNI</translation>
-    </message>
-    <message>
         <source>Amnezia Config</source>
         <translation>Amnezia</translation>
     </message>
@@ -2172,8 +2180,8 @@ Connect to a network first</source>
         <translation>Няправільны порт проксі-сэрвэра</translation>
     </message>
     <message>
-        <source>Proxy port is invalid. Please enter a valid port in the range 0-65535.</source>
-        <translation>Няправільны порт проксі-сэрвэра. Увядзіце карэктны порт у межах 0-65535.</translation>
+        <source>Proxy port is invalid. Please enter a valid port in the range 1-65535.</source>
+        <translation>Няправільны порт проксі-сэрвэра. Увядзіце карэктны порт у межах 1-65535.</translation>
     </message>
     <message>
         <source>Proxy address is invalid. Please enter a valid IP address.</source>
@@ -2311,6 +2319,10 @@ Connect to a network first</source>
 </context>
 <context>
     <name>PreferencesWindow::SplitTunnelingAddressesGroup</name>
+    <message>
+        <source>There are too many IPs/CIDR ranges in the list. Please remove some before adding more.</source>
+        <translation>У спісе занадта шмат IP/CIDR дыяпазонаў. Калі ласка, выдаліце некаторыя перад тым, як дадаваць яшчэ.</translation>
+    </message>
     <message>
         <source>IP or hostname already exists. Please enter a new IP or hostname.</source>
         <translation>IP-адрас альбо імя вузла ўжо існуе. Увядзіце іншы IP-адрас альбо імя вузла.</translation>

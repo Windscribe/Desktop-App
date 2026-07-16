@@ -1,8 +1,8 @@
 #include "emergencycontroller.h"
+#include "engine/connectionmanager/connectors/openvpn/openvpnconnection.h"
 #include "utils/ws_assert.h"
 #include "utils/log/categories.h"
 #include "utils/utils.h"
-#include "engine/connectionmanager/openvpnconnection.h"
 #include "utils/hardcodedsettings.h"
 #include <QFile>
 #include <QCoreApplication>

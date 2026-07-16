@@ -1269,6 +1269,14 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>Artificially enlarge TLS packets, helps to circumvent censorship in some cases. Adds extra TLS padding to all API requests.</source>
         <translation>人为放大TLS数据包，在某些情况下有助于规避审查。为所有 API 请求添加额外的 TLS 填充。</translation>
     </message>
+    <message>
+        <source>Custom SNI Domain</source>
+        <translation>自定义 SNI 域名</translation>
+    </message>
+    <message>
+        <source>This setting applies to Stealth and Wstunnel protocols only.</source>
+        <translation>此设置仅适用于 Stealth 和 Wstunnel 协议。</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::AppBackgroundGroup</name>
@@ -1441,6 +1449,10 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Spoof your device&apos;s physical address (MAC address).</source>
         <translation>欺骗设备的物理地址（MAC 地址）。</translation>
+    </message>
+    <message>
+        <source>MAC spoofing requires NetworkManager to be installed and running.</source>
+        <translation>MAC伪装需要安装并运行NetworkManager。</translation>
     </message>
     <message>
         <source>Close all active TCP sockets when the VPN tunnel is established.</source>
@@ -2082,10 +2094,6 @@ Connect to a network first</source>
 <context>
     <name>PreferencesWindow::ProtocolTweaksGroup</name>
     <message>
-        <source>Custom SNI Domain</source>
-        <translation>自定义 SNI 域名</translation>
-    </message>
-    <message>
         <source>Protocol Tweaks</source>
         <translation>协议调整</translation>
     </message>
@@ -2172,8 +2180,8 @@ Connect to a network first</source>
         <translation>代理端口无效</translation>
     </message>
     <message>
-        <source>Proxy port is invalid. Please enter a valid port in the range 0-65535.</source>
-        <translation>代理端口无效，有效端口范围为 0-65535。</translation>
+        <source>Proxy port is invalid. Please enter a valid port in the range 1-65535.</source>
+        <translation>代理端口无效，有效端口范围为 1-65535。</translation>
     </message>
     <message>
         <source>Proxy address is invalid. Please enter a valid IP address.</source>
@@ -2311,6 +2319,10 @@ Connect to a network first</source>
 </context>
 <context>
     <name>PreferencesWindow::SplitTunnelingAddressesGroup</name>
+    <message>
+        <source>There are too many IPs/CIDR ranges in the list. Please remove some before adding more.</source>
+        <translation>列表中的 IP 和 CIDR 范围太多了。请在添加更多之前删除一些。</translation>
+    </message>
     <message>
         <source>IP or hostname already exists. Please enter a new IP or hostname.</source>
         <translation>IP 或主机名已存在。请输入新的 IP 或主机名。</translation>

@@ -1,4 +1,7 @@
 #include "routes_manager.h"
+
+#include <spdlog/spdlog.h>
+
 #include "ip_forward_table.h"
 
 RoutesManager::RoutesManager()
@@ -97,6 +100,8 @@ void RoutesManager::doActionsForInclusiveModeOpenVpn(const ConnectStatus &connec
         openVpnRoutes_.deleteRoute(table, types::IpAddress("::"),     1, vpn.gatewayIpV6, vpn.ifIndex);
         openVpnRoutes_.deleteRoute(table, types::IpAddress("8000::"), 1, vpn.gatewayIpV6, vpn.ifIndex);
         boundRoute_.addRoute(table, types::IpAddress("::"), 0, vpn.gatewayIpV6, vpn.ifIndex, true);
+    } else {
+        spdlog::info("RoutesManager: inclusive OpenVPN: v6 route surgery skipped (no v6 gateway on VPN adapter)");
     }
 }
 
@@ -120,6 +125,12 @@ void RoutesManager::doActionsForInclusiveModeWireGuard(const ConnectStatus &conn
         wgRoutes_.deleteRoute(table, types::IpAddress("::"),     1, types::IpAddress("::"), vpn.ifIndex);
         wgRoutes_.deleteRoute(table, types::IpAddress("8000::"), 1, types::IpAddress("::"), vpn.ifIndex);
         boundRoute_.addRoute(table, types::IpAddress("::"), 0, vpn.adapterIpV6, vpn.ifIndex, true);
+    } else {
+        // With a dual-stack tunnel this usually means adapter info was captured before the
+        // WG service assigned the v6 address (see the adapter-info race in the v6 leak fix
+        // plan): the tunnel ::/1 + 8000::/1 stay in place with a low metric. The CalloutFilter
+        // v6 anti-leak BLOCK still prevents non-included apps from leaking through them.
+        spdlog::warn("RoutesManager: inclusive WireGuard: v6 route surgery skipped (no v6 address on VPN adapter)");
     }
 }
 
@@ -138,6 +149,8 @@ void RoutesManager::doActionsForInclusiveModeIkev2(const ConnectStatus &connectS
     if (vpn.adapterIpV6.isValid()) {
         ikev2Routes_.deleteRouteByInterface(table, types::IpAddress("::"), 0, vpn.ifIndex);
         boundRoute_.addRoute(table, types::IpAddress("::"), 0, vpn.adapterIpV6, vpn.ifIndex, true);
+    } else {
+        spdlog::info("RoutesManager: inclusive IKEv2: v6 route surgery skipped (no v6 address on VPN adapter)");
     }
 }
 

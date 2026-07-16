@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <cwctype>
+#include <memory>
 
 #include <ws2tcpip.h>
 #include <iphlpapi.h>
@@ -11,81 +12,74 @@
 // static
 void CloseTcpConnections::closeAllTcpConnections(bool keepLocalSockets, bool isExclude /*= true*/, const std::vector<std::wstring> &apps/* = std::vector<std::wstring>()*/)
 {
-    PMIB_TCPTABLE2 pTcpTable = (MIB_TCPTABLE2 *)malloc(sizeof(MIB_TCPTABLE2));
-    if (pTcpTable == NULL) {
+    DWORD dwSize = sizeof(MIB_TCPTABLE2);
+    std::unique_ptr<BYTE[]> buffer(new BYTE[dwSize]);
+
+    DWORD dwRetVal = ERROR_INSUFFICIENT_BUFFER;
+    for (int attempt = 0; attempt < 5; ++attempt) {
+        dwRetVal = GetTcpTable2(reinterpret_cast<PMIB_TCPTABLE2>(buffer.get()), &dwSize, TRUE);
+        if (dwRetVal != ERROR_INSUFFICIENT_BUFFER) {
+            break;
+        }
+        buffer.reset(new BYTE[dwSize]);
+    }
+
+    if (dwRetVal != NO_ERROR) {
         return;
     }
 
-    // Make an initial call to GetTcpTable to get the necessary size into the dwSize variable
-    DWORD dwSize = sizeof(MIB_TCPTABLE2);
-    DWORD dwRetVal = GetTcpTable2(pTcpTable, &dwSize, TRUE);
-    if (dwRetVal == ERROR_INSUFFICIENT_BUFFER) {
-        free(pTcpTable);
-        pTcpTable = (MIB_TCPTABLE2 *)malloc(dwSize);
-        if (pTcpTable == NULL) {
-            return;
+    PMIB_TCPTABLE2 pTcpTable = reinterpret_cast<PMIB_TCPTABLE2>(buffer.get());
+    for (int i = 0; i < (int)pTcpTable->dwNumEntries; i++) {
+        auto *entry = &pTcpTable->table[i];
+        // Do not close listening sockets.
+        if (entry->dwState == MIB_TCP_STATE_LISTEN) {
+            continue;
         }
-    }
+        // Do not close LAN sockets, if explicitly requested.
+        if (keepLocalSockets && isLocalAddress(entry->dwRemoteAddr)) {
+            continue;
+        }
 
-    // Make a second call to GetTcpTable to get the actual data we require
-    dwRetVal = GetTcpTable2(pTcpTable, &dwSize, TRUE);
-    if (dwRetVal == NO_ERROR) {
-        for (int i = 0; i < (int)pTcpTable->dwNumEntries; i++) {
-            auto *entry = &pTcpTable->table[i];
-            // Do not close listening sockets.
-            if (entry->dwState == MIB_TCP_STATE_LISTEN) {
-                continue;
-            }
-            // Do not close LAN sockets, if explicitly requested.
-            if (keepLocalSockets && isLocalAddress(entry->dwRemoteAddr)) {
-                continue;
-            }
-
-            // always close ctrld util sockets
-            if (isCtrldProcessName(entry->dwOwningPid)) {
-                entry->dwState = MIB_TCP_STATE_DELETE_TCB;
-                SetTcpEntry(reinterpret_cast<MIB_TCPROW *>(entry));
-                continue;
-            }
-
-            // Do not close our own sockets.
-            if (isAppProcessName(entry->dwOwningPid)) {
-                continue;
-            }
-
-            // don't close apps sockets
-            if (isExclude) {
-                bool bSkip = false;
-                for (const auto &app : apps) {
-                    if (isAppSocket(entry->dwOwningPid, app)) {
-                        bSkip = true;
-                        break;
-                    }
-                }
-                if (bSkip) {
-                    continue;
-                }
-            } else {
-                // don't close not apps sockets
-                bool bFound = false;
-                for (const auto &app : apps) {
-                    if (isAppSocket(entry->dwOwningPid, app)) {
-                        bFound = true;
-                        break;
-                    }
-                }
-                if (!bFound) {
-                    continue;
-                }
-            }
-
+        // always close ctrld util sockets
+        if (isCtrldProcessName(entry->dwOwningPid)) {
             entry->dwState = MIB_TCP_STATE_DELETE_TCB;
             SetTcpEntry(reinterpret_cast<MIB_TCPROW *>(entry));
+            continue;
         }
-    }
 
-    if (pTcpTable != NULL) {
-        free(pTcpTable);
+        // Do not close our own sockets.
+        if (isAppProcessName(entry->dwOwningPid)) {
+            continue;
+        }
+
+        // don't close apps sockets
+        if (isExclude) {
+            bool bSkip = false;
+            for (const auto &app : apps) {
+                if (isAppSocket(entry->dwOwningPid, app)) {
+                    bSkip = true;
+                    break;
+                }
+            }
+            if (bSkip) {
+                continue;
+            }
+        } else {
+            // don't close not apps sockets
+            bool bFound = false;
+            for (const auto &app : apps) {
+                if (isAppSocket(entry->dwOwningPid, app)) {
+                    bFound = true;
+                    break;
+                }
+            }
+            if (!bFound) {
+                continue;
+            }
+        }
+
+        entry->dwState = MIB_TCP_STATE_DELETE_TCB;
+        SetTcpEntry(reinterpret_cast<MIB_TCPROW *>(entry));
     }
 }
 

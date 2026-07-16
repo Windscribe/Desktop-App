@@ -1,6 +1,5 @@
 #pragma once
 
-#include <QFileSystemWatcher>
 #include <QJsonObject>
 #include <QMutex>
 #include <QObject>
@@ -8,6 +7,8 @@
 #include <QStringList>
 
 #include <optional>
+
+class FileChangeWatcher;
 
 // for work with advanced parameters file, thread-safe access
 // all ikev2 params will be prefixed with --ikev2, so you don't use them when using OpenVPN, and vise versa
@@ -73,9 +74,11 @@ public:
     void fromJson(const QJsonObject &json);
     QJsonObject toJson();
 
+signals:
+    void changed();
+
 private slots:
     void onFileChanged();
-    void onDirectoryChanged(const QString &path);
 
 private:
     ExtraConfig();
@@ -85,15 +88,13 @@ private:
     QString detectedIp_;
 
     // File watching
-    QFileSystemWatcher* fileWatcher_;
-    bool fileExists_;
+    FileChangeWatcher* fileWatcher_;
     QStringList configLines_;
     QHash<QString, QString> parsedValues_;
 
     static const inline QString kJsonFileContentsProp = "fileContents";
 
     void parseConfigFile();
-    void updateFileWatchingState();
 
     int getInt(const QString &variableName, bool &success);
     bool getFlag(const QString &flagName);

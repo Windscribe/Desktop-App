@@ -46,8 +46,7 @@ void DnsFirewall::disable()
 void DnsFirewall::enable()
 {
     // if already enabled, first remove previous filter
-    if (bCurrentState_)
-    {
+    if (bCurrentState_) {
         disable();
     }
 
@@ -63,8 +62,7 @@ void DnsFirewall::enable()
     subLayer.weight = 0xFFFF;
 
     DWORD dwFwAPiRetCode = FwpmSubLayerAdd0(hEngine, &subLayer, NULL);
-    if (dwFwAPiRetCode != ERROR_SUCCESS && dwFwAPiRetCode != FWP_E_ALREADY_EXISTS)
-    {
+    if (dwFwAPiRetCode != ERROR_SUCCESS && dwFwAPiRetCode != FWP_E_ALREADY_EXISTS) {
         spdlog::error("DnsFirewall::enable(), FwpmSubLayerAdd0 failed");
         fwmpWrapper_.endTransaction();
         fwmpWrapper_.unlock();
@@ -91,7 +89,7 @@ void DnsFirewall::setExcludeIps(const std::vector<std::wstring>& ips)
 
 void DnsFirewall::addFilters(HANDLE engineHandle)
 {
-    const std::vector<types::IpAddress> dnsServers = getDnsServers();
+    const auto dnsServers = getDnsServers();
 
     // add block filter for each DNS ip on protocol UDP/TCP port 53.
     // Rule weight must be greater than the LAN allow rule (4).
@@ -120,9 +118,9 @@ void DnsFirewall::addFilters(HANDLE engineHandle)
     }
 }
 
-std::vector<types::IpAddress> DnsFirewall::getDnsServers()
+std::set<types::IpAddress> DnsFirewall::getDnsServers()
 {
-    std::vector<types::IpAddress> dnsServers;
+    std::set<types::IpAddress> dnsServers;
 
     DWORD dwRetVal = 0;
     ULONG outBufLen = 0;
@@ -134,49 +132,39 @@ std::vector<types::IpAddress> DnsFirewall::getDnsServers()
     outBufLen = static_cast<ULONG>(arr.size());
     do {
         dwRetVal = GetAdaptersAddresses(AF_UNSPEC, NULL, NULL, (PIP_ADAPTER_ADDRESSES)&arr[0], &outBufLen);
-        if (dwRetVal == ERROR_BUFFER_OVERFLOW)
-        {
+        if (dwRetVal == ERROR_BUFFER_OVERFLOW) {
             arr.resize(outBufLen);
-        }
-        else
-        {
+        } else {
             break;
         }
         iterations++;
     } while ((dwRetVal == ERROR_BUFFER_OVERFLOW) && (iterations < MAX_TRIES));
 
-    if (dwRetVal != NO_ERROR)
-    {
-        return dnsServers;
+    if (dwRetVal != NO_ERROR) {
+        return {};
     }
 
     PIP_ADAPTER_ADDRESSES pCurrAddresses = (PIP_ADAPTER_ADDRESSES)&arr[0];
-    while (pCurrAddresses)
-    {
+    while (pCurrAddresses) {
         // Warning: we control the FriendlyName of the wireguard-nt adapter, but not the Description.
         if ((wcsstr(pCurrAddresses->Description, WS_PRODUCT_NAME_W) == 0) &&
-            (wcsstr(pCurrAddresses->FriendlyName, WS_PRODUCT_NAME_W) == 0))
-        {
+            (wcsstr(pCurrAddresses->FriendlyName, WS_PRODUCT_NAME_W) == 0)) {
             PIP_ADAPTER_DNS_SERVER_ADDRESS dnsServerAddress = pCurrAddresses->FirstDnsServerAddress;
-            while (dnsServerAddress)
-            {
+            while (dnsServerAddress) {
                 const auto family = dnsServerAddress->Address.lpSockaddr->sa_family;
-                if (family == AF_INET)
-                {
+                if (family == AF_INET) {
                     const auto *sin = reinterpret_cast<const sockaddr_in *>(dnsServerAddress->Address.lpSockaddr);
                     types::IpAddress addr(types::IpAddress::IPv4,
                                           reinterpret_cast<const uint8_t *>(&sin->sin_addr), 4);
                     if (addr.isValid()) {
-                        dnsServers.push_back(std::move(addr));
+                        dnsServers.insert(std::move(addr));
                     }
-                }
-                else if (family == AF_INET6)
-                {
+                } else if (family == AF_INET6) {
                     const auto *sin6 = reinterpret_cast<const sockaddr_in6 *>(dnsServerAddress->Address.lpSockaddr);
                     types::IpAddress addr(types::IpAddress::IPv6,
                                           reinterpret_cast<const uint8_t *>(&sin6->sin6_addr), 16);
                     if (addr.isValid()) {
-                        dnsServers.push_back(std::move(addr));
+                        dnsServers.insert(std::move(addr));
                     }
                 }
                 dnsServerAddress = dnsServerAddress->Next;

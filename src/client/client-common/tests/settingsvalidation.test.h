@@ -68,7 +68,10 @@ private slots:
     void testShareSecureHotspot_oversizedSsidDisables();
     void testShareSecureHotspot_shortPasswordDisables();
     void testSplitTunneling_dropInvalidRoute();
-    void testSplitTunneling_capRoutes();
+    void testSplitTunneling_capApps();
+    void testSplitTunneling_capHostnames();
+    void testSplitTunneling_capIpRoutes();
+    void testSplitTunneling_mixedRouteCapsKeepIpRoutes();
     void testSplitTunneling_dropEmptyFullNameApp();
     void testSplitTunneling_rederivesRouteType();
 

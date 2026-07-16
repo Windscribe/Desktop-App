@@ -4,7 +4,7 @@
 #include <QHostAddress>
 #include <QSettings>
 
-#include "engine/connectionmanager/availableport.h"
+#include "engine/connectionmanager/connectors/openvpn/availableport.h"
 #include "engine/networkdetectionmanager/inetworkdetectionmanager.h"
 #include "proxyauthconfig.h"
 #include "utils/log/categories.h"

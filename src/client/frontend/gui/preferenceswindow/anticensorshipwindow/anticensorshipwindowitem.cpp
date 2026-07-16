@@ -28,10 +28,8 @@ AntiCensorshipWindowItem::AntiCensorshipWindowItem(ScalableGraphicsObject *paren
     protocolTweaksGroup_ = new ProtocolTweaksGroup(this);
     connect(protocolTweaksGroup_, &ProtocolTweaksGroup::protocolTweaksMethodChanged, this, &AntiCensorshipWindowItem::onProtocolTweaksMethodChangedByUser);
     connect(protocolTweaksGroup_, &ProtocolTweaksGroup::amneziawgPresetChanged, this, &AntiCensorshipWindowItem::onAmneziawgPresetChangedByUser);
-    connect(protocolTweaksGroup_, &ProtocolTweaksGroup::customSniDomainChanged, this, &AntiCensorshipWindowItem::onCustomSniDomainChangedByUser);
     protocolTweaksGroup_->setProtocolTweaksMethod(preferences->protocolTweaksMethod());
     applyAmneziawgPresets(preferencesHelper->amneziawgPresets());
-    protocolTweaksGroup_->setCustomSniDomain(preferences->customSniDomain());
     addItem(protocolTweaksGroup_);
 
     serverRoutingGroup_ = new PreferenceGroup(this);
@@ -46,6 +44,13 @@ AntiCensorshipWindowItem::AntiCensorshipWindowItem(ScalableGraphicsObject *paren
     connect(toggleLargeTls_, &ToggleItem::stateChanged, this, &AntiCensorshipWindowItem::onLargeTlsToggleChangedByUser);
     largeTlsGroup_->addItem(toggleLargeTls_);
     addItem(largeTlsGroup_);
+
+    customSniGroup_ = new PreferenceGroup(this);
+    customSniDomainEdit_ = new VerticalEditBoxItem(customSniGroup_);
+    customSniDomainEdit_->setText(preferences->customSniDomain());
+    connect(customSniDomainEdit_, &VerticalEditBoxItem::textChanged, this, &AntiCensorshipWindowItem::onCustomSniDomainChangedByUser);
+    customSniGroup_->addItem(customSniDomainEdit_);
+    addItem(customSniGroup_);
 
     connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &AntiCensorshipWindowItem::onLanguageChanged);
     onLanguageChanged();
@@ -74,6 +79,10 @@ void AntiCensorshipWindowItem::onLanguageChanged()
 
     toggleLargeTls_->setCaption(tr("Large TLS"));
     largeTlsGroup_->setDescription(tr("Artificially enlarge TLS packets, helps to circumvent censorship in some cases. Adds extra TLS padding to all API requests."));
+
+    customSniDomainEdit_->setCaption(tr("Custom SNI Domain"));
+    customSniDomainEdit_->setPrompt("example.com");
+    customSniGroup_->setDescription(tr("This setting applies to Stealth and Wstunnel protocols only."));
 }
 
 void AntiCensorshipWindowItem::onProtocolTweaksMethodPreferencesChanged(PROTOCOL_TWEAKS_METHOD_TYPE method)
@@ -88,7 +97,7 @@ void AntiCensorshipWindowItem::onAmneziawgPresetChanged(const QString &preset)
 
 void AntiCensorshipWindowItem::onCustomSniDomainPreferencesChanged(const QString &domain)
 {
-    protocolTweaksGroup_->setCustomSniDomain(domain);
+    customSniDomainEdit_->setText(domain);
 }
 
 void AntiCensorshipWindowItem::onApiSuggestedCustomSniChanged(const QString &domain)

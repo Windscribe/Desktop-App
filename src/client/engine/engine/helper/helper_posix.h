@@ -26,7 +26,9 @@ public:
                            const AdapterGatewayInfo &defaultAdapter, const AdapterGatewayInfo &vpnAdapter,
                            const QString &connectedIp, const types::Protocol &protocol);
     void changeMtu(const QString &adapter, int mtu);
-    bool executeOpenVPN(const QString &config, unsigned int port, const QString &httpProxy, unsigned int httpPort,
+    // On POSIX the management interface is a root-owned unix domain socket (fixed path), so unlike
+    // Windows there is no port to choose or return.
+    bool executeOpenVPN(const QString &config, const QString &httpProxy, unsigned int httpPort,
                         const QString &socksProxy, unsigned int socksPort);
 
     bool executeTaskKill(CmdKillTarget target);

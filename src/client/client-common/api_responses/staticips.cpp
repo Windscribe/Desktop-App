@@ -5,6 +5,8 @@
 #include <QJsonArray>
 #include <QDataStream>
 
+#include "utils/networkingvalidation.h"
+
 const int typeIdApiInfoStaticIps = qRegisterMetaType<api_responses::StaticIps>("api_responses::StaticIps");
 
 namespace api_responses {
@@ -34,7 +36,12 @@ StaticIps::StaticIps(const std::string &json) : d(new StaticIpsData)
         {
             sid.id = obj["id"].toDouble();
             sid.ipId = obj["ip_id"].toDouble();
-            sid.staticIp = obj["static_ip"].toString();
+            // static_ip must be a valid IP or nothing; drop a malformed value rather than propagate it to the
+            // LocationID key / display / persistence / IPC.
+            const QString staticIp = obj["static_ip"].toString();
+            if (NetworkingValidation::isIp(staticIp)) {
+                sid.staticIp = staticIp;
+            }
             sid.type = obj["type"].toString();
             sid.name = obj["name"].toString();
             sid.countryCode = obj["country_code"].toString().toLower();

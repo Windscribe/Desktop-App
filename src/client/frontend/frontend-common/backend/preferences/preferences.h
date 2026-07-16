@@ -212,7 +212,6 @@ signals:
     void hideFromDockChanged(bool b);
     void shareSecureHotspotChanged(const types::ShareSecureHotspot &ss);
     void shareProxyGatewayChanged(const types::ShareProxyGateway &sp);
-    void debugAdvancedParametersChanged(const QString &pars);
     void dnsPolicyChanged(DNS_POLICY_TYPE d);
     void decoyTrafficSettingsChanged(const types::DecoyTrafficSettings &d);
     void dnsManagerChanged(DNS_MANAGER_TYPE d);

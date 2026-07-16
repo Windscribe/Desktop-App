@@ -1269,6 +1269,14 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>Artificially enlarge TLS packets, helps to circumvent censorship in some cases. Adds extra TLS padding to all API requests.</source>
         <translation>TLS 패킷을 인위적으로 확대하면 경우에 따라 검열을 우회할 수 있습니다. 모든 API 요청에 추가 TLS 패딩을 추가합니다.</translation>
     </message>
+    <message>
+        <source>Custom SNI Domain</source>
+        <translation>사용자 지정 SNI 도메인</translation>
+    </message>
+    <message>
+        <source>This setting applies to Stealth and Wstunnel protocols only.</source>
+        <translation>이 설정은 Stealth 및 Wstunnel 프로토콜에만 적용됩니다.</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::AppBackgroundGroup</name>
@@ -1445,6 +1453,10 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Spoof your device&apos;s physical address (MAC address).</source>
         <translation>장치의 물리주소(MAC 주소)를 스푸핑합니다.</translation>
+    </message>
+    <message>
+        <source>MAC spoofing requires NetworkManager to be installed and running.</source>
+        <translation>MAC 스푸핑은 NetworkManager가 설치되어 실행되어야 합니다.</translation>
     </message>
     <message>
         <source>Close all active TCP sockets when the VPN tunnel is established.</source>
@@ -2082,10 +2094,6 @@ Connect to a network first</source>
 <context>
     <name>PreferencesWindow::ProtocolTweaksGroup</name>
     <message>
-        <source>Custom SNI Domain</source>
-        <translation>사용자 지정 SNI 도메인</translation>
-    </message>
-    <message>
         <source>Protocol Tweaks</source>
         <translation>프로토콜 조정</translation>
     </message>
@@ -2172,8 +2180,8 @@ Connect to a network first</source>
         <translation>유효하지 않은 프록시 포트</translation>
     </message>
     <message>
-        <source>Proxy port is invalid. Please enter a valid port in the range 0-65535.</source>
-        <translation>프록시 포트가 잘못되었습니다. 0-65535 사이에 올바른 포트를 입력하십시오.</translation>
+        <source>Proxy port is invalid. Please enter a valid port in the range 1-65535.</source>
+        <translation>프록시 포트가 잘못되었습니다. 1-65535 사이에 올바른 포트를 입력하십시오.</translation>
     </message>
     <message>
         <source>Proxy address is invalid. Please enter a valid IP address.</source>
@@ -2311,6 +2319,10 @@ Connect to a network first</source>
 </context>
 <context>
     <name>PreferencesWindow::SplitTunnelingAddressesGroup</name>
+    <message>
+        <source>There are too many IPs/CIDR ranges in the list. Please remove some before adding more.</source>
+        <translation>목록에 너무 많은 IP와 CIDR 범위가 있습니다. 추가하기 전에 일부를 제거해 주세요.</translation>
+    </message>
     <message>
         <source>IP or hostname already exists. Please enter a new IP or hostname.</source>
         <translation>IP 또는 호스트 이름이 이미 있습니다. 새 IP 또는 호스트 이름을 입력하십시오.</translation>

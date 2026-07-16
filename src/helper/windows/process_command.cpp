@@ -186,11 +186,14 @@ std::string changeMtu(const std::string &pars)
 std::string executeOpenVPN(const std::string &pars)
 {
     std::wstring config, httpProxy, socksProxy;
-    unsigned int port, httpPort, socksPort;
-    deserializePars(pars, config, port, httpProxy, httpPort, socksProxy, socksPort);
+    unsigned int httpPort, socksPort;
+    deserializePars(pars, config, httpProxy, httpPort, socksProxy, socksPort);
 
-    const auto res = OpenVPNController::instance().runOpenvpn(config, port, httpProxy, httpPort, socksProxy, socksPort);
-    return serializeResult(res.success);
+    unsigned int port = 0;
+    const auto res = OpenVPNController::instance().runOpenvpn(config, httpProxy, httpPort, socksProxy, socksPort, port);
+    // Return the OS-assigned management port and the OpenVPN PID so the engine can verify it
+    // connects to the genuine, helper-spawned OpenVPN process.
+    return serializeResult(res.success, port, static_cast<unsigned long>(res.processId));
 }
 
 std::string executeTaskKill(const std::string &pars)

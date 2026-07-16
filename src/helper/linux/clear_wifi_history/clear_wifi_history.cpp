@@ -573,10 +573,7 @@ bool ClearWiFiHistory::reloadNetworkManager()
     spdlog::debug("Checking if NetworkManager is active");
     
     // First, check if NetworkManager is actually running
-    // Use 'systemctl is-active' which returns 0 if service is active
-    int checkResult = Utils::executeCommand("systemctl", {"is-active", "NetworkManager"});
-    
-    if (checkResult != 0) {
+    if (!Utils::isNetworkManagerActive()) {
         spdlog::debug("NetworkManager is not active, skipping restart");
         return true; // Not an error - just not using NetworkManager
     }

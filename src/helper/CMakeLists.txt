@@ -19,3 +19,7 @@ elseif(APPLE)
 elseif(UNIX)
    add_subdirectory(linux)
 endif()
+
+if(IS_BUILD_TESTS)
+   add_subdirectory(common/tests)
+endif()

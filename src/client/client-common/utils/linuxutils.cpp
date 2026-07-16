@@ -2,6 +2,7 @@
 
 #include <QDir>
 #include <QFile>
+#include <QProcess>
 #include <QRegularExpression>
 #include <QTextStream>
 
@@ -77,6 +78,36 @@ const QString getLastInstallPlatform()
 
     linuxPlatformName = lastInstallPlatform.readAll().trimmed(); // remove newline
     return linuxPlatformName;
+}
+
+// Returns the exit code of a systemctl query verb, or -1 on timeout.
+static int systemctlCheck(const char *verb, const QString &unit)
+{
+    QProcess process;
+    process.start("systemctl", {"--quiet", QString(verb), unit});
+    if (!process.waitForFinished(2000)) {
+        process.kill();
+        process.waitForFinished(500);
+        return -1;
+    }
+    return process.exitCode();
+}
+
+bool isNetworkManagerActive()
+{
+    // A live "is it running" check is intentionally all we need here -- do NOT be tempted to also accept
+    // "enabled but inactive" to guard against NetworkManager still coming up when we're consulted. There is
+    // no such race: NetworkManager is a boot-time service that reaches active during early boot (network
+    // targets, before the display manager and graphical session). Any Windscribe process -- including the
+    // GUI autostarted at login and the engine it spawns -- starts long after that, so if NM is enabled it is
+    // already active by the time we ask. The only ways this returns false are the genuine ones: NM is
+    // stopped, disabled, masked, or not installed -- in every one of those cases the nmcli-backed paths
+    // (DNS read, network-name lookup, MAC spoofing) genuinely can't work and should fall back or skip.
+    //
+    // systemctl answers from PID 1 and should never block; if it somehow does, err toward active so we
+    // don't disable NetworkManager-backed features over a transient hiccup.
+    const int ret = systemctlCheck("is-active", "NetworkManager.service");
+    return ret == 0 || ret == -1;
 }
 
 bool isAppAlreadyRunning()

@@ -373,6 +373,21 @@ bool isPrintableSingleLineAscii(const std::string &v)
     return true;
 }
 
+bool isValidUsername(const std::string &name)
+{
+    if (name.empty()) {
+        return false;
+    }
+    for (unsigned char c : name) {
+        // Reject space (0x20), every C0 control byte (< 0x20), and DEL (0x7F). This covers
+        // all whitespace (space/tab/newline/CR/VT/FF) and control characters in one check.
+        if (c <= 0x20 || c == 0x7f) {
+            return false;
+        }
+    }
+    return true;
+}
+
 bool isValidUapiKeyField(const char *fieldName, const std::string &value)
 {
     if (value.empty() || !isPrintableSingleLineAscii(value)) {

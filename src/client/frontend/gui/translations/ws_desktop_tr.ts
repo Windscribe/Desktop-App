@@ -1269,6 +1269,14 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
         <source>Artificially enlarge TLS packets, helps to circumvent censorship in some cases. Adds extra TLS padding to all API requests.</source>
         <translation>TLS paketlerini yapay olarak büyütmek, bazı durumlarda sansürü aşmaya yardımcı olur. Tüm API isteklerine ekstra TLS dolgusu ekliyor.</translation>
     </message>
+    <message>
+        <source>Custom SNI Domain</source>
+        <translation>Özel SNI Alan Adı</translation>
+    </message>
+    <message>
+        <source>This setting applies to Stealth and Wstunnel protocols only.</source>
+        <translation>Bu ayar yalnızca Stealth ve Wstunnel protokolleri için geçerlidir.</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::AppBackgroundGroup</name>
@@ -1445,6 +1453,10 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
     <message>
         <source>Spoof your device&apos;s physical address (MAC address).</source>
         <translation>Cihazınızın fiziksel adresini (MAC adresi) taklit edin.</translation>
+    </message>
+    <message>
+        <source>MAC spoofing requires NetworkManager to be installed and running.</source>
+        <translation>MAC sahteliği için NetworkManager kurulup çalıştırılır.</translation>
     </message>
     <message>
         <source>Close all active TCP sockets when the VPN tunnel is established.</source>
@@ -2082,10 +2094,6 @@ Connect to a network first</source>
 <context>
     <name>PreferencesWindow::ProtocolTweaksGroup</name>
     <message>
-        <source>Custom SNI Domain</source>
-        <translation>Özel SNI Alan Adı</translation>
-    </message>
-    <message>
         <source>Protocol Tweaks</source>
         <translation>Protokol Değişiklikleri</translation>
     </message>
@@ -2172,8 +2180,8 @@ Connect to a network first</source>
         <translation>Geçersiz proxy bağlantı noktası</translation>
     </message>
     <message>
-        <source>Proxy port is invalid. Please enter a valid port in the range 0-65535.</source>
-        <translation>Proxy bağlantı noktası geçersiz. Lütfen 0-65535 aralığında geçerli bir bağlantı noktası girin.</translation>
+        <source>Proxy port is invalid. Please enter a valid port in the range 1-65535.</source>
+        <translation>Proxy bağlantı noktası geçersiz. Lütfen 1-65535 aralığında geçerli bir bağlantı noktası girin.</translation>
     </message>
     <message>
         <source>Proxy address is invalid. Please enter a valid IP address.</source>
@@ -2311,6 +2319,10 @@ Connect to a network first</source>
 </context>
 <context>
     <name>PreferencesWindow::SplitTunnelingAddressesGroup</name>
+    <message>
+        <source>There are too many IPs/CIDR ranges in the list. Please remove some before adding more.</source>
+        <translation>Listede çok fazla IP/CIDR aralığı var. Lütfen daha fazlasını eklemeden önce bazılarını çıkarın.</translation>
+    </message>
     <message>
         <source>IP or hostname already exists. Please enter a new IP or hostname.</source>
         <translation>IP veya ana bilgisayar adı zaten var. Lütfen yeni bir IP veya ana bilgisayar adı girin.</translation>

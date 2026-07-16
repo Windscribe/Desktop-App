@@ -3,19 +3,19 @@
 
 #ifdef Q_OS_WIN
     #include <windows.h>
-    #include "ikev2connection_win.h"
-    #include "wireguardconnection_win.h"
     #include "ctrldmanager/ctrldmanager_win.h"
+    #include "engine/connectionmanager/connectors/ikev2/ikev2connection_win.h"
+    #include "engine/connectionmanager/connectors/wireguard/wireguardconnection_win.h"
 #endif
 
 #ifdef Q_OS_MACOS
+    #include "engine/connectionmanager/connectors/ikev2/ikev2connection_mac.h"
+    #include "engine/connectionmanager/connectors/wireguard/wireguardconnection_posix.h"
     #include "restorednsmanager_mac.h"
-    #include "ikev2connection_mac.h"
-    #include "wireguardconnection_posix.h"
 #endif
 
 #ifdef Q_OS_LINUX
-    #include "wireguardconnection_posix.h"
+    #include "engine/connectionmanager/connectors/wireguard/wireguardconnection_posix.h"
 #endif
 
 void FinishActiveConnections::finishAllActiveConnections(Helper *helper)

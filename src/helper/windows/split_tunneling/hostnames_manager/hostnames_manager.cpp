@@ -4,6 +4,7 @@
 
 #include "../callout_filter.h"
 #include "../../firewallfilter.h"
+#include "../../ipv6_firewall.h"
 
 HostnamesManager::HostnamesManager(CalloutFilter *calloutFilter):
     calloutFilter_(calloutFilter), isEnabled_(false), isExcludeMode_(true), ifIndex_(0),
@@ -29,13 +30,13 @@ void HostnamesManager::enable(const types::IpAddress &gatewayIp,
         ipRoutes_.clear();
         ipRoutes_.setIps(gatewayIp_, gatewayIpV6_, ifIndex_, ipsLatest_);
         FirewallFilter::instance().setSplitTunnelingWhitelistIps(ipsLatest_);
-        // Mirror to CalloutFilter so manually entered IP/range entries (the only ones
-        // available before DNS resolution finishes) are already exempt from the v6
-        // inclusive-mode anti-leak BLOCK; resolved hostnames will land in the next
-        // dnsResolverCallback() and replace this list.
+        // Mirror to CalloutFilter (see setV6WhitelistIps for the mode-specific v6 handling)
+        // so manual IP/range entries apply before DNS resolution finishes; resolved
+        // hostnames will replace this list in the next dnsResolverCallback().
         if (calloutFilter_) {
             calloutFilter_->setV6WhitelistIps(ipsLatest_);
         }
+        Ipv6Firewall::instance().setSplitTunnelingWhitelistIps(ipsLatest_);
         isEnabled_ = true;
     }
 
@@ -109,5 +110,6 @@ void HostnamesManager::dnsResolverCallback(std::map<std::string, DnsResolver::Ho
         if (calloutFilter_) {
             calloutFilter_->setV6WhitelistIps(hostsIps);
         }
+        Ipv6Firewall::instance().setSplitTunnelingWhitelistIps(hostsIps);
     }
 }

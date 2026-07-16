@@ -29,8 +29,10 @@ public:
                            const AdapterGatewayInfo &defaultAdapter, const AdapterGatewayInfo &vpnAdapter,
                            const QString &connectedIp, const types::Protocol &protocol);
     void changeMtu(const QString &adapter, int mtu);
-    bool executeOpenVPN(const QString &config, unsigned int port, const QString &httpProxy, unsigned int httpPort,
-                        const QString &socksProxy, unsigned int socksPort);
+    // OpenVPN chooses its own management port; on success outPort/outPid receive the OS-assigned
+    // management port and the OpenVPN PID, which the engine uses to verify the management peer.
+    bool executeOpenVPN(const QString &config, const QString &httpProxy, unsigned int httpPort,
+                        const QString &socksProxy, unsigned int socksPort, unsigned int &outPort, unsigned long &outPid);
 
     bool executeTaskKill(CmdKillTarget target);
 

@@ -8,49 +8,42 @@
 #include <QRandomGenerator>
 
 #include "api_responses/amneziawgunblockparams.h"
-#include "connsettingspolicy/autoconnsettingspolicy.h"
-#include "connsettingspolicy/manualconnsettingspolicy.h"
-#include "connsettingspolicy/customconfigconnsettingspolicy.h"
+#include "connsettingspolicy/connsettingspolicyfactory.h"
+#include "engine/connectionmanager/connectors/connectionfactory.h"
+#include "engine/connectionmanager/connectors/connectionplatformpolicy.h"
+#include "engine/connectionmanager/connectors/openvpn/openvpnconnection.h"
 #include "engine/crossplatformobjectfactory.h"
 #include "engine/getdeviceid.h"
 #include "engine/helper/helper.h"
 #include "engine/networkdetectionmanager/inetworkdetectionmanager.h"
 #include "engine/wireguardconfig/getwireguardconfig.h"
+#include "extraconfigaccessor.h"
 #include "isleepevents.h"
-#include "openvpnconnection.h"
 #include "testvpntunnel.h"
 #include "types/enums.h"
 #include "types/global_consts.h"
 #include "types/connectionsettings.h"
 #include "utils/ws_assert.h"
 #include "utils/utils.h"
-#include "utils/extraconfig.h"
 #include "utils/networkingvalidation.h"
 
 // Had to move this here to prevent a compile error with boost already including winsock.h
 #include "connectionmanager.h"
 
-#ifdef Q_OS_WIN
-    #include "sleepevents_win.h"
-    #include "ikev2connection_win.h"
-    #include "wireguardconnection_win.h"
-    #include "utils/winutils.h"
-#elif defined Q_OS_MACOS
-    #include "sleepevents_mac.h"
-    #include "utils/macutils.h"
-    #include "ikev2connection_mac.h"
-    #include "wireguardconnection_posix.h"
-#elif defined Q_OS_LINUX
-    #include "ikev2connection_linux.h"
-    #include "wireguardconnection_posix.h"
-#endif
-
-ConnectionManager::ConnectionManager(QObject *parent, Helper *helper, INetworkDetectionManager *networkDetectionManager, CustomOvpnAuthCredentialsStorage *customOvpnAuthCredentialsStorage) : QObject(parent),
+ConnectionManager::ConnectionManager(QObject *parent, Helper *helper, INetworkDetectionManager *networkDetectionManager,
+                                     CustomOvpnAuthCredentialsStorage *customOvpnAuthCredentialsStorage,
+                                     IConnectionFactory *connectionFactory, IConnectionPlatformPolicy *platformPolicy,
+                                     IConnSettingsPolicyFactory *connSettingsPolicyFactory, ISleepEvents *sleepEvents,
+                                     IExtraConfigAccessor *extraConfig) : QObject(parent),
     helper_(helper),
     networkDetectionManager_(networkDetectionManager),
     customOvpnAuthCredentialsStorage_(customOvpnAuthCredentialsStorage),
+    connectionFactory_(connectionFactory ? connectionFactory : new ConnectionFactory()),
+    platformPolicy_(platformPolicy ? platformPolicy : new ConnectionPlatformPolicy(helper)),
+    connSettingsPolicyFactory_(connSettingsPolicyFactory ? connSettingsPolicyFactory : new ConnSettingsPolicyFactory()),
+    extraConfig_(extraConfig ? extraConfig : new ExtraConfigAccessor()),
     connector_(nullptr),
-    sleepEvents_(nullptr),
+    sleepEvents_(sleepEvents),
     stunnelManager_(nullptr),
     wstunnelManager_(nullptr),
     ctrldManager_(nullptr),
@@ -67,6 +60,7 @@ ConnectionManager::ConnectionManager(QObject *parent, Helper *helper, INetworkDe
     connect(&timerReconnection_, &QTimer::timeout, this, &ConnectionManager::onTimerReconnection);
     connect(&connectTimer_, &QTimer::timeout, this, &ConnectionManager::onConnectTrigger);
     connect(&connectingTimer_, &QTimer::timeout, this, &ConnectionManager::onConnectingTimeout);
+    connect(&timerWaitNetworkConnectivity_, &QTimer::timeout, this, &ConnectionManager::onTimerWaitNetworkConnectivity);
 
     stunnelManager_ = new StunnelManager(this, helper);
     connect(stunnelManager_, &StunnelManager::stunnelStarted, this, &ConnectionManager::onWstunnelStarted);
@@ -74,7 +68,7 @@ ConnectionManager::ConnectionManager(QObject *parent, Helper *helper, INetworkDe
     wstunnelManager_ = new WstunnelManager(this, helper);
     connect(wstunnelManager_, &WstunnelManager::wstunnelStarted, this, &ConnectionManager::onWstunnelStarted);
 
-    ctrldManager_ = CrossPlatformObjectFactory::createCtrldManager(this, helper, ExtraConfig::instance().getLogCtrld());
+    ctrldManager_ = CrossPlatformObjectFactory::createCtrldManager(this, helper, extraConfig_->logCtrld());
 
     testVPNTunnel_ = new TestVPNTunnel(this);
     connect(testVPNTunnel_, &TestVPNTunnel::testsFinished, this, &ConnectionManager::onTunnelTestsFinished);
@@ -82,20 +76,17 @@ ConnectionManager::ConnectionManager(QObject *parent, Helper *helper, INetworkDe
     makeOVPNFile_ = new MakeOVPNFile();
     makeOVPNFileFromCustom_ = new MakeOVPNFileFromCustom();
 
-#ifdef Q_OS_WIN
-    sleepEvents_ = new SleepEvents_win(this);
-#elif defined Q_OS_MACOS
-    sleepEvents_ = new SleepEvents_mac(this);
-#endif
-
     connect(networkDetectionManager_, &INetworkDetectionManager::onlineStateChanged, this, &ConnectionManager::onNetworkOnlineStateChanged);
 
-#if defined(Q_OS_WIN) || defined(Q_OS_MACOS)
-    connect(sleepEvents_, &ISleepEvents::gotoSleep, this, &ConnectionManager::onSleepMode);
-    connect(sleepEvents_, &ISleepEvents::gotoWake, this, &ConnectionManager::onWakeMode);
-#endif
-
-    connect(&timerWaitNetworkConnectivity_, &QTimer::timeout, this, &ConnectionManager::onTimerWaitNetworkConnectivity);
+    if (!sleepEvents_) {
+        sleepEvents_ = CrossPlatformObjectFactory::createSleepEvents(this);
+    } else {
+        sleepEvents_->setParent(this);
+    }
+    if (sleepEvents_) {
+        connect(sleepEvents_, &ISleepEvents::gotoSleep, this, &ConnectionManager::onSleepMode);
+        connect(sleepEvents_, &ISleepEvents::gotoWake, this, &ConnectionManager::onWakeMode);
+    }
 }
 
 ConnectionManager::~ConnectionManager()
@@ -208,9 +199,7 @@ void ConnectionManager::blockingDisconnect(bool isSleepEvent)
             }
             connector_->blockSignals(false);
             doMacRestoreProcedures();
-#if defined(Q_OS_LINUX)
-            helper_->setGaiIpv4PriorityEnabled(false);
-#endif
+            platformPolicy_->setGaiIpv4PriorityEnabled(false);
             stunnelManager_->killProcess();
             wstunnelManager_->killProcess();
             ctrldManager_->killProcess();
@@ -264,11 +253,7 @@ const types::ConnectedDnsInfo &ConnectionManager::connectedDnsInfo() const
 
 void ConnectionManager::removeIkev2ConnectionFromOS()
 {
-#ifdef Q_OS_WIN
-    IKEv2Connection_win::removeIkev2ConnectionFromOS();
-#elif defined Q_OS_MACOS
-    IKEv2Connection_mac::removeIkev2ConnectionFromOS();
-#endif
+    connectionFactory_->removeIkev2ConnectionFromOS();
 }
 
 void ConnectionManager::continueWithUsernameAndPassword(const QString &username, const QString &password, bool bNeedReconnect)
@@ -346,7 +331,6 @@ void ConnectionManager::onConnectionConnected(const AdapterGatewayInfo &connecti
     connectingTimer_.stop();
     state_ = STATE_CONNECTED;
 
-#if defined(Q_OS_LINUX)
     // Prioritize IPv4 in gai.conf only when the tunnel does not carry IPv6 egress, otherwise
     // applications that prefer IPv6 stall waiting for blocked v6 traffic. The tunnel egresses
     // IPv6 only for a dual-stack WireGuard node when the user has not forced IPv4 Only; this
@@ -356,9 +340,8 @@ void ConnectionManager::onConnectionConnected(const AdapterGatewayInfo &connecti
                             && currentConnectionDescr_.isIpv6Support
                             && lastRequest_.ipStackEgress == IpStack::kAuto;
     if (!ipv6Egress) {
-        helper_->setGaiIpv4PriorityEnabled(true);
+        platformPolicy_->setGaiIpv4PriorityEnabled(true);
     }
-#endif
 
     emit connected();
 }
@@ -376,9 +359,7 @@ void ConnectionManager::onConnectionDisconnected()
 
     testVPNTunnel_->stopTests();
     doMacRestoreProcedures();
-#if defined(Q_OS_LINUX)
-    helper_->setGaiIpv4PriorityEnabled(false);
-#endif
+    platformPolicy_->setGaiIpv4PriorityEnabled(false);
 
     // Delete the connector to ensure we do not receive any additional events from it, even events
     // already queued to our event queue.  We cannot use connector_->disconnect() here since we connect
@@ -558,6 +539,16 @@ void ConnectionManager::onConnectionError(CONNECT_ERROR err)
 
     qCInfo(LOG_CONNECTION) << "ConnectionManager::onConnectionError(), state_ =" << state_ << ", error =" << (int)err;
     testVPNTunnel_->stopTests();
+
+    // A cached WireGuard config that can't bring up the tunnel after every attempt is invalid (e.g. a
+    // stale key). Clear the stored credentials so the next connect falls back to IKEv2 under Always On+
+    // instead of retrying the same bad config; a later API-reachable connect will register fresh
+    // credentials. Wait until the attempts are exhausted so a transient error doesn't discard a good config.
+    if (hasUsableCachedWgConfig_ && wgCachedConfigAttempts_ >= kMaxWgCachedConfigAttempts && err == CONNECT_ERROR::WIREGUARD_CONNECTION_ERROR) {
+        qCInfo(LOG_CONNECTION) << "Cached WireGuard config failed to connect; clearing stored credentials";
+        GetWireGuardConfig::removeWireGuardSettings();
+        hasUsableCachedWgConfig_ = false;
+    }
 
     if ((err == CONNECT_ERROR::AUTH_ERROR && lastRequest_.bEmitAuthError)
             || err == CONNECT_ERROR::NO_OPENVPN_SOCKET
@@ -865,22 +856,20 @@ void ConnectionManager::onWstunnelStarted()
 
 void ConnectionManager::doConnect()
 {
-#ifdef Q_OS_MACOS
     // For automatic policy, we would have removed IKEv2 from the list for lockdown mode.
     // There is no custom config for IKEv2, so if we get here it is manual mode.
     // We can get here either by:
     // - User selecting IKEv2 in manual mode and then enabling Lockdown Mode, or
     // - User selecting IKEv2 in manual mode in a previous version of the app, then updating.
-    if (!connSettingsPolicy_->isCustomConfig() && connSettingsPolicy_->getCurrentConnectionSettings().protocol == types::Protocol::IKEV2 && MacUtils::isLockdownMode()) {
+    if (!connSettingsPolicy_->isCustomConfig() && connSettingsPolicy_->getCurrentConnectionSettings().protocol == types::Protocol::IKEV2 && platformPolicy_->isLockdownBlockingIkev2()) {
         emit errorDuringConnection(CONNECT_ERROR::LOCKDOWN_MODE_IKEV2);
         return;
     }
-#endif
 
     bool isOnline = networkDetectionManager_->isOnline();
     defaultAdapterInfo_.clear();
     if (isOnline) {
-        defaultAdapterInfo_ = AdapterGatewayInfo::detectAndCreateDefaultAdapterInfo();
+        defaultAdapterInfo_ = platformPolicy_->detectDefaultAdapter();
     }
 
     if (!isOnline || defaultAdapterInfo_.isEmpty()) {
@@ -927,11 +916,9 @@ void ConnectionManager::doConnectPart2()
     }
     emit protocolPortChanged(currentConnectionDescr_.protocol, currentConnectionDescr_.port);
 
-#if defined(Q_OS_WIN)
-    if (WinUtils::isDohSupported() && connectedDnsInfo_.type == CONNECTED_DNS_TYPE_AUTO) {
-        helper_->disableDohSettings();
+    if (connectedDnsInfo_.type == CONNECTED_DNS_TYPE_AUTO) {
+        platformPolicy_->disableDohIfNeeded();
     }
-#endif
 
     // start ctrld utility
     if ((connectedDnsInfo_.type == CONNECTED_DNS_TYPE_CUSTOM || connectedDnsInfo_.type == CONNECTED_DNS_TYPE_CONTROLD) && !connectedDnsInfo_.isCustomIPv4Address()) {
@@ -973,7 +960,7 @@ void ConnectionManager::doConnectPart2()
             if (!packetSize_.isAutomatic)
             {
                 bool advParamsOpenVpnExists = false;
-                int openVpnOffset = ExtraConfig::instance().getMtuOffsetOpenVpn(advParamsOpenVpnExists);
+                int openVpnOffset = extraConfig_->mtuOffsetOpenVpn(advParamsOpenVpnExists);
                 if (!advParamsOpenVpnExists) openVpnOffset = MTU_OFFSET_OPENVPN;
 
                 mss = packetSize_.mtu - openVpnOffset;
@@ -1009,13 +996,14 @@ void ConnectionManager::doConnectPart2()
                 dnsServersFromConnectedDnsInfo(), !lastRequest_.amneziawgPreset.isEmpty(), lastRequest_.amneziawgPreset, false);
             if (!bOvpnSuccess) {
                 qCCritical(LOG_CONNECTION) << "Failed create ovpn config";
-                WS_ASSERT(false);
+                disconnect();
+                emit errorDuringConnection(CONNECT_ERROR::EXE_SUBPROCESS_FAILED);
                 return;
             }
 
             if (currentConnectionDescr_.protocol == types::Protocol::STUNNEL) {
                 if (!stunnelManager_->runProcess(currentConnectionDescr_.ip, currentConnectionDescr_.port,
-                                                 ExtraConfig::instance().getStealthExtraTLSPadding() || !lastRequest_.amneziawgPreset.isEmpty(), lastRequest_.customSni)) {
+                                                 extraConfig_->stealthExtraTLSPadding() || !lastRequest_.amneziawgPreset.isEmpty(), lastRequest_.customSni)) {
                     disconnect();
                     emit errorDuringConnection(CONNECT_ERROR::EXE_SUBPROCESS_FAILED);
                     return;
@@ -1034,11 +1022,11 @@ void ConnectionManager::doConnectPart2()
         }
         else if (currentConnectionDescr_.protocol.isIkev2Protocol())
         {
-            QString remoteHostname = ExtraConfig::instance().getRemoteIpFromExtraConfig();
+            QString remoteHostname = extraConfig_->remoteIp();
             if (NetworkingValidation::isDomain(remoteHostname))
             {
                 currentConnectionDescr_.hostname = remoteHostname;
-                currentConnectionDescr_.ip = ExtraConfig::instance().getDetectedIp();
+                currentConnectionDescr_.ip = extraConfig_->detectedIp();
                 currentConnectionDescr_.dnsHostName = NetworkingValidation::getRemoteIdFromDomain(remoteHostname);
                 qCInfo(LOG_CONNECTION) << "Use data from extra config: hostname=" << currentConnectionDescr_.hostname << ", ip=" << currentConnectionDescr_.ip << ", remoteId=" << currentConnectionDescr_.dnsHostName;
 
@@ -1219,12 +1207,18 @@ void ConnectionManager::doConnectPart3()
             p.dnsHostName = currentConnectionDescr_.hostname;
             p.username = username;
             p.password = password;
-            p.isEnableCompression = ExtraConfig::instance().isUseIkev2Compression();
+            p.isEnableCompression = extraConfig_->useIkev2Compression();
             p.overrideDnsIp = dnsServersFromConnectedDnsInfo();
             connector_->startConnect(p);
         }
         else if (currentConnectionDescr_.protocol.isWireGuardProtocol())
         {
+            if (!NetworkingValidation::isIp(currentConnectionDescr_.ip)) {
+                qCCritical(LOG_CONNECTION) << "Refusing to build WireGuard endpoint, node IP is not a valid IP address";
+                disconnect();
+                emit errorDuringConnection(WIREGUARD_CONNECTION_ERROR);
+                return;
+            }
             QString endpointAndPort = QString("%1:%2").arg(currentConnectionDescr_.ip).arg(currentConnectionDescr_.port);
             wireGuardConfig_.setPeerPublicKey(currentConnectionDescr_.wgPeerPublicKey);
             wireGuardConfig_.setPeerEndpoint(endpointAndPort);
@@ -1298,21 +1292,10 @@ void ConnectionManager::recreateConnector(types::Protocol protocol)
 
     SAFE_DELETE_LATER(connector_);
 
-    if (protocol.isWireGuardProtocol()) {
-        connector_ = new WireGuardConnection(this, helper_);
-    } else if (protocol.isOpenVpnProtocol()) {
-        connector_ = new OpenVPNConnection(this, helper_);
-        connect(static_cast<OpenVPNConnection *>(connector_), &OpenVPNConnection::requestPrivKeyPassword, this, &ConnectionManager::onConnectionRequestPrivKeyPassword, Qt::QueuedConnection);
-    } else if (protocol.isIkev2Protocol()) {
-#ifdef Q_OS_WIN
-        connector_ = new IKEv2Connection_win(this, helper_);
-#elif defined Q_OS_MACOS
-        connector_ = new IKEv2Connection_mac(this, helper_);
-#elif defined Q_OS_LINUX
-        connector_ = new IKEv2Connection_linux(this, helper_);
-#endif
-    } else {
-        WS_ASSERT(false);
+    connector_ = connectionFactory_->createConnection(protocol, this, helper_);
+    OpenVPNConnection *ovpnConnection = qobject_cast<OpenVPNConnection *>(connector_);
+    if (ovpnConnection) {
+        connect(ovpnConnection, &OpenVPNConnection::requestPrivKeyPassword, this, &ConnectionManager::onConnectionRequestPrivKeyPassword, Qt::QueuedConnection);
     }
 
     connect(connector_, &IConnection::connected, this, &ConnectionManager::onConnectionConnected, Qt::QueuedConnection);
@@ -1352,8 +1335,8 @@ void ConnectionManager::restoreConnectionAfterWakeUp()
 void ConnectionManager::onTunnelTestsFinished(bool bSuccess, const QString &ipAddress)
 {
     bool hasAttempts = false;
-    int attempts = ExtraConfig::instance().getTunnelTestAttempts(hasAttempts);
-    bool noError = ExtraConfig::instance().getIsTunnelTestNoError();
+    int attempts = extraConfig_->tunnelTestAttempts(hasAttempts);
+    bool noError = extraConfig_->isTunnelTestNoError();
 
     if (bSuccess) {
         // A working tunnel refreshes the cached-WG budget so subsequent reconnects can retry it.
@@ -1397,7 +1380,7 @@ void ConnectionManager::onTunnelTestsFinished(bool bSuccess, const QString &ipAd
 
 void ConnectionManager::onTimerWaitNetworkConnectivity()
 {
-    if (networkDetectionManager_->isOnline() && !AdapterGatewayInfo::detectAndCreateDefaultAdapterInfo().isEmpty())
+    if (networkDetectionManager_->isOnline() && !platformPolicy_->detectDefaultAdapter().isEmpty())
     {
         qCInfo(LOG_CONNECTION) << "We're online, making the connection";
         timerWaitNetworkConnectivity_.stop();
@@ -1587,30 +1570,10 @@ void ConnectionManager::updateConnectionSettingsPolicy(const types::ConnectionSe
     hasUsableCachedWgConfig_ = isFirewallAlwaysOnPlusEnabled_ && GetWireGuardConfig::hasUsableStoredConfig();
     wgCachedConfigAttempts_ = 0;
 
-    if (lastRequest_.bli->locationId().isCustomConfigsLocation()) {
-        connSettingsPolicy_.reset(new CustomConfigConnSettingsPolicy(lastRequest_.bli));
-    } else if (connectionSettings.isAutomatic()) {
-        // Under Always On+ we can only attempt WireGuard from a usable cached config; otherwise skip it.
-        const bool skipWireguardProtocol = isFirewallAlwaysOnPlusEnabled_ && !hasUsableCachedWgConfig_;
-        connSettingsPolicy_.reset(new AutoConnSettingsPolicy(lastRequest_.bli, portMap, proxySettings.isProxyEnabled(), skipWireguardProtocol, lastRequest_.preferredNodeHostname));
-    } else {
-        // Manual mode is not a fallback chain: substitute WG (->IKEv2/OpenVPN UDP) only when it can't
-        // be attempted at all (no usable cached config under Always On+); otherwise attempt WG as-is.
-        types::ConnectionSettings overrideConnectionSettings = connectionSettings;
-        if (isFirewallAlwaysOnPlusEnabled_ && connectionSettings.protocol().isWireGuardProtocol() && !hasUsableCachedWgConfig_) {
-            auto it = portMap.getPortItemByProtocolType(types::Protocol::IKEV2);
-            // if no ikev2 in available protocol list then try UDP
-            if (!it) {
-                it = portMap.getPortItemByProtocolType(types::Protocol::OPENVPN_UDP);
-            }
-            if (it) {
-                // select the first port in the list
-                if (it->ports.size() > 0)
-                    overrideConnectionSettings = types::ConnectionSettings(it->protocol, it->ports[0], false);
-            }
-        }
-        connSettingsPolicy_.reset(new ManualConnSettingsPolicy(lastRequest_.bli, overrideConnectionSettings, portMap, lastRequest_.preferredNodeHostname));
-    }
+    connSettingsPolicy_.reset(connSettingsPolicyFactory_->createPolicy(lastRequest_.bli, connectionSettings, portMap,
+                                                                       proxySettings, lastRequest_.preferredNodeHostname,
+                                                                       isFirewallAlwaysOnPlusEnabled_,
+                                                                       hasUsableCachedWgConfig_));
     connSettingsPolicy_->start();
     connect(connSettingsPolicy_.data(), &BaseConnSettingsPolicy::hostnamesResolved, this, &ConnectionManager::onHostnamesResolved);
     connect(connSettingsPolicy_.data(), &BaseConnSettingsPolicy::protocolStatusChanged, this, &ConnectionManager::protocolStatusChanged);

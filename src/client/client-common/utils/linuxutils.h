@@ -29,6 +29,10 @@ namespace LinuxUtils
     const QString getLastInstallPlatform();
     bool isImmutableDistro();
 
+    // Live check that the NetworkManager systemd unit is active right now. nmcli-backed operations are gated
+    // on this so they fall back (or skip) instead of blocking when NetworkManager isn't running.
+    bool isNetworkManagerActive();
+
     // Permanently drops the 'windscribe' group (acquired via the binary's setgid bit) from the
     // calling thread. Call after HelperConnector::startConnect() so the connect thread keeps the
     // group long enough to connect. Returns false on failure.

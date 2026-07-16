@@ -116,7 +116,7 @@ CalloutFilter::CalloutFilter(FwpmWrapper &fwmpWrapper): fwmpWrapper_(fwmpWrapper
 {
 }
 
-void CalloutFilter::enable(UINT32 localIp, UINT32 vpnIp,
+bool CalloutFilter::enable(UINT32 localIp, UINT32 vpnIp,
                            const types::IpAddress &localIpV6, const types::IpAddress &vpnIpV6,
                            const AppsIds &appsIds, const AppsIds &ctrldAppId,
                            bool isExclude, bool isAllowLanTraffic,
@@ -136,7 +136,7 @@ void CalloutFilter::enable(UINT32 localIp, UINT32 vpnIp,
         isAllowLanTraffic == prevIsAllowLanTraffic_ &&
         vpnIfIndex == prevVpnIfIndex_)
     {
-        return;
+        return true;
     }
 
     if (isEnabled_) {
@@ -153,7 +153,15 @@ void CalloutFilter::enable(UINT32 localIp, UINT32 vpnIp,
     prevIsAllowLanTraffic_ = isAllowLanTraffic;
     prevVpnIfIndex_ = vpnIfIndex;
 
-    bool withV6 = localIpV6.isValid() && localIpV6.isV6() && vpnIpV6.isValid() && vpnIpV6.isV6();
+    // The v6 redirect machinery needs the address the driver actually rewrites the app's
+    // source to, and that is mode-dependent (CalloutFunctions.c, ClassifyFnV6): exclusive
+    // rewrites to the physical adapter's v6 (localIpV6) and never reads vpnIp; inclusive
+    // rewrites to the tunnel's v6. Requiring vpnIpV6 in exclusive mode would withhold a
+    // working redirect over the adapter-info race (tunnel v6 not yet assigned at capture)
+    // and degrade excluded apps to the per-app v6 BLOCK below — v4-only for the session.
+    const bool localV6Ok = localIpV6.isValid() && localIpV6.isV6();
+    const bool vpnV6Ok = vpnIpV6.isValid() && vpnIpV6.isV6();
+    const bool withV6 = isExclude ? localV6Ok : (localV6Ok && vpnV6Ok);
 
     HANDLE hEngine = fwmpWrapper_.getHandleAndLock();
     fwmpWrapper_.beginTransaction();
@@ -187,28 +195,59 @@ void CalloutFilter::enable(UINT32 localIp, UINT32 vpnIp,
         success = false;
     }
 
-    // v6 anti-leak BLOCK is added inside addFilters() with the same gating condition. If
-    // it succeeded, capture the VPN LUID and reapply any whitelist IPs that were pushed
-    // before this enable() ran (HostnamesManager pushes them via setV6WhitelistIps()
-    // immediately on its own enable(), which fires before CalloutFilter::enable() in
-    // SplitTunneling::updateState()).
-    if (success && withV6 && !isExclude && vpnIfIndex != 0 && appsIds.count() > 0) {
+    // Activate the per-destination v6 filters (see setV6WhitelistIps) and reapply any IPs
+    // pushed before this enable() ran (HostnamesManager::enable() fires first in
+    // SplitTunneling::updateState()). Inclusive gating matches the anti-leak BLOCK in
+    // addFilters(); the exclusive case is not gated on appsIds — hostname/CIDR exclusions
+    // work without any excluded apps.
+    //
+    // The exclusive BLOCK is deliberately unconditional (not gated on withV6): it enforces
+    // "excluded destinations' v6 never egresses the tunnel" regardless of why off-tunnel
+    // steering is unavailable. When IpRoutes *can* steer (physical adapter has both a v6
+    // address and a v6 gateway — selected independently in AdapterUtils_win), the traffic
+    // uses the physical LUID and the BLOCK never matches; when it can't (no address, no
+    // gateway despite a global address — static config or expired RA, host-route races,
+    // third-party route interference), the blocked v6 falls back to v4, which the v4 host
+    // routes carry outside the tunnel.
+    const bool v6InclusiveAntiLeak = !isExclude && appsIds.count() > 0;
+    const bool v6ExclusiveDestinationBlock = isExclude;
+    if (success && vpnIfIndex != 0 && (v6InclusiveAntiLeak || v6ExclusiveDestinationBlock)) {
         NET_LUID vpnLuid = { 0 };
         if (ConvertInterfaceIndexToLuid(static_cast<NET_IFINDEX>(vpnIfIndex), &vpnLuid) == NO_ERROR) {
             v6AntiLeakActive_ = true;
+            v6AntiLeakIsExclude_ = isExclude;
             v6AntiLeakVpnLuid_ = vpnLuid.Value;
-            applyV6WhitelistPermitFiltersLocked(hEngine);
+            // Part of the fail-loud contract: without these filters the split tunnel
+            // either over-blocks hostname-routed destinations (inclusive) or leaks
+            // excluded destinations' v6 (exclusive), so a failed install fails enable().
+            if (!applyV6WhitelistFiltersLocked(hEngine)) {
+                success = false;
+            }
+        } else {
+            // Reachable only in exclusive mode when addFilters() didn't already convert
+            // (and fail on) the same index — no per-app v6 BLOCK was installed there.
+            // Fail enable() rather than silently leak excluded destinations' v6.
+            spdlog::error("CalloutFilter::enable(), ConvertInterfaceIndexToLuid failed for vpnIfIndex={}", vpnIfIndex);
+            success = false;
         }
-        // If LUID lookup failed, the BLOCK in addFilters() also failed to install for the
-        // same reason and logged its own error; nothing more to do here.
     }
-
-    fwmpWrapper_.endTransaction();
-    fwmpWrapper_.unlock();
 
     if (success) {
+        fwmpWrapper_.endTransaction();
         isEnabled_ = true;
+    } else {
+        fwmpWrapper_.abortTransaction();
+        // The abort discarded everything, including any per-destination filters recorded
+        // by applyV6WhitelistFiltersLocked() above — reset the anti-leak bookkeeping to
+        // match, as disable() does. The IP list itself is kept for the next enable().
+        v6AntiLeakActive_ = false;
+        v6AntiLeakIsExclude_ = false;
+        v6AntiLeakVpnLuid_ = 0;
+        v6WhitelistFilterIds_.clear();
     }
+    fwmpWrapper_.unlock();
+
+    return success;
 }
 
 void CalloutFilter::disable()
@@ -222,8 +261,9 @@ void CalloutFilter::disable()
     // The whole sublayer was just dropped, so any tracked filter ids are already gone
     // from WFP — clear our bookkeeping so we don't try to delete stale ids on the next
     // setV6WhitelistIps(). The IP list itself is preserved: the next enable() will pick
-    // it up via applyV6WhitelistPermitFiltersLocked().
+    // it up via applyV6WhitelistFiltersLocked().
     v6AntiLeakActive_ = false;
+    v6AntiLeakIsExclude_ = false;
     v6AntiLeakVpnLuid_ = 0;
     v6WhitelistFilterIds_.clear();
 }
@@ -235,61 +275,83 @@ void CalloutFilter::setV6WhitelistIps(const std::vector<types::IpAddressRange> &
     if (v6WhitelistIps_ == ips) {
         return;
     }
-    v6WhitelistIps_ = ips;
 
-    // Without an active anti-leak BLOCK there is nothing to bypass, so just hold the
-    // list for a future enable(). This mirrors FirewallFilter::setSplitTunnelingWhitelistIps
-    // which silently no-ops while split tunneling / firewall are off.
+    // Not active yet — just hold the list for a future enable().
     if (!v6AntiLeakActive_) {
+        v6WhitelistIps_ = ips;
         return;
     }
+
+    // Snapshot for rollback: committing the transaction below with only the removals in
+    // it (apply failed) would drop the per-destination filters entirely — in exclusive
+    // mode that silently leaks excluded destinations' v6 into the tunnel.
+    const std::vector<types::IpAddressRange> prevIps = std::move(v6WhitelistIps_);
+    const std::vector<UINT64> prevFilterIds = v6WhitelistFilterIds_;
+    v6WhitelistIps_ = ips;
 
     HANDLE hEngine = fwmpWrapper_.getHandleAndLock();
     fwmpWrapper_.beginTransaction();
 
-    removeV6WhitelistPermitFiltersLocked(hEngine);
-    applyV6WhitelistPermitFiltersLocked(hEngine);
-
-    fwmpWrapper_.endTransaction();
+    removeV6WhitelistFiltersLocked(hEngine);
+    if (applyV6WhitelistFiltersLocked(hEngine)) {
+        fwmpWrapper_.endTransaction();
+    } else {
+        // The abort restores the just-deleted filters in WFP; restore the bookkeeping to
+        // match (remove cleared the id list, apply may have recorded partial ids that no
+        // longer exist). Restoring the old IP list also keeps the equality early-return
+        // above from suppressing a retry when the same resolution arrives again.
+        fwmpWrapper_.abortTransaction();
+        v6WhitelistIps_ = prevIps;
+        v6WhitelistFilterIds_ = prevFilterIds;
+    }
     fwmpWrapper_.unlock();
 }
 
-void CalloutFilter::applyV6WhitelistPermitFiltersLocked(HANDLE engineHandle)
+bool CalloutFilter::applyV6WhitelistFiltersLocked(HANDLE engineHandle)
 {
     if (!v6AntiLeakActive_ || v6WhitelistIps_.empty()) {
-        return;
+        return true;
     }
 
     // addFilterV6 internally skips ranges whose family doesn't match and turns into a
     // no-op when no v6 entries remain, so passing the dual-stack vector unfiltered is
     // safe. It does, however, pack all matching ranges into a single filter via repeated
     // FWPM_CONDITION_IP_REMOTE_ADDRESS conditions (WFP OR's same-field conditions),
-    // which keeps the per-packet cost flat as the inclusive list grows.
+    // which keeps the per-packet cost flat as the list grows.
     //
-    // Weight 5 sits between the BLOCK (4) and the per-app PERMIT (6). Two PERMITs
-    // arbitrate as PERMIT regardless of order, so the relative weight only matters
-    // against the BLOCK — which any weight > 4 wins.
-    //
-    // persistent=false: SUBLAYER_CALLOUT_GUID is transient; persistent filters in a
-    // transient sublayer fail to register with FWP_E_LIFETIME_MISMATCH.
+    // persistent=false in both branches: SUBLAYER_CALLOUT_GUID is transient; persistent
+    // filters in a transient sublayer fail to register with FWP_E_LIFETIME_MISMATCH.
     NET_LUID vpnLuid;
     vpnLuid.Value = v6AntiLeakVpnLuid_;
 
-    bool ok = Utils::addFilterV6(engineHandle, &v6WhitelistFilterIds_, FWP_ACTION_PERMIT, 5,
-                                 SUBLAYER_CALLOUT_GUID,
-                                 (wchar_t *)WS_PRODUCT_NAME_W L" v6 whitelist permit on VPN",
-                                 &vpnLuid, &v6WhitelistIps_, 0, 0, nullptr, false);
-    if (!ok) {
-        spdlog::error("CalloutFilter::applyV6WhitelistPermitFiltersLocked(), addFilterV6 failed");
+    bool ok;
+    if (v6AntiLeakIsExclude_) {
+        // Exclusive: BLOCK excluded destinations' v6 on the VPN LUID. Weight 4 for
+        // consistency with the other anti-leak BLOCKs; nothing competes with it here.
+        ok = Utils::addFilterV6(engineHandle, &v6WhitelistFilterIds_, FWP_ACTION_BLOCK, 4,
+                                SUBLAYER_CALLOUT_GUID,
+                                (wchar_t *)WS_PRODUCT_NAME_W L" v6 excluded destinations block on VPN",
+                                &vpnLuid, &v6WhitelistIps_, 0, 0, nullptr, false);
+    } else {
+        // Inclusive: PERMIT through the anti-leak BLOCK. Weight 5 — above the BLOCK (4);
+        // relative order against the per-app PERMIT (6) doesn't matter between two PERMITs.
+        ok = Utils::addFilterV6(engineHandle, &v6WhitelistFilterIds_, FWP_ACTION_PERMIT, 5,
+                                SUBLAYER_CALLOUT_GUID,
+                                (wchar_t *)WS_PRODUCT_NAME_W L" v6 whitelist permit on VPN",
+                                &vpnLuid, &v6WhitelistIps_, 0, 0, nullptr, false);
     }
+    if (!ok) {
+        spdlog::error("CalloutFilter::applyV6WhitelistFiltersLocked(), addFilterV6 failed (isExclude={})", v6AntiLeakIsExclude_);
+    }
+    return ok;
 }
 
-void CalloutFilter::removeV6WhitelistPermitFiltersLocked(HANDLE engineHandle)
+void CalloutFilter::removeV6WhitelistFiltersLocked(HANDLE engineHandle)
 {
     for (UINT64 id : v6WhitelistFilterIds_) {
         DWORD ret = FwpmFilterDeleteById0(engineHandle, id);
         if (ret != ERROR_SUCCESS) {
-            spdlog::error("CalloutFilter::removeV6WhitelistPermitFiltersLocked(), FwpmFilterDeleteById0 failed: {}", ret);
+            spdlog::error("CalloutFilter::removeV6WhitelistFiltersLocked(), FwpmFilterDeleteById0 failed: {}", ret);
         }
     }
     v6WhitelistFilterIds_.clear();
@@ -768,39 +830,81 @@ bool CalloutFilter::addFilters(HANDLE engineHandle, bool withTcpFilters, bool wi
     // Closes the leak where non-included apps fall through to a helper-managed bound ::/0
     // on the VPN adapter (any protocol that puts one there: WireGuard, OpenVPN, etc.) when
     // the ISP has no v6 default of its own.
-    if (withV6 && !isExclude && vpnIfIndex != 0 && appsIds.count() > 0) {
+    //
+    // Deliberately NOT gated on withV6: the BLOCK is needed most when the physical adapter
+    // has no v6 address at all (localIpV6 invalid — a dual-stack tunnel is then the only v6
+    // path in the system), and it is safe to install before the tunnel's v6 address is
+    // assigned (vpnIpV6 invalid — the adapter-info race). withV6 only gates the redirect
+    // machinery, which needs the mode's redirect target (see the withV6 definition in
+    // enable()).
+    if (!isExclude && vpnIfIndex != 0 && appsIds.count() > 0) {
         NET_LUID vpnLuid = { 0 };
-        if (ConvertInterfaceIndexToLuid(static_cast<NET_IFINDEX>(vpnIfIndex), &vpnLuid) == NO_ERROR) {
-            // 1) BLOCK all v6 traffic on VPN LUID (weight=4).
-            // 2) PERMIT v6 traffic on VPN LUID for appsIds (weight=6, beats the block in arbitration).
-            // Non-included apps that fell through to bound ::/0 get blocked here; included apps
-            // post callout-redirect to the VPN address are permitted. Filters are bound to the
-            // VPN LUID, so traffic on the ISP interface is not affected.
-            // persistent=false: SUBLAYER_CALLOUT_GUID itself is transient, and adding a
-            // persistent filter to a transient sublayer fails with FWP_E_LIFETIME_MISMATCH.
-            bool ok = Utils::addFilterV6(engineHandle, nullptr, FWP_ACTION_BLOCK, 4,
-                                         SUBLAYER_CALLOUT_GUID,
-                                         (wchar_t *)WS_PRODUCT_NAME_W L" v6 leak block on VPN",
-                                         &vpnLuid, nullptr, 0, 0, nullptr, false);
-            if (!ok) {
-                spdlog::error("CalloutFilter::addFilters(), v6 leak BLOCK on VPN LUID failed");
-                return false;
-            }
-
-            AppsIds permitAppsIds = appsIds;
-            ok = Utils::addFilterV6(engineHandle, nullptr, FWP_ACTION_PERMIT, 6,
-                                    SUBLAYER_CALLOUT_GUID,
-                                    (wchar_t *)WS_PRODUCT_NAME_W L" v6 leak permit on VPN for apps",
-                                    &vpnLuid, nullptr, 0, 0, &permitAppsIds, false);
-            if (!ok) {
-                spdlog::error("CalloutFilter::addFilters(), v6 leak PERMIT on VPN LUID failed");
-                return false;
-            }
-        } else {
-            // Non-fatal: split tunneling itself works without the anti-leak filters; the v6
-            // leak for non-included apps simply persists. Failing enable() entirely would be
-            // worse, so we log and proceed.
+        if (ConvertInterfaceIndexToLuid(static_cast<NET_IFINDEX>(vpnIfIndex), &vpnLuid) != NO_ERROR) {
+            // This is now the only path that would silently skip the anti-leak BLOCK, so
+            // treat it as fatal: fail addFilters() so enable() does not report a working
+            // split tunnel that leaks v6.
             spdlog::error("CalloutFilter::addFilters(), ConvertInterfaceIndexToLuid failed for vpnIfIndex={}", vpnIfIndex);
+            return false;
+        }
+
+        // 1) BLOCK all v6 traffic on VPN LUID (weight=4).
+        // 2) PERMIT v6 traffic on VPN LUID for appsIds + ctrldAppId (weight=6, beats the block in arbitration).
+        // Non-included apps that fell through to bound ::/0 get blocked here; included apps
+        // post callout-redirect to the VPN address are permitted. Filters are bound to the
+        // VPN LUID, so traffic on the ISP interface is not affected.
+        // persistent=false: SUBLAYER_CALLOUT_GUID itself is transient, and adding a
+        // persistent filter to a transient sublayer fails with FWP_E_LIFETIME_MISMATCH.
+        bool ok = Utils::addFilterV6(engineHandle, nullptr, FWP_ACTION_BLOCK, 4,
+                                     SUBLAYER_CALLOUT_GUID,
+                                     (wchar_t *)WS_PRODUCT_NAME_W L" v6 leak block on VPN",
+                                     &vpnLuid, nullptr, 0, 0, nullptr, false);
+        if (!ok) {
+            spdlog::error("CalloutFilter::addFilters(), v6 leak BLOCK on VPN LUID failed");
+            return false;
+        }
+
+        // ctrldAppId (main app + ctrld) isn't part of appsIds but is redirected into the
+        // tunnel too — its v6 must not be vetoed by the BLOCK above.
+        AppsIds permitAppsIds = appsIds;
+        permitAppsIds.addFrom(ctrldAppId);
+        ok = Utils::addFilterV6(engineHandle, nullptr, FWP_ACTION_PERMIT, 6,
+                                SUBLAYER_CALLOUT_GUID,
+                                (wchar_t *)WS_PRODUCT_NAME_W L" v6 leak permit on VPN for apps",
+                                &vpnLuid, nullptr, 0, 0, &permitAppsIds, false);
+        if (!ok) {
+            spdlog::error("CalloutFilter::addFilters(), v6 leak PERMIT on VPN LUID failed");
+            return false;
+        }
+    }
+
+    // Mirror case for exclusive split tunneling: without a valid localIpV6 there is no
+    // address to redirect excluded apps' v6 traffic to, so the v6 redirect filters are not
+    // installed (withV6 == false) and excluded apps' v6 traffic follows the default route
+    // into the tunnel — an excluded app would show the VPN v6 IP. Block v6 on the VPN LUID
+    // for the excluded apps only; they fall back to v4, which the callout correctly steers
+    // outside the tunnel. Other apps are unaffected: in exclusive mode they are supposed to
+    // use the tunnel, including over v6 (excluded hostname/CIDR destinations are handled
+    // separately via setV6WhitelistIps).
+    if (isExclude && !withV6 && vpnIfIndex != 0 && appsIds.count() > 0) {
+        NET_LUID vpnLuid = { 0 };
+        if (ConvertInterfaceIndexToLuid(static_cast<NET_IFINDEX>(vpnIfIndex), &vpnLuid) != NO_ERROR) {
+            // Same reasoning as the inclusive branch above: this is the only way to silently
+            // end up without the block, so fail loudly.
+            spdlog::error("CalloutFilter::addFilters(), ConvertInterfaceIndexToLuid failed for vpnIfIndex={}", vpnIfIndex);
+            return false;
+        }
+
+        // persistent=false for the same FWP_E_LIFETIME_MISMATCH reason as above. Weight 4
+        // for consistency with the inclusive BLOCK; nothing competes with it in this
+        // sublayer in exclusive mode.
+        AppsIds blockAppsIds = appsIds;
+        bool ok = Utils::addFilterV6(engineHandle, nullptr, FWP_ACTION_BLOCK, 4,
+                                     SUBLAYER_CALLOUT_GUID,
+                                     (wchar_t *)WS_PRODUCT_NAME_W L" v6 leak block on VPN for excluded apps",
+                                     &vpnLuid, nullptr, 0, 0, &blockAppsIds, false);
+        if (!ok) {
+            spdlog::error("CalloutFilter::addFilters(), v6 leak BLOCK for excluded apps on VPN LUID failed");
+            return false;
         }
     }
 

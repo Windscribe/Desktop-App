@@ -276,16 +276,28 @@ inline std::string extractInlineBlockTag(const std::string &line, size_t start, 
 
     std::string tag = line.substr(nameStart, pos - nameStart);
 
-    // Reject anything other than whitespace after '>'. OpenVPN treats inline
-    // tags as line-anchored; if we accepted "<ca> trailing-data" as an opener
-    // while OpenVPN did not, blocked directives placed inside the apparent
-    // block could survive filtering.
+    // Trailing content after '>' is handled differently for openers and closers,
+    // to match OpenVPN's two distinct parsing rules and avoid a state differential.
+    //
+    // Openers: OpenVPN only treats a line as an inline opener when the whole line
+    // is the single token "<tag>"; "<ca> trailing-data" is a normal option line,
+    // not an opener. So we reject trailing data on openers too — otherwise a
+    // blocked directive after a fake opener could ride inside an apparent block.
+    //
+    // Closers: OpenVPN matches a close by raw prefix (strncmp against "</tag>"
+    // after stripping leading whitespace), so "</ca>X" DOES close the block. If we
+    // required an exact close here, we would stay inside the block while OpenVPN
+    // had already returned to the top level, and a directive placed after the
+    // fake-looking close would survive filtering as if it were inline data. Accept
+    // trailing data on closers so our block boundary never extends past OpenVPN's.
     ++pos;
-    while (pos < line.size()) {
-        if (line[pos] != ' ' && line[pos] != '\t' && line[pos] != '\r' && line[pos] != '\n') {
-            return "";
+    if (!closing) {
+        while (pos < line.size()) {
+            if (line[pos] != ' ' && line[pos] != '\t' && line[pos] != '\r' && line[pos] != '\n') {
+                return "";
+            }
+            ++pos;
         }
-        ++pos;
     }
 
     // Lowercase
@@ -451,6 +463,8 @@ inline bool filterConfig(const std::string &config, std::string &out)
             line = line.substr(first, last - first + 1);
         }
 
+        const bool wasInsideInlineBlock = insideInlineBlock;
+
         if (!isAllowed(line, insideInlineBlock, balancedBlocks)) {
             std::string name = extractDirectiveName(line);
             if (!name.empty()) {
@@ -461,6 +475,17 @@ inline bool filterConfig(const std::string &config, std::string &out)
                 }
             }
             continue;
+        }
+
+        // When this line closes an inline block, OpenVPN discards everything after the closing
+        // tag's '>'. Drop that trailing content here so the written config is unambiguous and
+        // matches OpenVPN's interpretation. Truncate the original line (not the lowercased tag)
+        // so the close still case-matches its opener.
+        if (wasInsideInlineBlock && !insideInlineBlock) {
+            size_t gt = line.find('>');
+            if (gt != std::string::npos) {
+                line.erase(gt + 1);
+            }
         }
 
         result += line;

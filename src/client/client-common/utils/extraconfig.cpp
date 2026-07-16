@@ -1,9 +1,9 @@
 #include "extraconfig.h"
 
 #include <QFile>
-#include <QFileInfo>
 #include <QStandardPaths>
 
+#include "../utils/filechangewatcher.h"
 #include "../utils/log/categories.h"
 
 #if defined (Q_OS_WIN)
@@ -62,6 +62,8 @@ void ExtraConfig::writeConfig(const QString &cfg, bool bWithLog)
             qCDebug(LOG_BASIC) << "Wrote extra config file:" << path_;
             qCDebug(LOG_BASIC) << "Extra options:" << cfg.toLocal8Bit();
         }
+    } else {
+        qCWarning(LOG_BASIC) << "Could not open extra config file for writing:" << file.errorString();
     }
     parseConfigFile();
 }
@@ -244,6 +246,8 @@ bool ExtraConfig::getStealthExtraTLSPadding()
     return getFlag(WS_STEALTH_EXTRA_TLS_PADDING);
 }
 
+// Changing this flag takes full effect on the next connect; toggling it while connecting/connected can transiently
+// mis-report pin state (e.g. a spurious "Could not pin IP" alert) until the user disconnects and reconnects.
 bool ExtraConfig::getSuppressApiToken()
 {
     return getFlag(WS_SUPPRESS_API_TOKEN);
@@ -354,21 +358,10 @@ bool ExtraConfig::useOpenVpnDCO()
 ExtraConfig::ExtraConfig() : QObject(),
                              path_(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation)
                                    + "/" WS_EXTRA_CONFIG_NAME),
-                             fileWatcher_(nullptr),
-                             fileExists_(false)
+                             fileWatcher_(nullptr)
 {
-    fileWatcher_ = new QFileSystemWatcher(this);
-
-    // Always watch the directory
-    QString dirPath = QFileInfo(path_).absolutePath();
-    fileWatcher_->addPath(dirPath);
-
-    // Connect both signals
-    connect(fileWatcher_, &QFileSystemWatcher::fileChanged, this, &ExtraConfig::onFileChanged);
-    connect(fileWatcher_, &QFileSystemWatcher::directoryChanged, this, &ExtraConfig::onDirectoryChanged);
-
-    // Initialize file watching state
-    updateFileWatchingState();
+    fileWatcher_ = new FileChangeWatcher(path_, this);
+    connect(fileWatcher_, &FileChangeWatcher::changed, this, &ExtraConfig::onFileChanged);
 
     parseConfigFile();
 }
@@ -407,10 +400,16 @@ void ExtraConfig::parseConfigFile()
 {
     QMutexLocker locker(&mutex_);
     QFile file(path_);
-    if (file.exists() && file.open(QIODevice::ReadOnly)) {
-        QByteArray data = file.readAll();
-        file.close();
-        configLines_ = QString::fromLocal8Bit(data).split("\n");
+    if (file.exists()) {
+        // Keep the current config on a transient open failure (e.g. an editor briefly holding an exclusive lock);
+        // wiping it here would push default advanced parameters into the engine until the next watcher event.
+        if (file.open(QIODevice::ReadOnly)) {
+            QByteArray data = file.readAll();
+            file.close();
+            configLines_ = QString::fromLocal8Bit(data).split("\n");
+        } else {
+            qCWarning(LOG_BASIC) << "Could not open extra config file, keeping current config:" << file.errorString();
+        }
     } else {
         configLines_.clear();
     }
@@ -438,29 +437,5 @@ void ExtraConfig::onFileChanged()
     qCDebug(LOG_BASIC) << "Extra config file changed, re-reading";
     parseConfigFile();
     logExtraConfig();
-}
-
-void ExtraConfig::onDirectoryChanged(const QString &path)
-{
-    updateFileWatchingState();
-}
-
-void ExtraConfig::updateFileWatchingState()
-{
-    bool fileExists = QFile::exists(path_);
-
-    if (fileExists != fileExists_) {
-        if (fileExists) {
-            if (!fileWatcher_->files().contains(path_)) {
-                fileWatcher_->addPath(path_);
-            }
-            onFileChanged();
-        } else {
-            if (fileWatcher_->files().contains(path_)) {
-                fileWatcher_->removePath(path_);
-            }
-            // don't need to call onFileChanged(); file deletion causes onFileChanged() to be called already.
-        }
-        fileExists_ = fileExists;
-    }
+    emit changed();
 }

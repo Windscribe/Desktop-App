@@ -12,6 +12,9 @@
 #include "languagecontroller.h"
 #include "generalmessagecontroller.h"
 #include "tooltips/tooltipcontroller.h"
+#ifdef Q_OS_LINUX
+#include "utils/linuxutils.h"
+#endif
 #ifdef Q_OS_MACOS
 #include "utils/macutils.h"
 #endif
@@ -125,6 +128,13 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
     if (MacUtils::isOsVersionAtLeast(14, 4)) {
         macSpoofingGroup_->setEnabled(false);
     }
+#elif defined(Q_OS_LINUX)
+    // Spoofing is applied through live nmcli calls, so it needs NetworkManager actually running, not just
+    // installed/enabled. Decide once here; onLanguageChanged() reuses this so it only swaps the string.
+    isMacSpoofingSupported_ = LinuxUtils::isNetworkManagerActive();
+    if (!isMacSpoofingSupported_) {
+        macSpoofingGroup_->setEnabled(false);
+    }
 #endif
 
 #if defined(Q_OS_WIN)
@@ -188,6 +198,16 @@ void ConnectionWindowItem::setScreen(CONNECTION_SCREEN_TYPE subScreen)
     currentScreen_ = subScreen;
     if (subScreen == CONNECTION_SCREEN_HOME) {
         checkLocalDns();
+#ifdef Q_OS_LINUX
+        // Re-evaluate NetworkManager availability every time the connection page is shown, so a mid-session
+        // NM stop/start is reflected here instead of being frozen at the value sampled at GUI startup.
+        const bool supported = LinuxUtils::isNetworkManagerActive();
+        if (supported != isMacSpoofingSupported_) {
+            isMacSpoofingSupported_ = supported;
+            macSpoofingGroup_->setEnabled(isMacSpoofingSupported_);
+            updateMacSpoofingDescription();
+        }
+#endif
     }
 }
 
@@ -388,14 +408,7 @@ void ConnectionWindowItem::onLanguageChanged()
                                              QString("https://%1/features/lan-traffic").arg(HardcodedSettings::instance().windscribeServerUrl()));
     checkBoxAllowLanTraffic_->setCaption(tr("Allow LAN Traffic"));
 
-    macSpoofingGroup_->setDescription(tr("Spoof your device's physical address (MAC address)."),
-                                      QString("https://%1/features/mac-spoofing").arg(HardcodedSettings::instance().windscribeServerUrl()));
-#ifdef Q_OS_MACOS
-    if (MacUtils::isOsVersionAtLeast(14, 4)) {
-        macSpoofingGroup_->setDescription(tr("MAC spoofing is not supported on your version of MacOS."),
-                                          QString("https://%1/features/mac-spoofing").arg(HardcodedSettings::instance().windscribeServerUrl()));
-    }
-#endif
+    updateMacSpoofingDescription();
 
 #if defined(Q_OS_WIN)
     terminateSocketsItem_->setCaption(tr("Terminate Sockets"));
@@ -410,6 +423,22 @@ void ConnectionWindowItem::onLanguageChanged()
     clearWifiHistoryItem_->setTitle(tr("Clear Wi-Fi History"));
     clearWifiHistoryGroup_->setDescription(tr("Remove Wi-Fi SSID and MAC information from your operating system to prevent location history tracking."),
                                             QString("https://%1/features/clear-wifi-history").arg(HardcodedSettings::instance().windscribeServerUrl()));
+}
+
+void ConnectionWindowItem::updateMacSpoofingDescription()
+{
+    const QString url = QString("https://%1/features/mac-spoofing").arg(HardcodedSettings::instance().windscribeServerUrl());
+    QString description = tr("Spoof your device's physical address (MAC address).");
+#ifdef Q_OS_MACOS
+    if (MacUtils::isOsVersionAtLeast(14, 4)) {
+        description = tr("MAC spoofing is not supported on your version of MacOS.");
+    }
+#elif defined(Q_OS_LINUX)
+    if (!isMacSpoofingSupported_) {
+        description = tr("MAC spoofing requires NetworkManager to be installed and running.");
+    }
+#endif
+    macSpoofingGroup_->setDescription(description, url);
 }
 
 void ConnectionWindowItem::onIsAllowLanTrafficPreferencesChangedByUser(bool b)

@@ -64,9 +64,12 @@ ExecuteCmdResult ExecuteCmd::executeBlockingCmd(const std::wstring &cmd, HANDLE 
     return res;
 }
 
-ExecuteCmdResult ExecuteCmd::executeNonblockingCmd(const std::wstring &cmd, const std::wstring &workingDir)
+ExecuteCmdResult ExecuteCmd::executeNonblockingCmd(const std::wstring &cmd, const std::wstring &workingDir, HANDLE *outProcessHandle)
 {
     ExecuteCmdResult res;
+    if (outProcessHandle) {
+        *outProcessHandle = NULL;
+    }
 
     // As per the Win32 docs; the Unicode version of CreateProcess 'may' modify its lpCommandLine
     // parameter.  Therefore, this parameter cannot be a pointer to read-only memory (such as a
@@ -88,7 +91,14 @@ ExecuteCmdResult ExecuteCmd::executeNonblockingCmd(const std::wstring &cmd, cons
     if (CreateProcess(NULL, exec.get(), NULL, NULL, FALSE, CREATE_NO_WINDOW | NORMAL_PRIORITY_CLASS, NULL, workingDir.c_str(), &si, &pi))
     {
         CloseHandle(pi.hThread);
-        CloseHandle(pi.hProcess);
+        res.processId = pi.dwProcessId;
+        if (outProcessHandle) {
+            // Transfer ownership of the process handle to the caller so the PID cannot be reused
+            // while the caller holds it open.
+            *outProcessHandle = pi.hProcess;
+        } else {
+            CloseHandle(pi.hProcess);
+        }
         res.success = true;
     }
     else

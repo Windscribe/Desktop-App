@@ -6,8 +6,8 @@
 #include <pwd.h>
 #include <signal.h>
 #include <spawn.h>
+#include <stdlib.h>
 #include <string.h>
-#include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
 #include <spdlog/spdlog.h>
@@ -67,13 +67,46 @@ std::vector<std::string> buildEnvStorage(const std::vector<std::pair<std::string
 bool spawnViaPosixSpawn(const std::string &exePath,
                         const std::vector<std::string> &args,
                         const std::vector<const char *> &envp,
-                        const std::string &cwd)
+                        const std::string &cwd,
+                        pid_t *outDaemonPid)
 {
+    if (outDaemonPid) {
+        *outDaemonPid = 0;
+    }
+
+    // When the caller wants the daemon's pid, hand the shell a write pipe on fd 3 and have it print
+    // `$!` (the backgrounded daemon's pid) there. `3>&-` closes fd 3 in the daemon itself so the pipe
+    // is not leaked into it and the parent sees EOF once the shell exits. Both pipe ends are CLOEXEC;
+    // only the explicit fd-3 dup2 below survives into the shell.
+    int pidPipe[2] = {-1, -1};
+    if (outDaemonPid) {
+#if defined(__linux__)
+        if (pipe2(pidPipe, O_CLOEXEC) != 0) {
+            spdlog::warn("spawnDetached: pid pipe2() failed: {}; daemon pid will be unavailable", IO::strerror(errno));
+            pidPipe[0] = pidPipe[1] = -1;
+        }
+#else
+        if (pipe(pidPipe) != 0) {
+            spdlog::warn("spawnDetached: pid pipe() failed: {}; daemon pid will be unavailable", IO::strerror(errno));
+            pidPipe[0] = pidPipe[1] = -1;
+        } else {
+            fcntl(pidPipe[0], F_SETFD, FD_CLOEXEC);
+            fcntl(pidPipe[1], F_SETFD, FD_CLOEXEC);
+        }
+#endif
+    }
+    const bool capturePid = (pidPipe[1] >= 0);
+    auto closePidPipe = [&]() {
+        if (pidPipe[0] >= 0) { close(pidPipe[0]); pidPipe[0] = -1; }
+        if (pidPipe[1] >= 0) { close(pidPipe[1]); pidPipe[1] = -1; }
+    };
+
     // posix_spawn* APIs return an errno value directly (they do not set the global errno).
     posix_spawnattr_t attr;
     int rc = posix_spawnattr_init(&attr);
     if (rc != 0) {
         spdlog::error("spawnDetached: posix_spawnattr_init failed: {}", IO::strerror(rc));
+        closePidPipe();
         return false;
     }
 
@@ -87,6 +120,7 @@ bool spawnViaPosixSpawn(const std::string &exePath,
     if (rc != 0) {
         spdlog::error("spawnDetached: posix_spawnattr_setflags failed: {}", IO::strerror(rc));
         posix_spawnattr_destroy(&attr);
+        closePidPipe();
         return false;
     }
 
@@ -104,6 +138,7 @@ bool spawnViaPosixSpawn(const std::string &exePath,
     if (rc != 0) {
         spdlog::error("spawnDetached: posix_spawn_file_actions_init failed: {}", IO::strerror(rc));
         posix_spawnattr_destroy(&attr);
+        closePidPipe();
         return false;
     }
 
@@ -113,18 +148,29 @@ bool spawnViaPosixSpawn(const std::string &exePath,
     posix_spawn_file_actions_addinherit_np(&fa, STDERR_FILENO);
 #endif
 
+    // Expose the pid pipe's write end to the shell as fd 3 (see the script below). dup2 clears
+    // FD_CLOEXEC on the target, so fd 3 survives exec even under POSIX_SPAWN_CLOEXEC_DEFAULT.
+    if (capturePid) {
+        posix_spawn_file_actions_adddup2(&fa, pidPipe[1], 3);
+    }
+
     if (!cwd.empty()) {
         posix_spawn_file_actions_addchdir_np(&fa, cwd.c_str());
     }
 
-    // argv = ["sh", "-c", "\"$@\" &", "sh", exePath, args...]
-    static const char *kShellPath = "/bin/sh";
+    // argv = ["sh", "-c", <script>, "sh", exePath, args...]
+    // The daemon is backgrounded ("$@" &) and orphaned to init/launchd. When capturing the pid, the
+    // shell also prints $! (the daemon's pid) to fd 3; `3>&-` closes fd 3 in the daemon so the pipe
+    // is not inherited by it and the parent's read end sees EOF once the shell exits. No caller data
+    // is interpolated into the script — exePath/args arrive as positional "$@".
     static const char *kShellScript = "\"$@\" &";
+    static const char *kShellScriptWithPid = "\"$@\" 3>&- & printf '%d' \"$!\" >&3";
+    static const char *kShellPath = "/bin/sh";
     std::vector<const char *> shArgv;
     shArgv.reserve(args.size() + 6);
     shArgv.push_back("sh");
     shArgv.push_back("-c");
-    shArgv.push_back(kShellScript);
+    shArgv.push_back(capturePid ? kShellScriptWithPid : kShellScript);
     shArgv.push_back("sh");
     shArgv.push_back(exePath.c_str());
     for (const auto &a : args) {
@@ -140,8 +186,13 @@ bool spawnViaPosixSpawn(const std::string &exePath,
     posix_spawn_file_actions_destroy(&fa);
     posix_spawnattr_destroy(&attr);
 
+    // Close our copy of the write end now that it has been handed to the child; the child's fd 3 is
+    // the only writer left, so the read end will see EOF once the shell exits.
+    if (pidPipe[1] >= 0) { close(pidPipe[1]); pidPipe[1] = -1; }
+
     if (rc != 0) {
         spdlog::error("spawnDetached: posix_spawn /bin/sh failed: {}", IO::strerror(rc));
+        closePidPipe();
         return false;
     }
 
@@ -154,6 +205,30 @@ bool spawnViaPosixSpawn(const std::string &exePath,
     if (r < 0) {
         spdlog::warn("spawnDetached: waitpid for shell pid={} failed: {}", (int)pid, IO::strerror(errno));
     }
+
+    // Read the daemon pid the shell printed to fd 3. The shell writes it (a small, atomic write)
+    // before exiting, so by the time waitpid() has returned the bytes are already in the pipe and a
+    // single read() returns them all. A failure here is non-fatal: leave *outDaemonPid at 0 and let
+    // the caller fall back to its timeout.
+    if (capturePid) {
+        char pidBuf[32] = {0};
+        ssize_t n;
+        do {
+            n = read(pidPipe[0], pidBuf, sizeof(pidBuf) - 1);
+        } while (n < 0 && errno == EINTR);
+        if (n > 0) {
+            pidBuf[n] = '\0';
+            const long parsed = strtol(pidBuf, nullptr, 10);
+            if (parsed > 0) {
+                *outDaemonPid = static_cast<pid_t>(parsed);
+            } else {
+                spdlog::warn("spawnDetached: could not parse daemon pid from \"{}\"", pidBuf);
+            }
+        } else {
+            spdlog::warn("spawnDetached: no daemon pid reported by shell");
+        }
+    }
+    closePidPipe();
     return true;
 }
 
@@ -288,8 +363,15 @@ bool spawnViaForkExec(const std::string &exePath,
 
 bool spawnDetached(const std::string &exePath,
                    const std::vector<std::string> &args,
-                   const Options &opts)
+                   const Options &opts,
+                   pid_t *outDaemonPid)
 {
+    // The privilege-drop (double-fork) path does not report a pid; default to 0 ("unknown") here so
+    // callers on that path get a consistent value.
+    if (outDaemonPid) {
+        *outDaemonPid = 0;
+    }
+
     uid_t targetUid = 0;
     gid_t targetGid = 0;
     const bool dropPrivs = !opts.runAsUser.empty();
@@ -321,7 +403,7 @@ bool spawnDetached(const std::string &exePath,
     envp.push_back(nullptr);
 
     if (!dropPrivs) {
-        return spawnViaPosixSpawn(exePath, args, envp, opts.cwd);
+        return spawnViaPosixSpawn(exePath, args, envp, opts.cwd, outDaemonPid);
     }
 
     std::vector<const char *> argv;

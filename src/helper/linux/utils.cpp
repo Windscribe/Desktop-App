@@ -241,6 +241,15 @@ static std::string getCurrentMac(const std::string &ifname)
 }
 #endif
 
+bool isNetworkManagerActive()
+{
+    // Same semantics as the client's LinuxUtils::isNetworkManagerActive(): systemctl answers from PID 1
+    // and should never block; if it somehow does (timeout exits 124), err toward active so we don't skip
+    // NetworkManager-backed operations over a transient hiccup.
+    const int ret = Utils::executeCommand("timeout", {"2", "systemctl", "--quiet", "is-active", "NetworkManager.service"});
+    return ret == 0 || ret == 124;
+}
+
 bool resetMacAddresses(const std::string &ignoreNetwork)
 {
 #ifdef CLI_ONLY
@@ -263,6 +272,13 @@ bool resetMacAddresses(const std::string &ignoreNetwork)
         }
     }
 #else
+    // Spoofs are applied via NetworkManager profiles; without the daemon there is nothing to reset
+    // and every nmcli call below would just fail (e.g. NM-less distros, this runs at every helper boot).
+    if (!Utils::isNetworkManagerActive()) {
+        spdlog::info("resetMacAddresses skipped: NetworkManager is not active");
+        return true;
+    }
+
     std::string output;
     std::string line;
     bool firstline = true;

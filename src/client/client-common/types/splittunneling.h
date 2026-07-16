@@ -302,6 +302,11 @@ private:
 
 struct SplitTunneling
 {
+    static constexpr int kMaxApps = 50;
+    static constexpr int kMaxHostnames = 50;
+    static constexpr int kMaxIpRoutes = 4096;
+    static constexpr int kMaxStringLen = 4096;
+
     SplitTunneling() = default;
 
     SplitTunneling(const QJsonObject &json)
@@ -479,16 +484,10 @@ struct SplitTunneling
     {
         settings.validate();
 
-        constexpr int kMaxApps = 1024;
-        constexpr int kMaxRoutes = 1024;
-        constexpr int kMaxStringLen = 4096;
-
-        if (apps.size() > kMaxApps) {
-            qCWarning(LOG_BASIC) << "SplitTunneling: apps over cap, truncating";
-            apps.resize(kMaxApps);
-        }
         QVector<SplitTunnelingApp> filteredApps;
-        filteredApps.reserve(apps.size());
+        filteredApps.reserve(apps.size() < kMaxApps ? apps.size() : kMaxApps);
+        int droppedAppsOverCap = 0;
+        int droppedInvalidApps = 0;
         for (SplitTunnelingApp &app : apps) {
             if (app.fullName.isEmpty()) {
                 // App not found on this system (file existence check in constructor)
@@ -496,27 +495,63 @@ struct SplitTunneling
             }
             if (app.fullName.size() > kMaxStringLen || app.name.size() > kMaxStringLen ||
                 app.fullName.contains(QChar(0)) || app.name.contains(QChar(0))) {
-                qCWarning(LOG_BASIC) << "SplitTunneling: dropping app with invalid path";
+                droppedInvalidApps++;
+                continue;
+            }
+            if (filteredApps.size() >= kMaxApps) {
+                droppedAppsOverCap++;
                 continue;
             }
             app.validate();
             filteredApps.append(app);
         }
+        if (droppedInvalidApps > 0) {
+            qCWarning(LOG_BASIC) << "SplitTunneling: dropped" << droppedInvalidApps << "apps with invalid path";
+        }
+        if (droppedAppsOverCap > 0) {
+            qCWarning(LOG_BASIC) << "SplitTunneling: apps over cap, dropped" << droppedAppsOverCap << "apps";
+        }
         apps = filteredApps;
 
-        if (networkRoutes.size() > kMaxRoutes) {
-            qCWarning(LOG_BASIC) << "SplitTunneling: networkRoutes over cap, truncating";
-            networkRoutes.resize(kMaxRoutes);
-        }
         QVector<SplitTunnelingNetworkRoute> filteredRoutes;
-        filteredRoutes.reserve(networkRoutes.size());
+        const int maxRoutes = kMaxHostnames + kMaxIpRoutes;
+        filteredRoutes.reserve(networkRoutes.size() < maxRoutes ? networkRoutes.size() : maxRoutes);
+        int numHostnames = 0;
+        int numIpRoutes = 0;
+        int droppedHostnamesOverCap = 0;
+        int droppedIpRoutesOverCap = 0;
+        int droppedInvalidRoutes = 0;
         for (SplitTunnelingNetworkRoute &r : networkRoutes) {
             if (!r.isValidName()) {
-                qCWarning(LOG_BASIC) << "SplitTunneling: dropping route with invalid name";
+                droppedInvalidRoutes++;
                 continue;
             }
+
+            if (NetworkingValidation::isDomain(r.name)) {
+                if (numHostnames >= kMaxHostnames) {
+                    droppedHostnamesOverCap++;
+                    continue;
+                }
+                numHostnames++;
+            } else {
+                if (numIpRoutes >= kMaxIpRoutes) {
+                    droppedIpRoutesOverCap++;
+                    continue;
+                }
+                numIpRoutes++;
+            }
+
             r.validate();
             filteredRoutes.append(r);
+        }
+        if (droppedInvalidRoutes > 0) {
+            qCWarning(LOG_BASIC) << "SplitTunneling: dropped" << droppedInvalidRoutes << "routes with invalid name";
+        }
+        if (droppedHostnamesOverCap > 0) {
+            qCWarning(LOG_BASIC) << "SplitTunneling: hostnames over cap, dropped" << droppedHostnamesOverCap << "routes";
+        }
+        if (droppedIpRoutesOverCap > 0) {
+            qCWarning(LOG_BASIC) << "SplitTunneling: IP routes over cap, dropped" << droppedIpRoutesOverCap << "routes";
         }
         networkRoutes = filteredRoutes;
     }

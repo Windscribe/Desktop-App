@@ -80,6 +80,12 @@ void sanitizeFirewallConfig(FirewallConfig &config);
 // separators (e.g. "00:11:22:aa:bb:cc").
 bool isValidMacAddress(const std::string &macAddress);
 
+// Returns true if the string is a plausible system username: non-empty and free of
+// whitespace and control characters. Intended for values that are interpolated into
+// line- or token-oriented sinks where whitespace or control bytes would change the
+// parse. For example, the OpenVPN "management-client-user" directive.
+bool isValidUsername(const std::string &name);
+
 // Returns true iff every byte is printable ASCII (0x20..0x7E). Rejects newlines,
 // tabs, NULs, and all non-ASCII. Empty string is considered valid; callers that need
 // to also reject empty values should check that separately. Used at boundaries that

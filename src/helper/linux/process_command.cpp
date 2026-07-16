@@ -4,6 +4,8 @@
 #include <fstream>
 #include <sstream>
 #include <stdlib.h>
+#include <sys/types.h>
+#include <unistd.h>
 #include <spdlog/spdlog.h>
 #include "clear_wifi_history/clear_wifi_history.h"
 #include "dnsleakprotect.h"
@@ -15,11 +17,23 @@
 #include "split_tunneling/split_tunneling.h"
 #include "utils.h"
 #include "wireguard/wireguardcontroller.h"
+#include "../common/ovpn_mgmt_posix.h"
 #include "../common/spawn_posix.h"
 #include "../common/validation_posix.h"
 
-std::string processCommand(HelperCommand cmdId, const std::string &pars)
+std::string processCommand(HelperCommand cmdId, const std::string &pars, uid_t clientUid)
 {
+    // executeOpenVPN is the only command that needs the caller's kernel-verified uid (to lock the
+    // OpenVPN management socket to that user), so it's dispatched directly with the uid rather than
+    // through kCommands (whose handlers take only the serialized parameters). Passing the uid as a
+    // call argument — instead of a shared mutable static — keeps concurrent command dispatch safe: a
+    // second client's command can no longer overwrite the uid mid-flight. clientUid is (uid_t)-1 when
+    // the server could not determine the peer uid; executeOpenVPN treats that as fatal rather than
+    // securing the socket to the wrong user.
+    if (cmdId == HelperCommand::executeOpenVPN) {
+        return executeOpenVPN(pars, clientUid);
+    }
+
     const auto command = kCommands.find(cmdId);
     if (command == kCommands.end()) {
         spdlog::error("Unknown command id: {}", (int)cmdId);
@@ -128,18 +142,28 @@ std::string changeMtu(const std::string &pars)
     return std::string();
 }
 
-std::string executeOpenVPN(const std::string &pars)
+std::string executeOpenVPN(const std::string &pars, uid_t clientUid)
 {
     std::string config, httpProxy, socksProxy;
-    unsigned int port, httpPort, socksPort;
+    unsigned int httpPort, socksPort;
     CmdDnsManager dnsManager;
-    deserializePars(pars, config, port, httpProxy, httpPort, socksProxy, socksPort, dnsManager);
+    deserializePars(pars, config, httpProxy, httpPort, socksProxy, socksPort, dnsManager);
 
     std::string script = Utils::getDnsScript(dnsManager);
     if (script.empty()) {
         spdlog::error("Could not find appropriate DNS manager script");
         return serializeResult(false);
     }
+
+    // The management socket is locked to the client's user (chown + 0600, plus OpenVPN's
+    // management-client-user check). Without the client's uid we cannot secure it, and the run dir is
+    // world-traversable (0711), so fail rather than fall back to a world-connectable socket.
+    if (clientUid == (uid_t)-1) {
+        spdlog::error("executeOpenVPN: client uid unknown; refusing to start OpenVPN");
+        return serializeResult(false);
+    }
+    std::string mgmtClientUser;
+    OvpnMgmt::mgmtClientUserForUid(clientUid, mgmtClientUser);
 
     // The proxy address must be an IP literal: the GUI restricts it to one (NetworkingValidation::
     // isIp) and no other path sets it. Validate here too rather than trust the client — an invalid
@@ -155,7 +179,11 @@ std::string executeOpenVPN(const std::string &pars)
         socksProxy = "";
     }
 
-    if (!OVPN::writeOVPNFile(script, port, config, httpProxy, httpPort, socksProxy, socksPort)) {
+    // Ensure any previous OpenVPN is fully gone before writeOVPNFile recreates the shared management
+    // socket and we spawn a new instance.
+    OvpnMgmt::killOpenVPN();
+
+    if (!OVPN::writeOVPNFile(script, config, httpProxy, httpPort, socksProxy, socksPort, mgmtClientUser)) {
         spdlog::error("Could not write OpenVPN config");
         return serializeResult(false);
     }
@@ -169,7 +197,20 @@ std::string executeOpenVPN(const std::string &pars)
     opts.extraEnv = {{"OPENSSL_CONF", "/dev/null"}};
     opts.cwd = WS_LINUX_INSTALL_DIR;
     std::vector<std::string> args = {"--mark", std::to_string(marks::kOpenVpnFwMark), "--config", WS_LINUX_RUN_DIR "/config.ovpn"};
-    return serializeResult(Spawn::spawnDetached(ovpnPath, args, opts));
+    pid_t ovpnPid = 0;
+    if (!Spawn::spawnDetached(ovpnPath, args, opts, &ovpnPid)) {
+        return serializeResult(false);
+    }
+
+    // The non-root client must be able to connect() to the management socket OpenVPN creates as
+    // root. If it never appears or can't be made connectable, this connection is unusable: report
+    // failure and kill the OpenVPN we just spawned so the client's retry doesn't leave an orphaned
+    // process fighting over the same socket path (mirrors the Windows path).
+    if (!OvpnMgmt::waitAndRelaxPerms(clientUid, ovpnPid)) {
+        OvpnMgmt::killOpenVPN();
+        return serializeResult(false);
+    }
+    return serializeResult(true);
 }
 
 std::string setOpenVpnDcoMode(const std::string &pars)
@@ -196,10 +237,7 @@ std::string executeTaskKill(const std::string &pars)
         success = true;
     } else if (target == kTargetOpenVpn) {
         spdlog::info("Killing OpenVPN processes");
-        const std::vector<std::string> exes = Utils::getOpenVpnExeNames();
-        for (const auto &exe : exes) {
-            Utils::executeCommand("pkill", {"-f", exe.c_str()});
-        }
+        OvpnMgmt::killOpenVPN();
         OVPN::setUseDco(true);
         success = true;
     } else if (target == kTargetStunnel) {
@@ -510,23 +548,51 @@ std::string setMacAddress(const std::string &pars)
 #ifdef CLI_ONLY
     // Must bring interface down to change the MAC address
     Utils::executeCommand("ip", {"link", "set", "dev", interface, "down"});
-    Utils::executeCommand("ip", {"link", "set", "dev", interface, "address", mac});
-    Utils::executeCommand("ip", {"link", "set", "dev", interface, "up"});
+    int ret = Utils::executeCommand("ip", {"link", "set", "dev", interface, "address", mac});
+    if (ret != 0) {
+        spdlog::error("Failed to set MAC address on {}", interface);
+    }
+    // Bring the interface back up even if setting the address failed.
+    if (Utils::executeCommand("ip", {"link", "set", "dev", interface, "up"}) != 0) {
+        spdlog::error("Failed to bring interface {} back up", interface);
+        if (ret == 0) {
+            // The failure is reported to the client, which disables spoofing; revert the already-applied
+            // spoofed MAC so the NIC state matches (also retries bringing the interface up).
+            Utils::resetMacAddresses();
+        }
+        return serializeResult(false);
+    }
+    return serializeResult(ret == 0);
 #else
+    // The engine skips spoofing when NetworkManager is unavailable, but don't trust that judgment here:
+    // spoofing is applied via NM connection profiles, so without the daemon it cannot work.
+    if (!Utils::isNetworkManagerActive()) {
+        spdlog::error("Can't set MAC address: NetworkManager is not active");
+        return serializeResult(false);
+    }
+
     std::string out;
     // Pass the connection name with an explicit "id" selector so nmcli always treats it as a name,
     // never as one of its own selector keywords (id/uuid/path) that would otherwise consume the
     // following token. isValidNetworkManagerConnectionName already blocks a leading '-'; this closes
     // the same argv-semantics gap for a connection literally named "id"/"uuid"/"path".
-    if (isWifi) {
-        Utils::executeCommand("nmcli", {"connection", "modify", "id", network, "wifi.cloned-mac-address", mac}, &out);
-    } else {
-        Utils::executeCommand("nmcli", {"connection", "modify", "id", network, "ethernet.cloned-mac-address", mac}, &out);
+    const std::string prop = isWifi ? "wifi.cloned-mac-address" : "ethernet.cloned-mac-address";
+    if (Utils::executeCommand("nmcli", {"connection", "modify", "id", network, prop, mac}, &out) != 0) {
+        spdlog::error("Failed to set cloned MAC address on {}: {}", network, out);
+        return serializeResult(false);
     }
     // restart the connection
-    Utils::executeCommand("nmcli", {"connection", "up", "id", network});
-#endif
+    if (Utils::executeCommand("nmcli", {"connection", "up", "id", network}, &out) != 0) {
+        spdlog::error("Failed to restart connection {}: {}", network, out);
+        // Clear the cloned MAC so the reported failure doesn't silently apply on the next activation.
+        Utils::executeCommand("nmcli", {"connection", "modify", "id", network, prop, "preserve"});
+        // Best-effort reactivation with the original MAC: the failed attempt left the connection down,
+        // and profiles without autoconnect would otherwise stay offline.
+        Utils::executeCommand("nmcli", {"connection", "up", "id", network});
+        return serializeResult(false);
+    }
     return serializeResult(true);
+#endif
 }
 
 std::string setDnsLeakProtectEnabled(const std::string &pars)

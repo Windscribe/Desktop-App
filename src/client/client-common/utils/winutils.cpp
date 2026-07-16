@@ -1,12 +1,14 @@
 #include "winutils.h"
-#include "ws_branding.h"
 
 #include <QSettings>
 
+#include <filesystem>
 #include <LM.h>
 #include <psapi.h>
-#include <filesystem>
 #include <shellapi.h>
+// ws2tcpip.h pulls in winsock2.h, which must precede iphlpapi.h. Keep this relative order.
+#include <ws2tcpip.h>
+#include <iphlpapi.h>
 
 #include "types/global_consts.h"
 #include "log/categories.h"
@@ -14,40 +16,6 @@
 #include "win32handle.h"
 
 #define MAX_KEY_LENGTH 255
-
-bool WinUtils::reboot()
-{
-    HANDLE hToken;
-    TOKEN_PRIVILEGES tkp;
-
-    // Get a token for this process.
-    if (!OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &hToken))
-    {
-        return false;
-    }
-
-    // Get the LUID for the shutdown privilege.
-    LookupPrivilegeValue(NULL, SE_SHUTDOWN_NAME, &tkp.Privileges[0].Luid);
-
-    tkp.PrivilegeCount = 1;  // one privilege to set
-    tkp.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
-
-    // Get the shutdown privilege for this process.
-    AdjustTokenPrivileges(hToken, FALSE, &tkp, 0, (PTOKEN_PRIVILEGES)NULL, 0);
-
-    if (GetLastError() != ERROR_SUCCESS)
-    {
-        return false;
-    }
-
-    // Shut down the system and force all applications to close.
-    if (!ExitWindowsEx(EWX_REBOOT | EWX_FORCEIFHUNG, SHTDN_REASON_MAJOR_OPERATINGSYSTEM | SHTDN_REASON_MINOR_UPGRADE | SHTDN_REASON_FLAG_PLANNED))
-    {
-        return false;
-    }
-
-    return true;
-}
 
 static bool getWinVersion(RTL_OSVERSIONINFOEXW *rtlOsVer)
 {
@@ -501,7 +469,7 @@ QString WinUtils::executeBlockingCmd(QString cmd, const QString & /*params*/, in
     }
     else
     {
-        qCCritical(LOG_BASIC) << "Failed create process: %x", GetLastError();
+        qCCritical(LOG_BASIC) << "Failed create process: " << GetLastError();
         CloseHandle(rPipe);
         CloseHandle(wPipe);
     }
@@ -693,6 +661,46 @@ DWORD WinUtils::getOSBuildNumber()
     }
 
     return 0;
+}
+
+bool WinUtils::getTcpConnectionOwnerPid(quint16 localPort, quint16 remotePort, DWORD &outPid)
+{
+    outPid = 0;
+
+    const DWORD kLoopbackAddr = htonl(INADDR_LOOPBACK);
+
+    DWORD dwSize = sizeof(MIB_TCPTABLE2);
+    std::unique_ptr<BYTE[]> buffer(new BYTE[dwSize]);
+
+    DWORD dwRetVal = ERROR_INSUFFICIENT_BUFFER;
+    for (int attempt = 0; attempt < 5; ++attempt) {
+        dwRetVal = GetTcpTable2(reinterpret_cast<PMIB_TCPTABLE2>(buffer.get()), &dwSize, TRUE);
+        if (dwRetVal != ERROR_INSUFFICIENT_BUFFER) {
+            break;
+        }
+        buffer.reset(new BYTE[dwSize]);
+    }
+
+    if (dwRetVal != NO_ERROR) {
+        qCCritical(LOG_BASIC) << "getTcpConnectionOwnerPid GetTcpTable2 failed: " << dwRetVal;
+        return false;
+    }
+
+    const auto *pTcpTable = reinterpret_cast<const MIB_TCPTABLE2 *>(buffer.get());
+    for (DWORD i = 0; i < pTcpTable->dwNumEntries; ++i) {
+        const auto *entry = &pTcpTable->table[i];
+        if (entry->dwState == MIB_TCP_STATE_ESTAB &&
+            entry->dwLocalAddr == kLoopbackAddr &&
+            entry->dwRemoteAddr == kLoopbackAddr &&
+            ntohs(static_cast<u_short>(entry->dwLocalPort)) == localPort &&
+            ntohs(static_cast<u_short>(entry->dwRemotePort)) == remotePort) {
+            outPid = entry->dwOwningPid;
+            return true;
+        }
+    }
+
+    qCCritical(LOG_BASIC) << "getTcpConnectionOwnerPid failed to find the PID";
+    return false;
 }
 
 QString WinUtils::getSystemDir()

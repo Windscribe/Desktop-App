@@ -2,9 +2,9 @@
 
 #include <variant>
 #include <QThread>
+#include "engine/connectionmanager/adaptergatewayinfo.h"
 #include "types/proxysettings.h"
 #include "types/enums.h"
-#include "adaptergatewayinfo.h"
 
 class WireGuardConfig;
 

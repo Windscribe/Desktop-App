@@ -1,3 +1,8 @@
+// Must precede all includes: exposes struct ucred / SO_PEERCRED from <sys/socket.h>.
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#endif
+
 #include "server.h"
 
 #include <boost/bind.hpp>
@@ -31,6 +36,20 @@ struct UmaskGuard {
     ~UmaskGuard() { umask(prev_); }
     mode_t prev_;
 };
+
+// Effective uid of the process on the other end of the helper IPC connection, as verified by the
+// kernel (SO_PEERCRED). This is the source of truth for "which user is driving the client" — never a
+// value the client sends. Returns (uid_t)-1 if it can't be determined.
+uid_t getPeerUid(int fd)
+{
+    struct ucred cred;
+    socklen_t len = sizeof(cred);
+    if (getsockopt(fd, SOL_SOCKET, SO_PEERCRED, &cred, &len) == 0) {
+        return cred.uid;
+    }
+    spdlog::error("Helper IPC: SO_PEERCRED failed: {}", IO::strerror(errno));
+    return (uid_t)-1;
+}
 } // namespace
 
 Server::Server()
@@ -93,8 +112,10 @@ bool Server::readAndHandleCommand(socket_ptr sock, boost::asio::streambuf *buf, 
     }
     buf->consume(headerSize + length);
 
+    // Pass the connection's kernel-verified peer uid so handlers (executeOpenVPN) can lock per-user
+    // resources to the caller without trusting anything in the payload.
     try {
-        outCmdAnswer = processCommand((HelperCommand)cmdId, str);
+        outCmdAnswer = processCommand((HelperCommand)cmdId, str, getPeerUid(sock->native_handle()));
     } catch (const std::exception &ex) {
         spdlog::error("Helper IPC: processCommand({}) exception: {}", cmdId, ex.what());
         outCmdAnswer.clear();
@@ -208,7 +229,7 @@ void Server::run()
         spdlog::error("Could not get group info for " WS_PRODUCT_NAME_LOWER);
     }
     std::filesystem::permissions(WS_LINUX_RUN_DIR,
-        std::filesystem::perms::owner_all | std::filesystem::perms::group_exec,
+        std::filesystem::perms::owner_all | std::filesystem::perms::group_exec | std::filesystem::perms::others_exec,
         ec);
 #else // dev mode
     std::filesystem::permissions(WS_LINUX_RUN_DIR,

@@ -1269,6 +1269,14 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
         <source>Artificially enlarge TLS packets, helps to circumvent censorship in some cases. Adds extra TLS padding to all API requests.</source>
         <translation>Memperbesar paket TLS secara artifisial, membantu menghindari sensor dalam beberapa kasus. Menambahkan padding TLS ekstra ke semua permintaan API.</translation>
     </message>
+    <message>
+        <source>Custom SNI Domain</source>
+        <translation>Domain SNI Kustom</translation>
+    </message>
+    <message>
+        <source>This setting applies to Stealth and Wstunnel protocols only.</source>
+        <translation>Pengaturan ini hanya berlaku untuk protokol Stealth dan Wstunnel.</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::AppBackgroundGroup</name>
@@ -1445,6 +1453,10 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
     <message>
         <source>Spoof your device&apos;s physical address (MAC address).</source>
         <translation>Memalsukan alamat fisik perangkat Anda (alamat MAC).</translation>
+    </message>
+    <message>
+        <source>MAC spoofing requires NetworkManager to be installed and running.</source>
+        <translation>Spoofing MAC mengharuskan NetworkManager diinstal dan dijalankan.</translation>
     </message>
     <message>
         <source>Close all active TCP sockets when the VPN tunnel is established.</source>
@@ -2082,10 +2094,6 @@ Menyambungkan ke jaringan terlebih dahulu</translation>
 <context>
     <name>PreferencesWindow::ProtocolTweaksGroup</name>
     <message>
-        <source>Custom SNI Domain</source>
-        <translation>Domain SNI Kustom</translation>
-    </message>
-    <message>
         <source>Protocol Tweaks</source>
         <translation>Penyesuaian Protokol</translation>
     </message>
@@ -2172,8 +2180,8 @@ Menyambungkan ke jaringan terlebih dahulu</translation>
         <translation>Port proxy tidak valid</translation>
     </message>
     <message>
-        <source>Proxy port is invalid. Please enter a valid port in the range 0-65535.</source>
-        <translation>Port proxy tidak valid. Silakan masukkan port yang valid dalam kisaran 0-65535.</translation>
+        <source>Proxy port is invalid. Please enter a valid port in the range 1-65535.</source>
+        <translation>Port proxy tidak valid. Silakan masukkan port yang valid dalam kisaran 1-65535.</translation>
     </message>
     <message>
         <source>Proxy address is invalid. Please enter a valid IP address.</source>
@@ -2311,6 +2319,10 @@ Menyambungkan ke jaringan terlebih dahulu</translation>
 </context>
 <context>
     <name>PreferencesWindow::SplitTunnelingAddressesGroup</name>
+    <message>
+        <source>There are too many IPs/CIDR ranges in the list. Please remove some before adding more.</source>
+        <translation>Ada terlalu banyak rentang IP/CIDR dalam daftar. Silakan hapus beberapa sebelum menambahkan lagi.</translation>
+    </message>
     <message>
         <source>IP or hostname already exists. Please enter a new IP or hostname.</source>
         <translation>IP atau nama host sudah ada. Masukkan IP atau nama host baru.</translation>

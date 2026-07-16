@@ -126,6 +126,17 @@ if [ -n "$def_gateway_v6" ] || [ -n "$def_ip_v6" ] || [ -n "$vpn_gateway_v6" ]; 
     fi
 fi
 
+# Inclusive mode with a v4-only tunnel on a host with physical v6: tunneled (unmarked) apps have no
+# v6 tunnel route, so their v6 would fall through to the physical default in main and leak around
+# the VPN. Terminate it before main; marked bypass traffic already escaped at 16384, LAN at 16383.
+# Must stay below the block above, whose non-WG branch deletes the 16385 rule.
+if [ "$mode" = "inclusive" ] && [ -z "$vpn_gateway_v6" ] && { [ -n "$def_gateway_v6" ] || [ -n "$def_ip_v6" ]; }; then
+    ip -6 route add unreachable default table windscribe_include
+    ip -6 rule add priority 16385 table windscribe_include
+else
+    ip -6 rule del priority 16385 table windscribe_include
+fi
+
 # make sure to exit with code 0 since an above command may fail if we are adding a duplicate rule or
 # deleting a non-existent rule; these are not errors
 exit 0

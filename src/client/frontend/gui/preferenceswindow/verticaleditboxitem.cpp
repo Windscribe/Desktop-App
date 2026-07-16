@@ -47,9 +47,7 @@ void VerticalEditBoxItem::paint(QPainter *painter, const QStyleOptionGraphicsIte
     Q_UNUSED(option)
     Q_UNUSED(widget)
 
-    QFont font = FontManager::instance().getFont(14,  QFont::Normal);
-    QFontMetrics fm(font);
-    painter->setFont(font);
+    painter->setFont(FontManager::instance().getFont(14, QFont::Bold));
     painter->setPen(Qt::white);
     painter->drawText(boundingRect().adjusted(PREFERENCES_MARGIN_X*G_SCALE,
                                               0,
@@ -58,6 +56,9 @@ void VerticalEditBoxItem::paint(QPainter *painter, const QStyleOptionGraphicsIte
                       Qt::AlignLeft | Qt::AlignVCenter, caption_);
 
     if (!isEditMode_) {
+        QFont font = FontManager::instance().getFont(14, QFont::Normal);
+        QFontMetrics fm(font);
+        painter->setFont(font);
         painter->setOpacity(OPACITY_SIXTY);
         QString t;
         if (text_.isEmpty()) {

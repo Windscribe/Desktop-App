@@ -6,6 +6,22 @@
 
 static NSString * const kSplitTunnelBundleId = @"" WS_MAC_SPLIT_TUNNEL_BUNDLE_ID;
 
+// CFBundleVersion of the extension embedded in this app bundle (nil if unreadable); the enabled
+// installed copy is compared against it to decide whether an update replacement must be staged.
+static NSString *bundledExtensionVersion() {
+    static NSString *version = nil;
+    static dispatch_once_t once;
+    dispatch_once(&once, ^{
+        NSURL *url = [[NSBundle mainBundle].bundleURL URLByAppendingPathComponent:
+            [NSString stringWithFormat:@"Contents/Library/SystemExtensions/%@.systemextension", kSplitTunnelBundleId]];
+        version = [NSBundle bundleWithURL:url].infoDictionary[@"CFBundleVersion"];
+        if (!version) {
+            qCCritical(LOG_SPLIT_TUNNEL_EXTENSION) << "Failed to read bundled split tunnel extension version";
+        }
+    });
+    return version;
+}
+
 // How long to wait for a properties-query callback before abandoning it, so a stuck query cannot hang
 // a caller or leak its delegate.  On timeout the unconfirmed fallback is reported, not Inactive.
 static const int64_t kPropertiesRequestTimeoutSecs = 3;
@@ -31,6 +47,9 @@ static SystemExtensions_mac::SystemExtensionState unconfirmedQueryFallback()
 @property (nonatomic, copy) void (^onState)(SystemExtensions_mac::SystemExtensionState);
 @property (nonatomic, strong) SystemExtensionRequestDelegate *selfRef;
 - (void)finishWithState:(SystemExtensions_mac::SystemExtensionState)state;
+// enabledVersion is the enabled installed copy's CFBundleVersion; nil when nothing is enabled or the
+// result is unconfirmed (only a confirmed query reads properties).
+- (void)finishWithState:(SystemExtensions_mac::SystemExtensionState)state enabledVersion:(NSString *)enabledVersion;
 @end
 
 @implementation SystemExtensionRequestDelegate
@@ -38,10 +57,27 @@ static SystemExtensions_mac::SystemExtensionState unconfirmedQueryFallback()
 // Terminal point: report once (the completed guard drops late/duplicate delivery, e.g. a real callback
 // after the watchdog), then release the self-retain after the current callback unwinds.
 - (void)finishWithState:(SystemExtensions_mac::SystemExtensionState)state {
+    [self finishWithState:state enabledVersion:nil];
+}
+
+- (void)finishWithState:(SystemExtensions_mac::SystemExtensionState)state enabledVersion:(NSString *)enabledVersion {
     if (self.completed) {
         return;
     }
     self.completed = YES;
+    // Mismatch bookkeeping sits at this chokepoint so the completed guard covers it (a late result
+    // after the watchdog must not touch it).  Only a confirmed query carries a version; an unreadable
+    // bundled version fails closed (activation is attempted, no session starts on the enabled copy).
+    // An unconfirmed Active re-report (nil version) clears a possibly-stale mismatch: the staged
+    // replacement may have landed since, and one query fault must not disable the feature.
+    if (self.isPropertiesRequest && state == SystemExtensions_mac::Active) {
+        if (enabledVersion) {
+            NSString *bundled = bundledExtensionVersion();
+            SystemExtensions_mac::instance()->setEnabledVersionMismatch(!bundled || ![enabledVersion isEqualToString:bundled]);
+        } else {
+            SystemExtensions_mac::instance()->setEnabledVersionMismatch(false);
+        }
+    }
     if (self.onState) {
         self.onState(state);
     }
@@ -54,11 +90,16 @@ static SystemExtensions_mac::SystemExtensionState unconfirmedQueryFallback()
     BOOL found = NO;
     BOOL anyEnabled = NO;
     BOOL anyAwaitingApproval = NO;
+    NSString *enabledVersion = nil;
     for (OSSystemExtensionProperties *prop in properties) {
         if ([prop.bundleIdentifier isEqualToString:kSplitTunnelBundleId]) {
             found = YES;
             anyEnabled |= prop.isEnabled;
             anyAwaitingApproval |= prop.isAwaitingUserApproval;
+            // The enabled copy is the binary that runs; its version drives the bundled comparison.
+            if (prop.isEnabled && !enabledVersion) {
+                enabledVersion = prop.bundleVersion;
+            }
         }
     }
 
@@ -74,7 +115,7 @@ static SystemExtensions_mac::SystemExtensionState unconfirmedQueryFallback()
         << "enabled=" << (bool)anyEnabled << "awaitingUserApproval=" << (bool)anyAwaitingApproval;
     // A query is a point-in-time snapshot, including PendingUserApproval: macOS sends no notification
     // on approval, so the eventual Active is picked up by the next recheck or an activation's delegate.
-    [self finishWithState:state];
+    [self finishWithState:state enabledVersion:enabledVersion];
 }
 
 - (void)request:(nonnull OSSystemExtensionRequest *)request didFinishWithResult:(OSSystemExtensionRequestResult)result {
@@ -182,6 +223,14 @@ SystemExtensions_mac* SystemExtensions_mac::instance() {
 }
 
 void SystemExtensions_mac::requestActivation() {
+    // One activation at a time until it first reports: a duplicate in that window would pointlessly
+    // supersede a request that already covers the install/prompt/replacement.  Once it has reported
+    // the flag is cleared, so an explicit re-enable can supersede a stuck approval prompt.
+    if (activationInFlight_) {
+        qCInfo(LOG_SPLIT_TUNNEL_EXTENSION) << "Activation request already in flight; not submitting another";
+        return;
+    }
+
     OSSystemExtensionRequest *request = [OSSystemExtensionRequest
         activationRequestForExtension:kSplitTunnelBundleId
         queue:dispatch_get_main_queue()];
@@ -190,15 +239,27 @@ void SystemExtensions_mac::requestActivation() {
         return;
     }
 
+    activationInFlight_ = true;
+    currentActivationRequest_ = (__bridge void *)request;
     qCInfo(LOG_SPLIT_TUNNEL_EXTENSION) << "Submitting system extension activation request";
     submitExtensionRequest(request, NO, ^(SystemExtensions_mac::SystemExtensionState state) {
+        SystemExtensions_mac *inst = SystemExtensions_mac::instance();
+        // A superseded predecessor's failure report (macOS fails a pending request when its successor
+        // is submitted) must not clear the successor's flag or re-query on its behalf.
+        if ((__bridge void *)request != inst->currentActivationRequest_) {
+            return;
+        }
+        // Cleared on every report, including PendingUserApproval: a dismissed approval prompt delivers
+        // no further callback, and the stuck-prompt recovery needs a later explicit enable to submit a
+        // superseding re-prompt.  Cleared before the re-query so a recovery pass may submit afresh.
+        inst->activationInFlight_ = false;
         if (state == SystemExtensions_mac::PendingUserApproval) {
-            SystemExtensions_mac::instance()->onExtensionStateChanged(state);
+            inst->onExtensionStateChanged(state);
             return;
         }
         // Terminal activation results are not trusted (see checkSystemExtensionState's doc); re-query
         // the real state instead.  Cannot loop: the re-query never submits another activation.
-        SystemExtensions_mac::instance()->checkSystemExtensionState(false);
+        inst->checkSystemExtensionState(false);
     });
 }
 
@@ -244,11 +305,12 @@ void SystemExtensions_mac::checkSystemExtensionState(bool installIfMissing) {
             const bool stillEnabled = SplitTunnelExtensionManager::instance().isActive();
             // Recovery: when the user is explicitly enabling the feature (wantInstall) and split
             // tunneling is still enabled, submit an activation: it installs/prompts for a confirmed
-            // Inactive, a twice-unconfirmed Unknown, or a stuck PendingUserApproval.  The confirmed
-            // state is reported regardless, so the engine reacts to the truth while the activation's
-            // own callbacks deliver its outcome.
-            if (state != SystemExtensions_mac::Active && wantInstall && stillEnabled) {
-                qCInfo(LOG_SPLIT_TUNNEL_EXTENSION) << "Split tunnel system extension not usable; requesting activation";
+            // Inactive, a twice-unconfirmed Unknown, or a stuck PendingUserApproval, and stages the
+            // bundled replacement for an Active-but-stale copy.  The confirmed state is reported
+            // regardless, so the engine reacts to the truth while the activation's own callbacks
+            // deliver its outcome.
+            if ((state != SystemExtensions_mac::Active || inst->enabledVersionMismatch_) && wantInstall && stillEnabled) {
+                qCInfo(LOG_SPLIT_TUNNEL_EXTENSION) << "Split tunnel system extension not usable or outdated; requesting activation";
                 inst->requestActivation();
             }
             inst->onExtensionStateChanged(state);

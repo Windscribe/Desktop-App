@@ -47,9 +47,6 @@ void Routes::deleteRoute(const IpForwardTable &curRouteTable,
                          const types::IpAddress &destIp, UINT8 prefixLength,
                          const types::IpAddress &gatewayIp, unsigned long ifIndex)
 {
-    spdlog::debug("Routes::deleteRoute(), destIp={}, prefixLength={}, gatewayIp={}",
-                  destIp.toString(), prefixLength, gatewayIp.toString());
-
     if (!destIp.isValid() || !gatewayIp.isValid() || destIp.family() != gatewayIp.family()) {
         spdlog::error("Routes::deleteRoute(): destIp/gatewayIp invalid or family mismatch");
         return;
@@ -60,6 +57,7 @@ void Routes::deleteRoute(const IpForwardTable &curRouteTable,
     SOCKADDR_INET gatewaySockaddr;
     fillSockaddrInet(&gatewaySockaddr, gatewayIp);
 
+    int deletedCount = 0;
     for (ULONG i = 0; i < curRouteTable.count(); ++i) {
         const MIB_IPFORWARD_ROW2 *row = curRouteTable.getByIndex(i);
         if (!row)
@@ -81,9 +79,21 @@ void Routes::deleteRoute(const IpForwardTable &curRouteTable,
         DWORD dwErr = DeleteIpForwardEntry2(&rowCopy);
         if (dwErr == NO_ERROR) {
             deletedRoutes_.push_back(*row);
+            deletedCount++;
         } else {
             spdlog::error("Routes::deleteRoute(), DeleteIpForwardEntry2 failed with error: {}", dwErr);
         }
+    }
+
+    // 0 matches means the expected tunnel route was not in the table (wrong NextHop
+    // assumption, adapter info raced ahead of route configuration, third-party
+    // interference) — route surgery silently did nothing, so make it loud.
+    if (deletedCount == 0) {
+        spdlog::warn("Routes::deleteRoute(): deleted 0 routes matching dest={}/{}, nextHop={}, ifIndex={}",
+                     destIp.toString(), prefixLength, gatewayIp.toString(), ifIndex);
+    } else {
+        spdlog::info("Routes::deleteRoute(): deleted {} route(s) matching dest={}/{}, nextHop={}, ifIndex={}",
+                     deletedCount, destIp.toString(), prefixLength, gatewayIp.toString(), ifIndex);
     }
 }
 
@@ -91,9 +101,6 @@ void Routes::deleteRouteByInterface(const IpForwardTable &curRouteTable,
                                     const types::IpAddress &destIp, UINT8 prefixLength,
                                     unsigned long ifIndex)
 {
-    spdlog::debug("Routes::deleteRouteByInterface(), destIp={}, prefixLength={}, ifIndex={}",
-                  destIp.toString(), prefixLength, ifIndex);
-
     if (!destIp.isValid()) {
         spdlog::error("Routes::deleteRouteByInterface(): destIp invalid");
         return;
@@ -102,6 +109,7 @@ void Routes::deleteRouteByInterface(const IpForwardTable &curRouteTable,
     SOCKADDR_INET destSockaddr;
     fillSockaddrInet(&destSockaddr, destIp);
 
+    int deletedCount = 0;
     for (ULONG i = 0; i < curRouteTable.count(); ++i) {
         const MIB_IPFORWARD_ROW2 *row = curRouteTable.getByIndex(i);
         if (!row)
@@ -119,9 +127,20 @@ void Routes::deleteRouteByInterface(const IpForwardTable &curRouteTable,
         DWORD dwErr = DeleteIpForwardEntry2(&rowCopy);
         if (dwErr == NO_ERROR) {
             deletedRoutes_.push_back(*row);
+            deletedCount++;
         } else {
             spdlog::error("Routes::deleteRouteByInterface(), DeleteIpForwardEntry2 failed with error: {}", dwErr);
         }
+    }
+
+    // Same rationale as in deleteRoute(): a silent no-op here is the main blind spot when
+    // diagnosing "inclusive mode tunnels everything" reports.
+    if (deletedCount == 0) {
+        spdlog::warn("Routes::deleteRouteByInterface(): deleted 0 routes matching dest={}/{}, ifIndex={}",
+                     destIp.toString(), prefixLength, ifIndex);
+    } else {
+        spdlog::info("Routes::deleteRouteByInterface(): deleted {} route(s) matching dest={}/{}, ifIndex={}",
+                     deletedCount, destIp.toString(), prefixLength, ifIndex);
     }
 }
 
@@ -130,9 +149,6 @@ void Routes::addRoute(const IpForwardTable &curRouteTable,
                       const types::IpAddress &gatewayIp, unsigned long ifIndex,
                       bool useMaxMetric)
 {
-    spdlog::debug("Routes::addRoute(), destIp={}, prefixLength={}, gatewayIp={}",
-                  destIp.toString(), prefixLength, gatewayIp.toString());
-
     if (!destIp.isValid() || !gatewayIp.isValid() || destIp.family() != gatewayIp.family()) {
         spdlog::error("Routes::addRoute(): destIp/gatewayIp invalid or family mismatch");
         return;
@@ -166,6 +182,9 @@ void Routes::addRoute(const IpForwardTable &curRouteTable,
     DWORD dwErr = CreateIpForwardEntry2(&row);
     if (dwErr == NO_ERROR) {
         addedRoutes_.push_back(row);
+        spdlog::info("Routes::addRoute(): added dest={}/{}, nextHop={}, ifIndex={}, metric={}{}",
+                     destIp.toString(), prefixLength, gatewayIp.toString(), ifIndex, metric,
+                     useMaxMetric ? " (max)" : "");
     } else {
         spdlog::error("Routes::addRoute(), CreateIpForwardEntry2 failed with error: {}", dwErr);
     }

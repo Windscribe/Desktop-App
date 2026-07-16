@@ -6,7 +6,7 @@
 
 #include <shlobj.h>
 
-#include "adapterutils_win.h"
+#include "engine/connectionmanager/adapterutils_win.h"
 #include "engine/wireguardconfig/wireguardconfig.h"
 #include "types/global_consts.h"
 #include "types/wireguardtypes.h"

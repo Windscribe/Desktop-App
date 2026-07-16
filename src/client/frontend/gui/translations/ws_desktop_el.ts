@@ -1269,6 +1269,14 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>Artificially enlarge TLS packets, helps to circumvent censorship in some cases. Adds extra TLS padding to all API requests.</source>
         <translation>Η τεχνητή μεγέθυνση πακέτων TLS, βοηθά στην παράκαμψη της λογοκρισίας σε ορισμένες περιπτώσεις. Προσθέτει επιπλέον αναπλήρωση TLS σε όλα τα αιτήματα API.</translation>
     </message>
+    <message>
+        <source>Custom SNI Domain</source>
+        <translation>Προσαρμοσμένος τομέας SNI</translation>
+    </message>
+    <message>
+        <source>This setting applies to Stealth and Wstunnel protocols only.</source>
+        <translation>Αυτή η ρύθμιση ισχύει μόνο για τα πρωτόκολλα Stealth και Wstunnel.</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::AppBackgroundGroup</name>
@@ -1461,6 +1469,10 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>MAC spoofing is not supported on your version of MacOS.</source>
         <translation>Η πλαστογράφηση MAC δεν υποστηρίζεται στην έκδοση του MacOS που διαθέτετε.</translation>
+    </message>
+    <message>
+        <source>MAC spoofing requires NetworkManager to be installed and running.</source>
+        <translation>Η πλαστογράφηση MAC απαιτεί την εγκατάσταση και εκτέλεση του NetworkManager.</translation>
     </message>
     <message>
         <source>Close all active TCP sockets when the VPN tunnel is established.</source>
@@ -2082,10 +2094,6 @@ Connect to a network first</source>
 <context>
     <name>PreferencesWindow::ProtocolTweaksGroup</name>
     <message>
-        <source>Custom SNI Domain</source>
-        <translation>Προσαρμοσμένος τομέας SNI</translation>
-    </message>
-    <message>
         <source>Protocol Tweaks</source>
         <translation>Τροποποιήσεις πρωτοκόλλου</translation>
     </message>
@@ -2156,8 +2164,8 @@ Connect to a network first</source>
         <translation>Μη έγκυρη θύρα διακομιστή μεσολάβησης</translation>
     </message>
     <message>
-        <source>Proxy port is invalid. Please enter a valid port in the range 0-65535.</source>
-        <translation>Η θύρα διακομιστή μεσολάβησης δεν είναι έγκυρη. Εισαγάγετε μια έγκυρη θύρα στην περιοχή 0-65535.</translation>
+        <source>Proxy port is invalid. Please enter a valid port in the range 1-65535.</source>
+        <translation>Η θύρα διακομιστή μεσολάβησης δεν είναι έγκυρη. Εισαγάγετε μια έγκυρη θύρα στην περιοχή 1-65535.</translation>
     </message>
     <message>
         <source>Proxy</source>
@@ -2314,6 +2322,10 @@ Connect to a network first</source>
     <message>
         <source>There are too many hostnames in the list. Please remove some before adding more.</source>
         <translation>Υπάρχουν πάρα πολλά ονόματα κεντρικών υπολογιστών στη λίστα. Παρακαλώ αφαιρέστε μερικά πριν προσθέσετε περισσότερα.</translation>
+    </message>
+    <message>
+        <source>There are too many IPs/CIDR ranges in the list. Please remove some before adding more.</source>
+        <translation>Υπάρχουν πάρα πολλές περιοχές IP/CIDR στη λίστα. Παρακαλώ αφαιρέστε μερικά πριν προσθέσετε περισσότερα.</translation>
     </message>
     <message>
         <source>IP or hostname already exists. Please enter a new IP or hostname.</source>

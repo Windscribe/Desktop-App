@@ -4,6 +4,7 @@
 
 #include "utils/extraconfig.h"
 #include "utils/log/categories.h"
+#include "utils/networkingvalidation.h"
 #include "utils/ws_assert.h"
 #include "api_responses/amneziawgunblockparams.h"
 #include <wsnet/WSNet.h>
@@ -24,6 +25,11 @@ bool MakeOVPNFile::generate(const QString &ovpnData, const QString &ip, types::P
 #ifdef Q_OS_WIN
     Q_UNUSED(defaultGateway);
 #endif
+
+    if (!NetworkingValidation::isIp(ip)) {
+        qCCritical(LOG_CONNECTION) << "MakeOVPNFile::generate: refusing to build config, node IP is not a valid IP address";
+        return false;
+    }
 
     QString strExtraConfig = ExtraConfig::instance().getExtraConfigForOpenVpn();
     bool bExtraContainsRemote = !ExtraConfig::instance().getRemoteIpFromExtraConfig().isEmpty();

@@ -5,7 +5,7 @@
 
 set(WS_VERSION_MAJOR 2)
 set(WS_VERSION_MINOR 24)
-set(WS_VERSION_BUILD 2)
+set(WS_VERSION_BUILD 3)
 set(WS_BUILD_TYPE "guinea_pig")
 
 # WS_APP_IDENTIFIER: Internal identifier, no spaces. Used for service names,
@@ -86,6 +86,15 @@ set(WS_LINUX_RUN_DIR "/var/run/windscribe")
 set(WS_LINUX_TMP_DIR "/var/lib/windscribe")
 set(WS_LINUX_LOG_DIR "/var/log/windscribe")
 set(WS_LINUX_USER_GROUP "windscribe")
+
+# OpenVPN management interface unix-domain socket (macOS/Linux). It lives in a root-owned directory
+# so a non-root process cannot pre-create it and impersonate OpenVPN's management interface. This
+# removes the loopback-TCP management port (and its local port-grab attack surface) on POSIX.
+if(APPLE)
+    set(WS_OVPN_MGMT_SOCKET "${WS_POSIX_CONFIG_DIR}/ovpn-mgmt.sock")
+elseif(UNIX)
+    set(WS_OVPN_MGMT_SOCKET "${WS_LINUX_RUN_DIR}/ovpn-mgmt.sock")
+endif()
 
 set(WS_LINUX_APP_TARGETS
     ${WS_APP_TARGET} ${WS_CLI_TARGET} helper)

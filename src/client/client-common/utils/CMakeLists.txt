@@ -6,6 +6,8 @@ target_sources(client-common PRIVATE
     executable_signature/executable_signature.h
     extraconfig.cpp
     extraconfig.h
+    filechangewatcher.cpp
+    filechangewatcher.h
     hardcodedsettings.cpp
     hardcodedsettings.h
     networkingvalidation.cpp

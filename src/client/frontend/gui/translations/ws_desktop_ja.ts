@@ -1269,6 +1269,14 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>Artificially enlarge TLS packets, helps to circumvent censorship in some cases. Adds extra TLS padding to all API requests.</source>
         <translation>TLSパケットを人工的に拡大することで、場合によっては検閲を回避するのに役立ちます。すべてのAPIリクエストに追加のTLSパディングを追加します。</translation>
     </message>
+    <message>
+        <source>Custom SNI Domain</source>
+        <translation>カスタムSNIドメイン</translation>
+    </message>
+    <message>
+        <source>This setting applies to Stealth and Wstunnel protocols only.</source>
+        <translation>この設定はStealthおよびWstunnelプロトコルにのみ適用されます。</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::AppBackgroundGroup</name>
@@ -1445,6 +1453,10 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Spoof your device&apos;s physical address (MAC address).</source>
         <translation>デバイスの物理アドレス(MACアドレス)をスプーフィングします。</translation>
+    </message>
+    <message>
+        <source>MAC spoofing requires NetworkManager to be installed and running.</source>
+        <translation>MACスプーフィングにはNetworkManagerのインストールと実行が必要です。</translation>
     </message>
     <message>
         <source>Close all active TCP sockets when the VPN tunnel is established.</source>
@@ -2082,10 +2094,6 @@ Connect to a network first</source>
 <context>
     <name>PreferencesWindow::ProtocolTweaksGroup</name>
     <message>
-        <source>Custom SNI Domain</source>
-        <translation>カスタムSNIドメイン</translation>
-    </message>
-    <message>
         <source>Protocol Tweaks</source>
         <translation>プロトコルの調整</translation>
     </message>
@@ -2172,8 +2180,8 @@ Connect to a network first</source>
         <translation>プロキシポートが無効です</translation>
     </message>
     <message>
-        <source>Proxy port is invalid. Please enter a valid port in the range 0-65535.</source>
-        <translation>プロキシ ポートが無効です。0〜65535の範囲で有効なポートを入力してください。</translation>
+        <source>Proxy port is invalid. Please enter a valid port in the range 1-65535.</source>
+        <translation>プロキシ ポートが無効です。1〜65535の範囲で有効なポートを入力してください。</translation>
     </message>
     <message>
         <source>Proxy address is invalid. Please enter a valid IP address.</source>
@@ -2311,6 +2319,10 @@ Connect to a network first</source>
 </context>
 <context>
     <name>PreferencesWindow::SplitTunnelingAddressesGroup</name>
+    <message>
+        <source>There are too many IPs/CIDR ranges in the list. Please remove some before adding more.</source>
+        <translation>リストにはIPやCIDRの範囲が多すぎます。追加する前にいくつか削除してください。</translation>
+    </message>
     <message>
         <source>IP or hostname already exists. Please enter a new IP or hostname.</source>
         <translation>IP またはホスト名はすでに存在します。新しいIPまたはホスト名を入力してください。</translation>

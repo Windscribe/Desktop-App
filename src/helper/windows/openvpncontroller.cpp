@@ -3,9 +3,14 @@
 
 #include <codecvt>
 #include <fstream>
+#include <memory>
 #include <sstream>
 #include <stdexcept>
 #include <spdlog/spdlog.h>
+
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#include <iphlpapi.h>
 
 #include <boost/algorithm/string.hpp>
 
@@ -41,6 +46,9 @@ bool OpenVPNController::createAdapter(bool useDCODriver)
 
 void OpenVPNController::removeAdapter()
 {
+    // The OpenVPN process has been (or is being) torn down; release the retained handle.
+    openVpnProcess_.closeHandle();
+
     if (useDCODriver_) {
         removeDCOAdapter();
     } else if (tapAdapterCreated_) {
@@ -110,11 +118,17 @@ void OpenVPNController::removeDCOAdapter()
     }
 }
 
-ExecuteCmdResult OpenVPNController::runOpenvpn(std::wstring &config, unsigned int port, const std::wstring &httpProxy,
-                                               unsigned int httpPort, const std::wstring &socksProxy, unsigned int socksPort)
+ExecuteCmdResult OpenVPNController::runOpenvpn(std::wstring &config, const std::wstring &httpProxy,
+                                               unsigned int httpPort, const std::wstring &socksProxy, unsigned int socksPort,
+                                               unsigned int &outPort)
 {
+    outPort = 0;
+
+    // Release any handle from a previous run before launching a new process.
+    openVpnProcess_.closeHandle();
+
     std::wstring filename;
-    if (!writeOVPNFile(config, port, httpProxy, httpPort, socksProxy, socksPort, filename)) {
+    if (!writeOVPNFile(config, httpProxy, httpPort, socksProxy, socksPort, filename)) {
         return ExecuteCmdResult();
     }
 
@@ -130,10 +144,86 @@ ExecuteCmdResult OpenVPNController::runOpenvpn(std::wstring &config, unsigned in
 
     const std::wstring cwd = Utils::getDirPathFromFullPath(filename);
     const std::wstring strCmd = L"\"" + ovpnExe + L"\" --config \"" + filename + L"\"";
-    return ExecuteCmd::instance().executeNonblockingCmd(strCmd, cwd);
+
+    // Retain the process handle so the OpenVPN PID cannot be reused by another process while it runs.
+    HANDLE processHandle = NULL;
+    ExecuteCmdResult res = ExecuteCmd::instance().executeNonblockingCmd(strCmd, cwd, &processHandle);
+    if (!res.success) {
+        return res;
+    }
+    openVpnProcess_.setHandle(processHandle);
+
+    // OpenVPN binds its management socket on an OS-assigned port (the config requests
+    // "management 127.0.0.1 0"). Resolve that port from the spawned process so the engine connects
+    // to the exact, unpredictable port the genuine OpenVPN owns.
+    if (!resolveManagementPort(res.processId, outPort)) {
+        spdlog::error("Could not resolve OpenVPN management port for pid {}", res.processId);
+        // Kill the process we just launched; without a resolvable management port it is unusable.
+        if (openVpnProcess_.isValid()) {
+            TerminateProcess(openVpnProcess_.getHandle(), 1);
+            openVpnProcess_.closeHandle();
+        }
+        res.success = false;
+        return res;
+    }
+
+    spdlog::info("OpenVPN running, pid {}, management port {}", res.processId, outPort);
+    return res;
 }
 
-bool OpenVPNController::writeOVPNFile(std::wstring &config, unsigned int port, const std::wstring &httpProxy, unsigned int httpPort,
+bool OpenVPNController::resolveManagementPort(unsigned long pid, unsigned int &outPort)
+{
+    outPort = 0;
+
+    // OpenVPN starts in "management-hold", so it binds the management listener early. Poll for the
+    // single loopback (127.0.0.1) TCP socket in LISTEN state owned by the OpenVPN process. OpenVPN
+    // connects out to its server, so the management socket is the only socket it listens on.
+    // The window is generous (~10s): the socket itself binds in milliseconds, but on a slow/busy
+    // machine — or with AV/EDR scanning the binary on first launch — the process can take seconds
+    // just to start. The engine blocks on this IPC reply with no timeout, so a longer wait is safe.
+    const DWORD kLoopbackAddr = htonl(INADDR_LOOPBACK);
+
+    DWORD dwSize = sizeof(MIB_TCPTABLE2);
+    std::unique_ptr<BYTE[]> buffer(new BYTE[dwSize]);
+    for (int attempt = 0; attempt < 200; ++attempt) { // ~10s total
+        DWORD dwRetVal = ERROR_INSUFFICIENT_BUFFER;
+        for (int bufferAttempt = 0; bufferAttempt < 5; ++bufferAttempt) {
+            dwRetVal = GetTcpTable2(reinterpret_cast<PMIB_TCPTABLE2>(buffer.get()), &dwSize, TRUE);
+            if (dwRetVal != ERROR_INSUFFICIENT_BUFFER) {
+                break;
+            }
+            buffer.reset(new BYTE[dwSize]);
+        }
+
+        if (dwRetVal == NO_ERROR) {
+            const auto *pTcpTable = reinterpret_cast<const MIB_TCPTABLE2 *>(buffer.get());
+            for (DWORD i = 0; i < pTcpTable->dwNumEntries; ++i) {
+                const auto *entry = &pTcpTable->table[i];
+                if (entry->dwOwningPid == pid &&
+                    entry->dwState == MIB_TCP_STATE_LISTEN &&
+                    entry->dwLocalAddr == kLoopbackAddr) {
+                    outPort = ntohs(static_cast<u_short>(entry->dwLocalPort));
+                    return true;
+                }
+            }
+        }
+
+        // Bail out early if OpenVPN has already exited (bad config, AV/EDR kill, immediate fatal).
+        // A dead process will never bind the management socket, so there is no point polling for the
+        // full window and stalling the helper's single command thread. Test liveness via the retained
+        // process handle rather than the PID, to avoid a false negative from PID reuse.
+        if (openVpnProcess_.isSignaled()) {
+            spdlog::error("OpenVPN process (pid {}) exited before binding its management port", pid);
+            return false;
+        }
+
+        Sleep(50);
+    }
+
+    return false;
+}
+
+bool OpenVPNController::writeOVPNFile(std::wstring &config, const std::wstring &httpProxy, unsigned int httpPort,
                                       const std::wstring &socksProxy, unsigned int socksPort, std::wstring &filename)
 {
     // Replace the deprecated (as of OpenVPN 2.5) ciphers flag received from the server API with the proper one.
@@ -187,8 +277,11 @@ bool OpenVPNController::writeOVPNFile(std::wstring &config, unsigned int port, c
     // OpenVPN handles both, and the helper-appended options below use \r\n)
     file << filtered.c_str();
 
-    // add management and other options
-    file << L"management 127.0.0.1 " + std::to_wstring(port) + L"\r\n";
+    // add management and other options.
+    // Port 0 tells OpenVPN to bind an OS-assigned (ephemeral) management port. The helper resolves
+    // the actual port from the spawned process and reports it to the engine. This removes the
+    // engine-side port pre-selection that left a window for a local process to grab the port first.
+    file << L"management 127.0.0.1 0\r\n";
     file << L"management-query-passwords\r\n";
     file << L"management-hold\r\n";
     file << L"verb 3\r\n";

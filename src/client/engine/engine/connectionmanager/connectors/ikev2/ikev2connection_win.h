@@ -7,7 +7,7 @@
 #include <QString>
 #include <QVector>
 
-#include "iconnection.h"
+#include "engine/connectionmanager/connectors/iconnection.h"
 #include "engine/helper/helper.h"
 #include "utils/win32handle.h"
 

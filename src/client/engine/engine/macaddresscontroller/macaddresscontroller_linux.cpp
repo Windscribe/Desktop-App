@@ -1,6 +1,7 @@
 #include "macaddresscontroller_linux.h"
 
 #include "engine/networkdetectionmanager/networkdetectionmanager_linux.h"
+#include "utils/linuxutils.h"
 #include "utils/log/categories.h"
 #include "utils/network_utils/network_utils.h"
 
@@ -52,6 +53,20 @@ void MacAddressController_linux::setMacAddrSpoofing(const types::MacAddrSpoofing
 
 void MacAddressController_linux::enableSpoofing(bool networkChanged)
 {
+#ifndef CLI_ONLY
+    // Spoofing is applied via nmcli, so it can't work while NetworkManager isn't running. Disable it (do NOT
+    // skip-and-retry): the GUI greys the control on the same isNetworkManagerActive() check and tells the
+    // user it's unavailable, so the engine must not keep the setting armed and silently spoof the moment NM
+    // comes back -- that would be applying behind a greyed-out control. NM not running => spoofing off, in
+    // both the engine and the UI. The user re-enables it once NM is back.
+    if (!LinuxUtils::isNetworkManagerActive()) {
+        qCInfo(LOG_BASIC) << "MAC spoofing disabled: NetworkManager is not active";
+        spoofing_.isEnabled = false;
+        emit macAddrSpoofingChanged(spoofing_);
+        return;
+    }
+#endif
+
     types::NetworkInterface interface;
     networkDetectionManager_->getCurrentNetworkInterface(interface);
 
@@ -171,8 +186,25 @@ void MacAddressController_linux::applySpoof(const types::NetworkInterface &inter
         return;
     }
 
+#ifndef CLI_ONLY
+    // Re-check right before the helper call: NetworkManager may have stopped since enableSpoofing checked
+    // (e.g. a restart). Disable, matching enableSpoofing and the greyed GUI, so the engine never spoofs while
+    // the UI shows the feature unavailable. No hard-failure warning here -- NM being down is not a spoof
+    // failure, it's the feature being unavailable.
+    if (!LinuxUtils::isNetworkManagerActive()) {
+        qCInfo(LOG_BASIC) << "MacAddressController_linux::applySpoof disabling (NetworkManager is not active)";
+        spoofing_.isEnabled = false;
+        emit macAddrSpoofingChanged(spoofing_);
+        return;
+    }
+#endif
+
     if (!helper_->setMacAddress(interface.interfaceName, macAddress, interface.networkOrSsid, interface.interfaceType == NETWORK_INTERFACE_WIFI)) {
         qCWarning(LOG_BASIC) << "MacAddressController_linux::applySpoof failed.";
+        // Disable spoofing, otherwise the network events from the failed attempt's interface bounce re-arm
+        // an endless retry/flap loop.
+        spoofing_.isEnabled = false;
+        emit macAddrSpoofingChanged(spoofing_);
         emit sendUserWarning(USER_WARNING_MAC_SPOOFING_FAILURE_HARD);
         return;
     }

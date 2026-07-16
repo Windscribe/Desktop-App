@@ -1,68 +1,81 @@
 target_sources(engine PRIVATE
     adaptergatewayinfo.cpp
     adaptergatewayinfo.h
-    availableport.cpp
-    availableport.h
     connectionmanager.cpp
     connectionmanager.h
+    connectors/connectionfactory.cpp
+    connectors/connectionfactory.h
+    connectors/connectionplatformpolicy.cpp
+    connectors/connectionplatformpolicy.h
+    connectors/iconnection.h
+    connectors/iconnectionfactory.h
+    connectors/iconnectionplatformpolicy.h
+    connectors/openvpn/availableport.cpp
+    connectors/openvpn/availableport.h
+    connectors/openvpn/makeovpnfile.cpp
+    connectors/openvpn/makeovpnfile.h
+    connectors/openvpn/makeovpnfilefromcustom.cpp
+    connectors/openvpn/makeovpnfilefromcustom.h
+    connectors/openvpn/openvpnconnection.cpp
+    connectors/openvpn/openvpnconnection.h
+    connectors/openvpn/stunnelmanager.cpp
+    connectors/openvpn/stunnelmanager.h
+    connectors/openvpn/wstunnelmanager.cpp
+    connectors/openvpn/wstunnelmanager.h
     connsettingspolicy/autoconnsettingspolicy.cpp
     connsettingspolicy/autoconnsettingspolicy.h
     connsettingspolicy/baseconnsettingspolicy.h
+    connsettingspolicy/connsettingspolicyfactory.cpp
+    connsettingspolicy/connsettingspolicyfactory.h
     connsettingspolicy/customconfigconnsettingspolicy.cpp
     connsettingspolicy/customconfigconnsettingspolicy.h
+    connsettingspolicy/iconnsettingspolicyfactory.h
     connsettingspolicy/manualconnsettingspolicy.cpp
     connsettingspolicy/manualconnsettingspolicy.h
+    extraconfigaccessor.cpp
+    extraconfigaccessor.h
     finishactiveconnections.cpp
     finishactiveconnections.h
-    iconnection.h
+    iextraconfigaccessor.h
     isleepevents.h
-    makeovpnfile.cpp
-    makeovpnfile.h
-    makeovpnfilefromcustom.cpp
-    makeovpnfilefromcustom.h
-    openvpnconnection.cpp
-    openvpnconnection.h
-    stunnelmanager.cpp
-    stunnelmanager.h
     testvpntunnel.cpp
     testvpntunnel.h
-    wstunnelmanager.cpp
-    wstunnelmanager.h
 )
 
 if (WIN32)
     target_sources(engine PRIVATE
         adapterutils_win.cpp
         adapterutils_win.h
-        ikev2connection_win.cpp
-        ikev2connection_win.h
+        connectors/ikev2/ikev2connection_win.cpp
+        connectors/ikev2/ikev2connection_win.h
+        connectors/wireguard/wireguardconnection_win.cpp
+        connectors/wireguard/wireguardconnection_win.h
+        connectors/wireguard/wireguardringlogger.cpp
+        connectors/wireguard/wireguardringlogger.h
         sleepevents_win.cpp
         sleepevents_win.h
-        wireguardconnection_win.cpp
-        wireguardconnection_win.h
-        wireguardringlogger.cpp
-        wireguardringlogger.h
     )
 elseif(APPLE)
     target_sources(engine PRIVATE
-        ikev2connection_mac.h
-        ikev2connection_mac.mm
+        connectors/ikev2/ikev2connection_mac.h
+        connectors/ikev2/ikev2connection_mac.mm
+        connectors/wireguard/wireguardconnection_posix.cpp
+        connectors/wireguard/wireguardconnection_posix.h
         networkextensionlog_mac.cpp
         networkextensionlog_mac.h
         restorednsmanager_mac.h
         restorednsmanager_mac.mm
         sleepevents_mac.h
         sleepevents_mac.mm
-        wireguardconnection_posix.cpp
-        wireguardconnection_posix.h
     )
 elseif(UNIX)
     target_sources(engine PRIVATE
-        ikev2connection_linux.cpp
-        ikev2connection_linux.h
-        wireguardconnection_posix.cpp
-        wireguardconnection_posix.h
+        connectors/ikev2/ikev2connection_linux.cpp
+        connectors/ikev2/ikev2connection_linux.h
+        connectors/wireguard/wireguardconnection_posix.cpp
+        connectors/wireguard/wireguardconnection_posix.h
     )
 endif()
 
 add_subdirectory(ctrldmanager)
+add_subdirectory(tests)

@@ -35,6 +35,8 @@ set(SOURCES
     ../client/client-common/types/locationid.cpp
     ../client/client-common/types/protocol.cpp
     ../client/client-common/utils/extraconfig.cpp
+    ../client/client-common/utils/filechangewatcher.cpp
+    ../client/client-common/utils/filechangewatcher.h
     ../client/client-common/utils/languagesutil.cpp
     ../client/client-common/utils/log/clean_sensitive_info.cpp
     ../client/client-common/utils/log/categories.cpp
@@ -91,6 +93,13 @@ else()
 endif()
 
 add_executable(${WS_CLI_TARGET} ${SOURCES})
+
+if(WIN32)
+    # Prevent <windows.h> (reached via shared client-common sources such as winutils.cpp) from
+    # pulling in the legacy WinSock 1 header, which clashes with the WinSock 2 headers those
+    # sources use. Matches the definition set on the other Windows targets.
+    target_compile_definitions(${WS_CLI_TARGET} PRIVATE WIN32_LEAN_AND_MEAN)
+endif()
 
 set(TS_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/translations/windscribe_cli_ar.ts

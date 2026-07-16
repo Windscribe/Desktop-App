@@ -3,7 +3,7 @@
 
 #include <QElapsedTimer>
 
-#include "adapterutils_win.h"
+#include "engine/connectionmanager/adapterutils_win.h"
 #include "utils/crashhandler.h"
 #include "utils/log/categories.h"
 #include "utils/ras_service_win.h"
