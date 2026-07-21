@@ -18,7 +18,6 @@
 #include "connectionmanager/connectionmanager.h"
 #include "connectstatecontroller/connectstatecontroller.h"
 #include "engine/vpnshare/vpnsharecontroller.h"
-#include "engine/emergencycontroller/emergencycontroller.h"
 #include "apiresources/myipmanager.h"
 #include "types/enginesettings.h"
 #include "engine/customconfigs/customconfigs.h"
@@ -48,6 +47,7 @@
 // need create in separate QThread
 
 class ConnectivityDiagnostic;
+class IDnsConfigurator;
 
 class Engine : public QObject
 {
@@ -312,9 +312,10 @@ private slots:
     void onInstallUpdateFinished(int exitCode, QProcess::ExitStatus exitStatus);
 #endif
 
-    void onEmergencyControllerConnected();
-    void onEmergencyControllerDisconnected(DISCONNECT_REASON reason);
-    void onEmergencyControllerError(CONNECT_ERROR err);
+    void onEmergencyConnectionConnected();
+    void onEmergencyConnectionDisconnected(DISCONNECT_REASON reason);
+    void onEmergencyConnectionReconnecting();
+    void onEmergencyConnectionError(CONNECT_ERROR err);
 
     void getRobertFiltersImpl();
     void setRobertFilterImpl(const api_responses::RobertFilter &filter);
@@ -364,10 +365,15 @@ private:
     bool ignoreSslErrors_ = false;
     Helper *helper_;
     FirewallController *firewallController_;
+    IDnsConfigurator *dnsConfigurator_;
     ConnectionManager *connectionManager_;
     ConnectStateController *connectStateController_;
     VpnShareController *vpnShareController_;
-    EmergencyController *emergencyController_;
+    // Emergency connect runs through its own ConnectionManager instance: same state machine and
+    // connector lifecycle, but an endpoint-list policy, its own default-configured DnsConfigurator
+    // (no ctrld/custom DNS) and no sleep handling.
+    ConnectionManager *emergencyConnectionManager_;
+    IDnsConfigurator *emergencyDnsConfigurator_;
     ConnectStateController *emergencyConnectStateController_;
     customconfigs::CustomConfigs *customConfigs_;
     CustomOvpnAuthCredentialsStorage *customOvpnAuthCredentialsStorage_;

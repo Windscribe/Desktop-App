@@ -5,6 +5,6 @@
 class ConnectionFactory : public IConnectionFactory
 {
 public:
-    IConnection *createConnection(types::Protocol protocol, QObject *parent, Helper *helper) override;
+    IConnection *createConnection(types::Protocol protocol, QObject *parent, Helper *helper, const ConnectRequest &request) override;
     void removeIkev2ConnectionFromOS() override;
 };

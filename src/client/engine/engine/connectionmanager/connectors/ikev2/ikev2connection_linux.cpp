@@ -1,18 +1,18 @@
 #include "ikev2connection_linux.h"
 #include <QCoreApplication>
-#include "utils/ws_assert.h"
 
-IKEv2Connection_linux::IKEv2Connection_linux(QObject *parent, Helper *helper) : IConnection(parent)
+IKEv2Connection_linux::IKEv2Connection_linux(QObject *parent, Helper *helper, types::Protocol protocol, const Ikev2SessionParams &sessionParams) :
+    Ikev2ConnectionBase(parent, protocol, sessionParams)
 {
+    Q_UNUSED(helper);
 }
 
 IKEv2Connection_linux::~IKEv2Connection_linux()
 {
 }
 
-void IKEv2Connection_linux::startConnect(const StartConnectParams &params)
+void IKEv2Connection_linux::startConnect()
 {
-    Q_UNUSED(params);
     QMetaObject::invokeMethod(this, "fakeImpl");
 }
 
@@ -24,19 +24,6 @@ void IKEv2Connection_linux::startDisconnect()
 bool IKEv2Connection_linux::isDisconnected() const
 {
     return  true;
-}
-
-void IKEv2Connection_linux::continueWithUsernameAndPassword(const QString &/*username*/, const QString &/*password*/)
-{
-    // nothing todo for ikev2
-    WS_ASSERT(false);
-}
-
-
-void IKEv2Connection_linux::continueWithPassword(const QString & /*password*/)
-{
-    // nothing todo for ikev2
-    WS_ASSERT(false);
 }
 
 void IKEv2Connection_linux::fakeImpl()

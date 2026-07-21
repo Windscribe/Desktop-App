@@ -21,6 +21,7 @@ set(SOURCES
     ../../../../client/client-common/utils/servicecontrolmanager.cpp
     ../utils/applicationinfo.cpp
     ../utils/path.cpp
+    ../utils/persistent_log.cpp
     ../utils/secure_dir.cpp
     ../utils/utils.cpp
     uninstall.rc

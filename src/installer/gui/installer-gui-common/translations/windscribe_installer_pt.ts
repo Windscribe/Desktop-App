@@ -61,8 +61,24 @@
         <translation>A Windscribe não consegue iniciar o seu serviço auxiliar. Software de segurança/firewall de terceiros pode ser a causa. Se não for esse o caso, por favor contacte o nosso Suporte Técnico.</translation>
     </message>
     <message>
+        <source>The installer could not launch its file extraction utility. Antivirus software or Windows security features (e.g. Smart App Control) may be blocking the installation.</source>
+        <translation>O instalador não conseguiu iniciar a sua ferramenta de extração de ficheiros. O software antivírus ou as funcionalidades de segurança do Windows (por exemplo, Smart App Control) podem estar a bloquear a instalação.</translation>
+    </message>
+    <message>
+        <source>The application files could not be extracted to the installation folder. A file may be locked by another program, the disk may be full, or the downloaded installer may be damaged. If this issue persists, download the installer again and retry.</source>
+        <translation>Os ficheiros de aplicação não podiam ser extraídos para a pasta de instalação. Um ficheiro pode ser bloqueado por outro programa, o disco pode estar cheio ou o instalador descarregado pode estar danificado. Se este problema persistir, descarregue novamente o instalador e tente novamente.</translation>
+    </message>
+    <message>
         <source>The installation could not be completed successfully. Please contact our Technical Support.</source>
         <translation>A instalação não pôde ser concluída com êxito. Entre em contato com nosso Suporte Técnico.</translation>
+    </message>
+    <message>
+        <source>Error code: %1</source>
+        <translation>Código de erro: %1</translation>
+    </message>
+    <message>
+        <source>Log: %1</source>
+        <translation>Log: %1</translation>
     </message>
     <message>
         <source>Select a folder in the list below and click OK.</source>

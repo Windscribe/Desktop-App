@@ -49,8 +49,24 @@
         <translation>Windscribe не ўдаецца запусьціць дапаможную службу. Прычынай можа быць староньняе ахоўнае праґрамнае забесьпячэньне альбо брандмаўэр. Калі праблема не ў гэтым, зьвярніцеся ў службу тэхнічнай падтрымкі.</translation>
     </message>
     <message>
+        <source>The installer could not launch its file extraction utility. Antivirus software or Windows security features (e.g. Smart App Control) may be blocking the installation.</source>
+        <translation>Усталёўшчык не мог запусціць сваю ўтыліту для распаўсюджвання файлаў. Антывіруснае праграмнае забеспячэнне або сістэмы бяспекі Windows (напрыклад, Smart App Control) могуць блакаваць устаноўку.</translation>
+    </message>
+    <message>
+        <source>The application files could not be extracted to the installation folder. A file may be locked by another program, the disk may be full, or the downloaded installer may be damaged. If this issue persists, download the installer again and retry.</source>
+        <translation>Файлы прыкладання не маглі быць распакаваныя ў тэчку ўстаноўкі. Файл можа быць заблакаваны іншай праграмай, дыск можа быць запоўнены, або загружаны ўсталёўшчык можа быць пашкоджаны. Калі праблема застанецца, спампуйце ўсталёўшчык зноў і паспрабуйце зноў.</translation>
+    </message>
+    <message>
         <source>The installation could not be completed successfully. Please contact our Technical Support.</source>
         <translation>Не ўдалося завяршыць усталяваньне. Зьвярніцеся ў службу тэхнічнай падтрымкі.</translation>
+    </message>
+    <message>
+        <source>Error code: %1</source>
+        <translation>Код памылкі: %1</translation>
+    </message>
+    <message>
+        <source>Log: %1</source>
+        <translation>Журнал: %1</translation>
     </message>
     <message>
         <source>Select a folder in the list below and click OK.</source>

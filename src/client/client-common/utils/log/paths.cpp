@@ -5,6 +5,11 @@
 #include <QDir>
 #include <QCoreApplication>
 
+#if defined(Q_OS_WIN)
+#include <Windows.h>
+#include <shlobj.h>
+#endif
+
 namespace {
 // For example  client.log -> client.1.log
 QString addPreviousSuffix(const QString &path, bool bAdd)
@@ -78,7 +83,19 @@ QString paths::installerLogLocation()
 #elif defined(Q_OS_MACOS)
     return QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation) + "/installer.log";
 #else
-    return qApp->applicationDirPath() + "/installer.log";
+    // The installer writes its log incrementally to %ProgramData%\Windscribe, where it
+    // survives an installer crash and removal of the install folder during an upgrade.
+    // It no longer places a copy in the install folder.
+    PWSTR programData = nullptr;
+    const HRESULT hr = ::SHGetKnownFolderPath(FOLDERID_ProgramData, KF_FLAG_DEFAULT, nullptr, &programData);
+    // Per the SHGetKnownFolderPath docs, the output buffer must be freed even on failure.
+    if (FAILED(hr)) {
+        ::CoTaskMemFree(programData);
+        return "";
+    }
+    const QString location = QString::fromWCharArray(programData) + "/Windscribe/installer.log";
+    ::CoTaskMemFree(programData);
+    return location;
 #endif
 }
 

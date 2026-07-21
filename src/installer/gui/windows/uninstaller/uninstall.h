@@ -13,7 +13,12 @@ public:
     static void setSilent(bool isSilent);
     static void setUninstExeFile(const std::wstring& exe_file, bool bFirstPhase);
 
-    static void RunSecondPhase();
+    // Returns true if the uninstallation ran to completion and removed the
+    // installation cleanly (registry entry and installation folder); false if it
+    // was cancelled, aborted early, or left leftovers behind.  Callers use this
+    // to decide whether the diagnostic logs in %ProgramData%\Windscribe may be
+    // deleted (see WinMain in main.cpp).
+    static bool RunSecondPhase();
 
     static int messageBox(const UINT resourceID, const UINT type, HWND ownerWindow = nullptr);
 

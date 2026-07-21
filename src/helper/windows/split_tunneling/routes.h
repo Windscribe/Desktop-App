@@ -27,10 +27,13 @@ public:
                                 const types::IpAddress &destIp, UINT8 prefixLength,
                                 unsigned long ifIndex);
 
+    // isLastResort: give the route an effective metric (route metric + interface metric)
+    // strictly above every existing same-family route, so it only catches traffic that
+    // nothing else claims (e.g. callout-redirected traffic bound to the tunnel).
     void addRoute(const IpForwardTable &curRouteTable,
                   const types::IpAddress &destIp, UINT8 prefixLength,
                   const types::IpAddress &gatewayIp, unsigned long ifIndex,
-                  bool useMaxMetric);
+                  bool isLastResort);
 
     void revertRoutes();
 

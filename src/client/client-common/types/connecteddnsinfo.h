@@ -43,6 +43,11 @@ struct ConnectedDnsInfo
 
     bool isCustomIPv4Address() const;
 
+    // IPs of ctrld upstreams that use plain DNS (:53) and therefore must be reachable through
+    // DNS-leak protection. DoH/DoT (https:// / hostname) upstreams are excluded — they use :443 and
+    // are governed by the general firewall, not the :53 leak block.
+    QStringList ctrldPlainUpstreamIps() const;
+
     friend QDataStream& operator <<(QDataStream &stream, const ConnectedDnsInfo &o);
     friend QDataStream& operator >>(QDataStream &stream, ConnectedDnsInfo &o);
 

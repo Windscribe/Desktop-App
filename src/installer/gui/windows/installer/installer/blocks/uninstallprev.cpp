@@ -331,12 +331,12 @@ int UninstallPrev::taskKill(const std::wstring &exeName) const
     const auto result = Utils::instExec(appName, commandLine, INFINITE, SW_HIDE);
     if (!result.has_value()) {
         spdlog::warn(L"WARNING: an error was encountered attempting to start taskkill.exe.");
-        return -wsl::ERROR_OTHER;
+        return -wsl::ERROR_KILL;
     }
 
     if (result.value() != NO_ERROR && result.value() != ERROR_WAIT_NO_CHILDREN) {
         spdlog::warn(L"WARNING: unable to kill {} ({}).", exeName, result.value());
-        return -wsl::ERROR_OTHER;
+        return -wsl::ERROR_KILL;
     }
 
     spdlog::info(L"taskkill executed on {} ({})", exeName, result.value());

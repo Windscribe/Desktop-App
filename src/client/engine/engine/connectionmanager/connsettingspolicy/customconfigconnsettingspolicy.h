@@ -20,6 +20,7 @@ public:
     bool isCustomConfig() override;
     void resolveHostnames() override;
     bool hasProtocolChanged() override;
+    types::Protocol preResolveProtocol() const override;
 
 private slots:
     void onHostnamesResolved();

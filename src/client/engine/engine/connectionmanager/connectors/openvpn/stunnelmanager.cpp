@@ -75,11 +75,15 @@ bool StunnelManager::runProcess(const QString &hostname, unsigned int port, bool
 
 void StunnelManager::killProcess()
 {
-#if defined(Q_OS_WIN)
-    if (bProcessStarted_) {
-        process_->close();
-        process_->waitForFinished(-1);
+    // The manager is per-connector: a kill from a retired connector (teardown + destructor backstop)
+    // must not reach a process it did not start — the posix kill is by name and would take down the
+    // successor attempt's freshly spawned instance.
+    if (!bProcessStarted_) {
+        return;
     }
+#if defined(Q_OS_WIN)
+    process_->close();
+    process_->waitForFinished(-1);
 #else
     Helper_posix *helper_posix = dynamic_cast<Helper_posix *>(helper_);
     helper_posix->executeTaskKill(kTargetStunnel);

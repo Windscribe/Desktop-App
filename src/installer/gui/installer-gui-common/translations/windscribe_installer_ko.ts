@@ -61,8 +61,24 @@
         <translation>Windscribe는 보조 서비스를 시작할 수 없습니다. 서드파티 보안/방화벽 소프트웨어가 원인일 수 있습니다. 그렇지 않다면 기술 지원팀에 연락해 주시기 바랍니다.</translation>
     </message>
     <message>
+        <source>The installer could not launch its file extraction utility. Antivirus software or Windows security features (e.g. Smart App Control) may be blocking the installation.</source>
+        <translation>설치 프로그램은 파일 추출 유틸리티를 실행할 수 없었습니다. 안티바이러스 소프트웨어나 윈도우 보안 기능(예: 스마트 앱 제어)이 설치를 막고 있을 수 있습니다.</translation>
+    </message>
+    <message>
+        <source>The application files could not be extracted to the installation folder. A file may be locked by another program, the disk may be full, or the downloaded installer may be damaged. If this issue persists, download the installer again and retry.</source>
+        <translation>애플리케이션 파일은 설치 폴더로 압축 해제할 수 없었습니다. 파일이 다른 프로그램에 의해 잠겼거나, 디스크가 가득 찼거나, 다운로드한 설치 프로그램이 손상되었을 수 있습니다. 문제가 계속되면 설치 프로그램을 다시 다운로드하고 다시 시도하세요.</translation>
+    </message>
+    <message>
         <source>The installation could not be completed successfully. Please contact our Technical Support.</source>
         <translation>설치를 완료할 수 없습니다. 기술 지원에 문의하십시오.</translation>
+    </message>
+    <message>
+        <source>Error code: %1</source>
+        <translation>오류 코드: %1</translation>
+    </message>
+    <message>
+        <source>Log: %1</source>
+        <translation>기록: %1</translation>
     </message>
     <message>
         <source>Select a folder in the list below and click OK.</source>

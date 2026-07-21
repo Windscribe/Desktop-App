@@ -65,6 +65,7 @@ public:
         this->isRedAcceptButton = false;
     }
 
+    int id = 0;
     Type type;
     QString icon;
     QString title;

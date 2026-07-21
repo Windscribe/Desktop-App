@@ -106,8 +106,8 @@ See `build_all --help` for other build options.
 
 - Client app, location pings and installer helper: `C:/Users/<user_name>/AppData/Local/Windscribe/Windscribe2`
 - Service: `<Windscribe_installation_path>/windscribeservice.log`
-- Installer: `<Windscribe_installation_path>/log_installer.txt`
-- Uninstaller: system Debug View
+- Installer: `C:/ProgramData/Windscribe/installer.log` (previous attempt in `installer.log.1`)
+- Uninstaller: `C:/ProgramData/Windscribe/uninstaller.log` (previous run in `uninstaller.log.1`)
 - `<Windscribe_installation_path>` defaults to `C:/Program Files/Windscribe`
 
 ## macOS Build Process

@@ -61,8 +61,24 @@
         <translation>Windscribe قادر به راه اندازی سرویس کمکی خود نیست. نرم افزارهای امنیتی یا فایروال شخص ثالث ممکن است علت این مشکل باشند. اگر اینطور نیست، لطفا با پشتیبانی فنی ما تماس بگیرید.</translation>
     </message>
     <message>
+        <source>The installer could not launch its file extraction utility. Antivirus software or Windows security features (e.g. Smart App Control) may be blocking the installation.</source>
+        <translation>نصب کننده نتوانست ابزار استخراج فایل خود را اجرا کند. نرم افزار آنتی ویروس یا ویژگی های امنیتی ویندوز (مانند Smart App Control) ممکن است نصب را مسدود کرده باشند.</translation>
+    </message>
+    <message>
+        <source>The application files could not be extracted to the installation folder. A file may be locked by another program, the disk may be full, or the downloaded installer may be damaged. If this issue persists, download the installer again and retry.</source>
+        <translation>فایل های برنامه قابل استخراج به پوشه نصب نبودند. ممکن است یک فایل توسط برنامه دیگری قفل شود، دیسک پر باشد یا نصب کننده دانلود شده آسیب ببیند. اگر این مشکل ادامه داشت، نصب کننده را دوباره دانلود کنید و دوباره امتحان کنید.</translation>
+    </message>
+    <message>
         <source>The installation could not be completed successfully. Please contact our Technical Support.</source>
         <translation>نصب با موفقیت انجام نشد. لطفا با پشتیبانی فنی ما تماس بگیرید.</translation>
+    </message>
+    <message>
+        <source>Error code: %1</source>
+        <translation>کد خطا: ٪1</translation>
+    </message>
+    <message>
+        <source>Log: %1</source>
+        <translation>گزارش: ٪1</translation>
     </message>
     <message>
         <source>Select a folder in the list below and click OK.</source>

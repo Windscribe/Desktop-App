@@ -67,7 +67,7 @@ std::string setSplitTunnelingSettings(const std::string &pars)
 std::string sendConnectStatus(const std::string &pars)
 {
     ConnectStatus cs;
-    deserializePars(pars, cs.isConnected, cs.protocol, cs.defaultAdapter, cs.vpnAdapter, cs.connectedIp, cs.remoteIp);
+    deserializePars(pars, cs.isConnected, cs.protocol, cs.defaultAdapter, cs.vpnAdapter, cs.connectedIp, cs.remoteIp, cs.dnsWhitelistIps);
 
     // IP fields are types::IpAddress; deserialization already yields either a valid address
     // or one with valid_ == false. Downstream code handles invalid addresses gracefully,
@@ -107,6 +107,16 @@ std::string sendConnectStatus(const std::string &pars)
         for (const auto &d : cs.vpnAdapter.dnsServers) {
             if (d.isValid()) {
                 tunnelDns.push_back(d.toString());
+            }
+        }
+        // Also allow dnsWhitelistIps (the ctrld listen IP plus its plain-DNS :53 upstreams) through
+        // leak protection, so split-DNS to a legacy RFC1918 upstream isn't dropped. DnsLeakProtect::enable
+        // treats allowedDnsServers as a never-blacklist set (removeAllowed), so these only widen the
+        // allow set; the drop chain for the remaining OS resolvers is unchanged.
+        for (const auto &ipStr : cs.dnsWhitelistIps) {
+            types::IpAddress ip(ipStr);
+            if (ip.isValid()) {
+                tunnelDns.push_back(ip.toString());
             }
         }
         // The physical default gateway is captured by the engine pre-VPN; pass it through rather than

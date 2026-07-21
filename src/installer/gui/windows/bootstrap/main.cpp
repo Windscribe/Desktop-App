@@ -1,5 +1,6 @@
 #include <Windows.h>
 
+#include <cstdio>
 #include <fileapi.h>
 #include <filesystem>
 #include <optional>
@@ -8,6 +9,7 @@
 #include <versionhelpers.h>
 
 #include "../utils/archive.h"
+#include "../utils/persistent_log.h"
 #include "../utils/secure_dir.h"
 #include "global_consts.h"
 #include "win32handle.h"
@@ -57,6 +59,50 @@ static void debugMessage(LPCTSTR szFormat, ...)
 
     // Send the debug string to the debugger.
     ::OutputDebugString(Buf);
+}
+
+// Writes an entry to the shared %ProgramData%\Windscribe\installer.log in the same JSON
+// format the installer produces (log_utils::createJsonFormatter), so one install attempt
+// reads as a single chronological log: bootstrap prelude, then the installer's entries,
+// then the bootstrap's exit-code epilogue.
+static void logToFile(wsl::PersistentLog &log, const char *level, const std::wstring &msg)
+{
+    if (!log.isOpen()) {
+        return;
+    }
+
+    std::string utf8;
+    if (!msg.empty()) {
+        const int size = ::WideCharToMultiByte(CP_UTF8, 0, msg.c_str(), static_cast<int>(msg.size()), nullptr, 0, nullptr, nullptr);
+        if (size > 0) {
+            utf8.resize(size);
+            ::WideCharToMultiByte(CP_UTF8, 0, msg.c_str(), static_cast<int>(msg.size()), utf8.data(), size, nullptr, nullptr);
+        }
+    }
+
+    std::string escaped;
+    escaped.reserve(utf8.size());
+    for (char c : utf8) {
+        switch (c) {
+        case '"':  escaped += "\\\""; break;
+        case '\\': escaped += "\\\\"; break;
+        case '\n': escaped += "\\n";  break;
+        case '\r': escaped += "\\r";  break;
+        case '\t': escaped += "\\t";  break;
+        default:
+            escaped += (static_cast<unsigned char>(c) < 0x20) ? ' ' : c;
+        }
+    }
+
+    SYSTEMTIME st;
+    ::GetLocalTime(&st);
+
+    char header[128];
+    snprintf(header, sizeof(header),
+             "{\"tm\": \"%04u-%02u-%02u %02u:%02u:%02u.%03u\", \"lvl\": \"%s\", \"mod\": \"bootstrap\", \"msg\": \"",
+             st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute, st.wSecond, st.wMilliseconds, level);
+
+    log.write(header + escaped + "\"}\n");
 }
 
 // Launch exePath with the given command-line parameters and wait for it to exit, returning
@@ -164,6 +210,14 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpszC
         }
     }
 
+    // Start the shared persistent log: the bootstrap runs first and rotates the previous
+    // attempt's log to installer.log.1; the child installer appends to the same file.
+    // SHGetKnownFolderPath (used by PersistentLog) loads only Microsoft-signed shell32 and,
+    // unlike ShellExecuteEx/SHFileOperation, does not invoke third-party shell-extension
+    // DLLs, so it is compatible with the Microsoft-signed-only load policy of this process.
+    wsl::PersistentLog persistentLog;
+    persistentLog.open(L"installer.log", wsl::PersistentLog::OpenMode::Rotate);
+
     std::filesystem::path installPath;
     auto exitGuard = wsl::wsScopeGuard([&] {
         deleteFolder(installPath);
@@ -178,8 +232,10 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpszC
     }
 
     {
-        // Use GetWindowsDirectory rather than SHGetKnownFolderPath so that no shell32 code is
-        // loaded into this process (see launchAndWait).
+        // GetWindowsDirectory is sufficient here; shell32 folder-lookup calls are also safe
+        // under the Microsoft-signed-only policy (see the PersistentLog note above), but
+        // ShellExecuteEx/SHFileOperation-style calls that can pull in third-party
+        // shell-extension DLLs must still be avoided (see launchAndWait).
         wchar_t windowsDir[MAX_PATH];
         const UINT len = ::GetWindowsDirectoryW(windowsDir, MAX_PATH);
         if (len == 0 || len >= MAX_PATH) {
@@ -215,20 +271,24 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpszC
     }
 
     debugMessage(L"Windscribe bootstrapper installing to %s", installPath.c_str());
+    logToFile(persistentLog, "info", L"Bootstrap staging the Windscribe installer to " + installPath.wstring());
 
     // Extract archive
     wsl::Archive archive;
-    archive.setLogFunction([](const std::wstring &str) {
+    archive.setLogFunction([&persistentLog](const std::wstring &str) {
         debugMessage(str.c_str());
+        logToFile(persistentLog, "info", str);
     });
 
     if (!archive.extractDecompressor(installPath)) {
+        logToFile(persistentLog, "error", L"Bootstrap failed to extract the Windscribe decompressor");
         showMessageBox(NULL, _T("Windscribe Installer"), MB_OK | MB_ICONSTOP,
                        _T("Failed to extract the Windscribe decompressor."));
         return -1;
     }
 
     if (!archive.extract(L"Installer", L"windscribeinstaller.7z", installPath, installPath)) {
+        logToFile(persistentLog, "error", L"Bootstrap failed to extract the Windscribe installer");
         showMessageBox(NULL, _T("Windscribe Installer"), MB_OK | MB_ICONSTOP,
                        _T("Failed to extract the Windscribe installer."));
         return -1;
@@ -237,9 +297,12 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpszC
     std::filesystem::path app(installPath);
     app.append(WINDSCRIBE_INSTALLER_NAME);
 
+    logToFile(persistentLog, "info", L"Bootstrap launching " + app.wstring());
+
     DWORD exitCode = 0;
     auto result = launchAndWait(app.wstring(), lpszCmdParam, &exitCode);
     if (result != NO_ERROR) {
+        logToFile(persistentLog, "error", L"Bootstrap was unable to launch the installer (" + std::to_wstring(result) + L")");
         showMessageBox(NULL, _T("Windscribe Installer"), MB_OK | MB_ICONSTOP,
                        _T("Windows was unable to launch the installer (%lu)"), result);
         return -1;
@@ -247,6 +310,11 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpszC
 
     if (exitCode != 0) {
         debugMessage(_T("Windscribe installer exited with an error: %lu"), exitCode);
+        // A non-zero exit code means the installer process died abnormally (its own error
+        // handling exits with 0), so its log may end abruptly; record the code here.
+        wchar_t exitCodeMsg[128];
+        swprintf_s(exitCodeMsg, L"The installer exited with an unexpected code %lu (0x%08X), indicating it may have crashed", exitCode, exitCode);
+        logToFile(persistentLog, "error", exitCodeMsg);
         showMessageBox(NULL, _T("Windscribe Installer"), MB_OK | MB_ICONSTOP,
                        _T("The installer reported an unexpected exit code, indicating it may have crashed during exit.")
                        _T(" Please report this failure to Windscribe support."));

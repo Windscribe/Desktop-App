@@ -87,7 +87,8 @@ namespace KeyChainUtils
     }
 }
 
-IKEv2Connection_mac::IKEv2Connection_mac(QObject *parent, Helper *helper) : IConnection(parent), helper_(helper),
+IKEv2Connection_mac::IKEv2Connection_mac(QObject *parent, Helper *helper, types::Protocol protocol, const Ikev2SessionParams &sessionParams) :
+    Ikev2ConnectionBase(parent, protocol, sessionParams), helper_(helper),
     state_(STATE_DISCONNECTED), bConnected_(false), notificationId_(NULL), isStateConnectingAfterClick_(false), isDisconnectClicked_(false),
     isPrevConnectionStatusInitialized_(false)
 {
@@ -99,10 +100,8 @@ IKEv2Connection_mac::~IKEv2Connection_mac()
 
 }
 
-void IKEv2Connection_mac::startConnect(const StartConnectParams &params)
+void IKEv2Connection_mac::startConnect()
 {
-    const auto &p = std::get<Ikev2StartParams>(params);
-
     QMutexLocker locker(&mutex_);
 
     static QWaitCondition waitConditionLocal;
@@ -117,9 +116,8 @@ void IKEv2Connection_mac::startConnect(const StartConnectParams &params)
     isPrevConnectionStatusInitialized_ = false;
     state_ = STATE_START_CONNECT;
     startConnect_ = QDateTime::currentDateTime();
-    overrideDnsIp_ = p.overrideDnsIp;
 
-    if (!setKeyChain(p.username, p.password))
+    if (!setKeyChain(username(), password()))
     {
         state_ = STATE_DISCONNECTED;
         emit error(IKEV_FAILED_SET_KEYCHAIN_MAC);
@@ -129,9 +127,9 @@ void IKEv2Connection_mac::startConnect(const StartConnectParams &params)
 
     NEVPNManager *manager = [NEVPNManager sharedManager];
 
-    NSString *nsUsername = p.username.toNSString();
-    NSString *nsIp = p.ip.toNSString();
-    NSString *nsRemoteId = p.dnsHostName.toNSString();
+    NSString *nsUsername = username().toNSString();
+    NSString *nsIp = descr_.ip.toNSString();
+    NSString *nsRemoteId = descr_.hostname.toNSString();
 
     [manager loadFromPreferencesWithCompletionHandler:^(NSError *err)
     {
@@ -284,21 +282,6 @@ bool IKEv2Connection_mac::isDisconnected() const
     return state_ == STATE_DISCONNECTED;
 }
 
-void IKEv2Connection_mac::continueWithUsernameAndPassword(const QString &username, const QString &password)
-{
-    // nothing todo for ikev2
-    WS_ASSERT(false);
-    Q_UNUSED(username);
-    Q_UNUSED(password);
-}
-
-void IKEv2Connection_mac::continueWithPassword(const QString &password)
-{
-    // nothing todo for ikev2
-    WS_ASSERT(false);
-    Q_UNUSED(password);
-}
-
 void IKEv2Connection_mac::removeIkev2ConnectionFromOS()
 {
     static QWaitCondition waitCondition;
@@ -431,8 +414,8 @@ void IKEv2Connection_mac::handleNotificationImpl(int status)
     }
     else if (status == NEVPNStatusConnected)
     {
-        if (!overrideDnsIp_.isEmpty()) {
-            if (!setCustomDns(overrideDnsIp_)) {
+        if (!env_.primaryDnsServer.isEmpty()) {
+            if (!setCustomDns(env_.primaryDnsServer)) {
                 qCCritical(LOG_IKEV2) << "Failed to set custom DNS ip for ikev2";
                 WS_ASSERT(false);
             }

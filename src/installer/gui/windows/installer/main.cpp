@@ -1,9 +1,9 @@
 #include <Windows.h>
 #include <tchar.h>
+#include <cstdint>
+#include <exception>
 #include <iostream>
 #include <string>
-#include <locale>
-#include <codecvt>
 
 #include <QApplication>
 #include <QMessageBox>
@@ -11,15 +11,17 @@
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/callback_sink.h>
 
-#include "installer/settings.h"
 #include "mainwindow.h"
 #include "options.h"
 #include "languagesutil.h"
 #include "../utils/applicationinfo.h"
 #include "../../../../client/client-common/utils/log/spdlog_utils.h"
 #include "../utils/path.h"
+#include "../utils/persistent_log.h"
+#include "../utils/wide_string.h"
 #include "wsprocessmitigations.h"
 #include "win32handle.h"
+#include "wsscopeguard.h"
 
 namespace
 {
@@ -165,38 +167,33 @@ static std::wstring sanitizedCommandLine(const std::wstring &exeName)
     return cmdLine;
 }
 
-void writeLogFile(const std::wstring& installPath, const std::list<std::string> &logEntries)
+// Last-resort crash handlers.  The persistent log is written unbuffered, so one entry
+// recorded here is enough to identify the crash in the field; then let the default
+// handling (WER) proceed so crash dump collection still works.
+static LONG WINAPI crashExceptionFilter(EXCEPTION_POINTERS *info)
 {
-    DWORD attrs = ::GetFileAttributes(installPath.c_str());
-    if (attrs == INVALID_FILE_ATTRIBUTES) {
-        spdlog::error(L"Log::writeFile - GetFileAttributes({}) failed ({})", installPath, ::GetLastError());
-        return;
-    }
-
-    // This will be true if a symbolic link has been created on the folder, or a file within the folder.
-    if (attrs & FILE_ATTRIBUTE_REPARSE_POINT) {
-        spdlog::error(L"Log::writeFile - the target folder is, or contains, a suspicious symbolic link ({})", installPath);
-        return;
-    }
-
-    std::wstring fileName = installPath + L"\\installer.log";
-
-    // The log file should not exist at this point. Fail if it does.
-    FILE* fileHandle = nullptr;
-    errno_t result = _wfopen_s(&fileHandle, fileName.c_str(), L"wxb,ccs=UTF-8");
-    if ((result != 0) || (fileHandle == nullptr)) {
-        spdlog::error(L"Log::writeFile - could not open {} ({})", fileName, result);
-        return;
-    }
-
-    for (const auto &entry : logEntries) {
-        fwrite(entry.c_str(), entry.size(), 1, fileHandle);
-    }
-
-    fflush(fileHandle);
-    fclose(fileHandle);
+    spdlog::critical("Installer crashed: unhandled exception 0x{:08X} at address 0x{:X}",
+                     info->ExceptionRecord->ExceptionCode,
+                     reinterpret_cast<uintptr_t>(info->ExceptionRecord->ExceptionAddress));
+    return EXCEPTION_CONTINUE_SEARCH;
 }
 
+[[noreturn]] static void terminateHandler()
+{
+    const auto ex = std::current_exception();
+    if (ex) {
+        try {
+            std::rethrow_exception(ex);
+        } catch (const std::exception &e) {
+            spdlog::critical("Installer terminating due to an unhandled exception: {}", e.what());
+        } catch (...) {
+            spdlog::critical("Installer terminating due to an unhandled exception of unknown type");
+        }
+    } else {
+        spdlog::critical("Installer terminating due to a call to std::terminate");
+    }
+    std::abort();
+}
 
 #if !defined(_M_ARM64)
 static bool isWindowsOnArm()
@@ -239,23 +236,53 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
 
     loadSystemLanguage(translator, &a);
 
+    // Incremental log in %ProgramData%\Windscribe: written entry-by-entry, so it survives
+    // a crash of this process and removal of the install folder during a failed upgrade.
+    // Append mode: this process is launched by the bootstrap, which already rotated the
+    // previous attempt's log and wrote its own prelude entries to the current file, so one
+    // install attempt reads as a single chronological log.
+    wsl::PersistentLog persistentLog;
+    persistentLog.open(L"installer.log", wsl::PersistentLog::OpenMode::Append);
+
     // Initialize logger
     auto formatter = log_utils::createJsonFormatter();
-    std::list<std::string> logEntries;
-    auto logCallback = [&logEntries, &formatter](const spdlog::details::log_msg &msg) {
+    auto logCallback = [&formatter, &persistentLog](const spdlog::details::log_msg &msg) {
         spdlog::memory_buf_t dest;
         formatter->format(msg, dest);
         std::string str(dest.data(), dest.size());
-        std::wstring_convert<std::codecvt_utf8_utf16<wchar_t >> converter;
-        std::wstring wstr = converter.from_bytes(str);
-        ::OutputDebugString(wstr.c_str());
-        logEntries.push_back(str);
+        persistentLog.write(str);
+        ::OutputDebugString(wsl::toWideString(str).c_str());
     };
 
     auto logger = spdlog::callback_logger_mt("installer", logCallback);
     logger->flush_on(spdlog::level::trace);
     spdlog::set_level(spdlog::level::trace);
     spdlog::set_default_logger(logger);
+
+    if (persistentLog.isOpen()) {
+        spdlog::info(L"Persistent installer log: {}", persistentLog.path());
+    } else {
+        spdlog::warn(L"Persistent installer log unavailable; see debug output for details");
+    }
+
+    // Record crashes in the log before dying; must be set after the logger is initialized.
+    ::SetUnhandledExceptionFilter(crashExceptionFilter);
+    std::set_terminate(terminateHandler);
+
+    // Both handlers above and the registry-held default logger funnel into logCallback,
+    // which references persistentLog and formatter on this stack frame.  Undo all of that
+    // on every exit path, before those locals are destroyed: otherwise a fault or a stray
+    // spdlog call during the static-destruction phase after WinMain returns would go
+    // through dangling references.  Runs before the locals' destructors (declared after
+    // them), so the teardown order is safe.
+    auto loggingTeardownGuard = wsl::wsScopeGuard([&logger] {
+        ::SetUnhandledExceptionFilter(nullptr);
+        std::set_terminate(nullptr);
+        logger->flush();
+        // Replacing the default logger also drops the old one from the spdlog registry.
+        // The sink-less replacement makes any late spdlog call a harmless no-op.
+        spdlog::set_default_logger(std::make_shared<spdlog::logger>("teardown"));
+    });
 
 #if !defined(_M_ARM64)
     if (isWindowsOnArm()) {
@@ -417,8 +444,6 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
     MainWindow w(isAdmin.value(), ops);
     w.show();
 
-    int ret = a.exec();
-    logger->flush();
-    writeLogFile(Settings::instance().getPath(), logEntries);
-    return ret;
+    // loggingTeardownGuard unregisters the crash handlers and flushes/releases the logger.
+    return a.exec();
 }

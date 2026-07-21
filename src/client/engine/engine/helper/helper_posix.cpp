@@ -30,7 +30,7 @@ void Helper_posix::setSplitTunnelingSettings(bool isActive, bool isExclude, bool
                 toStdVector(files), toStdVector(ips), toStdVector(hosts));
 }
 
-bool Helper_posix::sendConnectStatus(bool isConnected, bool isTerminateSocket, bool isKeepLocalSocket, const AdapterGatewayInfo &defaultAdapter, const AdapterGatewayInfo &vpnAdapter, const QString &connectedIp, const types::Protocol &protocol)
+bool Helper_posix::sendConnectStatus(bool isConnected, bool isTerminateSocket, bool isKeepLocalSocket, const AdapterGatewayInfo &defaultAdapter, const AdapterGatewayInfo &vpnAdapter, const QString &connectedIp, const types::Protocol &protocol, const QStringList &dnsWhitelistIps)
 {
     auto fillAdapterInfo = [](const AdapterGatewayInfo &a, ADAPTER_GATEWAY_INFO &out) {
         out.adapterName   = a.adapterName().toStdString();
@@ -64,8 +64,10 @@ bool Helper_posix::sendConnectStatus(bool isConnected, bool isTerminateSocket, b
     }
 
     fillAdapterInfo(defaultAdapter, defaultAdapterInfo);
+    // dnsWhitelistIps is appended last so that an older helper (which stops after remoteIp) simply
+    // ignores the trailing bytes, keeping the wire format backward compatible.
     auto result = sendCommand(HelperCommand::sendConnectStatus, isConnected, cmdProtocol, defaultAdapterInfo, vpnAdapterInfo,
-                types::IpAddress(connectedIp.toStdString()), vpnAdapter.remoteIp());
+                types::IpAddress(connectedIp.toStdString()), vpnAdapter.remoteIp(), toStdVector(dnsWhitelistIps));
     bool success = false;
     deserializeAnswer(result, success);
     return success;

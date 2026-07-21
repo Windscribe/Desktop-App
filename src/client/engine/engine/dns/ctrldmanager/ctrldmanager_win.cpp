@@ -2,11 +2,11 @@
 #include <QCoreApplication>
 #include <QDir>
 #include <QStandardPaths>
-#include "../connectors/openvpn/availableport.h"
-#include "utils/log/logger.h"
-#include "utils/ws_assert.h"
-#include "utils/winutils.h"
+#include "engine/connectionmanager/connectors/openvpn/availableport.h"
 #include "utils/executable_signature/executable_signature.h"
+#include "utils/log/logger.h"
+#include "utils/winutils.h"
+#include "utils/ws_assert.h"
 
 
 CtrldManager_win::CtrldManager_win(QObject *parent, bool isCreateLog) : ICtrldManager(parent, isCreateLog), bProcessStarted_(false)

@@ -331,6 +331,9 @@ private:
     void updateAppIconType(AppIconType type);
     AppIconType currentAppIconType_;
     bool bNotificationConnectedShowed_;
+    // Id of the outstanding WireGuard key-limit prompt, or 0 when none is pending; lets a disconnect
+    // dismiss exactly that prompt.
+    int wireGuardKeyLimitMessageId_ = 0;
     QElapsedTimer connectionElapsedTimer_;
     quint64 bytesTransferred_;
     bool bMovingWindow_;

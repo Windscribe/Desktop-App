@@ -2,18 +2,13 @@
 
 #include <spdlog/spdlog.h>
 
-IpForwardTable::IpForwardTable() : pIpForwardTable_(nullptr), maxMetric_(0)
+IpForwardTable::IpForwardTable() : pIpForwardTable_(nullptr)
 {
     DWORD dwStatus = GetIpForwardTable2(AF_UNSPEC, &pIpForwardTable_);
     if (dwStatus != NO_ERROR) {
         spdlog::error("IpForwardTable: GetIpForwardTable2 failed with error: {}", dwStatus);
         pIpForwardTable_ = nullptr;
         return;
-    }
-
-    for (ULONG i = 0; i < pIpForwardTable_->NumEntries; ++i) {
-        if (pIpForwardTable_->Table[i].Metric > maxMetric_)
-            maxMetric_ = pIpForwardTable_->Table[i].Metric;
     }
 }
 

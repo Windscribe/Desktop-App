@@ -178,6 +178,10 @@ struct ConnectStatus {
     bool isTerminateSocket;
     bool isKeepLocalSocket;
 
+    // Extra DNS IPs to permit through DNS-leak protection (ctrld listen IP plus its plain-DNS :53
+    // upstreams). These are NOT set as system resolvers; they only bypass the :53 leak block so
+    // ctrld can reach them. Consumed on macOS/Linux; Windows uses setCustomDnsWhileConnected instead.
+    std::vector<std::string> dnsWhitelistIps;
 };
 
 // Intent-based firewall description. The privileged helper is the sole author of the actual

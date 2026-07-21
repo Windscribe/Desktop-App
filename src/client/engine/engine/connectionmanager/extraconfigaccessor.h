@@ -6,7 +6,6 @@
 class ExtraConfigAccessor : public IExtraConfigAccessor
 {
 public:
-    bool logCtrld() override;
     int mtuOffsetOpenVpn(bool &hasValue) override;
     bool stealthExtraTLSPadding() override;
     QString remoteIp() override;

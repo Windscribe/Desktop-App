@@ -19,9 +19,7 @@ public:
 
     ULONG count() const;
     const MIB_IPFORWARD_ROW2 *getByIndex(ULONG ind) const;
-    ULONG getMaxMetric() const { return maxMetric_; }
 
 private:
     PMIB_IPFORWARD_TABLE2 pIpForwardTable_;
-    ULONG maxMetric_;
 };

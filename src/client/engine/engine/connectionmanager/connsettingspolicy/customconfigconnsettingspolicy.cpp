@@ -80,3 +80,11 @@ bool CustomConfigConnSettingsPolicy::hasProtocolChanged()
 {
     return false;
 }
+
+types::Protocol CustomConfigConnSettingsPolicy::preResolveProtocol() const
+{
+    if (locationInfo_->configType() == CUSTOM_CONFIG_WIREGUARD) {
+        return types::Protocol::WIREGUARD;
+    }
+    return types::Protocol::OPENVPN_UDP;
+}

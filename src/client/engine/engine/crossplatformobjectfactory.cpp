@@ -2,29 +2,29 @@
 #include "utils/log/logger.h"
 
 #ifdef Q_OS_WIN
-    #include "helper/helperbackend_win.h"
-    #include "networkdetectionmanager/networkdetectionmanager_win.h"
-    #include "firewall/firewallcontroller_win.h"
-    #include "macaddresscontroller/macaddresscontroller_win.h"
-    #include "connectionmanager/ctrldmanager/ctrldmanager_win.h"
     #include "connectionmanager/sleepevents_win.h"
     #include "connectivitydiagnostic/connectivitydiagnosticcollector_win.h"
+    #include "dns/ctrldmanager/ctrldmanager_win.h"
+    #include "firewall/firewallcontroller_win.h"
+    #include "helper/helperbackend_win.h"
+    #include "macaddresscontroller/macaddresscontroller_win.h"
+    #include "networkdetectionmanager/networkdetectionmanager_win.h"
 
 #elif defined Q_OS_MACOS
-    #include "helper/helperbackend_mac.h"
-    #include "networkdetectionmanager/networkdetectionmanager_mac.h"
-    #include "firewall/firewallcontroller_mac.h"
-    #include "macaddresscontroller/macaddresscontroller_mac.h"
-    #include "connectionmanager/ctrldmanager/ctrldmanager_posix.h"
     #include "connectionmanager/sleepevents_mac.h"
     #include "connectivitydiagnostic/connectivitydiagnosticcollector_mac.h"
+    #include "dns/ctrldmanager/ctrldmanager_posix.h"
+    #include "firewall/firewallcontroller_mac.h"
+    #include "helper/helperbackend_mac.h"
+    #include "macaddresscontroller/macaddresscontroller_mac.h"
+    #include "networkdetectionmanager/networkdetectionmanager_mac.h"
 #elif defined Q_OS_LINUX
-    #include "helper/helperbackend_linux.h"
-    #include "networkdetectionmanager/networkdetectionmanager_linux.h"
-    #include "firewall/firewallcontroller_linux.h"
-    #include "macaddresscontroller/macaddresscontroller_linux.h"
-    #include "connectionmanager/ctrldmanager/ctrldmanager_posix.h"
     #include "connectivitydiagnostic/connectivitydiagnosticcollector_linux.h"
+    #include "dns/ctrldmanager/ctrldmanager_posix.h"
+    #include "firewall/firewallcontroller_linux.h"
+    #include "helper/helperbackend_linux.h"
+    #include "macaddresscontroller/macaddresscontroller_linux.h"
+    #include "networkdetectionmanager/networkdetectionmanager_linux.h"
 #endif
 
 Helper *CrossPlatformObjectFactory::createHelper(QObject *parent)

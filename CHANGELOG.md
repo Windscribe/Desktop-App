@@ -1,3 +1,15 @@
+2.24.4 guinea pig (21/07/2026)
+All:
+   * Fixed Connected DNS split-DNS reachability to internal RFC1918 DNS servers while the VPN is active. #1914
+   * Fixed cached WireGuard config is not cleared when its keys are invalidated. #1916
+Windows:
+   * Improved installer and uninstaller logging. #1909
+   * Improved hosts-file edit diagnostics so failures to add or remove Windscribe hosts entries log the underlying reason. #1940
+   * Fixed inclusive split tunneling blocking native ISP IPv6 for non-included apps on dual-stack WireGuard connections. #1934
+Linux:
+   * Fixed local root escalation vulnerability involving OpenVPN inline-parser differences and root-execution-capable directives in custom OpenVPN configs. #1938
+
+
 2.24.3 guinea pig (16/07/2026)
 All:
    * Improved Custom SNI handling by keeping Custom SNI Domain visible/editable independently of the Protocol Tweaks mode, while still applying it only to Stealth/stunnel and WSTunnel connections. #1935

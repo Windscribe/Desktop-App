@@ -2,11 +2,6 @@
 
 #include "utils/extraconfig.h"
 
-bool ExtraConfigAccessor::logCtrld()
-{
-    return ExtraConfig::instance().getLogCtrld();
-}
-
 int ExtraConfigAccessor::mtuOffsetOpenVpn(bool &hasValue)
 {
     return ExtraConfig::instance().getMtuOffsetOpenVpn(hasValue);

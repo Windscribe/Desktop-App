@@ -26,6 +26,7 @@ set(SOURCES
     ../utils/utils.cpp
     ../utils/windscribepathcheck.cpp
     ../utils/archive.cpp
+    ../utils/persistent_log.cpp
     installer/installer.cpp
     installer/installer_shim.cpp
     installer/installer_utils.cpp

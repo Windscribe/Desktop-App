@@ -35,8 +35,13 @@ void Helper_win::setSplitTunnelingSettings(bool isActive, bool isExclude, bool i
 }
 
 bool Helper_win::sendConnectStatus(bool isConnected, bool isTerminateSocket, bool isKeepLocalSocket, const AdapterGatewayInfo &defaultAdapter, const AdapterGatewayInfo &vpnAdapter,
-                               const QString &connectedIp, const types::Protocol &protocol)
+                               const QString &connectedIp, const types::Protocol &protocol, const QStringList &dnsWhitelistIps)
 {
+    // Windows carries the DNS-leak whitelist through setCustomDnsWhileConnected (see
+    // ConnectionManager::doConnect / Helper_win::setCustomDnsIps), so the whitelist is intentionally
+    // not appended to the ConnectStatus wire format here — keeping it unchanged for Windows.
+    Q_UNUSED(dnsWhitelistIps);
+
     auto fillAdapterInfo = [](const AdapterGatewayInfo &a, ADAPTER_GATEWAY_INFO &out) {
         out.adapterName   = a.adapterName().toStdString();
         out.adapterNameV6 = a.adapterNameV6().toStdString();

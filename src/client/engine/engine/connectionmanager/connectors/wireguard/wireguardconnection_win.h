@@ -2,28 +2,22 @@
 
 #include <QScopedPointer>
 
-#include "engine/connectionmanager/connectors/iconnection.h"
-#include "engine/wireguardconfig/wireguardconfig.h"
+#include "engine/connectionmanager/connectors/wireguard/wireguardconnectionbase.h"
 #include "engine/helper/helper.h"
 #include "wireguardringlogger.h"
 #include "utils/win32handle.h"
 
-class WireGuardConnection : public IConnection
+class WireGuardConnection : public WireGuardConnectionBase
 {
     Q_OBJECT
 
 public:
-    WireGuardConnection(QObject *parent, Helper *helper);
+    WireGuardConnection(QObject *parent, Helper *helper, types::Protocol protocol, const WireGuardSessionParams &sessionParams);
     ~WireGuardConnection() override;
 
-    void startConnect(const StartConnectParams &params) override;
+    void startConnect() override;
     void startDisconnect() override;
     bool isDisconnected() const override;
-
-    ConnectionType getConnectionType() const override { return ConnectionType::WIREGUARD; }
-
-    void continueWithUsernameAndPassword(const QString & /*username*/, const QString & /*password*/) override {}
-    void continueWithPassword(const QString & /*password*/) override {}
 
 protected:
     void run() override;

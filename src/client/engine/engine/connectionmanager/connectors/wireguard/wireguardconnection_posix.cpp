@@ -11,7 +11,7 @@ class WireGuardConnectionImpl
 {
 public:
     explicit WireGuardConnectionImpl(WireGuardConnection *host);
-    void setConfig(const WireGuardConfig *wireGuardConfig, const QString &overrideDnsIp);
+    void setConfig(const WireGuardConfig &wireGuardConfig);
     void connect();
     void configure();
     void disconnect();
@@ -34,15 +34,9 @@ WireGuardConnectionImpl::WireGuardConnectionImpl(WireGuardConnection *host)
 {
 }
 
-void WireGuardConnectionImpl::setConfig(const WireGuardConfig *wireGuardConfig, const QString &overrideDnsIp)
+void WireGuardConnectionImpl::setConfig(const WireGuardConfig &wireGuardConfig)
 {
-    if (wireGuardConfig) {
-        config_ = *wireGuardConfig;
-        // override the DNS if we are using custom
-        if (!overrideDnsIp.isEmpty()) {
-            config_.setClientDnsAddress(overrideDnsIp);
-        }
-    }
+    config_ = wireGuardConfig;
 }
 
 void WireGuardConnectionImpl::connect()
@@ -107,8 +101,8 @@ bool WireGuardConnectionImpl::stopWireGuard()
     return true;
 }
 
-WireGuardConnection::WireGuardConnection(QObject *parent, Helper *helper)
-    : IConnection(parent),
+WireGuardConnection::WireGuardConnection(QObject *parent, Helper *helper, types::Protocol protocol, const WireGuardSessionParams &sessionParams)
+    : WireGuardConnectionBase(parent, protocol, sessionParams),
       helper_(helper),
       pimpl_(new WireGuardConnectionImpl(this)),
       current_state_(ConnectionState::DISCONNECTED),
@@ -122,12 +116,11 @@ WireGuardConnection::~WireGuardConnection()
     wait();
 }
 
-void WireGuardConnection::startConnect(const StartConnectParams &params)
+void WireGuardConnection::startConnect()
 {
-    const auto &p = std::get<WireGuardStartParams>(params);
-
-    if (p.wireGuardConfig->haveAmneziawgParam()) {
-        qCDebug(LOG_CONNECTION) << "Starting Amnezia WireGuard daemon with config:" << p.wireGuardConfig->amneziawgParamTitle();
+    // Config and endpoint were assembled by prepare(); the DNS override comes from the attempt environment.
+    if (config().haveAmneziawgParam()) {
+        qCDebug(LOG_CONNECTION) << "Starting Amnezia WireGuard daemon with config:" << config().amneziawgParamTitle();
     } else {
         qCDebug(LOG_CONNECTION) << "Starting WireGuard daemon";
     }
@@ -136,7 +129,7 @@ void WireGuardConnection::startConnect(const StartConnectParams &params)
     wait();
     do_stop_thread_ = false;
 
-    pimpl_->setConfig(p.wireGuardConfig, p.overrideDnsIp);
+    pimpl_->setConfig(dialConfig());
 
     adapterGatewayInfo_.clear();
     adapterGatewayInfo_.setAdapterName(pimpl_->getAdapterName());
@@ -146,7 +139,7 @@ void WireGuardConnection::startConnect(const StartConnectParams &params)
     // both as adapter IP and as gateway IP: WG is point-to-point and has no
     // separate gateway, so the client IP itself serves as the "via" target
     // for downstream routing consumers.
-    const QStringList ipEntries = p.wireGuardConfig->clientIpAddress().split(',', Qt::SkipEmptyParts);
+    const QStringList ipEntries = config().clientIpAddress().split(',', Qt::SkipEmptyParts);
     for (const QString &entry : ipEntries) {
         const QString ipPart = entry.section('/', 0, 0).trimmed();
         if (ipPart.isEmpty()) {
@@ -160,7 +153,7 @@ void WireGuardConnection::startConnect(const StartConnectParams &params)
     }
 
     // clientDnsAddress is also a comma-separated list (may be dual-stack).
-    const QStringList dnsEntries = p.wireGuardConfig->clientDnsAddress().split(',', Qt::SkipEmptyParts);
+    const QStringList dnsEntries = config().clientDnsAddress().split(',', Qt::SkipEmptyParts);
     for (const QString &dns : dnsEntries) {
         types::IpAddress ip(dns.trimmed().toStdString());
         if (ip.isValid()) {

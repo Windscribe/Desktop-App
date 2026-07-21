@@ -19,7 +19,10 @@
 #include "utils/networkingvalidation.h"
 #include "utils/executable_signature/executable_signature.h"
 #include "connectionmanager/connectionmanager.h"
+#include "connectionmanager/connsettingspolicy/emergencyconnsettingspolicy.h"
 #include "connectionmanager/finishactiveconnections.h"
+#include "connectionmanager/isleepevents.h"
+#include "dns/dnsconfigurator.h"
 #include "wireguardconfig/getwireguardconfig.h"
 #include "proxy/proxyservercontroller.h"
 #include "connectstatecontroller/connectstatecontroller.h"
@@ -66,10 +69,12 @@ using namespace wsnet;
 Engine::Engine() : QObject(nullptr),
     helper_(nullptr),
     firewallController_(nullptr),
+    dnsConfigurator_(nullptr),
     connectionManager_(nullptr),
     connectStateController_(nullptr),
     vpnShareController_(nullptr),
-    emergencyController_(nullptr),
+    emergencyConnectionManager_(nullptr),
+    emergencyDnsConfigurator_(nullptr),
     customConfigs_(nullptr),
     customOvpnAuthCredentialsStorage_(nullptr),
     networkDetectionManager_(nullptr),
@@ -693,9 +698,11 @@ void Engine::initPart2()
 
     customOvpnAuthCredentialsStorage_ = new CustomOvpnAuthCredentialsStorage();
 
-    connectionManager_ = new ConnectionManager(this, helper_, networkDetectionManager_, customOvpnAuthCredentialsStorage_);
+    dnsConfigurator_ = new DnsConfigurator(this, helper_);
+    dnsConfigurator_->setConnectedDnsInfo(engineSettings_.connectedDnsInfo());
+
+    connectionManager_ = new ConnectionManager(this, helper_, networkDetectionManager_, customOvpnAuthCredentialsStorage_, dnsConfigurator_);
     connectionManager_->setPacketSize(packetSize_);
-    connectionManager_->setConnectedDnsInfo(engineSettings_.connectedDnsInfo());
     connectionManager_->setFirewallAlwaysOnPlusEnabled(engineSettings_.firewallSettings().mode == FIREWALL_MODE_ALWAYS_ON_PLUS);
     connect(connectionManager_, &ConnectionManager::connected, this, &Engine::onConnectionManagerConnected);
     connect(connectionManager_, &ConnectionManager::disconnected, this, &Engine::onConnectionManagerDisconnected);
@@ -727,11 +734,20 @@ void Engine::initPart2()
     keepAliveManager_ = new KeepAliveManager(this, connectStateController_);
     keepAliveManager_->setEnabled(engineSettings_.isKeepAliveEnabled());
 
-    emergencyController_ = new EmergencyController(this, helper_);
-    emergencyController_->setPacketSize(packetSize_);
-    connect(emergencyController_, &EmergencyController::connected, this, &Engine::onEmergencyControllerConnected);
-    connect(emergencyController_, &EmergencyController::disconnected, this, &Engine::onEmergencyControllerDisconnected);
-    connect(emergencyController_, &EmergencyController::errorDuringConnection, this, &Engine::onEmergencyControllerError);
+    // Left at defaults (auto mode): no ctrld and no custom DNS during emergency connect; the macOS
+    // system DNS restore still works.
+    emergencyDnsConfigurator_ = new DnsConfigurator(this, helper_);
+    // The inert ISleepEvents keeps the emergency instance out of sleep/wake handling; the main
+    // ConnectionManager owns those transitions.
+    emergencyConnectionManager_ = new ConnectionManager(this, helper_, networkDetectionManager_, customOvpnAuthCredentialsStorage_,
+                                                        emergencyDnsConfigurator_, nullptr, nullptr,
+                                                        new EmergencyConnSettingsPolicyFactory(), new ISleepEvents(nullptr));
+    emergencyConnectionManager_->setPacketSize(packetSize_);
+    connect(emergencyConnectionManager_, &ConnectionManager::connected, this, &Engine::onEmergencyConnectionConnected);
+    connect(emergencyConnectionManager_, &ConnectionManager::disconnected, this, &Engine::onEmergencyConnectionDisconnected);
+    // Queued: the slot re-enters the ConnectionManager (clickDisconnect) and must not run inside its emit.
+    connect(emergencyConnectionManager_, &ConnectionManager::reconnecting, this, &Engine::onEmergencyConnectionReconnecting, Qt::QueuedConnection);
+    connect(emergencyConnectionManager_, &ConnectionManager::errorDuringConnection, this, &Engine::onEmergencyConnectionError);
 
     customConfigs_ = new customconfigs::CustomConfigs(this);
     customConfigs_->changeDir(engineSettings_.customOvpnConfigsPath());
@@ -883,8 +899,8 @@ void Engine::cleanupImpl(bool isUpdating)
     SplitTunnelExtensionManager::instance().stopExtension();
 #endif
 
-    if (emergencyController_) {
-        emergencyController_->blockingDisconnect();
+    if (emergencyConnectionManager_) {
+        emergencyConnectionManager_->blockingDisconnect(false);
     }
 
     if (connectionManager_) {
@@ -942,8 +958,10 @@ void Engine::cleanupImpl(bool isUpdating)
     SAFE_DELETE(loginWaitForNetworkConnectivity_);
     SAFE_DELETE(connectivityDiagnostic_);
     SAFE_DELETE(vpnShareController_);
-    SAFE_DELETE(emergencyController_);
+    SAFE_DELETE(emergencyConnectionManager_);
     SAFE_DELETE(connectionManager_);
+    SAFE_DELETE(dnsConfigurator_);
+    SAFE_DELETE(emergencyDnsConfigurator_);
     SAFE_DELETE(customConfigs_);
     SAFE_DELETE(customOvpnAuthCredentialsStorage_);
     SAFE_DELETE(firewallController_);
@@ -1315,8 +1333,8 @@ void Engine::setSettingsImpl(const types::EngineSettings &engineSettings)
     }
 
     if (isDnsWhileConnectedChanged) {
-        // tell connection manager about new settings (it will use them onConnect)
-        connectionManager_->setConnectedDnsInfo(engineSettings.connectedDnsInfo());
+        // tell the DNS configurator about new settings (it will use them onConnect)
+        dnsConfigurator_->setConnectedDnsInfo(engineSettings.connectedDnsInfo());
     }
 
     connectionManager_->setFirewallAlwaysOnPlusEnabled(engineSettings.firewallSettings().mode == FIREWALL_MODE_ALWAYS_ON_PLUS);
@@ -1477,18 +1495,9 @@ void Engine::onConnectionManagerConnected()
         }
     }
 
-    // For Windows we should to set the custom dns for the adapter explicitly except WireGuard protocol
+    dnsConfigurator_->applyWhileConnected(connectionManager_->getVpnAdapterInfo(),
+                                          connectionManager_->currentProtocol() == types::Protocol::WIREGUARD);
 #ifdef Q_OS_WIN
-    if ((connectionManager_->connectedDnsInfo().type == CONNECTED_DNS_TYPE_CUSTOM || connectionManager_->connectedDnsInfo().type == CONNECTED_DNS_TYPE_CONTROLD)
-        && connectionManager_->currentProtocol() != types::Protocol::WIREGUARD)
-    {
-        WS_ASSERT(connectionManager_->getVpnAdapterInfo().dnsServers().count() == 1);
-        if (!helper_->setCustomDnsWhileConnected( connectionManager_->getVpnAdapterInfo().ifIndex(),
-                                                    QString::fromStdString(connectionManager_->getVpnAdapterInfo().dnsServers().first().toString())))
-        {
-            qCCritical(LOG_CONNECTED_DNS) << "Failed to set Custom 'while connected' DNS";
-        }
-    }
     helper_->setIPv6EnabledInFirewall(false, engineSettings_.isAllowLanTraffic(), locationId_.isCustomConfigsLocation());
 #endif
 
@@ -1512,7 +1521,8 @@ void Engine::onConnectionManagerConnected()
 
     bool result = helper_->sendConnectStatus(true, engineSettings_.isTerminateSockets(), engineSettings_.isAllowLanTraffic(),
                                              connectionManager_->getDefaultAdapterInfo(), connectionManager_->getVpnAdapterInfo(),
-                                             connectionManager_->getLastConnectedIp(), lastConnectingProtocol_);
+                                             connectionManager_->getLastConnectedIp(), lastConnectingProtocol_,
+                                             dnsConfigurator_->dnsWhitelistIps());
     if (!result) {
         emit splitTunnelingStartFailed();
     }
@@ -1884,13 +1894,23 @@ void Engine::onConnectionManagerRequestPrivKeyPassword(const QString &pathCustom
 
 void Engine::emergencyConnectClickImpl()
 {
+    ConnectRequest req;
+    req.bli = QSharedPointer<EmergencyLocationInfo>::create();
+    req.proxySettings = ProxyServerController::instance().getCurrentProxySettings();
+    req.openVpn.ovpnConfig = QString::fromStdString(WSNet::instance()->emergencyConnect()->ovpnConfig());
+    req.openVpn.serverCredentials = api_responses::ServerCredentials(
+        QString::fromStdString(WSNet::instance()->emergencyConnect()->username()),
+        QString::fromStdString(WSNet::instance()->emergencyConnect()->password()));
+    req.openVpn.proxySettings = req.proxySettings;
+    req.openVpn.isEmergencyConnect = true;
     // Consider the isAPIAntiCensorship(ExtraTLSPadding) option for openvpn connections
-    emergencyController_->clickConnect(ProxyServerController::instance().getCurrentProxySettings(), engineSettings_.isAPIAntiCensorship());
+    req.openVpn.isAntiCensorship = engineSettings_.isAPIAntiCensorship();
+    emergencyConnectionManager_->clickConnect(req);
 }
 
 void Engine::emergencyDisconnectClickImpl()
 {
-    emergencyController_->clickDisconnect();
+    emergencyConnectionManager_->clickDisconnect();
 }
 
 void Engine::detectAppropriatePacketSizeImpl()
@@ -2192,32 +2212,32 @@ void Engine::onInstallUpdateFinished(int exitCode, QProcess::ExitStatus exitStat
 }
 #endif
 
-void Engine::onEmergencyControllerConnected()
+void Engine::onEmergencyConnectionConnected()
 {
-    qCDebug(LOG_BASIC) << "Engine::onEmergencyControllerConnected()";
+    qCDebug(LOG_BASIC) << "Engine::onEmergencyConnectionConnected()";
 
 #ifdef Q_OS_WIN
-    AdapterMetricsController_win::updateMetrics(emergencyController_->getVpnAdapterInfo().adapterName(), helper_);
+    AdapterMetricsController_win::updateMetrics(emergencyConnectionManager_->getVpnAdapterInfo().adapterName(), helper_);
 #endif
 
     // disable proxy
     WSNet::instance()->httpNetworkManager()->setProxySettings();
-    DnsServersConfiguration::instance().setConnectedState(emergencyController_->getVpnAdapterInfo().dnsServersAsStringList());
+    DnsServersConfiguration::instance().setConnectedState(emergencyConnectionManager_->getVpnAdapterInfo().dnsServersAsStringList());
     WSNet::instance()->dnsResolver()->setDnsServers(DnsServersConfiguration::instance().getCurrentDnsServers());
 #ifdef Q_OS_LINUX
     // Record the emergency tunnel's interface and DNS so the OS default DNS read scopes them out, matching
     // the normal connect path.
-    DnsUtils::setVpnContext(emergencyController_->getVpnAdapterInfo().adapterName(),
-                            emergencyController_->getVpnAdapterInfo().dnsServersAsStringList());
+    DnsUtils::setVpnContext(emergencyConnectionManager_->getVpnAdapterInfo().adapterName(),
+                            emergencyConnectionManager_->getVpnAdapterInfo().dnsServersAsStringList());
 #endif
 
     emergencyConnectStateController_->setConnectedState(LocationID());
     emit emergencyConnected();
 }
 
-void Engine::onEmergencyControllerDisconnected(DISCONNECT_REASON reason)
+void Engine::onEmergencyConnectionDisconnected(DISCONNECT_REASON reason)
 {
-    qCDebug(LOG_BASIC) << "Engine::onEmergencyControllerDisconnected(), reason =" << reason;
+    qCDebug(LOG_BASIC) << "Engine::onEmergencyConnectionDisconnected(), reason =" << reason;
 
     // enable proxy
     const auto &proxySettings = ProxyServerController::instance().getCurrentProxySettings();
@@ -2229,15 +2249,36 @@ void Engine::onEmergencyControllerDisconnected(DISCONNECT_REASON reason)
     DnsUtils::setVpnContext("", QStringList());
 #endif
 
+    // A non-user disconnect while still connecting means the endpoint list was exhausted (or the
+    // attempt cap expired); the emergency UI contract expects that as a single failure code. A drop
+    // from the connected state stays a plain disconnect (the pre-refactor controller's behavior) —
+    // it reaches here directly when the network is already down and the reconnect fails fast.
+    if (reason != DISCONNECTED_BY_USER && emergencyConnectStateController_->currentState() != CONNECT_STATE_CONNECTED) {
+        emergencyConnectStateController_->setDisconnectedState(DISCONNECTED_WITH_ERROR, CONNECT_ERROR::EMERGENCY_FAILED_CONNECT);
+        emit emergencyConnectError(CONNECT_ERROR::EMERGENCY_FAILED_CONNECT);
+        return;
+    }
+
     emergencyConnectStateController_->setDisconnectedState(reason, CONNECT_ERROR::NO_CONNECT_ERROR);
     emit emergencyDisconnected();
 }
 
-void Engine::onEmergencyControllerError(CONNECT_ERROR err)
+void Engine::onEmergencyConnectionReconnecting()
 {
-    qCDebug(LOG_BASIC) << "Engine::onEmergencyControllerError(), err =" << err;
-    emergencyConnectStateController_->setDisconnectedState(DISCONNECTED_WITH_ERROR, err);
-    emit emergencyConnectError(err);
+    // A drop from the connected state reports a disconnect to the UI instead of silently
+    // reconnecting in the background; failures while still connecting keep walking the endpoint
+    // list and must not be interrupted.
+    if (emergencyConnectStateController_->currentState() == CONNECT_STATE_CONNECTED) {
+        emergencyConnectionManager_->clickDisconnect();
+    }
+}
+
+void Engine::onEmergencyConnectionError(CONNECT_ERROR err)
+{
+    qCDebug(LOG_BASIC) << "Engine::onEmergencyConnectionError(), err =" << err;
+    // The emergency UI contract is a single failure code regardless of the underlying error.
+    emergencyConnectStateController_->setDisconnectedState(DISCONNECTED_WITH_ERROR, CONNECT_ERROR::EMERGENCY_FAILED_CONNECT);
+    emit emergencyConnectError(CONNECT_ERROR::EMERGENCY_FAILED_CONNECT);
 }
 
 void Engine::getRobertFiltersImpl()
@@ -2377,7 +2418,7 @@ void Engine::onPacketSizeControllerPacketSizeChanged(bool isAuto, int mtu)
 
     packetSize_ = packetSize;
     connectionManager_->setPacketSize(packetSize);
-    emergencyController_->setPacketSize(packetSize);
+    emergencyConnectionManager_->setPacketSize(packetSize);
 
     // update gui
     if (mtu    != engineSettings_.packetSize().mtu ||
@@ -2538,8 +2579,8 @@ void Engine::onApiResourcesManagerReadyForLogin(bool isLoginFromSavedSettings)
     api_responses::Notifications notifications(WSNet::instance()->apiResourcersManager()->notifications());
     emit notificationsUpdated(notifications.notifications());
 
-    if (!emergencyController_->isDisconnected()) {
-        emergencyController_->blockingDisconnect();
+    if (!emergencyConnectionManager_->isDisconnected()) {
+        emergencyConnectionManager_->blockingDisconnect(false);
         emergencyConnectStateController_->setDisconnectedState(DISCONNECTED_ITSELF, CONNECT_ERROR::NO_CONNECT_ERROR);
         emit emergencyDisconnected();
     }
@@ -2783,6 +2824,18 @@ void Engine::doConnect(bool bEmitAuthError)
 
     log_utils::Logger::instance().startConnectionMode(createConnectionId().toStdString());
 
+    ConnectRequest req;
+    req.openVpn.customSni = effectiveCustomSni();
+    req.openVpn.amneziawgPreset = effectiveAmneziawgPreset();
+    req.wireGuard.amneziawgParams = amneziawgParams_;
+    req.wireGuard.amneziawgPreset = req.openVpn.amneziawgPreset;
+    req.wireGuard.ipStackEgress = engineSettings_.ipStackEgress();
+    req.bli = bli;
+    req.proxySettings = ProxyServerController::instance().getCurrentProxySettings();
+    req.openVpn.proxySettings = req.proxySettings;
+    req.bEmitAuthError = bEmitAuthError;
+    req.preferredNodeHostname = pinnedNode_.first;
+
     if (isLoggedIn_)
     {
         api_responses::ServerCredentials ovpnCredentials(WSNet::instance()->apiResourcersManager()->serverCredentialsOvpn());
@@ -2810,38 +2863,19 @@ void Engine::doConnect(bool bEmitAuthError)
             connectionSettings = engineSettings_.connectionSettingsForNetworkInterface(networkInterface.networkOrSsid);
         }
 
-        ConnectRequest req;
-        req.ovpnConfig = ovpnConfig;
-        req.serverCredentialsOpenVpn = ovpnCredentials;
-        req.serverCredentialsIkev2 = ikev2Credentials;
-        req.bli = bli;
+        req.openVpn.ovpnConfig = ovpnConfig;
+        req.openVpn.serverCredentials = ovpnCredentials;
+        req.ikev2.serverCredentials = ikev2Credentials;
         req.connectionSettings = connectionSettings;
         req.portMap = portMap;
-        req.proxySettings = ProxyServerController::instance().getCurrentProxySettings();
-        req.bEmitAuthError = bEmitAuthError;
-        req.amneziawgParams = amneziawgParams_;
-        req.amneziawgPreset = effectiveAmneziawgPreset();
-        req.preferredNodeHostname = pinnedNode_.first;
-        req.customSni = effectiveCustomSni();
-        req.ipStackEgress = engineSettings_.ipStackEgress();
-        connectionManager_->clickConnect(req);
     }
     // for custom configs without login
     else
     {
         qCInfo(LOG_CONNECTION) << "Connecting to" << locationName_;
-        ConnectRequest req;
-        req.bli = bli;
         req.connectionSettings = engineSettings_.connectionSettingsForNetworkInterface(networkInterface.networkOrSsid);
-        req.proxySettings = ProxyServerController::instance().getCurrentProxySettings();
-        req.bEmitAuthError = bEmitAuthError;
-        req.amneziawgParams = amneziawgParams_;
-        req.amneziawgPreset = effectiveAmneziawgPreset();
-        req.preferredNodeHostname = pinnedNode_.first;
-        req.customSni = effectiveCustomSni();
-        req.ipStackEgress = engineSettings_.ipStackEgress();
-        connectionManager_->clickConnect(req);
     }
+    connectionManager_->clickConnect(req);
 }
 
 void Engine::doDisconnectRestoreStuff()

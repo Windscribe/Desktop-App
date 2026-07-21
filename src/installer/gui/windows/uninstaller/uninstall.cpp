@@ -99,16 +99,33 @@ bool Uninstaller::PerformUninstall(const P_DeleteUninstallDataFilesProc DeleteUn
 {
     spdlog::info(L"Starting the uninstallation process.");
 
+    bool isClean = true;
+
     ::CoInitialize(nullptr);
 
     const wstring keyName = ApplicationInfo::uninstallerRegistryKey(false);
     LSTATUS ret = Registry::RegDeleteKeyIncludingSubkeys1(HKEY_LOCAL_MACHINE, keyName.c_str());
 
-    if (ret != ERROR_SUCCESS) {
+    // ERROR_FILE_NOT_FOUND means the key was already absent, which is fine.
+    if (ret != ERROR_SUCCESS && ret != ERROR_FILE_NOT_FOUND) {
         spdlog::error(L"Uninstaller::PerformUninstall - failed to delete registry entry {} ({})", keyName, ret);
+        isClean = false;
     }
 
-    RemoveDir::DelTree(path_for_installation, true, true, true, false);
+    // Only a folder that is genuinely absent counts as already clean.  A failed stat for any
+    // other reason (e.g. ACCESS_DENIED from AV or a lingering handle) must not imply success:
+    // the folder is still there, so attempt the removal and reflect its outcome in isClean.
+    // Otherwise WinMain would treat the uninstall as clean and delete the ProgramData logs
+    // that are the diagnostics for the leftover.
+    const DWORD folderAttrs = ::GetFileAttributes(path_for_installation.c_str());
+    const DWORD folderStatError = (folderAttrs == INVALID_FILE_ATTRIBUTES) ? ::GetLastError() : ERROR_SUCCESS;
+    const bool folderAbsent = (folderAttrs == INVALID_FILE_ATTRIBUTES) &&
+        (folderStatError == ERROR_FILE_NOT_FOUND || folderStatError == ERROR_PATH_NOT_FOUND);
+    if (!folderAbsent && !RemoveDir::DelTree(path_for_installation, true, true, true, false)) {
+        spdlog::error(L"Uninstaller::PerformUninstall - failed to fully remove the installation folder {} (stat error {})",
+                      path_for_installation, folderStatError);
+        isClean = false;
+    }
 
     spdlog::info(L"Deleting shortcuts.");
 
@@ -124,19 +141,23 @@ bool Uninstaller::PerformUninstall(const P_DeleteUninstallDataFilesProc DeleteUn
 
     ::CoUninitialize();
 
-    spdlog::info(L"Uninstallation process succeeded.");
+    if (isClean) {
+        spdlog::info(L"Uninstallation process succeeded.");
+    } else {
+        spdlog::warn(L"Uninstallation process finished with errors.");
+    }
 
-    return true;
+    return isClean;
 }
 
-void Uninstaller::RunSecondPhase()
+bool Uninstaller::RunSecondPhase()
 {
     spdlog::info(L"Original Uninstall EXE: {}", UninstExeFile);
 
     if (!InitializeUninstall()) {
         spdlog::info(L"return after InitializeUninstall()");
         PostQuitMessage(0);
-        return;
+        return false;
     }
 
     UninstallHelper();
@@ -178,7 +199,7 @@ void Uninstaller::RunSecondPhase()
     UninstallTapWindows6Driver(path_for_installation);
 
     spdlog::info(L"perform uninstall");
-    PerformUninstall(&DeleteUninstallDataFiles, path_for_installation);
+    const bool uninstalledCleanly = PerformUninstall(&DeleteUninstallDataFiles, path_for_installation);
 
     // open uninstall screen in browser
     wstring userId;
@@ -233,6 +254,7 @@ void Uninstaller::RunSecondPhase()
     }
 
     PostQuitMessage(0);
+    return uninstalledCleanly;
 }
 
 bool Uninstaller::InitializeUninstall()

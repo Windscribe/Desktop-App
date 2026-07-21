@@ -2,7 +2,11 @@
 
 #include <chrono>
 
+#include "engine/connectionmanager/iextraconfigaccessor.h"
+#include "makeovpnfile.h"
+#include "makeovpnfilefromcustom.h"
 #include "types/enums.h"
+#include "types/global_consts.h"
 #include "utils/crashhandler.h"
 #include "utils/log/categories.h"
 #include "utils/networkingvalidation.h"
@@ -12,7 +16,6 @@
 
 #ifdef Q_OS_WIN
     #include "engine/connectionmanager/adapterutils_win.h"
-    #include "types/global_consts.h"
     #include "utils/extraconfig.h"
     #include "utils/winutils.h"
 #elif defined (Q_OS_LINUX)
@@ -27,21 +30,141 @@
 #endif
 
 
-OpenVPNConnection::OpenVPNConnection(QObject *parent, Helper *helper) : IConnection(parent), helper_(helper),
+OpenVPNConnection::OpenVPNConnection(QObject *parent, Helper *helper, types::Protocol protocol, const OpenVpnSessionParams &sessionParams) :
+    IConnection(parent, protocol), helper_(helper), sessionParams_(sessionParams),
     bStopThread_(false), connectRetryTimer_(io_context_), currentState_(STATUS_DISCONNECTED),
     isAllowFirewallAfterCustomConfigConnection_(false), privKeyPassword_("")
 {
+    capabilities_ = openVpnConnectorCapabilities();
+
     connect(&killControllerTimer_, &QTimer::timeout, this, &OpenVPNConnection::onKillControllerTimer);
+
+    stunnelManager_ = new StunnelManager(this, helper);
+    connect(stunnelManager_, &StunnelManager::stunnelStarted, this, &OpenVPNConnection::onWrapperStarted);
+
+    wstunnelManager_ = new WstunnelManager(this, helper);
+    connect(wstunnelManager_, &WstunnelManager::wstunnelStarted, this, &OpenVPNConnection::onWrapperStarted);
 }
 
 OpenVPNConnection::~OpenVPNConnection()
 {
     wait();
+    // Backstop for a connector deleted without teardown(); killProcess is a no-op if nothing was spawned.
+    stunnelManager_->killProcess();
+    wstunnelManager_->killProcess();
 }
 
-void OpenVPNConnection::startConnect(const StartConnectParams &params)
+void OpenVPNConnection::prepare(const CurrentConnectionDescr &descr, const AttemptEnvironment &env)
 {
-    const auto &p = std::get<OpenVpnStartParams>(params);
+    descr_ = descr;
+    env_ = env;
+    protocol_ = descr.protocol;
+
+    if (descr.connectionNodeType == CONNECTION_NODE_CUSTOM_CONFIG) {
+        isCustomConfig_ = true;
+        // Credentials for custom configs arrive through the user-input path when OpenVPN asks for them.
+        username_.clear();
+        password_.clear();
+
+        MakeOVPNFileFromCustom makeOVPNFile;
+        if (!makeOVPNFile.generate(descr.ovpnData, descr.ip, descr.remoteCmdLine, env.primaryDnsServer)) {
+            qCCritical(LOG_CONNECTION) << "Failed create ovpn config for custom ovpn file:" << descr.customConfigFilename;
+            emit prepareFailed(CONNECT_ERROR::CANNOT_OPEN_CUSTOM_CONFIG);
+            return;
+        }
+        config_ = makeOVPNFile.config();
+        emit prepared();
+        return;
+    }
+
+    isCustomConfig_ = false;
+    if (descr.connectionNodeType == CONNECTION_NODE_STATIC_IPS) {
+        username_ = descr.username;
+        password_ = descr.password;
+    } else {
+        username_ = sessionParams_.serverCredentials.username();
+        password_ = sessionParams_.serverCredentials.password();
+    }
+
+    int mss = 0;
+    if (!env.packetSize.isAutomatic) {
+        bool advParamsOpenVpnExists = false;
+        int openVpnOffset = env.extraConfig->mtuOffsetOpenVpn(advParamsOpenVpnExists);
+        if (!advParamsOpenVpnExists) {
+            openVpnOffset = MTU_OFFSET_OPENVPN;
+        }
+
+        mss = env.packetSize.mtu - openVpnOffset;
+
+        if (mss <= 0) {
+            mss = 0;
+            qCInfo(LOG_PACKET_SIZE) << "Using default MSS - OpenVpn ConnectionManager MSS too low: " << mss;
+        } else {
+            qCInfo(LOG_PACKET_SIZE) << "OpenVpn connection MSS: " << mss;
+        }
+    } else {
+        qCInfo(LOG_PACKET_SIZE) << "Packet size mode auto - using default MSS (ConnectionManager)";
+    }
+
+    uint localPort = 0;
+    if (descr.protocol.isStunnelOrWStunnelProtocol()) {
+        if (descr.protocol == types::Protocol::STUNNEL) {
+            localPort = stunnelManager_->getPort();
+        } else {
+            localPort = wstunnelManager_->getPort();
+        }
+    }
+
+    MakeOVPNFile makeOVPNFile;
+    const bool bOvpnSuccess = makeOVPNFile.generate(
+        sessionParams_.ovpnConfig, descr.ip, descr.protocol, descr.port, localPort, mss,
+        QString::fromStdString(env.defaultAdapterInfo.gatewayV4().toString()), descr.verifyX509name,
+        env.primaryDnsServer, !sessionParams_.amneziawgPreset.isEmpty() || sessionParams_.isAntiCensorship,
+        sessionParams_.amneziawgPreset);
+    if (!bOvpnSuccess) {
+        qCCritical(LOG_CONNECTION) << "Failed create ovpn config";
+        emit prepareFailed(CONNECT_ERROR::EXE_SUBPROCESS_FAILED);
+        return;
+    }
+    config_ = makeOVPNFile.config();
+
+    if (descr.protocol == types::Protocol::STUNNEL) {
+        if (!stunnelManager_->runProcess(descr.ip, descr.port,
+                                         env.extraConfig->stealthExtraTLSPadding() || !sessionParams_.amneziawgPreset.isEmpty(),
+                                         sessionParams_.customSni)) {
+            emit prepareFailed(CONNECT_ERROR::EXE_SUBPROCESS_FAILED);
+        }
+        // prepared() is emitted from onWrapperStarted once the wrapper is up.
+        return;
+    } else if (descr.protocol == types::Protocol::WSTUNNEL) {
+        if (!wstunnelManager_->runProcess(descr.ip, descr.port, sessionParams_.customSni)) {
+            emit prepareFailed(CONNECT_ERROR::EXE_SUBPROCESS_FAILED);
+        }
+        return;
+    }
+
+    emit prepared();
+}
+
+void OpenVPNConnection::teardown()
+{
+#ifdef Q_OS_MACOS
+    if (isDialed_) {
+        helper_->deleteRoute(descr_.ip, 32, QString::fromStdString(env_.defaultAdapterInfo.gatewayV4().toString()));
+        isDialed_ = false;
+    }
+#endif
+    stunnelManager_->killProcess();
+    wstunnelManager_->killProcess();
+}
+
+void OpenVPNConnection::onWrapperStarted()
+{
+    emit prepared();
+}
+
+void OpenVPNConnection::startConnect()
+{
     WS_ASSERT(getCurrentState() == STATUS_DISCONNECTED);
 
     qCDebug(LOG_CONNECTION) << "connectOVPN";
@@ -51,12 +174,9 @@ void OpenVPNConnection::startConnect(const StartConnectParams &params)
     bStopThread_ = false;
 
     setCurrentState(STATUS_CONNECTING);
-    config_ = p.config;
-    username_ = p.username;
-    password_ = p.password;
-    proxySettings_ = p.proxySettings;
+    // The connection state (config, credentials, proxy) was populated by prepare().
     isAllowFirewallAfterCustomConfigConnection_ = false;
-    isCustomConfig_ = p.isCustomConfig;
+    isDialed_ = true;
 
     stateVariables_.reset();
     connectionAdapterInfo_.clear();
@@ -89,6 +209,19 @@ bool OpenVPNConnection::isDisconnected() const
 bool OpenVPNConnection::isAllowFirewallAfterCustomConfigConnection() const
 {
     return isAllowFirewallAfterCustomConfigConnection_;
+}
+
+void OpenVPNConnection::continueWithUserInput(const UserInputResponse &response)
+{
+    if (const auto *usernameResponse = std::get_if<UsernameResponse>(&response)) {
+        continueWithUsernameAndPassword(usernameResponse->username, usernameResponse->password);
+    } else if (const auto *passwordResponse = std::get_if<PasswordResponse>(&response)) {
+        continueWithPassword(passwordResponse->password);
+    } else if (const auto *privKeyPasswordResponse = std::get_if<PrivKeyPasswordResponse>(&response)) {
+        continueWithPrivKeyPassword(privKeyPasswordResponse->password);
+    }
+    // A response meant for another attempt's connector (e.g. a stale reply answered after a
+    // reconnect changed the protocol) is silently ignored.
 }
 
 void OpenVPNConnection::continueWithUsernameAndPassword(const QString &username, const QString &password)
@@ -141,14 +274,15 @@ bool OpenVPNConnection::runOpenVPN()
 
     // OpenVPN will only allow use of the proxy settings if the protocol is TCP.  Only send them to the helper
     // if they can be used, to avoid it inadvertently applying them to an unsupported protocol.
-    if (protocol_ == types::Protocol::OPENVPN_TCP) {
-        if (proxySettings_.option() == PROXY_OPTION_HTTP) {
-            httpProxy = proxySettings_.address();
-            httpPort = proxySettings_.getPort();
-        } else if (proxySettings_.option() == PROXY_OPTION_SOCKS) {
-            socksProxy = proxySettings_.address();
-            socksPort = proxySettings_.getPort();
-        } else if (proxySettings_.option() == PROXY_OPTION_AUTODETECT) {
+    // Custom configs and emergency sessions never forward the proxy, even on TCP.
+    if (!isCustomConfig_ && !sessionParams_.isEmergencyConnect && descr_.protocol == types::Protocol::OPENVPN_TCP) {
+        if (sessionParams_.proxySettings.option() == PROXY_OPTION_HTTP) {
+            httpProxy = sessionParams_.proxySettings.address();
+            httpPort = sessionParams_.proxySettings.getPort();
+        } else if (sessionParams_.proxySettings.option() == PROXY_OPTION_SOCKS) {
+            socksProxy = sessionParams_.proxySettings.address();
+            socksPort = sessionParams_.proxySettings.getPort();
+        } else if (sessionParams_.proxySettings.option() == PROXY_OPTION_AUTODETECT) {
             WS_ASSERT(false);
         }
     }
@@ -177,12 +311,14 @@ void OpenVPNConnection::run()
     BIND_CRASH_HANDLER_FOR_THREAD();
 #ifdef Q_OS_WIN
     // NOTE: The emergency connect OpenVPN server is old-old and generates data packets not supported by the DCO driver.
-    const bool useDCODriver = !isCustomConfig_ && !isEmergencyConnect_ && ExtraConfig::instance().useOpenVpnDCO() && !(proxySettings_.isProxyEnabled() && protocol_ == types::Protocol::OPENVPN_TCP);
+    const bool useDCODriver = !isCustomConfig_ && !sessionParams_.isEmergencyConnect && ExtraConfig::instance().useOpenVpnDCO() && !(sessionParams_.proxySettings.isProxyEnabled() && protocol_ == types::Protocol::OPENVPN_TCP);
     helper_->createOpenVpnAdapter(useDCODriver);
     helper_->enableDnsLeaksProtection();
 #elif defined (Q_OS_LINUX)
     // NOTE: The emergency connect OpenVPN server is old-old and generates data packets not supported by the DCO driver.
-    const bool useDCODriver = !isEmergencyConnect_ && ExtraConfig::instance().useOpenVpnDCO() && !(proxySettings_.isProxyEnabled() && protocol_ == types::Protocol::OPENVPN_TCP);
+    // Custom configs never forward the proxy (see runOpenVPN), so they cannot hit the DCO/proxy conflict.
+    const bool useDCODriver = !sessionParams_.isEmergencyConnect && ExtraConfig::instance().useOpenVpnDCO() &&
+                              !(!isCustomConfig_ && sessionParams_.proxySettings.isProxyEnabled() && protocol_ == types::Protocol::OPENVPN_TCP);
     helper_->setOpenVpnDcoMode(useDCODriver);
 #endif
 
@@ -419,7 +555,7 @@ void OpenVPNConnection::handleRead(const boost::system::error_code &err, size_t 
             }
             else if (isCustomConfig_)
             {
-                emit requestUsername();
+                emit userInputRequired(UserInputType::Username);
             }
             else
             {
@@ -437,19 +573,19 @@ void OpenVPNConnection::handleRead(const boost::system::error_code &err, size_t 
             }
             else
             {
-                emit requestPrivKeyPassword();
+                emit userInputRequired(UserInputType::PrivKeyPassword);
             }
         }
         else if (serverReply.contains("PASSWORD:Need 'HTTP Proxy' username/password", Qt::CaseInsensitive))
         {
             char message[1024];
-            snprintf(message, 1024, "username \"HTTP Proxy\" \"%s\"\n", sanitizeString(proxySettings_.getUsername()).toUtf8().data());
+            snprintf(message, 1024, "username \"HTTP Proxy\" \"%s\"\n", sanitizeString(sessionParams_.proxySettings.getUsername()).toUtf8().data());
             boost::asio::write(*stateVariables_.socket, boost::asio::buffer(message,strlen(message)), boost::asio::transfer_all(), write_error);
         }
         else if (serverReply.contains("'HTTP Proxy' username entered, but not yet verified", Qt::CaseInsensitive))
         {
             char message[1024];
-            snprintf(message, 1024, "password \"HTTP Proxy\" \"%s\"\n", sanitizeString(proxySettings_.getPassword()).toUtf8().data());
+            snprintf(message, 1024, "password \"HTTP Proxy\" \"%s\"\n", sanitizeString(sessionParams_.proxySettings.getPassword()).toUtf8().data());
             boost::asio::write(*stateVariables_.socket, boost::asio::buffer(message, strlen(message)), boost::asio::transfer_all(), write_error);
         }
         else if (serverReply.contains("'Auth' username entered, but not yet verified", Qt::CaseInsensitive))
@@ -464,7 +600,7 @@ void OpenVPNConnection::handleRead(const boost::system::error_code &err, size_t 
             }
             else if (isCustomConfig_)
             {
-                emit requestPassword();
+                emit userInputRequired(UserInputType::Password);
             }
             else
             {
@@ -738,11 +874,6 @@ void OpenVPNConnection::continueWithPrivKeyPasswordImpl()
     checkErrorAndContinue(write_error, false);
 }
 
-void OpenVPNConnection::setPrivKeyPassword(const QString &password)
-{
-    privKeyPassword_ = password;
-}
-
 // Sanitize a string for use in an OpenVPN management interface command.
 // Newlines and carriage returns are stripped (they would break the line-oriented protocol),
 // and backslashes, double-quotes, and tabs are escaped per the OpenVPN management-notes.txt
@@ -896,7 +1027,3 @@ bool OpenVPNConnection::parseConnectedSuccessReply(const QString &reply, QString
     return true;
 }
 
-void OpenVPNConnection::setIsEmergencyConnect(bool isEmergencyConnect)
-{
-    isEmergencyConnect_ = isEmergencyConnect;
-}

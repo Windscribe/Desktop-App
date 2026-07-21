@@ -52,6 +52,49 @@ bool ConnectedDnsInfo::isCustomIPv4Address() const
     return type == CONNECTED_DNS_TYPE_CUSTOM && NetworkingValidation::isIp(upStream1) && isSplitDns == false;
 }
 
+QStringList ConnectedDnsInfo::ctrldPlainUpstreamIps() const
+{
+    // Extract the bare IP of a plain-DNS upstream, or an empty string if it isn't one (DoH/DoT URLs
+    // and hostnames return empty). ctrld accepts an optional :port for plain-DNS upstreams, so both
+    // "10.0.0.1:53" and the bracketed IPv6 form "[2001:db8::1]:53" are handled. A naive split on ':'
+    // must NOT be used because it mangles bare IPv6 literals (e.g. "2001:db8::1" -> "2001").
+    const auto bareIp = [](const QString &s) -> QString {
+        // Already a bare IPv4/IPv6 literal (this is the common case; the UI stores upstreams without
+        // a port). Handles bare IPv6 correctly.
+        if (NetworkingValidation::isIp(s))
+            return s;
+        // Bracketed IPv6 with port: "[2001:db8::1]:53".
+        if (s.startsWith('[')) {
+            const int close = s.indexOf(']');
+            if (close > 1) {
+                const QString inner = s.mid(1, close - 1);
+                if (NetworkingValidation::isIp(inner))
+                    return inner;
+            }
+            return QString();
+        }
+        // IPv4 with port: "10.0.0.1:53". A single ':' can only be a port separator for IPv4; bare
+        // IPv6 (which contains multiple ':') is already handled by the isIp() check above.
+        if (s.count(':') == 1) {
+            const QString host = s.section(':', 0, 0);
+            if (NetworkingValidation::isIp(host))
+                return host;
+        }
+        return QString();
+    };
+
+    QStringList ips;
+    const QString ip1 = bareIp(upStream1);
+    if (!ip1.isEmpty())
+        ips << ip1;
+    if (isSplitDns) {
+        const QString ip2 = bareIp(upStream2);
+        if (!ip2.isEmpty())
+            ips << ip2;
+    }
+    return ips;
+}
+
 void ConnectedDnsInfo::normalize()
 {
     // A custom DNS upstream given as the wildcard listen address is reached on loopback, so we

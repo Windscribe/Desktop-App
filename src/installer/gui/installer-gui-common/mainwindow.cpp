@@ -16,9 +16,26 @@
 #include "../windows/installer/installer/installer_utils.h"
 #include "../windows/utils/applicationinfo.h"
 #include "../windows/utils/path.h"
+#include "../windows/utils/persistent_log.h"
 #include "../windows/utils/windscribepathcheck.h"
 #include "../windows/utils/utils.h"
+#else
+#include <QDir>
 #endif
+
+namespace
+{
+
+QString installerLogPath()
+{
+#ifdef Q_OS_WIN
+    return QString::fromStdWString(wsl::PersistentLog::defaultPath(L"installer.log"));
+#else
+    return QDir::homePath() + "/Library/Application Support/Windscribe/Windscribe2/installer.log";
+#endif
+}
+
+}
 
 MainWindow::MainWindow(bool isAdmin, InstallerOptions &options) : QWidget(nullptr), options_(options)
 {
@@ -253,9 +270,21 @@ void MainWindow::onInstallerCallback()
             errorMsg = tr("Windscribe is unable to install its helper service. Please manually uninstall Windscribe and try again. If this issue persists, please contact our Technical Support.");
         } else if (error == wsl::ERROR_HELPER_START) {
             errorMsg = tr("Windscribe is unable to start its helper service. Third-party security/firewall software may be the cause. If this is not the case, please contact our Technical Support.");
+        } else if (error == wsl::ERROR_EXTRACT_LAUNCH) {
+            errorMsg = tr("The installer could not launch its file extraction utility. Antivirus software or Windows security features (e.g. Smart App Control) may be blocking the installation.");
+        } else if (error == wsl::ERROR_EXTRACT_FAILED) {
+            errorMsg = tr("The application files could not be extracted to the installation folder. A file may be locked by another program, the disk may be full, or the downloaded installer may be damaged. If this issue persists, download the installer again and retry.");
         } else {
             errorMsg = tr("The installation could not be completed successfully. Please contact our Technical Support.");
         }
+
+        // Always append the error code and log location: a screenshot of this dialog is
+        // then enough for support to identify the failure, even if the user never sends
+        // the log itself.
+        errorMsg += QString("\n\n%1\n%2")
+            .arg(tr("Error code: %1").arg(wsl::errorCodeName(error)))
+            .arg(tr("Log: %1").arg(installerLogPath()));
+
         // No UI created when running in silent mode.
         if (options_.silent) {
             // On Windows this will go to the system debugger (e.g. Debug View app).

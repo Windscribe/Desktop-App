@@ -1,21 +1,17 @@
 #include "archive.h"
 
-#include <codecvt>
 #include <filesystem>
 #include <sstream>
 #include <system_error>
+#include <thread>
 
 #include <windows.h>
 
+#include "wide_string.h"
 #include "win32handle.h"
 #include "wsscopeguard.h"
 
 namespace wsl {
-
-static std::wstring to_wstring(const std::string &str) {
-    std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-    return converter.from_bytes(str);
-}
 
 Archive::Archive()
 {
@@ -47,54 +43,58 @@ bool Archive::extractDecompressor(const std::wstring &extractFolder)
         return true;
     }
     catch (std::system_error &ex) {
-        log(to_wstring(ex.what()));
+        log(toWideString(ex.what()));
         return false;
     }
 }
 
-bool Archive::extract(const std::wstring &resourceName, const std::wstring &archiveName,
-                      const std::wstring &extractFolder, const std::wstring &targetFolder)
+ArchiveResult Archive::extract(const std::wstring &resourceName, const std::wstring &archiveName,
+                               const std::wstring &extractFolder, const std::wstring &targetFolder)
 {
-    bool isExtracted = false;
+    ArchiveResult result;
 
     try {
         if (!std::filesystem::exists(extractor(extractFolder))) {
-            log(L"The extraction utility was not found in " + extractFolder);
-            return false;
+            result.status = ArchiveResult::Status::LaunchFailed;
+            result.errorText = L"The extraction utility was not found in " + extractFolder;
+            log(result.errorText);
+            return result;
         }
 
         extractArchiveFromResource(resourceName, archiveName, extractFolder);
-        extractFiles(archiveName, extractFolder, targetFolder);
-        isExtracted = true;
+        return extractFiles(archiveName, extractFolder, targetFolder);
     }
     catch (std::system_error &ex) {
-        log(to_wstring(ex.what()));
+        result.status = ArchiveResult::Status::ExtractFailed;
+        result.errorText = toWideString(ex.what());
+        log(result.errorText);
+        return result;
     }
-
-    return isExtracted;
 }
 
-bool Archive::extract(const std::wstring &resourceName, const std::wstring &archiveName, const std::wstring &extractFolder,
-                      const std::wstring &filename, const std::wstring &targetFolder)
+ArchiveResult Archive::extract(const std::wstring &resourceName, const std::wstring &archiveName, const std::wstring &extractFolder,
+                               const std::wstring &filename, const std::wstring &targetFolder)
 {
-    bool isExtracted = false;
+    ArchiveResult result;
 
     try {
         // The extractor utility is expected to exist in the extractFolder, placed there by the bootstrapper.
         if (!std::filesystem::exists(extractor(extractFolder))) {
-            log(L"The extraction utility was not found in " + extractFolder);
-            return false;
+            result.status = ArchiveResult::Status::LaunchFailed;
+            result.errorText = L"The extraction utility was not found in " + extractFolder;
+            log(result.errorText);
+            return result;
         }
 
         extractArchiveFromResource(resourceName, archiveName, extractFolder);
-        extractFile(archiveName, extractFolder, filename, targetFolder);
-        isExtracted = true;
+        return extractFile(archiveName, extractFolder, filename, targetFolder);
     }
     catch (std::system_error &ex) {
-        log(to_wstring(ex.what()));
+        result.status = ArchiveResult::Status::ExtractFailed;
+        result.errorText = toWideString(ex.what());
+        log(result.errorText);
+        return result;
     }
-
-    return isExtracted;
 }
 
 void Archive::extractArchiveFromResource(const std::wstring &resourceName, const std::wstring &archiveName, const std::wstring &extractFolder)
@@ -145,8 +145,8 @@ void Archive::extractArchiveFromResource(const std::wstring &resourceName, const
     fflush(fileHandle);
 }
 
-void Archive::extractFile(const std::wstring &archiveName, const std::wstring &extractFolder,
-                          const std::wstring &filename, const std::wstring &targetFolder)
+ArchiveResult Archive::extractFile(const std::wstring &archiveName, const std::wstring &extractFolder,
+                                   const std::wstring &filename, const std::wstring &targetFolder)
 {
     log(L"Extracting " + filename + L" from " + archiveName);
 
@@ -156,10 +156,10 @@ void Archive::extractFile(const std::wstring &archiveName, const std::wstring &e
     std::wostringstream cmd;
     cmd << L"\"" << extractor(extractFolder) << L"\" e -y -bb3 -bd -o\"" << targetFolder << "\" \"" << archive.c_str() << L"\" " << filename;
 
-    executeCmd(cmd.str(), extractFolder);
+    return executeCmd(cmd.str(), extractFolder);
 }
 
-void Archive::extractFiles(const std::wstring &archiveName, const std::wstring &extractFolder, const std::wstring &targetFolder)
+ArchiveResult Archive::extractFiles(const std::wstring &archiveName, const std::wstring &extractFolder, const std::wstring &targetFolder)
 {
     log(L"Extracting files from " + archiveName);
 
@@ -169,20 +169,37 @@ void Archive::extractFiles(const std::wstring &archiveName, const std::wstring &
     std::wostringstream cmd;
     cmd << L"\"" << extractor(extractFolder) << L"\" x -y -bb3 -bd -o\"" << targetFolder << "\" \"" << archive.c_str() << L"\"";
 
-    executeCmd(cmd.str(), extractFolder);
+    return executeCmd(cmd.str(), extractFolder);
 }
 
-void Archive::executeCmd(const std::wstring &cmd, const std::wstring &workingDir)
+ArchiveResult Archive::executeCmd(const std::wstring &cmd, const std::wstring &workingDir)
 {
+    ArchiveResult opResult;
+
     SECURITY_ATTRIBUTES sa;
     ::ZeroMemory(&sa, sizeof(sa));
     sa.nLength = sizeof(sa);
     sa.bInheritHandle = TRUE;
 
-    Win32Handle pipeRead;
-    Win32Handle pipeWrite;
-    if (!::CreatePipe(pipeRead.data(), pipeWrite.data(), &sa, 0)) {
-        throw std::system_error(::GetLastError(), std::system_category(), "executeCmd CreatePipe failed");
+    // 7z writes its progress/file listing to stdout and error messages to stderr.
+    // Keep them in separate pipes so the error text can be reported as-is, without
+    // having to parse it out of the (large) stdout stream.
+    Win32Handle stdoutRead;
+    Win32Handle stdoutWrite;
+    if (!::CreatePipe(stdoutRead.data(), stdoutWrite.data(), &sa, 0)) {
+        opResult.status = ArchiveResult::Status::ExtractFailed;
+        opResult.errorText = L"executeCmd CreatePipe (stdout) failed: " + std::to_wstring(::GetLastError());
+        log(opResult.errorText);
+        return opResult;
+    }
+
+    Win32Handle stderrRead;
+    Win32Handle stderrWrite;
+    if (!::CreatePipe(stderrRead.data(), stderrWrite.data(), &sa, 0)) {
+        opResult.status = ArchiveResult::Status::ExtractFailed;
+        opResult.errorText = L"executeCmd CreatePipe (stderr) failed: " + std::to_wstring(::GetLastError());
+        log(opResult.errorText);
+        return opResult;
     }
 
     STARTUPINFO si;
@@ -190,8 +207,8 @@ void Archive::executeCmd(const std::wstring &cmd, const std::wstring &workingDir
     si.cb = sizeof(si);
     si.dwFlags |= STARTF_USESTDHANDLES;
     si.hStdInput = NULL;
-    si.hStdError = pipeWrite.getHandle();
-    si.hStdOutput = pipeWrite.getHandle();
+    si.hStdError = stderrWrite.getHandle();
+    si.hStdOutput = stdoutWrite.getHandle();
 
     // As per the Win32 docs; the Unicode version of CreateProcess 'may' modify its lpCommandLine
     // parameter.  Therefore, this parameter cannot be a pointer to read-only memory (such as a
@@ -210,15 +227,52 @@ void Archive::executeCmd(const std::wstring &cmd, const std::wstring &workingDir
     auto result = ::CreateProcess(NULL, exec.get(), NULL, NULL, TRUE, CREATE_NO_WINDOW | NORMAL_PRIORITY_CLASS, NULL, cwd, &si, &pi);
 
     if (result == FALSE) {
-        throw std::system_error(::GetLastError(), std::system_category(), "executeCmd CreateProcess failed");
+        opResult.status = ArchiveResult::Status::LaunchFailed;
+        opResult.errorText = L"executeCmd CreateProcess failed: " + std::to_wstring(::GetLastError());
+        log(opResult.errorText);
+        return opResult;
     }
 
     ::CloseHandle(pi.hThread);
     Win32Handle process(pi.hProcess);
 
+    // Close our copies of the write ends now that the child holds its own inherited copies.
+    // ReadFile on the read ends then returns EOF once the child exits (or closes its ends),
+    // instead of blocking forever on our still-open write handles.
+    stdoutWrite.closeHandle();
+    stderrWrite.closeHandle();
+
+    auto readPipe = [](HANDLE pipe) {
+        char buf[1024];
+        std::string output;
+        while (true) {
+            DWORD bytesRead;
+            if (::ReadFile(pipe, buf, sizeof(buf), &bytesRead, NULL) == FALSE || bytesRead == 0) {
+                break;
+            }
+            output.append(buf, bytesRead);
+        }
+        return output;
+    };
+
+    // Drain both pipes to EOF *while the child runs*, and only wait for it to exit
+    // afterwards.  Waiting first would deadlock: a pipe's buffer is only a few KB, and
+    // with -bb3 7z logs every extracted file, so once the buffer fills the child blocks
+    // in write and never exits.  stderr is drained on its own thread for the same
+    // reason: the child stalls if either pipe fills while we are reading the other one.
+    std::string errorOutput;
+    std::thread stderrReader([&errorOutput, &readPipe, &stderrRead] {
+        errorOutput = readPipe(stderrRead.getHandle());
+    });
+    const std::string programOutput = readPipe(stdoutRead.getHandle());
+    stderrReader.join();
+
     result = process.wait(INFINITE);
     if (result != WAIT_OBJECT_0) {
-        throw std::system_error(::GetLastError(), std::system_category(), "executeCmd WaitForSingleObject failed");
+        opResult.status = ArchiveResult::Status::ExtractFailed;
+        opResult.errorText = L"executeCmd WaitForSingleObject failed: " + std::to_wstring(::GetLastError());
+        log(opResult.errorText);
+        return opResult;
     }
 
     DWORD exitCode = 1;
@@ -227,26 +281,22 @@ void Archive::executeCmd(const std::wstring &cmd, const std::wstring &workingDir
         log(L"executeCmd GetExitCodeProcess failed: " + std::to_wstring(::GetLastError()));
     }
 
-    pipeWrite.closeHandle();
-
-    char buf[1024];
-    std::string programOutput;
-    while (true) {
-        DWORD bytesRead;
-        result = ::ReadFile(pipeRead.getHandle(), buf, 1024, &bytesRead, NULL);
-        if (result == FALSE || bytesRead == 0) {
-            break;
-        }
-        programOutput += std::string(buf, bytesRead);
+    if (!programOutput.empty()) {
+        log(L"executeCmd output: " + toWideString(programOutput));
     }
 
-    if (!programOutput.empty()) {
-        log(L"executeCmd output: " + to_wstring(programOutput));
+    if (!errorOutput.empty()) {
+        log(L"executeCmd error output: " + toWideString(errorOutput));
     }
 
     if (exitCode != 0) {
-        throw std::system_error(ERROR_INVALID_DATA, std::system_category(), "executeCmd process returned failure code " + std::to_string(exitCode));
+        opResult.status = ArchiveResult::Status::ExtractFailed;
+        opResult.exitCode = exitCode;
+        opResult.errorText = toWideString(errorOutput);
+        log(L"executeCmd process returned failure code " + std::to_wstring(exitCode));
     }
+
+    return opResult;
 }
 
 }

@@ -2250,6 +2250,13 @@ void MainWindow::onBackendConnectStateChanged(const types::ConnectState &connect
         receivedInitialIpAfterConnect_ = false;
         updateConnectWindowStateProtocolPortDisplay();
 
+        // A pending key-limit prompt is moot once the connection is gone; drop it without running
+        // its handlers so it neither lingers over the disconnected UI nor re-drives a disconnect.
+        if (wireGuardKeyLimitMessageId_ != 0) {
+            GeneralMessageController::instance().dismissMessage(wireGuardKeyLimitMessageId_);
+            wireGuardKeyLimitMessageId_ = 0;
+        }
+
         if (connectState.disconnectReason == DISCONNECTED_WITH_ERROR) {
             updateAppIconType(AppIconType::DISCONNECTED_WITH_ERROR);
         } else {
@@ -3859,15 +3866,15 @@ void MainWindow::updateAppIconType(AppIconType type)
 
 void MainWindow::onWireGuardAtKeyLimit()
 {
-    GeneralMessageController::instance().showMessage(
+    wireGuardKeyLimitMessageId_ = GeneralMessageController::instance().showMessage(
         "WARNING_WHITE",
         tr("Reached Key Limit"),
         tr("You have reached your limit of WireGuard public keys. Do you want to delete your oldest key?"),
         GeneralMessageController::tr(GeneralMessageController::kYes),
         GeneralMessageController::tr(GeneralMessageController::kNo),
         "",
-        [this](bool b) { emit wireGuardKeyLimitUserResponse(true); },
-        [this](bool b) { emit wireGuardKeyLimitUserResponse(false); });
+        [this](bool b) { wireGuardKeyLimitMessageId_ = 0; emit wireGuardKeyLimitUserResponse(true); },
+        [this](bool b) { wireGuardKeyLimitMessageId_ = 0; emit wireGuardKeyLimitUserResponse(false); });
 }
 
 void MainWindow::onSelectedLocationChanged()

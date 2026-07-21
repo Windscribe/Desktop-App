@@ -91,7 +91,6 @@ CurrentConnectionDescr ManualConnSettingsPolicy::getCurrentConnectionSettings() 
         }
     }
     ccd.hostname = locationInfo_->getHostnameForSelectedNode();
-    ccd.dnsHostName = locationInfo_->getDnsName();
     ccd.wgPeerPublicKey = locationInfo_->getWgPubKeyForSelectedNode();
     ccd.verifyX509name = locationInfo_->getVerifyX509name();
     ccd.isIpv6Support = locationInfo_->isIpv6SupportForSelectedNode();

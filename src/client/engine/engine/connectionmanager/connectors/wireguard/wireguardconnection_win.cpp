@@ -32,8 +32,8 @@
 // - IConnection::interfaceUpdated signal is not currently used in Engine::onConnectionManagerInterfaceUpdated
 //   on Windows, so no need to emit it.
 
-WireGuardConnection::WireGuardConnection(QObject *parent, Helper *helper)
-    : IConnection(parent),
+WireGuardConnection::WireGuardConnection(QObject *parent, Helper *helper, types::Protocol protocol, const WireGuardSessionParams &sessionParams)
+    : WireGuardConnectionBase(parent, protocol, sessionParams),
       helper_(helper)
 {
     stopThreadEvent_.setHandle(::CreateEvent(NULL, TRUE, FALSE, NULL));
@@ -47,12 +47,9 @@ WireGuardConnection::~WireGuardConnection()
     }
 }
 
-void WireGuardConnection::startConnect(const StartConnectParams &params)
+void WireGuardConnection::startConnect()
 {
-    const auto &p = std::get<WireGuardStartParams>(params);
-
     WS_ASSERT(helper_ != nullptr);
-    WS_ASSERT(p.wireGuardConfig != nullptr);
     WS_ASSERT(stopThreadEvent_.isValid());
 
     if (isRunning()) {
@@ -61,12 +58,8 @@ void WireGuardConnection::startConnect(const StartConnectParams &params)
     }
 
     connectedSignalEmited_ = false;
-    wireGuardConfig_ = *p.wireGuardConfig;
-
-    // override the DNS if we are using custom
-    if (!p.overrideDnsIp.isEmpty()) {
-        wireGuardConfig_.setClientDnsAddress(p.overrideDnsIp);
-    }
+    // Config and endpoint were assembled by prepare(); the DNS override comes from the attempt environment.
+    wireGuardConfig_ = dialConfig();
 
     ::ResetEvent(stopThreadEvent_.getHandle());
 

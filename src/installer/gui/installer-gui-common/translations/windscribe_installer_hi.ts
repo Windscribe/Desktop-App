@@ -49,8 +49,24 @@
         <translation>विंडसाइड अपनी सहायक सेवा शुरू करने में असमर्थ है। तृतीय-पक्ष सुरक्षा/फ़ायरवॉल सॉफ़्टवेयर इसका कारण हो सकता है। यदि यह मामला नहीं है, तो कृपया हमारे तकनीकी समर्थन से संपर्क करें।</translation>
     </message>
     <message>
+        <source>The installer could not launch its file extraction utility. Antivirus software or Windows security features (e.g. Smart App Control) may be blocking the installation.</source>
+        <translation>इंस्टॉलर अपनी फ़ाइल निष्कर्षण सुविधा लॉन्च नहीं कर सका. एंटीवायरस सॉफ़्टवेयर या Windows सुरक्षा सुविधाएँ (जैसे स्मार्ट ऐप नियंत्रण) स्थापना को अवरुद्ध कर सकती हैं।</translation>
+    </message>
+    <message>
+        <source>The application files could not be extracted to the installation folder. A file may be locked by another program, the disk may be full, or the downloaded installer may be damaged. If this issue persists, download the installer again and retry.</source>
+        <translation>अनुप्रयोग फ़ाइलों को स्थापना फ़ोल्डर में निकाला नहीं जा सका. किसी फ़ाइल को किसी अन्य प्रोग्राम द्वारा अवरोधित किया जा सकता है, डिस्क भरी हुई हो सकती है, या डाउनलोड किया गया इंस्टॉलर क्षतिग्रस्त हो सकता है। यदि यह समस्या बनी रहती है, तो इंस्टॉलर को फिर से डाउनलोड करें और पुन: प्रयास करें।</translation>
+    </message>
+    <message>
         <source>The installation could not be completed successfully. Please contact our Technical Support.</source>
         <translation>स्थापना सफलतापूर्वक पूर्ण नहीं की जा सकी. कृपया हमारे तकनीकी समर्थन से संपर्क करें।</translation>
+    </message>
+    <message>
+        <source>Error code: %1</source>
+        <translation>त्रुटि कोड: %1</translation>
+    </message>
+    <message>
+        <source>Log: %1</source>
+        <translation>लॉग: %1</translation>
     </message>
     <message>
         <source>Select a folder in the list below and click OK.</source>

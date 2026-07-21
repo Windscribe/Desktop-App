@@ -396,9 +396,11 @@ inline bool isAllowed(const std::string &line, bool &insideInlineBlock, bool all
         return true;
     }
 
+    // An empty name here means the line is a bare "--" (optionally followed by arguments): it maps to
+    // no real option, so reject it rather than pass it through.
     std::string name = extractDirectiveName(line);
     if (name.empty()) {
-        return true;
+        return false;
     }
 
     if (allowedDirectives().count(name) == 0) {
@@ -430,6 +432,35 @@ inline bool hasUnsafeControlBytes(const std::string &config)
     return false;
 }
 
+// OpenVPN reads inline-block content (between <ca> and </ca>, etc.) through a fixed-size buffer:
+// options.c read_inline_file() does fgets(line, OPTION_LINE_SIZE, fp) and re-checks for the closing
+// tag at the start of every read. A physical line longer than that buffer is silently split into
+// multiple logical lines, so a line like "AAAA...</ca>" surfaces "</ca>" at the head of a later
+// chunk and closes the block. Our std::getline reader has no length limit, so it keeps that same
+// text as one line still inside the block, and a following directive (e.g. "plugin") rides through
+// as inline data. (read_config_file() splits overlong top-level lines the same way, only warning as
+// it does so.) A real config never needs such lines -- inline PEM is column-wrapped -- so reject any
+// config with a physical line long enough to be split and both readers always agree on boundaries.
+//
+// fgets(buf, N) reads at most N-1 bytes and needs room for the trailing '\n', so the largest line
+// that is never split is N-2 bytes. The bundled OpenVPN uses OPTION_LINE_SIZE == 4096. A physical
+// line is the bytes between newlines; a trailing '\r' (CRLF) counts, matching fgets.
+inline bool hasOverlongLine(const std::string &config)
+{
+    constexpr size_t kOpenVpnOptionLineSize = 4096;
+    constexpr size_t kMaxPhysicalLineLength = kOpenVpnOptionLineSize - 2;
+
+    size_t lineLength = 0;
+    for (char c : config) {
+        if (c == '\n') {
+            lineLength = 0;
+        } else if (++lineLength > kMaxPhysicalLineLength) {
+            return true;
+        }
+    }
+    return false;
+}
+
 // Filter an entire OpenVPN config string into 'out', returning only allowed lines.
 // This is the main entry point for helper code. It performs:
 //   1. Outright rejection of configs containing unsafe control bytes (returns false)
@@ -443,6 +474,11 @@ inline bool filterConfig(const std::string &config, std::string &out)
 {
     if (hasUnsafeControlBytes(config)) {
         spdlog::error("Rejecting OpenVPN config containing control bytes");
+        return false;
+    }
+
+    if (hasOverlongLine(config)) {
+        spdlog::error("Rejecting OpenVPN config with a line exceeding the inline-reader boundary");
         return false;
     }
 

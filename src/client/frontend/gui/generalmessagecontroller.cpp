@@ -53,18 +53,18 @@ GeneralMessage::Flags GeneralMessageController::adjustedFlags(GeneralMessage::Fl
     return flags;
 }
 
-void GeneralMessageController::showMessage(const QString &icon, const QString &title, const QString &desc, const QString &acceptText,
+int GeneralMessageController::showMessage(const QString &icon, const QString &title, const QString &desc, const QString &acceptText,
                                            const QString &rejectText, const QString &tertiaryText, std::function<void(bool)> acceptFunc,
                                            std::function<void(bool)> rejectFunc, std::function<void(bool)> tertiaryFunc,
                                            GeneralMessage::Flags flags, const QString &learnMoreUrl)
 {
     if (controller_ == nullptr) {
         // not initialized
-        return;
+        return 0;
     }
 
     MainWindowController::WINDOW_ID source = getSource();
-    showMessage(new GeneralMessage(icon, title, desc, acceptText, rejectText, tertiaryText, acceptFunc, rejectFunc, tertiaryFunc, source, adjustedFlags(flags, source), learnMoreUrl));
+    return showMessage(new GeneralMessage(icon, title, desc, acceptText, rejectText, tertiaryText, acceptFunc, rejectFunc, tertiaryFunc, source, adjustedFlags(flags, source), learnMoreUrl));
 }
 
 void GeneralMessageController::showMessageWithRedAccept(const QString &icon, const QString &title, const QString &desc, const QString &acceptText, const QString &rejectText, const QString &tertiaryText, std::function<void (bool)> acceptFunc, std::function<void (bool)> rejectFunc, std::function<void (bool)> tertiaryFunc, GeneralMessage::Flags flags, const QString &learnMoreUrl)
@@ -94,20 +94,23 @@ void GeneralMessageController::showCredentialPrompt(const QString &icon, const Q
     showMessage(new GeneralMessage(icon, title, desc, username, acceptText, rejectText, tertiaryText, acceptFunc, rejectFunc, tertiaryFunc, source, adjustedFlags(flags, source)));
 }
 
-void GeneralMessageController::showMessage(GeneralMessage *message)
+int GeneralMessageController::showMessage(GeneralMessage *message)
 {
     if (controller_ == nullptr) {
         // not initialized
-        return;
+        return 0;
     }
 
     for (auto msg : messages_) {
         if (msg->desc == message->desc) {
-            // Message already displaying or in queue, ignore
-            return;
+            // Message already displaying or in queue, ignore this duplicate but report the existing id.
+            const int existingId = msg->id;
+            delete message;
+            return existingId;
         }
     }
 
+    message->id = nextMessageId_++;
     if (message->flags & GeneralMessage::kPriority) {
         messages_.prepend(message);
         showNext();
@@ -117,6 +120,7 @@ void GeneralMessageController::showMessage(GeneralMessage *message)
             showNext();
         }
     }
+    return message->id;
 }
 
 void GeneralMessageController::showNext()
@@ -234,6 +238,24 @@ void GeneralMessageController::handleResult(Result res)
     }
 
     SAFE_DELETE(message);
+}
+
+void GeneralMessageController::dismissMessage(int id)
+{
+    if (isShowing_ && !messages_.isEmpty() && messages_.first()->id == id) {
+        // On screen: close the window and advance the queue without running any handler.
+        handleResult(NONE);
+        return;
+    }
+
+    // Queued behind another message: drop it without ever showing it.
+    for (auto *message : messages_) {
+        if (message->id == id) {
+            messages_.removeAll(message);
+            delete message;
+            return;
+        }
+    }
 }
 
 bool GeneralMessageController::hasMessages() const

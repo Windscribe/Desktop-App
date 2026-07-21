@@ -4,6 +4,7 @@
 #include <QElapsedTimer>
 
 #include "engine/connectionmanager/adapterutils_win.h"
+#include "engine/connectionmanager/iextraconfigaccessor.h"
 #include "utils/crashhandler.h"
 #include "utils/log/categories.h"
 #include "utils/ras_service_win.h"
@@ -26,8 +27,8 @@ struct DialStatePayload
 // static global variable, because we reinstall WAN only once during the lifetime of the process
 bool IKEv2Connection_win::wanReinstalled_ = false;
 
-IKEv2Connection_win::IKEv2Connection_win(QObject *parent, Helper *helper)
-    : IConnection(parent),
+IKEv2Connection_win::IKEv2Connection_win(QObject *parent, Helper *helper, types::Protocol protocol, const Ikev2SessionParams &sessionParams)
+    : Ikev2ConnectionBase(parent, protocol, sessionParams),
       helper_(helper)
 {
     // stopThreadEvent_ is manual-reset so it stays signaled until the worker observes and resets it on the
@@ -46,10 +47,8 @@ IKEv2Connection_win::~IKEv2Connection_win()
     }
 }
 
-void IKEv2Connection_win::startConnect(const StartConnectParams &params)
+void IKEv2Connection_win::startConnect()
 {
-    const auto &p = std::get<Ikev2StartParams>(params);
-
     WS_ASSERT(helper_ != nullptr);
     WS_ASSERT(stopThreadEvent_.isValid() && notifyEvent_.isValid());
 
@@ -59,11 +58,11 @@ void IKEv2Connection_win::startConnect(const StartConnectParams &params)
         wait();
     }
 
-    initialUrl_ = p.hostname;
-    initialIp_ = p.ip;
-    initialUsername_ = p.username;
-    initialPassword_ = p.password;
-    initialEnableIkev2Compression_ = p.isEnableCompression;
+    initialUrl_ = descr_.hostname;
+    initialIp_ = descr_.ip;
+    initialUsername_ = username();
+    initialPassword_ = password();
+    initialEnableIkev2Compression_ = env_.extraConfig->useIkev2Compression();
 
     ::ResetEvent(stopThreadEvent_.getHandle());
 
@@ -90,18 +89,6 @@ bool IKEv2Connection_win::isDisconnected() const
 void IKEv2Connection_win::waitForDisconnect()
 {
     wait();
-}
-
-void IKEv2Connection_win::continueWithUsernameAndPassword(const QString & /*username*/, const QString & /*password*/)
-{
-    // nothing todo for ikev2
-    WS_ASSERT(false);
-}
-
-void IKEv2Connection_win::continueWithPassword(const QString & /*password*/)
-{
-    // nothing todo for ikev2
-    WS_ASSERT(false);
 }
 
 void IKEv2Connection_win::run()

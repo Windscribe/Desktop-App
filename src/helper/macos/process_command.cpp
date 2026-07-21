@@ -66,7 +66,7 @@ std::string setSplitTunnelingSettings(const std::string &pars)
 std::string sendConnectStatus(const std::string &pars)
 {
     ConnectStatus cs;
-    deserializePars(pars, cs.isConnected, cs.protocol, cs.defaultAdapter, cs.vpnAdapter, cs.connectedIp, cs.remoteIp);
+    deserializePars(pars, cs.isConnected, cs.protocol, cs.defaultAdapter, cs.vpnAdapter, cs.connectedIp, cs.remoteIp, cs.dnsWhitelistIps);
 
     // IP fields are types::IpAddress; deserialization already yields either a valid address
     // or one with valid_ == false. Downstream code (RoutesManager / FirewallController) handles
@@ -88,8 +88,22 @@ std::string sendConnectStatus(const std::string &pars)
     // Forward the full dual-stack DNS list to the firewall pf table. setVpnDns drops
     // invalid entries internally; an empty list (disconnected, or all entries invalid) flushes
     // <windscribe_dns> back to "no DNS permitted through the firewall".
-    FirewallController::instance().setVpnDns(
-        cs.isConnected ? cs.vpnAdapter.dnsServers : std::vector<types::IpAddress>{});
+    //
+    // When connected, also fold in dnsWhitelistIps (the ctrld listen IP plus its plain-DNS :53
+    // upstreams) so split-DNS to a legacy RFC1918 upstream isn't dropped by leak protection. These
+    // go into the allow table only; the <disallowed_dns> block for the remaining OS resolvers is
+    // untouched, so no new leak surface beyond the user-configured upstream.
+    std::vector<types::IpAddress> allowedDns;
+    if (cs.isConnected) {
+        allowedDns = cs.vpnAdapter.dnsServers;
+        for (const auto &ipStr : cs.dnsWhitelistIps) {
+            types::IpAddress ip(ipStr);
+            if (ip.isValid()) {
+                allowedDns.push_back(ip);
+            }
+        }
+    }
+    FirewallController::instance().setVpnDns(allowedDns);
     RoutesManager::instance().setConnectStatus(cs);
     return serializeResult(true);
 }

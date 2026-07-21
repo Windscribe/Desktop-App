@@ -1,26 +1,22 @@
 #pragma once
 
-#include "engine/connectionmanager/connectors/iconnection.h"
 #include <QObject>
-#include <QTimer>
 #include <QRecursiveMutex>
+#include <QTimer>
+
+#include "engine/connectionmanager/connectors/ikev2/ikev2connectionbase.h"
 #include "engine/helper/helper.h"
 
-class IKEv2Connection_mac : public IConnection
+class IKEv2Connection_mac : public Ikev2ConnectionBase
 {
     Q_OBJECT
 public:
-    explicit IKEv2Connection_mac(QObject *parent, Helper *helper);
+    explicit IKEv2Connection_mac(QObject *parent, Helper *helper, types::Protocol protocol, const Ikev2SessionParams &sessionParams);
     ~IKEv2Connection_mac() override;
 
-    void startConnect(const StartConnectParams &params) override;
+    void startConnect() override;
     void startDisconnect() override;
     bool isDisconnected() const override;
-    ConnectionType getConnectionType() const override { return ConnectionType::IKEV2; }
-
-    void continueWithUsernameAndPassword(const QString &username, const QString &password) override;
-    void continueWithPassword(const QString &password) override;
-
 
     static void removeIkev2ConnectionFromOS();
     static void closeAppActiveConnection();
@@ -40,7 +36,6 @@ private:
     void *notificationId_;
     bool isStateConnectingAfterClick_;
     bool isDisconnectClicked_;
-    QString overrideDnsIp_;
 
     static constexpr int STATISTICS_UPDATE_PERIOD = 1000;
     QTimer statisticsTimer_;

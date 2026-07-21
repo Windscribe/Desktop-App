@@ -4,7 +4,9 @@
 // Must be included after above includes.
 #include "routes.h"
 
+#include <climits>
 #include <cstring>
+#include <map>
 #include <spdlog/spdlog.h>
 
 #include "ip_forward_table.h"
@@ -34,6 +36,68 @@ bool sameAddrBytes(const SOCKADDR_INET &a, const SOCKADDR_INET &b)
     if (a.si_family == AF_INET6)
         return std::memcmp(&a.Ipv6.sin6_addr, &b.Ipv6.sin6_addr, sizeof(a.Ipv6.sin6_addr)) == 0;
     return false;
+}
+
+// Per-family interface metric with a small cache: the route table typically references
+// only a handful of interfaces, and GetIpInterfaceEntry is a syscall per lookup.
+// Returns 0 on failure — that only makes the caller's max-effective-metric estimate
+// smaller for that row, and the row's own route metric is still counted.
+ULONG getInterfaceMetric(ADDRESS_FAMILY family, NET_IFINDEX ifIndex,
+                         std::map<NET_IFINDEX, ULONG> &cache)
+{
+    auto it = cache.find(ifIndex);
+    if (it != cache.end())
+        return it->second;
+
+    MIB_IPINTERFACE_ROW interfaceRow;
+    std::memset(&interfaceRow, 0, sizeof(interfaceRow));
+    interfaceRow.Family = family;
+    interfaceRow.InterfaceIndex = ifIndex;
+    ULONG metric = 0;
+    DWORD dwErr = GetIpInterfaceEntry(&interfaceRow);
+    if (dwErr == NO_ERROR) {
+        metric = interfaceRow.Metric;
+    } else {
+        spdlog::warn("Routes: GetIpInterfaceEntry failed for ifIndex={} (family={}): {}", ifIndex, family, dwErr);
+    }
+    cache[ifIndex] = metric;
+    return metric;
+}
+
+// Route metric for a "last resort" route that must lose to every existing route of the
+// same family. Windows selects among equal-prefix routes by the sum of the route metric
+// and the owning interface's per-family metric, so taking max over bare route metrics
+// (the old getMaxMetric()+1 approach) is not enough: wintun gets automatic interface
+// metric 5, and 257 (= max route metric 256 from an RA default + 1) + 5 = 262 still
+// undercuts a native RA default of 256 on a physical adapter with metric 20 (= 276),
+// silently pulling all off-tunnel IPv6 into the tunnel in inclusive split tunneling.
+// Compute the max *effective* metric across same-family routes instead, and derive a
+// route metric that keeps our effective metric strictly above it.
+ULONG calcLastResortMetric(const IpForwardTable &curRouteTable, ADDRESS_FAMILY family,
+                           unsigned long ifIndex)
+{
+    std::map<NET_IFINDEX, ULONG> metricCache;
+    ULONGLONG maxEffectiveMetric = 0;
+
+    for (ULONG i = 0; i < curRouteTable.count(); ++i) {
+        const MIB_IPFORWARD_ROW2 *row = curRouteTable.getByIndex(i);
+        if (!row || row->DestinationPrefix.Prefix.si_family != family)
+            continue;
+        const ULONGLONG effective = static_cast<ULONGLONG>(row->Metric) +
+                                    getInterfaceMetric(family, row->InterfaceIndex, metricCache);
+        if (effective > maxEffectiveMetric)
+            maxEffectiveMetric = effective;
+    }
+
+    const ULONG ownInterfaceMetric = getInterfaceMetric(family, ifIndex, metricCache);
+
+    // If the lookup for our own interface failed (returned 0), the subtraction is skipped,
+    // which only pushes the effective metric higher — still a losing route, as intended.
+    ULONGLONG metric = maxEffectiveMetric + 1;
+    metric = (metric > ownInterfaceMetric) ? (metric - ownInterfaceMetric) : 1;
+    if (metric > ULONG_MAX)
+        metric = ULONG_MAX;
+    return static_cast<ULONG>(metric);
 }
 
 } // namespace
@@ -147,7 +211,7 @@ void Routes::deleteRouteByInterface(const IpForwardTable &curRouteTable,
 void Routes::addRoute(const IpForwardTable &curRouteTable,
                       const types::IpAddress &destIp, UINT8 prefixLength,
                       const types::IpAddress &gatewayIp, unsigned long ifIndex,
-                      bool useMaxMetric)
+                      bool isLastResort)
 {
     if (!destIp.isValid() || !gatewayIp.isValid() || destIp.family() != gatewayIp.family()) {
         spdlog::error("Routes::addRoute(): destIp/gatewayIp invalid or family mismatch");
@@ -155,8 +219,8 @@ void Routes::addRoute(const IpForwardTable &curRouteTable,
     }
 
     ULONG metric;
-    if (useMaxMetric) {
-        metric = curRouteTable.getMaxMetric() + 1;
+    if (isLastResort) {
+        metric = calcLastResortMetric(curRouteTable, destIp.isV6() ? AF_INET6 : AF_INET, ifIndex);
     } else {
         MIB_IPINTERFACE_ROW interfaceRow;
         std::memset(&interfaceRow, 0, sizeof(interfaceRow));
@@ -184,7 +248,7 @@ void Routes::addRoute(const IpForwardTable &curRouteTable,
         addedRoutes_.push_back(row);
         spdlog::info("Routes::addRoute(): added dest={}/{}, nextHop={}, ifIndex={}, metric={}{}",
                      destIp.toString(), prefixLength, gatewayIp.toString(), ifIndex, metric,
-                     useMaxMetric ? " (max)" : "");
+                     isLastResort ? " (last resort)" : "");
     } else {
         spdlog::error("Routes::addRoute(), CreateIpForwardEntry2 failed with error: {}", dwErr);
     }

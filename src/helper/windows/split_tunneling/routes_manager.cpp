@@ -89,7 +89,7 @@ void RoutesManager::doActionsForInclusiveModeOpenVpn(const ConnectStatus &connec
     IpForwardTable table;
     const auto &vpn = connectStatus.vpnAdapter;
 
-    // IPv4: remove openvpn --redirect-gateway def1 halves, add bound default at max metric.
+    // IPv4: remove openvpn --redirect-gateway def1 halves, add bound default at last-resort metric.
     openVpnRoutes_.deleteRoute(table, types::IpAddress("0.0.0.0"),   1, vpn.gatewayIp, vpn.ifIndex);
     openVpnRoutes_.deleteRoute(table, types::IpAddress("128.0.0.0"), 1, vpn.gatewayIp, vpn.ifIndex);
     boundRoute_.addRoute(table, types::IpAddress("0.0.0.0"), 0, vpn.gatewayIp, vpn.ifIndex, true);

@@ -1,32 +1,28 @@
 #pragma once
 
-#include "engine/connectionmanager/connectors/iconnection.h"
 #include <atomic>
 #include <QMutex>
 #include <QTimer>
+#include "engine/connectionmanager/connectors/wireguard/wireguardconnectionbase.h"
 #include "engine/helper/helper.h"
 
 
 class WireGuardConnectionImpl;
 
-class WireGuardConnection : public IConnection
+class WireGuardConnection : public WireGuardConnectionBase
 {
     friend class WireGuardConnectionImpl;
     Q_OBJECT
 
 public:
-    WireGuardConnection(QObject *parent, Helper *helper);
+    WireGuardConnection(QObject *parent, Helper *helper, types::Protocol protocol, const WireGuardSessionParams &sessionParams);
     ~WireGuardConnection() override;
 
-    void startConnect(const StartConnectParams &params) override;
+    void startConnect() override;
     void startDisconnect() override;
     bool isDisconnected() const override;
 
     //QString getConnectedTapTunAdapterName() override;
-    ConnectionType getConnectionType() const override { return ConnectionType::WIREGUARD; }
-
-    void continueWithUsernameAndPassword(const QString & /*username*/, const QString & /*password*/) override {}
-    void continueWithPassword(const QString & /*password*/) override {}
 
     static QString getWireGuardExeName();
     static QString getWireGuardAdapterName();

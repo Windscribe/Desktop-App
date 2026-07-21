@@ -61,8 +61,24 @@
         <translation>Windscribe 無法啟動其輔助服務。第三方的安全或防火牆軟體可能是原因。若非如此，請聯絡我們的技術支援。</translation>
     </message>
     <message>
+        <source>The installer could not launch its file extraction utility. Antivirus software or Windows security features (e.g. Smart App Control) may be blocking the installation.</source>
+        <translation>安裝程式無法啟動其檔案解壓工具。防毒軟體或 Windows 安全功能（例如智慧應用程式控制）可能阻擋了安裝。</translation>
+    </message>
+    <message>
+        <source>The application files could not be extracted to the installation folder. A file may be locked by another program, the disk may be full, or the downloaded installer may be damaged. If this issue persists, download the installer again and retry.</source>
+        <translation>應用程式檔案無法解壓到安裝資料夾。檔案可能被其他程式鎖定，磁碟可能已滿，或下載的安裝程式可能損壞。如果問題依舊，請重新下載安裝程式並重試。</translation>
+    </message>
+    <message>
         <source>The installation could not be completed successfully. Please contact our Technical Support.</source>
         <translation>無法成功完成安裝。請聯繫我們的技術支援。</translation>
+    </message>
+    <message>
+        <source>Error code: %1</source>
+        <translation>錯誤代碼：%1</translation>
+    </message>
+    <message>
+        <source>Log: %1</source>
+        <translation>記錄：%1</translation>
     </message>
     <message>
         <source>Select a folder in the list below and click OK.</source>

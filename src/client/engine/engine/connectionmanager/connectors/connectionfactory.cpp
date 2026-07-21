@@ -1,5 +1,6 @@
 #include "connectionfactory.h"
 
+#include "engine/connectionmanager/connectrequest.h"
 #include "engine/connectionmanager/connectors/openvpn/openvpnconnection.h"
 #include "utils/ws_assert.h"
 
@@ -14,19 +15,19 @@
     #include "engine/connectionmanager/connectors/wireguard/wireguardconnection_posix.h"
 #endif
 
-IConnection *ConnectionFactory::createConnection(types::Protocol protocol, QObject *parent, Helper *helper)
+IConnection *ConnectionFactory::createConnection(types::Protocol protocol, QObject *parent, Helper *helper, const ConnectRequest &request)
 {
     if (protocol.isWireGuardProtocol()) {
-        return new WireGuardConnection(parent, helper);
+        return new WireGuardConnection(parent, helper, protocol, request.wireGuard);
     } else if (protocol.isOpenVpnProtocol()) {
-        return new OpenVPNConnection(parent, helper);
+        return new OpenVPNConnection(parent, helper, protocol, request.openVpn);
     } else if (protocol.isIkev2Protocol()) {
 #ifdef Q_OS_WIN
-        return new IKEv2Connection_win(parent, helper);
+        return new IKEv2Connection_win(parent, helper, protocol, request.ikev2);
 #elif defined Q_OS_MACOS
-        return new IKEv2Connection_mac(parent, helper);
+        return new IKEv2Connection_mac(parent, helper, protocol, request.ikev2);
 #elif defined Q_OS_LINUX
-        return new IKEv2Connection_linux(parent, helper);
+        return new IKEv2Connection_linux(parent, helper, protocol, request.ikev2);
 #endif
     }
 

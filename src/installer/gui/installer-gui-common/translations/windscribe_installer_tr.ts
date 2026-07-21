@@ -61,8 +61,24 @@
         <translation>Windscribe yardımcı hizmetini başlatamıyor. Üçüncü parti güvenlik/güvenlik duvarı yazılımları bunun nedeni olabilir. Eğer durum böyle değilse, lütfen Teknik Destek ekibimizle iletişime geçin.</translation>
     </message>
     <message>
+        <source>The installer could not launch its file extraction utility. Antivirus software or Windows security features (e.g. Smart App Control) may be blocking the installation.</source>
+        <translation>Kurulumcu dosya çıkarma aracını başlatamadı. Antivirüs yazılımı veya Windows güvenlik özellikleri (örneğin Akıllı Uygulama Kontrolü) kurulumu engelliyor olabilir.</translation>
+    </message>
+    <message>
+        <source>The application files could not be extracted to the installation folder. A file may be locked by another program, the disk may be full, or the downloaded installer may be damaged. If this issue persists, download the installer again and retry.</source>
+        <translation>Uygulama dosyaları kurulum klasörüne açılamıyordu. Bir dosya başka bir program tarafından kilitlenebilir, disk dolu olabilir veya indirilen kurulumcu zarar görebilir. Bu sorun devam ederse, kurulumcunu tekrar indirip tekrar deneyin.</translation>
+    </message>
+    <message>
         <source>The installation could not be completed successfully. Please contact our Technical Support.</source>
         <translation>Yükleme başarıyla tamamlanamadı. Lütfen Teknik Desteğimizle iletişime geçin.</translation>
+    </message>
+    <message>
+        <source>Error code: %1</source>
+        <translation>Hata kodu: %1</translation>
+    </message>
+    <message>
+        <source>Log: %1</source>
+        <translation>Günlük: %1</translation>
     </message>
     <message>
         <source>Select a folder in the list below and click OK.</source>

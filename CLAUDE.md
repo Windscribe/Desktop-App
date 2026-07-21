@@ -573,7 +573,8 @@ Configuration managed through helper commands and engine settings.
 **Windows**:
 - Client/installer helper: `C:\Users\<user>\AppData\Local\Windscribe\Windscribe2`
 - Service: `C:\Program Files\Windscribe\windscribeservice.log`
-- Installer: `C:\Program Files\Windscribe\log_installer.txt`
+- Installer: `C:\ProgramData\Windscribe\installer.log` (previous attempt in `installer.log.1`)
+- Uninstaller: `C:\ProgramData\Windscribe\uninstaller.log` (previous run in `uninstaller.log.1`)
 
 **macOS**:
 - Client: `~/Library/Application Support/Windscribe/Windscribe2`

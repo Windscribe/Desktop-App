@@ -1,12 +1,12 @@
 #pragma once
 
-#include "helper/helper.h"
-#include "networkdetectionmanager/inetworkdetectionmanager.h"
-#include "firewall/firewallcontroller.h"
-#include "macaddresscontroller/imacaddresscontroller.h"
-#include "connectionmanager/ctrldmanager/ictrldmanager.h"
 #include "connectionmanager/isleepevents.h"
 #include "connectivitydiagnostic/iconnectivitydiagnosticcollector.h"
+#include "dns/ctrldmanager/ictrldmanager.h"
+#include "firewall/firewallcontroller.h"
+#include "helper/helper.h"
+#include "macaddresscontroller/imacaddresscontroller.h"
+#include "networkdetectionmanager/inetworkdetectionmanager.h"
 
 namespace CrossPlatformObjectFactory
 {

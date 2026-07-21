@@ -61,8 +61,24 @@
         <translation>Windscribe tidak dapat memulai layanan pembantunya. Perangkat lunak keamanan/firewall pihak ketiga mungkin menjadi penyebabnya. Jika tidak demikian, silakan hubungi Dukungan Teknis kami.</translation>
     </message>
     <message>
+        <source>The installer could not launch its file extraction utility. Antivirus software or Windows security features (e.g. Smart App Control) may be blocking the installation.</source>
+        <translation>Penginstal tidak dapat meluncurkan utilitas ekstraksi filenya. Perangkat lunak antivirus atau fitur keamanan Windows (misalnya Smart App Control) mungkin memblokir penginstalan.</translation>
+    </message>
+    <message>
+        <source>The application files could not be extracted to the installation folder. A file may be locked by another program, the disk may be full, or the downloaded installer may be damaged. If this issue persists, download the installer again and retry.</source>
+        <translation>File aplikasi tidak dapat diekstrak ke folder instalasi. File mungkin dikunci oleh program lain, disk mungkin penuh, atau penginstal yang diunduh mungkin rusak. Jika masalah ini berlanjut, unduh penginstal lagi dan coba lagi.</translation>
+    </message>
+    <message>
         <source>The installation could not be completed successfully. Please contact our Technical Support.</source>
         <translation>Penginstalan tidak berhasil diselesaikan. Silakan hubungi Dukungan Teknis kami.</translation>
+    </message>
+    <message>
+        <source>Error code: %1</source>
+        <translation>Kode kesalahan: %1</translation>
+    </message>
+    <message>
+        <source>Log: %1</source>
+        <translation>Log: %1</translation>
     </message>
     <message>
         <source>Select a folder in the list below and click OK.</source>

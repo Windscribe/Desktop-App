@@ -55,6 +55,14 @@ void CustomConfigLocationInfo::resolveHostnames()
         return;
     }
 
+    // A resolve is already in flight: a second pass would append duplicate remotes_ entries that
+    // onDnsRequestFinished can never mark resolved (it stops at the first hostname match), so
+    // hostnamesResolved would never fire. The in-flight completion emits for this attempt too.
+    if (!remotes_.isEmpty())
+    {
+        return;
+    }
+
     switch (config_->type()) {
     case CUSTOM_CONFIG_OPENVPN:
         resolveHostnamesForOVPNConfig();

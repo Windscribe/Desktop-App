@@ -46,6 +46,28 @@ void Installer::startImpl()
 
 void Installer::executionImpl()
 {
+    // Catch-all: executionImpl runs on its own std::thread (see InstallerBase::start), so an
+    // escaping exception would land in std::terminate and kill the installer without any
+    // error state or UI feedback.  Convert it to a logged, reportable error instead.
+    try {
+        executeBlocks();
+    }
+    catch (const std::exception &ex) {
+        spdlog::error("Installation failed with an unhandled exception: {}", ex.what());
+        error_ = wsl::ERROR_INTERNAL;
+        state_ = wsl::STATE_ERROR;
+        callback_();
+    }
+    catch (...) {
+        spdlog::error("Installation failed with an unhandled exception of unknown type");
+        error_ = wsl::ERROR_INTERNAL;
+        state_ = wsl::STATE_ERROR;
+        callback_();
+    }
+}
+
+void Installer::executeBlocks()
+{
     double completedWeight = 0;
 
     state_ = wsl::STATE_EXTRACTING;

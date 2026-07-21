@@ -9,6 +9,7 @@ add_definitions(-DUNICODE -D_UNICODE /wd4090)
 
 set(SOURCES
     ../utils/archive.cpp
+    ../utils/persistent_log.cpp
     ../utils/secure_dir.cpp
     installer.rc
     main.cpp

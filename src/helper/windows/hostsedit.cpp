@@ -23,7 +23,9 @@ HostsEdit::~HostsEdit()
 bool HostsEdit::addHosts(const std::wstring &ip, const std::wstring &hostname)
 {
     FILE *file = nullptr;
-    if (_wfopen_s(&file, getHostsPath().c_str(), L"a+") != 0 || !file) {
+    const errno_t err = _wfopen_s(&file, getHostsPath().c_str(), L"a+");
+    if (err != 0 || !file) {
+        spdlog::error("HostsEdit::addHosts could not open hosts file for appending (errno {})", err);
         return false;
     }
 
@@ -70,6 +72,9 @@ bool HostsEdit::makeHostsFileWritable() const
 
 bool HostsEdit::removeHosts()
 {
+    const auto tempHostsPath = getTempHostsPath();
+    const auto hostsPath = getHostsPath();
+
     // Ensure the files are closed before we attempt the move.
     {
         FILE *fileTmp = nullptr;
@@ -79,11 +84,15 @@ bool HostsEdit::removeHosts()
             if (fileTmp) fclose(fileTmp);
         });
 
-        if (_wfopen_s(&fileTmp, getTempHostsPath().c_str(), L"w") != 0 || !fileTmp) {
+        errno_t err = _wfopen_s(&fileTmp, tempHostsPath.c_str(), L"w");
+        if (err != 0 || !fileTmp) {
+            spdlog::error("HostsEdit::removeHosts could not open temp hosts file for writing (errno {})", err);
             return false;
         }
 
-        if (_wfopen_s(&file, getHostsPath().c_str(), L"a+") != 0 || !file) {
+        err = _wfopen_s(&file, hostsPath.c_str(), L"r");
+        if (err != 0 || !file) {
+            spdlog::error("HostsEdit::removeHosts could not open hosts file for reading (errno {})", err);
             return false;
         }
 
@@ -107,7 +116,12 @@ bool HostsEdit::removeHosts()
         }
     }
 
-    return (MoveFileEx(getTempHostsPath().c_str(), getHostsPath().c_str(), MOVEFILE_REPLACE_EXISTING) != 0);
+    if (MoveFileEx(tempHostsPath.c_str(), hostsPath.c_str(), MOVEFILE_REPLACE_EXISTING) == 0) {
+        spdlog::error("HostsEdit::removeHosts could not move temp hosts file over hosts file ({})", ::GetLastError());
+        return false;
+    }
+
+    return true;
 }
 
 std::wstring HostsEdit::getHostsPath() const

@@ -61,8 +61,24 @@
         <translation>Windscribe non riesce ad avviare il servizio di assistenza. Il software di sicurezza o firewall di terze parti potrebbe essere la causa. Se non è così, contatta il nostro Supporto Tecnico.</translation>
     </message>
     <message>
+        <source>The installer could not launch its file extraction utility. Antivirus software or Windows security features (e.g. Smart App Control) may be blocking the installation.</source>
+        <translation>L&apos;installatore non riusciva ad avviare l&apos;utilità di estrazione file. Software antivirus o funzionalità di sicurezza di Windows (ad esempio Smart App Control) potrebbero bloccare l&apos;installazione.</translation>
+    </message>
+    <message>
+        <source>The application files could not be extracted to the installation folder. A file may be locked by another program, the disk may be full, or the downloaded installer may be damaged. If this issue persists, download the installer again and retry.</source>
+        <translation>I file applicativi non potevano essere estratti nella cartella di installazione. Un file può essere bloccato da un altro programma, il disco può essere pieno o l&apos;installer scaricato può essere danneggiato. Se questo problema persiste, scarica di nuovo l&apos;installer e riprova.</translation>
+    </message>
+    <message>
         <source>The installation could not be completed successfully. Please contact our Technical Support.</source>
         <translation>Impossibile completare correttamente l&apos;installazione. Si prega di contattare il nostro supporto tecnico.</translation>
+    </message>
+    <message>
+        <source>Error code: %1</source>
+        <translation>Codice errore: %1</translation>
+    </message>
+    <message>
+        <source>Log: %1</source>
+        <translation>Log: %1</translation>
     </message>
     <message>
         <source>Select a folder in the list below and click OK.</source>

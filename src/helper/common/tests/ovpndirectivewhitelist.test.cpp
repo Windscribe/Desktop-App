@@ -122,6 +122,63 @@ void testControlBytesRejected()
     VERIFY(out == "unchanged");
 }
 
+// A close tag at the END of an overlong physical line is invisible to std::getline (one line, still
+// inside the block) but the bundled OpenVPN's fixed-size inline reader (fgets, OPTION_LINE_SIZE ==
+// 4096) splits the line and sees "</ca>" at the head of the next chunk, closing the block and
+// parsing the following "plugin" at top level. Configs with a line long enough to be split are
+// rejected outright so the two readers can never disagree on line boundaries.
+void testOverlongInlineLineRejected()
+{
+    std::string payload = "<ca>\n";
+    payload += std::string(4095, 'A');
+    payload += "</ca>\n";
+    payload += "plugin /attacker/owned/root-plugin.so\n";
+    payload += "\"<ca>\"\n";
+    payload += "</ca>\n";
+    std::string out = "unchanged";
+    VERIFY(!filters(payload, out));
+    VERIFY(out == "unchanged");
+
+    // A trailing '\r' (CRLF) counts toward the physical line length, matching fgets, so an otherwise
+    // max-length line that carries a CR is still rejected.
+    std::string crlf = "<ca>\n" + std::string(4094, 'A') + "\r\n</ca>\r\n";
+    std::string crlfOut = "unchanged";
+    VERIFY(!filters(crlf, crlfOut));
+    VERIFY(crlfOut == "unchanged");
+}
+
+// The largest line the inline reader never splits (OPTION_LINE_SIZE - 2 == 4094 bytes, leaving room
+// for the '\n') must still pass, so legitimate configs are not rejected.
+void testMaxLengthLineAccepted()
+{
+    const std::string longData(4094, 'A');
+    std::string config = "<ca>\n" + longData + "\n</ca>\n";
+    std::string out;
+    VERIFY(filters(config, out));
+    VERIFY(contains(out, longData));
+}
+
+// A bare "--" (optionally with trailing arguments) has no directive name and maps to no real option,
+// so it is stripped. A real directive with an explicit "--" prefix must still pass.
+void testBareDoubleDashRejected()
+{
+    const char *bare[] = {"--", "-- ", "--\tfoo", "-- plugin /e.so"};
+    for (const char *line : bare) {
+        std::string config = std::string("client\n") + line + "\nremote example.com 1194\n";
+        std::string out;
+        VERIFY(filters(config, out));
+        VERIFY(contains(out, "client"));
+        VERIFY(contains(out, "remote example.com 1194"));
+        VERIFY(!contains(out, "--"));
+        VERIFY(!contains(out, "plugin"));
+    }
+
+    std::string out;
+    VERIFY(filters("--client\n--remote example.com 1194\n", out));
+    VERIFY(contains(out, "client"));
+    VERIFY(contains(out, "remote example.com 1194"));
+}
+
 // Blocked directives at the top level are always stripped; allowed ones pass.
 void testTopLevelDirectiveFiltering()
 {
@@ -140,6 +197,9 @@ int main()
     testLegitimateConfigPassesThrough();
     testOpenerTrailingDataNotBlock();
     testControlBytesRejected();
+    testOverlongInlineLineRejected();
+    testMaxLengthLineAccepted();
+    testBareDoubleDashRejected();
     testTopLevelDirectiveFiltering();
 
     if (g_failures == 0) {

@@ -11,7 +11,6 @@ class IExtraConfigAccessor
 public:
     virtual ~IExtraConfigAccessor() {}
 
-    virtual bool logCtrld() = 0;
     virtual int mtuOffsetOpenVpn(bool &hasValue) = 0;
     virtual bool stealthExtraTLSPadding() = 0;
     virtual QString remoteIp() = 0;

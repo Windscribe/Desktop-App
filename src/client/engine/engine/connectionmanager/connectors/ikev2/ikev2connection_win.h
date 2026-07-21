@@ -7,7 +7,7 @@
 #include <QString>
 #include <QVector>
 
-#include "engine/connectionmanager/connectors/iconnection.h"
+#include "engine/connectionmanager/connectors/ikev2/ikev2connectionbase.h"
 #include "engine/helper/helper.h"
 #include "utils/win32handle.h"
 
@@ -25,22 +25,17 @@
 // RasConnectionNotification and without involving the engine.  True reconnects/failover remain the
 // engine's responsibility (ConnectionManager).
 
-class IKEv2Connection_win : public IConnection
+class IKEv2Connection_win : public Ikev2ConnectionBase
 {
     Q_OBJECT
 public:
-    explicit IKEv2Connection_win(QObject *parent, Helper *helper);
+    explicit IKEv2Connection_win(QObject *parent, Helper *helper, types::Protocol protocol, const Ikev2SessionParams &sessionParams);
     ~IKEv2Connection_win() override;
 
-    void startConnect(const StartConnectParams &params) override;
+    void startConnect() override;
     void startDisconnect() override;
     bool isDisconnected() const override;
     void waitForDisconnect() override;
-
-    ConnectionType getConnectionType() const override { return ConnectionType::IKEV2; }
-
-    void continueWithUsernameAndPassword(const QString &username, const QString &password) override;
-    void continueWithPassword(const QString &password) override;
 
     // Used outside of an active connection, for app startup/shutdown cleanup of orphaned connections.
     static void removeIkev2ConnectionFromOS();

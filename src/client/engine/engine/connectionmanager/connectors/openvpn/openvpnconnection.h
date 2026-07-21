@@ -7,9 +7,11 @@
 #include <atomic>
 
 #include "engine/connectionmanager/connectors/iconnection.h"
+#include "engine/connectionmanager/connectors/openvpn/openvpnsessionparams.h"
+#include "engine/connectionmanager/connectors/openvpn/stunnelmanager.h"
+#include "engine/connectionmanager/connectors/openvpn/wstunnelmanager.h"
 #include "engine/helper/helper.h"
 #include "types/protocol.h"
-#include "types/proxysettings.h"
 #include "utils/boost_includes.h"
 
 class OpenVPNConnection : public IConnection
@@ -17,39 +19,37 @@ class OpenVPNConnection : public IConnection
     Q_OBJECT
 
 public:
-    explicit OpenVPNConnection(QObject *parent, Helper *helper);
+    explicit OpenVPNConnection(QObject *parent, Helper *helper, types::Protocol protocol, const OpenVpnSessionParams &sessionParams);
     ~OpenVPNConnection() override;
 
-    void startConnect(const StartConnectParams &params) override;
+    void prepare(const CurrentConnectionDescr &descr, const AttemptEnvironment &env) override;
+    void teardown() override;
+
+    void startConnect() override;
     void startDisconnect() override;
     bool isDisconnected() const override;
     bool isAllowFirewallAfterCustomConfigConnection() const override;
 
-    ConnectionType getConnectionType() const override { return ConnectionType::OPENVPN; }
-
-    void setPrivKeyPassword(const QString &password);
-    void continueWithUsernameAndPassword(const QString &username, const QString &password) override;
-    void continueWithPassword(const QString &password) override;
-    void continueWithPrivKeyPassword(const QString &password);
-
-    void setIsEmergencyConnect(bool isEmergencyConnect);
-
-    void setProtocol(const types::Protocol &protocol) { protocol_ = protocol; }
-
-signals:
-    void requestPrivKeyPassword();
+    void continueWithUserInput(const UserInputResponse &response) override;
 
 protected:
     void run() override;
 
 private slots:
     void onKillControllerTimer();
+    void onWrapperStarted();
 
 private:
+#ifdef WINDSCRIBE_BUILD_TESTS
+    friend class TestOpenVPNConnection;
+#endif
     static constexpr int MAX_WAIT_OPENVPN_ON_START = 20000;
     static constexpr int MANAGEMENT_SOCKET_RETRY_DELAY_MS = 100;
 
     Helper *helper_;
+    OpenVpnSessionParams sessionParams_;
+    StunnelManager *stunnelManager_;
+    WstunnelManager *wstunnelManager_;
     std::atomic<bool> bStopThread_;
 
     boost::asio::io_context io_context_;
@@ -59,10 +59,10 @@ private:
     QString username_;
     QString password_;
     QString privKeyPassword_;
-    types::ProxySettings proxySettings_;
     bool isCustomConfig_;
-    bool isEmergencyConnect_ = false;
-    types::Protocol protocol_;
+    // Set once startConnect() runs; teardown() must not issue the mac route delete for a connector
+    // that never dialed (the helper would be hit with another session's ip).
+    bool isDialed_ = false;
 
     enum CONNECTION_STATUS {STATUS_DISCONNECTED, STATUS_CONNECTING, STATUS_CONNECTED_TO_SOCKET, STATUS_CONNECTED};
     std::atomic<CONNECTION_STATUS> currentState_;
@@ -146,6 +146,9 @@ private:
 
     void checkErrorAndContinue(boost::system::error_code &write_error, bool bWithAsyncReadCall);
     void emitAuthErrorAndSigTerm(boost::system::error_code &write_error);
+    void continueWithUsernameAndPassword(const QString &username, const QString &password);
+    void continueWithPassword(const QString &password);
+    void continueWithPrivKeyPassword(const QString &password);
     void continueWithUsernameImpl();
     void continueWithPasswordImpl();
     void continueWithPrivKeyPasswordImpl();

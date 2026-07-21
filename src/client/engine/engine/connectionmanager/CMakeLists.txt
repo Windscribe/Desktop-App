@@ -3,6 +3,7 @@ target_sources(engine PRIVATE
     adaptergatewayinfo.h
     connectionmanager.cpp
     connectionmanager.h
+    connectrequest.h
     connectors/connectionfactory.cpp
     connectors/connectionfactory.h
     connectors/connectionplatformpolicy.cpp
@@ -10,6 +11,9 @@ target_sources(engine PRIVATE
     connectors/iconnection.h
     connectors/iconnectionfactory.h
     connectors/iconnectionplatformpolicy.h
+    connectors/ikev2/ikev2connectionbase.cpp
+    connectors/ikev2/ikev2connectionbase.h
+    connectors/ikev2/ikev2sessionparams.h
     connectors/openvpn/availableport.cpp
     connectors/openvpn/availableport.h
     connectors/openvpn/makeovpnfile.cpp
@@ -18,10 +22,14 @@ target_sources(engine PRIVATE
     connectors/openvpn/makeovpnfilefromcustom.h
     connectors/openvpn/openvpnconnection.cpp
     connectors/openvpn/openvpnconnection.h
+    connectors/openvpn/openvpnsessionparams.h
     connectors/openvpn/stunnelmanager.cpp
     connectors/openvpn/stunnelmanager.h
     connectors/openvpn/wstunnelmanager.cpp
     connectors/openvpn/wstunnelmanager.h
+    connectors/wireguard/wireguardconnectionbase.cpp
+    connectors/wireguard/wireguardconnectionbase.h
+    connectors/wireguard/wireguardsessionparams.h
     connsettingspolicy/autoconnsettingspolicy.cpp
     connsettingspolicy/autoconnsettingspolicy.h
     connsettingspolicy/baseconnsettingspolicy.h
@@ -29,6 +37,8 @@ target_sources(engine PRIVATE
     connsettingspolicy/connsettingspolicyfactory.h
     connsettingspolicy/customconfigconnsettingspolicy.cpp
     connsettingspolicy/customconfigconnsettingspolicy.h
+    connsettingspolicy/emergencyconnsettingspolicy.cpp
+    connsettingspolicy/emergencyconnsettingspolicy.h
     connsettingspolicy/iconnsettingspolicyfactory.h
     connsettingspolicy/manualconnsettingspolicy.cpp
     connsettingspolicy/manualconnsettingspolicy.h
@@ -63,8 +73,6 @@ elseif(APPLE)
         connectors/wireguard/wireguardconnection_posix.h
         networkextensionlog_mac.cpp
         networkextensionlog_mac.h
-        restorednsmanager_mac.h
-        restorednsmanager_mac.mm
         sleepevents_mac.h
         sleepevents_mac.mm
     )
@@ -77,5 +85,4 @@ elseif(UNIX)
     )
 endif()
 
-add_subdirectory(ctrldmanager)
 add_subdirectory(tests)

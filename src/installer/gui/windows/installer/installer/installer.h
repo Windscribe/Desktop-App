@@ -32,5 +32,6 @@ protected:
     int progress_;
 
 private:
+    void executeBlocks();
     void deleteBlocks();
 };

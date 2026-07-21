@@ -3,59 +3,27 @@
 #include <QElapsedTimer>
 #include <QObject>
 #include <QTimer>
-#include "ctrldmanager/ictrldmanager.h"
-#include "engine/connectionmanager/connectors/openvpn/makeovpnfile.h"
-#include "engine/connectionmanager/connectors/openvpn/makeovpnfilefromcustom.h"
-#include "engine/connectionmanager/connectors/openvpn/stunnelmanager.h"
-#include "engine/connectionmanager/connectors/openvpn/wstunnelmanager.h"
 
 #include "engine/connectionmanager/connectors/iconnection.h"
-#include "engine/wireguardconfig/wireguardconfig.h"
+#include "engine/helper/helper.h"
+#include "connectrequest.h"
 #include "connsettingspolicy/baseconnsettingspolicy.h"
 #include "engine/customconfigs/customovpnauthcredentialsstorage.h"
-#include "api_responses/servercredentials.h"
 #include "engine/locationsmodel/baselocationinfo.h"
 #include "types/connectionsettings.h"
 #include "types/enums.h"
 #include "types/packetsize.h"
 #include "types/protocol.h"
-#include "types/connecteddnsinfo.h"
 #include "api_responses/portmap.h"
-
-#ifdef Q_OS_MACOS
-    #include "restorednsmanager_mac.h"
-#endif
 
 class IConnectionFactory;
 class IConnectionPlatformPolicy;
 class IConnSettingsPolicyFactory;
+class IDnsConfigurator;
 class IExtraConfigAccessor;
 class INetworkDetectionManager;
 class ISleepEvents;
 class TestVPNTunnel;
-enum class WireGuardConfigRetCode;
-class GetWireGuardConfig;
-
-struct ConnectRequest
-{
-    QString ovpnConfig;
-    api_responses::ServerCredentials serverCredentialsOpenVpn;
-    api_responses::ServerCredentials serverCredentialsIkev2;
-    QSharedPointer<locationsmodel::BaseLocationInfo> bli;
-    types::ConnectionSettings connectionSettings;
-    api_responses::PortMap portMap;
-    types::ProxySettings proxySettings;
-    bool bEmitAuthError = false;
-    api_responses::AmneziawgUnblockParams amneziawgParams;
-    QString amneziawgPreset;
-    QString customSni;
-    QString preferredNodeHostname;
-
-    // Controls whether IPv6 is enabled for VPN tunnels that can carry dual-stack traffic
-    // (currently: WireGuard from API + WireGuard custom configs). kIPv4Only forces v6 to
-    // be stripped from the tunnel config; kAuto keeps v6 if the node/config supports it.
-    IpStack ipStackEgress = IpStack::kAuto;
-};
 
 // manage openvpn connection, reconnects, sleep mode, network change, automatic/manual connection mode
 
@@ -63,10 +31,11 @@ class ConnectionManager : public QObject
 {
     Q_OBJECT
 public:
+    // dnsConfigurator is owned by the caller (Engine) and must outlive the ConnectionManager.
     // The seam parameters exist for tests; when null, the production implementations are created.
     // ConnectionManager takes ownership of the seam objects, so they must be heap-allocated.
     explicit ConnectionManager(QObject *parent, Helper *helper, INetworkDetectionManager *networkDetectionManager,
-                               CustomOvpnAuthCredentialsStorage *customOvpnAuthCredentialsStorage,
+                               CustomOvpnAuthCredentialsStorage *customOvpnAuthCredentialsStorage, IDnsConfigurator *dnsConfigurator,
                                IConnectionFactory *connectionFactory = nullptr,
                                IConnectionPlatformPolicy *platformPolicy = nullptr,
                                IConnSettingsPolicyFactory *connSettingsPolicyFactory = nullptr,
@@ -85,9 +54,6 @@ public:
     const AdapterGatewayInfo &getDefaultAdapterInfo() const;
     const AdapterGatewayInfo &getVpnAdapterInfo() const;
 
-    void setConnectedDnsInfo(const types::ConnectedDnsInfo &info);
-    const types::ConnectedDnsInfo &connectedDnsInfo() const;
-
     void removeIkev2ConnectionFromOS();
 
     void continueWithUsernameAndPassword(const QString &username, const QString &password, bool bNeedReconnect);
@@ -102,7 +68,6 @@ public:
 
     void onWireGuardKeyLimitUserResponse(bool deleteOldestKey);
 
-    void setMss(int mss);
     void setPacketSize(types::PacketSize ps);
 
     void startTunnelTests();
@@ -145,9 +110,9 @@ private slots:
     void onConnectionStatisticsUpdated(quint64 bytesIn, quint64 bytesOut, bool isTotalBytes);
     void onConnectionInterfaceUpdated(const QString &interfaceName);
 
-    void onConnectionRequestUsername();
-    void onConnectionRequestPassword();
-    void onConnectionRequestPrivKeyPassword();
+    void onConnectionPrepared();
+    void onConnectionPrepareFailed(CONNECT_ERROR err);
+    void onConnectionUserInputRequired(UserInputType type);
 
     void onSleepMode();
     void onWakeMode();
@@ -158,14 +123,11 @@ private slots:
     void onConnectTrigger();
     void onConnectingTimeout();
 
-    void onWstunnelStarted();
     void onTunnelTestsFinished(bool bSuccess, const QString &ipAddress);
 
     void onTimerWaitNetworkConnectivity();
 
     void onHostnamesResolved();
-
-    void onGetWireGuardConfigAnswer(WireGuardConfigRetCode retCode, const WireGuardConfig &config);
 
 private:
 #ifdef WINDSCRIBE_BUILD_TESTS
@@ -181,6 +143,7 @@ private:
     Helper *helper_;
     INetworkDetectionManager *networkDetectionManager_;
     CustomOvpnAuthCredentialsStorage *customOvpnAuthCredentialsStorage_;
+    IDnsConfigurator *dnsConfigurator_;
 
     QScopedPointer<IConnectionFactory> connectionFactory_;
     QScopedPointer<IConnectionPlatformPolicy> platformPolicy_;
@@ -188,14 +151,10 @@ private:
     QScopedPointer<IExtraConfigAccessor> extraConfig_;
 
     IConnection *connector_;
+    // Under early creation the connector exists before the dial; external entry points that used
+    // "connector_ != nullptr" to mean "attempt has dialed" must check this instead.
+    bool isConnectorDialed_ = false;
     ISleepEvents *sleepEvents_;
-    StunnelManager *stunnelManager_;
-    WstunnelManager *wstunnelManager_;
-    ICtrldManager *ctrldManager_;
-
-#ifdef Q_OS_MACOS
-    RestoreDNSManager_mac restoreDnsManager_;
-#endif
 
     QScopedPointer<BaseConnSettingsPolicy> connSettingsPolicy_;
 
@@ -205,8 +164,6 @@ private:
 
     QTimer timerWaitNetworkConnectivity_;
 
-    MakeOVPNFile *makeOVPNFile_;
-    MakeOVPNFileFromCustom *makeOVPNFileFromCustom_;
     TestVPNTunnel *testVPNTunnel_;
 
     bool bIgnoreConnectionErrorsForOpenVpn_;
@@ -220,10 +177,9 @@ private:
     QTimer connectTimer_;
     static constexpr int kConnectionWaitTimeMsec = 10 * 1000;
 
-    // this timer is used to cap the login attempt time
+    // this timer is used to cap the login attempt time; the interval comes from the connector's
+    // capabilities
     QTimer connectingTimer_;
-    static constexpr int kConnectingTimeoutWireGuard = 20 * 1000;
-    static constexpr int kConnectingTimeout = 30 * 1000;
 
     int state_;
     bool bLastIsOnline_;
@@ -247,22 +203,15 @@ private:
 
     types::PacketSize packetSize_;
 
-    WireGuardConfig wireGuardConfig_;
-    GetWireGuardConfig *getWireGuardConfig_ = nullptr;
-
     AdapterGatewayInfo defaultAdapterInfo_;
     AdapterGatewayInfo vpnAdapterInfo_;
-
-    types::ConnectedDnsInfo connectedDnsInfo_;
 
     DISCONNECT_REASON userDisconnectReason_ = DISCONNECTED_BY_USER;
 
     void doConnect();
     void doConnectPart2();
-    void doConnectPart3();
     bool checkFails();
 
-    void doMacRestoreProcedures();
     void startReconnectionTimer();
     void waitForNetworkConnectivity();
     void recreateConnector(types::Protocol protocol);
@@ -272,8 +221,8 @@ private:
         const api_responses::PortMap &portMap,
         const types::ProxySettings &proxySettings);
     void connectOrStartConnectTimer();
-    void getWireGuardConfig(const QString &serverName, bool deleteOldestKey, bool useCachedConfigOnly = false);
-    QString dnsServersFromConnectedDnsInfo() const;
+    void clearCachedWgConfigIfExhausted(CONNECT_ERROR err);
+    void startFailoverReconnect();
 
     void disconnect();
 };

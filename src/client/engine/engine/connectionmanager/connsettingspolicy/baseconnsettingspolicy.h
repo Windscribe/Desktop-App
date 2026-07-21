@@ -22,7 +22,6 @@ struct CurrentConnectionDescr
     uint port = 0;
     types::Protocol protocol;
     QString hostname;
-    QString dnsHostName;
     QString verifyX509name;
     bool isIpv6Support = false;
 
@@ -70,6 +69,18 @@ public:
     virtual bool isCustomConfig() = 0;
     virtual void resolveHostnames() = 0;
     virtual bool hasProtocolChanged() = 0;
+
+    // Protocol of the next attempt, valid before resolveHostnames() completes, so the connector can
+    // be created at attempt start. Custom configs answer with the family representative (the exact
+    // per-remote variant is only known post-resolve).
+    virtual types::Protocol preResolveProtocol() const { return getCurrentConnectionSettings().protocol; }
+
+    // Whether an attempt that finds no usable network parks and polls for connectivity. Policies
+    // that must fail fast instead (emergency connect) return false.
+    virtual bool shouldWaitForNetwork() const { return true; }
+    // An endpoint-list policy walks its list on failures the regular policies treat as
+    // attempt-fatal (local spawn/socket errors, bare process death).
+    virtual bool shouldRetryOnAttemptFailure() const { return false; }
 
 signals:
     void protocolStatusChanged(const QVector<types::ProtocolStatus> &status, bool isAutomaticMode);
