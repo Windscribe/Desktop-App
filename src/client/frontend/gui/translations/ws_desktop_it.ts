@@ -814,6 +814,14 @@ If the problem persists after a restart, please send a debug log and open a supp
 Se il problema persiste dopo un riavvio, inviare un registro di debug e aprire un ticket di supporto, quindi passare a una modalità di connessione diversa.</translation>
     </message>
     <message>
+        <source>VPN adapter setup failed. Please wait one minute and try the connection again. If the problem persists, please send a debug log and open a support ticket, then switch to a different connection mode.</source>
+        <translation>Configurazione dell&apos;adattatore VPN fallita. Aspetta un minuto e riprova la connessione. Se il problema persiste, invia un registro di debug e apri un ticket di supporto, poi passa a una modalità di connessione diversa.</translation>
+    </message>
+    <message>
+        <source>Windscribe could not generate the connection configuration. If this error persists, please send a debug log and open a support ticket.</source>
+        <translation>Windscribe non riusciva a generare la configurazione della connessione. Se questo errore persiste, invia un registro di debug e apri un ticket di supporto.</translation>
+    </message>
+    <message>
         <source>An unexpected error occurred establishing the VPN connection (Error %1).  If this error persists, try using a different protocol or contact support.</source>
         <translation>Si è verificato un errore imprevisto durante la connessione VPN (errore %1).  Se l&apos;errore persiste, provare a utilizzare un protocollo diverso o contattare il supporto tecnico.</translation>
     </message>

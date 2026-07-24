@@ -1,6 +1,6 @@
 #include "helper_posix.h"
 #include "convert_utils.h"
-#include "engine/connectionmanager/adaptergatewayinfo.h"
+#include "engine/adaptergatewayinfo.h"
 #include "engine/wireguardconfig/wireguardconfig.h"
 #include "types/wireguardtypes.h"
 #include "utils/extraconfig.h"

@@ -28,7 +28,7 @@ private slots:
     void onBackendSessionStatusChanged(const api_responses::SessionStatus &sessionStatus);
     void onBackendUpdateVersionChanged(uint progressPercent, UPDATE_VERSION_STATE state, UPDATE_VERSION_ERROR error);
     void onBackendWireGuardAtKeyLimit();
-    void onBackendLocalDnsServerNotAvailable();
+    void onBackendConnectStateChanged(const types::ConnectState &connectState);
     void onBackendMyIpChanged(const QString &ip, bool isFromDisconnectedState);
     void onBackendSessionDeleted();
 

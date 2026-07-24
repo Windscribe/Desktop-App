@@ -40,7 +40,7 @@ private:
     ConnectionState getCurrentState() const;
     void setCurrentState(ConnectionState state);
     void setCurrentStateAndEmitSignal(ConnectionState state);
-    void setError(CONNECT_ERROR err);
+    void setError(ConnectError err);
     bool checkForKernelModule();
 
     Helper *helper_;

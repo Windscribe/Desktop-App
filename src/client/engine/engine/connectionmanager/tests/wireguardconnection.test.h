@@ -13,15 +13,19 @@ class TestWireGuardConnection : public QObject
 
 private slots:
     void initTestCase();
-
     void testCapabilities();
     void testCustomConfigPrepareKeepsDualStack();
     void testCustomConfigPrepareStripsIpv6WhenIpv4Only();
+    void testDialConfigAppliesDnsOverrideKeepsConfigPristine();
+    void testTunnelDefaultDnsEmptyNotNullAfterIpv4Strip();
     void testAnswerSuccessDualStack();
     void testAnswerSuccessStripsWithoutNodeIpv6();
     void testAnswerSuccessStripsWhenIpv4Only();
     void testAnswerSuccessInvalidNodeIp();
+    void testAnswerAppliesAmneziaPresetParam();
+    void testAnswerEmptyPresetClearsAmneziaParam();
     void testAnswerKeyLimit();
     void testAnswerFailoverFailed();
     void testAnswerFailed();
+    void testDialConfigEmptyPrimaryDnsKeepsConfigDns();
 };

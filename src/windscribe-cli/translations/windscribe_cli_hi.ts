@@ -179,12 +179,16 @@
         <translation>त्रुटि: कस्टम DNS सेवा प्रारंभ करने में असमर्थ</translation>
     </message>
     <message>
-        <source>Error: WireGuard adapter setup failed</source>
-        <translation>त्रुटि: WireGuard एडाप्टर सेटअप विफल हुआ</translation>
-    </message>
-    <message>
         <source>Error: Could not retrieve WireGuard configuration</source>
         <translation>त्रुटि: WireGuard कॉन्फ़िगरेशन पुनर्प्राप्त नहीं कर सका</translation>
+    </message>
+    <message>
+        <source>Error: Could not generate connection configuration</source>
+        <translation>त्रुटि: कनेक्शन कॉन्फ़िगरेशन जनरेट नहीं कर सका</translation>
+    </message>
+    <message>
+        <source>Error: Local DNS server is not available. Connected DNS has been set back to Auto</source>
+        <translation>त्रुटि: स्थानीय DNS सर्वर उपलब्ध नहीं है। कनेक्टेड DNS को ऑटो पर वापस सेट किया गया है</translation>
     </message>
     <message>
         <source>Unknown state</source>
@@ -301,6 +305,14 @@
     <message>
         <source>Incorrect 2FA code</source>
         <translation>गलत 2FA कोड</translation>
+    </message>
+    <message>
+        <source>Error: WireGuard adapter setup failed</source>
+        <translation>त्रुटि: वायरगार्ड एडाप्टर सेटअप विफल रहा</translation>
+    </message>
+    <message>
+        <source>Error: VPN adapter setup failed</source>
+        <translation>त्रुटि: VPN एडाप्टर सेटअप विफल रहा</translation>
     </message>
     <message>
         <source>(Device name: %1)</source>

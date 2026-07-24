@@ -179,12 +179,16 @@
         <translation>エラー:カスタムDNSサービスを開始できません</translation>
     </message>
     <message>
-        <source>Error: WireGuard adapter setup failed</source>
-        <translation>エラー:WireGuardアダプターのセットアップに失敗しました</translation>
-    </message>
-    <message>
         <source>Error: Could not retrieve WireGuard configuration</source>
         <translation>エラー:WireGuard構成を取得できませんでした</translation>
+    </message>
+    <message>
+        <source>Error: Could not generate connection configuration</source>
+        <translation>エラー:接続設定を生成できませんでした</translation>
+    </message>
+    <message>
+        <source>Error: Local DNS server is not available. Connected DNS has been set back to Auto</source>
+        <translation>エラー:ローカルDNSサーバーが利用できません。接続DNSは自動に戻されました</translation>
     </message>
     <message>
         <source>Unknown state</source>
@@ -301,6 +305,14 @@
     <message>
         <source>Incorrect 2FA code</source>
         <translation>2FAコードが正しくありません</translation>
+    </message>
+    <message>
+        <source>Error: WireGuard adapter setup failed</source>
+        <translation>エラー:WireGuardアダプターの設定に失敗しました</translation>
+    </message>
+    <message>
+        <source>Error: VPN adapter setup failed</source>
+        <translation>エラー:VPNアダプターの設定に失敗</translation>
     </message>
     <message>
         <source>(Device name: %1)</source>

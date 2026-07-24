@@ -255,6 +255,13 @@ QString CustomConfigLocationInfo::getOvpnData() const
     return QString();
 }
 
+QString CustomConfigLocationInfo::getOvpnConfigForSelectedEndpoint() const
+{
+    QString line = getSelectedRemoteCommand();
+    line.replace(remotes_[selected_].ipOrHostname_, getSelectedIp());
+    return getOvpnData() + line + "\r\n";
+}
+
 QString CustomConfigLocationInfo::getFilename() const
 {
     return config_->filename();

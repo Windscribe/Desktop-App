@@ -9,7 +9,7 @@ struct ConnectState
 {
     CONNECT_STATE connectState = CONNECT_STATE_DISCONNECTED;
     DISCONNECT_REASON disconnectReason = DISCONNECTED_BY_USER;
-    CONNECT_ERROR connectError = NO_CONNECT_ERROR;
+    ConnectError connectError = ConnectError::kNoError;
     LocationID location;
 
     bool operator==(const ConnectState &other) const

@@ -179,12 +179,16 @@
         <translation>Chyba: Nie je možné spustiť vlastnú službu DNS</translation>
     </message>
     <message>
-        <source>Error: WireGuard adapter setup failed</source>
-        <translation>Chyba: Nastavenie adaptéra WireGuard zlyhalo</translation>
-    </message>
-    <message>
         <source>Error: Could not retrieve WireGuard configuration</source>
         <translation>Chyba: Nepodarilo sa načítať konfiguráciu WireGuard</translation>
+    </message>
+    <message>
+        <source>Error: Could not generate connection configuration</source>
+        <translation>Chyba: Nepodarilo sa vygenerovať konfiguráciu spojenia</translation>
+    </message>
+    <message>
+        <source>Error: Local DNS server is not available. Connected DNS has been set back to Auto</source>
+        <translation>Chyba: Lokálny DNS server nie je dostupný. Pripojené DNS bolo nastavené späť na Auto</translation>
     </message>
     <message>
         <source>Unknown state</source>
@@ -301,6 +305,14 @@
     <message>
         <source>Incorrect 2FA code</source>
         <translation>Nesprávny 2FA kód</translation>
+    </message>
+    <message>
+        <source>Error: WireGuard adapter setup failed</source>
+        <translation>Chyba: Nastavenie adaptéra WireGuard zlyhalo</translation>
+    </message>
+    <message>
+        <source>Error: VPN adapter setup failed</source>
+        <translation>Chyba: Nastavenie VPN adaptéra zlyhalo</translation>
     </message>
     <message>
         <source>(Device name: %1)</source>

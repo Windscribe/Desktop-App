@@ -179,12 +179,16 @@
         <translation>Hata: Özel DNS hizmeti başlatılamıyor</translation>
     </message>
     <message>
-        <source>Error: WireGuard adapter setup failed</source>
-        <translation>Hata: WireGuard bağdaştırıcısı kurulumu başarısız oldu</translation>
-    </message>
-    <message>
         <source>Error: Could not retrieve WireGuard configuration</source>
         <translation>Hata: WireGuard yapılandırması alınamadı</translation>
+    </message>
+    <message>
+        <source>Error: Could not generate connection configuration</source>
+        <translation>Hata: Bağlantı yapılandırması oluşturulamadı</translation>
+    </message>
+    <message>
+        <source>Error: Local DNS server is not available. Connected DNS has been set back to Auto</source>
+        <translation>Hata: Yerel DNS sunucusu kullanılamıyor. Bağlı DNS tekrar Otomatik olarak ayarlandı</translation>
     </message>
     <message>
         <source>Unknown state</source>
@@ -301,6 +305,14 @@
     <message>
         <source>Incorrect 2FA code</source>
         <translation>Yanlış 2FA kodu</translation>
+    </message>
+    <message>
+        <source>Error: WireGuard adapter setup failed</source>
+        <translation>Hata: WireGuard adaptör kurulumu başarısız oldu</translation>
+    </message>
+    <message>
+        <source>Error: VPN adapter setup failed</source>
+        <translation>Hata: VPN adapter kurulumu başarısız oldu</translation>
     </message>
     <message>
         <source>(Device name: %1)</source>

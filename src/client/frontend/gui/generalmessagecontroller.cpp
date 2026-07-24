@@ -79,7 +79,7 @@ void GeneralMessageController::showMessageWithRedAccept(const QString &icon, con
     showMessage(msg);
 }
 
-void GeneralMessageController::showCredentialPrompt(const QString &icon, const QString &title, const QString &desc, const QString &username,
+int GeneralMessageController::showCredentialPrompt(const QString &icon, const QString &title, const QString &desc, const QString &username,
                                                     const QString &acceptText, const QString &rejectText, const QString &tertiaryText,
                                                     std::function<void(const QString &, const QString &, bool)> acceptFunc,
                                                     std::function<void(bool)> rejectFunc, std::function<void(bool)> tertiaryFunc,
@@ -87,11 +87,11 @@ void GeneralMessageController::showCredentialPrompt(const QString &icon, const Q
 {
     if (controller_ == nullptr) {
         // not initialized
-        return;
+        return 0;
     }
 
     MainWindowController::WINDOW_ID source = getSource();
-    showMessage(new GeneralMessage(icon, title, desc, username, acceptText, rejectText, tertiaryText, acceptFunc, rejectFunc, tertiaryFunc, source, adjustedFlags(flags, source)));
+    return showMessage(new GeneralMessage(icon, title, desc, username, acceptText, rejectText, tertiaryText, acceptFunc, rejectFunc, tertiaryFunc, source, adjustedFlags(flags, source)));
 }
 
 int GeneralMessageController::showMessage(GeneralMessage *message)

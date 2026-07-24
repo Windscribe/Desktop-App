@@ -118,7 +118,7 @@ void LocalIPCServer::onConnectionCommandCallback(IPC::Command *command, IPC::Con
                 emit connectToLocation(lid, protocol, port);
             } else if (backend_->isDisconnected()) {
                 // Already disconnected, just set the connect error
-                connectState_.connectError = LOCATION_NOT_EXIST;
+                connectState_.connectError = ConnectError::kLocationUnavailable;
             } else {
                 invalidLocation_ = true;
                 backend_->sendDisconnect();
@@ -238,15 +238,16 @@ void LocalIPCServer::onConnectionCommandCallback(IPC::Command *command, IPC::Con
 
 void LocalIPCServer::onConnectionStateCallback(int state, IPC::Connection *connection)
 {
-    if (state == IPC::CONNECTION_DISCONNECTED) {
-        connections_.removeOne(connection);
+    if (state == IPC::CONNECTION_DISCONNECTED || state == IPC::CONNECTION_ERROR) {
+        if (state == IPC::CONNECTION_ERROR) {
+            qCWarning(LOG_BASIC) << "CLI disconnected from server with error";
+        }
+        // A repeat stateChanged for a connection already torn down must not close() it again.
+        if (!connections_.removeOne(connection)) {
+            return;
+        }
         connection->close();
-        delete connection;
-    } else if (state == IPC::CONNECTION_ERROR) {
-        qCWarning(LOG_BASIC) << "CLI disconnected from server with error";
-        connections_.removeOne(connection);
-        connection->close();
-        delete connection;
+        connection->deleteLater();
     }
 }
 
@@ -276,8 +277,13 @@ void LocalIPCServer::onBackendLogoutFinished()
 
 void LocalIPCServer::sendCommand(const IPC::Command &command)
 {
-    for (IPC::Connection *connection : std::as_const(connections_)) {
-        connection->sendCommand(command);
+    // A write failure inside sendCommand() synchronously emits stateChanged, whose handler removes the
+    // connection from connections_; iterate a copy and skip connections torn down earlier in the loop.
+    const auto connections = connections_;
+    for (IPC::Connection *connection : connections) {
+        if (connections_.contains(connection)) {
+            connection->sendCommand(command);
+        }
     }
 }
 
@@ -330,7 +336,7 @@ void LocalIPCServer::onBackendConnectStateChanged(const types::ConnectState &sta
             connectState_.disconnectReason = DISCONNECTED_BY_KEY_LIMIT;
             disconnectedByKeyLimit_ = false;
         } else if (invalidLocation_) {
-            connectState_.connectError = LOCATION_NOT_EXIST;
+            connectState_.connectError = ConnectError::kLocationUnavailable;
             invalidLocation_ = false;
         }
     }

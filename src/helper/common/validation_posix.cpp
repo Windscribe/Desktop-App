@@ -17,6 +17,15 @@
 
 namespace Validation {
 
+// make_address/make_address_v4 and inet_pton parse only up to the first NUL (they read the
+// c_str()), so an embedded NUL would let a valid prefix validate while the bytes after it survive
+// in the std::string and reach the pf/iptables/OpenVPN text a caller builds as root. Every validator
+// that parses an address must reject an embedded NUL first so validation sees the whole value.
+static bool hasEmbeddedNul(const std::string &s)
+{
+    return s.find('\0') != std::string::npos;
+}
+
 bool isValidIpAddress(const std::string &ip)
 {
     // Reject a scope-id suffix (e.g. "fe80::1%en0"): make_address parses it as valid, but callers
@@ -26,6 +35,9 @@ bool isValidIpAddress(const std::string &ip)
     if (ip.find('%') != std::string::npos) {
         return false;
     }
+    if (hasEmbeddedNul(ip)) {
+        return false;
+    }
     boost::system::error_code ec;
     boost::asio::ip::make_address(ip, ec);
     return !ec;
@@ -33,6 +45,9 @@ bool isValidIpAddress(const std::string &ip)
 
 bool isValidIpv4Address(const std::string &ip)
 {
+    if (hasEmbeddedNul(ip)) {
+        return false;
+    }
     boost::system::error_code ec;
     boost::asio::ip::make_address_v4(ip, ec);
     return !ec;
@@ -40,6 +55,9 @@ bool isValidIpv4Address(const std::string &ip)
 
 bool isValidIpCidr(const std::string &ipCidr)
 {
+    if (hasEmbeddedNul(ipCidr)) {
+        return false;
+    }
     size_t slash = ipCidr.find('/');
 
     std::string ipPart;
@@ -109,6 +127,9 @@ bool isValidIpv4Cidr(const std::string &ipCidr)
 
 bool isValidPeerEndpoint(const std::string &endpoint)
 {
+    if (hasEmbeddedNul(endpoint)) {
+        return false;
+    }
     size_t colon = endpoint.rfind(':');
     if (colon == std::string::npos || colon == 0) {
         return false;

@@ -2,7 +2,6 @@
 
 #include <QObject>
 
-#include "engine/helper/helper.h"
 #include "types/protocol.h"
 
 class IConnection;
@@ -16,6 +15,13 @@ class IConnectionFactory
 public:
     virtual ~IConnectionFactory() {}
 
-    virtual IConnection *createConnection(types::Protocol protocol, QObject *parent, Helper *helper, const ConnectRequest &request) = 0;
+    virtual IConnection *createConnection(types::Protocol protocol, QObject *parent, const ConnectRequest &request) = 0;
     virtual void removeIkev2ConnectionFromOS() = 0;
+
+    // Locally stored credentials for the config-fetching protocol family (today: the cached
+    // WireGuard config used under Firewall Always On+). On the factory rather than IConnection
+    // because the usability check runs before any connector exists — it decides whether the
+    // attempt strategy may offer the protocol at all.
+    virtual bool hasUsableStoredConfig() const = 0;
+    virtual void removeStoredConfig() = 0;
 };

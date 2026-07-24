@@ -48,6 +48,7 @@
 
 class ConnectivityDiagnostic;
 class IDnsConfigurator;
+class TestVPNTunnel;
 
 class Engine : public QObject
 {
@@ -175,7 +176,7 @@ signals:
 
     void emergencyConnected();
     void emergencyDisconnected();
-    void emergencyConnectError(CONNECT_ERROR err);
+    void emergencyConnectError(ConnectError err);
 
     void sendDebugLogFinished(bool bSuccess);
     void confirmEmailFinished(bool bSuccess);
@@ -212,8 +213,6 @@ signals:
     void systemExtensionAvailabilityChanged(bool available);
 
     void connectionIdChanged(const QString &connId);
-
-    void localDnsServerNotAvailable();
 
     void bridgeApiAvailabilityChanged(bool isAvailable);
     void ipRotateResult(bool success);
@@ -282,7 +281,7 @@ private slots:
     void onConnectionManagerConnected();
     void onConnectionManagerDisconnected(DISCONNECT_REASON reason);
     void onConnectionManagerReconnecting();
-    void onConnectionManagerError(CONNECT_ERROR err);
+    void onConnectionManagerError(ConnectError err, const CurrentConnectionDescr &descr);
     void onConnectionManagerInternetConnectivityChanged(bool connectivity);
     void onConnectionManagerStatisticsUpdated(quint64 bytesIn, quint64 bytesOut, bool isTotalBytes);
     void onConnectionManagerInterfaceUpdated(const QString &interfaceName);
@@ -292,9 +291,9 @@ private slots:
     void onConnectionManagerWireGuardAtKeyLimit();
     void onConnectionManagerConnectionEnded();
 
-    void onConnectionManagerRequestUsername(const QString &pathCustomOvpnConfig);
-    void onConnectionManagerRequestPassword(const QString &pathCustomOvpnConfig);
-    void onConnectionManagerRequestPrivKeyPassword(const QString &pathCustomOvpnConfig);
+    void onConnectionManagerRequestUsername();
+    void onConnectionManagerRequestPassword();
+    void onConnectionManagerRequestPrivKeyPassword();
 
     void emergencyConnectClickImpl();
     void emergencyDisconnectClickImpl();
@@ -315,7 +314,7 @@ private slots:
     void onEmergencyConnectionConnected();
     void onEmergencyConnectionDisconnected(DISCONNECT_REASON reason);
     void onEmergencyConnectionReconnecting();
-    void onEmergencyConnectionError(CONNECT_ERROR err);
+    void onEmergencyConnectionError(ConnectError err, const CurrentConnectionDescr &descr);
 
     void getRobertFiltersImpl();
     void setRobertFilterImpl(const api_responses::RobertFilter &filter);
@@ -339,7 +338,7 @@ private slots:
 
     void stopPacketDetectionImpl();
 
-    void onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, CONNECT_ERROR err, const LocationID &location);
+    void onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, ConnectError err, const LocationID &location);
 
 #ifdef Q_OS_MACOS
     void onMacSpoofTimerTick();
@@ -367,6 +366,7 @@ private:
     FirewallController *firewallController_;
     IDnsConfigurator *dnsConfigurator_;
     ConnectionManager *connectionManager_;
+    TestVPNTunnel *testVPNTunnel_ = nullptr;
     ConnectStateController *connectStateController_;
     VpnShareController *vpnShareController_;
     // Emergency connect runs through its own ConnectionManager instance: same state machine and
@@ -486,6 +486,13 @@ private:
     bool tryLoginNextConnectOrDisconnect_ = false;
 
     QString lastUsernameForCustomConfig_;
+    // Filename of the custom-OVPN config currently being prompted for; the key for saving the
+    // credentials the user enters (set whenever a custom-OVPN prompt is raised).
+    QString pendingCustomOvpnConfigFilename_;
+    // Snapshot of the connect target's custom config, taken at each doConnect (empty/true when
+    // the target is not a custom config).
+    QString customConfigFilename_;
+    bool customConfigAllowFirewall_ = true;
     std::optional<bool> wasPremium_;
 
     api_responses::AmneziawgUnblockParams amneziawgParams_;

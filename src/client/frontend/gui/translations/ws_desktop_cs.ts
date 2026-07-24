@@ -814,6 +814,14 @@ If the problem persists after a restart, please send a debug log and open a supp
 Pokud problém přetrvává i po restartování, odešlete protokol ladění, otevřete lístek podpory a poté přepněte do jiného režimu připojení.</translation>
     </message>
     <message>
+        <source>VPN adapter setup failed. Please wait one minute and try the connection again. If the problem persists, please send a debug log and open a support ticket, then switch to a different connection mode.</source>
+        <translation>Nastavení VPN adaptéru selhalo. Prosím, počkejte minutu a zkuste spojení znovu. Pokud problém přetrvává, pošlete prosím debugovací log a otevřete tiket na podporu, poté přepněte na jiný režim připojení.</translation>
+    </message>
+    <message>
+        <source>Windscribe could not generate the connection configuration. If this error persists, please send a debug log and open a support ticket.</source>
+        <translation>Windscribe nedokázal vygenerovat konfiguraci spojení. Pokud tato chyba přetrvává, pošlete prosím debugovací log a otevřete tiket na podporu.</translation>
+    </message>
+    <message>
         <source>An unexpected error occurred establishing the VPN connection (Error %1).  If this error persists, try using a different protocol or contact support.</source>
         <translation>Při vytváření připojení VPN došlo k neočekávané chybě (Chyba % 1).  Pokud tato chyba přetrvává, zkuste použít jiný protokol nebo kontaktujte podporu.</translation>
     </message>

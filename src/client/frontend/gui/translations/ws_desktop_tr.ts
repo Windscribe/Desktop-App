@@ -814,6 +814,14 @@ If the problem persists after a restart, please send a debug log and open a supp
 Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama günlüğü gönderin ve bir destek bileti açın, ardından farklı bir bağlantı moduna geçin.</translation>
     </message>
     <message>
+        <source>VPN adapter setup failed. Please wait one minute and try the connection again. If the problem persists, please send a debug log and open a support ticket, then switch to a different connection mode.</source>
+        <translation>VPN adaptör kurulumu başarısız oldu. Lütfen bir dakika bekleyin ve bağlantıyı tekrar deneyin. Sorun devam ederse, lütfen bir hata ayıklama logu gönderin ve destek bileti açın, sonra farklı bir bağlantı moduna geçin.</translation>
+    </message>
+    <message>
+        <source>Windscribe could not generate the connection configuration. If this error persists, please send a debug log and open a support ticket.</source>
+        <translation>Windscribe bağlantı yapılandırmasını oluşturamadı. Bu hata devam ederse, lütfen bir hata ayıklama kaydı gönderin ve destek bileti açın.</translation>
+    </message>
+    <message>
         <source>An unexpected error occurred establishing the VPN connection (Error %1).  If this error persists, try using a different protocol or contact support.</source>
         <translation>VPN bağlantısı kurulurken beklenmeyen bir hata oluştu (Hata %1).  Bu hata devam ederse, farklı bir protokol kullanmayı deneyin veya desteğe başvurun.</translation>
     </message>

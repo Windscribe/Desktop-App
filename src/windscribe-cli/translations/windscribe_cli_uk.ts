@@ -179,12 +179,16 @@
         <translation>Помилка: не вдається запустити спеціальну службу DNS</translation>
     </message>
     <message>
-        <source>Error: WireGuard adapter setup failed</source>
-        <translation>Помилка: не вдалося налаштувати адаптер WireGuard</translation>
-    </message>
-    <message>
         <source>Error: Could not retrieve WireGuard configuration</source>
         <translation>Помилка: не вдалося відновити конфігурацію WireGuard</translation>
+    </message>
+    <message>
+        <source>Error: Could not generate connection configuration</source>
+        <translation>Помилка: не вдалося згенерувати конфігурацію з&apos;єднання</translation>
+    </message>
+    <message>
+        <source>Error: Local DNS server is not available. Connected DNS has been set back to Auto</source>
+        <translation>Помилка: Локальний DNS-сервер недоступний. Підключений DNS повернули до автоматичного режиму</translation>
     </message>
     <message>
         <source>Unknown state</source>
@@ -301,6 +305,14 @@
     <message>
         <source>Incorrect 2FA code</source>
         <translation>Неправильний код 2FA</translation>
+    </message>
+    <message>
+        <source>Error: WireGuard adapter setup failed</source>
+        <translation>Помилка: Не вдалося налаштувати адаптер WireGuard</translation>
+    </message>
+    <message>
+        <source>Error: VPN adapter setup failed</source>
+        <translation>Помилка: Не вдалося налаштувати VPN-адаптер</translation>
     </message>
     <message>
         <source>(Device name: %1)</source>

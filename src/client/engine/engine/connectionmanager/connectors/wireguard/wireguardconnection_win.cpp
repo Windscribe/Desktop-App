@@ -6,7 +6,7 @@
 
 #include <shlobj.h>
 
-#include "engine/connectionmanager/adapterutils_win.h"
+#include "engine/adapterutils_win.h"
 #include "engine/wireguardconfig/wireguardconfig.h"
 #include "types/global_consts.h"
 #include "types/wireguardtypes.h"
@@ -58,6 +58,7 @@ void WireGuardConnection::startConnect()
     }
 
     connectedSignalEmited_ = false;
+    handshakeTracker_.reset();
     // Config and endpoint were assembled by prepare(); the DNS override comes from the attempt environment.
     wireGuardConfig_ = dialConfig();
 
@@ -95,7 +96,7 @@ void WireGuardConnection::run()
     bool bSuccess = helper_->startWireGuard(isAmneziaWG());
     if (!bSuccess) {
         qCCritical(LOG_CONNECTION) << WS_PRODUCT_NAME " service could not install the WireGuard service";
-        emit error(CONNECT_ERROR::WIREGUARD_CONNECTION_ERROR);
+        emit error(ConnectError::kTunnelEstablishmentFailure);
         emit disconnected();
         return;
     }
@@ -109,7 +110,7 @@ void WireGuardConnection::run()
         stopWireGuard.dismiss();
         helper_->stopWireGuard();
         // Delay emiting signals until we have cleaned up all our resources.
-        emit error(CONNECT_ERROR::WIREGUARD_CONNECTION_ERROR);
+        emit error(ConnectError::kTunnelEstablishmentFailure);
         emit disconnected();
         return;
     }
@@ -190,10 +191,10 @@ void WireGuardConnection::run()
 
     // Delay emiting signals until we have cleaned up all our resources.
     if (wireguardLog_->adapterSetupFailed()) {
-        emit error(CONNECT_ERROR::WIREGUARD_ADAPTER_SETUP_FAILED);
+        emit error(ConnectError::kAdapterSetupFailure);
     }
     else if (!serviceStarted) {
-        emit error(CONNECT_ERROR::WIREGUARD_CONNECTION_ERROR);
+        emit error(ConnectError::kTunnelEstablishmentFailure);
     }
 
     emit disconnected();
@@ -265,6 +266,8 @@ void WireGuardConnection::onGetWireguardStats()
 
     types::WireGuardStatus status;
     if (helper_->getWireGuardStatus(&status) && (status.state == types::WireGuardState::ACTIVE)) {
+        handshakeTracker_.update(status.lastHandshake);
+
         // Check for the rare condition where we did not see the isKeypairCreated() in onGetWireguardLogUpdates
         // but the kernel driver reports the tunnel as active and receiving handshakes.
         if (!connectedSignalEmited_ && status.lastHandshake > 0) {
@@ -288,11 +291,8 @@ void WireGuardConnection::onWireguardHandshakeFailure()
         if (handshake > 0) {
             // The handshake should occur every ~2 minutes.  After 3 minutes, the server will discard our key
             // information and will silently reject anything we send to it until we make another wgconfig API call.
-            QDateTime dtHandshake = QDateTime::fromSecsSinceEpoch((handshake / 10000000) - 11644473600LL, QTimeZone(QTimeZone::UTC));
-            qint64 secsTo = dtHandshake.secsTo(QDateTime::currentDateTimeUtc());
-
-            if (secsTo >= 3*60) {
-                qCWarning(LOG_CONNECTION) << secsTo << "seconds have passed since the last WireGuard handshake, disconnecting the tunnel.";
+            if (handshakeTracker_.isStale(handshake)) {
+                qCWarning(LOG_CONNECTION) << "The WireGuard handshake is stale, disconnecting the tunnel.";
                 stop();
             }
         }

@@ -4,6 +4,7 @@
 #include <string>
 
 #include "../../common/helper_commands.h"
+#include "../../common/wg_handshake_tracker.h"
 
 class WireGuardCommunicator
 {
@@ -47,4 +48,5 @@ private:
 
     std::string deviceName_;
     bool verboseLogging_ = false;
+    WgHandshakeTracker handshakeTracker_;
 };

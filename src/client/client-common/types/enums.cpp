@@ -4,7 +4,7 @@
 #include <QMetaType>
 #include "utils/ws_assert.h"
 
-const int typeIdOpenVpnError = qRegisterMetaType<CONNECT_ERROR>("CONNECT_ERROR");
+const int typeIdOpenVpnError = qRegisterMetaType<ConnectError>("ConnectError");
 const int typeIdProxyOption = qRegisterMetaType<PROXY_OPTION>("PROXY_OPTION");
 const int typeIdLoginMessage = qRegisterMetaType<LOGIN_MESSAGE>("LOGIN_MESSAGE");
 const int typeIdApiRetCode = qRegisterMetaType<API_RET_CODE>("API_RET_CODE");

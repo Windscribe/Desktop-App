@@ -523,7 +523,7 @@ void BackendCommander::onStateUpdated(IPC::Command *command)
             connectId_ = cmd->connectId_;
         }
 
-        if (cmd->connectState_.connectState == CONNECT_STATE_DISCONNECTED && cmd->connectState_.connectError != NO_CONNECT_ERROR ||
+        if (cmd->connectState_.connectState == CONNECT_STATE_DISCONNECTED && cmd->connectState_.connectError != ConnectError::kNoError ||
             cmd->connectState_.connectState == CONNECT_STATE_DISCONNECTED && cmd->connectState_.disconnectReason == DISCONNECTED_BY_KEY_LIMIT ||
             cmd->connectState_.connectState == CONNECT_STATE_DISCONNECTED && cmd->connectId_.isEmpty())
         {

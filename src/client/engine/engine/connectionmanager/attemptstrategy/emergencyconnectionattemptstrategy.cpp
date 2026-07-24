@@ -1,19 +1,19 @@
-#include "emergencyconnsettingspolicy.h"
+#include "emergencyconnectionattemptstrategy.h"
 
 #include <wsnet/WSNet.h>
 
 #include "utils/log/categories.h"
 
-EmergencyConnSettingsPolicy::EmergencyConnSettingsPolicy()
+EmergencyConnectionAttemptStrategy::EmergencyConnectionAttemptStrategy()
 {
 }
 
-EmergencyConnSettingsPolicy::~EmergencyConnSettingsPolicy()
+EmergencyConnectionAttemptStrategy::~EmergencyConnectionAttemptStrategy()
 {
     cancelRequest();
 }
 
-void EmergencyConnSettingsPolicy::reset()
+void EmergencyConnectionAttemptStrategy::reset()
 {
     cancelRequest();
     isFetched_ = false;
@@ -21,28 +21,28 @@ void EmergencyConnSettingsPolicy::reset()
     endpoints_.clear();
 }
 
-void EmergencyConnSettingsPolicy::debugLocationInfoToLog() const
+void EmergencyConnectionAttemptStrategy::debugLocationInfoToLog() const
 {
     qCInfo(LOG_CONNECTION) << "Emergency connect";
 }
 
-void EmergencyConnSettingsPolicy::putFailedConnection()
+void EmergencyConnectionAttemptStrategy::putFailedConnection()
 {
     // A failure before the endpoint list arrived (e.g. connecting timeout during a slow fetch)
     // consumed no endpoint; advancing would skip one that was never attempted.
-    if (!bStarted_ || !isFetched_) {
+    if (!isFetched_) {
         return;
     }
 
     currentEndpointIndex_++;
 }
 
-bool EmergencyConnSettingsPolicy::isFailed() const
+bool EmergencyConnectionAttemptStrategy::isFailed() const
 {
     return isFetched_ && currentEndpointIndex_ >= endpoints_.size();
 }
 
-CurrentConnectionDescr EmergencyConnSettingsPolicy::getCurrentConnectionSettings() const
+CurrentConnectionDescr EmergencyConnectionAttemptStrategy::getCurrentConnectionSettings() const
 {
     CurrentConnectionDescr ccd;
 
@@ -60,17 +60,12 @@ CurrentConnectionDescr EmergencyConnSettingsPolicy::getCurrentConnectionSettings
     return ccd;
 }
 
-bool EmergencyConnSettingsPolicy::isAutomaticMode()
+bool EmergencyConnectionAttemptStrategy::isAutomaticMode()
 {
     return false;
 }
 
-bool EmergencyConnSettingsPolicy::isCustomConfig()
-{
-    return false;
-}
-
-void EmergencyConnSettingsPolicy::resolveHostnames()
+void EmergencyConnectionAttemptStrategy::resolveHostnames()
 {
     // The endpoint list is fetched once per session; subsequent attempts iterate the cached list.
     if (isFetched_) {
@@ -100,27 +95,22 @@ void EmergencyConnSettingsPolicy::resolveHostnames()
     request_ = wsnet::WSNet::instance()->emergencyConnect()->getIpEndpoints(callback);
 }
 
-bool EmergencyConnSettingsPolicy::hasProtocolChanged()
-{
-    return false;
-}
-
-types::Protocol EmergencyConnSettingsPolicy::preResolveProtocol() const
+types::Protocol EmergencyConnectionAttemptStrategy::preResolveProtocol() const
 {
     return types::Protocol::OPENVPN_UDP;
 }
 
-bool EmergencyConnSettingsPolicy::shouldWaitForNetwork() const
+bool EmergencyConnectionAttemptStrategy::shouldWaitForNetwork() const
 {
     return false;
 }
 
-bool EmergencyConnSettingsPolicy::shouldRetryOnAttemptFailure() const
+bool EmergencyConnectionAttemptStrategy::shouldRetryOnAttemptFailure() const
 {
     return true;
 }
 
-void EmergencyConnSettingsPolicy::onEndpointsReceived(const std::vector<EmergencyEndpoint> &endpoints)
+void EmergencyConnectionAttemptStrategy::onEndpointsReceived(const std::vector<EmergencyEndpoint> &endpoints)
 {
     request_.reset();
     isFetched_ = true;
@@ -130,7 +120,7 @@ void EmergencyConnSettingsPolicy::onEndpointsReceived(const std::vector<Emergenc
     emit hostnamesResolved();
 }
 
-void EmergencyConnSettingsPolicy::cancelRequest()
+void EmergencyConnectionAttemptStrategy::cancelRequest()
 {
     if (request_) {
         request_->cancel();

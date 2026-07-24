@@ -179,12 +179,16 @@
         <translation>خطأ: غير قادر على بدء تشغيل خدمة DNS المخصصة</translation>
     </message>
     <message>
-        <source>Error: WireGuard adapter setup failed</source>
-        <translation>خطأ: فشل إعداد محول WireGuard</translation>
-    </message>
-    <message>
         <source>Error: Could not retrieve WireGuard configuration</source>
         <translation>خطأ: تعذر استرداد تكوين WireGuard</translation>
+    </message>
+    <message>
+        <source>Error: Could not generate connection configuration</source>
+        <translation>خطأ: لم أتمكن من توليد تكوين الاتصال</translation>
+    </message>
+    <message>
+        <source>Error: Local DNS server is not available. Connected DNS has been set back to Auto</source>
+        <translation>خطأ: خادم DNS المحلي غير متوفر. تم إعادة تعيين DNS المتصل إلى وضع تلقائي</translation>
     </message>
     <message>
         <source>Unknown state</source>
@@ -301,6 +305,14 @@
     <message>
         <source>Incorrect 2FA code</source>
         <translation>رمز 2FA غير صحيح</translation>
+    </message>
+    <message>
+        <source>Error: WireGuard adapter setup failed</source>
+        <translation>خطأ: فشل إعداد محول WireGuard</translation>
+    </message>
+    <message>
+        <source>Error: VPN adapter setup failed</source>
+        <translation>خطأ: فشل إعداد محول VPN</translation>
     </message>
     <message>
         <source>(Device name: %1)</source>

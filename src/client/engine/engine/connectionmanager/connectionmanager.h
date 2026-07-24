@@ -5,10 +5,8 @@
 #include <QTimer>
 
 #include "engine/connectionmanager/connectors/iconnection.h"
-#include "engine/helper/helper.h"
+#include "attemptstrategy/iconnectionattemptstrategy.h"
 #include "connectrequest.h"
-#include "connsettingspolicy/baseconnsettingspolicy.h"
-#include "engine/customconfigs/customovpnauthcredentialsstorage.h"
 #include "engine/locationsmodel/baselocationinfo.h"
 #include "types/connectionsettings.h"
 #include "types/enums.h"
@@ -18,12 +16,10 @@
 
 class IConnectionFactory;
 class IConnectionPlatformPolicy;
-class IConnSettingsPolicyFactory;
+class IConnectionAttemptStrategyFactory;
 class IDnsConfigurator;
-class IExtraConfigAccessor;
 class INetworkDetectionManager;
 class ISleepEvents;
-class TestVPNTunnel;
 
 // manage openvpn connection, reconnects, sleep mode, network change, automatic/manual connection mode
 
@@ -32,15 +28,15 @@ class ConnectionManager : public QObject
     Q_OBJECT
 public:
     // dnsConfigurator is owned by the caller (Engine) and must outlive the ConnectionManager.
-    // The seam parameters exist for tests; when null, the production implementations are created.
-    // ConnectionManager takes ownership of the seam objects, so they must be heap-allocated.
-    explicit ConnectionManager(QObject *parent, Helper *helper, INetworkDetectionManager *networkDetectionManager,
-                               CustomOvpnAuthCredentialsStorage *customOvpnAuthCredentialsStorage, IDnsConfigurator *dnsConfigurator,
-                               IConnectionFactory *connectionFactory = nullptr,
-                               IConnectionPlatformPolicy *platformPolicy = nullptr,
-                               IConnSettingsPolicyFactory *connSettingsPolicyFactory = nullptr,
-                               ISleepEvents *sleepEvents = nullptr,
-                               IExtraConfigAccessor *extraConfig = nullptr);
+    // The caller supplies the seam implementations (Engine passes the production ones, tests pass
+    // fakes); ConnectionManager takes ownership, so they must be heap-allocated. sleepEvents may be
+    // null (platforms without sleep handling).
+    explicit ConnectionManager(QObject *parent, INetworkDetectionManager *networkDetectionManager,
+                               IDnsConfigurator *dnsConfigurator,
+                               IConnectionFactory *connectionFactory,
+                               IConnectionPlatformPolicy *platformPolicy,
+                               IConnectionAttemptStrategyFactory *attemptStrategyFactory,
+                               ISleepEvents *sleepEvents);
     ~ConnectionManager() override;
 
     void clickConnect(const ConnectRequest &req);
@@ -55,23 +51,24 @@ public:
     const AdapterGatewayInfo &getVpnAdapterInfo() const;
 
     void removeIkev2ConnectionFromOS();
+    void removeStoredConfig();
 
     void continueWithUsernameAndPassword(const QString &username, const QString &password, bool bNeedReconnect);
-    void continueWithPassword(const QString &password, bool bNeedReconnect);
+    void continueWithPassword(const QString &password);
     void continueWithPrivKeyPassword(const QString &password, bool bNeedReconnect);
-
-    bool isCustomOvpnConfigCurrentConnection() const;
-    QString getCustomOvpnConfigFileName();
 
     bool isStaticIpsLocation() const;
     api_responses::StaticIpPortsVector getStatisIps();
 
     void onWireGuardKeyLimitUserResponse(bool deleteOldestKey);
 
+    // Delivers the outcome of the tunnel test the caller (Engine) ran after connect; ignored unless
+    // still connected, so a result racing in behind a drop/disconnect can't drive failover.
+    void onTunnelTestResult(bool success, const QString &ipAddress);
+
     void setPacketSize(types::PacketSize ps);
 
-    void startTunnelTests();
-    bool isAllowFirewallAfterConnection() const;
+    bool isAllowFirewallAfterConnectionRuntime() const;
 
     types::Protocol currentProtocol() const;
 
@@ -86,7 +83,7 @@ signals:
     void connected();
     void connectingToHostname(const QString &hostname, const QString &ip, const QStringList &dnsServers);
     void disconnected(DISCONNECT_REASON reason);
-    void errorDuringConnection(CONNECT_ERROR errorCode);
+    void errorDuringConnection(ConnectError errorCode, const CurrentConnectionDescr &descr);
     void reconnecting();
     void statisticsUpdated(quint64 bytesIn, quint64 bytesOut, bool isTotalBytes);
     void interfaceUpdated(const QString &interfaceName);  // WireGuard-specific.
@@ -96,9 +93,9 @@ signals:
     void wireGuardAtKeyLimit();
     void protocolStatusChanged(const QVector<types::ProtocolStatus> &status, bool isAutomaticMode);
 
-    void requestUsername(const QString &pathCustomOvpnConfig);
-    void requestPassword(const QString &pathCustomOvpnConfig);
-    void requestPrivKeyPassword(const QString &pathCustomOvpnConfig);
+    void requestUsername();
+    void requestPassword();
+    void requestPrivKeyPassword();
 
     void connectionEnded();
 
@@ -106,12 +103,12 @@ private slots:
     void onConnectionConnected(const AdapterGatewayInfo &connectionAdapterInfo);
     void onConnectionDisconnected();
     void onConnectionReconnecting();
-    void onConnectionError(CONNECT_ERROR err);
+    void onConnectionError(ConnectError err);
     void onConnectionStatisticsUpdated(quint64 bytesIn, quint64 bytesOut, bool isTotalBytes);
     void onConnectionInterfaceUpdated(const QString &interfaceName);
 
     void onConnectionPrepared();
-    void onConnectionPrepareFailed(CONNECT_ERROR err);
+    void onConnectionPrepareFailed(ConnectError err);
     void onConnectionUserInputRequired(UserInputType type);
 
     void onSleepMode();
@@ -122,8 +119,6 @@ private slots:
     void onTimerReconnection();
     void onConnectTrigger();
     void onConnectingTimeout();
-
-    void onTunnelTestsFinished(bool bSuccess, const QString &ipAddress);
 
     void onTimerWaitNetworkConnectivity();
 
@@ -136,19 +131,38 @@ private:
     friend class TestConnectionManager;
 #endif
 
-    enum {STATE_DISCONNECTED, STATE_CONNECTING_FROM_USER_CLICK, STATE_CONNECTED, STATE_RECONNECTING,
-          STATE_DISCONNECTING_FROM_USER_CLICK, STATE_WAIT_FOR_NETWORK_CONNECTIVITY, STATE_RECONNECTION_TIME_EXCEED,
-          STATE_SLEEP_MODE_NEED_RECONNECT, STATE_WAKEUP_RECONNECTING, STATE_AUTO_DISCONNECT, STATE_ERROR_DURING_CONNECTION};
+    enum class State {
+        kDisconnected,
+        kConnecting, // an attempt is live (prepare or dial)
+        kConnected,
+        kReconnecting, // between attempts / failover; reconnectCause_ distinguishes a wake-initiated one
+        kWaitingForNetwork,
+        kSleeping,
+        kStopping // connector teardown in progress; the outcome to surface is in pendingOutcome_
+    };
+    Q_ENUM(State)
 
-    Helper *helper_;
+    // How Reconnecting was entered; meaningful only while state_ is Reconnecting. setState() is the
+    // only writer.
+    enum class ReconnectCause { Regular, Wake };
+
+    // What to emit once the connector confirms it stopped (consumed in the Stopping case of
+    // onConnectionDisconnected).
+    struct PendingOutcome {
+        enum class Type { Disconnect, Error };
+        Type type = Type::Disconnect;
+        DISCONNECT_REASON reason = DISCONNECTED_ITSELF;
+        ConnectError error = ConnectError::kNoError;
+        // A user-initiated stop resets the strategy walk on completion and wins over a repeat click.
+        bool isUserInitiated = false;
+    };
+
     INetworkDetectionManager *networkDetectionManager_;
-    CustomOvpnAuthCredentialsStorage *customOvpnAuthCredentialsStorage_;
     IDnsConfigurator *dnsConfigurator_;
 
     QScopedPointer<IConnectionFactory> connectionFactory_;
     QScopedPointer<IConnectionPlatformPolicy> platformPolicy_;
-    QScopedPointer<IConnSettingsPolicyFactory> connSettingsPolicyFactory_;
-    QScopedPointer<IExtraConfigAccessor> extraConfig_;
+    QScopedPointer<IConnectionAttemptStrategyFactory> attemptStrategyFactory_;
 
     IConnection *connector_;
     // Under early creation the connector exists before the dial; external entry points that used
@@ -156,7 +170,7 @@ private:
     bool isConnectorDialed_ = false;
     ISleepEvents *sleepEvents_;
 
-    QScopedPointer<BaseConnSettingsPolicy> connSettingsPolicy_;
+    QScopedPointer<IConnectionAttemptStrategy> attemptStrategy_;
 
     QString lastIp_;
 
@@ -164,11 +178,7 @@ private:
 
     QTimer timerWaitNetworkConnectivity_;
 
-    TestVPNTunnel *testVPNTunnel_;
-
-    bool bIgnoreConnectionErrorsForOpenVpn_;
-    bool bWasSuccessfullyConnectionAttempt_;
-    CONNECT_ERROR latestConnectionError_;
+    bool bIgnoreConnectionErrors_;
 
     QTimer timerReconnection_;
     enum { MAX_RECONNECTION_TIME = 60 * 60 * 1000 };  // 1 hour
@@ -181,18 +191,17 @@ private:
     // capabilities
     QTimer connectingTimer_;
 
-    int state_;
+    State state_;
+    PendingOutcome pendingOutcome_;
+    // Wake: the reconnect was initiated by wake-restore and hasn't recorded a failure yet — the
+    // attempt gets a fresh reconnection budget and connector-level failures don't consume an endpoint.
+    ReconnectCause reconnectCause_ = ReconnectCause::Regular;
     bool bLastIsOnline_;
     bool bWakeSignalReceived_;
     bool isFirewallAlwaysOnPlusEnabled_ = false;
-
-    // Snapshot taken when the connection policy is built, so the policy decision and doConnectPart2
-    // stay consistent even if a forced re-registration is flagged asynchronously mid-connect.
-    bool hasUsableCachedWgConfig_ = false;
-    // Under Always On+ a stale cached config can't be refreshed (API blocked); cap the attempts so a
-    // config that never establishes can't loop forever. Reset on tunnel success and rotation restart.
-    int wgCachedConfigAttempts_ = 0;
-    static constexpr int kMaxWgCachedConfigAttempts = 2;
+    // Session fact, not walk state: survives strategy recreation, cleared on a fresh connect and on
+    // a credential-reprompt reconnect. An exhausted walk restarts instead of giving up when set.
+    bool bAttemptSucceeded_ = false;
 
     types::Protocol currentProtocol_;
 
@@ -206,23 +215,32 @@ private:
     AdapterGatewayInfo defaultAdapterInfo_;
     AdapterGatewayInfo vpnAdapterInfo_;
 
-    DISCONNECT_REASON userDisconnectReason_ = DISCONNECTED_BY_USER;
+    bool isSenderCurrentConnector() const;
+    bool isAttemptActive() const;
+    void forwardUserInputOrReconnect(const UserInputResponse &response, bool bNeedReconnect);
+    void setState(State state, ReconnectCause cause = ReconnectCause::Regular);
+    void enterStopping();
+    void stopWithDisconnect(DISCONNECT_REASON reason, bool isUserInitiated);
+    void stopWithError(ConnectError err);
 
-    void doConnect();
-    void doConnectPart2();
-    bool checkFails();
+    void startAttempt();
+    void handleAttemptFailed(bool bDisconnectConnector);
+    void handleReconnecting();
 
+    void enterReconnecting();
+    void applyGaiIpv4Priority();
     void startReconnectionTimer();
     void waitForNetworkConnectivity();
     void recreateConnector(types::Protocol protocol);
     void restoreConnectionAfterWakeUp();
-    void updateConnectionSettingsPolicy(
+    void recreateAttemptStrategy(
         const types::ConnectionSettings &connectionSettings,
         const api_responses::PortMap &portMap,
         const types::ProxySettings &proxySettings);
     void connectOrStartConnectTimer();
-    void clearCachedWgConfigIfExhausted(CONNECT_ERROR err);
+    void clearCachedConfigIfExhausted(bool isCachedConfigFailure);
     void startFailoverReconnect();
+    void failWithError(ConnectError err);
 
     void disconnect();
 };

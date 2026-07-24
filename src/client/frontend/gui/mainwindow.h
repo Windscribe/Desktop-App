@@ -228,7 +228,6 @@ private slots:
     void onBackendSetRobertFilterResult(bool success);
     void onBackendSyncRobertResult(bool success);
     void onBackendProtocolStatusChanged(const QVector<types::ProtocolStatus> &status, bool isAutomaticMode);
-    void onLocalDnsServerNotAvailable();
     void onSplitTunnelingStartFailed(SPLIT_TUNNEL_START_FAIL_REASON reason);
     void onBackendBridgeApiAvailabilityChanged(bool isAvailable);
     void onBackendIpRotateResult(bool success);
@@ -334,6 +333,7 @@ private:
     // Id of the outstanding WireGuard key-limit prompt, or 0 when none is pending; lets a disconnect
     // dismiss exactly that prompt.
     int wireGuardKeyLimitMessageId_ = 0;
+    int customOvpnCredentialsMessageId_ = 0;
     QElapsedTimer connectionElapsedTimer_;
     quint64 bytesTransferred_;
     bool bMovingWindow_;

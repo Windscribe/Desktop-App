@@ -185,7 +185,10 @@ bool createRestrictedFile(const std::wstring &path)
 
 bool hasWhitespaceInString(const std::wstring &str)
 {
-    return str.find_first_of(L" \n\r\t") != std::wstring::npos;
+    // Also reject an embedded NUL: it isn't whitespace, but OpenVPN's C-string config parser would
+    // stop at it, truncating the proxy directive line this guards. Callers use this to keep a
+    // client-supplied value from corrupting the config line the service writes.
+    return str.find_first_of(L" \n\r\t") != std::wstring::npos || str.find(L'\0') != std::wstring::npos;
 }
 
 bool iequals(const std::wstring &a, const std::wstring &b)

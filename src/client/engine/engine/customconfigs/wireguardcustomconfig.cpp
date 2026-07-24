@@ -4,9 +4,9 @@
 #include "utils/networkingvalidation.h"
 
 #include <QFileInfo>
-#include <QHostAddress>
 #include <QRegularExpression>
 #include <QSettings>
+#include <QStringList>
 
 namespace customconfigs {
 
@@ -14,11 +14,12 @@ namespace customconfigs {
 static constexpr qint64 kMaxConfigFileSize = 64 * 1024;
 
 // WireGuard keys are 32 bytes, base64-encoded = 44 characters (including trailing '=').
-static const QRegularExpression kBase64KeyRegex(QStringLiteral("^[A-Za-z0-9+/]{43}=$"));
+// anchoredPattern uses \A...\z so a trailing newline (which $ would tolerate) is rejected.
+static const QRegularExpression kBase64KeyRegex(QRegularExpression::anchoredPattern(QStringLiteral("[A-Za-z0-9+/]{43}=")));
 
 // H1-H4 are either a single uint32 decimal string or a range "x-y" of two uint32 decimal strings.
 // See: https://github.com/amnezia-vpn/amneziawg-go (message paddings).
-static const QRegularExpression kHeaderValueRegex(QStringLiteral("^[0-9]{1,10}(-[0-9]{1,10})?$"));
+static const QRegularExpression kHeaderValueRegex(QRegularExpression::anchoredPattern(QStringLiteral("[0-9]{1,10}(-[0-9]{1,10})?")));
 
 // I1-I5 are tag-syntax init-packet specs: <b 0xHEX>, <r N>, <rd N>, <rc N>, <t>
 // (see amneziawg-go README). MTU bounds the expanded payload to ~1500 bytes;
@@ -30,33 +31,17 @@ static bool isValidWgKey(const QString &key)
     return kBase64KeyRegex.match(key).hasMatch();
 }
 
-static bool isValidIpCidr(const QString &str)
+// Join a QSettings multi-value list, trimming each element. The stored value must equal the form
+// that validate() checks (which trims each element), so a leading/trailing-whitespace element can't
+// pass validation while an untrimmed form is what later reaches the generated config.
+static QString joinTrimmed(const QStringList &list)
 {
-    QStringList parts = str.split('/');
-    if (parts.isEmpty() || parts.size() > 2)
-        return false;
-
-    QHostAddress addr;
-    if (!addr.setAddress(parts[0]))
-        return false;
-
-    if (parts.size() == 2) {
-        bool ok = false;
-        int cidr = parts[1].toInt(&ok);
-        if (!ok || cidr < 0)
-            return false;
-        int maxCidr = (addr.protocol() == QAbstractSocket::IPv4Protocol) ? 32 : 128;
-        if (cidr > maxCidr)
-            return false;
+    QStringList out;
+    out.reserve(list.size());
+    for (const QString &s : list) {
+        out.append(s.trimmed());
     }
-
-    return true;
-}
-
-static bool isValidIpAddress(const QString &str)
-{
-    QHostAddress addr;
-    return addr.setAddress(str);
+    return out.join(",");
 }
 
 CUSTOM_CONFIG_TYPE WireguardCustomConfig::type() const
@@ -156,8 +141,8 @@ void WireguardCustomConfig::loadFromFile(const QString &filepath)
     }
     file.beginGroup("Interface");
     privateKey_ = file.value("PrivateKey").toString();
-    ipAddress_ = file.value("Address").toStringList().join(",");
-    dnsAddress_ = file.value("DNS").toStringList().join(",");
+    ipAddress_ = joinTrimmed(file.value("Address").toStringList());
+    dnsAddress_ = joinTrimmed(file.value("DNS").toStringList());
 
     obfuscationParams_ = api_responses::AmneziawgUnblockParam();
     if (file.contains("Jc"))
@@ -202,7 +187,7 @@ void WireguardCustomConfig::loadFromFile(const QString &filepath)
     file.beginGroup("Peer");
     publicKey_ = file.value("PublicKey").toString();
     presharedKey_ = file.value("PresharedKey").toString();
-    allowedIps_ = file.value("AllowedIPs", "0.0.0.0/0").toStringList().join(",");
+    allowedIps_ = joinTrimmed(file.value("AllowedIPs", "0.0.0.0/0").toStringList());
     if (!allowedIps_.contains("/0"))
         isAllowFirewallAfterConnection_ = false;
     QStringList endpointParts = file.value("Endpoint").toString().split(":");
@@ -262,13 +247,13 @@ void WireguardCustomConfig::validate()
 
     // --- IP/CIDR validation (Address, AllowedIPs) ---
     for (const QString &addr : ipAddress_.split(',', Qt::SkipEmptyParts)) {
-        if (!isValidIpCidr(addr.trimmed())) {
+        if (!NetworkingValidation::isIpCidr(addr.trimmed())) {
             errMessage_ = QObject::tr("Invalid \"Address\" value: %1").arg(addr.trimmed());
             return;
         }
     }
     for (const QString &ip : allowedIps_.split(',', Qt::SkipEmptyParts)) {
-        if (!isValidIpCidr(ip.trimmed())) {
+        if (!NetworkingValidation::isIpCidr(ip.trimmed())) {
             errMessage_ = QObject::tr("Invalid \"AllowedIPs\" value: %1").arg(ip.trimmed());
             return;
         }
@@ -276,7 +261,7 @@ void WireguardCustomConfig::validate()
 
     // --- DNS validation ---
     for (const QString &dns : dnsAddress_.split(',', Qt::SkipEmptyParts)) {
-        if (!isValidIpAddress(dns.trimmed())) {
+        if (!NetworkingValidation::isIp(dns.trimmed())) {
             errMessage_ = QObject::tr("Invalid \"DNS\" value: %1").arg(dns.trimmed());
             return;
         }

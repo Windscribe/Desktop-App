@@ -11,6 +11,7 @@ class TestIkev2Connection : public QObject
     Q_OBJECT
 
 private slots:
+    void init();
     void testCapabilities();
     void testPrepareKeepsEndpointWithoutExtraConfig();
     void testPrepareExtraConfigDomainOverridesEndpoint();

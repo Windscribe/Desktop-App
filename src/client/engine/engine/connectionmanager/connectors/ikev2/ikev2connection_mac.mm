@@ -8,7 +8,7 @@
 #import <Foundation/Foundation.h>
 #include <QWaitCondition>
 
-#include "engine/connectionmanager/networkextensionlog_mac.h"
+#include "networkextensionlog_mac.h"
 #include "utils/ws_assert.h"
 #include "utils/log/categories.h"
 #include "utils/macutils.h"
@@ -120,7 +120,7 @@ void IKEv2Connection_mac::startConnect()
     if (!setKeyChain(username(), password()))
     {
         state_ = STATE_DISCONNECTED;
-        emit error(IKEV_FAILED_SET_KEYCHAIN_MAC);
+        emit error(ConnectError::kVpnServiceSetupFailure);
         mutexLocal.unlock();
         return;
     }
@@ -139,7 +139,7 @@ void IKEv2Connection_mac::startConnect()
         {
             qCInfo(LOG_IKEV2) << "First load vpn preferences failed:" << QString::fromNSString(err.localizedDescription);
             state_ = STATE_DISCONNECTED;
-            emit error(IKEV_FAILED_LOAD_PREFERENCES_MAC);
+            emit error(ConnectError::kVpnServiceSetupFailure);
             waitConditionLocal.wakeAll();
             mutexLocal.unlock();
         }
@@ -181,7 +181,7 @@ void IKEv2Connection_mac::startConnect()
                 {
                     qCWarning(LOG_IKEV2) << "First save vpn preferences failed:" << QString::fromNSString(err.localizedDescription);
                     state_ = STATE_DISCONNECTED;
-                    emit error(IKEV_FAILED_SAVE_PREFERENCES_MAC);
+                    emit error(ConnectError::kVpnServiceSetupFailure);
                     waitConditionLocal.wakeAll();
                     mutexLocal.unlock();
                 }
@@ -194,7 +194,7 @@ void IKEv2Connection_mac::startConnect()
                         {
                             qCWarning(LOG_IKEV2) << "Second load vpn preferences failed:" << QString::fromNSString(err.localizedDescription);
                             state_ = STATE_DISCONNECTED;
-                            emit error(IKEV_FAILED_SAVE_PREFERENCES_MAC);
+                            emit error(ConnectError::kVpnServiceSetupFailure);
                             waitConditionLocal.wakeAll();
                             mutexLocal.unlock();
                         }
@@ -206,7 +206,7 @@ void IKEv2Connection_mac::startConnect()
                                 {
                                     qCWarning(LOG_IKEV2) << "Second Save vpn preferences failed:" << QString::fromNSString(err.localizedDescription);
                                     state_ = STATE_DISCONNECTED;
-                                    emit error(IKEV_FAILED_SAVE_PREFERENCES_MAC);
+                                    emit error(ConnectError::kVpnServiceSetupFailure);
                                     waitConditionLocal.wakeAll();
                                     mutexLocal.unlock();
                                 }
@@ -226,7 +226,7 @@ void IKEv2Connection_mac::startConnect()
                                         qCWarning(LOG_IKEV2) << "Error starting ikev2 connection:" << QString::fromNSString(startError.localizedDescription);
                                         [[NSNotificationCenter defaultCenter] removeObserver: (__bridge id)notificationId_ name: (NSString *)NEVPNStatusDidChangeNotification object: manager.connection];
                                         state_ = STATE_DISCONNECTED;
-                                        emit error(IKEV_FAILED_START_MAC);
+                                        emit error(ConnectError::kVpnServiceSetupFailure);
                                     }
                                     waitConditionLocal.wakeAll();
                                     mutexLocal.unlock();
@@ -392,13 +392,13 @@ void IKEv2Connection_mac::handleNotificationImpl(int status)
         {
             [[NSNotificationCenter defaultCenter] removeObserver: (__bridge id)notificationId_ name: (NSString *)NEVPNStatusDidChangeNotification object: manager.connection];
             state_ = STATE_DISCONNECTED;
-            emit error(IKEV_FAILED_TO_CONNECT);
+            emit error(ConnectError::kTransientTunnelFailure);
         }
         else if (state_ != STATE_DISCONNECTED)
         {
             if (state_ == STATE_DISCONNECTING_AUTH_ERROR)
             {
-                emit error(AUTH_ERROR);
+                emit error(ConnectError::kAuthFailure);
             }
 
             [[NSNotificationCenter defaultCenter] removeObserver: (__bridge id)notificationId_ name: (NSString *)NEVPNStatusDidChangeNotification object: manager.connection];

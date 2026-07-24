@@ -642,6 +642,14 @@ Wenn du den Hash deines Kontos verlierst, ist er für immer weg und der Support 
         <translation>Die benutzerdefinierte Konfiguration konnte nicht geladen werden.  Bitte überprüfen Sie, ob es korrekt ist, oder wenden Sie sich an den Support.</translation>
     </message>
     <message>
+        <source>VPN adapter setup failed. Please wait one minute and try the connection again. If the problem persists, please send a debug log and open a support ticket, then switch to a different connection mode.</source>
+        <translation>Die Einrichtung des VPN-Adapters ist fehlgeschlagen. Bitte warten Sie eine Minute und versuchen Sie die Verbindung erneut. Wenn das Problem weiterhin besteht, senden Sie bitte ein Debug-Log und eröffnen Sie ein Support-Ticket, dann wechseln Sie in einen anderen Verbindungsmodus.</translation>
+    </message>
+    <message>
+        <source>Windscribe could not generate the connection configuration. If this error persists, please send a debug log and open a support ticket.</source>
+        <translation>Windscribe konnte die Verbindungskonfiguration nicht erzeugen. Wenn dieser Fehler weiterhin auftritt, senden Sie bitte ein Debug-Log und eröffnen Sie ein Support-Ticket.</translation>
+    </message>
+    <message>
         <source>An unexpected error occurred establishing the VPN connection (Error %1).  If this error persists, try using a different protocol or contact support.</source>
         <translation>Beim Herstellen der VPN-Verbindung ist ein unerwarteter Fehler aufgetreten (Fehler %1).  Wenn dieser Fehler weiterhin besteht, versuchen Sie, ein anderes Protokoll zu verwenden, oder wenden Sie sich an den Support.</translation>
     </message>

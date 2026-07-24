@@ -49,7 +49,7 @@ void WireGuardConnectionImpl::connect()
             if (retry >= 2)
             {
                 qCCritical(LOG_WIREGUARD) << "Can't start WireGuard after" << retry << "retries";
-                host_->setError(WIREGUARD_CONNECTION_ERROR);
+                host_->setError(ConnectError::kTunnelEstablishmentFailure);
                 return;
             }
             ++retry;
@@ -67,7 +67,7 @@ void WireGuardConnectionImpl::configure()
     // Configure the client and the peer.
     if (!host_->helper_->configureWireGuard(config_)) {
         qCCritical(LOG_WIREGUARD) << "Failed to configure WireGuard";
-        host_->setError(WIREGUARD_CONNECTION_ERROR);
+        host_->setError(ConnectError::kTunnelEstablishmentFailure);
     }
 }
 
@@ -306,7 +306,7 @@ void WireGuardConnection::setCurrentStateAndEmitSignal(ConnectionState state)
     }
 }
 
-void WireGuardConnection::setError(CONNECT_ERROR err)
+void WireGuardConnection::setError(ConnectError err)
 {
     QMutexLocker locker(&current_state_mutex_);
     current_state_ = ConnectionState::DISCONNECTED;

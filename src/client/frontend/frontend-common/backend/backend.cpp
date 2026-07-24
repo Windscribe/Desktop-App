@@ -125,7 +125,6 @@ void Backend::init()
     connect(engine_, &Engine::splitTunnelingStartFailed, this, &Backend::splitTunnelingStartFailed);
     connect(engine_, &Engine::systemExtensionAvailabilityChanged, this, &Backend::systemExtensionAvailabilityChanged);
     connect(engine_, &Engine::connectionIdChanged, this, &Backend::connectionIdChanged);
-    connect(engine_, &Engine::localDnsServerNotAvailable, this, &Backend::localDnsServerNotAvailable);
     connect(engine_, &Engine::bridgeApiAvailabilityChanged, this, &Backend::onEngineBridgeApiAvailabilityChanged);
     connect(engine_, &Engine::ipRotateResult, this, &Backend::ipRotateResult);
     connect(engine_, &Engine::connectingHostnameChanged, this, &Backend::onEngineConnectingHostnameChanged);
@@ -562,7 +561,7 @@ void Backend::onEngineMyIpUpdated(const QString &ip, bool isDisconnected)
     emit myIpChanged(ip, isDisconnected);
 }
 
-void Backend::onEngineConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, CONNECT_ERROR err, const LocationID &locationId)
+void Backend::onEngineConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, ConnectError err, const LocationID &locationId)
 {
     if (state == CONNECT_STATE_CONNECTING || state == CONNECT_STATE_DISCONNECTING) {
         tunnelTestSuccessful_ = false;
@@ -621,7 +620,7 @@ void Backend::onEngineEmergencyDisconnected()
     emergencyConnectStateHelper_.setConnectStateFromEngine(connectState);
 }
 
-void Backend::onEngineEmergencyConnectError(CONNECT_ERROR err)
+void Backend::onEngineEmergencyConnectError(ConnectError err)
 {
     types::ConnectState connectState;
     connectState.connectState = CONNECT_STATE_DISCONNECTED;

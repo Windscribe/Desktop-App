@@ -2,6 +2,7 @@
 
 #include <QScopedPointer>
 
+#include "../../../../../../helper/common/wg_handshake_tracker.h"
 #include "engine/connectionmanager/connectors/wireguard/wireguardconnectionbase.h"
 #include "engine/helper/helper.h"
 #include "wireguardringlogger.h"
@@ -36,6 +37,8 @@ private:
     WireGuardConfig wireGuardConfig_;
 
     bool connectedSignalEmited_ = false;
+
+    WgHandshakeTracker handshakeTracker_;
 
     QScopedPointer< wsl::WireguardRingLogger > wireguardLog_;
     wsl::Win32Handle stopThreadEvent_;

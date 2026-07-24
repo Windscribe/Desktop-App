@@ -17,6 +17,12 @@ MakeOVPNFile::~MakeOVPNFile()
 {
 }
 
+void MakeOVPNFile::appendDnsOverride(QString &config, const QString &dnsServer)
+{
+    config += "\r\npull-filter ignore \"dhcp-option DNS\"\r\n";
+    config += QString("dhcp-option DNS %1\r\n").arg(dnsServer);
+}
+
 bool MakeOVPNFile::generate(const QString &ovpnData, const QString &ip, types::Protocol protocol, uint port,
                             uint portForStunnelOrWStunnel, int mss, const QString &defaultGateway,
                             const QString &openVpnX509, const QString &customDns, bool isAntiCensorship,
@@ -72,12 +78,22 @@ bool MakeOVPNFile::generate(const QString &ovpnData, const QString &ip, types::P
     }
 
     if (openVpnX509 != "") {
+        // openVpnX509 is a server-provided value written verbatim into a config line; a CR/LF or
+        // other control character would inject an OpenVPN directive. Reject control characters and
+        // Unicode line/paragraph separators, but allow non-ASCII: a legitimate X.509 name may carry
+        // UTF-8 characters.
+        for (const QChar &c : openVpnX509) {
+            const QChar::Category cat = c.category();
+            if (cat == QChar::Other_Control || cat == QChar::Separator_Line || cat == QChar::Separator_Paragraph) {
+                qCCritical(LOG_CONNECTION) << "MakeOVPNFile::generate: refusing to build config, verify-x509-name contains a control character";
+                return false;
+            }
+        }
         config_ += QString("verify-x509-name %1 name\r\n").arg(openVpnX509);
     }
 
     if (!customDns.isEmpty()) {
-        config_ += "\r\npull-filter ignore \"dhcp-option DNS\"\r\n";
-        config_ += QString("dhcp-option DNS %1\r\n").arg(customDns);
+        appendDnsOverride(config_, customDns);
     }
 
     // concatenate with advanced parameters file, if it exists

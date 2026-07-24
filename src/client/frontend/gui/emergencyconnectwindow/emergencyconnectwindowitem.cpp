@@ -152,7 +152,7 @@ void EmergencyConnectWindowItem::setState(types::ConnectState state)
 {
 
     if (state.connectState == CONNECT_STATE_CONNECTED) {
-        errorConnecting_ =  (state.connectError != NO_CONNECT_ERROR);
+        errorConnecting_ =  (state.disconnectReason == DISCONNECTED_WITH_ERROR);
 
         stopSpinnerAnimation();
         descriptionOpacityAnimation_.stop();
@@ -168,7 +168,7 @@ void EmergencyConnectWindowItem::setState(types::ConnectState state)
         disconnectButton_->quickShow();
         disconnectButton_->setVisible(true);
     } else if (state.connectState == CONNECT_STATE_DISCONNECTED) {
-        errorConnecting_ =  (state.connectError != NO_CONNECT_ERROR);
+        errorConnecting_ =  (state.disconnectReason == DISCONNECTED_WITH_ERROR);
 
         stopSpinnerAnimation();
         descriptionOpacityAnimation_.stop();

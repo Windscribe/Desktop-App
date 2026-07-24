@@ -181,10 +181,11 @@ bool Connection::canReadCommand()
         memcpy(&sizeOfCmd, readBuf_.data(), sizeof(int));
         memcpy(&sizeOfId, readBuf_.data() + sizeof(int), sizeof(int));
 
-        // Reject negative or oversized lengths
+        // Invalid lengths: the stream can't be resynchronized, so tear down rather than resync onto garbage.
         if (sizeOfCmd < 0 || sizeOfId <= 0 || sizeOfCmd > kMaxIpcFieldSize || sizeOfId > kMaxIpcFieldSize) {
-            qCWarning(LOG_IPC) << "IPC frame with invalid lengths: cmd=" << sizeOfCmd << "id=" << sizeOfId;
+            qCWarning(LOG_IPC) << "IPC frame with invalid lengths, closing connection: cmd=" << sizeOfCmd << "id=" << sizeOfId;
             readBuf_.clear();
+            emit stateChanged(CONNECTION_ERROR, this);
             return false;
         }
 
@@ -218,6 +219,8 @@ void Connection::safeDeleteSocket()
 {
     if (localSocket_)
     {
+        // Sever socket signals so a notification already queued for us can't fire between our deleteLater() and destruction.
+        QObject::disconnect(localSocket_, nullptr, this, nullptr);
         localSocket_->deleteLater();
         localSocket_ = NULL;
     }

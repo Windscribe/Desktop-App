@@ -2,8 +2,9 @@
 
 #include <QFile>
 #include <QCryptographicHash>
+#include <QRandomGenerator>
+#include <QRegularExpression>
 #include "utils/log/categories.h"
-#include "utils/utils.h"
 
 namespace LoginWindow {
 
@@ -17,56 +18,27 @@ QString HashUtil::getTruncatedSHA256(const QString &filePath)
     }
 
     QCryptographicHash hash(QCryptographicHash::Sha256);
-
-    while (!file.atEnd()) {
-        hash.addData(file.read(8192)); // read 8KB at a time
+    // addData() fails on a mid-read I/O error; returning a hash of partial content would create an unreproducible credential.
+    if (!hash.addData(&file)) {
+        qCWarning(LOG_BASIC) << "Could not read file:" << filePath;
+        return QString();
     }
 
-    file.close();
-
-    // Receive the full hash as a string
-    QByteArray fullHash = hash.result();
-    QString fullHashString = fullHash.toHex(); // SHA256 = 64 characters (32 bytes * 2)
-
-    // Take the second half (the last 32 characters out of 64)
-    int halfLength = fullHashString.length() / 2;
-    QString secondHalf = fullHashString.mid(halfLength);
-
-    return "0x" + secondHalf;
+    // SHA256 hex = 64 characters; take the second half (the last 32 characters out of 64)
+    return "0x" + QString::fromLatin1(hash.result().toHex().last(32));
 }
 
 bool HashUtil::isValidTruncatedSHA256(const QString &hash)
 {
-    if (hash.length() != 34) {
-        return false;
-    }
-
-    if (!hash.startsWith("0x")) {
-        return false;
-    }
-
-    for (int i = 2; i < hash.length(); ++i) {
-        QChar c = hash[i];
-        if (!((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f'))) {
-            return false;
-        }
-    }
-
-    return true;
+    static const QRegularExpression kTruncatedHashRegex("\\A0x[0-9a-f]{32}\\z");
+    return kTruncatedHashRegex.match(hash).hasMatch();
 }
 
 QString HashUtil::generateRandomTruncatedHash()
 {
-    static const char hexChars[] = "0123456789abcdef";
-    QString hash = "0x";
-    
-    // Generate 32 random hexadecimal characters
-    for (int i = 0; i < 32; ++i) {
-        int index = Utils::generateIntegerRandom(0, 15); // 0-15
-        hash += hexChars[index];
-    }
-    
-    return hash;
+    quint32 buf[4];
+    QRandomGenerator::system()->fillRange(buf);
+    return "0x" + QString::fromLatin1(QByteArray(reinterpret_cast<const char *>(buf), sizeof(buf)).toHex());
 }
 
 } // namespace LoginWindow

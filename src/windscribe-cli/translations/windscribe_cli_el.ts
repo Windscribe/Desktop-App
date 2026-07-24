@@ -295,8 +295,20 @@
         <translation>Σφάλμα: Η ρύθμιση του προσαρμογέα WireGuard απέτυχε</translation>
     </message>
     <message>
+        <source>Error: VPN adapter setup failed</source>
+        <translation>Σφάλμα: Η ρύθμιση του προσαρμογέα VPN απέτυχε</translation>
+    </message>
+    <message>
         <source>Error: Could not retrieve WireGuard configuration</source>
         <translation>Σφάλμα: Δεν ήταν δυνατή η ανάκτηση της διαμόρφωσης WireGuard</translation>
+    </message>
+    <message>
+        <source>Error: Could not generate connection configuration</source>
+        <translation>Σφάλμα: Δεν ήταν δυνατή η δημιουργία διαμόρφωσης σύνδεσης</translation>
+    </message>
+    <message>
+        <source>Error: Local DNS server is not available. Connected DNS has been set back to Auto</source>
+        <translation>Σφάλμα: Ο τοπικός διακομιστής DNS δεν είναι διαθέσιμος. Το συνδεδεμένο DNS έχει επανέλθει σε Αυτόματο</translation>
     </message>
     <message>
         <source>Unknown state</source>

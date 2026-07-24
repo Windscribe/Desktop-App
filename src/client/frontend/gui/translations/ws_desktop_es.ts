@@ -642,6 +642,14 @@ Si pierde el hash de su cuenta, desaparece para siempre y el soporte no puede ay
         <translation>No se pudo cargar la configuración personalizada.  Compruebe que es correcta o póngase en contacto con el servicio de asistencia.</translation>
     </message>
     <message>
+        <source>VPN adapter setup failed. Please wait one minute and try the connection again. If the problem persists, please send a debug log and open a support ticket, then switch to a different connection mode.</source>
+        <translation>Falló la configuración del adaptador VPN. Por favor, espera un minuto y vuelve a intentar la conexión. Si el problema persiste, por favor envía un registro de depuración y abre un ticket de soporte, luego cambia a otro modo de conexión.</translation>
+    </message>
+    <message>
+        <source>Windscribe could not generate the connection configuration. If this error persists, please send a debug log and open a support ticket.</source>
+        <translation>Windscribe no pudo generar la configuración de conexión. Si este error persiste, por favor envía un registro de depuración y abre un ticket de soporte.</translation>
+    </message>
+    <message>
         <source>An unexpected error occurred establishing the VPN connection (Error %1).  If this error persists, try using a different protocol or contact support.</source>
         <translation>Se ha producido un error inesperado al establecer la conexión VPN (error %1).  Si el error persiste, intente usar un protocolo diferente o póngase en contacto con el soporte técnico.</translation>
     </message>

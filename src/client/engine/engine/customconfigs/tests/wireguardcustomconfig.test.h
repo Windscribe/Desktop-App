@@ -32,6 +32,13 @@ private slots:
     void testInvalidAllowedIps();
     void testInvalidDns();
 
+    void testAddressRejectsSmuggledNewline();
+    void testDnsRejectsSmuggledNewline();
+    void testAllowedIpsRejectsSmuggledNewline();
+    void testAddressRejectsTrailingNul();
+    void testDnsRejectsTrailingNul();
+    void testAddressWhitespaceTolerated();
+
     void testEndpointPortZero();
     void testEndpointPortTooLarge();
 

@@ -179,12 +179,16 @@
         <translation>Kesalahan: Tidak dapat memulai layanan DNS kustom</translation>
     </message>
     <message>
-        <source>Error: WireGuard adapter setup failed</source>
-        <translation>Galat: Pengaturan adaptor WireGuard gagal</translation>
-    </message>
-    <message>
         <source>Error: Could not retrieve WireGuard configuration</source>
         <translation>Kesalahan: Tidak dapat mengambil konfigurasi WireGuard</translation>
+    </message>
+    <message>
+        <source>Error: Could not generate connection configuration</source>
+        <translation>Kesalahan: Tidak dapat menghasilkan konfigurasi koneksi</translation>
+    </message>
+    <message>
+        <source>Error: Local DNS server is not available. Connected DNS has been set back to Auto</source>
+        <translation>Kesalahan: Server DNS lokal tidak tersedia. DNS yang terhubung telah diatur kembali ke Otomatis</translation>
     </message>
     <message>
         <source>Unknown state</source>
@@ -301,6 +305,14 @@
     <message>
         <source>Incorrect 2FA code</source>
         <translation>Kode 2FA salah</translation>
+    </message>
+    <message>
+        <source>Error: WireGuard adapter setup failed</source>
+        <translation>Kesalahan: Pengaturan adaptor WireGuard gagal</translation>
+    </message>
+    <message>
+        <source>Error: VPN adapter setup failed</source>
+        <translation>Kesalahan: Penyiapan adaptor VPN gagal</translation>
     </message>
     <message>
         <source>(Device name: %1)</source>

@@ -22,17 +22,17 @@ public:
     explicit OpenVPNConnection(QObject *parent, Helper *helper, types::Protocol protocol, const OpenVpnSessionParams &sessionParams);
     ~OpenVPNConnection() override;
 
-    void prepare(const CurrentConnectionDescr &descr, const AttemptEnvironment &env) override;
     void teardown() override;
 
     void startConnect() override;
     void startDisconnect() override;
     bool isDisconnected() const override;
-    bool isAllowFirewallAfterCustomConfigConnection() const override;
+    bool isAllowFirewallAfterConnectionRuntime() const override;
 
     void continueWithUserInput(const UserInputResponse &response) override;
 
 protected:
+    void prepareImpl() override;
     void run() override;
 
 private slots:
@@ -69,7 +69,7 @@ private:
 
     void setCurrentState(CONNECTION_STATUS state);
     void setCurrentStateAndEmitDisconnected(CONNECTION_STATUS state);
-    void setCurrentStateAndEmitError(CONNECTION_STATUS state, CONNECT_ERROR err);
+    void setCurrentStateAndEmitError(CONNECTION_STATUS state, ConnectError err);
     CONNECTION_STATUS getCurrentState() const;
     bool runOpenVPN();
 
@@ -127,7 +127,7 @@ private:
     };
 
     StateVariables stateVariables_;
-    bool isAllowFirewallAfterCustomConfigConnection_;
+    bool isRedirectGatewayObserved_;
 
     static constexpr int KILL_TIMEOUT = 10000;
     QTimer killControllerTimer_;

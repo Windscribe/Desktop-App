@@ -1,17 +1,17 @@
 #pragma once
 
 #include <QPointer>
+#include <QVector>
 
-#include "engine/connectionmanager/adaptergatewayinfo.h"
+#include "engine/adaptergatewayinfo.h"
+#include "engine/connectionmanager/attemptstrategy/iconnectionattemptstrategy.h"
+#include "engine/connectionmanager/attemptstrategy/iconnectionattemptstrategyfactory.h"
 #include "engine/connectionmanager/connectrequest.h"
 #include "engine/connectionmanager/connectors/iconnection.h"
 #include "engine/connectionmanager/connectors/iconnectionfactory.h"
 #include "engine/connectionmanager/connectors/iconnectionplatformpolicy.h"
 #include "engine/connectionmanager/connectors/openvpn/openvpnsessionparams.h"
 #include "engine/connectionmanager/connectors/wireguard/wireguardsessionparams.h"
-#include "engine/connectionmanager/connsettingspolicy/baseconnsettingspolicy.h"
-#include "engine/connectionmanager/connsettingspolicy/iconnsettingspolicyfactory.h"
-#include "engine/connectionmanager/iextraconfigaccessor.h"
 #include "engine/connectionmanager/isleepevents.h"
 #include "engine/dns/ctrldmanager/ictrldmanager.h"
 #include "engine/helper/ihelperbackend.h"
@@ -29,11 +29,20 @@ public:
     void startInstallHelper(bool /*bForceDeleteOld*/) override {}
     State currentState() const override { return State::kConnected; }
     bool reinstallHelper() override { return true; }
-    std::string sendCmd(int /*cmdId*/, const std::string & /*data*/) override { return std::string(); }
+    std::string sendCmd(int cmdId, const std::string & /*data*/) override
+    {
+        sentCmdIds_.append(cmdId);
+        return std::string();
+    }
+
+    const QVector<int> &sentCmdIds() const { return sentCmdIds_; }
+
+private:
+    QVector<int> sentCmdIds_;
 };
 
 // Minimal concrete BaseLocationInfo: ConnectionManager only checks that lastRequest_.bli is
-// non-null before building a policy, so nothing here needs real node data.
+// non-null before building a strategy, so nothing here needs real node data.
 class FakeLocationInfo : public locationsmodel::BaseLocationInfo
 {
     Q_OBJECT
@@ -71,12 +80,9 @@ public:
     // counters die with the object; the factory aggregates teardowns across generations.
     void setTeardownTotal(int *teardownTotal) { teardownTotal_ = teardownTotal; }
 
-    void prepare(const CurrentConnectionDescr &descr, const AttemptEnvironment &env) override
+    void prepareImpl() override
     {
         prepareCount_++;
-        descr_ = descr;
-        env_ = env;
-        protocol_ = descr.protocol;
         switch (prepareBehavior_) {
         case PrepareBehavior::EmitPrepared:
             emit prepared();
@@ -128,6 +134,12 @@ public:
     // Null (the default) models a connector whose config carries no DNS of its own; WG tests set it.
     QString tunnelDefaultDns() const override { return tunnelDefaultDns_; }
     void setTunnelDefaultDns(const QString &dns) { tunnelDefaultDns_ = dns; }
+    void setSupportsCachedConfig(bool value) { capabilities_.supportsCachedConfig = value; }
+    void setNeedsSystemDnsRestore(bool value) { capabilities_.needsSystemDnsRestore = value; }
+    bool isDualStackEgress() const override { return dualStackEgress_; }
+    void setDualStackEgress(bool value) { dualStackEgress_ = value; }
+    bool isAllowFirewallAfterConnectionRuntime() const override { return allowFirewallAfterConnectionRuntime_; }
+    void setAllowFirewallAfterConnectionRuntime(bool value) { allowFirewallAfterConnectionRuntime_ = value; }
 
     // Connector-side events CM reacts to.
     void driveConnected(const AdapterGatewayInfo &info = AdapterGatewayInfo())
@@ -141,19 +153,19 @@ public:
         emit disconnected();
     }
     void driveReconnecting() { emit reconnecting(); }
-    void driveError(CONNECT_ERROR err) { emit error(err); }
+    void driveError(ConnectError err) { emit error(err); }
     void driveStatisticsUpdated(quint64 bytesIn, quint64 bytesOut, bool isTotalBytes)
     {
         emit statisticsUpdated(bytesIn, bytesOut, isTotalBytes);
     }
     void driveInterfaceUpdated(const QString &interfaceName) { emit interfaceUpdated(interfaceName); }
     void drivePrepared() { emit prepared(); }
-    void drivePrepareFailed(CONNECT_ERROR err) { emit prepareFailed(err); }
+    void drivePrepareFailed(ConnectError err) { emit prepareFailed(err); }
     void driveUserInputRequired(UserInputType type) { emit userInputRequired(type); }
 
     void setAutoEmitDisconnected(bool value) { autoEmitDisconnected_ = value; }
     void setPrepareBehavior(PrepareBehavior behavior) { prepareBehavior_ = behavior; }
-    void setPrepareFailure(CONNECT_ERROR err) { prepareFailure_ = err; }
+    void setPrepareFailure(ConnectError err) { prepareFailure_ = err; }
     void setPrepareInputType(UserInputType type) { prepareInputType_ = type; }
 
     int startConnectCount() const { return startConnectCount_; }
@@ -169,10 +181,12 @@ private:
     QString tunnelDefaultDns_;
     int *teardownTotal_ = nullptr;
     PrepareBehavior prepareBehavior_ = PrepareBehavior::EmitPrepared;
-    CONNECT_ERROR prepareFailure_ = CONNECT_ERROR::NO_CONNECT_ERROR;
+    ConnectError prepareFailure_ = ConnectError::kNoError;
     UserInputType prepareInputType_ = UserInputType::Username;
     bool isDisconnected_ = true;
     bool autoEmitDisconnected_ = true;
+    bool dualStackEgress_ = false;
+    bool allowFirewallAfterConnectionRuntime_ = true;
     int startConnectCount_ = 0;
     int startDisconnectCount_ = 0;
     int prepareCount_ = 0;
@@ -183,7 +197,7 @@ private:
 class FakeConnectionFactory : public IConnectionFactory
 {
 public:
-    IConnection *createConnection(types::Protocol protocol, QObject *parent, Helper * /*helper*/, const ConnectRequest & /*request*/) override
+    IConnection *createConnection(types::Protocol protocol, QObject *parent, const ConnectRequest & /*request*/) override
     {
         createdCount_++;
         // Snapshot the outgoing connector's teardown count so tests can pin that teardown() ran
@@ -198,28 +212,34 @@ public:
         return lastCreated_;
     }
     void removeIkev2ConnectionFromOS() override { removeIkev2Count_++; }
+    bool hasUsableStoredConfig() const override { return hasUsableStoredConfig_; }
+    void removeStoredConfig() override { removeStoredConfigCount_++; }
 
     // CM retires connectors with deleteLater(), so this stays non-null (retired but alive) until the
     // event loop runs; snapshot it before triggering a reconnect if comparing old vs new.
     FakeConnection *lastCreated() const { return lastCreated_.data(); }
     int createdCount() const { return createdCount_; }
     int removeIkev2Count() const { return removeIkev2Count_; }
+    int removeStoredConfigCount() const { return removeStoredConfigCount_; }
+    void setHasUsableStoredConfig(bool value) { hasUsableStoredConfig_ = value; }
     int prevTeardownCountAtCreate() const { return prevTeardownCountAtCreate_; }
     int teardownTotal() const { return teardownTotal_; }
 
     // Template applied to every connector this factory hands out; prepare() runs synchronously inside
     // clickConnect, so the behavior must be set before the connector exists.
     void setPrepareBehavior(FakeConnection::PrepareBehavior behavior) { prepareBehavior_ = behavior; }
-    void setPrepareFailure(CONNECT_ERROR err) { prepareFailure_ = err; }
+    void setPrepareFailure(ConnectError err) { prepareFailure_ = err; }
     void setPrepareInputType(UserInputType type) { prepareInputType_ = type; }
     void setTunnelDefaultDns(const QString &dns) { tunnelDefaultDns_ = dns; }
 
 private:
     QPointer<FakeConnection> lastCreated_;
     FakeConnection::PrepareBehavior prepareBehavior_ = FakeConnection::PrepareBehavior::EmitPrepared;
-    CONNECT_ERROR prepareFailure_ = CONNECT_ERROR::NO_CONNECT_ERROR;
+    ConnectError prepareFailure_ = ConnectError::kNoError;
     UserInputType prepareInputType_ = UserInputType::Username;
     QString tunnelDefaultDns_;
+    bool hasUsableStoredConfig_ = false;
+    int removeStoredConfigCount_ = 0;
     int createdCount_ = 0;
     int removeIkev2Count_ = 0;
     int prevTeardownCountAtCreate_ = -1;
@@ -231,12 +251,14 @@ class FakePlatformPolicy : public IConnectionPlatformPolicy
 public:
     FakePlatformPolicy()
     {
-        // Non-empty by default so doConnect() proceeds past the network-connectivity gate.
+        // Non-empty by default so startAttempt() proceeds past the network-connectivity gate.
         defaultAdapter_.setAdapterName("fake0");
         defaultAdapter_.addGatewayIp(types::IpAddress("192.168.1.1"));
     }
 
-    bool isLockdownBlockingIkev2() const override { return isLockdownBlockingIkev2_; }
+    bool isLockdownMode() const override { return isLockdownMode_; }
+    bool needsSleepEventAwareDisconnect() const override { return needsSleepEventAwareDisconnect_; }
+    bool shouldReconnectOnOnlineStateChange() const override { return reconnectOnOnlineStateChange_; }
     void disableDohIfNeeded() override { disableDohCount_++; }
     void setGaiIpv4PriorityEnabled(bool isEnabled) override
     {
@@ -245,51 +267,23 @@ public:
     }
     AdapterGatewayInfo detectDefaultAdapter() override { return defaultAdapter_; }
 
-    void setLockdownBlockingIkev2(bool blocking) { isLockdownBlockingIkev2_ = blocking; }
+    void setLockdownMode(bool enabled) { isLockdownMode_ = enabled; }
+    void setNeedsSleepEventAwareDisconnect(bool value) { needsSleepEventAwareDisconnect_ = value; }
+    void setReconnectOnOnlineStateChange(bool value) { reconnectOnOnlineStateChange_ = value; }
     void setDefaultAdapter(const AdapterGatewayInfo &info) { defaultAdapter_ = info; }
     int disableDohCount() const { return disableDohCount_; }
     int gaiIpv4PriorityCount() const { return gaiIpv4PriorityCount_; }
     bool lastGaiIpv4Priority() const { return lastGaiIpv4Priority_; }
 
 private:
-    bool isLockdownBlockingIkev2_ = false;
+    bool isLockdownMode_ = false;
+    // Defaults mirror the production per-platform values so unrelated tests see native behavior.
+    bool needsSleepEventAwareDisconnect_ = platformNeedsSleepEventAwareDisconnect();
+    bool reconnectOnOnlineStateChange_ = platformReconnectsOnOnlineStateChange();
     AdapterGatewayInfo defaultAdapter_;
     int disableDohCount_ = 0;
     int gaiIpv4PriorityCount_ = 0;
     bool lastGaiIpv4Priority_ = false;
-};
-
-// Defaults match an absent ExtraConfig file: no overrides, errors honored, empty IKEv2 remote. Tests
-// override only the value the case exercises.
-class FakeExtraConfig : public IExtraConfigAccessor
-{
-public:
-    int mtuOffsetOpenVpn(bool &hasValue) override { hasValue = hasMtuOffsetOpenVpn_; return mtuOffsetOpenVpn_; }
-    bool stealthExtraTLSPadding() override { return stealthExtraTLSPadding_; }
-    QString remoteIp() override { return remoteIp_; }
-    QString detectedIp() override { return detectedIp_; }
-    bool useIkev2Compression() override { return useIkev2Compression_; }
-    int tunnelTestAttempts(bool &hasValue) override { hasValue = hasTunnelTestAttempts_; return tunnelTestAttempts_; }
-    bool isTunnelTestNoError() override { return tunnelTestNoError_; }
-
-    void setMtuOffsetOpenVpn(bool hasValue, int offset) { hasMtuOffsetOpenVpn_ = hasValue; mtuOffsetOpenVpn_ = offset; }
-    void setStealthExtraTLSPadding(bool value) { stealthExtraTLSPadding_ = value; }
-    void setRemoteIp(const QString &ip) { remoteIp_ = ip; }
-    void setDetectedIp(const QString &ip) { detectedIp_ = ip; }
-    void setUseIkev2Compression(bool value) { useIkev2Compression_ = value; }
-    void setTunnelTestAttempts(bool hasValue, int attempts) { hasTunnelTestAttempts_ = hasValue; tunnelTestAttempts_ = attempts; }
-    void setTunnelTestNoError(bool noError) { tunnelTestNoError_ = noError; }
-
-private:
-    bool hasMtuOffsetOpenVpn_ = false;
-    int mtuOffsetOpenVpn_ = 0;
-    bool stealthExtraTLSPadding_ = false;
-    QString remoteIp_;
-    QString detectedIp_;
-    bool useIkev2Compression_ = false;
-    bool hasTunnelTestAttempts_ = false;
-    int tunnelTestAttempts_ = 0;
-    bool tunnelTestNoError_ = false;
 };
 
 class FakeCtrldManager : public ICtrldManager
@@ -326,7 +320,7 @@ private:
     QStringList lastDomains_;
 };
 
-class FakeConnSettingsPolicy : public BaseConnSettingsPolicy
+class FakeConnectionAttemptStrategy : public IConnectionAttemptStrategy
 {
     Q_OBJECT
 public:
@@ -336,12 +330,13 @@ public:
     bool isFailed() const override { return isFailed_; }
     CurrentConnectionDescr getCurrentConnectionSettings() const override { return currentConnectionDescr_; }
     bool isAutomaticMode() override { return isAutomaticMode_; }
-    bool isCustomConfig() override { return isCustomConfig_; }
+    bool usesConnectTimeout() const override { return !isCustomConfig_; }
+    bool surfacesTunnelTestFailure() const override { return isCustomConfig_; }
     void resolveHostnames() override
     {
-        // Real policies resolve then emit hostnamesResolved(), which (same thread, direct connection)
-        // synchronously drives doConnectPart2/3. Tests that want CM parked in the connecting state
-        // before prep runs turn this off and drive the relevant slot directly.
+        // Real strategies resolve then emit hostnamesResolved(), which (same thread, direct connection)
+        // synchronously drives the post-resolve continuation. Tests that want CM parked in the
+        // connecting state before prep runs turn this off and drive the relevant slot directly.
         if (autoResolveHostnames_) {
             emit hostnamesResolved();
         }
@@ -358,6 +353,14 @@ public:
     void setAutoResolveHostnames(bool value) { autoResolveHostnames_ = value; }
     void setWaitForNetwork(bool value) { waitForNetwork_ = value; }
     void setRetryOnAttemptFailure(bool value) { retryOnAttemptFailure_ = value; }
+    void driveProtocolStatusChanged() { emit protocolStatusChanged({}, isAutomaticMode_); }
+    // Bounded so a budget-accounting regression fails assertions instead of hanging the suite.
+    void exhaustCachedConfigBudget()
+    {
+        for (int i = 0; i < kMaxCachedConfigAttempts; ++i) {
+            takeCachedConfigAdvice();
+        }
+    }
     int resetCount() const { return resetCount_; }
     int putFailedConnectionCount() const { return putFailedConnectionCount_; }
 
@@ -374,21 +377,22 @@ private:
     int putFailedConnectionCount_ = 0;
 };
 
-class FakeConnSettingsPolicyFactory : public IConnSettingsPolicyFactory
+class FakeConnectionAttemptStrategyFactory : public IConnectionAttemptStrategyFactory
 {
 public:
-    BaseConnSettingsPolicy *createPolicy(QSharedPointer<locationsmodel::BaseLocationInfo> /*bli*/,
+    IConnectionAttemptStrategy *createStrategy(QSharedPointer<locationsmodel::BaseLocationInfo> /*bli*/,
                                          const types::ConnectionSettings & /*connectionSettings*/,
                                          const api_responses::PortMap & /*portMap*/,
                                          const types::ProxySettings & /*proxySettings*/,
                                          const QString & /*preferredNodeHostname*/,
                                          bool /*isFirewallAlwaysOnPlusEnabled*/,
-                                         bool /*hasUsableCachedWgConfig*/) override
+                                         bool hasUsableCachedWgConfig,
+                                         bool /*isLockdownMode*/) override
     {
-        // Preserve the caller-configured policy across CM's repeated updateConnectionSettingsPolicy()
+        // Preserve the caller-configured strategy across CM's repeated recreateAttemptStrategy()
         // calls (clickConnect + every failover recreates one). Tests seed template_ and read back the
         // live instance via lastCreated().
-        lastCreated_ = new FakeConnSettingsPolicy();
+        lastCreated_ = new FakeConnectionAttemptStrategy();
         lastCreated_->setCurrentConnectionSettings(templateDescr_);
         lastCreated_->setAutomaticMode(isAutomaticMode_);
         lastCreated_->setCustomConfig(isCustomConfig_);
@@ -397,12 +401,14 @@ public:
         lastCreated_->setAutoResolveHostnames(autoResolveHostnames_);
         lastCreated_->setWaitForNetwork(waitForNetwork_);
         lastCreated_->setRetryOnAttemptFailure(retryOnAttemptFailure_);
+        // Mirror the production factory: the fresh strategy receives the availability snapshot.
+        lastCreated_->setCachedConfigAvailability(hasUsableCachedWgConfig);
         return lastCreated_;
     }
 
-    FakeConnSettingsPolicy *lastCreated() const { return lastCreated_.data(); }
+    FakeConnectionAttemptStrategy *lastCreated() const { return lastCreated_.data(); }
 
-    // Template applied to every policy this factory hands out.
+    // Template applied to every strategy this factory hands out.
     void setCurrentConnectionSettings(const CurrentConnectionDescr &descr) { templateDescr_ = descr; }
     void setAutomaticMode(bool automatic) { isAutomaticMode_ = automatic; }
     void setCustomConfig(bool customConfig) { isCustomConfig_ = customConfig; }
@@ -413,7 +419,7 @@ public:
     void setRetryOnAttemptFailure(bool value) { retryOnAttemptFailure_ = value; }
 
 private:
-    QPointer<FakeConnSettingsPolicy> lastCreated_;
+    QPointer<FakeConnectionAttemptStrategy> lastCreated_;
     CurrentConnectionDescr templateDescr_;
     bool isAutomaticMode_ = false;
     bool isCustomConfig_ = false;

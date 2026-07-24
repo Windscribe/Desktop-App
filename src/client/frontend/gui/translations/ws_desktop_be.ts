@@ -814,6 +814,14 @@ If the problem persists after a restart, please send a debug log and open a supp
 Калі праблема не зьнікне пасьля перазапуска, дашліце журнал адладкі і адкрыйце запыт у службу падтрымкі. Пасьля гэтага пераключыцеся на іншы рэжым падлучэньня.</translation>
     </message>
     <message>
+        <source>VPN adapter setup failed. Please wait one minute and try the connection again. If the problem persists, please send a debug log and open a support ticket, then switch to a different connection mode.</source>
+        <translation>Наладка VPN-адаптара не атрымалася. Калі ласка, пачакайце хвіліну і паспрабуйце злучэнне яшчэ раз. Калі праблема захаваецца, калі ласка, дашліце журнал адладкі і адкрыйце запыт у падтрымку, а затым пераключыцеся на іншы рэжым падключэння.</translation>
+    </message>
+    <message>
+        <source>Windscribe could not generate the connection configuration. If this error persists, please send a debug log and open a support ticket.</source>
+        <translation>Windscribe не змог стварыць канфігурацыю злучэння. Калі гэтая памылка захаваецца, калі ласка, дашліце журнал адладкі і адкрыйце запыт у падтрымку.</translation>
+    </message>
+    <message>
         <source>An unexpected error occurred establishing the VPN connection (Error %1).  If this error persists, try using a different protocol or contact support.</source>
         <translation>Адбылася нечаканая памылка падчас усталяваньня VPN-злучэньня (памылка %1).  Калі памылка не зьнікае, паспрабуйце выкарыстаць іншы пратакол альбо зьвяніцеся ў службу падтрымкі.</translation>
     </message>

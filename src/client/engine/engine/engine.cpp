@@ -18,16 +18,19 @@
 #include "utils/hardcodedsettings.h"
 #include "utils/networkingvalidation.h"
 #include "utils/executable_signature/executable_signature.h"
+#include "connectionmanager/attemptstrategy/connectionattemptstrategyfactory.h"
+#include "connectionmanager/attemptstrategy/emergencyconnectionattemptstrategy.h"
 #include "connectionmanager/connectionmanager.h"
-#include "connectionmanager/connsettingspolicy/emergencyconnsettingspolicy.h"
-#include "connectionmanager/finishactiveconnections.h"
-#include "connectionmanager/isleepevents.h"
+#include "connectionmanager/connectors/connectionfactory.h"
+#include "connectionmanager/connectors/connectionplatformpolicy.h"
 #include "dns/dnsconfigurator.h"
+#include "locationsmodel/customconfiglocationinfo.h"
 #include "wireguardconfig/getwireguardconfig.h"
 #include "proxy/proxyservercontroller.h"
 #include "connectstatecontroller/connectstatecontroller.h"
 #include "connectivitydiagnostic/connectivitydiagnostic.h"
 #include "crossplatformobjectfactory.h"
+#include "testvpntunnel.h"
 #include "types/global_consts.h"
 #include "api_responses/amneziawgunblockparams.h"
 #include "api_responses/websession.h"
@@ -394,7 +397,7 @@ void Engine::emergencyConnectClick()
     }
     else
     {
-        emergencyConnectStateController_->setDisconnectedState(DISCONNECTED_ITSELF, CONNECT_ERROR::NO_CONNECT_ERROR);
+        emergencyConnectStateController_->setDisconnectedState(DISCONNECTED_ITSELF, ConnectError::kNoError);
         emit emergencyDisconnected();
     }
 }
@@ -409,7 +412,7 @@ void Engine::emergencyDisconnectClick()
     }
     else
     {
-        emergencyConnectStateController_->setDisconnectedState(DISCONNECTED_ITSELF, CONNECT_ERROR::NO_CONNECT_ERROR);
+        emergencyConnectStateController_->setDisconnectedState(DISCONNECTED_ITSELF, ConnectError::kNoError);
         emit emergencyDisconnected();
     }
 }
@@ -701,9 +704,16 @@ void Engine::initPart2()
     dnsConfigurator_ = new DnsConfigurator(this, helper_);
     dnsConfigurator_->setConnectedDnsInfo(engineSettings_.connectedDnsInfo());
 
-    connectionManager_ = new ConnectionManager(this, helper_, networkDetectionManager_, customOvpnAuthCredentialsStorage_, dnsConfigurator_);
+    connectionManager_ = new ConnectionManager(this, networkDetectionManager_, dnsConfigurator_,
+                                               new ConnectionFactory(helper_), new ConnectionPlatformPolicy(helper_),
+                                               new ConnectionAttemptStrategyFactory(),
+                                               CrossPlatformObjectFactory::createSleepEvents(nullptr));
     connectionManager_->setPacketSize(packetSize_);
     connectionManager_->setFirewallAlwaysOnPlusEnabled(engineSettings_.firewallSettings().mode == FIREWALL_MODE_ALWAYS_ON_PLUS);
+
+    // The post-connect tunnel test is engine-owned; ConnectionManager only consumes the result.
+    testVPNTunnel_ = new TestVPNTunnel(this);
+    connect(testVPNTunnel_, &TestVPNTunnel::testsFinished, connectionManager_, &ConnectionManager::onTunnelTestResult);
     connect(connectionManager_, &ConnectionManager::connected, this, &Engine::onConnectionManagerConnected);
     connect(connectionManager_, &ConnectionManager::disconnected, this, &Engine::onConnectionManagerDisconnected);
     connect(connectionManager_, &ConnectionManager::reconnecting, this, &Engine::onConnectionManagerReconnecting);
@@ -737,11 +747,12 @@ void Engine::initPart2()
     // Left at defaults (auto mode): no ctrld and no custom DNS during emergency connect; the macOS
     // system DNS restore still works.
     emergencyDnsConfigurator_ = new DnsConfigurator(this, helper_);
-    // The inert ISleepEvents keeps the emergency instance out of sleep/wake handling; the main
+    // Null sleep events keep the emergency instance out of sleep/wake handling; the main
     // ConnectionManager owns those transitions.
-    emergencyConnectionManager_ = new ConnectionManager(this, helper_, networkDetectionManager_, customOvpnAuthCredentialsStorage_,
-                                                        emergencyDnsConfigurator_, nullptr, nullptr,
-                                                        new EmergencyConnSettingsPolicyFactory(), new ISleepEvents(nullptr));
+    emergencyConnectionManager_ = new ConnectionManager(this, networkDetectionManager_,
+                                                        emergencyDnsConfigurator_, new ConnectionFactory(helper_),
+                                                        new ConnectionPlatformPolicy(helper_),
+                                                        new EmergencyConnectionAttemptStrategyFactory(), nullptr);
     emergencyConnectionManager_->setPacketSize(packetSize_);
     connect(emergencyConnectionManager_, &ConnectionManager::connected, this, &Engine::onEmergencyConnectionConnected);
     connect(emergencyConnectionManager_, &ConnectionManager::disconnected, this, &Engine::onEmergencyConnectionDisconnected);
@@ -832,10 +843,11 @@ void Engine::onInitializeHelper(INIT_HELPER_RET ret)
 
         // Must run before initPart2() to avoid a deadlock: initPart2() queues the
         // autoEnableAntiCensorship signal to the GUI thread, which may call back into
-        // setSettings() and block on mutex_.  finishAllActiveConnections() blocks waiting
+        // setSettings() and block on mutex_.  finishActiveConnections() blocks waiting
         // for IKEv2 completion handlers that run on the main/GUI queue, so if the GUI
         // thread is already blocked on mutex_, neither thread can make progress.
-        FinishActiveConnections::finishAllActiveConnections(helper_);
+        ConnectionFactory::finishActiveConnections(helper_);
+        DnsConfigurator::finishActiveDns(helper_);
 
         initPart2();
 
@@ -904,6 +916,7 @@ void Engine::cleanupImpl(bool isUpdating)
     }
 
     if (connectionManager_) {
+        testVPNTunnel_->stopTests();
         bool bWasIsConnected = !connectionManager_->isDisconnected();
         connectionManager_->blockingDisconnect(false);
         if (bWasIsConnected) {
@@ -1040,7 +1053,7 @@ void Engine::connectClickImpl(const LocationID &locationId, const types::Connect
 
     if (isBlockConnect_ && !locationId_.isCustomConfigsLocation())
     {
-        connectStateController_->setDisconnectedState(DISCONNECTED_WITH_ERROR, CONNECT_ERROR::CONNECTION_BLOCKED);
+        connectStateController_->setDisconnectedState(DISCONNECTED_WITH_ERROR, ConnectError::kAccountBlocked);
         myIpManager_->getIP(1);
         return;
     }
@@ -1060,11 +1073,9 @@ void Engine::connectClickImpl(const LocationID &locationId, const types::Connect
         // This should succeed very quickly usually, so it's fine to block here
         if (!NetworkUtils::DnsChecker::checkAvailabilityBlocking()) {
             qCWarning(LOG_CONNECTION) << "Local DNS server is not available, abort connection";
-            emit localDnsServerNotAvailable();
-            // Settle the state machine: a reconnect skipped the disconnected transition expecting this
-            // connect to proceed.  No error reason -- the localDnsServerNotAvailable handler shows the
-            // user message.  On macOS this transition also tears down the split tunnel extension.
-            connectStateController_->setDisconnectedState(DISCONNECTED_ITSELF, CONNECT_ERROR::NO_CONNECT_ERROR);
+            // The frontend error handler shows the message and reverts Connected DNS to Auto. On
+            // macOS this transition also tears down the split tunnel extension.
+            connectStateController_->setDisconnectedState(DISCONNECTED_WITH_ERROR, ConnectError::kLocalDnsServerNotAvailable);
             myIpManager_->getIP(1);
             return;
         }
@@ -1167,9 +1178,8 @@ void Engine::logoutImplAfterDisconnect(bool keepFirewallOn)
         tryLoginNextConnectOrDisconnect_ = false;
     }
 
-    GetWireGuardConfig::removeWireGuardSettings();
-
     if (connectionManager_) {
+        connectionManager_->removeStoredConfig();
         connectionManager_->removeIkev2ConnectionFromOS();
     }
 
@@ -1189,7 +1199,7 @@ void Engine::continueWithUsernameAndPasswordImpl(const QString &username, const 
         connectionManager_->clickDisconnect();
     } else {
         if (bSave) {
-            customOvpnAuthCredentialsStorage_->setAuthCredentials(connectionManager_->getCustomOvpnConfigFileName(), username, password);
+            customOvpnAuthCredentialsStorage_->setAuthCredentials(pendingCustomOvpnConfigFilename_, username, password);
         }
         lastUsernameForCustomConfig_ = username;
         connectionManager_->continueWithUsernameAndPassword(username, password, isNeedReconnectAfterRequestAuth_);
@@ -1203,9 +1213,9 @@ void Engine::continueWithPasswordImpl(const QString &password, bool bSave)
         connectionManager_->clickDisconnect();
     } else {
         if (bSave) {
-            customOvpnAuthCredentialsStorage_->setAuthCredentials(connectionManager_->getCustomOvpnConfigFileName(), "", password);
+            customOvpnAuthCredentialsStorage_->setAuthCredentials(pendingCustomOvpnConfigFilename_, "", password);
         }
-        connectionManager_->continueWithPassword(password, isNeedReconnectAfterRequestAuth_);
+        connectionManager_->continueWithPassword(password);
     }
 }
 
@@ -1216,7 +1226,7 @@ void Engine::continueWithPrivKeyPasswordImpl(const QString &password, bool bSave
         connectionManager_->clickDisconnect();
     } else {
         if (bSave) {
-            customOvpnAuthCredentialsStorage_->setPrivKeyPassword(connectionManager_->getCustomOvpnConfigFileName(), password);
+            customOvpnAuthCredentialsStorage_->setPrivKeyPassword(pendingCustomOvpnConfigFilename_, password);
         }
         connectionManager_->continueWithPrivKeyPassword(password, isNeedReconnectAfterRequestAuth_);
     }
@@ -1465,7 +1475,7 @@ void Engine::onConnectionManagerConnected()
     bool isFirewallAlreadyEnabled = false;
     if (engineSettings_.firewallSettings().mode == FIREWALL_MODE_AUTOMATIC) {
         const bool isAllowFirewallAfterConnection =
-            connectionManager_->isAllowFirewallAfterConnection();
+            customConfigAllowFirewall_ && connectionManager_->isAllowFirewallAfterConnectionRuntime();
 
         if (isAllowFirewallAfterConnection &&
             engineSettings_.firewallSettings().when == FIREWALL_WHEN_AFTER_CONNECTION)
@@ -1607,7 +1617,7 @@ void Engine::onConnectionManagerConnected()
     connectStateController_->setConnectedState(locationId_);
     // If IP is pinned for this location, skip tunnel tests; it will be done once the IP is pinned in onConnectedStateChanged()
     if (pinnedNode_.second.isEmpty()) {
-        connectionManager_->startTunnelTests(); // It is important that startTunnelTests() are after setConnectedState().
+        testVPNTunnel_->startTests(connectionManager_->currentProtocol()); // It is important that the tunnel tests start after setConnectedState().
     }
 
     if (tryLoginNextConnectOrDisconnect_) {
@@ -1619,6 +1629,8 @@ void Engine::onConnectionManagerConnected()
 void Engine::onConnectionManagerDisconnected(DISCONNECT_REASON reason)
 {
     qCDebug(LOG_CONNECTION) << "on disconnected event";
+
+    testVPNTunnel_->stopTests();
 
 #if defined(Q_OS_WIN)
     enableDohSettings();
@@ -1679,12 +1691,14 @@ void Engine::onConnectionManagerDisconnected(DISCONNECT_REASON reason)
     // Connection Settings override is one-time only, reset it
     connectionSettingsOverride_ = types::ConnectionSettings(types::Protocol(types::Protocol::TYPE::UNINITIALIZED), 0, true);
 
-    connectStateController_->setDisconnectedState(reason, CONNECT_ERROR::NO_CONNECT_ERROR);
+    connectStateController_->setDisconnectedState(reason, ConnectError::kNoError);
 }
 
 void Engine::onConnectionManagerReconnecting()
 {
     qCDebug(LOG_BASIC) << "on reconnecting event";
+
+    testVPNTunnel_->stopTests();
 
 #ifdef Q_OS_MACOS
     // An automatic reconnect keeps the connect state out of DISCONNECTED, so stop the proxy here: a live
@@ -1699,27 +1713,30 @@ void Engine::onConnectionManagerReconnecting()
     WSNet::instance()->decoyTraffic()->stop();
 }
 
-void Engine::onConnectionManagerError(CONNECT_ERROR err)
+void Engine::onConnectionManagerError(ConnectError err, const CurrentConnectionDescr &descr)
 {
-    if (err == CONNECT_ERROR::AUTH_ERROR)
+    testVPNTunnel_->stopTests();
+
+    if (err == ConnectError::kAuthFailure)
     {
         doDisconnectRestoreStuff();
 
-        if (connectionManager_->isCustomOvpnConfigCurrentConnection())
+        if (descr.connectionNodeType == CONNECTION_NODE_CUSTOM_CONFIG && descr.protocol.isOpenVpnProtocol())
         {
             qCWarning(LOG_BASIC) << "Incorrect username or password for custom ovpn config";
-            auto credentials = customOvpnAuthCredentialsStorage_->getAuthCredentials(connectionManager_->getCustomOvpnConfigFileName());
-            customOvpnAuthCredentialsStorage_->removeCredentials(connectionManager_->getCustomOvpnConfigFileName());
+            pendingCustomOvpnConfigFilename_ = customConfigFilename_;
+            auto credentials = customOvpnAuthCredentialsStorage_->getAuthCredentials(pendingCustomOvpnConfigFilename_);
+            customOvpnAuthCredentialsStorage_->removeCredentials(pendingCustomOvpnConfigFilename_);
 
             isNeedReconnectAfterRequestAuth_ = true;
             emit requestUsernameAndPassword(credentials.username.isEmpty() ? lastUsernameForCustomConfig_ : credentials.username);
         }
-        else if (connectionManager_->isStaticIpsLocation())
+        else if (descr.connectionNodeType == CONNECTION_NODE_STATIC_IPS)
         {
             // Static IP credentials come from the StaticIps API resource, which the client cannot
             // force-refetch, so refetching server credentials won't help. Surface the auth error.
             qCWarning(LOG_BASIC) << "Incorrect username or password for static IP location";
-            connectStateController_->setDisconnectedState(DISCONNECTED_WITH_ERROR, CONNECT_ERROR::AUTH_ERROR);
+            connectStateController_->setDisconnectedState(DISCONNECTED_WITH_ERROR, ConnectError::kAuthFailure);
         }
         else
         {
@@ -1734,12 +1751,13 @@ void Engine::onConnectionManagerError(CONNECT_ERROR err)
         }
         return;
     }
-    else if (err == CONNECT_ERROR::PRIV_KEY_PASSWORD_ERROR)
+    else if (err == ConnectError::kPrivKeyPasswordFailure)
     {
-        qCWarning(LOG_BASIC) << "Incorrect priv key password for custom ovpn config";
+        qCWarning(LOG_BASIC) << "Incorrect priv key password";
         doDisconnectRestoreStuff();
 
-        customOvpnAuthCredentialsStorage_->removePrivKeyPassword(connectionManager_->getCustomOvpnConfigFileName());
+        pendingCustomOvpnConfigFilename_ = customConfigFilename_;
+        customOvpnAuthCredentialsStorage_->removePrivKeyPassword(pendingCustomOvpnConfigFilename_);
         isNeedReconnectAfterRequestAuth_ = true;
         emit requestPrivKeyPassword();
         return;
@@ -1751,20 +1769,6 @@ void Engine::onConnectionManagerError(CONNECT_ERROR err)
         connectStateController_->setDisconnectedState();
         emit connectError(IKEV_FAILED_REINSTALL_WAN_WIN);
     }*/
-#ifdef Q_OS_WIN
-    else if (err == CONNECT_ERROR::NO_INSTALLED_TUN_TAP)
-    {
-        qCWarning(LOG_BASIC) << "OpenVPN failed to detect the TAP adapter";
-        connectStateController_->setDisconnectedState(DISCONNECTED_WITH_ERROR, CONNECT_ERROR::TAP_FATAL_ERROR);
-        return;
-    }
-    else if (err == CONNECT_ERROR::TAP_FATAL_ERROR)
-    {
-        qCWarning(LOG_BASIC) << "OpenVPN reported a fatal TAP adapter error";
-        connectStateController_->setDisconnectedState(DISCONNECTED_WITH_ERROR, CONNECT_ERROR::TAP_FATAL_ERROR);
-        return;
-    }
-#endif
     else
     {
         //emit connectError(err);
@@ -1856,9 +1860,10 @@ void Engine::onMacSpoofTimerTick()
 }
 #endif
 
-void Engine::onConnectionManagerRequestUsername(const QString &pathCustomOvpnConfig)
+void Engine::onConnectionManagerRequestUsername()
 {
-    CustomOvpnAuthCredentialsStorage::Credentials c = customOvpnAuthCredentialsStorage_->getAuthCredentials(pathCustomOvpnConfig);
+    pendingCustomOvpnConfigFilename_ = customConfigFilename_;
+    CustomOvpnAuthCredentialsStorage::Credentials c = customOvpnAuthCredentialsStorage_->getAuthCredentials(pendingCustomOvpnConfigFilename_);
 
     if (!c.username.isEmpty() && !c.password.isEmpty()) {
         connectionManager_->continueWithUsernameAndPassword(c.username, c.password, false);
@@ -1868,21 +1873,23 @@ void Engine::onConnectionManagerRequestUsername(const QString &pathCustomOvpnCon
     }
 }
 
-void Engine::onConnectionManagerRequestPassword(const QString &pathCustomOvpnConfig)
+void Engine::onConnectionManagerRequestPassword()
 {
-    CustomOvpnAuthCredentialsStorage::Credentials c = customOvpnAuthCredentialsStorage_->getAuthCredentials(pathCustomOvpnConfig);
+    pendingCustomOvpnConfigFilename_ = customConfigFilename_;
+    CustomOvpnAuthCredentialsStorage::Credentials c = customOvpnAuthCredentialsStorage_->getAuthCredentials(pendingCustomOvpnConfigFilename_);
 
     if (!c.password.isEmpty()) {
-        connectionManager_->continueWithPassword(c.password, false);
+        connectionManager_->continueWithPassword(c.password);
     } else {
         isNeedReconnectAfterRequestAuth_ = false;
         emit requestUsernameAndPassword(c.username);
     }
 }
 
-void Engine::onConnectionManagerRequestPrivKeyPassword(const QString &pathCustomOvpnConfig)
+void Engine::onConnectionManagerRequestPrivKeyPassword()
 {
-    CustomOvpnAuthCredentialsStorage::Credentials c = customOvpnAuthCredentialsStorage_->getAuthCredentials(pathCustomOvpnConfig);
+    pendingCustomOvpnConfigFilename_ = customConfigFilename_;
+    CustomOvpnAuthCredentialsStorage::Credentials c = customOvpnAuthCredentialsStorage_->getAuthCredentials(pendingCustomOvpnConfigFilename_);
 
     if (!c.privKeyPassword.isEmpty()) {
         connectionManager_->continueWithPrivKeyPassword(c.privKeyPassword, false);
@@ -2250,16 +2257,17 @@ void Engine::onEmergencyConnectionDisconnected(DISCONNECT_REASON reason)
 #endif
 
     // A non-user disconnect while still connecting means the endpoint list was exhausted (or the
-    // attempt cap expired); the emergency UI contract expects that as a single failure code. A drop
-    // from the connected state stays a plain disconnect (the pre-refactor controller's behavior) —
-    // it reaches here directly when the network is already down and the reconnect fails fast.
+    // attempt cap expired). Like the main connect path's exhaustion, this carries no specific error
+    // code -- the DISCONNECTED_WITH_ERROR reason is the failure signal. A drop from the connected
+    // state stays a plain disconnect (the pre-refactor controller's behavior) — it reaches here
+    // directly when the network is already down and the reconnect fails fast.
     if (reason != DISCONNECTED_BY_USER && emergencyConnectStateController_->currentState() != CONNECT_STATE_CONNECTED) {
-        emergencyConnectStateController_->setDisconnectedState(DISCONNECTED_WITH_ERROR, CONNECT_ERROR::EMERGENCY_FAILED_CONNECT);
-        emit emergencyConnectError(CONNECT_ERROR::EMERGENCY_FAILED_CONNECT);
+        emergencyConnectStateController_->setDisconnectedState(DISCONNECTED_WITH_ERROR, ConnectError::kNoError);
+        emit emergencyConnectError(ConnectError::kNoError);
         return;
     }
 
-    emergencyConnectStateController_->setDisconnectedState(reason, CONNECT_ERROR::NO_CONNECT_ERROR);
+    emergencyConnectStateController_->setDisconnectedState(reason, ConnectError::kNoError);
     emit emergencyDisconnected();
 }
 
@@ -2273,12 +2281,13 @@ void Engine::onEmergencyConnectionReconnecting()
     }
 }
 
-void Engine::onEmergencyConnectionError(CONNECT_ERROR err)
+void Engine::onEmergencyConnectionError(ConnectError err, const CurrentConnectionDescr & /*descr*/)
 {
-    qCDebug(LOG_BASIC) << "Engine::onEmergencyConnectionError(), err =" << err;
-    // The emergency UI contract is a single failure code regardless of the underlying error.
-    emergencyConnectStateController_->setDisconnectedState(DISCONNECTED_WITH_ERROR, CONNECT_ERROR::EMERGENCY_FAILED_CONNECT);
-    emit emergencyConnectError(CONNECT_ERROR::EMERGENCY_FAILED_CONNECT);
+    qCDebug(LOG_BASIC) << "Engine::onEmergencyConnectionError(), err =" << static_cast<int>(err);
+    // The frontend keys off the dedicated emergency channel, not the error code, so the real
+    // underlying error is forwarded as-is.
+    emergencyConnectStateController_->setDisconnectedState(DISCONNECTED_WITH_ERROR, err);
+    emit emergencyConnectError(err);
 }
 
 void Engine::getRobertFiltersImpl()
@@ -2581,7 +2590,7 @@ void Engine::onApiResourcesManagerReadyForLogin(bool isLoginFromSavedSettings)
 
     if (!emergencyConnectionManager_->isDisconnected()) {
         emergencyConnectionManager_->blockingDisconnect(false);
-        emergencyConnectStateController_->setDisconnectedState(DISCONNECTED_ITSELF, CONNECT_ERROR::NO_CONNECT_ERROR);
+        emergencyConnectStateController_->setDisconnectedState(DISCONNECTED_ITSELF, ConnectError::kNoError);
         emit emergencyDisconnected();
     }
 
@@ -2802,22 +2811,24 @@ void Engine::addCustomRemoteIpToFirewallIfNeed()
 void Engine::doConnect(bool bEmitAuthError)
 {
     QSharedPointer<locationsmodel::BaseLocationInfo> bli = locationsModel_->getMutableLocationInfoById(locationId_);
-    if (bli.isNull())
+    if (bli.isNull() || !bli->isExistSelectedNode())
     {
-        connectStateController_->setDisconnectedState(DISCONNECTED_WITH_ERROR, CONNECT_ERROR::LOCATION_NOT_EXIST);
+        connectStateController_->setDisconnectedState(DISCONNECTED_WITH_ERROR, ConnectError::kLocationUnavailable);
         myIpManager_->getIP(1);
-        qCWarning(LOG_BASIC) << "Engine::connectError(LOCATION_NOT_EXIST)";
-        return;
-    }
-    if (!bli->isExistSelectedNode())
-    {
-        connectStateController_->setDisconnectedState(DISCONNECTED_WITH_ERROR, CONNECT_ERROR::LOCATION_NO_ACTIVE_NODES);
-        myIpManager_->getIP(1);
-        qCWarning(LOG_BASIC) << "Engine::connectError(LOCATION_NO_ACTIVE_NODES)";
+        qCWarning(LOG_BASIC) << "Engine::connectError(ConnectError::kLocationUnavailable)";
         return;
     }
 
     locationName_ = bli->getName();
+
+    auto customConfigLocationInfo = qSharedPointerDynamicCast<locationsmodel::CustomConfigLocationInfo>(bli);
+    if (customConfigLocationInfo) {
+        customConfigFilename_ = customConfigLocationInfo->getFilename();
+        customConfigAllowFirewall_ = customConfigLocationInfo->isAllowFirewallAfterConnection();
+    } else {
+        customConfigFilename_.clear();
+        customConfigAllowFirewall_ = true;
+    }
 
     types::NetworkInterface networkInterface;
     networkDetectionManager_->getCurrentNetworkInterface(networkInterface);
@@ -2829,7 +2840,7 @@ void Engine::doConnect(bool bEmitAuthError)
     req.openVpn.amneziawgPreset = effectiveAmneziawgPreset();
     req.wireGuard.amneziawgParams = amneziawgParams_;
     req.wireGuard.amneziawgPreset = req.openVpn.amneziawgPreset;
-    req.wireGuard.ipStackEgress = engineSettings_.ipStackEgress();
+    req.ipStackEgress = engineSettings_.ipStackEgress();
     req.bli = bli;
     req.proxySettings = ProxyServerController::instance().getCurrentProxySettings();
     req.openVpn.proxySettings = req.proxySettings;
@@ -2965,7 +2976,7 @@ void Engine::stopPacketDetectionImpl()
     packetSizeController_->earlyStop();
 }
 
-void Engine::onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON /*reason*/, CONNECT_ERROR /*err*/, const LocationID &lid)
+void Engine::onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON /*reason*/, ConnectError /*err*/, const LocationID &lid)
 {
     // Cancel any pending delayed VPN state timer
     if (delayedVpnStateTimer_) {
@@ -3291,7 +3302,7 @@ void Engine::onIpRotateFinished(bool success)
             helper_->closeAllTcpConnections(engineSettings_.isAllowLanTraffic());
         }
 #endif
-        connectionManager_->startTunnelTests();
+        testVPNTunnel_->startTests(connectionManager_->currentProtocol());
     }
 }
 
@@ -3313,7 +3324,7 @@ void Engine::onIpPinFinished(const QString &ip)
     } else {
         // If IP pinning failed, we should start tunnel tests now to determine our actual IP.
         // GUI side will show a message accordingly if the actual IP does not match the pinned IP.
-        connectionManager_->startTunnelTests();
+        testVPNTunnel_->startTests(connectionManager_->currentProtocol());
     }
 }
 

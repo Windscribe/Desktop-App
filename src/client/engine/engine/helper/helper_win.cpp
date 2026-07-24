@@ -4,7 +4,7 @@
 
 #include "../../../../helper/common/helper_commands.h"
 #include "convert_utils.h"
-#include "engine/connectionmanager/adaptergatewayinfo.h"
+#include "engine/adaptergatewayinfo.h"
 #include "engine/wireguardconfig/wireguardconfig.h"
 #include "types/wireguardtypes.h"
 #include "utils/log/categories.h"

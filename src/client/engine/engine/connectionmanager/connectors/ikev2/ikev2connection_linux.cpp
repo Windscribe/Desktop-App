@@ -28,6 +28,6 @@ bool IKEv2Connection_linux::isDisconnected() const
 
 void IKEv2Connection_linux::fakeImpl()
 {
-    emit error(IKEV_NOT_FOUND_WIN);
+    emit error(ConnectError::kVpnServiceSetupFailure);
 }
 

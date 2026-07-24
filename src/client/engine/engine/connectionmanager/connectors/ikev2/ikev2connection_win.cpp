@@ -3,8 +3,8 @@
 
 #include <QElapsedTimer>
 
-#include "engine/connectionmanager/adapterutils_win.h"
-#include "engine/connectionmanager/iextraconfigaccessor.h"
+#include "engine/adapterutils_win.h"
+#include "utils/extraconfig.h"
 #include "utils/crashhandler.h"
 #include "utils/log/categories.h"
 #include "utils/ras_service_win.h"
@@ -62,7 +62,7 @@ void IKEv2Connection_win::startConnect()
     initialIp_ = descr_.ip;
     initialUsername_ = username();
     initialPassword_ = password();
-    initialEnableIkev2Compression_ = env_.extraConfig->useIkev2Compression();
+    initialEnableIkev2Compression_ = ExtraConfig::instance().isUseIkev2Compression();
 
     ::ResetEvent(stopThreadEvent_.getHandle());
 
@@ -136,23 +136,23 @@ void IKEv2Connection_win::run()
             cleanupHostsAndDnsProtection();
 
             if (res == MonitorResult::AuthError) {
-                emit error(CONNECT_ERROR::AUTH_ERROR);
+                emit error(ConnectError::kAuthFailure);
             } else if (res == MonitorResult::Failed) {
                 // Drop detection could not be armed for the just-established tunnel or a transient connection failure occurred.
                 // Fail over rather than give up.  The engine drives its own disconnect for this (non-auth) error, but the extra
                 // disconnected() below is harmless -- see the teardown note at the tail.
-                emit error(CONNECT_ERROR::IKEV_FAILED_TO_CONNECT);
+                emit error(ConnectError::kTransientTunnelFailure);
             }
             break;
         }
     } else {
         qCCritical(LOG_IKEV2) << "DuplicateHandle for worker thread failed:" << ::GetLastError();
-        emit error(CONNECT_ERROR::IKEV_FAILED_TO_CONNECT);
+        emit error(ConnectError::kTransientTunnelFailure);
     }
 
     // Single exit: run() tears the tunnel down on every path above, so a terminal disconnected() is always
     // correct here -- this mirrors WireGuardConnection::run().  Where the engine also drives a disconnect in
-    // response to an error() above (e.g. the IKEV_FAILED_TO_CONNECT failover calls startDisconnect(), which
+    // response to an error() above (e.g. the ConnectError::kTransientTunnelFailure failover calls startDisconnect(), which
     // self-emits), the extra disconnected() is de-duplicated by ConnectionManager::onConnectionDisconnected()
     // via its sender()/SAFE_DELETE_LATER guard.
     emit disconnected();
@@ -215,7 +215,7 @@ IKEv2Connection_win::DialResult IKEv2Connection_win::startDial()
     }
 
     if (!ikev2DeviceInitialized) {
-        emit error(CONNECT_ERROR::IKEV_NOT_FOUND_WIN);
+        emit error(ConnectError::kVpnServiceSetupFailure);
         return DialResult::Error;
     }
 
@@ -233,7 +233,7 @@ IKEv2Connection_win::DialResult IKEv2Connection_win::startDial()
     errno_t ret = wcsncpy_s(rasEntry.szLocalPhoneNumber, qUtf16Printable(initialUrl_), _TRUNCATE);
     if (ret != 0) {
         qCCritical(LOG_IKEV2) << "Failed to copy hostname to RAS phone number field, error:" << ret;
-        emit error(CONNECT_ERROR::IKEV_FAILED_SET_ENTRY_WIN);
+        emit error(ConnectError::kVpnServiceSetupFailure);
         return DialResult::Error;
     }
     // szDeviceName/szDeviceType come from RasEnumDevices into identically-sized fields, so they cannot
@@ -268,7 +268,7 @@ IKEv2Connection_win::DialResult IKEv2Connection_win::startDial()
     DWORD result = RasSetEntryProperties(NULL, IKEV2_CONNECTION_NAME, &rasEntry, rasEntry.dwSize, NULL, NULL);
     if (result != ERROR_SUCCESS) {
         qCCritical(LOG_IKEV2) << "RasSetEntryProperties failed with error:" << result;
-        emit error(CONNECT_ERROR::IKEV_FAILED_SET_ENTRY_WIN);
+        emit error(ConnectError::kVpnServiceSetupFailure);
         return DialResult::Error;
     }
 
@@ -283,20 +283,20 @@ IKEv2Connection_win::DialResult IKEv2Connection_win::startDial()
     ret = wcsncpy_s(dialparams.szUserName, qUtf16Printable(initialUsername_), _TRUNCATE);
     if (ret != 0) {
         qCCritical(LOG_IKEV2) << "Failed to copy username to RAS dial params, error:" << ret;
-        emit error(CONNECT_ERROR::IKEV_FAILED_SET_ENTRY_WIN);
+        emit error(ConnectError::kVpnServiceSetupFailure);
         return DialResult::Error;
     }
     ret = wcsncpy_s(dialparams.szPassword, qUtf16Printable(initialPassword_), _TRUNCATE);
     if (ret != 0) {
         qCCritical(LOG_IKEV2) << "Failed to copy password to RAS dial params, error:" << ret;
-        emit error(CONNECT_ERROR::IKEV_FAILED_SET_ENTRY_WIN);
+        emit error(ConnectError::kVpnServiceSetupFailure);
         return DialResult::Error;
     }
 
     result = RasSetEntryDialParams(NULL, &dialparams, FALSE);
     if (result != ERROR_SUCCESS) {
         qCCritical(LOG_IKEV2) << "RasSetEntryDialParams failed with error:" << result;
-        emit error(CONNECT_ERROR::IKEV_FAILED_SET_ENTRY_WIN);
+        emit error(ConnectError::kVpnServiceSetupFailure);
         return DialResult::Error;
     }
 
@@ -306,7 +306,7 @@ IKEv2Connection_win::DialResult IKEv2Connection_win::startDial()
 
     if (!helper_->addHosts(initialIp_, initialUrl_)) {
         qCCritical(LOG_IKEV2) << "Can't modify hosts file";
-        emit error(CONNECT_ERROR::IKEV_FAILED_MODIFY_HOSTS_WIN);
+        emit error(ConnectError::kHostsFileNotWritable);
         return DialResult::Error;
     }
 
@@ -329,7 +329,7 @@ IKEv2Connection_win::DialResult IKEv2Connection_win::startDial()
         blockingDisconnect(connHandle_, true);
         connHandle_ = NULL;
         cleanupHostsAndDnsProtection();
-        emit error(CONNECT_ERROR::IKEV_FAILED_SET_ENTRY_WIN);
+        emit error(ConnectError::kVpnServiceSetupFailure);
         return DialResult::Error;
     }
 
@@ -412,7 +412,7 @@ IKEv2Connection_win::ReinstallResult IKEv2Connection_win::handleReinstallWan()
 
     cntFailedConnectionAttempts_++;
     if (cntFailedConnectionAttempts_ >= kMaxFailedConnectionAttempts) {
-        emit error(CONNECT_ERROR::IKEV_FAILED_TO_CONNECT);
+        emit error(ConnectError::kTransientTunnelFailure);
         return ReinstallResult::TerminalError;
     }
 
@@ -424,7 +424,7 @@ IKEv2Connection_win::ReinstallResult IKEv2Connection_win::handleReinstallWan()
         wanReinstalled_ = true;
         qCInfo(LOG_IKEV2) << "Reinstalled Wan IKEv2";
     } else {
-        emit error(CONNECT_ERROR::IKEV_FAILED_TO_CONNECT);
+        emit error(ConnectError::kTransientTunnelFailure);
         return ReinstallResult::TerminalError;
     }
 

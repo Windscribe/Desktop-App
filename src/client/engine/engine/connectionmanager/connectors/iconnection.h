@@ -2,20 +2,17 @@
 
 #include <variant>
 #include <QThread>
-#include "engine/connectionmanager/adaptergatewayinfo.h"
-#include "engine/connectionmanager/connsettingspolicy/baseconnsettingspolicy.h"
+#include "engine/adaptergatewayinfo.h"
+#include "engine/connectionmanager/attemptstrategy/iconnectionattemptstrategy.h"
 #include "types/enums.h"
 #include "types/packetsize.h"
 #include "types/protocol.h"
-
-class IExtraConfigAccessor;
 
 // Static traits of a connector instance: a pure function of the constructor arguments, fixed for the
 // connector's lifetime, never dependent on prepare() results. Runtime-derived facts stay virtual methods.
 struct ConnectorCapabilities
 {
     int connectTimeoutMs = 30 * 1000;
-    bool dualStackEgress = false;
     bool supportsCachedConfig = false;
     bool needsSystemDnsRestore = false;
 };
@@ -30,7 +27,9 @@ struct AttemptEnvironment
     AdapterGatewayInfo defaultAdapterInfo;
     QString primaryDnsServer;
     ConfigFetchMode configFetchMode = ConfigFetchMode::Normal;
-    IExtraConfigAccessor *extraConfig = nullptr;
+    // Controls whether IPv6 is enabled for tunnels that can carry dual-stack traffic. kIPv4Only
+    // forces v6 to be stripped from the tunnel config; kAuto keeps v6 if the node/config supports it.
+    IpStack ipStackEgress = IpStack::kAuto;
 };
 
 enum class UserInputType { Username, Password, PrivKeyPassword, KeyLimitConsent };
@@ -73,12 +72,14 @@ public:
     // Refines protocol_ to the attempt's dialed variant: the ctor value may be the pre-resolve
     // family representative (emergency and custom-config connectors are created before the
     // per-endpoint/per-remote variant is known).
-    virtual void prepare(const CurrentConnectionDescr &descr, const AttemptEnvironment &env)
+    // Non-virtual: the capture below feeds the effective* readbacks (firewall whitelist) and
+    // currentProtocol(), so no connector may skip it; per-connector work goes in prepareImpl().
+    void prepare(const CurrentConnectionDescr &descr, const AttemptEnvironment &env)
     {
         descr_ = descr;
         env_ = env;
         protocol_ = descr.protocol;
-        emit prepared();
+        prepareImpl();
     }
 
     // Synchronous post-stop cleanup; safe to call on a connector that never prepared or connected.
@@ -88,28 +89,34 @@ public:
     virtual void startDisconnect() = 0;
     virtual bool isDisconnected() const = 0;
     virtual void waitForDisconnect() {}
-    virtual bool isAllowFirewallAfterCustomConfigConnection() const { return true; }
+    // Runtime half of the custom-config allow-firewall-after-connect decision; the config-file
+    // directive is ANDed in Engine-side.
+    virtual bool isAllowFirewallAfterConnectionRuntime() const { return true; }
 
     // Post-prepare readbacks; overridden where prepare() rewrites the endpoint or knows the tunnel DNS.
     virtual QString effectiveHostname() const { return descr_.hostname; }
     virtual QString effectiveIp() const { return descr_.ip; }
     virtual QString tunnelDefaultDns() const { return QString(); }
+    // Whether the tunnel carries IPv6 egress for this attempt.
+    virtual bool isDualStackEgress() const { return false; }
 
     virtual void continueWithUserInput(const UserInputResponse & /*response*/) {}
 
 signals:
     void prepared();
-    void prepareFailed(CONNECT_ERROR err);
+    void prepareFailed(ConnectError err);
     void userInputRequired(UserInputType type);
 
     void connected(const AdapterGatewayInfo &connectionAdapterInfo);
     void disconnected();
     void reconnecting();
-    void error(CONNECT_ERROR err);
+    void error(ConnectError err);
     void statisticsUpdated(quint64 bytesIn, quint64 bytesOut, bool isTotalBytes);
     void interfaceUpdated(const QString &interfaceName);  // WireGuard-specific.
 
 protected:
+    virtual void prepareImpl() { emit prepared(); }
+
     types::Protocol protocol_;
     ConnectorCapabilities capabilities_;
     CurrentConnectionDescr descr_;

@@ -179,12 +179,16 @@
         <translation>错误：无法启动自定义 DNS 服务</translation>
     </message>
     <message>
-        <source>Error: WireGuard adapter setup failed</source>
-        <translation>错误：WireGuard 适配器设置失败</translation>
-    </message>
-    <message>
         <source>Error: Could not retrieve WireGuard configuration</source>
         <translation>错误：无法检索 WireGuard 配置</translation>
+    </message>
+    <message>
+        <source>Error: Could not generate connection configuration</source>
+        <translation>错误：无法生成连接配置</translation>
+    </message>
+    <message>
+        <source>Error: Local DNS server is not available. Connected DNS has been set back to Auto</source>
+        <translation>错误：本地DNS服务器不可用。已连接的DNS被设置回自动</translation>
     </message>
     <message>
         <source>Unknown state</source>
@@ -301,6 +305,14 @@
     <message>
         <source>Incorrect 2FA code</source>
         <translation>二次验证代码不正确</translation>
+    </message>
+    <message>
+        <source>Error: WireGuard adapter setup failed</source>
+        <translation>错误：WireGuard适配器设置失败</translation>
+    </message>
+    <message>
+        <source>Error: VPN adapter setup failed</source>
+        <translation>错误：VPN适配器设置失败</translation>
     </message>
     <message>
         <source>(Device name: %1)</source>

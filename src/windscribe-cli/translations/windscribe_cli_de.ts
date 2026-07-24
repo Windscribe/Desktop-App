@@ -179,12 +179,16 @@
         <translation>Fehler: Benutzerdefinierter DNS-Dienst kann nicht gestartet werden</translation>
     </message>
     <message>
-        <source>Error: WireGuard adapter setup failed</source>
-        <translation>Fehler: Fehler bei der Einrichtung des WireGuard-Adapters</translation>
-    </message>
-    <message>
         <source>Error: Could not retrieve WireGuard configuration</source>
         <translation>Fehler: WireGuard-Konfiguration konnte nicht abgerufen werden</translation>
+    </message>
+    <message>
+        <source>Error: Could not generate connection configuration</source>
+        <translation>Fehler: Konnte keine Verbindungskonfiguration erzeugen</translation>
+    </message>
+    <message>
+        <source>Error: Local DNS server is not available. Connected DNS has been set back to Auto</source>
+        <translation>Fehler: Lokaler DNS-Server ist nicht verfügbar. Verbundenes DNS wurde wieder auf Auto gesetzt</translation>
     </message>
     <message>
         <source>Unknown state</source>
@@ -301,6 +305,14 @@
     <message>
         <source>Incorrect 2FA code</source>
         <translation>Falscher 2FA-Code</translation>
+    </message>
+    <message>
+        <source>Error: WireGuard adapter setup failed</source>
+        <translation>Fehler: Die WireGuard-Adapter-Einrichtung ist fehlgeschlagen</translation>
+    </message>
+    <message>
+        <source>Error: VPN adapter setup failed</source>
+        <translation>Fehler: VPN-Adapter-Einrichtung fehlgeschlagen</translation>
     </message>
     <message>
         <source>(Device name: %1)</source>

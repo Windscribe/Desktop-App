@@ -161,7 +161,6 @@ MainWindow::MainWindow() :
     connect(backend_, &Backend::setRobertFilterResult, this, &MainWindow::onBackendSetRobertFilterResult);
     connect(backend_, &Backend::protocolStatusChanged, this, &MainWindow::onBackendProtocolStatusChanged);
     connect(backend_, &Backend::splitTunnelingStartFailed, this, &MainWindow::onSplitTunnelingStartFailed);
-    connect(backend_, &Backend::localDnsServerNotAvailable, this, &MainWindow::onLocalDnsServerNotAvailable);
     notificationsController_.connect(backend_, &Backend::notificationsChanged, &notificationsController_, &NotificationsController::updateNotifications);
     connect(this, &MainWindow::wireGuardKeyLimitUserResponse, backend_, &Backend::wireGuardKeyLimitUserResponse);
 
@@ -2257,6 +2256,13 @@ void MainWindow::onBackendConnectStateChanged(const types::ConnectState &connect
             wireGuardKeyLimitMessageId_ = 0;
         }
 
+        // Same for a pending custom-OVPN credentials prompt (a custom-config auth re-prompt keeps
+        // the connect state out of DISCONNECTED, so this only fires on a genuine disconnect).
+        if (customOvpnCredentialsMessageId_ != 0) {
+            GeneralMessageController::instance().dismissMessage(customOvpnCredentialsMessageId_);
+            customOvpnCredentialsMessageId_ = 0;
+        }
+
         if (connectState.disconnectReason == DISCONNECTED_WITH_ERROR) {
             updateAppIconType(AppIconType::DISCONNECTED_WITH_ERROR);
         } else {
@@ -2549,7 +2555,7 @@ void MainWindow::onBackendProxySharingFailed(PROXY_SHARING_ERROR error)
 
 void MainWindow::onBackendRequestCustomOvpnConfigCredentials(const QString &username)
 {
-    GeneralMessageController::instance().showCredentialPrompt(
+    customOvpnCredentialsMessageId_ = GeneralMessageController::instance().showCredentialPrompt(
         "WARNING_WHITE",
         tr("Enter Connection Credentials"),
         username.isEmpty() ? "" :  tr("...hmm are you sure this is correct?"), // description
@@ -2558,16 +2564,18 @@ void MainWindow::onBackendRequestCustomOvpnConfigCredentials(const QString &user
         GeneralMessageController::tr(GeneralMessageController::kCancel),
         "", // tertiary text
         [this](const QString &username, const QString &password, bool b) {
+            customOvpnCredentialsMessageId_ = 0;
             backend_->continueWithCredentialsForOvpnConfig(username, password, b);
         },
         [this](bool b) {
+            customOvpnCredentialsMessageId_ = 0;
             backend_->continueWithCredentialsForOvpnConfig("", "", false);
         });
 }
 
 void MainWindow::onBackendRequestCustomOvpnConfigPrivKeyPassword()
 {
-    GeneralMessageController::instance().showCredentialPrompt(
+    customOvpnCredentialsMessageId_ = GeneralMessageController::instance().showCredentialPrompt(
         "WARNING_WHITE",
         tr("Enter Private Key Password"),
         "", // description
@@ -2576,9 +2584,11 @@ void MainWindow::onBackendRequestCustomOvpnConfigPrivKeyPassword()
         GeneralMessageController::tr(GeneralMessageController::kCancel),
         "", // tertiary text
         [this](const QString &username, const QString &password, bool b) {
+            customOvpnCredentialsMessageId_ = 0;
             backend_->continueWithPrivKeyPasswordForOvpnConfig(password, b);
         },
         [this](bool b) {
+            customOvpnCredentialsMessageId_ = 0;
             backend_->continueWithPrivKeyPasswordForOvpnConfig("", false);
         },
         std::function<void(bool)>(nullptr),
@@ -3659,9 +3669,15 @@ void MainWindow::handleDisconnectWithError(const types::ConnectState &connectSta
     WS_ASSERT(connectState.disconnectReason == DISCONNECTED_WITH_ERROR);
 
     QString msg;
-    if (connectState.connectError == LOCATION_NOT_EXIST || connectState.connectError == LOCATION_NO_ACTIVE_NODES) {
-        qCWarning(LOG_BASIC) << "Location not exist or no active nodes, try connect to best location";
+    if (connectState.connectError == ConnectError::kLocationUnavailable) {
         LocationID bestLocation = backend_->locationsModelManager()->getBestLocationId();
+        // Retrying Best Location can't help when Best Location is what just failed; stay disconnected
+        // instead of silently cycling connect -> error -> connect forever.
+        if (selectedLocation_->isValid() && selectedLocation_->locationdId() == bestLocation) {
+            qCWarning(LOG_BASIC) << "Best Location not exist or no active nodes, goto disconnected mode";
+            return;
+        }
+        qCWarning(LOG_BASIC) << "Location not exist or no active nodes, try connect to best location";
         selectedLocation_->set(bestLocation);
         PersistentState::instance().setLastLocation(selectedLocation_->locationdId());
         if (selectedLocation_->isValid()) {
@@ -3673,7 +3689,7 @@ void MainWindow::handleDisconnectWithError(const types::ConnectState &connectSta
             qCWarning(LOG_BASIC) << "Best Location not exist or no active nodes, goto disconnected mode";
         }
         return;
-    } else if (connectState.connectError == IKEV_FAILED_MODIFY_HOSTS_WIN) {
+    } else if (connectState.connectError == ConnectError::kHostsFileNotWritable) {
         GeneralMessageController::instance().showMessage("WARNING_WHITE",
                                                tr("Read-Only File"),
                                                tr("Your hosts file is read-only. IKEv2 connectivity requires for it to be writable. Fix the issue automatically?"),
@@ -3682,20 +3698,17 @@ void MainWindow::handleDisconnectWithError(const types::ConnectState &connectSta
                                                "",
                                                [this](bool b) { if (backend_) backend_->sendMakeHostsFilesWritableWin(); });
         return;
-#ifdef Q_OS_WIN
-    } else if (connectState.connectError == NO_INSTALLED_TUN_TAP) {
-        return;
-#elif defined(Q_OS_MACOS)
-    } else if (connectState.connectError == LOCKDOWN_MODE_IKEV2) {
+#ifdef Q_OS_MACOS
+    } else if (connectState.connectError == ConnectError::kBlockedByOsPolicy) {
         msg = tr("IKEv2 connectivity is not available in MacOS Lockdown Mode. Please disable Lockdown Mode in System Settings or change your connection settings.");
 #endif
-    } else if (connectState.connectError == CONNECTION_BLOCKED) {
+    } else if (connectState.connectError == ConnectError::kAccountBlocked) {
         if (blockConnect_.isBlockedExceedTraffic()) {
             mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_UPGRADE);
             return;
         }
         msg = blockConnect_.message();
-    } else if (connectState.connectError == CANNOT_OPEN_CUSTOM_CONFIG) {
+    } else if (connectState.connectError == ConnectError::kCustomConfigInvalid) {
         LocationID bestLocation{backend_->locationsModelManager()->getBestLocationId()};
         if (bestLocation.isValid()) {
             selectedLocation_->set(bestLocation);
@@ -3705,7 +3718,7 @@ void MainWindow::handleDisconnectWithError(const types::ConnectState &connectSta
                                                                           selectedLocation_->locationdId().isCustomConfigsLocation());
         }
         msg = tr("The custom configuration could not be loaded.  Please check that it’s correct or contact support.");
-    } else if (connectState.connectError == CTRLD_START_FAILED) {
+    } else if (connectState.connectError == ConnectError::kDnsServiceStartFailure) {
         // Couldn't start ctrld.  Is there an existing local DNS service?
         if (NetworkUtils::DnsChecker::checkAvailabilityBlocking()) {
             // There is a local DNS service running, prompt to use it instead.
@@ -3728,14 +3741,37 @@ void MainWindow::handleDisconnectWithError(const types::ConnectState &connectSta
         } else {
             msg = tr("Unable to start custom DNS service.  Please ensure you don't have any other local DNS services running, or contact support.");
         }
-    } else if (connectState.connectError == WIREGUARD_ADAPTER_SETUP_FAILED) {
+    } else if (connectState.connectError == ConnectError::kAdapterSetupFailure) {
         msg = tr("WireGuard adapter setup failed. Please wait one minute and try the connection again. If adapter setup fails again,"
                  " please try restarting your computer.\n\nIf the problem persists after a restart, please send a debug log and open"
                  " a support ticket, then switch to a different connection mode.");
-    } else if (connectState.connectError == WIREGUARD_COULD_NOT_RETRIEVE_CONFIG) {
+    } else if (connectState.connectError == ConnectError::kAdapterNotInstalled) {
+        msg = tr("VPN adapter setup failed. Please wait one minute and try the connection again. If the problem persists, please"
+                 " send a debug log and open a support ticket, then switch to a different connection mode.");
+    } else if (connectState.connectError == ConnectError::kConfigFetchFailure) {
         msg = tr("Windscribe could not retrieve server configuration. Please try another protocol.");
+    } else if (connectState.connectError == ConnectError::kLocalConfigGenerationFailure) {
+        msg = tr("Windscribe could not generate the connection configuration. If this error persists, please send a debug log and open a support ticket.");
+    } else if (connectState.connectError == ConnectError::kLocalDnsServerNotAvailable) {
+        types::ConnectedDnsInfo connectedDnsInfo = backend_->getPreferences()->connectedDnsInfo();
+        connectedDnsInfo.type = CONNECTED_DNS_TYPE::CONNECTED_DNS_TYPE_AUTO;
+        backend_->getPreferences()->setConnectedDnsInfo(connectedDnsInfo);
+
+        GeneralMessageController::instance().showMessage(
+            "WARNING_YELLOW",
+            tr("Local DNS server is not available"),
+            tr("The local DNS server is not available.  Connected DNS has been set back to Auto."),
+            GeneralMessageController::tr(GeneralMessageController::kOk),
+            "",
+            "",
+            [this](bool b) {
+                if (selectedLocation_ && selectedLocation_->isValid()) {
+                    backend_->sendConnect(selectedLocation_->locationdId());
+                }
+            });
+        return;
     } else {
-        msg = tr("An unexpected error occurred establishing the VPN connection (Error %1).  If this error persists, try using a different protocol or contact support.").arg(connectState.connectError);
+        msg = tr("An unexpected error occurred establishing the VPN connection (Error %1).  If this error persists, try using a different protocol or contact support.").arg(static_cast<int>(connectState.connectError));
     }
 
     GeneralMessageController::instance().showMessage("ERROR_ICON",
@@ -4223,26 +4259,6 @@ void MainWindow::onPreferencesClearWifiHistoryClick()
 void MainWindow::onEmergencyConnectEscapeClick()
 {
     gotoWelcomeWindow();
-}
-
-void MainWindow::onLocalDnsServerNotAvailable()
-{
-    types::ConnectedDnsInfo connectedDnsInfo = backend_->getPreferences()->connectedDnsInfo();
-    connectedDnsInfo.type = CONNECTED_DNS_TYPE::CONNECTED_DNS_TYPE_AUTO;
-    backend_->getPreferences()->setConnectedDnsInfo(connectedDnsInfo);
-
-    GeneralMessageController::instance().showMessage(
-        "WARNING_YELLOW",
-        tr("Local DNS server is not available"),
-        tr("The local DNS server is not available.  Connected DNS has been set back to Auto."),
-        GeneralMessageController::tr(GeneralMessageController::kOk),
-        "",
-        "",
-        [this](bool b) {
-            if (selectedLocation_ && selectedLocation_->isValid()) {
-                backend_->sendConnect(selectedLocation_->locationdId());
-            }
-        });
 }
 
 void MainWindow::onConnectWindowLocationTabClicked(LOCATION_TAB tab)

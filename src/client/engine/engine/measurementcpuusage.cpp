@@ -42,7 +42,7 @@ void MeasurementCpuUsage::setEnabled(bool bEnabled)
 }
 
 void MeasurementCpuUsage::onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason,
-                                                CONNECT_ERROR err, const LocationID &location)
+                                                ConnectError err, const LocationID &location)
 {
     Q_UNUSED(reason)
     Q_UNUSED(err)

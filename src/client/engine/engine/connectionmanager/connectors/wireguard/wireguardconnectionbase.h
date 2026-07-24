@@ -17,7 +17,6 @@ class WireGuardConnectionBase : public IConnection
 public:
     WireGuardConnectionBase(QObject *parent, types::Protocol protocol, const WireGuardSessionParams &sessionParams);
 
-    void prepare(const CurrentConnectionDescr &descr, const AttemptEnvironment &env) override;
     void teardown() override;
     void continueWithUserInput(const UserInputResponse &response) override;
 
@@ -31,7 +30,12 @@ public:
         return dns.isNull() ? QString("") : dns;
     }
 
+    // Dual-stack tunnel only when the selected node advertises IPv6 *and* the user has not forced
+    // IPv4-only via the "IP Stack" preference.
+    bool isDualStackEgress() const override { return descr_.isIpv6Support && env_.ipStackEgress == IpStack::kAuto; }
+
 protected:
+    void prepareImpl() override;
     const WireGuardConfig &config() const { return config_; }
     // config() with the attempt environment's DNS override applied for the dial; config_ stays
     // pristine so tunnelDefaultDns() keeps reporting the config's own DNS.

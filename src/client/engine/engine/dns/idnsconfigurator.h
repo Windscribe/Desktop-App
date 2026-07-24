@@ -4,7 +4,7 @@
 #include <QString>
 #include <QStringList>
 
-#include "engine/connectionmanager/adaptergatewayinfo.h"
+#include "engine/adaptergatewayinfo.h"
 #include "types/connecteddnsinfo.h"
 
 // Owns everything connected-DNS: the ConnectedDnsInfo settings, the ctrld DNS proxy, the VPN

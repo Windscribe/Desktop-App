@@ -114,6 +114,22 @@ void TestNetworkingValidation::testIsIp()
         QVERIFY2(NetworkingValidation::isIp(s), s);
     for (const char *s : kInvalidIps)
         QVERIFY2(!NetworkingValidation::isIp(s), s);
+
+    // Embedded NUL / newline must not validate. IPv6 is the important case: QHostAddress::setAddress
+    // tolerates a trailing NUL/newline on v6 literals, and there is no v6 canonical round-trip check,
+    // so parseIpLiteral's control-byte rejection is what closes it. IPv4 is caught either way.
+    QVERIFY(!NetworkingValidation::isIp(QString("1.2.3.4") + QChar(0) + "\nplugin /x.so"));
+    QVERIFY(!NetworkingValidation::isIp(QString("1.2.3.4") + QChar(0)));
+    QVERIFY(!NetworkingValidation::isIp(QString("1.2.3.4\n")));
+    QVERIFY(!NetworkingValidation::isIp(QString("::1") + QChar(0) + "\nx"));
+    QVERIFY(!NetworkingValidation::isIp(QString("::1") + QChar(0)));
+    QVERIFY(!NetworkingValidation::isIp(QString("::1\n")));
+    QVERIFY(!NetworkingValidation::isIp(QString("2001:db8::1\npostup")));
+    QVERIFY(!NetworkingValidation::isIpv4(QString("1.2.3.4") + QChar(0)));
+    QVERIFY(!NetworkingValidation::isIpv6(QString("::1\n")));
+    QVERIFY(!NetworkingValidation::isIpv6(QString("fe80::1") + QChar(0)));
+    QVERIFY(!NetworkingValidation::isIpCidr(QString("10.0.0.0") + QChar(0) + "/24"));
+    QVERIFY(!NetworkingValidation::isIpCidr(QString("2001:db8::") + QChar(0) + "/64"));
 }
 
 void TestNetworkingValidation::testIsDomain()
@@ -167,6 +183,14 @@ void TestNetworkingValidation::testIsDomain()
         QVERIFY2(NetworkingValidation::isDomain(s), s);
     for (const char *s : kInvalidDomainNames)
         QVERIFY2(!NetworkingValidation::isDomain(s), s);
+
+    // A trailing newline must not slip through: the regex uses \A...\z (not $, which matches before
+    // a final newline). Also reject an embedded NUL and the wildcard-variant trailing newline.
+    QVERIFY(!NetworkingValidation::isDomain(QString("google.com\n")));
+    QVERIFY(!NetworkingValidation::isDomain(QString("google.com") + QChar(0)));
+    QVERIFY(!NetworkingValidation::isDomain(QString("google.com\nevil.com")));
+    QVERIFY(!NetworkingValidation::isDomainWithWildcard(QString("*.google.com\n")));
+    QVERIFY(NetworkingValidation::isDomainWithWildcard("*.google.com"));
 }
 
 void TestNetworkingValidation::testIsIpv4AndIsIpv6()
@@ -307,6 +331,10 @@ void TestNetworkingValidation::testIsCtrldCorrectAddress()
 
     QVERIFY(!NetworkingValidation::isCtrldCorrectAddress(""));
     QVERIFY(!NetworkingValidation::isCtrldCorrectAddress("abc;rm -rf"));
+    // Trailing newline on the URL/domain forms must be rejected (anchored \z, not $).
+    QVERIFY(!NetworkingValidation::isCtrldCorrectAddress(QString("https://cloudflare-dns.com/dns-query\n")));
+    QVERIFY(!NetworkingValidation::isCtrldCorrectAddress(QString("sdns://AgMAAAAAAAAACjEuMS4xLjE\n")));
+    QVERIFY(!NetworkingValidation::isCtrldCorrectAddress(QString("dns.example.com\n")));
 }
 
 QTEST_MAIN(TestNetworkingValidation)

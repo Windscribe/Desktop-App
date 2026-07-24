@@ -12,7 +12,7 @@
 struct ConnectRequest
 {
     // Per-protocol session data; the factory hands each connector its own struct at construction.
-    // amneziawgPreset appears in both openVpn and wireGuard deliberately (both protocols consume it);
+    // amneziawgPreset appears in both openVpn and wireGuard deliberately (both protocols consume it).
     // proxySettings also stays top-level because ConnectionManager reads it for the LAN-proxy warning.
     OpenVpnSessionParams openVpn;
     WireGuardSessionParams wireGuard;
@@ -22,6 +22,7 @@ struct ConnectRequest
     types::ConnectionSettings connectionSettings;
     api_responses::PortMap portMap;
     types::ProxySettings proxySettings;
+    IpStack ipStackEgress = IpStack::kAuto;
     bool bEmitAuthError = false;
     QString preferredNodeHostname;
 };

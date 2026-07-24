@@ -19,7 +19,7 @@ MainService::MainService() : QObject(), isExitingAfterUpdate_(false), keyLimitDe
     connect(backend_, &Backend::sessionStatusChanged, this, &MainService::onBackendSessionStatusChanged);
     connect(backend_, &Backend::updateVersionChanged, this, &MainService::onBackendUpdateVersionChanged);
     connect(backend_, &Backend::wireGuardAtKeyLimit, this, &MainService::onBackendWireGuardAtKeyLimit);
-    connect(backend_, &Backend::localDnsServerNotAvailable, this, &MainService::onBackendLocalDnsServerNotAvailable);
+    connect(backend_, &Backend::connectStateChanged, this, &MainService::onBackendConnectStateChanged);
     connect(backend_, &Backend::myIpChanged, this, &MainService::onBackendMyIpChanged);
     connect(backend_, &Backend::sessionDeleted, this, &MainService::onBackendSessionDeleted);
     backend_->init();
@@ -392,11 +392,16 @@ void MainService::onSetIgnoreSslErrors(bool ignore)
     }
 }
 
-void MainService::onBackendLocalDnsServerNotAvailable()
+void MainService::onBackendConnectStateChanged(const types::ConnectState &connectState)
 {
-    types::ConnectedDnsInfo connectedDnsInfo = backend_->getPreferences()->connectedDnsInfo();
-    connectedDnsInfo.type = CONNECTED_DNS_TYPE::CONNECTED_DNS_TYPE_AUTO;
-    backend_->getPreferences()->setConnectedDnsInfo(connectedDnsInfo);
+    // The user picked a local DNS server that turned out to be unavailable; revert Connected DNS to
+    // Auto so the next connect isn't stuck on it.
+    if (connectState.disconnectReason == DISCONNECTED_WITH_ERROR &&
+        connectState.connectError == ConnectError::kLocalDnsServerNotAvailable) {
+        types::ConnectedDnsInfo connectedDnsInfo = backend_->getPreferences()->connectedDnsInfo();
+        connectedDnsInfo.type = CONNECTED_DNS_TYPE::CONNECTED_DNS_TYPE_AUTO;
+        backend_->getPreferences()->setConnectedDnsInfo(connectedDnsInfo);
+    }
 }
 
 void MainService::onBackendSessionDeleted()

@@ -17,3 +17,7 @@ target_sources(engine PRIVATE
     nodeselectionalgorithm.cpp
     nodeselectionalgorithm.h
 )
+
+if(IS_BUILD_TESTS)
+    add_subdirectory(tests)
+endif(IS_BUILD_TESTS)

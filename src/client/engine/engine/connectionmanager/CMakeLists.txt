@@ -1,6 +1,6 @@
 target_sources(engine PRIVATE
-    adaptergatewayinfo.cpp
-    adaptergatewayinfo.h
+    classifyconnecterror.cpp
+    classifyconnecterror.h
     connectionmanager.cpp
     connectionmanager.h
     connectrequest.h
@@ -18,8 +18,6 @@ target_sources(engine PRIVATE
     connectors/openvpn/availableport.h
     connectors/openvpn/makeovpnfile.cpp
     connectors/openvpn/makeovpnfile.h
-    connectors/openvpn/makeovpnfilefromcustom.cpp
-    connectors/openvpn/makeovpnfilefromcustom.h
     connectors/openvpn/openvpnconnection.cpp
     connectors/openvpn/openvpnconnection.h
     connectors/openvpn/openvpnsessionparams.h
@@ -30,32 +28,24 @@ target_sources(engine PRIVATE
     connectors/wireguard/wireguardconnectionbase.cpp
     connectors/wireguard/wireguardconnectionbase.h
     connectors/wireguard/wireguardsessionparams.h
-    connsettingspolicy/autoconnsettingspolicy.cpp
-    connsettingspolicy/autoconnsettingspolicy.h
-    connsettingspolicy/baseconnsettingspolicy.h
-    connsettingspolicy/connsettingspolicyfactory.cpp
-    connsettingspolicy/connsettingspolicyfactory.h
-    connsettingspolicy/customconfigconnsettingspolicy.cpp
-    connsettingspolicy/customconfigconnsettingspolicy.h
-    connsettingspolicy/emergencyconnsettingspolicy.cpp
-    connsettingspolicy/emergencyconnsettingspolicy.h
-    connsettingspolicy/iconnsettingspolicyfactory.h
-    connsettingspolicy/manualconnsettingspolicy.cpp
-    connsettingspolicy/manualconnsettingspolicy.h
-    extraconfigaccessor.cpp
-    extraconfigaccessor.h
-    finishactiveconnections.cpp
-    finishactiveconnections.h
-    iextraconfigaccessor.h
+    attemptstrategy/autoconnectionattemptstrategy.cpp
+    attemptstrategy/autoconnectionattemptstrategy.h
+    attemptstrategy/iconnectionattemptstrategy.cpp
+    attemptstrategy/iconnectionattemptstrategy.h
+    attemptstrategy/connectionattemptstrategyfactory.cpp
+    attemptstrategy/connectionattemptstrategyfactory.h
+    attemptstrategy/customconfigconnectionattemptstrategy.cpp
+    attemptstrategy/customconfigconnectionattemptstrategy.h
+    attemptstrategy/emergencyconnectionattemptstrategy.cpp
+    attemptstrategy/emergencyconnectionattemptstrategy.h
+    attemptstrategy/iconnectionattemptstrategyfactory.h
+    attemptstrategy/manualconnectionattemptstrategy.cpp
+    attemptstrategy/manualconnectionattemptstrategy.h
     isleepevents.h
-    testvpntunnel.cpp
-    testvpntunnel.h
 )
 
 if (WIN32)
     target_sources(engine PRIVATE
-        adapterutils_win.cpp
-        adapterutils_win.h
         connectors/ikev2/ikev2connection_win.cpp
         connectors/ikev2/ikev2connection_win.h
         connectors/wireguard/wireguardconnection_win.cpp
@@ -69,10 +59,10 @@ elseif(APPLE)
     target_sources(engine PRIVATE
         connectors/ikev2/ikev2connection_mac.h
         connectors/ikev2/ikev2connection_mac.mm
+        connectors/ikev2/networkextensionlog_mac.cpp
+        connectors/ikev2/networkextensionlog_mac.h
         connectors/wireguard/wireguardconnection_posix.cpp
         connectors/wireguard/wireguardconnection_posix.h
-        networkextensionlog_mac.cpp
-        networkextensionlog_mac.h
         sleepevents_mac.h
         sleepevents_mac.mm
     )

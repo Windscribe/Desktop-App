@@ -12,25 +12,21 @@ WireGuardConnectionBase::WireGuardConnectionBase(QObject *parent, types::Protoco
     capabilities_ = wireGuardConnectorCapabilities();
 }
 
-void WireGuardConnectionBase::prepare(const CurrentConnectionDescr &descr, const AttemptEnvironment &env)
+void WireGuardConnectionBase::prepareImpl()
 {
-    descr_ = descr;
-    env_ = env;
-    protocol_ = descr.protocol;
-
-    if (descr.connectionNodeType == CONNECTION_NODE_CUSTOM_CONFIG) {
-        WS_ASSERT(descr.wgCustomConfig != nullptr);
-        if (descr.wgCustomConfig == nullptr) {
-            qCWarning(LOG_CONNECTION) << "Failed to get config for custom WG file:" << descr.customConfigFilename;
-            emit prepareFailed(CONNECT_ERROR::CANNOT_OPEN_CUSTOM_CONFIG);
+    if (descr_.connectionNodeType == CONNECTION_NODE_CUSTOM_CONFIG) {
+        WS_ASSERT(descr_.wireGuard.customConfig != nullptr);
+        if (descr_.wireGuard.customConfig == nullptr) {
+            qCWarning(LOG_CONNECTION) << "Failed to get config for custom WG file";
+            emit prepareFailed(ConnectError::kCustomConfigInvalid);
             return;
         }
         // Honour the "IP Stack" preference: if the user picked IPv4 Only, strip every v6 entry so
         // the tunnel never carries IPv6 traffic even if the .conf file is dual-stack.
-        if (sessionParams_.ipStackEgress == IpStack::kIPv4Only) {
-            config_ = descr.wgCustomConfig->stripIpv6Addresses();
+        if (env_.ipStackEgress == IpStack::kIPv4Only) {
+            config_ = descr_.wireGuard.customConfig->stripIpv6Addresses();
         } else {
-            config_ = *descr.wgCustomConfig;
+            config_ = *descr_.wireGuard.customConfig;
         }
         emit prepared();
         return;
@@ -80,20 +76,17 @@ void WireGuardConnectionBase::onGetWireGuardConfigAnswer(WireGuardConfigRetCode 
     }
     if (retCode == WireGuardConfigRetCode::kFailoverFailed) {
         // All options for accessing the API have been exhausted.
-        emit prepareFailed(CONNECT_ERROR::WIREGUARD_COULD_NOT_RETRIEVE_CONFIG);
+        emit prepareFailed(ConnectError::kConfigFetchFailure);
         return;
     }
     if (retCode != WireGuardConfigRetCode::kSuccess) {
-        emit prepareFailed(CONNECT_ERROR::CONFIG_FETCH_FAILED);
+        emit prepareFailed(ConnectError::kLocalConfigGenerationFailure);
         return;
     }
 
-    // Dual-stack tunnel only when the selected node advertises IPv6 *and* the user has
-    // not forced IPv4-only via the "IP Stack" preference. Auto leaves the v6 portion
-    // intact (server-supplied client v6 address + ::/0 in AllowedIPs); IPv4 Only strips
-    // every v6 entry from Address, DNS and AllowedIPs.
-    const bool dualStack = descr_.isIpv6Support && sessionParams_.ipStackEgress == IpStack::kAuto;
-    if (dualStack) {
+    // Auto leaves the v6 portion intact (server-supplied client v6 address + ::/0 in AllowedIPs);
+    // IPv4 Only strips every v6 entry from Address, DNS and AllowedIPs.
+    if (isDualStackEgress()) {
         config_ = config;
     } else {
         config_ = config.stripIpv6Addresses();
@@ -101,10 +94,10 @@ void WireGuardConnectionBase::onGetWireGuardConfigAnswer(WireGuardConfigRetCode 
 
     if (!NetworkingValidation::isIp(descr_.ip)) {
         qCCritical(LOG_CONNECTION) << "Refusing to build WireGuard endpoint, node IP is not a valid IP address";
-        emit prepareFailed(CONNECT_ERROR::WIREGUARD_CONNECTION_ERROR);
+        emit prepareFailed(ConnectError::kTunnelEstablishmentFailure);
         return;
     }
-    config_.setPeerPublicKey(descr_.wgPeerPublicKey);
+    config_.setPeerPublicKey(descr_.wireGuard.peerPublicKey);
     config_.setPeerEndpoint(QString("%1:%2").arg(descr_.ip).arg(descr_.port));
 
     if (!sessionParams_.amneziawgPreset.isEmpty()) {

@@ -28,6 +28,10 @@ public:
     void stopDnsProxy() override;
     void restoreSystemDns() override;
 
+    // Cleans up DNS/system state left over from a previous app run (stale ctrld processes, system
+    // DNS overrides, leak protection). Static: it runs at engine startup, before any instance exists.
+    static void finishActiveDns(Helper *helper);
+
 private:
     Helper *helper_;
     QScopedPointer<IConnectionPlatformPolicy> platformPolicy_;

@@ -7,7 +7,9 @@
 #include "utils/networkingvalidation.h"
 #include "utils/ws_assert.h"
 
-#ifdef Q_OS_MACOS
+#ifdef Q_OS_WIN
+    #include "ctrldmanager/ctrldmanager_win.h"
+#elif defined(Q_OS_MACOS)
     #include "restorednsmanager_mac.h"
 #endif
 
@@ -154,5 +156,21 @@ void DnsConfigurator::restoreSystemDns()
 {
 #ifdef Q_OS_MACOS
     RestoreDNSManager_mac::restoreState(helper_);
+#endif
+}
+
+void DnsConfigurator::finishActiveDns(Helper *helper)
+{
+#ifdef Q_OS_WIN
+    Q_UNUSED(helper);
+    CtrldManager_win::terminateAppCtrldProcesses();
+#else
+    helper->executeTaskKill(kTargetCtrld);
+#ifdef Q_OS_MACOS
+    RestoreDNSManager_mac::restoreState(helper);
+#elif defined(Q_OS_LINUX)
+    helper->setDnsLeakProtectEnabled(false);
+    helper->setGaiIpv4PriorityEnabled(false);
+#endif
 #endif
 }

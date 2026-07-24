@@ -1,14 +1,14 @@
 #pragma once
 
-#include "baseconnsettingspolicy.h"
+#include "iconnectionattemptstrategy.h"
 #include "engine/locationsmodel/customconfiglocationinfo.h"
 
 // // manage manual connection mode (only for API and static ips locations)
-class CustomConfigConnSettingsPolicy : public BaseConnSettingsPolicy
+class CustomConfigConnectionAttemptStrategy : public IConnectionAttemptStrategy
 {
     Q_OBJECT
 public:
-    explicit CustomConfigConnSettingsPolicy(QSharedPointer<locationsmodel::BaseLocationInfo> bli);
+    explicit CustomConfigConnectionAttemptStrategy(QSharedPointer<locationsmodel::BaseLocationInfo> bli);
 
 
     void reset() override;
@@ -17,13 +17,10 @@ public:
     bool isFailed() const override;
     CurrentConnectionDescr getCurrentConnectionSettings() const override;
     bool isAutomaticMode() override;
-    bool isCustomConfig() override;
     void resolveHostnames() override;
-    bool hasProtocolChanged() override;
     types::Protocol preResolveProtocol() const override;
-
-private slots:
-    void onHostnamesResolved();
+    bool usesConnectTimeout() const override { return false; }
+    bool surfacesTunnelTestFailure() const override { return true; }
 
 private:
     QSharedPointer<locationsmodel::CustomConfigLocationInfo> locationInfo_;

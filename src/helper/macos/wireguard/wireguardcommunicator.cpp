@@ -13,7 +13,6 @@
 
 #include <sys/socket.h>
 #include <sys/stat.h>
-#include <sys/time.h>
 #include <sys/un.h>
 
 static const std::string kExecutableName = WS_PRODUCT_NAME_LOWER "amneziawg";
@@ -184,6 +183,7 @@ bool WireGuardCommunicator::start(const std::string &deviceName, bool verboseLog
     }
     deviceName_ = deviceName;
     verboseLogging_ = verboseLogging;
+    handshakeTracker_.reset();
     return true;
 }
 
@@ -355,11 +355,9 @@ unsigned long WireGuardCommunicator::getStatus(unsigned int *errorCode,
         return kWgStateStarting;
 
     // Check for handshake.
-    if (stringToValue<unsigned long long>(results["last_handshake_time_sec"]) > 0) {
-        struct timeval tv;
-        int rc = gettimeofday(&tv, NULL);
-        if (rc || tv.tv_sec - stringToValue<unsigned long long>(results["last_handshake_time_sec"]) > 180)
-        {
+    const auto lastHandshakeSec = stringToValue<unsigned long long>(results["last_handshake_time_sec"]);
+    if (lastHandshakeSec > 0) {
+        if (handshakeTracker_.isStale(lastHandshakeSec)) {
             spdlog::warn("Time since last handshake time exceeded 3 minutes, disconnecting");
             return kWgStateError;
         }

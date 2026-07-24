@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 
+#include "../../../common/wg_handshake_tracker.h"
 #include "../iwireguardcommunicator.h"
 #include "wireguard.h"
 
@@ -27,4 +28,5 @@ private:
     bool setPeerEndpoint(wg_peer *peer, const std::string &endpoint);
     void freeAllowedIps(wg_allowedip *ips);
     std::string deviceName_;
+    WgHandshakeTracker handshakeTracker_;
 };

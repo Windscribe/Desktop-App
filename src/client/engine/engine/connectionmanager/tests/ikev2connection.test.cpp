@@ -4,7 +4,8 @@
 #include "ikev2connection.test.h"
 
 #include "engine/connectionmanager/connectors/ikev2/ikev2connectionbase.h"
-#include "fakes.h"
+#include "extraconfig_mock.h"
+#include "utils/extraconfig.h"
 
 namespace {
 
@@ -39,11 +40,16 @@ CurrentConnectionDescr makeDescr()
 
 } // namespace
 
+void TestIkev2Connection::init()
+{
+    ExtraConfigMock::reset();
+}
+
 void TestIkev2Connection::testCapabilities()
 {
     StubIkev2Connection conn{Ikev2SessionParams()};
     QCOMPARE(conn.capabilities().connectTimeoutMs, 30 * 1000);
-    QVERIFY(!conn.capabilities().dualStackEgress);
+    QVERIFY(!conn.isDualStackEgress());
     QVERIFY(!conn.capabilities().supportsCachedConfig);
     QVERIFY(!conn.capabilities().needsSystemDnsRestore);
 }
@@ -53,9 +59,7 @@ void TestIkev2Connection::testPrepareKeepsEndpointWithoutExtraConfig()
     StubIkev2Connection conn{makeSessionParams()};
     QSignalSpy preparedSpy(&conn, &Ikev2ConnectionBase::prepared);
 
-    FakeExtraConfig extraConfig;
     AttemptEnvironment env;
-    env.extraConfig = &extraConfig;
     conn.prepare(makeDescr(), env);
 
     QCOMPARE(preparedSpy.count(), 1);
@@ -68,11 +72,9 @@ void TestIkev2Connection::testPrepareExtraConfigDomainOverridesEndpoint()
     StubIkev2Connection conn{makeSessionParams()};
     QSignalSpy preparedSpy(&conn, &Ikev2ConnectionBase::prepared);
 
-    FakeExtraConfig extraConfig;
-    extraConfig.setRemoteIp("remote-override.example.com");
-    extraConfig.setDetectedIp("5.6.7.8");
+    ExtraConfigMock::remoteIp = "remote-override.example.com";
+    ExtraConfig::instance().setDetectedIp("5.6.7.8");
     AttemptEnvironment env;
-    env.extraConfig = &extraConfig;
     conn.prepare(makeDescr(), env);
 
     QCOMPARE(preparedSpy.count(), 1);
@@ -85,11 +87,9 @@ void TestIkev2Connection::testPrepareExtraConfigNonDomainIgnored()
     StubIkev2Connection conn{makeSessionParams()};
     QSignalSpy preparedSpy(&conn, &Ikev2ConnectionBase::prepared);
 
-    FakeExtraConfig extraConfig;
-    extraConfig.setRemoteIp("1.2.3.4");
-    extraConfig.setDetectedIp("5.6.7.8");
+    ExtraConfigMock::remoteIp = "1.2.3.4";
+    ExtraConfig::instance().setDetectedIp("5.6.7.8");
     AttemptEnvironment env;
-    env.extraConfig = &extraConfig;
     conn.prepare(makeDescr(), env);
 
     QCOMPARE(preparedSpy.count(), 1);
@@ -101,12 +101,9 @@ void TestIkev2Connection::testCredentialPickSessionForDefaultNode()
 {
     StubIkev2Connection conn{makeSessionParams()};
 
-    FakeExtraConfig extraConfig;
     AttemptEnvironment env;
-    env.extraConfig = &extraConfig;
     CurrentConnectionDescr d = makeDescr();
-    d.username = "static-user";
-    d.password = "static-pass";
+    d.staticIps.credentials = api_responses::ServerCredentials("static-user", "static-pass");
     conn.prepare(d, env);
 
     QCOMPARE(conn.username(), QString("session-user"));
@@ -117,13 +114,10 @@ void TestIkev2Connection::testCredentialPickDescrForStaticIpNode()
 {
     StubIkev2Connection conn{makeSessionParams()};
 
-    FakeExtraConfig extraConfig;
     AttemptEnvironment env;
-    env.extraConfig = &extraConfig;
     CurrentConnectionDescr d = makeDescr();
     d.connectionNodeType = CONNECTION_NODE_STATIC_IPS;
-    d.username = "static-user";
-    d.password = "static-pass";
+    d.staticIps.credentials = api_responses::ServerCredentials("static-user", "static-pass");
     conn.prepare(d, env);
 
     QCOMPARE(conn.username(), QString("static-user"));

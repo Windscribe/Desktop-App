@@ -179,12 +179,16 @@
         <translation>Ошибка: Не удается запустить пользовательскую службу DNS</translation>
     </message>
     <message>
-        <source>Error: WireGuard adapter setup failed</source>
-        <translation>Ошибка: Не удалось настроить адаптер WireGuard</translation>
-    </message>
-    <message>
         <source>Error: Could not retrieve WireGuard configuration</source>
         <translation>Ошибка: не удалось получить конфигурацию WireGuard</translation>
+    </message>
+    <message>
+        <source>Error: Could not generate connection configuration</source>
+        <translation>Ошибка: не удалось сгенерировать конфигурацию соединения</translation>
+    </message>
+    <message>
+        <source>Error: Local DNS server is not available. Connected DNS has been set back to Auto</source>
+        <translation>Ошибка: Локальный DNS-сервер недоступен. Подключённый DNS был переведён в режим Авто</translation>
     </message>
     <message>
         <source>Unknown state</source>
@@ -301,6 +305,14 @@
     <message>
         <source>Incorrect 2FA code</source>
         <translation>Неверный код 2FA</translation>
+    </message>
+    <message>
+        <source>Error: WireGuard adapter setup failed</source>
+        <translation>Ошибка: Настройка адаптера WireGuard не удалась</translation>
+    </message>
+    <message>
+        <source>Error: VPN adapter setup failed</source>
+        <translation>Ошибка: неудачная настройка VPN-адаптера</translation>
     </message>
     <message>
         <source>(Device name: %1)</source>

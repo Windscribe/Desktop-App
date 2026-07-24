@@ -946,8 +946,16 @@ If the problem persists after a restart, please send a debug log and open a supp
 Εάν το πρόβλημα παραμένει μετά από επανεκκίνηση, στείλτε ένα αρχείο καταγραφής εντοπισμού σφαλμάτων και ανοίξτε ένα δελτίο υποστήριξης και, στη συνέχεια, μεταβείτε σε διαφορετική λειτουργία σύνδεσης.</translation>
     </message>
     <message>
+        <source>VPN adapter setup failed. Please wait one minute and try the connection again. If the problem persists, please send a debug log and open a support ticket, then switch to a different connection mode.</source>
+        <translation>Η ρύθμιση του προσαρμογέα VPN απέτυχε. Περιμένετε ένα λεπτό και δοκιμάστε ξανά τη σύνδεση. Εάν το πρόβλημα παραμένει, στείλτε ένα αρχείο καταγραφής εντοπισμού σφαλμάτων και ανοίξτε ένα δελτίο υποστήριξης και, στη συνέχεια, μεταβείτε σε διαφορετική λειτουργία σύνδεσης.</translation>
+    </message>
+    <message>
         <source>Windscribe could not retrieve server configuration. Please try another protocol.</source>
         <translation>Το Windscribe δεν μπόρεσε να ανακτήσει τη διαμόρφωση του διακομιστή. Δοκιμάστε ένα άλλο πρωτόκολλο.</translation>
+    </message>
+    <message>
+        <source>Windscribe could not generate the connection configuration. If this error persists, please send a debug log and open a support ticket.</source>
+        <translation>Το Windscrib δεν μπόρεσε να δημιουργήσει τη διαμόρφωση σύνδεσης. Εάν αυτό το σφάλμα παραμένει, στείλτε ένα αρχείο καταγραφής εντοπισμού σφαλμάτων και ανοίξτε ένα δελτίο υποστήριξης.</translation>
     </message>
     <message>
         <source>An unexpected error occurred establishing the VPN connection (Error %1).  If this error persists, try using a different protocol or contact support.</source>

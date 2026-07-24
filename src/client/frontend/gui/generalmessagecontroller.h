@@ -41,7 +41,7 @@ public:
                      GeneralMessage::Flags flags = GeneralMessage::Flags::kNone,
                      const QString &learnMoreUrl = "");
 
-    void showCredentialPrompt(const QString &icon, const QString &title, const QString &desc,
+    int showCredentialPrompt(const QString &icon, const QString &title, const QString &desc,
                               const QString &username,
                               const QString &acceptText,
                               const QString &rejectText = "",

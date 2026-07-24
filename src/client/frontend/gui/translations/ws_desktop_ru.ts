@@ -642,6 +642,14 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
         <translation>Не удалось загрузить пользовательскую конфигурацию.  Пожалуйста, проверьте правильность или обратитесь в службу поддержки.</translation>
     </message>
     <message>
+        <source>VPN adapter setup failed. Please wait one minute and try the connection again. If the problem persists, please send a debug log and open a support ticket, then switch to a different connection mode.</source>
+        <translation>Настройка VPN-адаптера не удалась. Пожалуйста, подождите минуту и попробуйте соединиться снова. Если проблема останется, пожалуйста, отправьте лог отладки и откройте заявку в службу поддержки, а затем переключитесь на другой режим подключения.</translation>
+    </message>
+    <message>
+        <source>Windscribe could not generate the connection configuration. If this error persists, please send a debug log and open a support ticket.</source>
+        <translation>Windscribe не смог сгенерировать конфигурацию соединения. Если эта ошибка сохраняется, пожалуйста, отправьте лог отладки и откройте заявку в службу поддержки.</translation>
+    </message>
+    <message>
         <source>An unexpected error occurred establishing the VPN connection (Error %1).  If this error persists, try using a different protocol or contact support.</source>
         <translation>При установке VPN-подключения произошла непредвиденная ошибка (ошибка %1).  Если ошибка повторяется, попробуйте использовать другой протокол или обратитесь в службу поддержки.</translation>
     </message>
@@ -1631,7 +1639,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Add Email</source>
-        <translation>Добавить адрес электронной почты</translation>
+        <translation>Добавить почту</translation>
     </message>
 </context>
 <context>

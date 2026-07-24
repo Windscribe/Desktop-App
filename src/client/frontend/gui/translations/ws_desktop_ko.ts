@@ -814,6 +814,14 @@ If the problem persists after a restart, please send a debug log and open a supp
 다시 시작한 후에도 문제가 지속되면 디버그 로그를 보내고 지원 티켓을 연 다음, 다른 연결 모드를 사용하세요.</translation>
     </message>
     <message>
+        <source>VPN adapter setup failed. Please wait one minute and try the connection again. If the problem persists, please send a debug log and open a support ticket, then switch to a different connection mode.</source>
+        <translation>VPN 어댑터 설정이 실패했습니다. 잠시 기다렸다가 다시 연결을 시도해 주세요. 문제가 계속된다면 디버그 로그를 보내고 지원 티켓을 열어 다른 연결 모드로 전환해 주세요.</translation>
+    </message>
+    <message>
+        <source>Windscribe could not generate the connection configuration. If this error persists, please send a debug log and open a support ticket.</source>
+        <translation>Windscribe는 연결 구성을 생성할 수 없었습니다. 이 오류가 계속되면 디버그 로그를 보내고 지원 티켓을 열어주세요.</translation>
+    </message>
+    <message>
         <source>An unexpected error occurred establishing the VPN connection (Error %1).  If this error persists, try using a different protocol or contact support.</source>
         <translation>VPN에 연결하는 동안 예기치 않은 오류가 발생했습니다(오류 %1).  이 오류가 지속되면 다른 프로토콜을 사용하거나 지원 담당자에게 문의하세요.</translation>
     </message>

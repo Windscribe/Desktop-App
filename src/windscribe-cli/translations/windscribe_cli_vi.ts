@@ -179,12 +179,16 @@
         <translation>Lỗi: Không thể khởi động dịch vụ DNS tùy chỉnh</translation>
     </message>
     <message>
-        <source>Error: WireGuard adapter setup failed</source>
-        <translation>Lỗi: Thiết lập bộ điều hợp WireGuard không thành công</translation>
-    </message>
-    <message>
         <source>Error: Could not retrieve WireGuard configuration</source>
         <translation>Lỗi: Không thể truy xuất cấu hình WireGuard</translation>
+    </message>
+    <message>
+        <source>Error: Could not generate connection configuration</source>
+        <translation>Lỗi: Không thể tạo cấu hình kết nối</translation>
+    </message>
+    <message>
+        <source>Error: Local DNS server is not available. Connected DNS has been set back to Auto</source>
+        <translation>Lỗi: Máy chủ DNS cục bộ không khả dụng. DNS được kết nối đã được đặt trở lại Tự động</translation>
     </message>
     <message>
         <source>Unknown state</source>
@@ -301,6 +305,14 @@
     <message>
         <source>Incorrect 2FA code</source>
         <translation>Mã 2FA không chính xác</translation>
+    </message>
+    <message>
+        <source>Error: WireGuard adapter setup failed</source>
+        <translation>Lỗi: Thiết lập bộ điều hợp WireGuard không thành công</translation>
+    </message>
+    <message>
+        <source>Error: VPN adapter setup failed</source>
+        <translation>Lỗi: Thiết lập bộ điều hợp VPN không thành công</translation>
     </message>
     <message>
         <source>(Device name: %1)</source>

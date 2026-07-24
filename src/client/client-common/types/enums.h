@@ -48,41 +48,28 @@ enum DISCONNECT_REASON {
     DISCONNECTED_BY_DATA_LIMIT = 5,
 };
 
-enum CONNECT_ERROR  {
-    NO_CONNECT_ERROR = 0,
-    AUTH_ERROR = 1,
-    LOCATION_NOT_EXIST = 2,
-    LOCATION_NO_ACTIVE_NODES = 3,
-    CONNECTION_BLOCKED = 4,
-    NO_OPENVPN_SOCKET = 5,
-    EXE_SUBPROCESS_FAILED = 6,
-    NO_INSTALLED_TUN_TAP = 7,
-    UDP_CANT_ASSIGN = 8,
-    CONNECTED_ERROR = 9,
-    INITIALIZATION_SEQUENCE_COMPLETED_WITH_ERRORS = 10,
-    UDP_NO_BUFFER_SPACE = 11,
-    UDP_NETWORK_DOWN = 12,
-    TCP_ERROR = 13,
-    CANNOT_OPEN_CUSTOM_CONFIG = 14,
-    IKEV_FAILED_TO_CONNECT = 15,
-    IKEV_NOT_FOUND_WIN = 16,
-    IKEV_FAILED_SET_ENTRY_WIN = 17,
-    IKEV_FAILED_MODIFY_HOSTS_WIN = 18,
-    IKEV_NETWORK_EXTENSION_NOT_FOUND_MAC = 19,
-    IKEV_FAILED_SET_KEYCHAIN_MAC = 20,
-    IKEV_FAILED_START_MAC = 21,
-    IKEV_FAILED_LOAD_PREFERENCES_MAC = 22,
-    IKEV_FAILED_SAVE_PREFERENCES_MAC = 23,
-    WIREGUARD_CONNECTION_ERROR = 24,
-    EMERGENCY_FAILED_CONNECT = 25,
-    TAP_FATAL_ERROR = 27,
-    WIREGUARD_ADAPTER_SETUP_FAILED = 28,
-    WIREGUARD_COULD_NOT_RETRIEVE_CONFIG = 29,
-    CTRLD_START_FAILED = 30,
-    PRIV_KEY_PASSWORD_ERROR = 31,
-    LOCKDOWN_MODE_IKEV2 = 32,
-    LOCAL_DNS_SERVER_NOT_AVAILABLE = 33,
-    CONFIG_FETCH_FAILED = 34,
+// Semantic error categories, runtime-only (never persisted). Every value must have a consumer that
+// treats it distinctly; the protocol-specific CAUSE is logged at the emit site, not encoded here.
+enum class ConnectError {
+    kNoError = 0,
+    kAuthFailure = 1,                   // server rejected the connection credentials
+    kPrivKeyPasswordFailure = 2,        // local private key in a custom config could not be decrypted
+    kLocationUnavailable = 3,           // location does not exist or has no usable nodes
+    kAccountBlocked = 4,                // out of data / account disabled
+    kLocalProcessLaunchFailure = 5,     // a required local process could not be started
+    kLocalProcessNotResponding = 6,     // local process started but never provided its resource
+    kAdapterSetupFailure = 7,           // VPN adapter setup failed; may be transient, so automatic mode fails over
+    kTransientTunnelFailure = 8,        // network-level failure; retrying the attempt makes sense
+    kTunnelEstablishmentFailure = 9,    // tunnel never established; the dialed config is suspect
+    kVpnServiceSetupFailure = 10,       // OS VPN service/extension plumbing failed
+    kHostsFileNotWritable = 11,         // hosts file locked; user remediation offered
+    kCustomConfigInvalid = 12,          // custom config unusable
+    kConfigFetchFailure = 13,           // server config unavailable from the API
+    kLocalConfigGenerationFailure = 14, // config could not be produced locally (e.g. keygen)
+    kDnsServiceStartFailure = 15,       // custom DNS service failed to start
+    kBlockedByOsPolicy = 16,            // OS policy forbids this protocol (e.g. macOS Lockdown)
+    kLocalDnsServerNotAvailable = 17,
+    kAdapterNotInstalled = 18,          // required VPN adapter/driver is not installed; terminal
 };
 
 enum PROXY_SHARING_TYPE {

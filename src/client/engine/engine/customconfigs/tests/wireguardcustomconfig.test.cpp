@@ -326,4 +326,96 @@ void TestWireguardCustomConfig::testIValueTooLong()
     QVERIFY(!c->isCorrect());
 }
 
+void TestWireguardCustomConfig::testAddressRejectsSmuggledNewline()
+{
+    // QSettings(IniFormat) decodes a \n inside a quoted value into a literal newline. A newline
+    // smuggled into Address must be rejected, not carried into the generated wireguard config.
+    const QString contents =
+        "[Interface]\n"
+        "PrivateKey = " + kValidPrivateKey + "\n"
+        "Address = \"10.0.0.2/32\\nPostUp = /bin/sh -c evil\"\n"
+        "DNS = 1.1.1.1\n"
+        + Peer().build();
+    auto c = loadRawConfig(contents);
+    QVERIFY(c != nullptr);
+    QVERIFY(!c->isCorrect());
+}
+
+void TestWireguardCustomConfig::testDnsRejectsSmuggledNewline()
+{
+    const QString contents =
+        "[Interface]\n"
+        "PrivateKey = " + kValidPrivateKey + "\n"
+        "Address = 10.0.0.2/32\n"
+        "DNS = \"1.1.1.1\\nPostUp = /bin/sh -c evil\"\n"
+        + Peer().build();
+    auto c = loadRawConfig(contents);
+    QVERIFY(c != nullptr);
+    QVERIFY(!c->isCorrect());
+}
+
+void TestWireguardCustomConfig::testAllowedIpsRejectsSmuggledNewline()
+{
+    const QString contents =
+        Iface().build() +
+        "[Peer]\n"
+        "PublicKey = " + kValidPublicKey + "\n"
+        "AllowedIPs = \"0.0.0.0/0\\nPostUp = /bin/sh -c evil\"\n"
+        "Endpoint = 198.51.100.1:51820\n";
+    auto c = loadRawConfig(contents);
+    QVERIFY(c != nullptr);
+    QVERIFY(!c->isCorrect());
+}
+
+void TestWireguardCustomConfig::testAddressRejectsTrailingNul()
+{
+    // A bare trailing NUL on an IPv6 literal is the residual smuggling vector newline-trimming
+    // misses: QHostAddress::setAddress tolerates it and QString::trimmed() does not strip it, so the
+    // value would survive into the generated config. QSettings decodes the "\x0" escape to a NUL.
+    const QString contents =
+        "[Interface]\n"
+        "PrivateKey = " + kValidPrivateKey + "\n"
+        "Address = \"fd00::1\\x0\"\n"
+        "DNS = 1.1.1.1\n"
+        + Peer().build();
+    auto c = loadRawConfig(contents);
+    QVERIFY(c != nullptr);
+    QVERIFY(!c->isCorrect());
+}
+
+void TestWireguardCustomConfig::testDnsRejectsTrailingNul()
+{
+    const QString contents =
+        "[Interface]\n"
+        "PrivateKey = " + kValidPrivateKey + "\n"
+        "Address = 10.0.0.2/32\n"
+        "DNS = \"fd00::1\\x0\"\n"
+        + Peer().build();
+    auto c = loadRawConfig(contents);
+    QVERIFY(c != nullptr);
+    QVERIFY(!c->isCorrect());
+}
+
+void TestWireguardCustomConfig::testAddressWhitespaceTolerated()
+{
+    // A valid element with surrounding whitespace stays valid: it is trimmed for both validation
+    // and storage, so the validated form matches what is later emitted.
+    QString err;
+    const QString contents =
+        "[Interface]\n"
+        "PrivateKey = " + kValidPrivateKey + "\n"
+        "Address = \"  10.0.0.2/32  \"\n"
+        "DNS = 1.1.1.1\n"
+        + Peer().build();
+    auto c = loadRawConfig(contents, &err);
+    QVERIFY(c != nullptr);
+    QVERIFY2(c->isCorrect(), qPrintable(err));
+
+    // Assert the emitted form, not just acceptance: without per-element trimming the stored Address
+    // would carry the surrounding whitespace straight into the generated wireguard config.
+    auto *wg = dynamic_cast<customconfigs::WireguardCustomConfig *>(c.get());
+    QVERIFY(wg != nullptr);
+    QCOMPARE(wg->getWireGuardConfig("198.51.100.1")->clientIpAddress(), QStringLiteral("10.0.0.2/32"));
+}
+
 QTEST_MAIN(TestWireguardCustomConfig)

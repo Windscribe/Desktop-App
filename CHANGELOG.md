@@ -1,3 +1,13 @@
+2.24.5 guinea pig (23/07/2026)
+All:
+   * Added a SECURITY.md document. #1942
+   * Improved the ConnectionManager sub-system. #1896.
+   * Improved WireGuard stale-handshake detection. #1937
+   * Fixed a potential local privilege escalation caused by an embedded NULL coercing OpenVPN to load a malicious plug-in. #1943
+   * Fixed various low-severity security issues revealed by a local AI audit. #1945
+   * Fixed Account tab Add Email text may overlap when account has no email and language is non-English. #1944
+
+
 2.24.4 guinea pig (21/07/2026)
 All:
    * Fixed Connected DNS split-DNS reachability to internal RFC1918 DNS servers while the VPN is active. #1914

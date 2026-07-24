@@ -24,7 +24,7 @@ bool HelperInstaller::executeFilesStep()
 
 bool HelperInstaller::createCliSymlink()
 {
-    auto result = sendCommand(HelperCommand::createCliSymlink, getuid());
+    auto result = sendCommand(HelperCommand::createCliSymlink);
     return deserializeSuccess(result);
 }
 

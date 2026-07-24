@@ -40,6 +40,12 @@ IpAddress::IpAddress(const std::string &addr) : family_(IPv4), bytes_{}, valid_(
     if (addr.empty())
         return;
 
+    // inet_pton reads only up to the first NUL (it takes the c_str()), so an embedded NUL would
+    // validate a prefix while the full string — with any trailing bytes — survives in callers that
+    // interpolate it into firewall rule text. Reject any NUL so the whole value is validated.
+    if (addr.find('\0') != std::string::npos)
+        return;
+
     family_ = detectFamily(addr);
 
     int af = (family_ == IPv6) ? AF_INET6 : AF_INET;

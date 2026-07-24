@@ -17,8 +17,12 @@ bool parseIpLiteral(const QString &str, QHostAddress *out = nullptr)
         return false;
     }
     for (QChar c : str) {
+        // QHostAddress::setAddress tolerates a trailing NUL/newline on IPv6 literals (and there is no
+        // IPv6 canonical round-trip check below, unlike IPv4), so reject control bytes and DEL here.
+        // This also covers the previously enumerated space/tab. '/' and '%' are rejected to bar CIDR
+        // suffixes and scope ids.
         if (c == QLatin1Char('/') || c == QLatin1Char('%') ||
-            c == QLatin1Char(' ') || c == QLatin1Char('\t')) {
+            c.unicode() <= 0x20 || c.unicode() == 0x7f) {
             return false;
         }
     }
@@ -116,7 +120,9 @@ bool NetworkingValidation::isDomain(const QString &str)
         return false;
     }
 
-    QRegularExpression domainRegex("^([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\\.){1,}([a-zA-Z][a-zA-Z0-9-]*[a-zA-Z])$");
+    // anchoredPattern wraps with \A(?:...)\z; \z (unlike $) does not match before a trailing
+    // newline, so a value like "example.com\n" is rejected rather than accepted.
+    QRegularExpression domainRegex(QRegularExpression::anchoredPattern("([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\\.){1,}([a-zA-Z][a-zA-Z0-9-]*[a-zA-Z])"));
     return domainRegex.match(str).hasMatch();
 }
 
@@ -127,7 +133,7 @@ bool NetworkingValidation::isDomainWithWildcard(const QString &str)
         return false;
     }
 
-    QRegularExpression domainRegex("^([a-zA-Z0-9*]([a-zA-Z0-9-*]{0,61}[a-zA-Z0-9*])?\\.){1,}([a-zA-Z][a-zA-Z0-9-]*[a-zA-Z])$");
+    QRegularExpression domainRegex(QRegularExpression::anchoredPattern("([a-zA-Z0-9*]([a-zA-Z0-9-*]{0,61}[a-zA-Z0-9*])?\\.){1,}([a-zA-Z][a-zA-Z0-9-]*[a-zA-Z])"));
     return domainRegex.match(str).hasMatch();
 }
 
@@ -248,8 +254,8 @@ bool NetworkingValidation::isUnspecifiedIp(const QString &str)
 
 bool NetworkingValidation::isValidUrlForCtrld(const QString &str)
 {
-    QRegularExpression httpsRegex("^((https|h3):\\/)\\/?([^:\\/\\s]+)((\\/\\w+)*\\/)([\\w\\-\\.]+[^#?\\s]+)(.*)?(#[\\w\\-]+)?$");
-    QRegularExpression sdnsRegex("^sdns:\\/\\/[A-Za-z0-9]+$");
+    QRegularExpression httpsRegex(QRegularExpression::anchoredPattern("((https|h3):\\/)\\/?([^:\\/\\s]+)((\\/\\w+)*\\/)([\\w\\-\\.]+[^#?\\s]+)(.*)?(#[\\w\\-]+)?"));
+    QRegularExpression sdnsRegex(QRegularExpression::anchoredPattern("sdns:\\/\\/[A-Za-z0-9]+"));
     return httpsRegex.match(str).hasMatch() || sdnsRegex.match(str).hasMatch();
 }
 

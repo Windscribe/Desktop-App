@@ -642,6 +642,14 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
         <translation>تعذر تحميل التكوين المخصص.  يرجى التحقق من صحته أو الاتصال بالدعم.</translation>
     </message>
     <message>
+        <source>VPN adapter setup failed. Please wait one minute and try the connection again. If the problem persists, please send a debug log and open a support ticket, then switch to a different connection mode.</source>
+        <translation>فشل إعداد محول VPN. يرجى الانتظار دقيقة ومحاولة الاتصال مرة أخرى. إذا استمرت المشكلة، يرجى إرسال سجل تصحيح وفتح تذكرة دعم، ثم التحويل إلى وضع اتصال مختلف.</translation>
+    </message>
+    <message>
+        <source>Windscribe could not generate the connection configuration. If this error persists, please send a debug log and open a support ticket.</source>
+        <translation>لم يتمكن Windscribe من توليد تكوين الاتصال. إذا استمر هذا الخطأ، يرجى إرسال سجل تصحيح وفتح تذكرة دعم.</translation>
+    </message>
+    <message>
         <source>An unexpected error occurred establishing the VPN connection (Error %1).  If this error persists, try using a different protocol or contact support.</source>
         <translation>حدث خطأ غير متوقع أثناء تأسيس اتصال VPN (خطأ %1).  إذا استمر هذا الخطأ، فحاول استخدام بروتوكول مختلف أو اتصل بالدعم.</translation>
     </message>

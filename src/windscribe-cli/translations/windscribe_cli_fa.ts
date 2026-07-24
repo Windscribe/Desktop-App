@@ -179,12 +179,16 @@
         <translation>خطا: قادر به اغاز خدمت DNS سفارشی نیست</translation>
     </message>
     <message>
-        <source>Error: WireGuard adapter setup failed</source>
-        <translation>خطا: راه اندازی اداپتور WireGuard شکست خورد</translation>
-    </message>
-    <message>
         <source>Error: Could not retrieve WireGuard configuration</source>
         <translation>خطا: نتوانست پیکربندی WireGuard را بازیابی کند</translation>
+    </message>
+    <message>
+        <source>Error: Could not generate connection configuration</source>
+        <translation>خطا: نتوانست پیکربندی اتصال را تولید کند</translation>
+    </message>
+    <message>
+        <source>Error: Local DNS server is not available. Connected DNS has been set back to Auto</source>
+        <translation>خطا: سرور DNS محلی در دسترس نیست. DNS متصل به حالت خودکار بازگردانده شده است</translation>
     </message>
     <message>
         <source>Unknown state</source>
@@ -301,6 +305,14 @@
     <message>
         <source>Incorrect 2FA code</source>
         <translation>کد 2FA نادرست</translation>
+    </message>
+    <message>
+        <source>Error: WireGuard adapter setup failed</source>
+        <translation>خطا: راه اندازی آداپتور WireGuard ناموفق بود</translation>
+    </message>
+    <message>
+        <source>Error: VPN adapter setup failed</source>
+        <translation>خطا: راه اندازی آداپتور VPN ناموفق بود</translation>
     </message>
     <message>
         <source>(Device name: %1)</source>

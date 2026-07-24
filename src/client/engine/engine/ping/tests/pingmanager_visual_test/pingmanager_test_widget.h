@@ -26,7 +26,7 @@ public:
     {
         return DISCONNECTED_ITSELF;
     }
-    CONNECT_ERROR connectionError() override  { return NO_CONNECT_ERROR;  }
+    ConnectError connectionError() override  { return ConnectError::kNoError;  }
     const LocationID& locationId() override  { return lid_;  }
     void setState(CONNECT_STATE state)
     {
@@ -34,7 +34,7 @@ public:
             qDebug() << "Connect state changed: " << state;
             prevState_ = state_;
             state_ = state;
-            emit stateChanged(state_, DISCONNECTED_ITSELF, NO_CONNECT_ERROR, lid_);
+            emit stateChanged(state_, DISCONNECTED_ITSELF, ConnectError::kNoError, lid_);
         }
     }
 

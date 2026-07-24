@@ -3,17 +3,14 @@
 #include <QCoreApplication>
 #include <QThread>
 
-#include "connsettingspolicy/connsettingspolicyfactory.h"
-#include "engine/connectionmanager/connectors/connectionfactory.h"
-#include "engine/connectionmanager/connectors/connectionplatformpolicy.h"
-#include "engine/crossplatformobjectfactory.h"
+#include "attemptstrategy/iconnectionattemptstrategyfactory.h"
+#include "classifyconnecterror.h"
+#include "engine/connectionmanager/connectors/iconnectionfactory.h"
+#include "engine/connectionmanager/connectors/iconnectionplatformpolicy.h"
 #include "engine/dns/idnsconfigurator.h"
-#include "engine/helper/helper.h"
 #include "engine/networkdetectionmanager/inetworkdetectionmanager.h"
-#include "engine/wireguardconfig/getwireguardconfig.h"
-#include "extraconfigaccessor.h"
 #include "isleepevents.h"
-#include "testvpntunnel.h"
+#include "utils/extraconfig.h"
 #include "types/connectionsettings.h"
 #include "types/enums.h"
 #include "utils/utils.h"
@@ -22,25 +19,22 @@
 // Had to move this here to prevent a compile error with boost already including winsock.h
 #include "connectionmanager.h"
 
-ConnectionManager::ConnectionManager(QObject *parent, Helper *helper, INetworkDetectionManager *networkDetectionManager,
-                                     CustomOvpnAuthCredentialsStorage *customOvpnAuthCredentialsStorage, IDnsConfigurator *dnsConfigurator,
+using CachedConfigAdvice = IConnectionAttemptStrategy::CachedConfigAdvice;
+using FailureAdvice = IConnectionAttemptStrategy::FailureAdvice;
+
+ConnectionManager::ConnectionManager(QObject *parent, INetworkDetectionManager *networkDetectionManager,
+                                     IDnsConfigurator *dnsConfigurator,
                                      IConnectionFactory *connectionFactory, IConnectionPlatformPolicy *platformPolicy,
-                                     IConnSettingsPolicyFactory *connSettingsPolicyFactory, ISleepEvents *sleepEvents,
-                                     IExtraConfigAccessor *extraConfig) : QObject(parent),
-    helper_(helper),
+                                     IConnectionAttemptStrategyFactory *attemptStrategyFactory, ISleepEvents *sleepEvents) : QObject(parent),
     networkDetectionManager_(networkDetectionManager),
-    customOvpnAuthCredentialsStorage_(customOvpnAuthCredentialsStorage),
     dnsConfigurator_(dnsConfigurator),
-    connectionFactory_(connectionFactory ? connectionFactory : new ConnectionFactory()),
-    platformPolicy_(platformPolicy ? platformPolicy : new ConnectionPlatformPolicy(helper)),
-    connSettingsPolicyFactory_(connSettingsPolicyFactory ? connSettingsPolicyFactory : new ConnSettingsPolicyFactory()),
-    extraConfig_(extraConfig ? extraConfig : new ExtraConfigAccessor()),
+    connectionFactory_(connectionFactory),
+    platformPolicy_(platformPolicy),
+    attemptStrategyFactory_(attemptStrategyFactory),
     connector_(nullptr),
     sleepEvents_(sleepEvents),
-    testVPNTunnel_(nullptr),
-    bIgnoreConnectionErrorsForOpenVpn_(false),
-    bWasSuccessfullyConnectionAttempt_(false),
-    state_(STATE_DISCONNECTED),
+    bIgnoreConnectionErrors_(false),
+    state_(State::kDisconnected),
     bLastIsOnline_(true),
     bWakeSignalReceived_(false),
     currentConnectionDescr_()
@@ -50,17 +44,10 @@ ConnectionManager::ConnectionManager(QObject *parent, Helper *helper, INetworkDe
     connect(&connectingTimer_, &QTimer::timeout, this, &ConnectionManager::onConnectingTimeout);
     connect(&timerWaitNetworkConnectivity_, &QTimer::timeout, this, &ConnectionManager::onTimerWaitNetworkConnectivity);
 
-    testVPNTunnel_ = new TestVPNTunnel(this);
-    connect(testVPNTunnel_, &TestVPNTunnel::testsFinished, this, &ConnectionManager::onTunnelTestsFinished);
-
     connect(networkDetectionManager_, &INetworkDetectionManager::onlineStateChanged, this, &ConnectionManager::onNetworkOnlineStateChanged);
 
-    if (!sleepEvents_) {
-        sleepEvents_ = CrossPlatformObjectFactory::createSleepEvents(this);
-    } else {
-        sleepEvents_->setParent(this);
-    }
     if (sleepEvents_) {
+        sleepEvents_->setParent(this);
         connect(sleepEvents_, &ISleepEvents::gotoSleep, this, &ConnectionManager::onSleepMode);
         connect(sleepEvents_, &ISleepEvents::gotoWake, this, &ConnectionManager::onWakeMode);
     }
@@ -68,59 +55,49 @@ ConnectionManager::ConnectionManager(QObject *parent, Helper *helper, INetworkDe
 
 ConnectionManager::~ConnectionManager()
 {
-    SAFE_DELETE(testVPNTunnel_);
     SAFE_DELETE(connector_);
     SAFE_DELETE(sleepEvents_);
 }
 
 void ConnectionManager::clickConnect(const ConnectRequest &req)
 {
-    WS_ASSERT(state_ == STATE_DISCONNECTED);
+    WS_ASSERT(state_ == State::kDisconnected);
 
     lastRequest_ = req;
 
-    bWasSuccessfullyConnectionAttempt_ = false;
-
     usernameForCustomOvpn_.clear();
     passwordForCustomOvpn_.clear();
+    bAttemptSucceeded_ = false;
 
-    state_= STATE_CONNECTING_FROM_USER_CLICK;
+    setState(State::kConnecting);
 
     // if we had a connector before, get rid of it.  This is because we don't want to receive events from a
     // previous connection if a new connection has started.
     if (connector_) {
         currentProtocol_ = types::Protocol::UNINITIALIZED;
         connector_->teardown();
-        SAFE_DELETE(connector_);
+        SAFE_DELETE_LATER(connector_);
     }
 
-    updateConnectionSettingsPolicy(req.connectionSettings, req.portMap, req.proxySettings);
+    recreateAttemptStrategy(req.connectionSettings, req.portMap, req.proxySettings);
 
-    connSettingsPolicy_->debugLocationInfoToLog();
-    doConnect();
+    attemptStrategy_->debugLocationInfoToLog();
+    startAttempt();
 }
 
 void ConnectionManager::clickDisconnect(DISCONNECT_REASON reason)
 {
-    WS_ASSERT(state_ == STATE_CONNECTING_FROM_USER_CLICK || state_ == STATE_CONNECTED || state_ == STATE_RECONNECTING ||
-              state_ == STATE_WAKEUP_RECONNECTING || state_ == STATE_DISCONNECTING_FROM_USER_CLICK ||
-              state_ == STATE_WAIT_FOR_NETWORK_CONNECTIVITY || state_ == STATE_DISCONNECTED);
+    WS_ASSERT(state_ != State::kSleeping);
 
-    timerWaitNetworkConnectivity_.stop();
-    connectTimer_.stop();
-    connectingTimer_.stop();
-
-    if (state_ != STATE_DISCONNECTING_FROM_USER_CLICK) {
-        state_ = STATE_DISCONNECTING_FROM_USER_CLICK;
+    if (state_ != State::kStopping || !pendingOutcome_.isUserInitiated) {
         qCDebug(LOG_CONNECTION) << "ConnectionManager::clickDisconnect()";
         if (connector_) {
-            userDisconnectReason_ = reason;
+            stopWithDisconnect(reason, true);
             connector_->startDisconnect();
         } else {
             disconnect();
-            if (!connSettingsPolicy_.isNull())
-            {
-                connSettingsPolicy_->reset();
+            if (!attemptStrategy_.isNull()) {
+                attemptStrategy_->reset();
             }
             dnsConfigurator_->stopDnsProxy();
             emit disconnected(reason);
@@ -131,78 +108,77 @@ void ConnectionManager::clickDisconnect(DISCONNECT_REASON reason)
 void ConnectionManager::reconnect()
 {
     if (connector_ && isConnectorDialed_) {
-        onConnectionReconnecting();
+        handleReconnecting();
     }
 }
 
 void ConnectionManager::blockingDisconnect(bool isSleepEvent)
 {
-#ifndef Q_OS_WIN
-    // Ignoring special sleep event handling on non-Windows for now until we have evidence it is required.
-    isSleepEvent = false;
-#endif
-    if (connector_) {
-        if (!connector_->isDisconnected()) {
-            testVPNTunnel_->stopTests();
-            connector_->blockSignals(true);
-            QElapsedTimer elapsedTimer;
-            elapsedTimer.start();
-            connector_->startDisconnect();
-            while (!connector_->isDisconnected()) {
-                if (isSleepEvent) {
-                    // We do not want to processEvents during disconnect due to the PC going to sleep.  Windows may suspend us
-                    // while in this loop and resume us when the PC wakes.  If we process events, we will likely start trying
-                    // to restoreConnectionAfterWakeUp while we are in here disconnecting.
-                    QThread::msleep(50);
-                    connector_->waitForDisconnect();
-                } else {
-                    QThread::msleep(1);
-                    qApp->processEvents();
-                }
-
-                // The OS may have suspended us while in this loop during a sleep event and thus the elapsed timer will not be accurate.
-                if (!isSleepEvent && elapsedTimer.elapsed() > 10000) {
-                    qCWarning(LOG_CONNECTION) << "ConnectionManager::blockingDisconnect() wait for disconnect timed out after 10 seconds";
-                    connector_->startDisconnect();
-                    break;
-                }
-            }
-            connector_->blockSignals(false);
-            connector_->teardown();
-            if (connector_->capabilities().needsSystemDnsRestore) {
-                dnsConfigurator_->restoreSystemDns();
-            }
-            platformPolicy_->setGaiIpv4PriorityEnabled(false);
-            dnsConfigurator_->stopDnsProxy();
-
-            if (!connSettingsPolicy_.isNull()) {
-                connSettingsPolicy_->reset();
+    if (!platformPolicy_->needsSleepEventAwareDisconnect()) {
+        isSleepEvent = false;
+    }
+    if (connector_ && !connector_->isDisconnected()) {
+        connector_->blockSignals(true);
+        QElapsedTimer elapsedTimer;
+        elapsedTimer.start();
+        connector_->startDisconnect();
+        while (!connector_->isDisconnected()) {
+            if (isSleepEvent) {
+                // We do not want to processEvents during disconnect due to the PC going to sleep.  Windows may suspend us
+                // while in this loop and resume us when the PC wakes.  If we process events, we will likely start trying
+                // to restoreConnectionAfterWakeUp while we are in here disconnecting.
+                QThread::msleep(50);
+                connector_->waitForDisconnect();
+            } else {
+                QThread::msleep(1);
+                qApp->processEvents();
             }
 
-            disconnect();
-        } else if (state_ != STATE_DISCONNECTED) {
-            // A pre-dial attempt (prepare in flight) has no tunnel to wait for, but its wrappers,
-            // fetches and ctrld must still be quiesced; queued completions are dropped by the state guards.
-            connector_->teardown();
-            dnsConfigurator_->stopDnsProxy();
-            if (!connSettingsPolicy_.isNull()) {
-                connSettingsPolicy_->reset();
+            // The OS may have suspended us while in this loop during a sleep event and thus the elapsed timer will not be accurate.
+            if (!isSleepEvent && elapsedTimer.elapsed() > 10000) {
+                qCWarning(LOG_CONNECTION) << "ConnectionManager::blockingDisconnect() wait for disconnect timed out after 10 seconds";
+                connector_->startDisconnect();
+                break;
             }
-            disconnect();
         }
+        connector_->blockSignals(false);
+        connector_->teardown();
+        if (connector_->capabilities().needsSystemDnsRestore) {
+            dnsConfigurator_->restoreSystemDns();
+        }
+        platformPolicy_->setGaiIpv4PriorityEnabled(false);
+        dnsConfigurator_->stopDnsProxy();
+
+        if (!attemptStrategy_.isNull()) {
+            attemptStrategy_->reset();
+        }
+
+        disconnect();
+    } else if (state_ != State::kDisconnected) {
+        // No tunnel to wait for -- a pre-dial attempt whose connector already settled, or a
+        // between-attempts rest/network wait with no connector -- but wrappers, fetches, ctrld and
+        // the reconnection/rest timers must still be quiesced (disconnect() stops them), or the rest
+        // timer would fire after the caller expected a full stop and redial. Queued completions are
+        // dropped by the state guards.
+        if (connector_) {
+            connector_->teardown();
+        }
+        dnsConfigurator_->stopDnsProxy();
+        if (!attemptStrategy_.isNull()) {
+            attemptStrategy_->reset();
+        }
+        disconnect();
     }
 }
 
 bool ConnectionManager::isDisconnected()
 {
-    if (state_ == STATE_DISCONNECTED)
-    {
-        if (connector_)
-        {
+    if (state_ == State::kDisconnected) {
+        if (connector_) {
             WS_ASSERT(connector_->isDisconnected());
         }
     }
-    return state_ == STATE_DISCONNECTED;
+    return state_ == State::kDisconnected;
 }
 
 QString ConnectionManager::getLastConnectedIp()
@@ -217,7 +193,7 @@ const AdapterGatewayInfo &ConnectionManager::getDefaultAdapterInfo() const
 
 const AdapterGatewayInfo &ConnectionManager::getVpnAdapterInfo() const
 {
-    WS_ASSERT(state_ == STATE_CONNECTED); // make sense only in connected state
+    WS_ASSERT(state_ == State::kConnected); // make sense only in connected state
     return vpnAdapterInfo_;
 }
 
@@ -226,62 +202,62 @@ void ConnectionManager::removeIkev2ConnectionFromOS()
     connectionFactory_->removeIkev2ConnectionFromOS();
 }
 
+void ConnectionManager::removeStoredConfig()
+{
+    connectionFactory_->removeStoredConfig();
+}
+
+// On the reconnect path the failed connector was already retired by onConnectionDisconnected, so
+// startAttempt() creates a fresh one whose prompts are answered from the cached credentials
+// (usernameForCustomOvpn_/passwordForCustomOvpn_) or re-prompted (priv-key password).
+void ConnectionManager::forwardUserInputOrReconnect(const UserInputResponse &response, bool bNeedReconnect)
+{
+    if (bNeedReconnect) {
+        bAttemptSucceeded_ = false;
+        setState(State::kConnecting);
+        startAttempt();
+        return;
+    }
+
+    WS_ASSERT(connector_ != NULL);
+    if (connector_) {
+        connector_->continueWithUserInput(response);
+    }
+}
+
 void ConnectionManager::continueWithUsernameAndPassword(const QString &username, const QString &password, bool bNeedReconnect)
 {
     usernameForCustomOvpn_ = username;
     passwordForCustomOvpn_ = password;
-
-    // On the auth-failed retry path the previous connector has already been
-    // torn down by onConnectionDisconnected (SAFE_DELETE_LATER), so connector_
-    // is null. doConnect() will create a fresh one that picks up the new
-    // credentials via usernameForCustomOvpn_/passwordForCustomOvpn_.
-    if (bNeedReconnect) {
-        bWasSuccessfullyConnectionAttempt_ = false;
-        state_= STATE_CONNECTING_FROM_USER_CLICK;
-        doConnect();
-        return;
-    }
-
-    WS_ASSERT(connector_ != NULL);
-    if (connector_) {
-        connector_->continueWithUserInput(UsernameResponse{username, password});
-    }
+    forwardUserInputOrReconnect(UsernameResponse{username, password}, bNeedReconnect);
 }
 
-void ConnectionManager::continueWithPassword(const QString &password, bool /*bNeedReconnect*/)
+void ConnectionManager::continueWithPassword(const QString &password)
 {
-    WS_ASSERT(connector_ != NULL);
-    if (connector_) {
-        connector_->continueWithUserInput(PasswordResponse{password});
-    }
+    forwardUserInputOrReconnect(PasswordResponse{password}, false);
 }
 
 void ConnectionManager::continueWithPrivKeyPassword(const QString &password, bool bNeedReconnect)
 {
-    // On the priv-key retry path connector_ is null (already deleted in
-    // onConnectionDisconnected). doConnect() will create a fresh connector;
-    // OpenVPN will re-prompt for the priv-key password on that new connection.
-    if (bNeedReconnect) {
-        bWasSuccessfullyConnectionAttempt_ = false;
-        state_= STATE_CONNECTING_FROM_USER_CLICK;
-        doConnect();
-        return;
-    }
-
-    WS_ASSERT(connector_ != NULL);
-    if (connector_) {
-        connector_->continueWithUserInput(PrivKeyPasswordResponse{password});
-    }
+    forwardUserInputOrReconnect(PrivKeyPasswordResponse{password}, bNeedReconnect);
 }
 
 void ConnectionManager::onConnectionConnected(const AdapterGatewayInfo &connectionAdapterInfo)
 {
-    if (connector_ == nullptr || static_cast<IConnection *>(sender()) != connector_) {
+    if (!isSenderCurrentConnector()) {
         qCDebug(LOG_CONNECTION) << "ConnectionManager::onConnectionConnected(), ignored";
         return;
     }
 
     qCDebug(LOG_CONNECTION) << "ConnectionManager::onConnectionConnected(), state_ =" << state_;
+
+    // A queued connected() can land after the attempt settled: behind a stop (whose pending outcome
+    // must not be discarded by a resurrect), behind sleep's blockingDisconnect (the connector object
+    // stays alive), or while parked offline (our own startDisconnect() completes that recovery).
+    if (state_ != State::kConnecting && state_ != State::kReconnecting && state_ != State::kConnected) {
+        qCDebug(LOG_CONNECTION) << "Attempt already settled -- do not enter connected state";
+        return;
+    }
 
     vpnAdapterInfo_ = connectionAdapterInfo;
 
@@ -289,32 +265,27 @@ void ConnectionManager::onConnectionConnected(const AdapterGatewayInfo &connecti
 
     dnsConfigurator_->overrideAdapterDns(vpnAdapterInfo_);
 
-    if (state_ == STATE_DISCONNECTING_FROM_USER_CLICK) {
-        qCDebug(LOG_CONNECTION) << "Already disconnecting -- do not enter connected state";
-        return;
-    }
-
     timerReconnection_.stop();
     connectingTimer_.stop();
-    state_ = STATE_CONNECTED;
+    setState(State::kConnected);
 
-    // Prioritize IPv4 in gai.conf only when the tunnel does not carry IPv6 egress, otherwise
-    // applications that prefer IPv6 stall waiting for blocked v6 traffic. The tunnel egresses
-    // IPv6 only for a dual-stack-capable connector on a node that supports it when the user has
-    // not forced IPv4 Only; this mirrors the dual-stack decision in WireGuardConnectionBase.
-    const bool ipv6Egress = connector_->capabilities().dualStackEgress
-                            && currentConnectionDescr_.isIpv6Support
-                            && lastRequest_.wireGuard.ipStackEgress == IpStack::kAuto;
-    if (!ipv6Egress) {
-        platformPolicy_->setGaiIpv4PriorityEnabled(true);
-    }
+    applyGaiIpv4Priority();
 
     emit connected();
 }
 
+// Prioritize IPv4 in gai.conf only when the tunnel does not carry IPv6 egress, otherwise
+// applications that prefer IPv6 stall waiting for blocked v6 traffic.
+void ConnectionManager::applyGaiIpv4Priority()
+{
+    if (!connector_->isDualStackEgress()) {
+        platformPolicy_->setGaiIpv4PriorityEnabled(true);
+    }
+}
+
 void ConnectionManager::onConnectionDisconnected()
 {
-    if (connector_ == nullptr || static_cast<IConnection *>(sender()) != connector_) {
+    if (!isSenderCurrentConnector()) {
         // This event came from a connector that we have retired, and we already have a new connection
         // underway. Ignore the event
         qCDebug(LOG_CONNECTION) << "ConnectionManager::onConnectionDisconnected(), ignored";
@@ -323,7 +294,6 @@ void ConnectionManager::onConnectionDisconnected()
 
     qCDebug(LOG_CONNECTION) << "ConnectionManager::onConnectionDisconnected(), state_ =" << state_;
 
-    testVPNTunnel_->stopTests();
     connector_->teardown();
     // A pre-dial connector changed no DNS/gai state; issuing the restores would undo the
     // PREVIOUS session's cleanup work a second time.
@@ -342,338 +312,202 @@ void ConnectionManager::onConnectionDisconnected()
     timerWaitNetworkConnectivity_.stop();
     connectingTimer_.stop();
 
-    switch (state_)
-    {
-        case STATE_DISCONNECTING_FROM_USER_CLICK:
+    switch (state_) {
+        case State::kStopping:
             disconnect();
-            connSettingsPolicy_->reset();
-            emit disconnected(userDisconnectReason_);
-            userDisconnectReason_ = DISCONNECTED_BY_USER; // reset to default value
+            if (pendingOutcome_.type == PendingOutcome::Type::Error) {
+                emit errorDuringConnection(pendingOutcome_.error, currentConnectionDescr_);
+            } else {
+                if (pendingOutcome_.isUserInitiated) {
+                    attemptStrategy_->reset();
+                }
+                emit disconnected(pendingOutcome_.reason);
+            }
             break;
-        case STATE_CONNECTED:
+        case State::kConnected:
             // goto reconnection state, start reconnection timer and do connection again
             WS_ASSERT(!timerReconnection_.isActive());
-            timerReconnection_.start(MAX_RECONNECTION_TIME);
-            state_ = STATE_RECONNECTING;
-            emit reconnecting();
-            doConnect();
+            enterReconnecting();
+            startAttempt();
             break;
-        case STATE_CONNECTING_FROM_USER_CLICK:
-            // An endpoint-list policy keeps walking the list when the process dies without a
-            // classified error; regular policies treat a bare death as attempt-fatal.
-            if (connSettingsPolicy_->shouldRetryOnAttemptFailure() && !checkFails()) {
-                state_ = STATE_RECONNECTING;
-                emit reconnecting();
-                startReconnectionTimer();
-                doConnect();
+        case State::kConnecting:
+            // An endpoint-list strategy keeps walking the list when the process dies without a
+            // classified error; regular strategies treat a bare death as attempt-fatal.
+            if (attemptStrategy_->shouldRetryOnAttemptFailure() && attemptStrategy_->recordFailureAndAdvance(bAttemptSucceeded_) == FailureAdvice::Retry) {
+                enterReconnecting();
+                startAttempt();
                 break;
             }
             disconnect();
             emit disconnected(DISCONNECTED_ITSELF);
             break;
-        case STATE_AUTO_DISCONNECT:
-            disconnect();
-            emit disconnected(DISCONNECTED_ITSELF);
+        case State::kWaitingForNetwork:
+            // With the connector gone, the online-state slot can no longer drive the recovery (it
+            // requires a dialed connector); poll for connectivity or nothing ever redials.
+            // The wake path can enter this state with the reconnection cap stopped, and the poll's
+            // give-up check never fires on an inactive cap — arm it or the poll runs forever.
+            startReconnectionTimer();
+            waitForNetworkConnectivity();
             break;
-        case STATE_DISCONNECTED:
-        case STATE_WAIT_FOR_NETWORK_CONNECTIVITY:
+        case State::kDisconnected:
+        case State::kSleeping:
             // nothing todo
             break;
 
-        case STATE_ERROR_DURING_CONNECTION:
-            disconnect();
-            emit errorDuringConnection(latestConnectionError_);
-            break;
-
-        case STATE_RECONNECTING:
+        case State::kReconnecting:
+            // A wake-initiated reconnect hasn't failed at anything yet: fresh reconnection budget,
+            // no endpoint consumed, redial immediately as a regular reconnect.
+            if (reconnectCause_ == ReconnectCause::Wake) {
+                setState(State::kReconnecting, ReconnectCause::Regular);
+                timerReconnection_.start(MAX_RECONNECTION_TIME);
+                startAttempt();
+                break;
+            }
             // Same bare-death rule mid-walk: no classified error preceded this (the ignore flag is
             // still clear), so the endpoint must be consumed or it would be redialed forever.
-            if (connSettingsPolicy_->shouldRetryOnAttemptFailure() && !bIgnoreConnectionErrorsForOpenVpn_ && checkFails()) {
+            if (attemptStrategy_->shouldRetryOnAttemptFailure() && !bIgnoreConnectionErrors_ &&
+                attemptStrategy_->recordFailureAndAdvance(bAttemptSucceeded_) == FailureAdvice::GiveUp) {
                 disconnect();
                 emit disconnected(DISCONNECTED_ITSELF);
                 break;
             }
             connectOrStartConnectTimer();
             break;
-        case STATE_RECONNECTION_TIME_EXCEED:
-            disconnect();
-            emit disconnected(DISCONNECTED_BY_RECONNECTION_TIMEOUT_EXCEEDED);
-            break;
-
-        case STATE_SLEEP_MODE_NEED_RECONNECT:
-            //nothing todo
-            break;
-
-        case STATE_WAKEUP_RECONNECTING:
-            timerReconnection_.start(MAX_RECONNECTION_TIME);
-            state_ = STATE_RECONNECTING;
-            doConnect();
-            break;
-
-        default:
-            WS_ASSERT(false);
     }
 }
 
 void ConnectionManager::onConnectionReconnecting()
 {
-    // Null-tolerant: reconnect() and startFailoverReconnect() call this directly (no sender); only
-    // a queued signal from a retired connector is dropped.
-    QObject *s = sender();
-    if (s != nullptr && static_cast<IConnection *>(s) != connector_) {
+    if (!isSenderCurrentConnector()) {
         qCDebug(LOG_CONNECTION) << "ConnectionManager::onConnectionReconnecting(), ignored";
         return;
     }
+    handleReconnecting();
+}
 
-    qCDebug(LOG_CONNECTION) << "ConnectionManager::onConnectionReconnecting(), state_ =" << state_;
+void ConnectionManager::handleReconnecting()
+{
+    qCDebug(LOG_CONNECTION) << "ConnectionManager::handleReconnecting(), state_ =" << state_;
 
     dnsConfigurator_->stopDnsProxy(); // If we are reconnecting, we need to kill the ctrld process if it exists, to avoid conflicts with the new connection
-    testVPNTunnel_->stopTests();
 
-    // bIgnoreConnectionErrorsForOpenVpn_ need to prevent handle multiple error messages from openvpn
-    if (bIgnoreConnectionErrorsForOpenVpn_)
-    {
+    // bIgnoreConnectionErrors_ prevents handling multiple error messages from the connector
+    if (bIgnoreConnectionErrors_) {
         return;
-    }
-    else
-    {
-        bIgnoreConnectionErrorsForOpenVpn_ = true;
+    } else {
+        bIgnoreConnectionErrors_ = true;
     }
 
-    bool bCheckFailsResult;
-
-    switch (state_)
-    {
-        case STATE_CONNECTING_FROM_USER_CLICK:
-            bCheckFailsResult = checkFails();
-            if (!bCheckFailsResult || bWasSuccessfullyConnectionAttempt_)
-            {
-                if (bCheckFailsResult)
-                {
-                    connSettingsPolicy_->reset();
-                    wgCachedConfigAttempts_ = 0;
-                }
-                state_ = STATE_RECONNECTING;
-                emit reconnecting();
-                startReconnectionTimer();
-                if (connector_) {
-                    connector_->startDisconnect();
-                }
-            }
-            else
-            {
-                state_ = STATE_AUTO_DISCONNECT;
-                if (connector_) {
-                    connector_->startDisconnect();
-                }
+    switch (state_) {
+        case State::kConnecting:
+        case State::kReconnecting:
+            // A wake-initiated attempt's connector-level reconnect isn't a failure; the connector
+            // sorts itself out or ends in disconnected()/error().
+            if (reconnectCause_ != ReconnectCause::Wake) {
+                handleAttemptFailed(true);
             }
             break;
 
-        case STATE_CONNECTED:
+        case State::kConnected:
             WS_ASSERT(!timerReconnection_.isActive());
 
-            if (connector_ && !connector_->isDisconnected())
-            {
-                if (state_ != STATE_RECONNECTING)
-                {
-                    emit reconnecting();
-                    state_ = STATE_RECONNECTING;
-                    timerReconnection_.start(MAX_RECONNECTION_TIME);
-                }
-                else
-                {
-                    if (!timerReconnection_.isActive())
-                    {
-                        timerReconnection_.start(MAX_RECONNECTION_TIME);
-                    }
-                }
+            if (connector_ && !connector_->isDisconnected()) {
+                enterReconnecting();
                 connector_->startDisconnect();
             }
             break;
-        case STATE_DISCONNECTING_FROM_USER_CLICK:
+        case State::kDisconnected:
+        case State::kStopping:
+        case State::kWaitingForNetwork:
+        case State::kSleeping:
             break;
-        case STATE_WAIT_FOR_NETWORK_CONNECTIVITY:
-            break;
-        case STATE_RECONNECTING:
-            bCheckFailsResult = checkFails();
-
-            if (!bCheckFailsResult || bWasSuccessfullyConnectionAttempt_)
-            {
-                if (bCheckFailsResult)
-                {
-                    connSettingsPolicy_->reset();
-                    wgCachedConfigAttempts_ = 0;
-                }
-                if (connector_) {
-                    connector_->startDisconnect();
-                } else {
-                    connectOrStartConnectTimer();
-                }
-            }
-            else
-            {
-                state_ = STATE_AUTO_DISCONNECT;
-                if (connector_) {
-                    connector_->startDisconnect();
-                }
-            }
-            break;
-        case STATE_SLEEP_MODE_NEED_RECONNECT:
-            break;
-        case STATE_WAKEUP_RECONNECTING:
-            break;
-        default:
-            WS_ASSERT(false);
     }
 }
 
-void ConnectionManager::clearCachedWgConfigIfExhausted(CONNECT_ERROR err)
+void ConnectionManager::clearCachedConfigIfExhausted(bool isCachedConfigFailure)
 {
     // A cached WireGuard config that can't bring up the tunnel after every attempt is invalid (e.g. a
     // stale key). Clear the stored credentials so the next connect falls back to IKEv2 under Always On+
     // instead of retrying the same bad config; a later API-reachable connect will register fresh
     // credentials. Wait until the attempts are exhausted so a transient error doesn't discard a good config.
-    if (hasUsableCachedWgConfig_ && wgCachedConfigAttempts_ >= kMaxWgCachedConfigAttempts && err == CONNECT_ERROR::WIREGUARD_CONNECTION_ERROR) {
+    // Only a config-fetching connector's failure says anything about the cached config: a generic
+    // tunnel-establishment failure from another protocol must not wipe the stored WG credentials.
+    if (!connector_ || !connector_->capabilities().supportsCachedConfig) {
+        return;
+    }
+    if (isCachedConfigFailure && attemptStrategy_->isCachedConfigExhausted()) {
         qCInfo(LOG_CONNECTION) << "Cached WireGuard config failed to connect; clearing stored credentials";
-        GetWireGuardConfig::removeWireGuardSettings();
-        hasUsableCachedWgConfig_ = false;
+        connectionFactory_->removeStoredConfig();
+        attemptStrategy_->setCachedConfigAvailability(false);
     }
 }
 
-void ConnectionManager::onConnectionError(CONNECT_ERROR err)
+void ConnectionManager::onConnectionError(ConnectError err)
 {
-    if (connector_ == nullptr || static_cast<IConnection *>(sender()) != connector_) {
+    if (!isSenderCurrentConnector()) {
         qCDebug(LOG_CONNECTION) << "ConnectionManager::onConnectionError(), ignored";
         return;
     }
-    if (state_ == STATE_DISCONNECTING_FROM_USER_CLICK || state_ == STATE_RECONNECTION_TIME_EXCEED ||
-        state_ == STATE_AUTO_DISCONNECT || state_ == STATE_ERROR_DURING_CONNECTION)
-    {
+    // kSleeping/kDisconnected: blockingDisconnect keeps the connector object alive and pumps no
+    // events on the sleep path, so a queued error can land after the teardown settled; acting on it
+    // would redial from a settled state.
+    if (state_ == State::kStopping || state_ == State::kSleeping || state_ == State::kDisconnected) {
         return;
     }
 
     qCInfo(LOG_CONNECTION) << "ConnectionManager::onConnectionError(), state_ =" << state_ << ", error =" << (int)err;
-    testVPNTunnel_->stopTests();
 
-    clearCachedWgConfigIfExhausted(err);
+    clearCachedConfigIfExhausted(err == ConnectError::kTunnelEstablishmentFailure);
 
-    // An endpoint-list policy treats local fatal errors as walk-to-the-next-endpoint, not attempt-fatal.
-    const bool retryOnFailure = connSettingsPolicy_->shouldRetryOnAttemptFailure();
+    switch (classifyConnectError(err, attemptStrategy_->isAutomaticMode(), lastRequest_.bEmitAuthError,
+                                 attemptStrategy_->shouldRetryOnAttemptFailure())) {
+        case ConnectErrorClassification::ErrorAfterDisconnect:
+            // emit error in disconnected event
+            stopWithError(err);
+            // for ConnectError::kAuthFailure signal disconnected will be emitted automatically; other
+            // emitters can be settled already and never emit it, wedging kStopping — force the teardown
+            // (startDisconnect() on a settled connector emits disconnected() immediately).
+            if (err != ConnectError::kAuthFailure && connector_) {
+                connector_->startDisconnect();
+            }
+            break;
+        case ConnectErrorClassification::ErrorImmediately:
+            // immediately stop trying to connect
+            disconnect();
+            emit errorDuringConnection(err, currentConnectionDescr_);
+            break;
+        case ConnectErrorClassification::Retry:
+            // bIgnoreConnectionErrors_ prevents handling multiple error messages from the connector
+            if (!bIgnoreConnectionErrors_) {
+                bIgnoreConnectionErrors_ = true;
 
-    if ((err == CONNECT_ERROR::AUTH_ERROR && lastRequest_.bEmitAuthError)
-            || (!retryOnFailure && err == CONNECT_ERROR::NO_OPENVPN_SOCKET)
-            || (!retryOnFailure && err == CONNECT_ERROR::NO_INSTALLED_TUN_TAP)
-            || (!connSettingsPolicy_->isAutomaticMode() && err == CONNECT_ERROR::WIREGUARD_CONNECTION_ERROR)
-            || (!connSettingsPolicy_->isAutomaticMode() && err == CONNECT_ERROR::WIREGUARD_ADAPTER_SETUP_FAILED)
-            || err == CONNECT_ERROR::TAP_FATAL_ERROR
-            || err == CONNECT_ERROR::PRIV_KEY_PASSWORD_ERROR)
-    {
-        // emit error in disconnected event
-        latestConnectionError_ = err;
-        state_ = STATE_ERROR_DURING_CONNECTION;
-        timerReconnection_.stop();
-    }
-    else if ( (!connSettingsPolicy_->isAutomaticMode() && (err == CONNECT_ERROR::IKEV_NOT_FOUND_WIN
-                                                           || err == CONNECT_ERROR::IKEV_FAILED_SET_ENTRY_WIN
-                                                           || err == CONNECT_ERROR::IKEV_FAILED_MODIFY_HOSTS_WIN) )
-            || (!connSettingsPolicy_->isAutomaticMode() && (err == CONNECT_ERROR::IKEV_NETWORK_EXTENSION_NOT_FOUND_MAC
-                                                            || err == CONNECT_ERROR::IKEV_FAILED_SET_KEYCHAIN_MAC
-                                                            || err == CONNECT_ERROR::IKEV_FAILED_START_MAC
-                                                            || err == CONNECT_ERROR::IKEV_FAILED_LOAD_PREFERENCES_MAC
-                                                            || err == CONNECT_ERROR::IKEV_FAILED_SAVE_PREFERENCES_MAC))
-            || (!retryOnFailure && err == CONNECT_ERROR::EXE_SUBPROCESS_FAILED))
-    {
-        // immediately stop trying to connect
-        disconnect();
-        emit errorDuringConnection(err);
-    }
-    else if (err == CONNECT_ERROR::UDP_CANT_ASSIGN
-             || err == CONNECT_ERROR::UDP_NO_BUFFER_SPACE
-             || err == CONNECT_ERROR::UDP_NETWORK_DOWN
-             || err == CONNECT_ERROR::TCP_ERROR
-             || err == CONNECT_ERROR::CONNECTED_ERROR
-             || err == CONNECT_ERROR::INITIALIZATION_SEQUENCE_COMPLETED_WITH_ERRORS
-             || err == CONNECT_ERROR::IKEV_FAILED_TO_CONNECT
-             || err == CONNECT_ERROR::WIREGUARD_CONNECTION_ERROR
-             || err == CONNECT_ERROR::WIREGUARD_ADAPTER_SETUP_FAILED
-             || (connSettingsPolicy_->isAutomaticMode() && (err == CONNECT_ERROR::IKEV_NOT_FOUND_WIN
-                                                            || err == CONNECT_ERROR::IKEV_FAILED_SET_ENTRY_WIN
-                                                            || err == CONNECT_ERROR::IKEV_FAILED_MODIFY_HOSTS_WIN))
-             || (connSettingsPolicy_->isAutomaticMode() && (err == CONNECT_ERROR::IKEV_NETWORK_EXTENSION_NOT_FOUND_MAC
-                                                            || err == CONNECT_ERROR::IKEV_FAILED_SET_KEYCHAIN_MAC
-                                                            || err == CONNECT_ERROR::IKEV_FAILED_START_MAC
-                                                            || err == CONNECT_ERROR::IKEV_FAILED_LOAD_PREFERENCES_MAC
-                                                            || err == CONNECT_ERROR::IKEV_FAILED_SAVE_PREFERENCES_MAC))
-             || (err == CONNECT_ERROR::AUTH_ERROR && !lastRequest_.bEmitAuthError)
-             || (retryOnFailure && (err == CONNECT_ERROR::EXE_SUBPROCESS_FAILED
-                                    || err == CONNECT_ERROR::NO_OPENVPN_SOCKET
-                                    || err == CONNECT_ERROR::NO_INSTALLED_TUN_TAP)))
-    {
-        // bIgnoreConnectionErrorsForOpenVpn_ need to prevent handle multiple error messages from openvpn
-        if (!bIgnoreConnectionErrorsForOpenVpn_)
-        {
-            bIgnoreConnectionErrorsForOpenVpn_ = true;
-
-            if (state_ == STATE_CONNECTED)
-            {
-                emit reconnecting();
-                state_ = STATE_RECONNECTING;
-                startReconnectionTimer();
-                // for AUTH_ERROR signal disconnected will be emitted automatically
-                if (err != CONNECT_ERROR::AUTH_ERROR)
-                {
-                    if (connector_) {
+                if (state_ == State::kConnected) {
+                    // A drop out of an established session isn't an attempt failure: reconnect
+                    // without consuming a strategy endpoint (unlike handleAttemptFailed).
+                    enterReconnecting();
+                    // for ConnectError::kAuthFailure signal disconnected will be emitted automatically
+                    if (err != ConnectError::kAuthFailure && connector_) {
                         connector_->startDisconnect();
                     }
+                } else {
+                    // for ConnectError::kAuthFailure signal disconnected will be emitted automatically
+                    handleAttemptFailed(err != ConnectError::kAuthFailure);
                 }
             }
-            else
-            {
-                bool bCheckFailsResult = checkFails();
-                if (!bCheckFailsResult || bWasSuccessfullyConnectionAttempt_)
-                {
-                    if (bCheckFailsResult)
-                    {
-                        connSettingsPolicy_->reset();
-                        wgCachedConfigAttempts_ = 0;
-                    }
-
-                    if (state_ != STATE_RECONNECTING)
-                    {
-                        emit reconnecting();
-                        state_ = STATE_RECONNECTING;
-                        startReconnectionTimer();
-                    }
-                    // for AUTH_ERROR signal disconnected will be emitted automatically
-                    if (err != CONNECT_ERROR::AUTH_ERROR)
-                    {
-                        if (connector_) {
-                            connector_->startDisconnect();
-                        }
-                    }
-                }
-                else
-                {
-                    state_ = STATE_AUTO_DISCONNECT;
-                    if (err != CONNECT_ERROR::AUTH_ERROR)
-                    {
-                        if (connector_) {
-                            connector_->startDisconnect();
-                        }
-                    }
-                }
-            }
-        }
-    }
-    else
-    {
-        qCWarning(LOG_CONNECTION) << "Unknown error from openvpn: " << err;
+            break;
+        case ConnectErrorClassification::Unknown:
+            qCWarning(LOG_CONNECTION) << "Unknown error from openvpn: " << static_cast<int>(err);
+            break;
     }
 }
 
 void ConnectionManager::onConnectionStatisticsUpdated(quint64 bytesIn, quint64 bytesOut, bool isTotalBytes)
 {
-    if (connector_ == nullptr || static_cast<IConnection *>(sender()) != connector_) {
+    if (!isSenderCurrentConnector()) {
+        return;
+    }
+    // Same late-delivery window as onConnectionError(): don't feed Engine stale data for a dead tunnel.
+    if (state_ == State::kStopping || state_ == State::kSleeping || state_ == State::kDisconnected) {
         return;
     }
     emit statisticsUpdated(bytesIn, bytesOut, isTotalBytes);
@@ -681,7 +515,11 @@ void ConnectionManager::onConnectionStatisticsUpdated(quint64 bytesIn, quint64 b
 
 void ConnectionManager::onConnectionInterfaceUpdated(const QString &interfaceName)
 {
-    if (connector_ == nullptr || static_cast<IConnection *>(sender()) != connector_) {
+    if (!isSenderCurrentConnector()) {
+        return;
+    }
+    // Same late-delivery window as onConnectionError(): don't feed Engine stale data for a dead tunnel.
+    if (state_ == State::kStopping || state_ == State::kSleeping || state_ == State::kDisconnected) {
         return;
     }
     emit interfaceUpdated(interfaceName);
@@ -689,37 +527,41 @@ void ConnectionManager::onConnectionInterfaceUpdated(const QString &interfaceNam
 
 void ConnectionManager::onConnectionUserInputRequired(UserInputType type)
 {
-    if (connector_ == nullptr || static_cast<IConnection *>(sender()) != connector_) {
+    if (!isSenderCurrentConnector()) {
         qCDebug(LOG_CONNECTION) << "ConnectionManager::onConnectionUserInputRequired(), ignored";
         return;
     }
+    // Same late-delivery window as onConnectionError(): a prompt queued behind a stop or sleep's
+    // blockingDisconnect must not raise UI for a settled attempt.
+    if (state_ == State::kStopping || state_ == State::kSleeping || state_ == State::kDisconnected) {
+        qCDebug(LOG_CONNECTION) << "ConnectionManager::onConnectionUserInputRequired(), ignored in state" << state_;
+        return;
+    }
 
-    switch (type)
-    {
+    switch (type) {
         case UserInputType::Username:
             // Credentials the user already supplied this session (e.g. before an auth-failed retry)
             // answer the connector directly without re-prompting.
             if (!usernameForCustomOvpn_.isEmpty()) {
                 connector_->continueWithUserInput(UsernameResponse{usernameForCustomOvpn_, passwordForCustomOvpn_});
             } else {
-                emit requestUsername(currentConnectionDescr_.customConfigFilename);
+                emit requestUsername();
             }
             break;
         case UserInputType::Password:
             if (!passwordForCustomOvpn_.isEmpty()) {
                 connector_->continueWithUserInput(PasswordResponse{passwordForCustomOvpn_});
             } else {
-                emit requestPassword(currentConnectionDescr_.customConfigFilename);
+                emit requestPassword();
             }
             break;
         case UserInputType::PrivKeyPassword:
-            emit requestPrivKeyPassword(currentConnectionDescr_.customConfigFilename);
+            emit requestPrivKeyPassword();
             break;
         case UserInputType::KeyLimitConsent:
             // A key-limit answer already queued when the user starts disconnecting must not raise
-            // the prompt (same state list as onConnectionPrepared).
-            if (state_ != STATE_CONNECTING_FROM_USER_CLICK && state_ != STATE_RECONNECTING &&
-                state_ != STATE_WAKEUP_RECONNECTING && state_ != STATE_WAIT_FOR_NETWORK_CONNECTIVITY) {
+            // the prompt.
+            if (!isAttemptActive()) {
                 qCDebug(LOG_CONNECTION) << "ConnectionManager::onConnectionUserInputRequired(), key limit ignored in state" << state_;
                 break;
             }
@@ -736,20 +578,24 @@ void ConnectionManager::onSleepMode()
 
     timerReconnection_.stop();
     connectTimer_.stop();
+    connectingTimer_.stop();
+    // A running connectivity poll would start an attempt mid-sleep when the network returns;
+    // restoreConnectionAfterWakeUp re-arms it if the wake still has no network.
+    timerWaitNetworkConnectivity_.stop();
     bWakeSignalReceived_ = false;
 
-    switch (state_)
-    {
-        case STATE_DISCONNECTED:
+    switch (state_) {
+        case State::kDisconnected:
+        case State::kStopping:
+        case State::kSleeping:
             break;
-        case STATE_CONNECTING_FROM_USER_CLICK:
-        case STATE_CONNECTED:
-        case STATE_RECONNECTING:
-        case STATE_WAKEUP_RECONNECTING:
+        case State::kConnecting:
+        case State::kConnected:
+        case State::kReconnecting:
             emit reconnecting();
             blockingDisconnect(true);
             qCDebug(LOG_CONNECTION) << "ConnectionManager::onSleepMode(), blockingDisconnect completed";
-            state_ = STATE_SLEEP_MODE_NEED_RECONNECT;
+            setState(State::kSleeping);
             if (bWakeSignalReceived_) {
                 // If we are already awake (got the wake event during waiting in the blocking
                 // disconnect loop), reconnect immediately.
@@ -757,15 +603,9 @@ void ConnectionManager::onSleepMode()
                 bWakeSignalReceived_ = false;
             }
             break;
-        case STATE_DISCONNECTING_FROM_USER_CLICK:
+        case State::kWaitingForNetwork:
+            setState(State::kSleeping);
             break;
-        case STATE_WAIT_FOR_NETWORK_CONNECTIVITY:
-            state_ = STATE_SLEEP_MODE_NEED_RECONNECT;
-            break;
-        case STATE_RECONNECTION_TIME_EXCEED:
-            break;
-        default:
-            WS_ASSERT(false);
     }
 }
 
@@ -776,25 +616,13 @@ void ConnectionManager::onWakeMode()
     connectTimer_.stop();
     bWakeSignalReceived_ = true;
 
-    switch (state_)
-    {
-        case STATE_DISCONNECTED:
-            break;
-        case STATE_CONNECTING_FROM_USER_CLICK:
-        case STATE_CONNECTED:
-        case STATE_RECONNECTING:
-        case STATE_WAIT_FOR_NETWORK_CONNECTIVITY:
-        case STATE_DISCONNECTING_FROM_USER_CLICK:
-        case STATE_RECONNECTION_TIME_EXCEED:
-        case STATE_SLEEP_MODE_NEED_RECONNECT:
-        case STATE_WAKEUP_RECONNECTING:
-            // We should not be in some of these above states after wake up, but in some weird cases
-            // on Mac it is possible for the network to keep changing after onSleep() which may trigger
-            // some state changes.  Regardless of the above state, we should restore connection here.
-            restoreConnectionAfterWakeUp();
-            break;
-        default:
-            WS_ASSERT(false);
+    // We should not be in some of these states after wake up, but in some weird cases on Mac it is
+    // possible for the network to keep changing after onSleep() which may trigger some state
+    // changes.  Regardless of the state, we should restore connection here -- except a teardown in
+    // flight, whose pending outcome (a fatal error or the user's own disconnect) must be left to
+    // settle rather than papered over with a reconnect.
+    if (state_ != State::kDisconnected && state_ != State::kStopping) {
+        restoreConnectionAfterWakeUp();
     }
 }
 
@@ -802,110 +630,94 @@ void ConnectionManager::onNetworkOnlineStateChanged(bool isAlive)
 {
     qCInfo(LOG_CONNECTION) << "ConnectionManager::onNetworkOnlineStateChanged(), isAlive =" << isAlive << ", state_ =" << state_;
 
-#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     emit internetConnectivityChanged(isAlive);
-#elif defined Q_OS_MACOS
-    emit internetConnectivityChanged(isAlive);
+
+    if (!platformPolicy_->shouldReconnectOnOnlineStateChange()) {
+        return;
+    }
 
     bLastIsOnline_ = isAlive;
     if (!connector_ || !isConnectorDialed_) {
         return;
     }
 
-    switch (state_)
-    {
-        case STATE_DISCONNECTED:
+    switch (state_) {
+        case State::kDisconnected:
+        case State::kStopping:
+        case State::kSleeping:
             //nothing todo
             break;
-        case STATE_CONNECTING_FROM_USER_CLICK:
-            if (!isAlive)
-            {
-                state_ = STATE_WAIT_FOR_NETWORK_CONNECTIVITY;
+        case State::kConnecting:
+            if (!isAlive) {
+                setState(State::kWaitingForNetwork);
                 WS_ASSERT(!timerReconnection_.isActive());
                 timerReconnection_.start(MAX_RECONNECTION_TIME);
                 connector_->startDisconnect();
             }
             break;
-        case STATE_CONNECTED:
-            if (!isAlive)
-            {
-                emit reconnecting();
-                state_ = STATE_WAIT_FOR_NETWORK_CONNECTIVITY;
-                WS_ASSERT(!timerReconnection_.isActive());
-                timerReconnection_.start(MAX_RECONNECTION_TIME);
-                connector_->startDisconnect();
-            }
-            else
-            {
-                emit reconnecting();
-                state_ = STATE_RECONNECTING;
-                WS_ASSERT(!timerReconnection_.isActive());
-                timerReconnection_.start(MAX_RECONNECTION_TIME);
+        case State::kConnected:
+            emit reconnecting();
+            setState(isAlive ? State::kReconnecting : State::kWaitingForNetwork);
+            WS_ASSERT(!timerReconnection_.isActive());
+            timerReconnection_.start(MAX_RECONNECTION_TIME);
+            connector_->startDisconnect();
+            break;
+        case State::kReconnecting:
+            // A wake-initiated reconnect already has its own disconnect/redial in flight.
+            if (!isAlive && reconnectCause_ != ReconnectCause::Wake) {
+                setState(State::kWaitingForNetwork);
                 connector_->startDisconnect();
             }
             break;
-        case STATE_RECONNECTING:
-            if (!isAlive)
-            {
-                state_ = STATE_WAIT_FOR_NETWORK_CONNECTIVITY;
+        case State::kWaitingForNetwork:
+            if (isAlive) {
+                setState(State::kReconnecting);
+                startReconnectionTimer();
                 connector_->startDisconnect();
             }
             break;
-        case STATE_DISCONNECTING_FROM_USER_CLICK:
-            //nothing todo
-            break;
-        case STATE_WAIT_FOR_NETWORK_CONNECTIVITY:
-            if (isAlive)
-            {
-                state_ = STATE_RECONNECTING;
-                if (!timerReconnection_.isActive())
-                {
-                    timerReconnection_.start(MAX_RECONNECTION_TIME);
-                }
-                connector_->startDisconnect();
-            }
-            break;
-        case STATE_RECONNECTION_TIME_EXCEED:
-            //nothing todo
-            break;
-
-        case STATE_SLEEP_MODE_NEED_RECONNECT:
-            break;
-
-        case STATE_WAKEUP_RECONNECTING:
-            break;
-
-        default:
-            WS_ASSERT(false);
     }
-#endif
 }
 
 void ConnectionManager::onTimerReconnection()
 {
-    qCInfo(LOG_CONNECTION) << "Time for reconnection exceed";
-    state_ = STATE_RECONNECTION_TIME_EXCEED;
-    if (connector_)
-    {
-        connector_->startDisconnect();
+    timerReconnection_.stop();
+    // A stop already in flight carries its own outcome; overwriting it here would emit the wrong
+    // disconnect reason and skip the user-stop strategy reset.
+    if (state_ == State::kStopping) {
+        return;
     }
-    else
-    {
+    qCInfo(LOG_CONNECTION) << "Time for reconnection exceed";
+    if (connector_) {
+        stopWithDisconnect(DISCONNECTED_BY_RECONNECTION_TIMEOUT_EXCEEDED, false);
+        connector_->startDisconnect();
+    } else {
         disconnect();
         emit disconnected(DISCONNECTED_BY_RECONNECTION_TIMEOUT_EXCEEDED);
     }
-    timerReconnection_.stop();
 }
 
-void ConnectionManager::doConnect()
+void ConnectionManager::startAttempt()
 {
-    // For automatic policy, we would have removed IKEv2 from the list for lockdown mode.
+    // For automatic strategy, we would have removed IKEv2 from the list for lockdown mode.
     // There is no custom config for IKEv2, so if we get here it is manual mode.
     // We can get here either by:
     // - User selecting IKEv2 in manual mode and then enabling Lockdown Mode, or
     // - User selecting IKEv2 in manual mode in a previous version of the app, then updating.
-    if (!connSettingsPolicy_->isCustomConfig() && connSettingsPolicy_->getCurrentConnectionSettings().protocol == types::Protocol::IKEV2 && platformPolicy_->isLockdownBlockingIkev2()) {
-        emit errorDuringConnection(CONNECT_ERROR::LOCKDOWN_MODE_IKEV2);
+    // The protocol pre-check guards the OS read: isLockdownMode() forks a blocking `defaults read`
+    // on macOS (once per process — the policy caches it), so only IKEv2 attempts pay for it.
+    const types::Protocol protocol = attemptStrategy_->preResolveProtocol();
+    if (protocol.isIkev2Protocol() && lockdownBlocksProtocol(platformPolicy_->isLockdownMode(), protocol)) {
+        // failWithError settles the state machine (state, timers, connectionEnded); emitting the
+        // error alone leaves it parked in Connecting/Reconnecting with the reconnection cap running.
+        failWithError(ConnectError::kBlockedByOsPolicy);
+        return;
+    }
+
+    // An automatic walk can be empty when every protocol was filtered out (proxy, lockdown, Always
+    // On+ without a cached config); the factory cannot build a connector for it.
+    if (protocol == types::Protocol::UNINITIALIZED) {
+        failWithError(ConnectError::kLocationUnavailable);
         return;
     }
 
@@ -916,8 +728,8 @@ void ConnectionManager::doConnect()
     }
 
     if (!isOnline || defaultAdapterInfo_.isEmpty()) {
-        if (!connSettingsPolicy_->shouldWaitForNetwork()) {
-            qCInfo(LOG_CONNECTION) << "No internet connection and the policy does not wait for connectivity, giving up";
+        if (!attemptStrategy_->shouldWaitForNetwork()) {
+            qCInfo(LOG_CONNECTION) << "No internet connection and the strategy does not wait for connectivity, giving up";
             disconnect();
             emit disconnected(DISCONNECTED_ITSELF);
             return;
@@ -930,38 +742,40 @@ void ConnectionManager::doConnect()
     qCInfo(LOG_CONNECTION) << "Default adapter and gateway:" << defaultAdapterInfo_.makeLogString();
     connectTimer_.stop();
 
-    recreateConnector(connSettingsPolicy_->preResolveProtocol());
+    recreateConnector(protocol);
 
     connectingTimer_.setSingleShot(true);
-    if (!connSettingsPolicy_->isCustomConfig()) {
+    if (attemptStrategy_->usesConnectTimeout()) {
         // Both automatic and manual mode should timeout the same.
         connectingTimer_.setInterval(connector_->capabilities().connectTimeoutMs);
         connectingTimer_.start();
     }
 
-    connSettingsPolicy_->resolveHostnames();
+    attemptStrategy_->resolveHostnames();
 }
 
-void ConnectionManager::doConnectPart2()
+void ConnectionManager::onHostnamesResolved()
 {
     // A late hostnamesResolved from an already-abandoned attempt (e.g. user disconnected during a
     // custom-config DNS resolve) arrives after the connector was retired; drop it.
     if (connector_ == nullptr) {
-        qCDebug(LOG_CONNECTION) << "ConnectionManager::doConnectPart2(), no connector, ignored";
+        qCDebug(LOG_CONNECTION) << "ConnectionManager::onHostnamesResolved(), no connector, ignored";
+        return;
+    }
+    // A resolve already queued when a stop lands (connector alive, disconnected() still queued) must
+    // not run attempt setup mid-teardown; the queued disconnected() completes the stop.
+    if (!isAttemptActive()) {
+        qCDebug(LOG_CONNECTION) << "ConnectionManager::onHostnamesResolved(), ignored in state" << state_;
         return;
     }
 
-    bIgnoreConnectionErrorsForOpenVpn_ = false;
+    bIgnoreConnectionErrors_ = false;
 
-    currentConnectionDescr_ = connSettingsPolicy_->getCurrentConnectionSettings();
+    currentConnectionDescr_ = attemptStrategy_->getCurrentConnectionSettings();
 
-    if (currentConnectionDescr_.connectionNodeType == CONNECTION_NODE_ERROR)
-    {
-        qCWarning(LOG_CONNECTION) << "connSettingsPolicy_.getCurrentConnectionSettings returned incorrect value";
-        connector_->teardown();
-        SAFE_DELETE_LATER(connector_);
-        disconnect();
-        emit errorDuringConnection(CONNECT_ERROR::LOCATION_NO_ACTIVE_NODES);
+    if (currentConnectionDescr_.connectionNodeType == CONNECTION_NODE_ERROR) {
+        qCWarning(LOG_CONNECTION) << "attemptStrategy_.getCurrentConnectionSettings returned incorrect value";
+        failWithError(ConnectError::kLocationUnavailable);
         return;
     }
 
@@ -972,10 +786,7 @@ void ConnectionManager::doConnectPart2()
     emit protocolPortChanged(currentConnectionDescr_.protocol, currentConnectionDescr_.port);
 
     if (!dnsConfigurator_->prepare()) {
-        connector_->teardown();
-        SAFE_DELETE_LATER(connector_);
-        disconnect();
-        emit errorDuringConnection(CONNECT_ERROR::CTRLD_START_FAILED);
+        failWithError(ConnectError::kDnsServiceStartFailure);
         return;
     }
 
@@ -987,29 +798,33 @@ void ConnectionManager::doConnectPart2()
     env.packetSize = packetSize_;
     env.defaultAdapterInfo = defaultAdapterInfo_;
     env.primaryDnsServer = dnsConfigurator_->primaryDnsServer();
-    env.extraConfig = extraConfig_.data();
+    env.ipStackEgress = lastRequest_.ipStackEgress;
 
-    // Always On+ blocks the API, so a config-fetching connector may only use its cached config
-    // (attempts capped, see wgCachedConfigAttempts_). Custom configs never fetch.
-    if (isFirewallAlwaysOnPlusEnabled_ && connector_->capabilities().supportsCachedConfig &&
+    // The strategy owns the cached-config budget; CM contributes its own facts (Always On+ read
+    // live so a mid-session mode change takes effect on the next attempt, a config-fetching
+    // connector, not a custom config — custom configs never fetch).
+    if (connector_->capabilities().supportsCachedConfig &&
         currentConnectionDescr_.connectionNodeType != CONNECTION_NODE_CUSTOM_CONFIG) {
-        if (hasUsableCachedWgConfig_ && wgCachedConfigAttempts_ < kMaxWgCachedConfigAttempts) {
-            wgCachedConfigAttempts_++;
-            qCInfo(LOG_CONNECTION) << "Using cached WireGuard config under Firewall Always On+ mode for hostname =" << currentConnectionDescr_.hostname << "isIpv6Support = " << currentConnectionDescr_.isIpv6Support;
-            env.configFetchMode = ConfigFetchMode::CachedOnly;
-        } else if (connSettingsPolicy_->isAutomaticMode()) {
-            // Let the policy advance to a protocol that works without the API (IKEv2/OpenVPN).
-            qCInfo(LOG_CONNECTION) << "Cached WireGuard config exhausted under Firewall Always On+ mode, advancing to next protocol";
-            startFailoverReconnect();
-            return;
+        if (isFirewallAlwaysOnPlusEnabled_) {
+            switch (attemptStrategy_->takeCachedConfigAdvice()) {
+                case CachedConfigAdvice::UseCachedOnly:
+                    qCInfo(LOG_CONNECTION) << "Using cached WireGuard config under Firewall Always On+ mode for hostname =" << currentConnectionDescr_.hostname << "isIpv6Support = " << currentConnectionDescr_.isIpv6Support;
+                    env.configFetchMode = ConfigFetchMode::CachedOnly;
+                    break;
+                case CachedConfigAdvice::Advance:
+                    qCInfo(LOG_CONNECTION) << "Cached WireGuard config exhausted under Firewall Always On+ mode, advancing to next protocol";
+                    startFailoverReconnect();
+                    return;
+                case CachedConfigAdvice::Abort:
+                    qCInfo(LOG_CONNECTION) << "Cached WireGuard config unavailable or exhausted under Firewall Always On+ mode, aborting connection";
+                    failWithError(ConnectError::kConfigFetchFailure);
+                    return;
+            }
         } else {
-            // Manual mode has no next protocol; surface the failure rather than looping.
-            qCInfo(LOG_CONNECTION) << "Cached WireGuard config unavailable or exhausted under Firewall Always On+ mode, aborting connection";
-            connector_->teardown();
-            SAFE_DELETE_LATER(connector_);
-            disconnect();
-            emit errorDuringConnection(WIREGUARD_COULD_NOT_RETRIEVE_CONFIG);
-            return;
+            // The budget counts consecutive cached attempts only. A fresh API fetch supersedes that
+            // history; without the reset, a stale exhausted counter would let this attempt's connect
+            // timeout wipe the config the fetch just stored.
+            attemptStrategy_->resetCachedConfigBudget();
         }
     }
 
@@ -1018,14 +833,11 @@ void ConnectionManager::doConnectPart2()
 
 void ConnectionManager::onConnectionPrepared()
 {
-    if (connector_ == nullptr || static_cast<IConnection *>(sender()) != connector_) {
+    if (!isSenderCurrentConnector()) {
         qCDebug(LOG_CONNECTION) << "ConnectionManager::onConnectionPrepared(), ignored";
         return;
     }
-    // WAIT_FOR_NETWORK_CONNECTIVITY is included because the connectivity poll re-enters doConnect()
-    // without changing state, so a legitimate attempt can reach the dial in that state.
-    if (state_ != STATE_CONNECTING_FROM_USER_CLICK && state_ != STATE_RECONNECTING &&
-        state_ != STATE_WAKEUP_RECONNECTING && state_ != STATE_WAIT_FOR_NETWORK_CONNECTIVITY) {
+    if (!isAttemptActive()) {
         qCDebug(LOG_CONNECTION) << "ConnectionManager::onConnectionPrepared(), ignored in state" << state_;
         return;
     }
@@ -1054,58 +866,74 @@ void ConnectionManager::onConnectionPrepared()
     lastIp_ = connector_->effectiveIp();
 }
 
-void ConnectionManager::onConnectionPrepareFailed(CONNECT_ERROR err)
+void ConnectionManager::onConnectionPrepareFailed(ConnectError err)
 {
-    if (connector_ == nullptr || static_cast<IConnection *>(sender()) != connector_) {
+    if (!isSenderCurrentConnector()) {
         qCDebug(LOG_CONNECTION) << "ConnectionManager::onConnectionPrepareFailed(), ignored";
         return;
     }
-    // Same state list as onConnectionPrepared: a prepareFailed already queued when e.g. a user
-    // disconnect lands must not hard-stop; the queued disconnected() completes that path instead.
-    if (state_ != STATE_CONNECTING_FROM_USER_CLICK && state_ != STATE_RECONNECTING &&
-        state_ != STATE_WAKEUP_RECONNECTING && state_ != STATE_WAIT_FOR_NETWORK_CONNECTIVITY) {
+    // A prepareFailed already queued when e.g. a user disconnect lands must not hard-stop; the
+    // queued disconnected() completes that path instead.
+    if (!isAttemptActive()) {
         qCDebug(LOG_CONNECTION) << "ConnectionManager::onConnectionPrepareFailed(), ignored in state" << state_;
         return;
     }
 
     qCInfo(LOG_CONNECTION) << "ConnectionManager::onConnectionPrepareFailed(), state_ =" << state_ << ", error =" << (int)err;
 
-    // Config-acquisition failures route to failover rather than a hard stop: CONFIG_FETCH_FAILED in
-    // both modes; API-exhausted (WIREGUARD_COULD_NOT_RETRIEVE_CONFIG) only when automatic mode has a
-    // next option to advance to.
-    if (err == CONNECT_ERROR::CONFIG_FETCH_FAILED ||
-        (err == CONNECT_ERROR::WIREGUARD_COULD_NOT_RETRIEVE_CONFIG && connSettingsPolicy_->isAutomaticMode())) {
+    if (classifyPrepareError(err, attemptStrategy_->isAutomaticMode()) == PrepareErrorRouting::Failover) {
         startFailoverReconnect();
         return;
     }
 
     // A live connector exists when prep fails under early creation; retire it before surfacing the error.
-    connector_->teardown();
-    SAFE_DELETE_LATER(connector_);
-    disconnect();
-    emit errorDuringConnection(err);
+    failWithError(err);
 }
 
 void ConnectionManager::startFailoverReconnect()
 {
-    state_ = STATE_RECONNECTING;
-    emit reconnecting();
-    startReconnectionTimer();
-    onConnectionReconnecting();
+    enterReconnecting();
+    handleReconnecting();
 }
 
-bool ConnectionManager::checkFails()
+void ConnectionManager::handleAttemptFailed(bool bDisconnectConnector)
 {
-    // Return true if the connection policy object indicates there are no more attempts to try.
-    // TL;DR no more reconnect attempts should be made.
-    connSettingsPolicy_->putFailedConnection();
-    return connSettingsPolicy_->isFailed();
+    switch (attemptStrategy_->recordFailureAndAdvance(bAttemptSucceeded_)) {
+        case FailureAdvice::Retry:
+            // A wake-initiated reconnect recording its first failure becomes a regular one: it
+            // (re)enters Reconnecting so the announcement and the reconnection cap start now.
+            if (state_ != State::kReconnecting || reconnectCause_ == ReconnectCause::Wake) {
+                enterReconnecting();
+            }
+            if (bDisconnectConnector) {
+                if (connector_) {
+                    connector_->startDisconnect();
+                } else {
+                    connectOrStartConnectTimer();
+                }
+            }
+            break;
+        case FailureAdvice::GiveUp:
+            stopWithDisconnect(DISCONNECTED_ITSELF, false);
+            if (bDisconnectConnector && connector_) {
+                connector_->startDisconnect();
+            }
+            break;
+    }
+}
+
+// Unified entry into Reconnecting: transition, announce, and arm the reconnection cap (guarded — an
+// already-running cap keeps its deadline).
+void ConnectionManager::enterReconnecting()
+{
+    setState(State::kReconnecting);
+    emit reconnecting();
+    startReconnectionTimer();
 }
 
 void ConnectionManager::startReconnectionTimer()
 {
-    if (!timerReconnection_.isActive())
-    {
+    if (!timerReconnection_.isActive()) {
         timerReconnection_.start(MAX_RECONNECTION_TIME);
     }
 }
@@ -1129,7 +957,7 @@ void ConnectionManager::recreateConnector(types::Protocol protocol)
     }
     SAFE_DELETE_LATER(connector_);
 
-    connector_ = connectionFactory_->createConnection(protocol, this, helper_, lastRequest_);
+    connector_ = connectionFactory_->createConnection(protocol, this, lastRequest_);
     isConnectorDialed_ = false;
 
     connect(connector_, &IConnection::prepared, this, &ConnectionManager::onConnectionPrepared, Qt::QueuedConnection);
@@ -1147,107 +975,85 @@ void ConnectionManager::recreateConnector(types::Protocol protocol)
 
 void ConnectionManager::restoreConnectionAfterWakeUp()
 {
-    if (bLastIsOnline_)
-    {
+    if (bLastIsOnline_) {
         qCInfo(LOG_CONNECTION) <<
             "ConnectionManager::restoreConnectionAfterWakeUp(), reconnecting";
-        state_ = STATE_WAKEUP_RECONNECTING;
+        setState(State::kReconnecting, ReconnectCause::Wake);
         if (connector_) {
             connector_->startDisconnect();
         } else {
             emit reconnecting();
-            doConnect();
+            startAttempt();
         }
-    }
-    else
-    {
+    } else {
         qCInfo(LOG_CONNECTION) <<
             "ConnectionManager::restoreConnectionAfterWakeUp(), waiting for network connectivity";
-        state_ = STATE_WAIT_FOR_NETWORK_CONNECTIVITY;
+        setState(State::kWaitingForNetwork);
+        // Without a dialed connector (sleep's blockingDisconnect tears down but keeps the object),
+        // the online-state slot can't drive the recovery; poll under the reconnection cap or nothing
+        // ever redials.
+        if (!connector_ || !isConnectorDialed_) {
+            startReconnectionTimer();
+            waitForNetworkConnectivity();
+        }
     }
 }
 
-void ConnectionManager::onTunnelTestsFinished(bool bSuccess, const QString &ipAddress)
+void ConnectionManager::onTunnelTestResult(bool bSuccess, const QString &ipAddress)
 {
+    // A result racing in behind a drop/disconnect must not drive failover or bookkeeping; the tester
+    // (Engine-owned) is stopped on those transitions, but the stop and this call can cross.
+    if (state_ != State::kConnected) {
+        return;
+    }
+
     bool hasAttempts = false;
-    int attempts = extraConfig_->tunnelTestAttempts(hasAttempts);
-    bool noError = extraConfig_->isTunnelTestNoError();
+    int attempts = ExtraConfig::instance().getTunnelTestAttempts(hasAttempts);
+    bool noError = ExtraConfig::instance().getIsTunnelTestNoError();
 
     if (bSuccess) {
-        // A working tunnel refreshes the cached-WG budget so subsequent reconnects can retry it.
+        // A working tunnel refreshes the cached-config budget so subsequent reconnects can retry it.
         // Reset here rather than on handshake: a WG handshake can succeed while the tunnel is unusable.
-        wgCachedConfigAttempts_ = 0;
+        attemptStrategy_->resetCachedConfigBudget();
     }
 
     if ((hasAttempts && attempts == 0) || (noError && !bSuccess)) {
         emit testTunnelResult(bSuccess, "");
     } else if (!bSuccess) {
-        if (connSettingsPolicy_->isCustomConfig()) {
+        if (attemptStrategy_->surfacesTunnelTestFailure()) {
             emit testTunnelResult(false, "");
         } else {
-            bool bCheckFailsResult = checkFails();
-            if (!bCheckFailsResult || bWasSuccessfullyConnectionAttempt_) {
-                if (bCheckFailsResult) {
-                    connSettingsPolicy_->reset();
-                    wgCachedConfigAttempts_ = 0;
-                }
-                state_ = STATE_RECONNECTING;
-                emit reconnecting();
-                startReconnectionTimer();
-                if (connector_) {
-                    connector_->startDisconnect();
-                }
-            } else {
-                state_= STATE_AUTO_DISCONNECT;
-                if (connector_) {
-                    connector_->startDisconnect();
-                }
-            }
+            handleAttemptFailed(true);
         }
     } else {
         emit testTunnelResult(true, ipAddress);
 
-        if (connSettingsPolicy_->isAutomaticMode()) {
-            bWasSuccessfullyConnectionAttempt_ = true;
+        // Only automatic mode restarts an exhausted walk on the strength of an earlier success.
+        if (attemptStrategy_->isAutomaticMode()) {
+            bAttemptSucceeded_ = true;
         }
     }
 }
 
 void ConnectionManager::onTimerWaitNetworkConnectivity()
 {
-    if (networkDetectionManager_->isOnline() && !platformPolicy_->detectDefaultAdapter().isEmpty())
-    {
+    if (networkDetectionManager_->isOnline() && !platformPolicy_->detectDefaultAdapter().isEmpty()) {
         qCInfo(LOG_CONNECTION) << "We're online, making the connection";
         timerWaitNetworkConnectivity_.stop();
-        doConnect();
-    }
-    else
-    {
-        if (timerReconnection_.remainingTime() == 0)
-        {
+        // Leave the park before redialing: onConnectionConnected() drops connected() in
+        // kWaitingForNetwork, so a redial left parked would discard its own success.
+        if (state_ == State::kWaitingForNetwork) {
+            setState(State::kReconnecting);
+        }
+        startAttempt();
+    } else {
+        if (timerReconnection_.remainingTime() == 0) {
             qCInfo(LOG_CONNECTION) << "Timed out waiting for network connectivity";
             timerWaitNetworkConnectivity_.stop();
             disconnect();
             emit disconnected(DISCONNECTED_BY_RECONNECTION_TIMEOUT_EXCEEDED);
         }
     }
-}
-
-void ConnectionManager::onHostnamesResolved()
-{
-    doConnectPart2();
-}
-
-bool ConnectionManager::isCustomOvpnConfigCurrentConnection() const
-{
-    return currentConnectionDescr_.connectionNodeType == CONNECTION_NODE_CUSTOM_CONFIG &&
-           currentConnectionDescr_.protocol.isOpenVpnProtocol();
-}
-
-QString ConnectionManager::getCustomOvpnConfigFileName()
-{
-    WS_ASSERT(isCustomOvpnConfigCurrentConnection());
-    return currentConnectionDescr_.customConfigFilename;
 }
 
 bool ConnectionManager::isStaticIpsLocation() const
@@ -1258,15 +1064,14 @@ bool ConnectionManager::isStaticIpsLocation() const
 api_responses::StaticIpPortsVector ConnectionManager::getStatisIps()
 {
     WS_ASSERT(isStaticIpsLocation());
-    return currentConnectionDescr_.staticIpPorts;
+    return currentConnectionDescr_.staticIps.ports;
 }
 
 void ConnectionManager::onWireGuardKeyLimitUserResponse(bool deleteOldestKey)
 {
     // The answer can arrive after the attempt ended (the prompt round-trips through the UI); resume
     // or disconnect only while an attempt is still active.
-    if (state_ != STATE_CONNECTING_FROM_USER_CLICK && state_ != STATE_RECONNECTING &&
-        state_ != STATE_WAKEUP_RECONNECTING && state_ != STATE_WAIT_FOR_NETWORK_CONNECTIVITY) {
+    if (!isAttemptActive()) {
         qCDebug(LOG_CONNECTION) << "ConnectionManager::onWireGuardKeyLimitUserResponse(), ignored in state" << state_;
         return;
     }
@@ -1287,19 +1092,14 @@ void ConnectionManager::setPacketSize(types::PacketSize ps)
     packetSize_ = ps;
 }
 
-void ConnectionManager::startTunnelTests()
-{
-    testVPNTunnel_->startTests(currentConnectionDescr_.protocol);
-}
-
-bool ConnectionManager::isAllowFirewallAfterConnection() const
+bool ConnectionManager::isAllowFirewallAfterConnectionRuntime() const
 {
     WS_ASSERT(connector_);
-    if (!connector_ || currentConnectionDescr_.connectionNodeType != CONNECTION_NODE_CUSTOM_CONFIG)
+    if (!connector_ || currentConnectionDescr_.connectionNodeType != CONNECTION_NODE_CUSTOM_CONFIG) {
         return true;
+    }
 
-    return currentConnectionDescr_.isAllowFirewallAfterConnection
-        && connector_->isAllowFirewallAfterCustomConfigConnection();
+    return connector_->isAllowFirewallAfterConnectionRuntime();
 }
 
 types::Protocol ConnectionManager::currentProtocol() const
@@ -1313,39 +1113,28 @@ void ConnectionManager::updateConnectionSettings(const types::ConnectionSettings
 {
     qCDebug(LOG_CONNECTION) << "ConnectionManager::updateConnectionSettings(), state_ =" << state_;
 
-    updateConnectionSettingsPolicy(connectionSettings, portMap, proxySettings);
+    recreateAttemptStrategy(connectionSettings, portMap, proxySettings);
 
     if (connector_ == nullptr || !isConnectorDialed_) {
         return;
     }
 
-    switch (state_)
-    {
-        case STATE_DISCONNECTED:
-        case STATE_DISCONNECTING_FROM_USER_CLICK:
-        case STATE_WAIT_FOR_NETWORK_CONNECTIVITY:
-        case STATE_RECONNECTION_TIME_EXCEED:
-        case STATE_SLEEP_MODE_NEED_RECONNECT:
-        case STATE_WAKEUP_RECONNECTING:
-        case STATE_AUTO_DISCONNECT:
-        case STATE_ERROR_DURING_CONNECTION:
-        case STATE_RECONNECTING:
+    switch (state_) {
+        case State::kDisconnected:
+        case State::kStopping:
+        case State::kWaitingForNetwork:
+        case State::kSleeping:
+        case State::kReconnecting:
             break;
-        case STATE_CONNECTING_FROM_USER_CLICK:
-        case STATE_CONNECTED:
-            emit reconnecting();
-            state_ = STATE_RECONNECTING;
-            if (!timerReconnection_.isActive()) {
-                timerReconnection_.start(MAX_RECONNECTION_TIME);
-            }
+        case State::kConnecting:
+        case State::kConnected:
+            enterReconnecting();
             connector_->startDisconnect();
             break;
-        default:
-            WS_ASSERT(false);
     }
 }
 
-void ConnectionManager::updateConnectionSettingsPolicy(const types::ConnectionSettings &connectionSettings,
+void ConnectionManager::recreateAttemptStrategy(const types::ConnectionSettings &connectionSettings,
                                                        const api_responses::PortMap &portMap,
                                                        const types::ProxySettings &proxySettings)
 {
@@ -1354,28 +1143,88 @@ void ConnectionManager::updateConnectionSettingsPolicy(const types::ConnectionSe
         return;
     }
 
-    // Only relevant under Always On+; gate the decrypt so it stays off the common connect path.
-    hasUsableCachedWgConfig_ = isFirewallAlwaysOnPlusEnabled_ && GetWireGuardConfig::hasUsableStoredConfig();
-    wgCachedConfigAttempts_ = 0;
+    // Raw availability fact, not fused with Always On+: the conjunction happens at attempt time
+    // against the live flag, so a mid-session mode change is honored on the next attempt.
+    // The fresh strategy owns the cached-config budget from here on.
+    const bool hasUsableCachedConfig = connectionFactory_->hasUsableStoredConfig();
 
-    connSettingsPolicy_.reset(connSettingsPolicyFactory_->createPolicy(lastRequest_.bli, connectionSettings, portMap,
+    attemptStrategy_.reset(attemptStrategyFactory_->createStrategy(lastRequest_.bli, connectionSettings, portMap,
                                                                        proxySettings, lastRequest_.preferredNodeHostname,
                                                                        isFirewallAlwaysOnPlusEnabled_,
-                                                                       hasUsableCachedWgConfig_));
-    connSettingsPolicy_->start();
-    connect(connSettingsPolicy_.data(), &BaseConnSettingsPolicy::hostnamesResolved, this, &ConnectionManager::onHostnamesResolved);
-    connect(connSettingsPolicy_.data(), &BaseConnSettingsPolicy::protocolStatusChanged, this, &ConnectionManager::protocolStatusChanged);
+                                                                       hasUsableCachedConfig,
+                                                                       platformPolicy_->isLockdownMode()));
+    connect(attemptStrategy_.data(), &IConnectionAttemptStrategy::hostnamesResolved, this, &ConnectionManager::onHostnamesResolved);
+    connect(attemptStrategy_.data(), &IConnectionAttemptStrategy::protocolStatusChanged, this, &ConnectionManager::protocolStatusChanged);
 }
 
 void ConnectionManager::connectOrStartConnectTimer()
 {
-    if (connSettingsPolicy_->hasProtocolChanged()) {
+    if (attemptStrategy_->hasProtocolChanged()) {
         connectTimer_.setSingleShot(true);
         connectTimer_.setInterval(kConnectionWaitTimeMsec);
         connectTimer_.start();
     } else {
-        doConnect();
+        startAttempt();
     }
+}
+
+bool ConnectionManager::isSenderCurrentConnector() const
+{
+    return connector_ != nullptr && static_cast<IConnection *>(sender()) == connector_;
+}
+
+// WaitingForNetwork counts as active: the connectivity poll re-enters startAttempt() without
+// changing state, so a legitimate attempt can progress in that state.
+bool ConnectionManager::isAttemptActive() const
+{
+    return state_ == State::kConnecting || state_ == State::kReconnecting || state_ == State::kWaitingForNetwork;
+}
+
+void ConnectionManager::setState(State state, ReconnectCause cause)
+{
+    // No same-state short-circuit: re-entering Reconnecting is how a wake reconnect converts to a
+    // regular one.
+    state_ = state;
+    reconnectCause_ = cause;
+}
+
+void ConnectionManager::enterStopping()
+{
+    // The connect timeout must not fire during the teardown and convert the pending outcome
+    // into a failover reconnect.
+    connectingTimer_.stop();
+    // A poll tick during the teardown would startAttempt() in kStopping, retiring the connector
+    // whose disconnected() carries the pending outcome and wedging the machine.
+    timerWaitNetworkConnectivity_.stop();
+    timerReconnection_.stop();
+    connectTimer_.stop();
+    setState(State::kStopping);
+}
+
+void ConnectionManager::stopWithDisconnect(DISCONNECT_REASON reason, bool isUserInitiated)
+{
+    pendingOutcome_.type = PendingOutcome::Type::Disconnect;
+    pendingOutcome_.reason = reason;
+    pendingOutcome_.isUserInitiated = isUserInitiated;
+    enterStopping();
+}
+
+void ConnectionManager::stopWithError(ConnectError err)
+{
+    pendingOutcome_.type = PendingOutcome::Type::Error;
+    pendingOutcome_.error = err;
+    pendingOutcome_.isUserInitiated = false;
+    enterStopping();
+}
+
+void ConnectionManager::failWithError(ConnectError err)
+{
+    if (connector_) {
+        connector_->teardown();
+        SAFE_DELETE_LATER(connector_);
+    }
+    disconnect();
+    emit errorDuringConnection(err, currentConnectionDescr_);
 }
 
 void ConnectionManager::disconnect()
@@ -1384,13 +1233,15 @@ void ConnectionManager::disconnect()
     timerReconnection_.stop();
     connectTimer_.stop();
     connectingTimer_.stop();
-    state_ = STATE_DISCONNECTED;
+    // A surviving connectivity poll would redial from kDisconnected once the network returns.
+    timerWaitNetworkConnectivity_.stop();
+    setState(State::kDisconnected);
     emit connectionEnded();
 }
 
 void ConnectionManager::onConnectTrigger()
 {
-    doConnect();
+    startAttempt();
 }
 
 void ConnectionManager::setFirewallAlwaysOnPlusEnabled(bool isEnabled)
@@ -1404,8 +1255,6 @@ void ConnectionManager::onConnectingTimeout()
     // A cached config with stale credentials starts and configures fine but never completes the
     // handshake, so the failure lands here rather than in onConnectionError(). Run the exhaustion
     // check before the reconnect logic below can reset the attempt counter.
-    if (currentConnectionDescr_.protocol.isWireGuardProtocol()) {
-        clearCachedWgConfigIfExhausted(CONNECT_ERROR::WIREGUARD_CONNECTION_ERROR);
-    }
+    clearCachedConfigIfExhausted(true);
     startFailoverReconnect();
 }

@@ -13,6 +13,9 @@ public:
                   const QString &customDns, bool isAntiCensorship, const QString &awgPreset);
     QString config() { return config_; }
 
+    // Shared with the custom-config prepare path so the two DNS-override copies can't drift.
+    static void appendDnsOverride(QString &config, const QString &dnsServer);
+
 private:
     QString config_;
 };

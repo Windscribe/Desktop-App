@@ -147,7 +147,7 @@ private slots:
     void onEngineUpdateDownloaded(const QString &path);
     void onEngineUpdateVersionChanged(uint progressPercent, const UPDATE_VERSION_STATE &state, const UPDATE_VERSION_ERROR &error);
     void onEngineMyIpUpdated(const QString &ip, bool isDisconnected);
-    void onEngineConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, CONNECT_ERROR err, const LocationID &locationId);
+    void onEngineConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, ConnectError err, const LocationID &locationId);
     void onEngineStatisticsUpdated(quint64 bytesIn, quint64 bytesOut, bool isTotalBytes);
     void onEngineProtocolPortChanged(const types::Protocol &protocol, const uint port);
     void onEngineRobertFiltersUpdated(bool success, const QVector<api_responses::RobertFilter> &filters);
@@ -157,7 +157,7 @@ private slots:
 
     void onEngineEmergencyConnected();
     void onEngineEmergencyDisconnected();
-    void onEngineEmergencyConnectError(CONNECT_ERROR err);
+    void onEngineEmergencyConnectError(ConnectError err);
 
     void onEngineTestTunnelResult(bool bSuccess);
     void onEngineLostConnectionToHelper();
@@ -262,7 +262,6 @@ signals:
 
     void splitTunnelingStartFailed(SPLIT_TUNNEL_START_FAIL_REASON reason = SPLIT_TUNNEL_START_FAIL_REASON_DEFAULT);
     void connectionIdChanged(const QString &connId);
-    void localDnsServerNotAvailable();
 
     void bridgeApiAvailabilityChanged(bool isAvailable);
     void ipRotateResult(bool success);

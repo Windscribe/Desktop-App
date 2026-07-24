@@ -12,9 +12,9 @@ class Ikev2ConnectionBase : public IConnection
 public:
     Ikev2ConnectionBase(QObject *parent, types::Protocol protocol, const Ikev2SessionParams &sessionParams);
 
-    void prepare(const CurrentConnectionDescr &descr, const AttemptEnvironment &env) override;
-
 protected:
+    void prepareImpl() override;
+
     QString username() const { return username_; }
     QString password() const { return password_; }
 

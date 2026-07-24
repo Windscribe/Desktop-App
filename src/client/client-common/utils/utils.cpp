@@ -3,9 +3,6 @@
 #include <QDir>
 #include <QRandomGenerator>
 
-#include <thread>
-#include <time.h>
-
 #include "log/categories.h"
 #include "ws_assert.h"
 
@@ -78,58 +75,15 @@ void Utils::getOSVersionAndBuild(QString &osVersion, QString &build)
 #endif
 }
 
-#ifdef Q_OS_WIN
-    __declspec(thread) char _generator_backing_double[sizeof(std::mt19937)];
-    __declspec(thread) std::mt19937* _generator_double;
-    __declspec(thread) char _generator_backing_int[sizeof(std::mt19937)];
-    __declspec(thread) std::mt19937* _generator_int;
-#endif
-
 double Utils::generateDoubleRandom(const double &min, const double &max)
 {
-    double generatedValue;
-    #ifdef Q_OS_WIN
-        std::uniform_real_distribution<> distribution(min, std::nextafter(max, DBL_MAX));
-    #else
-        std::uniform_real_distribution<> distribution(min, std::nextafter( max, std::numeric_limits<double>::max() ));
-    #endif
-
-    #ifdef Q_OS_WIN
-        static __declspec(thread) bool inited = false;
-        if (!inited)
-        {
-            _generator_double = new(_generator_backing_double) std::mt19937(clock() + std::hash<std::thread::id>()(std::this_thread::get_id()));
-            inited = true;
-        }
-        generatedValue = distribution(*_generator_double);
-    #else
-        static thread_local std::mt19937* generator = nullptr;
-        if (!generator) generator = new std::mt19937(clock() + std::hash<std::thread::id>()(std::this_thread::get_id()));
-        generatedValue = distribution(*generator);
-    #endif
-    if (generatedValue < min) generatedValue = min;
-    if (generatedValue > max) generatedValue = max;
-    return generatedValue;
+    return min + QRandomGenerator::global()->generateDouble() * (max - min);
 }
 
 // generate random intereg in [min, max]
 int Utils::generateIntegerRandom(const int &min, const int &max)
 {
-    std::uniform_int_distribution<int> distribution(min, max);
-
-    #ifdef Q_OS_WIN
-        static __declspec(thread) bool inited = false;
-        if (!inited)
-        {
-            _generator_int = new(_generator_backing_int) std::mt19937(clock() + std::hash<std::thread::id>()(std::this_thread::get_id()));
-            inited = true;
-        }
-        return distribution(*_generator_int);
-    #else
-        static thread_local std::mt19937* generator = nullptr;
-        if (!generator) generator = new std::mt19937(clock() + std::hash<std::thread::id>()(std::this_thread::get_id()));
-        return distribution(*generator);
-    #endif
+    return QRandomGenerator::global()->bounded(min, max + 1);
 }
 
 QString Utils::generateSecureCredential(int length)

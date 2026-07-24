@@ -17,6 +17,7 @@ set(SOURCES
     ../common/spawn_posix.h
     ../common/validation_posix.cpp
     ../common/validation_posix.h
+    ../common/wg_handshake_tracker.h
     3rdparty/pstream.h
     clear_wifi_history/clear_wifi_history.mm
     files_manager.cpp

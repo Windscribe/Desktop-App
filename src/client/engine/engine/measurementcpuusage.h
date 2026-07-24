@@ -21,7 +21,7 @@ signals:
     void detectionCpuUsageAfterConnected(QStringList processesList);
 
 private slots:
-    void onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, CONNECT_ERROR err, const LocationID &location);
+    void onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, ConnectError err, const LocationID &location);
     void onTimer();
 
 private:

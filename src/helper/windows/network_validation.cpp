@@ -12,8 +12,19 @@
 namespace NetworkValidation
 {
 
+// InetPtonW/DnsValidateName_W/IIDFromString all read the c_str() and stop at the first NUL, so an
+// embedded NUL would let a valid prefix validate while the trailing bytes survive in the wstring.
+// Reject any NUL first so validation sees the whole value.
+static bool hasEmbeddedNul(const std::wstring &s)
+{
+    return s.find(L'\0') != std::wstring::npos;
+}
+
 bool isValidIpAddress(const std::wstring &ip)
 {
+    if (hasEmbeddedNul(ip)) {
+        return false;
+    }
     IN_ADDR  addr4;
     IN6_ADDR addr6;
     return InetPtonW(AF_INET,  ip.c_str(), &addr4) == 1
@@ -22,6 +33,9 @@ bool isValidIpAddress(const std::wstring &ip)
 
 bool isValidIpOrCidr(const std::wstring &value)
 {
+    if (hasEmbeddedNul(value)) {
+        return false;
+    }
     const size_t slash = value.find(L'/');
     const std::wstring ipPart = (slash == std::wstring::npos) ? value : value.substr(0, slash);
     if (ipPart.empty()) {
@@ -56,6 +70,9 @@ bool isValidIpOrCidr(const std::wstring &value)
 
 bool isValidHostname(const std::wstring &hostname)
 {
+    if (hasEmbeddedNul(hostname)) {
+        return false;
+    }
     return DnsValidateName_W(hostname.c_str(), DnsNameHostnameFull) == ERROR_SUCCESS;
 }
 
@@ -101,6 +118,9 @@ bool isValidPortList(const std::wstring &ports)
 
 bool isValidGuid(const std::wstring &guid)
 {
+    if (hasEmbeddedNul(guid)) {
+        return false;
+    }
     GUID parsed;
     return ::IIDFromString(guid.c_str(), &parsed) == S_OK;
 }

@@ -10,13 +10,29 @@ ConnectionPlatformPolicy::ConnectionPlatformPolicy(Helper *helper) : helper_(hel
 {
 }
 
-bool ConnectionPlatformPolicy::isLockdownBlockingIkev2() const
+bool ConnectionPlatformPolicy::isLockdownMode() const
 {
 #ifdef Q_OS_MACOS
-    return MacUtils::isLockdownMode();
+    // Toggling Lockdown Mode either direction requires a Mac restart, so the value is immutable for
+    // the process lifetime; cache it — the OS read forks a blocking `defaults read`.
+    if (!cachedLockdownMode_.has_value()) {
+        cachedLockdownMode_ = MacUtils::isLockdownMode();
+    }
+    return *cachedLockdownMode_;
 #else
     return false;
 #endif
+}
+
+bool ConnectionPlatformPolicy::needsSleepEventAwareDisconnect() const
+{
+    // Ignoring special sleep event handling on non-Windows for now until we have evidence it is required.
+    return platformNeedsSleepEventAwareDisconnect();
+}
+
+bool ConnectionPlatformPolicy::shouldReconnectOnOnlineStateChange() const
+{
+    return platformReconnectsOnOnlineStateChange();
 }
 
 void ConnectionPlatformPolicy::disableDohIfNeeded()

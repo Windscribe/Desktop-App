@@ -86,21 +86,26 @@ QString connectStateString(types::ConnectState state, LocationID location, TUNNE
         }
 
         switch(state.connectError) {
-        case NO_CONNECT_ERROR:
+        case ConnectError::kNoError:
             return msg.arg(QObject::tr("Disconnected"));
-        case LOCATION_NOT_EXIST:
-        case LOCATION_NO_ACTIVE_NODES:
+        case ConnectError::kLocationUnavailable:
             return msg.arg(QObject::tr("Error: Location does not exist or is disabled"));
-        case CONNECTION_BLOCKED:
+        case ConnectError::kAccountBlocked:
             return msg.arg(QObject::tr("Error: You are out of data, or your account has been disabled. Upgrade to Pro to continue using Windscribe"));
-        case CTRLD_START_FAILED:
+        case ConnectError::kDnsServiceStartFailure:
             return msg.arg(QObject::tr("Error: Unable to start custom DNS service"));
-        case WIREGUARD_ADAPTER_SETUP_FAILED:
+        case ConnectError::kAdapterSetupFailure:
             return msg.arg(QObject::tr("Error: WireGuard adapter setup failed"));
-        case WIREGUARD_COULD_NOT_RETRIEVE_CONFIG:
+        case ConnectError::kAdapterNotInstalled:
+            return msg.arg(QObject::tr("Error: VPN adapter setup failed"));
+        case ConnectError::kConfigFetchFailure:
             return msg.arg(QObject::tr("Error: Could not retrieve WireGuard configuration"));
+        case ConnectError::kLocalConfigGenerationFailure:
+            return msg.arg(QObject::tr("Error: Could not generate connection configuration"));
+        case ConnectError::kLocalDnsServerNotAvailable:
+            return msg.arg(QObject::tr("Error: Local DNS server is not available. Connected DNS has been set back to Auto"));
         default:
-            return msg.arg(QObject::tr("Error: %1").arg(state.connectError));
+            return msg.arg(QObject::tr("Error: %1").arg(static_cast<int>(state.connectError)));
         }
     default:
         return msg.arg(QObject::tr("Unknown state"));

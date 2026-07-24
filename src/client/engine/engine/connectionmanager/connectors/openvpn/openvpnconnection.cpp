@@ -2,12 +2,11 @@
 
 #include <chrono>
 
-#include "engine/connectionmanager/iextraconfigaccessor.h"
 #include "makeovpnfile.h"
-#include "makeovpnfilefromcustom.h"
 #include "types/enums.h"
 #include "types/global_consts.h"
 #include "utils/crashhandler.h"
+#include "utils/extraconfig.h"
 #include "utils/log/categories.h"
 #include "utils/networkingvalidation.h"
 #include "utils/openvpnversioncontroller.h"
@@ -15,14 +14,12 @@
 #include "utils/ws_assert.h"
 
 #ifdef Q_OS_WIN
-    #include "engine/connectionmanager/adapterutils_win.h"
-    #include "utils/extraconfig.h"
+    #include "engine/adapterutils_win.h"
     #include "utils/winutils.h"
 #elif defined (Q_OS_LINUX)
     #include <sys/socket.h>
     #include "engine/helper/helper_posix.h"
     #include "engine/helper/helper_linux.h"
-    #include "utils/extraconfig.h"
 #elif defined (Q_OS_MACOS)
     #include <sys/types.h>
     #include <unistd.h>
@@ -33,7 +30,7 @@
 OpenVPNConnection::OpenVPNConnection(QObject *parent, Helper *helper, types::Protocol protocol, const OpenVpnSessionParams &sessionParams) :
     IConnection(parent, protocol), helper_(helper), sessionParams_(sessionParams),
     bStopThread_(false), connectRetryTimer_(io_context_), currentState_(STATUS_DISCONNECTED),
-    isAllowFirewallAfterCustomConfigConnection_(false), privKeyPassword_("")
+    isRedirectGatewayObserved_(false), privKeyPassword_("")
 {
     capabilities_ = openVpnConnectorCapabilities();
 
@@ -54,47 +51,40 @@ OpenVPNConnection::~OpenVPNConnection()
     wstunnelManager_->killProcess();
 }
 
-void OpenVPNConnection::prepare(const CurrentConnectionDescr &descr, const AttemptEnvironment &env)
+void OpenVPNConnection::prepareImpl()
 {
-    descr_ = descr;
-    env_ = env;
-    protocol_ = descr.protocol;
-
-    if (descr.connectionNodeType == CONNECTION_NODE_CUSTOM_CONFIG) {
+    if (descr_.connectionNodeType == CONNECTION_NODE_CUSTOM_CONFIG) {
         isCustomConfig_ = true;
         // Credentials for custom configs arrive through the user-input path when OpenVPN asks for them.
         username_.clear();
         password_.clear();
 
-        MakeOVPNFileFromCustom makeOVPNFile;
-        if (!makeOVPNFile.generate(descr.ovpnData, descr.ip, descr.remoteCmdLine, env.primaryDnsServer)) {
-            qCCritical(LOG_CONNECTION) << "Failed create ovpn config for custom ovpn file:" << descr.customConfigFilename;
-            emit prepareFailed(CONNECT_ERROR::CANNOT_OPEN_CUSTOM_CONFIG);
-            return;
+        config_ = descr_.openVpn.customConfig;
+        if (!env_.primaryDnsServer.isEmpty()) {
+            MakeOVPNFile::appendDnsOverride(config_, env_.primaryDnsServer);
         }
-        config_ = makeOVPNFile.config();
         emit prepared();
         return;
     }
 
     isCustomConfig_ = false;
-    if (descr.connectionNodeType == CONNECTION_NODE_STATIC_IPS) {
-        username_ = descr.username;
-        password_ = descr.password;
+    if (descr_.connectionNodeType == CONNECTION_NODE_STATIC_IPS) {
+        username_ = descr_.staticIps.credentials.username();
+        password_ = descr_.staticIps.credentials.password();
     } else {
         username_ = sessionParams_.serverCredentials.username();
         password_ = sessionParams_.serverCredentials.password();
     }
 
     int mss = 0;
-    if (!env.packetSize.isAutomatic) {
+    if (!env_.packetSize.isAutomatic) {
         bool advParamsOpenVpnExists = false;
-        int openVpnOffset = env.extraConfig->mtuOffsetOpenVpn(advParamsOpenVpnExists);
+        int openVpnOffset = ExtraConfig::instance().getMtuOffsetOpenVpn(advParamsOpenVpnExists);
         if (!advParamsOpenVpnExists) {
             openVpnOffset = MTU_OFFSET_OPENVPN;
         }
 
-        mss = env.packetSize.mtu - openVpnOffset;
+        mss = env_.packetSize.mtu - openVpnOffset;
 
         if (mss <= 0) {
             mss = 0;
@@ -107,8 +97,8 @@ void OpenVPNConnection::prepare(const CurrentConnectionDescr &descr, const Attem
     }
 
     uint localPort = 0;
-    if (descr.protocol.isStunnelOrWStunnelProtocol()) {
-        if (descr.protocol == types::Protocol::STUNNEL) {
+    if (descr_.protocol.isStunnelOrWStunnelProtocol()) {
+        if (descr_.protocol == types::Protocol::STUNNEL) {
             localPort = stunnelManager_->getPort();
         } else {
             localPort = wstunnelManager_->getPort();
@@ -117,28 +107,28 @@ void OpenVPNConnection::prepare(const CurrentConnectionDescr &descr, const Attem
 
     MakeOVPNFile makeOVPNFile;
     const bool bOvpnSuccess = makeOVPNFile.generate(
-        sessionParams_.ovpnConfig, descr.ip, descr.protocol, descr.port, localPort, mss,
-        QString::fromStdString(env.defaultAdapterInfo.gatewayV4().toString()), descr.verifyX509name,
-        env.primaryDnsServer, !sessionParams_.amneziawgPreset.isEmpty() || sessionParams_.isAntiCensorship,
+        sessionParams_.ovpnConfig, descr_.ip, descr_.protocol, descr_.port, localPort, mss,
+        QString::fromStdString(env_.defaultAdapterInfo.gatewayV4().toString()), descr_.verifyX509name,
+        env_.primaryDnsServer, !sessionParams_.amneziawgPreset.isEmpty() || sessionParams_.isAntiCensorship,
         sessionParams_.amneziawgPreset);
     if (!bOvpnSuccess) {
         qCCritical(LOG_CONNECTION) << "Failed create ovpn config";
-        emit prepareFailed(CONNECT_ERROR::EXE_SUBPROCESS_FAILED);
+        emit prepareFailed(ConnectError::kLocalProcessLaunchFailure);
         return;
     }
     config_ = makeOVPNFile.config();
 
-    if (descr.protocol == types::Protocol::STUNNEL) {
-        if (!stunnelManager_->runProcess(descr.ip, descr.port,
-                                         env.extraConfig->stealthExtraTLSPadding() || !sessionParams_.amneziawgPreset.isEmpty(),
+    if (descr_.protocol == types::Protocol::STUNNEL) {
+        if (!stunnelManager_->runProcess(descr_.ip, descr_.port,
+                                         ExtraConfig::instance().getStealthExtraTLSPadding() || !sessionParams_.amneziawgPreset.isEmpty(),
                                          sessionParams_.customSni)) {
-            emit prepareFailed(CONNECT_ERROR::EXE_SUBPROCESS_FAILED);
+            emit prepareFailed(ConnectError::kLocalProcessLaunchFailure);
         }
         // prepared() is emitted from onWrapperStarted once the wrapper is up.
         return;
-    } else if (descr.protocol == types::Protocol::WSTUNNEL) {
-        if (!wstunnelManager_->runProcess(descr.ip, descr.port, sessionParams_.customSni)) {
-            emit prepareFailed(CONNECT_ERROR::EXE_SUBPROCESS_FAILED);
+    } else if (descr_.protocol == types::Protocol::WSTUNNEL) {
+        if (!wstunnelManager_->runProcess(descr_.ip, descr_.port, sessionParams_.customSni)) {
+            emit prepareFailed(ConnectError::kLocalProcessLaunchFailure);
         }
         return;
     }
@@ -175,7 +165,7 @@ void OpenVPNConnection::startConnect()
 
     setCurrentState(STATUS_CONNECTING);
     // The connection state (config, credentials, proxy) was populated by prepare().
-    isAllowFirewallAfterCustomConfigConnection_ = false;
+    isRedirectGatewayObserved_ = false;
     isDialed_ = true;
 
     stateVariables_.reset();
@@ -206,9 +196,9 @@ bool OpenVPNConnection::isDisconnected() const
     return getCurrentState() == STATUS_DISCONNECTED;
 }
 
-bool OpenVPNConnection::isAllowFirewallAfterCustomConfigConnection() const
+bool OpenVPNConnection::isAllowFirewallAfterConnectionRuntime() const
 {
-    return isAllowFirewallAfterCustomConfigConnection_;
+    return isRedirectGatewayObserved_;
 }
 
 void OpenVPNConnection::continueWithUserInput(const UserInputResponse &response)
@@ -256,7 +246,7 @@ void OpenVPNConnection::setCurrentStateAndEmitDisconnected(OpenVPNConnection::CO
     }
 }
 
-void OpenVPNConnection::setCurrentStateAndEmitError(OpenVPNConnection::CONNECTION_STATUS state, CONNECT_ERROR err)
+void OpenVPNConnection::setCurrentStateAndEmitError(OpenVPNConnection::CONNECTION_STATUS state, ConnectError err)
 {
     currentState_ = state;
     emit error(err);
@@ -364,7 +354,7 @@ void OpenVPNConnection::funcRunOpenVPN()
         if (retries >= 2)
         {
             qCCritical(LOG_CONNECTION) << "Can't run openvpn process";
-            setCurrentStateAndEmitError(STATUS_DISCONNECTED, CONNECT_ERROR::EXE_SUBPROCESS_FAILED);
+            setCurrentStateAndEmitError(STATUS_DISCONNECTED, ConnectError::kLocalProcessLaunchFailure);
             return;
         }
         if (bStopThread_)
@@ -453,7 +443,7 @@ void OpenVPNConnection::funcConnectToOpenVPN(const boost::system::error_code& er
             QTimer::singleShot(0, &killControllerTimer_, SLOT(stop()));
             stateVariables_.socket.reset();
             helper_->executeTaskKill(kTargetOpenVpn);
-            setCurrentStateAndEmitError(STATUS_DISCONNECTED, CONNECT_ERROR::NO_OPENVPN_SOCKET);
+            setCurrentStateAndEmitError(STATUS_DISCONNECTED, ConnectError::kLocalProcessNotResponding);
             return;
         }
 #endif
@@ -478,7 +468,7 @@ void OpenVPNConnection::funcConnectToOpenVPN(const boost::system::error_code& er
         {
             qCCritical(LOG_CONNECTION) << "Can't connect to openvpn socket during"
                                     << (MAX_WAIT_OPENVPN_ON_START/1000) << "secs";
-            setCurrentStateAndEmitError(STATUS_DISCONNECTED, CONNECT_ERROR::NO_OPENVPN_SOCKET);
+            setCurrentStateAndEmitError(STATUS_DISCONNECTED, ConnectError::kLocalProcessNotResponding);
             return;
         }
 
@@ -614,7 +604,7 @@ void OpenVPNConnection::handleRead(const boost::system::error_code &err, size_t 
         }
         else if (serverReply.contains("FATAL:Error: private key password verification failed", Qt::CaseInsensitive))
         {
-            emit error(CONNECT_ERROR::PRIV_KEY_PASSWORD_ERROR);
+            emit error(ConnectError::kPrivKeyPasswordFailure);
             if (!stateVariables_.bSigTermSent)
             {
                 boost::asio::write(*stateVariables_.socket, boost::asio::buffer("signal SIGTERM\n"), boost::asio::transfer_all(), write_error);
@@ -625,7 +615,7 @@ void OpenVPNConnection::handleRead(const boost::system::error_code &err, size_t 
         {
             if (!stateVariables_.bTapErrorEmited)
             {
-                emit error(CONNECT_ERROR::NO_INSTALLED_TUN_TAP);
+                emit error(ConnectError::kAdapterNotInstalled);
                 stateVariables_.bTapErrorEmited = true;
                 if (!stateVariables_.bSigTermSent)
                 {
@@ -698,7 +688,7 @@ void OpenVPNConnection::handleRead(const boost::system::error_code &err, size_t 
             else if (serverReply.contains("CONNECTED,ERROR", Qt::CaseInsensitive))
             {
                 setCurrentState(STATUS_CONNECTED);
-                emit error(CONNECT_ERROR::CONNECTED_ERROR);
+                emit error(ConnectError::kTransientTunnelFailure);
             }
             else if (serverReply.contains("RECONNECTING", Qt::CaseInsensitive))
             {
@@ -713,27 +703,27 @@ void OpenVPNConnection::handleRead(const boost::system::error_code &err, size_t 
             bool bContainsUDPWord = serverReply.contains("UDP", Qt::CaseInsensitive);
             if (bContainsUDPWord && serverReply.contains("No buffer space available (WSAENOBUFS) (code=10055)", Qt::CaseInsensitive))
             {
-                emit error(CONNECT_ERROR::UDP_CANT_ASSIGN);
+                emit error(ConnectError::kTransientTunnelFailure);
             }
             else if (bContainsUDPWord && serverReply.contains("No Route to Host (WSAEHOSTUNREACH) (code=10065)", Qt::CaseInsensitive))
             {
-                emit error(CONNECT_ERROR::UDP_CANT_ASSIGN);
+                emit error(ConnectError::kTransientTunnelFailure);
             }
             else if (bContainsUDPWord && serverReply.contains("Can't assign requested address (code=49)", Qt::CaseInsensitive))
             {
-                emit error(CONNECT_ERROR::UDP_CANT_ASSIGN);
+                emit error(ConnectError::kTransientTunnelFailure);
             }
             else if (bContainsUDPWord && serverReply.contains("No buffer space available (code=55)", Qt::CaseInsensitive))
             {
-                emit error(CONNECT_ERROR::UDP_NO_BUFFER_SPACE);
+                emit error(ConnectError::kTransientTunnelFailure);
             }
             else if (bContainsUDPWord && serverReply.contains("Network is down (code=50)", Qt::CaseInsensitive))
             {
-                emit error(CONNECT_ERROR::UDP_NETWORK_DOWN);
+                emit error(ConnectError::kTransientTunnelFailure);
             }
             else if (serverReply.contains("TCP:", Qt::CaseInsensitive) && serverReply.contains("failed", Qt::CaseInsensitive))
             {
-                emit error(CONNECT_ERROR::TCP_ERROR);
+                emit error(ConnectError::kTransientTunnelFailure);
             }
             else if (serverReply.contains("connect to [AF_INET]127.0.0.1", Qt::CaseInsensitive) &&
                      serverReply.contains("Connection refused", Qt::CaseInsensitive))
@@ -747,7 +737,7 @@ void OpenVPNConnection::handleRead(const boost::system::error_code &err, size_t 
             }
             else if (serverReply.contains("Initialization Sequence Completed With Errors", Qt::CaseInsensitive))
             {
-                emit error(CONNECT_ERROR::INITIALIZATION_SEQUENCE_COMPLETED_WITH_ERRORS);
+                emit error(ConnectError::kTransientTunnelFailure);
             }
 #if defined (Q_OS_MACOS)
             else if (serverReply.contains("Opened") && serverReply.contains("device"))
@@ -774,8 +764,8 @@ void OpenVPNConnection::handleRead(const boost::system::error_code &err, size_t 
                 if (isRedirectDefaultGateway)
                 {
                     // We are going to set up the default gateway, so firewall is allowed after
-                    // we have connected (unless the current custom config explicitly forbits this).
-                    isAllowFirewallAfterCustomConfigConnection_ = true;
+                    // we have connected (the config-file directive is applied Engine-side).
+                    isRedirectGatewayObserved_ = true;
                 }
             } else if (serverReply.contains("write UDP: Unknown error (code=10065)") || serverReply.contains("write UDP: Unknown error (code=10054)")) {
                 // These errors indicate socket was closed or otherwise unavailable for writing.
@@ -836,7 +826,7 @@ void OpenVPNConnection::checkErrorAndContinue(boost::system::error_code &write_e
 
 void OpenVPNConnection::emitAuthErrorAndSigTerm(boost::system::error_code &write_error)
 {
-    emit error(CONNECT_ERROR::AUTH_ERROR);
+    emit error(ConnectError::kAuthFailure);
     if (!stateVariables_.bSigTermSent)
     {
         boost::asio::write(*stateVariables_.socket, boost::asio::buffer("signal SIGTERM\n"), boost::asio::transfer_all(), write_error);

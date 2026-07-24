@@ -814,6 +814,14 @@ If the problem persists after a restart, please send a debug log and open a supp
 Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gửi nhật ký gỡ lỗi và mở vé hỗ trợ, sau đó chuyển sang chế độ kết nối khác.</translation>
     </message>
     <message>
+        <source>VPN adapter setup failed. Please wait one minute and try the connection again. If the problem persists, please send a debug log and open a support ticket, then switch to a different connection mode.</source>
+        <translation>Thiết lập bộ điều hợp VPN không thành công. Vui lòng đợi một phút và thử kết nối lại. Nếu sự cố vẫn tiếp diễn, vui lòng gửi nhật ký gỡ lỗi và mở phiếu hỗ trợ, sau đó chuyển sang chế độ kết nối khác.</translation>
+    </message>
+    <message>
+        <source>Windscribe could not generate the connection configuration. If this error persists, please send a debug log and open a support ticket.</source>
+        <translation>Windscribe không thể tạo cấu hình kết nối. Nếu lỗi này vẫn tiếp diễn, vui lòng gửi nhật ký gỡ lỗi và mở phiếu hỗ trợ.</translation>
+    </message>
+    <message>
         <source>An unexpected error occurred establishing the VPN connection (Error %1).  If this error persists, try using a different protocol or contact support.</source>
         <translation>Đã xảy ra lỗi không mong muốn khi thiết lập kết nối VPN (Lỗi %1).  Nếu lỗi này vẫn tiếp diễn, hãy thử sử dụng một giao thức khác hoặc liên hệ với bộ phận hỗ trợ.</translation>
     </message>

@@ -368,8 +368,10 @@ std::string startCtrld(const std::string &pars)
 
     spdlog::debug("Starting ctrld");
 
-    // Validate URLs
-    if (upstream1.empty() || Validation::normalizeAddress(upstream1).empty() || (!upstream2.empty() && Validation::normalizeAddress(upstream2).empty())) {
+    // Validate URLs, then pass the normalized (canonical) form to ctrld rather than the raw input.
+    const std::string normUpstream1 = Validation::normalizeAddress(upstream1);
+    const std::string normUpstream2 = Validation::normalizeAddress(upstream2);
+    if (normUpstream1.empty() || (!upstream2.empty() && normUpstream2.empty())) {
         spdlog::error("Invalid upstream URL(s)");
         return serializeResult(false);
     }
@@ -386,9 +388,9 @@ std::string startCtrld(const std::string &pars)
     }
 
     std::vector<std::string> args = {"run", "--daemon", "--listen=127.0.0.1:53",
-                                     "--primary_upstream=" + upstream1};
+                                     "--primary_upstream=" + normUpstream1};
     if (!upstream2.empty()) {
-        args.push_back("--secondary_upstream=" + upstream2);
+        args.push_back("--secondary_upstream=" + normUpstream2);
         if (!domains.empty()) {
             std::string domainsStr;
             for (size_t i = 0; i < domains.size(); ++i) {

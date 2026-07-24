@@ -1,4 +1,6 @@
 target_sources(engine PRIVATE
+    adaptergatewayinfo.cpp
+    adaptergatewayinfo.h
     crossplatformobjectfactory.cpp
     crossplatformobjectfactory.h
     engine.cpp
@@ -7,12 +9,16 @@ target_sources(engine PRIVATE
     getdeviceid.h
     packetsizecontroller.cpp
     packetsizecontroller.h
+    testvpntunnel.cpp
+    testvpntunnel.h
 )
 
 if (WIN32)
     target_sources(engine PRIVATE
         adaptermetricscontroller_win.cpp
         adaptermetricscontroller_win.h
+        adapterutils_win.cpp
+        adapterutils_win.h
         dnsinfo_win.cpp
         dnsinfo_win.h
         measurementcpuusage.cpp

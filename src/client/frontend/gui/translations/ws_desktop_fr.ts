@@ -642,6 +642,14 @@ Si vous perdez le hachage de votre compte, il disparaît à jamais et le support
         <translation>La configuration personnalisée n’a pas pu être chargée.  Veuillez vérifier qu’il est correct ou contacter le support.</translation>
     </message>
     <message>
+        <source>VPN adapter setup failed. Please wait one minute and try the connection again. If the problem persists, please send a debug log and open a support ticket, then switch to a different connection mode.</source>
+        <translation>Installation de l’adaptateur VPN échouée. Veuillez patienter une minute et réessayer la connexion. Si le problème persiste, veuillez envoyer un journal de débogage et ouvrir un ticket de support, puis passer à un autre mode connexion.</translation>
+    </message>
+    <message>
+        <source>Windscribe could not generate the connection configuration. If this error persists, please send a debug log and open a support ticket.</source>
+        <translation>Windscribe n’a pas pu générer la configuration de connexion. Si cette erreur persiste, veuillez envoyer un journal de débogage et ouvrir un ticket de support.</translation>
+    </message>
+    <message>
         <source>An unexpected error occurred establishing the VPN connection (Error %1).  If this error persists, try using a different protocol or contact support.</source>
         <translation>Une erreur inattendue s’est produite lors de l’établissement de la connexion VPN (erreur %1).  Si cette erreur persiste, essayez d’utiliser un autre protocole ou contactez le support technique.</translation>
     </message>

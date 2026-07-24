@@ -7,6 +7,10 @@
 #include "engine/customconfigs/icustomconfig.h"
 #include "engine/wireguardconfig/wireguardconfig.h"
 
+#ifdef WINDSCRIBE_BUILD_TESTS
+class TestCustomConfigLocationInfo;
+#endif
+
 namespace locationsmodel {
 
 // describe consig location
@@ -25,10 +29,11 @@ public:
 
     // ovpn-specific
     QString getSelectedIp() const;
-    QString getSelectedRemoteCommand() const;
     uint getSelectedPort() const;
     QString getSelectedProtocol() const;
-    QString getOvpnData() const;
+    // The finished .ovpn text for the selected endpoint: config body plus the selected remote
+    // line with the resolved IP substituted.
+    QString getOvpnConfigForSelectedEndpoint() const;
     QString getFilename() const;
     CUSTOM_CONFIG_TYPE configType() const { return config_->type(); }
     QSharedPointer<WireGuardConfig> getWireguardCustomConfig(const QString &endpointIp) const;
@@ -43,6 +48,12 @@ private slots:
     void onDnsRequestFinished(const std::string &hostname, std::shared_ptr<wsnet::WSNetDnsRequestResult> result);
 
 private:
+#ifdef WINDSCRIBE_BUILD_TESTS
+    // Tests seed remotes_ directly for the resolved-hostname case; real resolution goes through
+    // wsnet DNS.
+    friend class ::TestCustomConfigLocationInfo;
+#endif
+
     struct RemoteDescr
     {
         QString ipOrHostname_;
@@ -57,6 +68,8 @@ private:
 
     void resolveHostnamesForWireGuardConfig();
     void resolveHostnamesForOVPNConfig();
+    QString getSelectedRemoteCommand() const;
+    QString getOvpnData() const;
 
     QSharedPointer<const customconfigs::ICustomConfig> config_;
     QVector<RemoteDescr> remotes_;

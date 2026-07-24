@@ -3,7 +3,6 @@
 #include <copyfile.h>
 #include <fcntl.h>
 #include <filesystem>
-#include <grp.h>
 #include <stdint.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -312,8 +311,10 @@ std::string startCtrld(const std::string &pars)
     bool isCreateLog;
     deserializePars(pars, upstream1, upstream2, domains, isCreateLog);
 
-    // Validate URLs
-    if (upstream1.empty() || Validation::normalizeAddress(upstream1).empty() || (!upstream2.empty() && Validation::normalizeAddress(upstream2).empty())) {
+    // Validate URLs, then pass the normalized (canonical) form to ctrld rather than the raw input.
+    const std::string normUpstream1 = Validation::normalizeAddress(upstream1);
+    const std::string normUpstream2 = Validation::normalizeAddress(upstream2);
+    if (normUpstream1.empty() || (!upstream2.empty() && normUpstream2.empty())) {
         spdlog::error("Invalid upstream URL(s)");
         return serializeResult(false);
     }
@@ -336,9 +337,9 @@ std::string startCtrld(const std::string &pars)
     }
 
     std::vector<std::string> args = {"run", "--daemon", "--listen=127.0.0.1:53",
-                                     "--primary_upstream=" + upstream1};
+                                     "--primary_upstream=" + normUpstream1};
     if (!upstream2.empty()) {
-        args.push_back("--secondary_upstream=" + upstream2);
+        args.push_back("--secondary_upstream=" + normUpstream2);
         if (!domains.empty()) {
             std::string domainsStr;
             for (size_t i = 0; i < domains.size(); ++i) {
@@ -764,30 +765,20 @@ std::string executeFilesStep(const std::string &pars)
 
 std::string createCliSymlink(const std::string &pars)
 {
-    uid_t uid;
-    deserializePars(pars, uid);
-
     std::error_code err;
     if (!std::filesystem::is_directory("/usr/local/bin", err)) {
         spdlog::debug("Creating CLI symlink dir");
 
+        // Keep root:wheel ownership (0755); handing this shared PATH dir to a caller-supplied uid would let that user plant binaries.
+        // A pre-existing dir is left as-is, even if an older Windscribe chowned it to the user: that state is indistinguishable
+        // from a legitimately user-owned Homebrew /usr/local/bin, and re-chowning would break those installs.
         if (!std::filesystem::create_directory("/usr/local/bin", err)) {
             spdlog::error("Failed to create CLI directory: {}", err.message());
             return serializeResult(false);
         }
-        const struct group *grp = getgrnam("admin");
-        if (grp == nullptr) {
-            spdlog::error("Could not get group info");
-            return serializeResult(false);
-        }
-        int rc = chown("/usr/local/bin", uid, grp->gr_gid);
-        if (rc != 0) {
-            spdlog::error("Failed to set owner: {}", IO::strerror(errno));
-            return serializeResult(false);
-        }
         std::filesystem::permissions("/usr/local/bin",
                                      std::filesystem::perms::owner_all |
-                                         std::filesystem::perms::group_all |
+                                         std::filesystem::perms::group_read | std::filesystem::perms::group_exec |
                                          std::filesystem::perms::others_read | std::filesystem::perms::others_exec,
                                      err);
         if (err) {

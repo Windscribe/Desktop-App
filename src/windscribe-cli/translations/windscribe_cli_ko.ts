@@ -179,12 +179,16 @@
         <translation>오류: 사용자 지정 DNS 서비스를 시작할 수 없습니다.</translation>
     </message>
     <message>
-        <source>Error: WireGuard adapter setup failed</source>
-        <translation>오류: WireGuard 어댑터 설정에 실패했습니다.</translation>
-    </message>
-    <message>
         <source>Error: Could not retrieve WireGuard configuration</source>
         <translation>오류: WireGuard 구성을 가져올 수 없습니다.</translation>
+    </message>
+    <message>
+        <source>Error: Could not generate connection configuration</source>
+        <translation>오류: 연결 설정을 생성할 수 없음</translation>
+    </message>
+    <message>
+        <source>Error: Local DNS server is not available. Connected DNS has been set back to Auto</source>
+        <translation>오류: 로컬 DNS 서버가 사용 불가입니다. 연결된 DNS가 다시 자동 모드로 설정되었습니다</translation>
     </message>
     <message>
         <source>Unknown state</source>
@@ -301,6 +305,14 @@
     <message>
         <source>Incorrect 2FA code</source>
         <translation>2FA 코드가 잘못되었습니다</translation>
+    </message>
+    <message>
+        <source>Error: WireGuard adapter setup failed</source>
+        <translation>오류: WireGuard 어댑터 설정 실패</translation>
+    </message>
+    <message>
+        <source>Error: VPN adapter setup failed</source>
+        <translation>오류: VPN 어댑터 설정 실패</translation>
     </message>
     <message>
         <source>(Device name: %1)</source>

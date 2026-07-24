@@ -642,6 +642,14 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
         <translation>कस्टम कॉन्फ़िगरेशन लोड नहीं किया जा सका.  कृपया जांचें कि यह सही है या समर्थन से संपर्क करें।</translation>
     </message>
     <message>
+        <source>VPN adapter setup failed. Please wait one minute and try the connection again. If the problem persists, please send a debug log and open a support ticket, then switch to a different connection mode.</source>
+        <translation>VPN एडाप्टर सेटअप विफल रहा। कृपया एक मिनट प्रतीक्षा करें और कनेक्शन का पुन: प्रयास करें। यदि समस्या बनी रहती है, तो कृपया एक डीबग लॉग भेजें और एक समर्थन टिकट खोलें, फिर एक अलग कनेक्शन मोड पर स्विच करें।</translation>
+    </message>
+    <message>
+        <source>Windscribe could not generate the connection configuration. If this error persists, please send a debug log and open a support ticket.</source>
+        <translation>Windscribe कनेक्शन कॉन्फ़िगरेशन जनरेट नहीं कर सका। यदि यह त्रुटि बनी रहती है, तो कृपया एक डीबग लॉग भेजें और एक समर्थन टिकट खोलें।</translation>
+    </message>
+    <message>
         <source>An unexpected error occurred establishing the VPN connection (Error %1).  If this error persists, try using a different protocol or contact support.</source>
         <translation>VPN कनेक्शन स्थापित करने में कोई अनपेक्षित त्रुटि आई (त्रुटि %1).  यदि यह त्रुटि बनी रहती है, तो किसी भिन्न प्रोटोकॉल या संपर्क समर्थन का उपयोग करने का प्रयास करें.</translation>
     </message>

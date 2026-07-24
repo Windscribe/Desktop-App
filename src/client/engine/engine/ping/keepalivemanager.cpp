@@ -22,7 +22,7 @@ void KeepAliveManager::setEnabled(bool isEnabled)
         timer_.stop();
 }
 
-void KeepAliveManager::onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, CONNECT_ERROR err, const LocationID &location)
+void KeepAliveManager::onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, ConnectError err, const LocationID &location)
 {
     Q_UNUSED(reason);
     Q_UNUSED(err);
