@@ -702,6 +702,14 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
         <translation>Ο επιλεγμένος κατάλογος είναι εγγράψιμος για άλλους χρήστες. Οι προσαρμοσμένες ρυθμίσεις παραμέτρων σε αυτόν τον κατάλογο ενδέχεται να αποτελούν πιθανό κίνδυνο για την ασφάλεια.</translation>
     </message>
     <message>
+        <source>Installation Incomplete</source>
+        <translation>Η εγκατάσταση δεν ολοκληρώθηκε</translation>
+    </message>
+    <message>
+        <source>Part of the Windscribe installation is missing.  Please download Windscribe and install it again.</source>
+        <translation>Λείπει μέρος της εγκατάστασης του Windscrib.  Κατεβάστε το Windscrib και εγκαταστήστε το ξανά.</translation>
+    </message>
+    <message>
         <source>Proxy Gateway is unauthenticated</source>
         <translation>Η πύλη διακομιστή μεσολάβησης δεν έχει υποβληθεί σε έλεγχο ταυτότητας</translation>
     </message>

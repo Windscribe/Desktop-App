@@ -650,6 +650,14 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
         <translation>دایرکتوری انتخاب شده برای سایر کاربران قابل نوشتن است. پیکربندی های سفارشی در این دایرکتوری ممکن است ریسک امنیتی بالقوه ای ایجاد کنند.</translation>
     </message>
     <message>
+        <source>Installation Incomplete</source>
+        <translation>نصب ناقص</translation>
+    </message>
+    <message>
+        <source>Part of the Windscribe installation is missing.  Please download Windscribe and install it again.</source>
+        <translation>بخشی از نصب ویندسترایب گم شده است.  لطفا Windscribe را دانلود و دوباره نصب کنید.</translation>
+    </message>
+    <message>
         <source>Proxy Gateway is unauthenticated</source>
         <translation>دروازه پراکسی احراز هویت نشده است</translation>
     </message>

@@ -650,6 +650,14 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
         <translation>The selected directory is writeable for other users. Custom configs in this directory may pose a potential security risk.</translation>
     </message>
     <message>
+        <source>Installation Incomplete</source>
+        <translation>Installation Incomplete</translation>
+    </message>
+    <message>
+        <source>Part of the Windscribe installation is missing.  Please download Windscribe and install it again.</source>
+        <translation>Part of the Windscribe installation is missing.  Please download Windscribe and install it again.</translation>
+    </message>
+    <message>
         <source>Proxy Gateway is unauthenticated</source>
         <translation>Proxy Gateway is unauthenticated</translation>
     </message>

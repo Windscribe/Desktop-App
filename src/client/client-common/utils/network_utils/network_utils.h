@@ -26,4 +26,9 @@ namespace NetworkUtils
     void getInterfaceAddress(const types::NetworkInterface &iface, QHostAddress &outIp, int &outPrefixLength);
 
     QString getRoutingTable();
+
+    // Whether the OS would let a newly created VPN tunnel device carry IPv6. Consulted so an
+    // "Auto" IP Stack preference does not dial a dual-stack tunnel on a machine where IPv6 has
+    // been switched off system-wide. Always true on Windows and macOS — see the implementation.
+    bool isSystemIpv6Enabled();
 }

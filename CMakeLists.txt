@@ -209,6 +209,27 @@ else()
     set(WS_BUILD_SUFFIX "${WS_BUILD_TYPE}")
 endif()
 
+# Only app code consumes this, and signing-only configures skip cmake/vcpkg.cmake entirely,
+# leaving VCPKG_ROOT unset. Defined only here so an unguarded use fails to compile rather than
+# silently getting "".
+if(BUILD_APP)
+    ws_resolve_openvpn_version(WS_OPENVPN_VERSION)
+    add_compile_definitions(WS_OPENVPN_VERSION="${WS_OPENVPN_VERSION}")
+
+    # Resolved here rather than next to ws_resolve_shared_libs() below, because the names are needed
+    # by the branding definitions that follow and by the subdirectories those definitions reach.
+    if(NOT WIN32)
+        ws_resolve_openssl_libs()
+        if(APPLE)
+            # Not in the branding block below: the value is platform-specific, so a WS_MAC_ name must
+            # not be defined anywhere it would hold something other than the macOS one.
+            add_compile_definitions(WS_MAC_HELPER_FRAMEWORK_FILES="${WS_OPENSSL_SSL_LIB} ${WS_OPENSSL_CRYPTO_LIB}")
+        else()
+            list(APPEND WS_LINUX_RPATH_BINARIES "lib/${WS_OPENSSL_SSL_LIB}" "lib/${WS_OPENSSL_CRYPTO_LIB}")
+        endif()
+    endif()
+endif()
+
 # Expose branding to C++ code
 add_compile_definitions(
     WS_APP_EXECUTABLE_NAME="${WS_APP_EXECUTABLE_NAME}"
@@ -224,6 +245,8 @@ add_compile_definitions(
     WS_MAC_APP_DIR="${WS_MAC_APP_DIR}"
     WS_MAC_GID="${WS_MAC_GID}"
     WS_MAC_GUI_BUNDLE_ID="${WS_MAC_GUI_BUNDLE_ID}"
+    WS_MAC_HELPER_BIN_DIR="${WS_MAC_HELPER_BIN_DIR}"
+    WS_MAC_HELPER_BIN_FILES="${WS_MAC_HELPER_BIN_FILES}"
     WS_MAC_HELPER_BUNDLE_ID="${WS_MAC_HELPER_BUNDLE_ID}"
     WS_MAC_HELPER_BUNDLE_ID_PATH="Contents/Library/LaunchServices/${WS_MAC_HELPER_BUNDLE_ID}"
     WS_MAC_IKEV2_KEYCHAIN_SERVICE="${WS_MAC_IKEV2_KEYCHAIN_SERVICE}"
@@ -233,6 +256,7 @@ add_compile_definitions(
     WS_MAC_LAUNCHER_BUNDLE_ID="${WS_MAC_LAUNCHER_BUNDLE_ID}"
     WS_MAC_SPLIT_TUNNEL_BUNDLE_ID="${WS_MAC_SPLIT_TUNNEL_BUNDLE_ID}"
     WS_MAC_UID="${WS_MAC_UID}"
+    WS_MAC_VENDOR_DIR="${WS_MAC_VENDOR_DIR}"
     WS_MAC_VPN_DESCRIPTION="${WS_MAC_VPN_DESCRIPTION}"
     WS_POSIX_CONFIG_DIR="${WS_POSIX_CONFIG_DIR}"
     WS_OVPN_MGMT_SOCKET="${WS_OVPN_MGMT_SOCKET}"

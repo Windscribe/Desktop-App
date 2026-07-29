@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <vector>
 
 class Files
 {
@@ -15,6 +16,11 @@ public:
     std::string getLastError() { return lastError_; }
 
 private:
+    // Extract selected payload members into a root-only directory (root:wheel 0755), replacing
+    // whatever was there. Used for the copies of dns.sh and the bundled executables that the
+    // helper runs as root, which must not come from the app bundle.
+    bool extractToRootOnlyDir(const std::string &dir, const std::vector<std::string> &members);
+
     std::string archiveTempPath_;
     std::string lastError_;
 };

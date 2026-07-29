@@ -5,7 +5,7 @@
 
 set(WS_VERSION_MAJOR 2)
 set(WS_VERSION_MINOR 24)
-set(WS_VERSION_BUILD 5)
+set(WS_VERSION_BUILD 6)
 set(WS_BUILD_TYPE "guinea_pig")
 
 # WS_APP_IDENTIFIER: Internal identifier, no spaces. Used for service names,
@@ -111,7 +111,7 @@ set(WS_LINUX_RPATH_BINARIES
     ${WS_CLI_EXECUTABLE_NAME}
     helper
     ${WS_PRODUCT_NAME_LOWER}openvpn
-    lib/libssl.so.4
-    lib/libcrypto.so.4
     lib/libwsnet.so
 )
+# The bundled OpenSSL libraries belong in this list too, but their names are only known once
+# ws_resolve_openssl_libs() has run, so the root CMakeLists appends them.

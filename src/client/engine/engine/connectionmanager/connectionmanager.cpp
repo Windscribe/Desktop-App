@@ -13,6 +13,7 @@
 #include "utils/extraconfig.h"
 #include "types/connectionsettings.h"
 #include "types/enums.h"
+#include "utils/network_utils/network_utils.h"
 #include "utils/utils.h"
 #include "utils/ws_assert.h"
 
@@ -799,6 +800,14 @@ void ConnectionManager::onHostnamesResolved()
     env.defaultAdapterInfo = defaultAdapterInfo_;
     env.primaryDnsServer = dnsConfigurator_->primaryDnsServer();
     env.ipStackEgress = lastRequest_.ipStackEgress;
+    // "Auto" means auto: a dual-stack tunnel dialed with IPv6 switched off system-wide fails the
+    // whole attempt on Linux, where the helper configures the tunnel's v6 address straight from the
+    // config. Re-read per attempt so a mid-session sysctl flip takes effect on internal reconnects
+    // too, not only on user-initiated connects.
+    if (env.ipStackEgress == IpStack::kAuto && !NetworkUtils::isSystemIpv6Enabled()) {
+        qCInfo(LOG_CONNECTION) << "IPv6 is disabled system-wide, using IPv4-only egress for this attempt";
+        env.ipStackEgress = IpStack::kIPv4Only;
+    }
 
     // The strategy owns the cached-config budget; CM contributes its own facts (Always On+ read
     // live so a mid-session mode change takes effect on the next attempt, a config-fetching

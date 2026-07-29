@@ -40,9 +40,11 @@ bool writeOVPNFile(const std::string &dnsScript, const std::string &config, cons
     }
 
     // add our own up/down scripts
+    // OpenVPN re-splits the quoted command on whitespace, so the script path needs its own
+    // single quotes — it lives under "Application Support" now.
     const std::string upScript = \
         "--script-security 2\n" \
-        "up \"" + dnsScript + " -up\"\n";
+        "up \"'" + dnsScript + "' -up\"\n";
     if (!IO::writeAll(fd, upScript)) {
         spdlog::error("Could not write openvpn up script: {}", IO::strerror(errno));
         close(fd);

@@ -734,8 +734,8 @@ std::string createOpenVpnAdapter(const std::string &pars)
     deserializePars(pars, useDCODriver);
 
     spdlog::debug(L"createOpenVpnAdapter: creating '{}' adapter", (useDCODriver ? L"ovpn-dco" : L"tap-windows6"));
-    OpenVPNController::instance().createAdapter(useDCODriver);
-    return std::string();
+    bool success = OpenVPNController::instance().createAdapter(useDCODriver);
+    return serializeResult(success);
 }
 
 std::string removeOpenVpnAdapter(const std::string &pars)

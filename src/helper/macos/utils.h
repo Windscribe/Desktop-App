@@ -1,14 +1,44 @@
 #pragma once
 
+#include <sys/stat.h>
+
 #include <string>
 #include <vector>
 
 namespace Utils
 {
+    // Scope-local umask override. Restores the previous umask in the destructor so an exception during the guarded
+    // operation can't leave the process-wide umask in an unexpected state.
+    struct UmaskGuard {
+        explicit UmaskGuard(mode_t mask) : prev_(umask(mask)) {}
+        ~UmaskGuard() { umask(prev_); }
+        mode_t prev_;
+    };
+
+    // Wiped as one sweep by deleteSelf. From the build, so the client can check the same paths.
+    inline constexpr const char *kVendorDir = WS_MAC_VENDOR_DIR;
+
     // Root-owned location where installerStageAndVerify drops the verified installer.app
-    // and where installerCleanupStaged / deleteSelf wipe it from. Hoisted into a shared
-    // constant so a branding rename touches one site instead of three.
-    inline constexpr const char *kInstallerStageDir = "/Library/Application Support/Windscribe/update";
+    // and where installerCleanupStaged / deleteSelf wipe it from.
+    inline constexpr const char *kInstallerStageDir = WS_MAC_VENDOR_DIR "/update";
+
+    // Root-only location where setInstallerPaths copies and verifies the calling installer's bundle
+    // before reading the payload out of it. /Library/Application Support is expected to be root:admin
+    // 0755 — unlike /Applications — which Server::run() checks rather than assumes.
+    inline constexpr const char *kInstallerPayloadDir = WS_MAC_VENDOR_DIR "/payload";
+
+    // Root-only location the payload archive is copied to for the duration of one install.
+    inline constexpr const char *kArchiveTempDir = "/private/var/root/.windscribe-installer";
+
+    // The only copies of dns.sh and the bundled binaries the helper runs, from the verified payload.
+    // Not the app bundle: the console user can rewrite /Applications. 0755 because the app-user spawns
+    // resolve paths through here and the client stats them; what matters is that only root can write.
+    inline constexpr const char *kHelperBinDir = WS_MAC_HELPER_BIN_DIR;
+    inline constexpr const char *kHelperFrameworksDir = WS_MAC_VENDOR_DIR "/Frameworks";
+
+    // Create kVendorDir root-owned and writable by root alone. A leaf's mode means nothing while its
+    // parent can be renamed, so every path that creates one calls this first. Idempotent.
+    bool ensureVendorDir();
 
     // execute cmd with args and return output from stdout and stderror to pOutputStr (if pOutputStr != NULL)
     // When appendFromStdErr is true, stderr is merged into stdout via a subshell redirect, so error
@@ -25,10 +55,6 @@ namespace Utils
 
     bool isFileExists(const std::string &name);
 
-    // Canonicalize exePath and append `executable`, validating the result lives inside the
-    // app bundle. Returns true on success and writes the absolute path to outPath.
-    bool resolveExePath(const std::string &exePath, const std::string &executable, std::string &outPath);
-
     // get list of openvpn exe names from package
     std::vector<std::string> getOpenVpnExeNames();
 
@@ -43,7 +69,7 @@ namespace Utils
     // check if string has whitespace
     bool hasWhitespaceInString(const std::string &str);
 
-    // get root path for app utils
+    // Root-only directory holding everything the helper executes as root.
     std::string getExePath();
 
     // check if a string is a canonical SCDynamicStore DNS entry of the form

@@ -8,10 +8,12 @@
 #include <sys/stat.h>
 #include <sys/wait.h>
 #include <thread>
+#include <unistd.h>
 #include <spdlog/spdlog.h>
 
 #include "3rdparty/pstream.h"
 #include "firewallonboot.h"
+#include "../common/io_posix.h"
 #include "../common/validation_posix.h"
 
 namespace Utils
@@ -44,19 +46,24 @@ std::vector<std::string> getAwdlP2pInterfaces()
 int executeCommand(const std::string &cmd, const std::vector<std::string> &args,
                    std::string *pOutputStr, bool appendFromStdErr)
 {
-    std::string cmdLine = cmd;
-
-    for (auto it = args.begin(); it != args.end(); ++it)
-    {
-        cmdLine += " '";
-        for (char c : *it) {
+    // Single-quote the program too, not just the args — helper binaries live under
+    // "Application Support" and an unquoted path word-splits in the shell.
+    auto quote = [](const std::string &s) {
+        std::string out = "'";
+        for (char c : s) {
             if (c == '\'') {
-                cmdLine += "'\\''";
+                out += "'\\''";
             } else {
-                cmdLine += c;
+                out += c;
             }
         }
-        cmdLine += "'";
+        out += "'";
+        return out;
+    };
+
+    std::string cmdLine = quote(cmd);
+    for (auto it = args.begin(); it != args.end(); ++it) {
+        cmdLine += " " + quote(*it);
     }
 
     if (pOutputStr)
@@ -119,40 +126,40 @@ bool isFileExists(const std::string &name)
     return (stat (name.c_str(), &buffer) == 0);
 }
 
-bool resolveExePath(const std::string &exePath, const std::string &executable, std::string &outPath)
+bool ensureVendorDir()
 {
-    char *canonicalPath = realpath(exePath.c_str(), NULL);
-    if (!canonicalPath) {
-        spdlog::warn("Executable not in valid path, ignoring.");
+    // A symlink would be honoured by everything below: create_directories() sees it as existing,
+    // chmod() applies to its target, and root would then write and execute through it.
+    struct stat st;
+    if (::lstat(kVendorDir, &st) == 0 && !S_ISDIR(st.st_mode)) {
+        spdlog::error("\"{}\" exists and is not a directory; refusing to use it", kVendorDir);
         return false;
     }
 
-#ifndef WINDSCRIBE_DEV_MODE
-    if (strcmp(canonicalPath, WS_MAC_APP_DIR "/Contents/Helpers") != 0) {
-        // Don't execute arbitrary commands, only executables that are in our application directory
-        spdlog::warn("Executable not in correct path, ignoring.");
-        free(canonicalPath);
+    std::error_code ec;
+    {
+        // Without this the mode would come from the ambient umask.
+        UmaskGuard guard(022);
+        std::filesystem::create_directories(kVendorDir, ec);
+    }
+    if (ec) {
+        spdlog::error("Failed to create \"{}\": {}", kVendorDir, ec.message());
         return false;
     }
-#endif
-
-    outPath = std::string(canonicalPath) + "/" + executable;
-    free(canonicalPath);
+    // Ownership before mode, so a directory that pre-existed with another owner is not handed
+    // exclusive write to itself by the chmod.
+    if (::lchown(kVendorDir, 0, 0) != 0 || ::chmod(kVendorDir, 0755) != 0) {
+        spdlog::error("Failed to secure \"{}\": {}", kVendorDir, IO::strerror(errno));
+        return false;
+    }
     return true;
 }
 
 std::vector<std::string> getOpenVpnExeNames()
 {
-    std::vector<std::string> ret;
-    std::error_code ec;
-    for (std::filesystem::directory_iterator it(WS_MAC_APP_DIR "/Contents/Helpers", ec), end;
-         !ec && it != end; it.increment(ec)) {
-        std::string name = it->path().filename().string();
-        if (name.find("openvpn") != std::string::npos) {
-            ret.push_back(name);
-        }
-    }
-    return ret;
+    // A fixed name, not a directory listing. killOpenVPN turns these into a `pkill -f` pattern,
+    // i.e. a regex, so enumerating a directory made the pattern depend on filenames on disk.
+    return { WS_PRODUCT_NAME_LOWER "openvpn" };
 }
 
 void createAppUserAndGroup()
@@ -210,9 +217,14 @@ void deleteSelf()
     if (ec) {
         spdlog::warn("Failed to remove CLI symlink: {}", ec.message());
     }
-    std::filesystem::remove_all(Utils::kInstallerStageDir, ec);
+    // One sweep: update/, payload/, bin/ and Frameworks/ all live under the vendor directory.
+    std::filesystem::remove_all(Utils::kVendorDir, ec);
     if (ec) {
-        spdlog::warn("Failed to remove update dir: {}", ec.message());
+        spdlog::warn("Failed to remove vendor dir: {}", ec.message());
+    }
+    std::filesystem::remove_all(Utils::kArchiveTempDir, ec);
+    if (ec) {
+        spdlog::warn("Failed to remove archive temp dir: {}", ec.message());
     }
     // Note that the following command generally fails with a permission error and does not actually remove the user.
     // It seems on MacOS you need a Secure Token account to delete a user, and even though the privileged helper is running as root, it doesn't have a Secure Token.
@@ -227,7 +239,7 @@ bool hasWhitespaceInString(const std::string &str)
 
 std::string getExePath()
 {
-    return WS_MAC_APP_DIR "/Contents/Helpers";
+    return Utils::kHelperBinDir;
 }
 
 bool isValidDnsDynamicStoreEntry(const std::string &entry)

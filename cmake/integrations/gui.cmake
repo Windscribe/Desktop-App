@@ -86,6 +86,19 @@ set(WS_MAC_APP_BUNDLE_NAME "${WS_PRODUCT_NAME}.app")
 
 # Full path to the installed .app bundle.
 set(WS_MAC_APP_DIR "/Applications/${WS_MAC_APP_BUNDLE_NAME}")
+
+# Root-only parent of everything the helper owns, and where it runs dns.sh and the bundled binaries
+# from. Shared with the client, which checks the contents at startup before installing the helper.
+set(WS_MAC_VENDOR_DIR "/Library/Application Support/${WS_PRODUCT_NAME}")
+set(WS_MAC_HELPER_BIN_DIR "${WS_MAC_VENDOR_DIR}/bin")
+
+# Everything the installer places in WS_MAC_HELPER_BIN_DIR, as named on disk. Space-separated rather
+# than a CMake list because a ";" in a compile definition value would be split into two definitions.
+set(WS_MAC_HELPER_BIN_FILES "dns.sh")
+foreach(_helper ${WS_BUNDLED_HELPER_NAMES})
+    string(APPEND WS_MAC_HELPER_BIN_FILES " ${WS_PRODUCT_NAME_LOWER}${_helper}")
+endforeach()
+
 # Arbitrary GID/UID for the application's macOS user and group.
 set(WS_MAC_GID "518")
 set(WS_MAC_UID "1639")

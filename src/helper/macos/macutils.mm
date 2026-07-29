@@ -69,11 +69,6 @@ bool setDnsOfDynamicStoreEntry(std::string dnsIp, std::string dynEntry)
     return success;
 }
 
-std::string resourcePath()
-{
-    return WS_MAC_APP_DIR "/Contents/Resources/";
-}
-
 std::string bundleVersionFromPlist()
 {
     NSDictionary *infoDict = [[NSBundle mainBundle] infoDictionary];

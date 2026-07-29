@@ -650,6 +650,14 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
         <translation>Абраны каталёґ даступны для запісу іншымі карыстальнікамі. Карыстальніцкія канфіґурацыйныя файлы ў гэтым каталёґу могуць прадстаўляць пагрозу бясьпецы.</translation>
     </message>
     <message>
+        <source>Installation Incomplete</source>
+        <translation>Няпоўная ўстаноўка</translation>
+    </message>
+    <message>
+        <source>Part of the Windscribe installation is missing.  Please download Windscribe and install it again.</source>
+        <translation>Частка інсталяцыі Windscribe адсутнічае.  Калі ласка, спампуйце Windscribe і ўсталюйце яго зноў.</translation>
+    </message>
+    <message>
         <source>Proxy Gateway is unauthenticated</source>
         <translation>Проксі-шлюз без аўтэнтыфікацыі</translation>
     </message>

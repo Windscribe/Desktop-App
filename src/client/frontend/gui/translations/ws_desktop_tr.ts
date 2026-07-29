@@ -650,6 +650,14 @@ Hesabınızı kaybederseniz, sonsuza dek kaybolur ve destek size onu kurtarmaya 
         <translation>Seçilen dizin diğer kullanıcılar için yazılabilir. Bu dizindeki özel yapılandırmalar potansiyel bir güvenlik riski oluşturabilir.</translation>
     </message>
     <message>
+        <source>Installation Incomplete</source>
+        <translation>Kurulum Tamamlanmamış</translation>
+    </message>
+    <message>
+        <source>Part of the Windscribe installation is missing.  Please download Windscribe and install it again.</source>
+        <translation>Windscribe kurulumunun bir kısmı eksik.  Lütfen Windscribe&apos;ı indirin ve tekrar yükleyin.</translation>
+    </message>
+    <message>
         <source>Proxy Gateway is unauthenticated</source>
         <translation>Proxy Gateway doğrulanmamıştır</translation>
     </message>

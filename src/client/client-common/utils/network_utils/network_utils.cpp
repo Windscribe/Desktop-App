@@ -149,3 +149,17 @@ QString NetworkUtils::getRoutingTable()
     return NetworkUtils_linux::getRoutingTable();
 #endif
 }
+
+bool NetworkUtils::isSystemIpv6Enabled()
+{
+#ifdef Q_OS_LINUX
+    return NetworkUtils_linux::isIpv6Enabled();
+#else
+    // Windows: verified harmless with Tcpip6 DisabledComponents=0xFF. tunnel.dll configures a
+    // family only when Windows notifies it that the family's interface appeared on the adapter, so
+    // a v6-less machine skips the v6 half instead of failing, and reports the tunnel up on v4.
+    // macOS: no system-wide switch exists. networksetup -setv6off is per network service and a
+    // utun is not one, so `ifconfig utunN inet6 add` always succeeds.
+    return true;
+#endif
+}

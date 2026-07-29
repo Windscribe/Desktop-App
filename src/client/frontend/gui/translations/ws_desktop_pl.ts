@@ -650,6 +650,14 @@ Jeśli stracisz hash konta, znika na zawsze i wsparcie nie pomoże ci go odzyska
         <translation>Wybrany katalog jest zapisywalny dla innych użytkowników. Niestandardowe konfiguracje w tym katalogu mogą stanowić potencjalne zagrożenie dla bezpieczeństwa.</translation>
     </message>
     <message>
+        <source>Installation Incomplete</source>
+        <translation>Instalacja nieukończona</translation>
+    </message>
+    <message>
+        <source>Part of the Windscribe installation is missing.  Please download Windscribe and install it again.</source>
+        <translation>Część instalacji Windscribe jest zaginiona.  Proszę, pobierz Windscribe i zainstaluj go ponownie.</translation>
+    </message>
+    <message>
         <source>Proxy Gateway is unauthenticated</source>
         <translation>Brama Proxy jest nieuwierzytelniona</translation>
     </message>

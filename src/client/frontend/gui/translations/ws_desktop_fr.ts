@@ -686,6 +686,14 @@ Si vous perdez le hachage de votre compte, il disparaît à jamais et le support
         <translation>Le répertoire sélectionné est écrivable pour d’autres utilisateurs. Les configurations personnalisées dans ce répertoire peuvent représenter un risque potentiel pour la sécurité.</translation>
     </message>
     <message>
+        <source>Installation Incomplete</source>
+        <translation>Installation incomplète</translation>
+    </message>
+    <message>
+        <source>Part of the Windscribe installation is missing.  Please download Windscribe and install it again.</source>
+        <translation>Une partie de l’installation Windscribe manque.  Veuillez télécharger Windscribe et réinstaller.</translation>
+    </message>
+    <message>
         <source>Proxy Gateway is unauthenticated</source>
         <translation>Proxy Gateway n’est pas authentifié</translation>
     </message>

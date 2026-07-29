@@ -1,8 +1,10 @@
 #include "process_command.h"
 
 #include <copyfile.h>
+#include <cstdio>
 #include <fcntl.h>
 #include <filesystem>
+#include <limits.h>
 #include <stdint.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -158,15 +160,12 @@ std::string executeOpenVPN(const std::string &pars, uid_t clientUid)
     // socket and we spawn a new instance.
     OvpnMgmt::killOpenVPN();
 
-    if (!OVPN::writeOVPNFile(MacUtils::resourcePath() + "dns.sh", config, httpProxy, httpPort, socksProxy, socksPort, mgmtClientUser)) {
+    if (!OVPN::writeOVPNFile(std::string(Utils::kHelperBinDir) + "/dns.sh", config, httpProxy, httpPort, socksProxy, socksPort, mgmtClientUser)) {
         spdlog::error("Could not write OpenVPN config");
         return serializeResult(false);
     }
 
-    std::string ovpnPath;
-    if (!Utils::resolveExePath(Utils::getExePath(), WS_PRODUCT_NAME_LOWER "openvpn", ovpnPath)) {
-        return serializeResult(false);
-    }
+    const std::string ovpnPath = Utils::getExePath() + "/" WS_PRODUCT_NAME_LOWER "openvpn";
 
     ExecutableSignature sigCheck;
     if (!sigCheck.verify(ovpnPath)) {
@@ -273,7 +272,7 @@ std::string configureWireGuard(const std::string &pars)
 
             if (!WireGuardController::instance().configureAdapter(clientIpAddress,
                                                                   clientDnsAddressList,
-                                                                  MacUtils::resourcePath() + "/dns.sh",
+                                                                  std::string(Utils::kHelperBinDir) + "/dns.sh",
                                                                   allowed_ips_vector)) {
                 spdlog::error("WireGuard: configureAdapter() failed");
                 break;
@@ -325,10 +324,7 @@ std::string startCtrld(const std::string &pars)
         }
     }
 
-    std::string ctrldPath;
-    if (!Utils::resolveExePath(Utils::getExePath(), WS_PRODUCT_NAME_LOWER "ctrld", ctrldPath)) {
-        return serializeResult(false);
-    }
+    const std::string ctrldPath = Utils::getExePath() + "/" WS_PRODUCT_NAME_LOWER "ctrld";
 
     ExecutableSignature sigCheck;
     if (!sigCheck.verify(ctrldPath)) {
@@ -422,10 +418,7 @@ std::string startStunnel(const std::string &pars)
         return serializeResult(false);
     }
 
-    std::string wstunnelPath;
-    if (!Utils::resolveExePath(Utils::getExePath(), WS_PRODUCT_NAME_LOWER "wstunnel", wstunnelPath)) {
-        return serializeResult(false);
-    }
+    const std::string wstunnelPath = Utils::getExePath() + "/" WS_PRODUCT_NAME_LOWER "wstunnel";
 
     ExecutableSignature sigCheck;
     if (!sigCheck.verify(wstunnelPath)) {
@@ -475,10 +468,7 @@ std::string startWstunnel(const std::string &pars)
         return serializeResult(false);
     }
 
-    std::string wstunnelPath;
-    if (!Utils::resolveExePath(Utils::getExePath(), WS_PRODUCT_NAME_LOWER "wstunnel", wstunnelPath)) {
-        return serializeResult(false);
-    }
+    const std::string wstunnelPath = Utils::getExePath() + "/" WS_PRODUCT_NAME_LOWER "wstunnel";
 
     ExecutableSignature sigCheck;
     if (!sigCheck.verify(wstunnelPath)) {
@@ -542,7 +532,7 @@ std::string setDnsScriptEnabled(const std::string &pars)
     std::string out;
     // We only handle the down case; the 'up' trigger happens elsewhere
     if (!enabled) {
-        Utils::executeCommand(MacUtils::resourcePath() + "/dns.sh", {"-down"}, &out);
+        Utils::executeCommand(std::string(Utils::kHelperBinDir) + "/dns.sh", {"-down"}, &out);
         spdlog::info("{}", out.c_str());
     }
     return std::string();
@@ -651,6 +641,82 @@ std::string removeOldInstall(const std::string &pars)
     }
 }
 
+// True only for a real directory — symlink_status, because is_directory() follows symlinks and
+// std::filesystem::copy below deliberately preserves them.
+static bool isRealDir(const std::string &p)
+{
+    std::error_code ec;
+    auto st = std::filesystem::symlink_status(p, ec);
+    return !ec && std::filesystem::is_directory(st) && !std::filesystem::is_symlink(st);
+}
+
+// Copy srcPath into a root-only directory and static-code-verify the copy. Everything created here
+// is 0700 root-owned and is removed by the caller once it has read what it needs; nothing outside
+// root ever sees it, so there is no window in which the verified bytes can change.
+static bool stageAndVerifyCallerBundle(const std::string &srcPath, std::string &outStagedBundle)
+{
+    if (!Utils::ensureVendorDir()) {
+        return false;
+    }
+
+    std::error_code ec;
+    // create_directories() reports no error for a directory that already exists, so a failed wipe
+    // would go unnoticed and the copy below would land on top of whatever survived.
+    std::filesystem::remove_all(Utils::kInstallerPayloadDir, ec);
+    if (ec) {
+        spdlog::error("stageAndVerifyCallerBundle: could not clear \"{}\": {}",
+                      Utils::kInstallerPayloadDir, ec.message());
+        return false;
+    }
+    {
+        // The intermediate branding directory would otherwise take its mode from the ambient umask.
+        Utils::UmaskGuard guard(022);
+        std::filesystem::create_directories(Utils::kInstallerPayloadDir, ec);
+    }
+    if (ec) {
+        spdlog::error("stageAndVerifyCallerBundle: create_directories failed: {}", ec.message());
+        return false;
+    }
+    // Ownership before mode: if the directory somehow pre-existed with another owner, chmod first
+    // would hand them exclusive write to it.
+    if (lchown(Utils::kInstallerPayloadDir, 0, 0) != 0 ||
+        chmod(Utils::kInstallerPayloadDir, S_IRWXU) != 0) {
+        spdlog::error("stageAndVerifyCallerBundle: could not secure \"{}\": {}",
+                      Utils::kInstallerPayloadDir, IO::strerror(errno));
+        return false;
+    }
+
+    const std::string staged = std::string(Utils::kInstallerPayloadDir) + "/caller.app";
+    std::filesystem::copy(srcPath, staged,
+                          std::filesystem::copy_options::recursive |
+                          std::filesystem::copy_options::copy_symlinks, ec);
+    if (ec) {
+        spdlog::error("stageAndVerifyCallerBundle: copy of \"{}\" failed: {}", srcPath, ec.message());
+        return false;
+    }
+
+    // On the staged copy, not the source: the source is user-writable and races the copy, and
+    // copy_symlinks preserves symlinks by design — so a symlinked Contents or Resources would
+    // survive into the staged tree still pointing at attacker-writable space, and the O_NOFOLLOW
+    // open the caller does only guards its own final component.
+    if (!isRealDir(staged) || !isRealDir(staged + "/Contents") ||
+        !isRealDir(staged + "/Contents/Resources")) {
+        spdlog::error("stageAndVerifyCallerBundle: staged bundle is not a real .app tree; rejecting");
+        return false;
+    }
+
+    // Pinned to the installer identifier, not just our Developer ID: the path came from the XPC
+    // handshake, which admits the GUI as well, and only the installer carries a payload to read.
+    ExecutableSignature sigCheck;
+    if (!sigCheck.verifyWithBundleId(staged, WS_MAC_INSTALLER_BUNDLE_ID)) {
+        spdlog::error("stageAndVerifyCallerBundle: signature verify failed: {}", sigCheck.lastError());
+        return false;
+    }
+
+    outStagedBundle = staged;
+    return true;
+}
+
 static bool stageArchiveFromCallerBundle(std::string &outTempPath)
 {
     // Resolve the calling installer's bundle from the validated SecCodeRef.
@@ -676,8 +742,21 @@ static bool stageArchiveFromCallerBundle(std::string &outTempPath)
         return false;
     }
 
+    // The check that admitted this connection is a dynamic SecCodeCheckValidity, which covers the
+    // caller's Mach-O but not its sealed resources — a genuine signed installer carrying a swapped
+    // payload passes it. Copy the bundle somewhere the caller cannot reach and static-verify *that*,
+    // so the bytes we verify are the bytes we read.
+    std::string stagedBundle;
+    if (!stageAndVerifyCallerBundle(bundlePath, stagedBundle)) {
+        return false;
+    }
+    auto stageGuard = wsl::wsScopeGuard([]{
+        std::error_code gec;
+        std::filesystem::remove_all(Utils::kInstallerPayloadDir, gec);
+    });
+
     const std::string archivePath =
-        std::string(bundlePath) + "/Contents/Resources/" WS_PRODUCT_NAME_LOWER ".tar.lzma";
+        stagedBundle + "/Contents/Resources/" WS_PRODUCT_NAME_LOWER ".tar.lzma";
 
     int srcFd = open(archivePath.c_str(), O_RDONLY | O_NOFOLLOW | O_CLOEXEC);
     if (srcFd < 0) {
@@ -694,16 +773,22 @@ static bool stageArchiveFromCallerBundle(std::string &outTempPath)
 
     // Stage the archive into a root-owned temp file in a root-only directory.
     // mkstemps prevents pre-creation/guess attacks on the destination.
-    const char *kStageDir = "/private/var/root/.windscribe-installer";
     std::error_code ec;
-    std::filesystem::create_directories(kStageDir, ec);
+    std::filesystem::create_directories(Utils::kArchiveTempDir, ec);
     if (ec) {
-        spdlog::error("setInstallerPaths: create_directories(\"{}\") failed: {}", kStageDir, ec.message());
+        spdlog::error("setInstallerPaths: create_directories(\"{}\") failed: {}", Utils::kArchiveTempDir, ec.message());
         return false;
     }
-    chmod(kStageDir, S_IRWXU);
+    chmod(Utils::kArchiveTempDir, S_IRWXU);
 
-    char tmpl[] = "/private/var/root/.windscribe-installer/wsinstaller-XXXXXX.tar.lzma";
+    // A truncated template would leave mkstemps a clipped suffix to honour, so the result is checked
+    // rather than assumed to fit.
+    char tmpl[PATH_MAX] = {0};
+    const int templLen = std::snprintf(tmpl, sizeof(tmpl), "%s/wsinstaller-XXXXXX.tar.lzma", Utils::kArchiveTempDir);
+    if (templLen < 0 || (size_t)templLen >= sizeof(tmpl)) {
+        spdlog::error("setInstallerPaths: archive temp path does not fit in PATH_MAX");
+        return false;
+    }
     int dstFd = mkstemps(tmpl, /* suffix length of ".tar.lzma" */ 9);
     if (dstFd < 0) {
         spdlog::error("setInstallerPaths: mkstemps failed: {}", IO::strerror(errno));
@@ -717,16 +802,6 @@ static bool stageArchiveFromCallerBundle(std::string &outTempPath)
 
     if (rc != 0) {
         spdlog::error("setInstallerPaths: fcopyfile failed: {}", IO::strerror(errno));
-        unlink(tmpl);
-        return false;
-    }
-
-    // Re-validate the caller's signature now that the copy is complete. If the
-    // bundle on disk was tampered with at any point during the copy (e.g. an
-    // attacker on a writable mount swapping the archive), CodeResources hashing
-    // makes that show up here and we discard the staged copy.
-    if (!HelperSecurity::recheckCurrentCaller()) {
-        spdlog::error("setInstallerPaths: caller signature became invalid after staging; rejecting");
         unlink(tmpl);
         return false;
     }
@@ -788,7 +863,7 @@ std::string createCliSymlink(const std::string &pars)
     }
 
     spdlog::debug("Creating CLI symlink");
-    std::string filepath = Utils::getExePath() + "/../MacOS/" WS_CLI_EXECUTABLE_NAME;
+    std::string filepath = WS_MAC_APP_DIR "/Contents/MacOS/" WS_CLI_EXECUTABLE_NAME;
     std::string sympath = "/usr/local/bin/" WS_CLI_EXECUTABLE_NAME;
     std::filesystem::remove(sympath, err);
     if (err) {
@@ -844,6 +919,10 @@ std::string installerStageAndVerify(const std::string &pars)
     // verification is done on the *staged* copy for the same reason.
     static const std::string kStageDir = Utils::kInstallerStageDir;
     static const std::string kStagedBundle = kStageDir + "/installer.app";
+
+    if (!Utils::ensureVendorDir()) {
+        return serializeResult(std::string(), false);
+    }
 
     // Clear any prior staging state — symmetric with installerCleanupStaged below.
     // Wipes the entire stage dir (not just installer.app)
@@ -904,7 +983,7 @@ std::string installerStageAndVerify(const std::string &pars)
     }
 
     ExecutableSignature sigCheck;
-    if (!sigCheck.verify(kStagedBundle)) {
+    if (!sigCheck.verifyWithBundleId(kStagedBundle, WS_MAC_INSTALLER_BUNDLE_ID)) {
         spdlog::error("installerStageAndVerify: signature verify failed: {}", sigCheck.lastError());
         std::filesystem::remove_all(kStagedBundle, ec);
         return serializeResult(std::string(), false);

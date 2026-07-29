@@ -650,6 +650,14 @@ Jika Anda kehilangan hash akun, itu akan hilang selamanya dan dukungan tidak dap
         <translation>Direktori yang dipilih dapat ditulis untuk pengguna lain. Konfigurasi kustom di direktori ini dapat menimbulkan potensi risiko keamanan.</translation>
     </message>
     <message>
+        <source>Installation Incomplete</source>
+        <translation>Instalasi Tidak Selesai</translation>
+    </message>
+    <message>
+        <source>Part of the Windscribe installation is missing.  Please download Windscribe and install it again.</source>
+        <translation>Sebagian instalasi Windscribe hilang.  Silakan unduh Windscribe dan instal lagi.</translation>
+    </message>
+    <message>
         <source>Proxy Gateway is unauthenticated</source>
         <translation>Gateway Proxy tidak diautentikasi</translation>
     </message>

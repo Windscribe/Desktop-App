@@ -41,4 +41,10 @@ types::NetworkInterface networkInterfaceByName(const QString &name);
 // and outPrefix is left at 0 if the interface has no IPv4 or no longer exists.
 void getAdapterIpAndPrefix(const QString &interfaceName, QString &outIp, int &outPrefix);
 
+// Whether a newly created tunnel device would get IPv6, i.e. whether the stack is present at all
+// (ipv6.disable=1 on the kernel command line removes it) and is not switched off via
+// net.ipv6.conf.{all,default}.disable_ipv6. Anything unreadable counts as enabled, so a hardened
+// /proc cannot silently downgrade tunnels to IPv4. procRoot exists for the tests.
+bool isIpv6Enabled(const QString &procRoot = QStringLiteral("/proc"));
+
 } // namespace NetworkUtils_linux

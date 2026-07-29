@@ -1,6 +1,7 @@
 #include "server.h"
 
 #include <assert.h>
+#include <errno.h>
 #include <filesystem>
 #include <grp.h>
 #include <sstream>
@@ -15,13 +16,33 @@
 #include "utils.h"
 
 namespace {
-// Scope-local umask override. Restores the previous umask in the destructor so an exception during the guarded
-// operation can't leave the process-wide umask in an unexpected state.
-struct UmaskGuard {
-    explicit UmaskGuard(mode_t mask) : prev_(umask(mask)) {}
-    ~UmaskGuard() { umask(prev_); }
-    mode_t prev_;
-};
+// dns.sh cannot carry a signature, so the permissions of the directory holding it are the whole of
+// its integrity. A directory that does not exist yet is not a violation: bin/ is created by an
+// install this helper has to be running to serve.
+bool isRootWritableOnlyIfPresent(const char *path)
+{
+    struct stat st;
+    if (::lstat(path, &st) != 0) {
+        if (errno == ENOENT) {
+            return true;
+        }
+        spdlog::error("Cannot stat \"{}\": {}", path, IO::strerror(errno));
+        return false;
+    }
+    if (!S_ISDIR(st.st_mode)) {
+        spdlog::error("\"{}\" is not a directory", path);
+        return false;
+    }
+    if (st.st_uid != 0) {
+        spdlog::error("\"{}\" is owned by uid {}, not root", path, st.st_uid);
+        return false;
+    }
+    if (st.st_mode & (S_IWGRP | S_IWOTH)) {
+        spdlog::error("\"{}\" is writable beyond its owner (mode {:04o})", path, st.st_mode & 07777);
+        return false;
+    }
+    return true;
+}
 } // namespace
 
 Server::Server() : listener_(nullptr)
@@ -122,9 +143,28 @@ void Server::run()
 
     Utils::createAppUserAndGroup();
 
+    // Verified rather than assumed: a wrong owner or mode can arrive from outside the helper (an older
+    // install, another installer) and cannot be repaired from here, so serve nothing instead.
+    if (!Utils::ensureVendorDir()) {
+        return;
+    }
+    for (const char *dir : { Utils::kVendorDir, Utils::kHelperBinDir, Utils::kHelperFrameworksDir }) {
+        if (!isRootWritableOnlyIfPresent(dir)) {
+            spdlog::error("Refusing to serve commands: \"{}\" is not writable by root alone", dir);
+            return;
+        }
+    }
+    // The parent belongs to the OS. Logged rather than fatal: if the expectation is ever wrong on a
+    // supported system, taking the helper out of service everywhere would be the larger failure.
+    const std::string vendorParent = std::filesystem::path(Utils::kVendorDir).parent_path().string();
+    if (!isRootWritableOnlyIfPresent(vendorParent.c_str())) {
+        spdlog::warn("\"{}\" is not writable by root alone; the directories below it are not protected "
+                     "from a non-root user", vendorParent);
+    }
+
     std::error_code ec;
     {
-        UmaskGuard guard(022);
+        Utils::UmaskGuard guard(022);
         std::filesystem::create_directories(WS_POSIX_CONFIG_DIR, ec);
     }
     if (ec) {

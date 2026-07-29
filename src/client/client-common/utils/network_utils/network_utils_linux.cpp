@@ -1,6 +1,7 @@
 #include "network_utils_linux.h"
 
 #include <QDir>
+#include <QFile>
 #include <QHostAddress>
 #include <QScopeGuard>
 #include <QtAlgorithms>
@@ -568,6 +569,31 @@ types::NetworkInterface networkInterfaceByName(const QString &name)
     }
 
     return interface;
+}
+
+bool isIpv6Enabled(const QString &procRoot)
+{
+    // No /proc/net/if_inet6 means the stack was never registered (ipv6.disable=1), so the sysctls
+    // below do not exist either.
+    if (!QFile::exists(procRoot + "/net/if_inet6")) {
+        return false;
+    }
+
+    // A write to `all` propagates into `default` and into every existing device, and `default` is
+    // what a freshly created wg device inherits, so either one being set means no tunnel IPv6.
+    for (const QString &knob : {QStringLiteral("all"), QStringLiteral("default")}) {
+        QFile f(procRoot + "/sys/net/ipv6/conf/" + knob + "/disable_ipv6");
+        if (!f.open(QFile::ReadOnly | QFile::Text)) {
+            continue;
+        }
+        bool ok = false;
+        const int disabled = f.readAll().trimmed().toInt(&ok);
+        if (ok && disabled != 0) {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 } // namespace NetworkUtils_linux

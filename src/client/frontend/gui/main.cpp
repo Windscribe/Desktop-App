@@ -3,7 +3,6 @@
 #include <QApplication>
 #include <QElapsedTimer>
 #include <QEventLoop>
-#include <QFileInfo>
 #include <QMessageBox>
 #include <QScreen>
 #include <QSocketNotifier>
@@ -16,7 +15,6 @@
 #include "utils/utils.h"
 #include "utils/extraconfig.h"
 #include "version/appversion.h"
-#include "utils/openvpnversioncontroller.h"
 #include "application/windscribeapplication.h"
 #include "application/singleappinstance.h"
 
@@ -290,13 +288,6 @@ int main(int argc, char *argv[])
     if (!WinUtils::isOSCompatible()) {
         qCWarning(LOG_BASIC) << "WARNING: OS version is not fully compatible.  Windows 10 build"
                            << kMinWindowsBuildNumber << "or newer is required for full functionality.";
-    }
-#endif
-
-#if !defined(WINDSCRIBE_DEV_MODE)
-    if (!QFileInfo::exists(OpenVpnVersionController::instance().getOpenVpnFilePath())) {
-        qCCritical(LOG_BASIC) << "OpenVPN executable not found";
-        return 0;
     }
 #endif
 

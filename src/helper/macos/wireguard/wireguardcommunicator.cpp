@@ -160,11 +160,7 @@ bool WireGuardCommunicator::start(const std::string &deviceName, bool verboseLog
         spdlog::warn("Failed to remove WireGuard control socket: {}", ec.message());
     }
 
-    std::string wgPath;
-    if (!Utils::resolveExePath(Utils::getExePath(), kExecutableName, wgPath)) {
-        spdlog::error("Invalid WireGuard command");
-        return false;
-    }
+    const std::string wgPath = Utils::getExePath() + "/" + kExecutableName;
 
     ExecutableSignature sigCheck;
     if (!sigCheck.verify(wgPath)) {

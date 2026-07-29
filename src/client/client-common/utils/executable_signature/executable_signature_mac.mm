@@ -28,10 +28,28 @@ bool ExecutableSignaturePrivate::verify(const std::wstring& exePath)
 
 bool ExecutableSignaturePrivate::verify(const std::string &exePath)
 {
+    return verifyAgainst(exePath, MACOS_DEVID_REQUIREMENT);
+}
+
+bool ExecutableSignaturePrivate::verifyWithBundleId(const std::string &bundlePath, const std::string &bundleId)
+{
+    // Requirement strings quote the identifier, so a quote or backslash in bundleId would rewrite
+    // the requirement rather than fail to match it.
+    if (bundleId.find_first_of("\"\\") != std::string::npos) {
+        lastError_ << "Bundle identifier is not valid inside a requirement string";
+        return false;
+    }
+    return verifyAgainst(bundlePath, std::string(MACOS_DEVID_REQUIREMENT) + " and identifier \"" + bundleId + "\"");
+}
+
+bool ExecutableSignaturePrivate::verifyAgainst(const std::string &exePath, const std::string &requirementString)
+{
     SecStaticCodeRef staticCode = NULL;
     SecRequirementRef requirement = NULL;
+    CFStringRef requirementText = NULL;
 
     auto exitGuard = wsl::wsScopeGuard([&] {
+        if (requirementText != NULL) CFRelease(requirementText);
         if (requirement != NULL) CFRelease(requirement);
         if (staticCode != NULL) CFRelease(staticCode);
     });
@@ -48,8 +66,14 @@ bool ExecutableSignaturePrivate::verify(const std::string &exePath)
         return false;
     }
 
+    requirementText = CFStringCreateWithCString(NULL, requirementString.c_str(), kCFStringEncodingUTF8);
+    if (requirementText == NULL) {
+        lastError_ << "Failed to convert the requirement to CFString";
+        return false;
+    }
+
     // A NULL requirement would accept any internally-consistent seal, including a self-signed one.
-    status = SecRequirementCreateWithString(CFSTR(MACOS_DEVID_REQUIREMENT), kSecCSDefaultFlags, &requirement);
+    status = SecRequirementCreateWithString(requirementText, kSecCSDefaultFlags, &requirement);
     if (status != errSecSuccess) {
         lastError_ << "SecRequirementCreateWithString failed: " << status;
         return false;

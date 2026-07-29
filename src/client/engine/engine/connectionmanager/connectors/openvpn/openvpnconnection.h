@@ -135,6 +135,9 @@ private:
     AdapterGatewayInfo connectionAdapterInfo_;
 
     void funcRunOpenVPN();
+#ifdef Q_OS_WIN
+    void funcFailAdapterSetup();
+#endif
     void asyncConnectToManagementSocket();
     void retryConnectToManagementSocket(const boost::system::error_code& err);
 #ifdef Q_OS_WIN

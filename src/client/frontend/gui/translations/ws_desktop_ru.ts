@@ -686,6 +686,14 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
         <translation>Выбранный каталог можно писать для других пользователей. Пользовательские конфигурации в этом каталоге могут представлять потенциальную угрозу безопасности.</translation>
     </message>
     <message>
+        <source>Installation Incomplete</source>
+        <translation>Установка незавершена</translation>
+    </message>
+    <message>
+        <source>Part of the Windscribe installation is missing.  Please download Windscribe and install it again.</source>
+        <translation>Часть инсталляции Windscribe отсутствует.  Пожалуйста, скачайте Windscribe и установите его снова.</translation>
+    </message>
+    <message>
         <source>Proxy Gateway is unauthenticated</source>
         <translation>Прокси-шлюз не аутентифицирован</translation>
     </message>

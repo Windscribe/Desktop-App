@@ -28,16 +28,12 @@ private:
     explicit OpenVPNController();
 
     bool useDCODriver_ = false;
-    bool tapAdapterCreated_ = false;
+    bool adapterCreated_ = false;
 
     // Kept open for the lifetime of the OpenVPN process so its PID cannot be reused while it runs.
     wsl::Win32Handle openVpnProcess_;
 
-    bool createDCOAdapter();
-    void removeDCOAdapter();
-
-    bool createTapAdapter();
-    void removeTapAdapter();
+    void deleteAdapter(bool bestEffort = false);
 
     bool writeOVPNFile(std::wstring &config, const std::wstring &httpProxy, unsigned int httpPort,
                        const std::wstring &socksProxy, unsigned int socksPort, std::wstring &filename);

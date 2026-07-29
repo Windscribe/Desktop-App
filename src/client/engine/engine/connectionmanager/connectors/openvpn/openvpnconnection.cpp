@@ -1,5 +1,7 @@
 #include "openvpnconnection.h"
 
+#include <QRegularExpression>
+
 #include <chrono>
 
 #include "makeovpnfile.h"
@@ -9,7 +11,6 @@
 #include "utils/extraconfig.h"
 #include "utils/log/categories.h"
 #include "utils/networkingvalidation.h"
-#include "utils/openvpnversioncontroller.h"
 #include "utils/utils.h"
 #include "utils/ws_assert.h"
 
@@ -277,7 +278,7 @@ bool OpenVPNConnection::runOpenVPN()
         }
     }
 
-    qCInfo(LOG_CONNECTION) << "OpenVPN version:" << OpenVpnVersionController::instance().getOpenVpnVersion();
+    qCInfo(LOG_CONNECTION) << "OpenVPN version:" << WS_OPENVPN_VERSION;
 
 #ifdef Q_OS_WIN
     // OpenVPN selects its own management port; the helper reports the resolved port and the OpenVPN
@@ -302,7 +303,7 @@ void OpenVPNConnection::run()
 #ifdef Q_OS_WIN
     // NOTE: The emergency connect OpenVPN server is old-old and generates data packets not supported by the DCO driver.
     const bool useDCODriver = !isCustomConfig_ && !sessionParams_.isEmergencyConnect && ExtraConfig::instance().useOpenVpnDCO() && !(sessionParams_.proxySettings.isProxyEnabled() && protocol_ == types::Protocol::OPENVPN_TCP);
-    helper_->createOpenVpnAdapter(useDCODriver);
+    const bool adapterCreated = helper_->createOpenVpnAdapter(useDCODriver);
     helper_->enableDnsLeaksProtection();
 #elif defined (Q_OS_LINUX)
     // NOTE: The emergency connect OpenVPN server is old-old and generates data packets not supported by the DCO driver.
@@ -313,7 +314,17 @@ void OpenVPNConnection::run()
 #endif
 
     io_context_.restart();
+#ifdef Q_OS_WIN
+    if (!adapterCreated) {
+        // Fail through the io_context instead of returning, so the teardown below still runs and
+        // removes anything tapctl may have half-created.
+        boost::asio::post(io_context_, boost::bind(&OpenVPNConnection::funcFailAdapterSetup, this));
+    } else {
+        boost::asio::post(io_context_, boost::bind(&OpenVPNConnection::funcRunOpenVPN, this));
+    }
+#else
     boost::asio::post(io_context_, boost::bind( &OpenVPNConnection::funcRunOpenVPN, this));
+#endif
     io_context_.run();
 
 #ifdef Q_OS_WIN
@@ -376,6 +387,19 @@ void OpenVPNConnection::funcRunOpenVPN()
 
     asyncConnectToManagementSocket();
 }
+
+#ifdef Q_OS_WIN
+void OpenVPNConnection::funcFailAdapterSetup()
+{
+    if (bStopThread_) {
+        setCurrentStateAndEmitDisconnected(STATUS_DISCONNECTED);
+        return;
+    }
+
+    qCCritical(LOG_CONNECTION) << "Could not create the OpenVPN adapter";
+    setCurrentStateAndEmitError(STATUS_DISCONNECTED, ConnectError::kAdapterNotInstalled);
+}
+#endif
 
 void OpenVPNConnection::asyncConnectToManagementSocket()
 {
@@ -611,7 +635,11 @@ void OpenVPNConnection::handleRead(const boost::system::error_code &err, size_t 
                 stateVariables_.bSigTermSent = true;
             }
         }
-        else if (serverReply.contains("There are no TAP-Windows", Qt::CaseInsensitive) && serverReply.contains("adapters on this system", Qt::CaseInsensitive))
+        // OpenVPN 2.7 fails the dev-node lookup with "Adapter 'Windscribe' not found" (or
+        // "TAP-Windows adapter '...' not found"); only the no-adapters-at-all fatal kept the 2.6 wording.
+        else if ((serverReply.contains("There are no TAP-Windows", Qt::CaseInsensitive) &&
+                  serverReply.contains("adapters on this system", Qt::CaseInsensitive)) ||
+                 serverReply.contains(QRegularExpression("adapter '[^']*' not found", QRegularExpression::CaseInsensitiveOption)))
         {
             if (!stateVariables_.bTapErrorEmited)
             {

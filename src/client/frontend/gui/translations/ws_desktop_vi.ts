@@ -650,6 +650,14 @@ Nếu bạn mất hàm băm tài khoản của mình, nó sẽ biến mất vĩn
         <translation>Thư mục đã chọn có thể ghi được cho những người dùng khác. Cấu hình tùy chỉnh trong thư mục này có thể gây ra rủi ro bảo mật tiềm ẩn.</translation>
     </message>
     <message>
+        <source>Installation Incomplete</source>
+        <translation>Lắp đặt chưa hoàn chỉnh</translation>
+    </message>
+    <message>
+        <source>Part of the Windscribe installation is missing.  Please download Windscribe and install it again.</source>
+        <translation>Một phần của tác phẩm lắp đặt Windscribe bị thiếu.  Vui lòng tải Windscribe và cài đặt lại.</translation>
+    </message>
+    <message>
         <source>Proxy Gateway is unauthenticated</source>
         <translation>Proxy Gateway chưa được xác thực</translation>
     </message>

@@ -1,3 +1,12 @@
+2.24.6 guinea pig (29/07/2026)
+Windows:
+   * Fixed OpenVPN adapter creation failure insufficiently reported to the user. #1950
+macOS:
+   * Fixed possible local privilege escalation due to replaceable installer archive. #1949
+Linux:
+   * Fixed WireGuard may fail to connect if IPv6 is disabled in the kernel. #1948
+
+
 2.24.5 guinea pig (23/07/2026)
 All:
    * Added a SECURITY.md document. #1942

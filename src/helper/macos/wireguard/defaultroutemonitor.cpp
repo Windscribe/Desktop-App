@@ -107,8 +107,9 @@ bool DefaultRouteMonitor::executeCommandWithLogging(const std::string &program, 
 std::string DefaultRouteMonitor::getDefaultGateway() const
 {
     std::string output;
+    // Pipeline needs a shell; executeCommand quotes its cmd as a single program name.
     const auto status = Utils::executeCommand(
-        "netstat -nr -f inet | grep 'default' | awk '{print $2}'", {}, &output);
+        "sh", {"-c", "netstat -nr -f inet | grep 'default' | awk '{print $2}'"}, &output);
     if (status == 0) {
         std::vector<std::string> gateways;
         boost::trim(output);

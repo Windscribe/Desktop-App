@@ -93,7 +93,7 @@ public:
 
     void setCustomDnsIps(const QStringList& ips);
 
-    void createOpenVpnAdapter(bool useDCODriver);
+    bool createOpenVpnAdapter(bool useDCODriver);
     void removeOpenVpnAdapter();
 
     void disableDohSettings();

@@ -76,6 +76,10 @@ std::string HelperBackend_mac::sendCmd(int cmdId, const std::string &data)
 {
     QMutexLocker locker(&mutex_);
 
+    if (!connection_) {
+        return std::string();
+    }
+
     xpc_object_t message = xpc_dictionary_create(NULL, NULL, 0);
     xpc_dictionary_set_int64(message, "cmdId", cmdId);
     xpc_dictionary_set_data(message, "data", data.c_str(), data.size());

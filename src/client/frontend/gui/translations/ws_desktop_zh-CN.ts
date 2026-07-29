@@ -650,6 +650,14 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
         <translation>所选目录可写入其他用户。该目录中的自定义配置可能构成潜在的安全风险。</translation>
     </message>
     <message>
+        <source>Installation Incomplete</source>
+        <translation>安装未完成</translation>
+    </message>
+    <message>
+        <source>Part of the Windscribe installation is missing.  Please download Windscribe and install it again.</source>
+        <translation>风刻印装置的一部分缺失。 请下载Windscribe并重新安装。</translation>
+    </message>
+    <message>
         <source>Proxy Gateway is unauthenticated</source>
         <translation>代理网关未认证</translation>
     </message>

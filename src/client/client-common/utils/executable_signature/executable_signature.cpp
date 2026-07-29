@@ -46,6 +46,19 @@ bool ExecutableSignature::verify(const std::string &exePath)
 #endif
 }
 
+#if defined(__APPLE__)
+bool ExecutableSignature::verifyWithBundleId(const std::string &bundlePath, const std::string &bundleId)
+{
+#ifdef USE_SIGNATURE_CHECK
+    return d_ptr->verifyWithBundleId(bundlePath, bundleId);
+#else
+    (void)bundlePath;
+    (void)bundleId;
+    return true;
+#endif
+}
+#endif
+
 std::string ExecutableSignature::lastError() const
 {
     if (d_ptr != nullptr) {

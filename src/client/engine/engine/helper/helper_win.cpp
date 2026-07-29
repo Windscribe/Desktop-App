@@ -404,9 +404,12 @@ void Helper_win::setCustomDnsIps(const QStringList &ips)
     customDnsIp_ = ips;
 }
 
-void Helper_win::createOpenVpnAdapter(bool useDCODriver)
+bool Helper_win::createOpenVpnAdapter(bool useDCODriver)
 {
-    sendCommand(HelperCommand::createOpenVpnAdapter, useDCODriver);
+    auto result = sendCommand(HelperCommand::createOpenVpnAdapter, useDCODriver);
+    bool success = false;
+    deserializeAnswer(result, success);
+    return success;
 }
 
 void Helper_win::removeOpenVpnAdapter()

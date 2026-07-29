@@ -686,6 +686,14 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
         <translation>الدليل المختار قابل للكتابة للمستخدمين الآخرين. قد تشكل التكوينات المخصصة في هذا الدليل خطرا أمنيا محتملا.</translation>
     </message>
     <message>
+        <source>Installation Incomplete</source>
+        <translation>التركيب غير المكتمل</translation>
+    </message>
+    <message>
+        <source>Part of the Windscribe installation is missing.  Please download Windscribe and install it again.</source>
+        <translation>جزء من تركيب ويندسكرايب مفقود.  يرجى تحميل Windscribe وتثبيته مرة أخرى.</translation>
+    </message>
+    <message>
         <source>Proxy Gateway is unauthenticated</source>
         <translation>بوابة الوكيل غير مصادقة</translation>
     </message>

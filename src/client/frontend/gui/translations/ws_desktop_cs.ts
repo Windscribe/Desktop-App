@@ -650,6 +650,14 @@ Pokud ztratíte hash účtu, je navždy pryč a podpora vám nemůže pomoci ho 
         <translation>Vybraný adresář je zapisovatelný pro ostatní uživatele. Vlastní konfigurace v tomto adresáři mohou představovat potenciální bezpečnostní riziko.</translation>
     </message>
     <message>
+        <source>Installation Incomplete</source>
+        <translation>Instalace není dokončena</translation>
+    </message>
+    <message>
+        <source>Part of the Windscribe installation is missing.  Please download Windscribe and install it again.</source>
+        <translation>Část instalace Windscribe chybí.  Prosím, stáhněte si Windscribe a nainstalujte ho znovu.</translation>
+    </message>
+    <message>
         <source>Proxy Gateway is unauthenticated</source>
         <translation>Proxy Gateway není autentizovaná</translation>
     </message>

@@ -650,6 +650,14 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
         <translation>선택된 디렉터리는 다른 사용자들을 위해 쓸 수 있습니다. 이 디렉터리의 사용자 지정 설정은 잠재적인 보안 위험을 초래할 수 있습니다.</translation>
     </message>
     <message>
+        <source>Installation Incomplete</source>
+        <translation>설치 미완성</translation>
+    </message>
+    <message>
+        <source>Part of the Windscribe installation is missing.  Please download Windscribe and install it again.</source>
+        <translation>윈드스크라이브 설치 작품의 일부가 사라졌습니다.  Windscribe를 다운로드해서 다시 설치해 주세요.</translation>
+    </message>
+    <message>
         <source>Proxy Gateway is unauthenticated</source>
         <translation>프록시 게이트웨이는 인증되지 않았습니다</translation>
     </message>

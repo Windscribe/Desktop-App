@@ -2,6 +2,7 @@
 
 #include <QCoreApplication>
 #include <QCryptographicHash>
+#include <QFileInfo>
 #include <QPointer>
 #include <spdlog/spdlog.h>
 #include <wsnet/WSNet.h>
@@ -39,7 +40,6 @@
 #include "api_responses/controlddevices.h"
 #include "firewall/firewallexceptions.h"
 #include "getdeviceid.h"
-#include "utils/openvpnversioncontroller.h"
 #include "apiresources/apiutils.h"
 
 #ifdef Q_OS_WIN
@@ -68,6 +68,24 @@
 #endif
 
 using namespace wsnet;
+
+#if defined(Q_OS_MACOS) && !defined(WINDSCRIBE_DEV_MODE)
+namespace {
+// The helper runs these from outside the app bundle, and only the installer puts them there. An .app
+// restored from the Trash or copied by hand has none of them, and nothing here can refill it. The
+// directory is world-traversable by design, so this needs no elevation.
+QStringList missingHelperBinFiles()
+{
+    QStringList missing;
+    for (const QString &name : QString(WS_MAC_HELPER_BIN_FILES).split(' ', Qt::SkipEmptyParts)) {
+        if (!QFileInfo::exists(QString(WS_MAC_HELPER_BIN_DIR) + "/" + name)) {
+            missing.append(name);
+        }
+    }
+    return missing;
+}
+} // namespace
+#endif
 
 Engine::Engine() : QObject(nullptr),
     helper_(nullptr),
@@ -127,12 +145,14 @@ Engine::Engine() : QObject(nullptr),
 
     // Design Note:
     // Hardcoding the AmneziaWG protocol version since we cannot retrieve it from the AmneziaWG binary.
+    // WS_OPENVPN_VERSION is derived at configure time from vcpkg's installed-package record, so it
+    // tracks the pinned port without executing the binary at runtime.
     QSettings settings;
     std::string wsnetSettings = settings.value("wsnetSettings").toString().toStdString();
     bool bWsnetSuccess = WSNet::initialize(Utils::getBasePlatformName().toStdString(), Utils::getPlatformNameSafe().toStdString(),
                                            AppVersion::instance().semanticVersionString().toStdString(),
                                            GetDeviceId::instance().getDeviceId().toStdString(),
-                                           OpenVpnVersionController::instance().getOpenVpnVersion().toStdString(),
+                                           std::string(WS_OPENVPN_VERSION),
                                            "3", // must supply session_type_id where 3 = DESKTOP
                                            AppVersion::instance().isStaging(), engineSettings_.language().toStdString(), wsnetSettings,
                                            wsnetLoggerCallback, false, "2.0.0");
@@ -591,6 +611,21 @@ void Engine::init()
 
     helper_ = CrossPlatformObjectFactory::createHelper(this);
     connect(helper_->backend(), &IHelperBackend::lostConnectionToHelper, this, &Engine::onLostConnectionToHelper);
+
+#if defined(Q_OS_MACOS) && !defined(WINDSCRIBE_DEV_MODE)
+    // Before startInstallHelper(): blessing the helper prompts for admin credentials, and a new helper
+    // cannot repopulate the directory either. A missing helper with an intact one still installs.
+    const QStringList missingBinFiles = missingHelperBinFiles();
+    if (!missingBinFiles.isEmpty()) {
+        qCCritical(LOG_BASIC) << "Installation incomplete:" << WS_MAC_HELPER_BIN_DIR << "is missing"
+                              << missingBinFiles;
+        emit initFinished(ENGINE_INIT_INCOMPLETE_INSTALL,
+                          !WSNet::instance()->apiResourcersManager()->authHash().empty(),
+                          engineSettings_);
+        return;
+    }
+#endif
+
     helper_->backend()->startInstallHelper();
 
     inititalizeHelper_ = new InitializeHelper(this, helper_->backend());

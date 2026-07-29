@@ -64,23 +64,3 @@ void HelperSecurity::clearCurrentCallerSecCode()
         tls_currentSecCode_ = NULL;
     }
 }
-
-bool HelperSecurity::recheckCurrentCaller()
-{
-#if defined(USE_SIGNATURE_CHECK)
-    if (!tls_currentSecCode_) {
-        return false;
-    }
-    SecRequirementRef req;
-    OSStatus s = SecRequirementCreateWithString(CFSTR(REQUIREMENT_STRING), kSecCSDefaultFlags, &req);
-    if (s != errSecSuccess) {
-        return false;
-    }
-    bool ok = SecCodeCheckValidity(tls_currentSecCode_, kSecCSDefaultFlags, req) == errSecSuccess;
-    CFRelease(req);
-    return ok;
-#else
-    return true;
-#endif
-}
-

@@ -686,6 +686,14 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
         <translation>चयनित निर्देशिका अन्य उपयोगकर्ताओं के लिए लिखने योग्य है। इस निर्देशिका में कस्टम कॉन्फ़िगरेशन एक संभावित सुरक्षा जोखिम पैदा कर सकता है।</translation>
     </message>
     <message>
+        <source>Installation Incomplete</source>
+        <translation>स्थापना अपूर्ण</translation>
+    </message>
+    <message>
+        <source>Part of the Windscribe installation is missing.  Please download Windscribe and install it again.</source>
+        <translation>विंडसाइड इंस्टॉलेशन का एक हिस्सा गायब है।  कृपया विंडसाइड डाउनलोड करें और इसे फिर से इंस्टॉल करें।</translation>
+    </message>
+    <message>
         <source>Proxy Gateway is unauthenticated</source>
         <translation>प्रॉक्सी गेटवे अप्रमाणित है</translation>
     </message>

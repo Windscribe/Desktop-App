@@ -1,5 +1,4 @@
 #include <QCoreApplication>
-#include <QFileInfo>
 
 #include "application/singleappinstance.h"
 #include "application/windscribeapplication.h"
@@ -10,7 +9,6 @@
 #include "utils/utils.h"
 #include "utils/extraconfig.h"
 #include "version/appversion.h"
-#include "utils/openvpnversioncontroller.h"
 
 #if defined (Q_OS_LINUX)
     #include <libgen.h>         // dirname
@@ -119,11 +117,6 @@ int main(int argc, char *argv[])
     // We do this here so that the service constructor happeens after log initialization & changing gid
     MainService *service = new MainService();
     a.setService(service);
-
-    if (!QFileInfo::exists(OpenVpnVersionController::instance().getOpenVpnFilePath())) {
-        qCCritical(LOG_BASIC) << "OpenVPN executable not found";
-        return 0;
-    }
 
     int ret = a.exec();
     qCDebug(LOG_BASIC) << "Releasing lock";

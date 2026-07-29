@@ -35,13 +35,28 @@ void OpenVPNController::release()
 
 bool OpenVPNController::createAdapter(bool useDCODriver)
 {
-    removeAdapter();
+    openVpnProcess_.closeHandle();
 
-    if (useDCODriver) {
-        return createDCOAdapter();
+    // Adapter state does not survive helper restarts, so don't trust adapterCreated_ here: always
+    // delete any leftover adapter by name, or the create below can collide with it and OpenVPN may
+    // bind an adapter from the wrong driver via dev-node.
+    deleteAdapter(true);
+
+    useDCODriver_ = useDCODriver;
+    adapterCreated_ = true;
+
+    std::wstringstream stream;
+    stream << L"\"" << Utils::getExePath() << L"\\tapctl.exe\"" << L" create --name " << kOpenVPNAdapterIdentifier
+           << L" --hwid " << (useDCODriver ? L"ovpn-dco" : L"root\\tap0901");
+
+    spdlog::info(L"createAdapter cmd = {}", stream.str());
+    auto result = ExecuteCmd::instance().executeBlockingCmd(stream.str());
+
+    if (result.success && result.exitCode != 0) {
+        spdlog::error(L"createAdapter cmd failed: {}", result.output);
     }
 
-    return createTapAdapter();
+    return result.success && result.exitCode == 0;
 }
 
 void OpenVPNController::removeAdapter()
@@ -49,72 +64,23 @@ void OpenVPNController::removeAdapter()
     // The OpenVPN process has been (or is being) torn down; release the retained handle.
     openVpnProcess_.closeHandle();
 
-    if (useDCODriver_) {
-        removeDCOAdapter();
-    } else if (tapAdapterCreated_) {
-        removeTapAdapter();
+    if (adapterCreated_) {
+        adapterCreated_ = false;
+        deleteAdapter();
     }
 }
 
-bool OpenVPNController::createTapAdapter()
-{
-    useDCODriver_ = false;
-    tapAdapterCreated_ = true;
-
-    std::wstringstream stream;
-    stream << L"\"" << Utils::getExePath() << L"\\tapctl.exe\"" << L" create --name " << kOpenVPNAdapterIdentifier << L" --hwid root\\tap0901";
-
-    spdlog::info(L"createTapAdapter cmd = {}", stream.str());
-    auto result = ExecuteCmd::instance().executeBlockingCmd(stream.str());
-
-    if (result.success && result.exitCode != 0) {
-        spdlog::error(L"createTapAdapter cmd failed: {}", result.output);
-    }
-
-    return result.success;
-}
-
-void OpenVPNController::removeTapAdapter()
-{
-    tapAdapterCreated_ = false;
-    std::wstringstream stream;
-    stream << L"\"" << Utils::getExePath() << L"\\tapctl.exe\"" << L" delete " << kOpenVPNAdapterIdentifier;
-
-    spdlog::info(L"removeTapAdapter cmd = {}", stream.str());
-    auto result = ExecuteCmd::instance().executeBlockingCmd(stream.str());
-
-    if (result.success && result.exitCode != 0) {
-        spdlog::error(L"removeTapAdapter cmd failed: {}", result.output);
-    }
-}
-
-bool OpenVPNController::createDCOAdapter()
-{
-    useDCODriver_ = true;
-
-    std::wstringstream stream;
-    stream << L"\"" << Utils::getExePath() << L"\\tapctl.exe\"" << L" create --name " << kOpenVPNAdapterIdentifier << L" --hwid ovpn-dco";
-
-    spdlog::info(L"createDCOAdapter cmd = {}", stream.str());
-    auto result = ExecuteCmd::instance().executeBlockingCmd(stream.str());
-
-    if (result.success && result.exitCode != 0) {
-        spdlog::error(L"createDCOAdapter cmd failed: {}", result.output);
-    }
-
-    return result.success;
-}
-
-void OpenVPNController::removeDCOAdapter()
+void OpenVPNController::deleteAdapter(bool bestEffort)
 {
     std::wstringstream stream;
     stream << L"\"" << Utils::getExePath() << L"\\tapctl.exe\"" << L" delete " << kOpenVPNAdapterIdentifier;
 
-    spdlog::info(L"removeDCOAdapter cmd = {}", stream.str());
+    spdlog::info(L"deleteAdapter cmd = {}", stream.str());
     auto result = ExecuteCmd::instance().executeBlockingCmd(stream.str());
 
-    if (result.success && result.exitCode != 0) {
-        spdlog::error(L"removeDCOAdapter cmd failed: {}", result.output);
+    // A best-effort delete usually finds no adapter to remove; that's not worth logging.
+    if (result.success && result.exitCode != 0 && !bestEffort) {
+        spdlog::error(L"deleteAdapter cmd failed: {}", result.output);
     }
 }
 

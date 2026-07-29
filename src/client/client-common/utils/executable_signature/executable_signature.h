@@ -41,6 +41,12 @@ public:
     // For use with non-Unicode file systems (Linux/FAT/etc).
     bool verify(const std::string &exePath);
 
+#if defined(__APPLE__)
+    // As verify(), plus an `identifier` clause pinning which of our signed bundles this is. The
+    // Developer ID alone is satisfied by every binary and bundle we ship.
+    bool verifyWithBundleId(const std::string &bundlePath, const std::string &bundleId);
+#endif
+
     std::string lastError() const;
 
 private:

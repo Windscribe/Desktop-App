@@ -505,6 +505,9 @@ build:mac:installer:
   artifacts:
     paths:
       - build/src/helper/macos/com.windscribe.helper.macos
+      - build/src/client/Windscribe.app/Contents/MacOS/Windscribe
+      - build/src/client/Windscribe.app/Contents/Helpers/windscribeopenvpn
+      - build/temp/InstallerFiles/WindscribeInstaller.app/Contents/_CodeSignature/CodeResources
     expire_in: 1 day
   rules:
     - if: $BUILD_MAC == "y" && $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH != null && $NIGHTLY_TEST_BUILD != "y"
@@ -521,6 +524,9 @@ build:mac:installer:mr:
   artifacts:
     paths:
       - build/src/helper/macos/com.windscribe.helper.macos
+      - build/src/client/Windscribe.app/Contents/MacOS/Windscribe
+      - build/src/client/Windscribe.app/Contents/Helpers/windscribeopenvpn
+      - build/temp/InstallerFiles/WindscribeInstaller.app/Contents/_CodeSignature/CodeResources
     expire_in: 1 day
   rules:
     - if: $BUILD_MAC == "y" && $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH == null && $NIGHTLY_TEST_BUILD != "y"
@@ -1107,6 +1113,54 @@ test:signature_check:mac:
         exit 1
       fi
       echo "Signature check verification passed."
+    - echo "Verifying library validation is enforced..."
+    - |
+      # A tampered app bundle must not be able to inject code into the client, because the client is
+      # what the helper trusts as a caller. The only thing stopping a swapped dylib is library
+      # validation: hardened runtime, with no disable-library-validation entitlement. Nothing else
+      # in the build would notice if that entitlement were added, so assert it here.
+      APP="build/src/client/Windscribe.app"
+      for BIN in "$APP/Contents/MacOS/Windscribe" "$APP/Contents/Helpers/windscribeopenvpn"; do
+        if [ ! -f "$BIN" ]; then
+          echo "FATAL - $BIN not found!"
+          exit 1
+        fi
+        # Check every slice: codesign only reports the host-native one by default.
+        for ARCH in $(lipo -archs "$BIN"); do
+          FLAGS=$(codesign -dv --arch="$ARCH" "$BIN" 2>&1 | grep "flags=")
+          if ! echo "$FLAGS" | grep -q "runtime"; then
+            echo "FATAL - hardened runtime is not enabled on $BIN ($ARCH slice) - library validation is off!"
+            exit 1
+          fi
+        done
+        if codesign -d --entitlements - "$BIN" 2>&1 | grep -q "disable-library-validation"; then
+          echo "FATAL - $BIN disables library validation!"
+          exit 1
+        fi
+      done
+      echo "Library validation verification passed."
+    - echo "Verifying the payload archive is sealed into the installer bundle..."
+    - |
+      # The helper verifies the installer bundle and then reads windscribe.tar.lzma out of it, which
+      # only means something while the archive is sealed. That is a consequence of build ordering, so a
+      # reordering or a resource rule omitting it would move the payload outside the signature.
+      CR="build/temp/InstallerFiles/WindscribeInstaller.app/Contents/_CodeSignature/CodeResources"
+      if [ ! -f "$CR" ]; then
+        echo "FATAL - $CR not found!"
+        exit 1
+      fi
+      # Both seal lists, since which one a plain resource lands in depends on the signature version.
+      # Not the rules: an exclusion rule naming the archive must not satisfy this check.
+      SEALED=$(
+        { plutil -extract files2 xml1 -o - "$CR" 2>/dev/null
+          plutil -extract files xml1 -o - "$CR" 2>/dev/null
+        } | grep -c "windscribe\.tar\.lzma" || true
+      )
+      if [ "$SEALED" -eq 0 ]; then
+        echo "FATAL - windscribe.tar.lzma is not a sealed resource of the installer bundle - the helper's signature check does not cover the payload!"
+        exit 1
+      fi
+      echo "Payload archive seal verification passed."
   needs:
     - job: build:mac:installer
       optional: true
@@ -1258,6 +1312,9 @@ build:nightly:mac:
   artifacts:
     paths:
       - build/src/helper/macos/com.windscribe.helper.macos
+      - build/src/client/Windscribe.app/Contents/MacOS/Windscribe
+      - build/src/client/Windscribe.app/Contents/Helpers/windscribeopenvpn
+      - build/temp/InstallerFiles/WindscribeInstaller.app/Contents/_CodeSignature/CodeResources
     expire_in: 1 day
   rules:
     - if: $BUILD_MAC == "y" && $NIGHTLY_TEST_BUILD == "y"

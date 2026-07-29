@@ -1792,6 +1792,14 @@ void MainWindow::onBackendInitFinished(INIT_STATE initState)
                                                "",
                                                "",
                                                [this](bool b) { QTimer::singleShot(0, this, &MainWindow::close); });
+    } else if (initState == INIT_STATE_INCOMPLETE_INSTALL) {
+        GeneralMessageController::instance().showMessage("ERROR_ICON",
+                                               tr("Installation Incomplete"),
+                                               tr("Part of the Windscribe installation is missing.  Please download Windscribe and install it again."),
+                                               GeneralMessageController::tr(GeneralMessageController::kOk),
+                                               "",
+                                               "",
+                                               [this](bool b) { QTimer::singleShot(0, this, &MainWindow::close); });
     } else if (initState == INIT_STATE_HELPER_USER_CANCELED) {
         // close without message box
         QTimer::singleShot(0, this, &MainWindow::close);

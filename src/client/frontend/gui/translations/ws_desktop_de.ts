@@ -686,6 +686,14 @@ Wenn du den Hash deines Kontos verlierst, ist er für immer weg und der Support 
         <translation>Das ausgewählte Verzeichnis ist für andere Benutzer beschreibbar. Benutzerdefinierte Konfigurationen in diesem Verzeichnis können ein potenzielles Sicherheitsrisiko darstellen.</translation>
     </message>
     <message>
+        <source>Installation Incomplete</source>
+        <translation>Installation unvollständig</translation>
+    </message>
+    <message>
+        <source>Part of the Windscribe installation is missing.  Please download Windscribe and install it again.</source>
+        <translation>Ein Teil der Windscribe-Installation fehlt.  Bitte lade Windscribe herunter und installiere es erneut.</translation>
+    </message>
+    <message>
         <source>Proxy Gateway is unauthenticated</source>
         <translation>Proxy Gateway ist nicht authentifiziert</translation>
     </message>

@@ -483,6 +483,8 @@ void Backend::onEngineInitFinished(ENGINE_INIT_RET_CODE retCode, bool isCanLogin
         emit initFinished(INIT_STATE_BFE_SERVICE_NOT_STARTED);
     } else if (retCode == ENGINE_INIT_HELPER_USER_CANCELED) {
         emit initFinished(INIT_STATE_HELPER_USER_CANCELED);
+    } else if (retCode == ENGINE_INIT_INCOMPLETE_INSTALL) {
+        emit initFinished(INIT_STATE_INCOMPLETE_INSTALL);
     } else {
         WS_ASSERT(false);
     }

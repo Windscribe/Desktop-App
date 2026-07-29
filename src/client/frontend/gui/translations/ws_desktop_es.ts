@@ -686,6 +686,14 @@ Si pierde el hash de su cuenta, desaparece para siempre y el soporte no puede ay
         <translation>El directorio seleccionado es escribible para otros usuarios. Las configuraciones personalizadas en este directorio pueden suponer un riesgo de seguridad potencial.</translation>
     </message>
     <message>
+        <source>Installation Incomplete</source>
+        <translation>Instalación incompleta</translation>
+    </message>
+    <message>
+        <source>Part of the Windscribe installation is missing.  Please download Windscribe and install it again.</source>
+        <translation>Falta parte de la instalación de Windscribe.  Por favor, descarga Windscribe e instálalo de nuevo.</translation>
+    </message>
+    <message>
         <source>Proxy Gateway is unauthenticated</source>
         <translation>El Proxy Gateway no está autenticado</translation>
     </message>
