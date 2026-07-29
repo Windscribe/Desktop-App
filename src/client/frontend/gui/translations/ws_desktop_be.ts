@@ -651,11 +651,11 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
     </message>
     <message>
         <source>Installation Incomplete</source>
-        <translation>Няпоўная ўстаноўка</translation>
+        <translation>Усталёўка не завершаная</translation>
     </message>
     <message>
         <source>Part of the Windscribe installation is missing.  Please download Windscribe and install it again.</source>
-        <translation>Частка інсталяцыі Windscribe адсутнічае.  Калі ласка, спампуйце Windscribe і ўсталюйце яго зноў.</translation>
+        <translation>Частка ўсталёўкі Windscribe адсутнічае.  Спампуйце Windscribe яшчэ раз і ўсталюйце яго.</translation>
     </message>
     <message>
         <source>Proxy Gateway is unauthenticated</source>
@@ -675,7 +675,7 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
     </message>
     <message>
         <source>Trying Backup Endpoints...</source>
-        <translation>Спрабую рэзервовыя канчатковыя пункты...</translation>
+        <translation>Спроба выкарыстаць рэзэрвовыя канцавыя кропкі...</translation>
     </message>
     <message>
         <source>SSL requests may be intercepted on your network. Ignoring SSL errors disables TLS certificate validation for this session: anyone able to intercept your traffic can then impersonate Windscribe and read or alter your data, and we can&apos;t guarantee your security while it&apos;s on. Ignore SSL errors?</source>
@@ -819,19 +819,19 @@ Recovering...</source>
 If the problem persists after a restart, please send a debug log and open a support ticket, then switch to a different connection mode.</source>
         <translation>Памылка ў наладзе адаптара WireGuard. Пачакайце адну хвіліну і паспрабуйце зноў. Калі адаптар не наладзіцца, паспрабуйце перазапусьціць кампутар.
 
-Калі праблема не зьнікне пасьля перазапуска, дашліце журнал адладкі і адкрыйце запыт у службу падтрымкі. Пасьля гэтага пераключыцеся на іншы рэжым падлучэньня.</translation>
+Калі праблема не зьнікне пасьля перазапуска, дашліце журнал адладкі і стварыце запыт у службу падтрымкі. Пасьля гэтага пераключыцеся на іншы рэжым падлучэньня.</translation>
     </message>
     <message>
         <source>VPN adapter setup failed. Please wait one minute and try the connection again. If the problem persists, please send a debug log and open a support ticket, then switch to a different connection mode.</source>
-        <translation>Наладка VPN-адаптара не атрымалася. Калі ласка, пачакайце хвіліну і паспрабуйце злучэнне яшчэ раз. Калі праблема захаваецца, калі ласка, дашліце журнал адладкі і адкрыйце запыт у падтрымку, а затым пераключыцеся на іншы рэжым падключэння.</translation>
+        <translation>Не ўдалося наладзіць VPN-адаптар. Пачакайце хвіліну і паспрабуйце падлучыцца яшчэ раз. Калі праблема захаваецца, дашліце журнал адладкі і стварыце запыт у службу падтрымкі, а пасьля абярыце іншы рэжым падлучэньня.</translation>
     </message>
     <message>
         <source>Windscribe could not generate the connection configuration. If this error persists, please send a debug log and open a support ticket.</source>
-        <translation>Windscribe не змог стварыць канфігурацыю злучэння. Калі гэтая памылка захаваецца, калі ласка, дашліце журнал адладкі і адкрыйце запыт у падтрымку.</translation>
+        <translation>Windscribe не змог стварыць канфіґурацыю злучэньня. Калі гэтая памылка не зьнікне, дашліце журнал адладкі і стварыце запыт у службу падтрымкі.</translation>
     </message>
     <message>
         <source>The Remote Access Connection Manager (RasMan) service is not running and could not be started. This prevents IKEv2 from being used on this PC. Please try another connection mode or investigate why this core Windows service is unable to start.</source>
-        <translation>Сэрвіс Remote Access Connection Manager (RasMan) не працуе і не можа быць запушчаны. Гэта перашкаджае выкарыстанню IKEv2 на гэтым ПК. Калі ласка, паспрабуйце іншы рэжым злучэння або высветліць, чаму гэты асноўны сэрвіс Windows не можа запусціцца.</translation>
+        <translation>Служба Remote Access Connection Manager (RasMan) не працуе і не можа быць запушчаная. Гэта перашкаджае выкарыстаньню IKEv2 на гэтым кампутары. Паспрабуйце іншы рэжым злучэньня альбо высьветліце, чаму гэтая сыстэмная служба Windows не запускаецца.</translation>
     </message>
     <message>
         <source>An unexpected error occurred establishing the VPN connection (Error %1).  If this error persists, try using a different protocol or contact support.</source>
@@ -1007,7 +1007,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>The local DNS server is not available.  Connected DNS has been set back to Auto.</source>
-        <translation>Лякальны DNS-сэрвэр недасяжны.  Падлучаны DNS быў зноў усталяваны ў рэжым &quot;Аўта&quot;.</translation>
+        <translation>Лякальны DNS-сэрвэр недасяжны.  Падлучаны DNS-сэрвэр быў зноў усталяваны ў рэжым &quot;Аўта&quot;.</translation>
     </message>
     <message>
         <source>DNS Server Conflict</source>
@@ -1279,7 +1279,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>This setting applies to Stealth and Wstunnel protocols only.</source>
-        <translation>Гэта налада прымяняецца толькі да пратаколаў Stealth і Wstunnel.</translation>
+        <translation>Гэтая налада ўжываецца толькі да пратаколаў Stealth і Wstunnel.</translation>
     </message>
     <message>
         <source>Protocol-level changes made to WireGuard, OpenVPN, and Stealth protocols.</source>
@@ -1408,7 +1408,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     <name>PreferencesWindow::ConnectionWindowItem</name>
     <message>
         <source>Allow LAN Traffic</source>
-        <translation>Дазволіць LAN-трафік</translation>
+        <translation>Дазвол LAN-трафіку</translation>
     </message>
     <message>
         <source>Terminate Sockets</source>
@@ -1468,7 +1468,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Allow access to local services and printers while connected to Windscribe.</source>
-        <translation>Дазволіць доступ да лякальных службаў і друкарак падчас злучэньня з Windscribe.</translation>
+        <translation>Дазваляе атрымліваць доступ да лякальных службаў і друкарак падчас злучэньня з Windscribe.</translation>
     </message>
     <message>
         <source>Spoof your device&apos;s physical address (MAC address).</source>
@@ -1476,7 +1476,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>MAC spoofing requires NetworkManager to be installed and running.</source>
-        <translation>Падробка MAC патрабуе ўстаноўкі і запуску NetworkManager.</translation>
+        <translation>Для падмены MAC-адраса NetworkManager павінен быць усталяваны і запушчаны.</translation>
     </message>
     <message>
         <source>Close all active TCP sockets when the VPN tunnel is established.</source>
@@ -1488,7 +1488,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>The firewall is in an Always On mode. Allowing LAN traffic can leak your DNS and other traffic to your local network while you are disconnected. Are you sure you want to enable it?</source>
-        <translation>Фаервол знаходзіцца ў рэжыме Always On. Дазвол на LAN-трафік можа перадаваць ваш DNS і іншы трафік у лакальную сетку, пакуль вы адключаны. Ты ўпэўнены, што хочаш уключыць гэта?</translation>
+        <translation>Брандмаўэр працуе ў рэжыме &quot;Заўсёды&quot;. Дазвол LAN-трафіку можа прывесьці да ўцечкі вашых DNS-запытаў і іншага трафіку ў лякальную сетку, пакуль вы адлучаныя. Вы сапраўды хочаце дазволіць LAN-трафік?</translation>
     </message>
     <message>
         <source>Settings Conflict</source>
@@ -1496,15 +1496,15 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Disabling Allow LAN Traffic will cause your proxy gateway to stop working.  Do you want to disable the proxy?</source>
-        <translation>Адключэньне дазволу трафіку лякальнай сеткі прывядзе да спыненьня працы проксі-шлюза.  Адключыць проксі?</translation>
+        <translation>Адключэньне &quot;Дазвол LAN-трафіку&quot; прывядзе да спыненьня працы проксі-шлюза.  Адключыць проксі?</translation>
     </message>
     <message>
         <source>LAN traffic is currently blocked by the Windscribe firewall.  Do you want to allow LAN traffic to bypass the firewall in order for this feature to work?</source>
-        <translation>Трафік лякальнай сеткі зараз блакуецца брандмаўэрам Windscribe.  Дазволіць трафіку лакальнай сеткі абыходзіць брандмаўэр для працы гэтай функцыі?</translation>
+        <translation>LAN-трафік зараз блакуецца брандмаўэрам Windscribe.  Дазволіць LAN-трафіку абыходзіць брандмаўэр для працы гэтай функцыі?</translation>
     </message>
     <message>
         <source>Disabling Allow LAN Traffic will cause your secure hotspot to stop working.  Do you want to disable the hotspot?</source>
-        <translation>Адключэньне дазволу трафіку лякальнай сеткі прывядзе да спыненьня працы бясьпечнай кропкі доступу.  Адключыць кропку доступу?</translation>
+        <translation>Адключэньне &quot;Дазвол LAN-трафіку&quot; прывядзе да спыненьня працы бясьпечнай кропкі доступу.  Адключыць кропку доступу?</translation>
     </message>
     <message>
         <source>MAC spoofing is not supported on your version of MacOS.</source>
@@ -1524,7 +1524,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Control the mode of behaviour of the Windscribe firewall. Always On modes disable Allow LAN Traffic to prevent DNS leaks.</source>
-        <translation>Кантралюйце рэжым паводзін файрвола Windscribe. Рэжымы Always On адключаны, дазвольце LAN трафіку, каб прадухіліць уцечкі DNS.</translation>
+        <translation>Наладзьце рэжым працы брандмаўэра Windscribe. Рэжымы &quot;Заўсёды&quot; адключаюць &quot;Дазвол LAN-трафіка&quot;, каб прадухіліць уцечкі DNS-запытаў.</translation>
     </message>
     <message>
         <source>Configure egress IP stack for VPN connections (WireGuard only).</source>
@@ -2341,7 +2341,7 @@ Connect to a network first</source>
     <name>PreferencesWindow::SplitTunnelingAddressesGroup</name>
     <message>
         <source>There are too many IPs/CIDR ranges in the list. Please remove some before adding more.</source>
-        <translation>У спісе занадта шмат IP/CIDR дыяпазонаў. Калі ласка, выдаліце некаторыя перад тым, як дадаваць яшчэ.</translation>
+        <translation>У спісе зашмат IPs/CIDR дыяпазонаў. Выдаліце некалькі, перш чым дадаць новыя.</translation>
     </message>
     <message>
         <source>IP or hostname already exists. Please enter a new IP or hostname.</source>
@@ -2692,7 +2692,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>Invalid endpoint port</source>
-        <translation>Няправільны порт канчатковай кропкі</translation>
+        <translation>Няправільны порт канцавой кропкі</translation>
     </message>
     <message>
         <source>Invalid AmneziaWG header parameter</source>
