@@ -6,6 +6,8 @@
 #include <arpa/inet.h>
 #endif
 
+#include <algorithm>
+
 #include "ipaddress.h"
 
 namespace types {
@@ -75,6 +77,23 @@ bool IpAddress::isValid() const { return valid_; }
 bool IpAddress::isV4() const { return valid_ && family_ == IPv4; }
 bool IpAddress::isV6() const { return valid_ && family_ == IPv6; }
 IpAddress::Family IpAddress::family() const { return family_; }
+
+bool IpAddress::isLoopbackOrUnspecified() const
+{
+    if (!valid_)
+        return false;
+
+    if (family_ == IPv4)
+        return bytes_[0] == 127 || ipv4NetworkOrder() == 0;
+
+    static constexpr uint8_t kV4MappedPrefix[12] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xff, 0xff };
+    if (std::memcmp(bytes_.data(), kV4MappedPrefix, sizeof(kV4MappedPrefix)) == 0)
+        return bytes_[12] == 127 || (bytes_[12] | bytes_[13] | bytes_[14] | bytes_[15]) == 0;
+
+    const bool leadingZeros = std::all_of(bytes_.begin(), bytes_.begin() + 15,
+                                          [](uint8_t b) { return b == 0; });
+    return leadingZeros && (bytes_[15] == 0 || bytes_[15] == 1);
+}
 
 const uint8_t *IpAddress::bytes() const { return bytes_.data(); }
 
@@ -295,6 +314,67 @@ uint32_t IpAddressRange::prefixToMask(uint8_t prefix)
     if (prefix >= 32)
         return 0xFFFFFFFF;
     return ~((1u << (32 - prefix)) - 1);
+}
+
+namespace {
+
+bool parsePortDecimal(const std::string &s, uint16_t &out)
+{
+    if (s.empty() || s.size() > 5) {
+        return false;
+    }
+    unsigned long v = 0;
+    for (const char c : s) {
+        if (c < '0' || c > '9') {
+            return false;
+        }
+        v = v * 10 + static_cast<unsigned long>(c - '0');
+    }
+    if (v == 0 || v > 65535) {
+        return false;
+    }
+    out = static_cast<uint16_t>(v);
+    return true;
+}
+
+} // namespace
+
+std::string joinEndpoint(const std::string &address, uint16_t port)
+{
+    if (port == 0) {
+        return address;
+    }
+    if (address.find(':') != std::string::npos) {
+        return "[" + address + "]:" + std::to_string(port);
+    }
+    return address + ":" + std::to_string(port);
+}
+
+bool splitEndpoint(const std::string &entry, std::string &address, uint16_t &port)
+{
+    port = 0;
+    if (!entry.empty() && entry.front() == '[') {
+        const auto close = entry.find(']');
+        if (close == std::string::npos) {
+            return false;
+        }
+        address = entry.substr(1, close - 1);
+        if (close + 1 == entry.size()) {
+            return true;
+        }
+        if (entry[close + 1] != ':') {
+            return false;
+        }
+        return parsePortDecimal(entry.substr(close + 2), port);
+    }
+    // Exactly one colon is a port separator; two or more means a bare IPv6 literal.
+    if (std::count(entry.begin(), entry.end(), ':') == 1) {
+        const auto colon = entry.find(':');
+        address = entry.substr(0, colon);
+        return parsePortDecimal(entry.substr(colon + 1), port);
+    }
+    address = entry;
+    return true;
 }
 
 } // namespace types

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <memory>
+
 #include <QObject>
 #include <QQueue>
 #include <QTimer>
@@ -31,10 +33,12 @@ private:
     IConnectStateController *connectStateController_;
 
     std::shared_ptr<wsnet::WSNetCancelableCallback> curRequest_;
+    std::unique_ptr<ConnectStateWatcher> connectStateWatcher_;
+    quint64 curRequestId_ = 0;
 
     QTimer timer_;
 
-    void onMyIpAnswer(wsnet::ServerApiRetCode serverApiRetCode, const std::string &jsonData, ConnectStateWatcher *connectStateWatcher, bool isFromDisconnectedState);
+    void onMyIpAnswer(wsnet::ServerApiRetCode serverApiRetCode, const std::string &jsonData, quint64 requestId, bool isFromDisconnectedState);
 };
 
 } // namespace api_resources

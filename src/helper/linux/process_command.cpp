@@ -111,8 +111,8 @@ std::string sendConnectStatus(const std::string &pars)
         }
         // Also allow dnsWhitelistIps (the ctrld listen IP plus its plain-DNS :53 upstreams) through
         // leak protection, so split-DNS to a legacy RFC1918 upstream isn't dropped. DnsLeakProtect::enable
-        // treats allowedDnsServers as a never-blacklist set (removeAllowed), so these only widen the
-        // allow set; the drop chain for the remaining OS resolvers is unchanged.
+        // treats allowedDnsServers as a never-blacklist set (via DnsLeakParse::removeMatching), so these
+        // only widen the allow set; the drop chain for the remaining OS resolvers is unchanged.
         for (const auto &ipStr : cs.dnsWhitelistIps) {
             types::IpAddress ip(ipStr);
             if (ip.isValid()) {

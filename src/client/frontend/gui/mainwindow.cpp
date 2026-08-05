@@ -2619,7 +2619,7 @@ void MainWindow::onBackendTestTunnelResult(bool success)
     if (!ExtraConfig::instance().getIsTunnelTestNoError() && !success) {
         types::ConnectedDnsInfo cdi = backend_->getPreferences()->connectedDnsInfo();
 
-        if ((cdi.type == CONNECTED_DNS_TYPE_CUSTOM || cdi.type == CONNECTED_DNS_TYPE_CONTROLD) && backend_->osDnsServersListContains(cdi.upStream1.toStdWString())) {
+        if ((cdi.type == CONNECTED_DNS_TYPE_CUSTOM || cdi.type == CONNECTED_DNS_TYPE_CONTROLD) && backend_->wouldDnsServerLeak(cdi.upStream1.toStdWString())) {
             GeneralMessageController::instance().showMessage(
                 "WARNING_YELLOW",
                 tr("Invalid DNS Settings"),

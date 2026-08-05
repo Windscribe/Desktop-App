@@ -68,6 +68,8 @@ elseif(APPLE)
     )
 elseif(UNIX)
     target_sources(client-common PRIVATE
+        dns_utils/dnsleakparse.cpp
+        dns_utils/dnsleakparse.h
         dns_utils/dnsutils_linux.cpp
         executable_signature/executablesignature_linux.cpp
         executable_signature/executablesignature_linux.h

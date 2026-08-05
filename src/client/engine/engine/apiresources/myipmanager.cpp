@@ -30,13 +30,15 @@ void MyIpManager::onTimer()
     if (networkDetectionManager_->isOnline()) {
         SAFE_CANCEL_AND_DELETE_WSNET_REQUEST(curRequest_);
 
-        auto connectStateWatcher = new ConnectStateWatcher(this, connectStateController_);
+        // Only ever one request in flight, so one watcher, replaced here rather than allocated per request.
+        connectStateWatcher_ = std::make_unique<ConnectStateWatcher>(nullptr, connectStateController_);
         bool isFromDisconnectedState = connectStateController_->currentState() != CONNECT_STATE_CONNECTED;
+        const quint64 requestId = ++curRequestId_;
 
-        auto callback = [this, connectStateWatcher, isFromDisconnectedState](ServerApiRetCode serverApiRetCode, const std::string &jsonData)
+        auto callback = [this, requestId, isFromDisconnectedState](ServerApiRetCode serverApiRetCode, const std::string &jsonData)
         {
-            QMetaObject::invokeMethod(this, [this, serverApiRetCode, jsonData, connectStateWatcher, isFromDisconnectedState] { // NOLINT: false positive for memory leak
-                onMyIpAnswer(serverApiRetCode, jsonData, connectStateWatcher, isFromDisconnectedState);
+            QMetaObject::invokeMethod(this, [this, serverApiRetCode, jsonData, requestId, isFromDisconnectedState] { // NOLINT: false positive for memory leak
+                onMyIpAnswer(serverApiRetCode, jsonData, requestId, isFromDisconnectedState);
             });
         };
 
@@ -47,9 +49,13 @@ void MyIpManager::onTimer()
     }
 }
 
-void MyIpManager::onMyIpAnswer(ServerApiRetCode serverApiRetCode, const std::string &jsonData, ConnectStateWatcher *connectStateWatcher, bool isFromDisconnectedState)
+void MyIpManager::onMyIpAnswer(ServerApiRetCode serverApiRetCode, const std::string &jsonData, quint64 requestId, bool isFromDisconnectedState)
 {
-    if (connectStateWatcher->isVpnConnectStateChanged())
+    // A cancelled request can still deliver its callback; that answer, and its handle, are superseded.
+    if (requestId != curRequestId_)
+        return;
+
+    if (connectStateWatcher_->isVpnConnectStateChanged())
         return;
 
     if (curRequest_)

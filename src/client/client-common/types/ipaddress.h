@@ -28,6 +28,10 @@ public:
     bool isV6() const;
     Family family() const;
 
+    // 127/8, 0.0.0.0, ::1, :: — and the same embedded in an IPv4-mapped literal, which toString()
+    // renders as "::ffff:127.0.0.1" and no string test on either family would catch. False when invalid.
+    bool isLoopbackOrUnspecified() const;
+
     // Raw address bytes in network byte order (big-endian).
     // IPv4: 4 meaningful bytes, IPv6: 16 bytes.
     const uint8_t *bytes() const;
@@ -100,5 +104,16 @@ private:
 
     static uint32_t prefixToMask(uint8_t prefix);
 };
+
+// The two halves of the "address[:port]" packed form, kept together so only this file knows the encoding.
+// Bracket-aware by necessity: a bare IPv6 literal already contains colons, so a port is unambiguous only
+// when the address is bracketed — which is also what systemd-resolved emits.
+
+// Port 0 yields the bare address; a port on IPv6 yields "[addr]:port".
+std::string joinEndpoint(const std::string &address, uint16_t port);
+
+// Sets port to 0 when the entry carries none. False if a port is present but not a decimal 1-65535, or
+// the brackets are unterminated — either means the entry did not come from joinEndpoint.
+bool splitEndpoint(const std::string &entry, std::string &address, uint16_t &port);
 
 } // namespace types

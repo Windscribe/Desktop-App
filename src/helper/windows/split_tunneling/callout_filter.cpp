@@ -156,12 +156,23 @@ bool CalloutFilter::enable(UINT32 localIp, UINT32 vpnIp,
     // The v6 redirect machinery needs the address the driver actually rewrites the app's
     // source to, and that is mode-dependent (CalloutFunctions.c, ClassifyFnV6): exclusive
     // rewrites to the physical adapter's v6 (localIpV6) and never reads vpnIp; inclusive
-    // rewrites to the tunnel's v6. Requiring vpnIpV6 in exclusive mode would withhold a
-    // working redirect over the adapter-info race (tunnel v6 not yet assigned at capture)
-    // and degrade excluded apps to the per-app v6 BLOCK below — v4-only for the session.
+    // rewrites to the tunnel's v6 (vpnIpV6) and never reads localIp. Each mode is therefore
+    // gated on its own redirect target only.
+    //
+    // Requiring vpnIpV6 in exclusive mode would withhold a working redirect over the
+    // adapter-info race (tunnel v6 not yet assigned at capture) and degrade excluded apps to
+    // the per-app v6 BLOCK below — v4-only for the session. Requiring localIpV6 in inclusive
+    // mode used to withhold the redirect on machines whose physical adapter has no routable
+    // v6 (link-local only — e.g. an RA default route advertised without a usable prefix),
+    // which left included apps with no v6 path at all: routing sends them out the physical
+    // adapter because the tunnel's ::/0 is a deliberate last-resort route (see
+    // Routes::calcLastResortMetric), and Ipv6Firewall's per-app BLOCK then denies the rest.
     const bool localV6Ok = localIpV6.isValid() && localIpV6.isV6();
     const bool vpnV6Ok = vpnIpV6.isValid() && vpnIpV6.isV6();
-    const bool withV6 = isExclude ? localV6Ok : (localV6Ok && vpnV6Ok);
+    const bool withV6 = isExclude ? localV6Ok : vpnV6Ok;
+
+    spdlog::debug("CalloutFilter::enable(), isExclude={}, withV6={} (localV6Ok={}, vpnV6Ok={})",
+                  isExclude, withV6, localV6Ok, vpnV6Ok);
 
     HANDLE hEngine = fwmpWrapper_.getHandleAndLock();
     fwmpWrapper_.beginTransaction();

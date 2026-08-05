@@ -1,5 +1,7 @@
 #include "backend.h"
 
+#include <algorithm>
+
 #include <QCoreApplication>
 
 #include "engine/engine.h"
@@ -8,6 +10,7 @@
 #endif
 #include "persistentstate.h"
 #include "locations/locationsmodel_roles.h"
+#include "types/ipaddress.h"
 #include "utils/dns_utils/dnsutils.h"
 #include "utils/log/categories.h"
 #include "utils/network_utils/network_utils.h"
@@ -1093,9 +1096,28 @@ void Backend::reconnect()
     engine_->reconnect();
 }
 
-bool Backend::osDnsServersListContains(const std::wstring &dnsServer)
+bool Backend::wouldDnsServerLeak(const std::wstring &dnsServer)
 {
-    return std::find(osDnsServers_.begin(), osDnsServers_.end(), dnsServer) != osDnsServers_.end();
+    // Compare by address value, not spelling. The cached list comes from the OS (canonical literals on
+    // Linux, whatever the platform API printed elsewhere) while the probe is a user-typed Connected DNS
+    // setting, so an exact compare can miss a differently spelled address — and a miss here silently
+    // skips the DNS-leak warning that resets Connected DNS to Auto. Normalizing both sides only ever
+    // adds matches: identical strings still canonicalize identically.
+    const auto canonical = [](const std::wstring &s) {
+        const std::string raw = QString::fromStdWString(s).toStdString();
+        const types::IpAddress addr(raw);
+        return addr.isValid() ? addr.toString() : raw;
+    };
+    // A local stub forwards to ITS upstreams — the OS resolvers, outside the tunnel — so it leaks whether
+    // or not the snapshot lists it. Parsed, not prefix-matched: an upstream may be a hostname or a URL.
+    const std::string raw = QString::fromStdWString(dnsServer).toStdString();
+    const types::IpAddress probe(raw);
+    if (probe.isLoopbackOrUnspecified()) {
+        return true;
+    }
+    const std::string needle = probe.isValid() ? probe.toString() : raw;
+    return std::any_of(osDnsServers_.begin(), osDnsServers_.end(),
+                       [&](const std::wstring &ip) { return canonical(ip) == needle; });
 }
 
 void Backend::rotateIp()

@@ -122,7 +122,9 @@ public:
     void updateCurrentNetworkInterface();
 
     void reconnect();
-    bool osDnsServersListContains(const std::wstring &dnsServer);
+    // True when using dnsServer as the Connected DNS upstream would send queries outside the tunnel:
+    // it is one of the OS's own resolvers, or a local stub that forwards to them.
+    bool wouldDnsServerLeak(const std::wstring &dnsServer);
 
     void rotateIp();
 

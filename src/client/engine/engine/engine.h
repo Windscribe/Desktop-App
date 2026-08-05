@@ -3,6 +3,7 @@
 #include <atomic>
 #include <optional>
 
+#include <QElapsedTimer>
 #include <QObject>
 #include <QWaitCondition>
 #include "firewall/firewallexceptions.h"
@@ -384,6 +385,15 @@ private:
 
     api_resources::MyIpManager *myIpManager_;
 
+    // The rotate API acknowledges before the new WAN IP is observable, so the first sample after it
+    // often still reports the old address. Resample until it changes or the window closes.
+    static constexpr int kRotateResampleWindowMs = 2000;
+    static constexpr int kRotateResampleIntervalMs = 500;
+    QString lastMyIp_;
+    QElapsedTimer rotateResampleTimer_;
+    bool rotateResampling_ = false;
+    int rotateResampleAttempts_ = 0;
+
 #ifdef Q_OS_WIN
     MeasurementCpuUsage *measurementCpuUsage_;
     QScopedPointer<Debug::CrashHandlerForThread> crashHandler_;
@@ -465,6 +475,10 @@ private:
 
     void updateSessionStatus(const std::string &json);
     void saveWsnetSettings();
+
+    bool isResamplingRotatedIp(const QString &ip) const;
+    void resampleRotatedIp(const QString &ip);
+    void acceptMyIp(const QString &ip, bool isFromDisconnectedState);
 
     uint lastDownloadProgress_;
     QString installerUrl_;

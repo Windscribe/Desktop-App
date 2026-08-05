@@ -1486,6 +1486,36 @@ void Engine::onHostIPsChanged(const QSet<QString> &hostIps)
 
 void Engine::onMyIpManagerIpChanged(const QString &ip, bool isFromDisconnectedState)
 {
+    if (isResamplingRotatedIp(ip)) {
+        resampleRotatedIp(ip);
+        return;
+    }
+    acceptMyIp(ip, isFromDisconnectedState);
+}
+
+bool Engine::isResamplingRotatedIp(const QString &ip) const
+{
+    // Only while still connected: a disconnect legitimately reports a different address, and the
+    // rotated one is no longer worth waiting for.
+    return rotateResampling_ && ip == lastMyIp_ && connectStateController_->currentState() == CONNECT_STATE_CONNECTED
+           && rotateResampleTimer_.elapsed() < kRotateResampleWindowMs;
+}
+
+void Engine::resampleRotatedIp(const QString &ip)
+{
+    rotateResampleAttempts_++;
+    qCInfo(LOG_CONNECTION) << "Rotated IP still" << ip << "after" << rotateResampleTimer_.elapsed() << "ms, resampling";
+    myIpManager_->getIP(kRotateResampleIntervalMs);
+}
+
+void Engine::acceptMyIp(const QString &ip, bool isFromDisconnectedState)
+{
+    if (rotateResampling_) {
+        qCInfo(LOG_CONNECTION) << "Rotated IP" << (ip == lastMyIp_ ? "unchanged at" : "changed to") << ip << "after"
+                               << rotateResampleAttempts_ << "resample(s)," << rotateResampleTimer_.elapsed() << "ms";
+        rotateResampling_ = false;
+    }
+    lastMyIp_ = ip;
     emit myIpUpdated(ip, isFromDisconnectedState);
 }
 
@@ -1865,7 +1895,14 @@ void Engine::onConnectionManagerTestTunnelResult(bool success, const QString &ip
 {
     emit testTunnelResult(success); // stops protocol/port flashing
     if (!ipAddress.isEmpty()) {
-        emit myIpUpdated(ipAddress, false); // sends IP address to UI // test should only occur in connected state
+        if (isResamplingRotatedIp(ipAddress)) {
+            resampleRotatedIp(ipAddress);
+        } else {
+            acceptMyIp(ipAddress, false); // sends IP address to UI // test should only occur in connected state
+        }
+    } else {
+        // A failed test reports no address, so no further sample is coming to close the rotate window.
+        rotateResampling_ = false;
     }
     if (engineSettings_.decoyTrafficSettings().isEnabled()) {
         WSNet::instance()->decoyTraffic()->setFakeTrafficVolume((int)engineSettings_.decoyTrafficSettings().volume());
@@ -3020,6 +3057,12 @@ void Engine::onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON /*reas
         delayedVpnStateTimer_ = nullptr;
     }
 
+    // The rotated address is only worth waiting for while the connection that produced it lasts. This
+    // also covers the tunnel test failing into a reconnect, which reports no result at all.
+    if (state != CONNECT_STATE_CONNECTED) {
+        rotateResampling_ = false;
+    }
+
     if (helper_) {
         if (state != CONNECT_STATE_CONNECTED) {
             helper_->sendConnectStatus(false, engineSettings_.isTerminateSockets(), engineSettings_.isAllowLanTraffic(), AdapterGatewayInfo::detectAndCreateDefaultAdapterInfo(), AdapterGatewayInfo(), QString(), types::Protocol());
@@ -3337,6 +3380,9 @@ void Engine::onIpRotateFinished(bool success)
             helper_->closeAllTcpConnections(engineSettings_.isAllowLanTraffic());
         }
 #endif
+        rotateResampling_ = true;
+        rotateResampleAttempts_ = 0;
+        rotateResampleTimer_.start();
         testVPNTunnel_->startTests(connectionManager_->currentProtocol());
     }
 }
@@ -3350,7 +3396,7 @@ void Engine::onIpPinFinished(const QString &ip)
         }
 #endif
         emit testTunnelResult(true);
-        emit myIpUpdated(ip, false);
+        acceptMyIp(ip, false);
 
         if (engineSettings_.decoyTrafficSettings().isEnabled()) {
             WSNet::instance()->decoyTraffic()->setFakeTrafficVolume((int)engineSettings_.decoyTrafficSettings().volume());

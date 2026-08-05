@@ -15,6 +15,7 @@ find_path(NFTABLES_INCLUDE_DIR nftables/libnftables.h REQUIRED)
 
 set(SOURCES
     ../../client/client-common/types/ipaddress.cpp
+    ../../client/client-common/utils/dns_utils/dnsleakparse.cpp
     ../common/io_posix.cpp
     ../common/ovpn_mgmt_posix.cpp
     ../common/spawn_posix.cpp
@@ -72,4 +73,3 @@ target_include_directories(helper PRIVATE
 install(TARGETS helper
     RUNTIME DESTINATION .
 )
-

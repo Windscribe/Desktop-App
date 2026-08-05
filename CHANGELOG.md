@@ -1,3 +1,12 @@
+2.24.7 beta (05/08/2026)
+All:
+   * Fixed first click on Rotate IP may not rotate IP. #1702
+Windows:
+   * Fixed inclusive split tunnelled apps have no IPv6 (regression introduced in 2.24.4). #1951
+Linux:
+   * Fixed line-wrapped resolvectl output omits resolvers from DNS leak protection. #1952
+
+
 2.24.6 guinea pig (29/07/2026)
 Windows:
    * Fixed OpenVPN adapter creation failure insufficiently reported to the user. #1950
