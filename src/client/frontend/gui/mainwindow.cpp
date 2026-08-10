@@ -3778,6 +3778,9 @@ void MainWindow::handleDisconnectWithError(const types::ConnectState &connectSta
                 }
             });
         return;
+    } else if (connectState.connectError == ConnectError::kOSServiceUnavailable) {
+        msg = tr("The Remote Access Connection Manager (RasMan) service is not running and could not be started. This prevents IKEv2 from being used on this PC."
+                 " Please try another connection mode or investigate why this core Windows service is unable to start.");
     } else {
         msg = tr("An unexpected error occurred establishing the VPN connection (Error %1).  If this error persists, try using a different protocol or contact support.").arg(static_cast<int>(connectState.connectError));
     }

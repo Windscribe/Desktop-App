@@ -26,7 +26,8 @@ std::string changeIcs(const std::string &pars);
 std::string stopIcs(const std::string &pars);
 std::string queryBFEStatus(const std::string &pars);
 std::string enableBFE(const std::string &pars);
-std::string resetAndStartRAS(const std::string &pars);
+std::string queryRASStatus(const std::string &pars);
+std::string enableRAS(const std::string &pars);
 std::string setIPv6EnabledInFirewall(const std::string &pars);
 std::string setFirewallOnBoot(const std::string &pars);
 std::string clearWifiHistoryData(const std::string &pars);
@@ -77,7 +78,8 @@ static const std::map<const HelperCommand, std::function<std::string(const std::
     { HelperCommand::stopIcs, stopIcs },
     { HelperCommand::queryBFEStatus, queryBFEStatus },
     { HelperCommand::enableBFE, enableBFE },
-    { HelperCommand::resetAndStartRAS, resetAndStartRAS },
+    { HelperCommand::queryRASStatus, queryRASStatus },
+    { HelperCommand::enableRAS, enableRAS },
     { HelperCommand::setIPv6EnabledInFirewall, setIPv6EnabledInFirewall },
     { HelperCommand::setFirewallOnBoot, setFirewallOnBoot },
     { HelperCommand::clearWifiHistoryData, clearWifiHistoryData },

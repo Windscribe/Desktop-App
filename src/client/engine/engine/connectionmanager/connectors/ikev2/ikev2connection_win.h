@@ -38,11 +38,13 @@ public:
     void waitForDisconnect() override;
 
     // Used outside of an active connection, for app startup/shutdown cleanup of orphaned connections.
-    static void removeIkev2ConnectionFromOS();
-    static QVector<HRASCONN> getActiveIkev2Connections();
+    static void removeIkev2ConnectionFromOS(Helper *helper);
+    static QVector<HRASCONN> getActiveIkev2Connections(Helper *helper);
 
     // Synchronously hangs up the given RAS connection and waits (bounded) for it to be torn down.
     static void blockingDisconnect(HRASCONN connHandle);
+
+    static bool isRASRunning(Helper *helper);
 
 protected:
     void run() override;
@@ -99,6 +101,7 @@ private:
     bool armDropDetection();
     void cleanupHostsAndDnsProtection();
     void emitStatistics();
+    bool enableRAS() const;
     bool findIKEv2Device(RASDEVINFO *outDevInfo);
     ReinstallResult handleReinstallWan();
     MonitorResult monitorLoop();

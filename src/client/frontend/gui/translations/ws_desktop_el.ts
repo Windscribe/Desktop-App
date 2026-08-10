@@ -966,6 +966,10 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Το Windscrib δεν μπόρεσε να δημιουργήσει τη διαμόρφωση σύνδεσης. Εάν αυτό το σφάλμα παραμένει, στείλτε ένα αρχείο καταγραφής εντοπισμού σφαλμάτων και ανοίξτε ένα δελτίο υποστήριξης.</translation>
     </message>
     <message>
+        <source>The Remote Access Connection Manager (RasMan) service is not running and could not be started. This prevents IKEv2 from being used on this PC. Please try another connection mode or investigate why this core Windows service is unable to start.</source>
+        <translation>Η υπηρεσία Remote Access Connection Manager (RasMan) δεν εκτελείται και δεν ήταν δυνατή η εκκίνησή της. Αυτό αποτρέπει τη χρήση του IKEv2 σε αυτόν τον υπολογιστή. Δοκιμάστε μια άλλη λειτουργία σύνδεσης ή διερευνήστε γιατί δεν είναι δυνατή η εκκίνηση αυτής της βασικής υπηρεσίας των Windows.</translation>
+    </message>
+    <message>
         <source>An unexpected error occurred establishing the VPN connection (Error %1).  If this error persists, try using a different protocol or contact support.</source>
         <translation>Παρουσιάστηκε μη αναμενόμενο σφάλμα κατά τη δημιουργία της σύνδεσης VPN (Σφάλμα %1).  Εάν αυτό το σφάλμα επιμένει, δοκιμάστε να χρησιμοποιήσετε διαφορετικό πρωτόκολλο ή επικοινωνήστε με την υποστήριξη.</translation>
     </message>

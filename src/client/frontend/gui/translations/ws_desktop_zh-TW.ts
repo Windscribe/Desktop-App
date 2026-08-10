@@ -830,6 +830,10 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Windscribe 無法產生連線設定。如果這個錯誤持續存在，請寄出除錯日誌並開啟支援單。</translation>
     </message>
     <message>
+        <source>The Remote Access Connection Manager (RasMan) service is not running and could not be started. This prevents IKEv2 from being used on this PC. Please try another connection mode or investigate why this core Windows service is unable to start.</source>
+        <translation>遠端存取連線管理器（RasMan）服務未執行，無法啟動。此功能阻止 IKEv2 在此電腦上使用。請嘗試其他連線模式或調查為何此核心 Windows 服務無法啟動。</translation>
+    </message>
+    <message>
         <source>An unexpected error occurred establishing the VPN connection (Error %1).  If this error persists, try using a different protocol or contact support.</source>
         <translation>建立 VPN 連接時發生意外錯誤（錯誤 %1）。 如果此錯誤仍然存在，請嘗試使用其他協定或聯繫支持人員。</translation>
     </message>

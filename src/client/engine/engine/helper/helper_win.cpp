@@ -265,12 +265,20 @@ bool Helper_win::enableBFE()
     return success;
 }
 
-QString Helper_win::resetAndStartRAS()
+unsigned long Helper_win::queryRASStatus()
 {
-    auto result = sendCommand(HelperCommand::resetAndStartRAS);
-    std::wstring log;
-    deserializeAnswer(result, log);
-    return QString::fromStdWString(log);
+    auto result = sendCommand(HelperCommand::queryRASStatus);
+    unsigned long status = 0;
+    deserializeAnswer(result, status);
+    return status;
+}
+
+bool Helper_win::enableRAS()
+{
+    auto result = sendCommand(HelperCommand::enableRAS);
+    bool success = false;
+    deserializeAnswer(result, success);
+    return success;
 }
 
 void Helper_win::setIPv6EnabledInFirewall(bool b, bool bAllowLanTraffic, bool bIsCustomConfig)

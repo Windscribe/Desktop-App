@@ -12,7 +12,6 @@
 
 #include "types/global_consts.h"
 #include "log/categories.h"
-#include "servicecontrolmanager.h"
 #include "win32handle.h"
 
 #define MAX_KEY_LENGTH 255
@@ -474,22 +473,6 @@ QString WinUtils::executeBlockingCmd(QString cmd, const QString & /*params*/, in
         CloseHandle(wPipe);
     }
     return result;
-}
-
-bool WinUtils::isServiceRunning(const QString &serviceName)
-{
-    DWORD dwStatus = SERVICE_STOPPED;
-    try {
-        wsl::ServiceControlManager scm;
-        scm.openSCM(SC_MANAGER_CONNECT);
-        scm.openService(serviceName.toStdWString().c_str(), SERVICE_QUERY_STATUS);
-        dwStatus = scm.queryServiceStatus();
-    }
-    catch (std::system_error& ex) {
-        qCWarning(LOG_BASIC) << "WinUtils::isServiceRunning -" << ex.what();
-    }
-
-    return (dwStatus == SERVICE_RUNNING);
 }
 
 unsigned long WinUtils::Win32GetErrorString(unsigned long errorCode, wchar_t *buffer, unsigned long bufferSize)

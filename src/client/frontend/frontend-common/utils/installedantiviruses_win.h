@@ -10,11 +10,9 @@ public:
     static void outToLog();
 
 private:
-
     enum PRODUCT_TYPE { PT_SPYWARE, PT_ANTIVIRUS, PT_FIREWALL };
 
-    struct AntivirusInfo
-    {
+    struct AntivirusInfo {
         QString name;
         quint32 state;
         bool bStateAvailable;
@@ -23,7 +21,8 @@ private:
         AntivirusInfo() : state(0), bStateAvailable(false), productType(PT_SPYWARE) {}
     };
 
-    static void getSecurityCenter(const wchar_t *path);
+    static void getSecurityCenter();
+    static void logWindowsFirewallState();
     static QList<AntivirusInfo> enumField(IWbemServices *pSvc, const char *request, PRODUCT_TYPE productType);
     static QString makeStrFromList(const QList<AntivirusInfo> &other_list);
 

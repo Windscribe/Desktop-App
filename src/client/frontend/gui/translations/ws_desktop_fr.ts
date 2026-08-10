@@ -650,6 +650,10 @@ Si vous perdez le hachage de votre compte, il disparaît à jamais et le support
         <translation>Windscribe n’a pas pu générer la configuration de connexion. Si cette erreur persiste, veuillez envoyer un journal de débogage et ouvrir un ticket de support.</translation>
     </message>
     <message>
+        <source>The Remote Access Connection Manager (RasMan) service is not running and could not be started. This prevents IKEv2 from being used on this PC. Please try another connection mode or investigate why this core Windows service is unable to start.</source>
+        <translation>Le service Remote Access Connection Manager (RasMan) ne fonctionne pas et n’a pas pu être lancé. Cela empêche l’utilisation d’IKEv2 sur ce PC. Veuillez essayer un autre mode de connexion ou enquêter sur les raisons pour lesquelles ce service principal de Windows ne peut pas démarrer.</translation>
+    </message>
+    <message>
         <source>An unexpected error occurred establishing the VPN connection (Error %1).  If this error persists, try using a different protocol or contact support.</source>
         <translation>Une erreur inattendue s’est produite lors de l’établissement de la connexion VPN (erreur %1).  Si cette erreur persiste, essayez d’utiliser un autre protocole ou contactez le support technique.</translation>
     </message>

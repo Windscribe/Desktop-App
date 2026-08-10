@@ -830,6 +830,10 @@ Se o problema persistir após uma reinicialização, envie um log de depuração
         <translation>O Windscribe não conseguiu gerar a configuração da ligação. Se este erro persistir, por favor envie um registo de depuração e abra um pedido de suporte.</translation>
     </message>
     <message>
+        <source>The Remote Access Connection Manager (RasMan) service is not running and could not be started. This prevents IKEv2 from being used on this PC. Please try another connection mode or investigate why this core Windows service is unable to start.</source>
+        <translation>O serviço Remote Access Connection Manager (RasMan) não está a correr e não pôde ser iniciado. Isto impede que o IKEv2 seja utilizado neste PC. Por favor, experimente outro modo de ligação ou investigue porque é que este serviço central do Windows não consegue arrancar.</translation>
+    </message>
+    <message>
         <source>An unexpected error occurred establishing the VPN connection (Error %1).  If this error persists, try using a different protocol or contact support.</source>
         <translation>Ocorreu um erro inesperado ao estabelecer a ligação VPN (Erro %1).  Se esse erro persistir, tente usar um protocolo diferente ou entre em contato com o suporte.</translation>
     </message>

@@ -650,6 +650,10 @@ Si pierde el hash de su cuenta, desaparece para siempre y el soporte no puede ay
         <translation>Windscribe no pudo generar la configuración de conexión. Si este error persiste, por favor envía un registro de depuración y abre un ticket de soporte.</translation>
     </message>
     <message>
+        <source>The Remote Access Connection Manager (RasMan) service is not running and could not be started. This prevents IKEv2 from being used on this PC. Please try another connection mode or investigate why this core Windows service is unable to start.</source>
+        <translation>El servicio Remote Access Connection Manager (RasMan) no está en funcionamiento y no pudo iniciarse. Esto impide que IKEv2 se use en este PC. Por favor, pruebe con otro modo de conexión o investigue por qué este servicio central de Windows no puede iniciarse.</translation>
+    </message>
+    <message>
         <source>An unexpected error occurred establishing the VPN connection (Error %1).  If this error persists, try using a different protocol or contact support.</source>
         <translation>Se ha producido un error inesperado al establecer la conexión VPN (error %1).  Si el error persiste, intente usar un protocolo diferente o póngase en contacto con el soporte técnico.</translation>
     </message>

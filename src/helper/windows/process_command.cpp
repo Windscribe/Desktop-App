@@ -494,18 +494,60 @@ std::string queryBFEStatus(const std::string &pars)
     return serializeResult(status);
 }
 
-std::string resetAndStartRAS(const std::string &pars)
+std::string queryRASStatus(const std::string &pars)
 {
-    spdlog::debug("resetAndStartRAS");
+    spdlog::debug("queryRASStatus");
 
-    std::wstring exe = Utils::getSystemDir() + L"\\sc.exe";
-    ExecuteCmd::instance().executeBlockingCmd(exe + L" config RasMan start= demand");
-    ExecuteCmd::instance().executeBlockingCmd(exe + L" stop RasMan");
-    ExecuteCmd::instance().executeBlockingCmd(exe + L" start RasMan");
-    ExecuteCmd::instance().executeBlockingCmd(exe + L" config SstpSvc start= demand");
-    ExecuteCmd::instance().executeBlockingCmd(exe + L" stop SstpSvc");
-    auto res = ExecuteCmd::instance().executeBlockingCmd(exe + L" start SstpSvc");
-    return serializeResult(res.output);
+    DWORD status = 0;
+    try {
+        wsl::ServiceControlManager scm;
+        scm.openSCM(SC_MANAGER_CONNECT);
+        scm.openService(L"RasMan", SERVICE_QUERY_STATUS);
+        status = scm.queryServiceStatus();
+    }
+    catch (std::system_error& ex) {
+        spdlog::error("queryRASStatus - {}", ex.what());
+    }
+
+    return serializeResult(status);
+}
+
+std::string enableRAS(const std::string &pars)
+{
+    spdlog::debug("enableRAS");
+
+    // The client blocks on this command, so keep the SCM waits short.  A RasMan that has not stopped or
+    // started within this window is wedged badly enough that waiting longer will not help.
+    constexpr int kTimeoutMs = 5000;
+
+    bool success = false;
+    try {
+        wsl::ServiceControlManager scm;
+        scm.openSCM(SC_MANAGER_CONNECT);
+        scm.openService(L"RasMan", SERVICE_QUERY_STATUS | SERVICE_START | SERVICE_STOP);
+        if (scm.queryServiceStatus() != SERVICE_STOPPED) {
+            try {
+                scm.stopService(kTimeoutMs);
+            }
+            catch (std::system_error &ex) {
+                spdlog::warn("enableRAS: could not stop RasMan, starting it anyway - {}", ex.what());
+            }
+        }
+
+        scm.startService(kTimeoutMs);
+        success = true;
+    }
+    catch (std::system_error &ex) {
+        spdlog::error("enableRAS - {}", ex.what());
+    }
+
+    if (!success) {
+        wsl::ServiceControlManager::logServiceStatusAndConfig(L"RasMan", true, [](const std::string &message) {
+            spdlog::error("enableRAS: {}", message);
+        });
+    }
+
+    return serializeResult(success);
 }
 
 std::string setIPv6EnabledInFirewall(const std::string &pars)

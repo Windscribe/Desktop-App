@@ -71,6 +71,7 @@ enum class ConnectError {
     kBlockedByOsPolicy = 16,            // OS policy forbids this protocol (e.g. macOS Lockdown)
     kLocalDnsServerNotAvailable = 17,
     kAdapterNotInstalled = 18,          // required VPN adapter/driver is not installed; terminal
+    kOSServiceUnavailable = 19,         //
 };
 
 enum PROXY_SHARING_TYPE {

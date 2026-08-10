@@ -2,8 +2,11 @@
 
 #include <Windows.h>
 #include <atomic>
+#include <functional>
+#include <memory>
 #include <string>
 #include <system_error>
+#include <vector>
 
 namespace wsl
 {
@@ -11,6 +14,10 @@ namespace wsl
 class ServiceControlManager
 {
 public:
+    // Emits one diagnostic line.  Supplied by the caller of logServiceStatusAndConfig so it can
+    // route the output to whichever logger it uses.
+    using LogFunction = std::function<void(const std::string &message)>;
+
     explicit ServiceControlManager();
     ~ServiceControlManager();
 
@@ -35,6 +42,11 @@ public:
     bool openService(LPCTSTR serviceName, DWORD desiredAccess, std::error_code& ec) noexcept;
     void queryServiceConfig(std::wstring& exePath, std::wstring& accountName,
                             DWORD& startType, bool& serviceShareProcess) const;
+    // Returns the names of the services and load-ordering groups the system must start before this
+    // service. A name prefixed with SC_GROUP_IDENTIFIER ('+') identifies a load-ordering group
+    // rather than an individual service.
+    std::vector<std::wstring> queryServiceDependencies() const;
+    DWORD queryServiceStartType() const;
     DWORD queryServiceStatus() const;
     DWORD queryServiceStatus(std::error_code& ec) const noexcept;
     void sendControlCode(DWORD code) const;
@@ -54,7 +66,12 @@ public:
 
     std::wstring exePath() const;
 
-    static std::wstring serviceStatusToString(DWORD status);
+    static std::string serviceStartTypeToString(DWORD startType);
+    static std::string serviceStatusToString(DWORD status);
+
+    // Logs the state and configuration of the named service, and of each of its dependencies,
+    // through the caller-supplied callback.
+    static void logServiceStatusAndConfig(LPCTSTR serviceName, bool logDependencies, const LogFunction &log);
 
 private:
     std::wstring serverName_;
@@ -65,6 +82,7 @@ private:
 
 private:
     void grantUserStartStopPermission() const;
+    std::unique_ptr<unsigned char[]> queryServiceConfig() const;
     std::wstring serverNameForDebug() const;
 };
 

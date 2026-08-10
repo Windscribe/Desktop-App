@@ -28,8 +28,6 @@ namespace WinUtils
 
     bool isAppAlreadyRunning();
 
-    bool isServiceRunning(const QString &serviceName);
-
     // Registry Adapters
     bool regHasLocalMachineSubkeyProperty(QString keyPath, QString propertyName);
     QString regGetLocalMachineRegistryValueSz(QString keyPath, QString propertyName);

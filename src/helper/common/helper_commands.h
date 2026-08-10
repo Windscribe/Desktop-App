@@ -49,7 +49,6 @@ enum class HelperCommand {
     stopIcs,
     queryBFEStatus,
     enableBFE,
-    resetAndStartRAS,
     setIPv6EnabledInFirewall,
     addHosts,
     removeHosts,
@@ -73,6 +72,8 @@ enum class HelperCommand {
     disableDohSettings,
     enableDohSettings,
     ssidFromInterfaceGUID,
+    queryRASStatus,
+    enableRAS,
 
     // Posix (Mac and Linux)
     startCtrld,

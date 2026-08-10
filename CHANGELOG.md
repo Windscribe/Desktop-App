@@ -1,3 +1,9 @@
+2.24.8 beta (09/08/2026)
+Windows:
+    * Improved connection failed messaging when IKEv2 (RAS) services are unavailable. #1953
+    * Fixed app startup/shutdown delay when IKEv2 (RAS) services are unavailable. #1953
+
+
 2.24.7 beta (05/08/2026)
 All:
    * Fixed first click on Rotate IP may not rotate IP. #1702

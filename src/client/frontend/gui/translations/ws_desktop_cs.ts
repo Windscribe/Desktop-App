@@ -830,6 +830,10 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
         <translation>Windscribe nedokázal vygenerovat konfiguraci spojení. Pokud tato chyba přetrvává, pošlete prosím debugovací log a otevřete tiket na podporu.</translation>
     </message>
     <message>
+        <source>The Remote Access Connection Manager (RasMan) service is not running and could not be started. This prevents IKEv2 from being used on this PC. Please try another connection mode or investigate why this core Windows service is unable to start.</source>
+        <translation>Služba Remote Access Connection Manager (RasMan) neběží a nebylo možné ji spustit. To zabraňuje použití IKEv2 na tomto PC. Zkuste prosím jiný režim připojení nebo zjistěte, proč se tato základní Windows služba nemůže spustit.</translation>
+    </message>
+    <message>
         <source>An unexpected error occurred establishing the VPN connection (Error %1).  If this error persists, try using a different protocol or contact support.</source>
         <translation>Při vytváření připojení VPN došlo k neočekávané chybě (Chyba % 1).  Pokud tato chyba přetrvává, zkuste použít jiný protokol nebo kontaktujte podporu.</translation>
     </message>

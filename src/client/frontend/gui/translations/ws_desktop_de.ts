@@ -650,6 +650,10 @@ Wenn du den Hash deines Kontos verlierst, ist er für immer weg und der Support 
         <translation>Windscribe konnte die Verbindungskonfiguration nicht erzeugen. Wenn dieser Fehler weiterhin auftritt, senden Sie bitte ein Debug-Log und eröffnen Sie ein Support-Ticket.</translation>
     </message>
     <message>
+        <source>The Remote Access Connection Manager (RasMan) service is not running and could not be started. This prevents IKEv2 from being used on this PC. Please try another connection mode or investigate why this core Windows service is unable to start.</source>
+        <translation>Der Remote Access Connection Manager (RasMan) Dienst läuft nicht und konnte nicht gestartet werden. Dies verhindert, dass IKEv2 auf diesem PC verwendet wird. Bitte versuchen Sie einen anderen Verbindungsmodus oder untersuchen Sie, warum dieser Kerndienst von Windows nicht starten kann.</translation>
+    </message>
+    <message>
         <source>An unexpected error occurred establishing the VPN connection (Error %1).  If this error persists, try using a different protocol or contact support.</source>
         <translation>Beim Herstellen der VPN-Verbindung ist ein unerwarteter Fehler aufgetreten (Fehler %1).  Wenn dieser Fehler weiterhin besteht, versuchen Sie, ein anderes Protokoll zu verwenden, oder wenden Sie sich an den Support.</translation>
     </message>

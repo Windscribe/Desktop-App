@@ -650,6 +650,10 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
         <translation>Windscribe कनेक्शन कॉन्फ़िगरेशन जनरेट नहीं कर सका। यदि यह त्रुटि बनी रहती है, तो कृपया एक डीबग लॉग भेजें और एक समर्थन टिकट खोलें।</translation>
     </message>
     <message>
+        <source>The Remote Access Connection Manager (RasMan) service is not running and could not be started. This prevents IKEv2 from being used on this PC. Please try another connection mode or investigate why this core Windows service is unable to start.</source>
+        <translation>दूरस्थ पहुँच कनेक्शन प्रबंधक (RasMan) सेवा नहीं चल रही है और प्रारंभ नहीं किया जा सका. यह IKEv2 को इस PC पर उपयोग किए जाने से रोकता है. कृपया किसी अन्य कनेक्शन मोड का प्रयास करें या जाँच करें कि यह कोर Windows सेवा प्रारंभ करने में असमर्थ क्यों है.</translation>
+    </message>
+    <message>
         <source>An unexpected error occurred establishing the VPN connection (Error %1).  If this error persists, try using a different protocol or contact support.</source>
         <translation>VPN कनेक्शन स्थापित करने में कोई अनपेक्षित त्रुटि आई (त्रुटि %1).  यदि यह त्रुटि बनी रहती है, तो किसी भिन्न प्रोटोकॉल या संपर्क समर्थन का उपयोग करने का प्रयास करें.</translation>
     </message>

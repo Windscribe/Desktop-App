@@ -650,6 +650,10 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
         <translation>لم يتمكن Windscribe من توليد تكوين الاتصال. إذا استمر هذا الخطأ، يرجى إرسال سجل تصحيح وفتح تذكرة دعم.</translation>
     </message>
     <message>
+        <source>The Remote Access Connection Manager (RasMan) service is not running and could not be started. This prevents IKEv2 from being used on this PC. Please try another connection mode or investigate why this core Windows service is unable to start.</source>
+        <translation>خدمة مدير الاتصال للوصول عن بعد (RasMan) لا تعمل ولم يكن بالإمكان تشغيلها. هذا يمنع استخدام IKEv2 على هذا الكمبيوتر. يرجى تجربة وضع اتصال آخر أو التحقق من سبب عدم تشغيل هذه الخدمة الأساسية لويندوز.</translation>
+    </message>
+    <message>
         <source>An unexpected error occurred establishing the VPN connection (Error %1).  If this error persists, try using a different protocol or contact support.</source>
         <translation>حدث خطأ غير متوقع أثناء تأسيس اتصال VPN (خطأ %1).  إذا استمر هذا الخطأ، فحاول استخدام بروتوكول مختلف أو اتصل بالدعم.</translation>
     </message>

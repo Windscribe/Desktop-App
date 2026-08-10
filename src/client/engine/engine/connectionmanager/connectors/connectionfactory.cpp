@@ -40,7 +40,7 @@ IConnection *ConnectionFactory::createConnection(types::Protocol protocol, QObje
 void ConnectionFactory::removeIkev2ConnectionFromOS()
 {
 #ifdef Q_OS_WIN
-    IKEv2Connection_win::removeIkev2ConnectionFromOS();
+    IKEv2Connection_win::removeIkev2ConnectionFromOS(helper_);
 #elif defined Q_OS_MACOS
     IKEv2Connection_mac::removeIkev2ConnectionFromOS();
 #endif
@@ -61,7 +61,7 @@ void ConnectionFactory::finishActiveConnections(Helper *helper)
 #ifdef Q_OS_WIN
     helper->executeTaskKill(kTargetOpenVpn);
 
-    const QVector<HRASCONN> v = IKEv2Connection_win::getActiveIkev2Connections();
+    const QVector<HRASCONN> v = IKEv2Connection_win::getActiveIkev2Connections(helper);
     if (!v.isEmpty()) {
         for (HRASCONN hRas : v) {
             IKEv2Connection_win::blockingDisconnect(hRas);

@@ -830,6 +830,10 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
         <translation>Windscribe bağlantı yapılandırmasını oluşturamadı. Bu hata devam ederse, lütfen bir hata ayıklama kaydı gönderin ve destek bileti açın.</translation>
     </message>
     <message>
+        <source>The Remote Access Connection Manager (RasMan) service is not running and could not be started. This prevents IKEv2 from being used on this PC. Please try another connection mode or investigate why this core Windows service is unable to start.</source>
+        <translation>Remote Access Connection Manager (RasMan) servisi çalışmıyor ve başlatılamamaktadır. Bu, IKEv2&apos;nin bu PC&apos;de kullanılmasını engeller. Lütfen başka bir bağlantı modunu deneyin veya bu temel Windows servisinin neden başlayamadığını araştırın.</translation>
+    </message>
+    <message>
         <source>An unexpected error occurred establishing the VPN connection (Error %1).  If this error persists, try using a different protocol or contact support.</source>
         <translation>VPN bağlantısı kurulurken beklenmeyen bir hata oluştu (Hata %1).  Bu hata devam ederse, farklı bir protokol kullanmayı deneyin veya desteğe başvurun.</translation>
     </message>

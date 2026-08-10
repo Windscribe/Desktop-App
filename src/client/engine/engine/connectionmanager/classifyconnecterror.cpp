@@ -26,6 +26,7 @@ ConnectErrorClassification classifyConnectError(ConnectError err, bool isAutomat
             return ConnectErrorClassification::ErrorAfterDisconnect;
         case ConnectError::kVpnServiceSetupFailure:
         case ConnectError::kHostsFileNotWritable:
+        case ConnectError::kOSServiceUnavailable:
             return isAutomaticMode ? ConnectErrorClassification::Retry : ConnectErrorClassification::ErrorImmediately;
         case ConnectError::kTransientTunnelFailure:
             return ConnectErrorClassification::Retry;

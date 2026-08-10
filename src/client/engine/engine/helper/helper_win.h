@@ -58,7 +58,8 @@ public:
 
     unsigned long queryBFEStatus();
     bool enableBFE();
-    QString resetAndStartRAS();
+    unsigned long queryRASStatus();
+    bool enableRAS();
 
     // bAllowLanTraffic/bIsCustomConfig are only meaningful when disabling IPv6 (b == false):
     // they gate the LAN (fc00::/7, ff00::/8) permits in the helper's Ipv6Firewall sublayer.

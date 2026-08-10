@@ -156,6 +156,15 @@ void ServiceControlManager::closeService() noexcept
     }
 }
 
+DWORD ServiceControlManager::queryServiceStartType() const
+{
+    std::wstring exePath, accountName;
+    DWORD startType = 0;
+    bool sharesProcess = false;
+    queryServiceConfig(exePath, accountName, startType, sharesProcess);
+    return startType;
+}
+
 /*
 Determines the status (started, stopped, pending, etc.) of the service.  openService must be
 called before calling this method.
@@ -201,43 +210,32 @@ DWORD ServiceControlManager::queryServiceStatus(std::error_code& ec) const noexc
     return 0;
 }
 
-/*
-Retrieves the configuration parameters of the service. openService must be called before calling this method.
-exePath: receives the full path to the service's executable.
-accountName: receives the account name in the form of DomainName\Username, which the service process will be logged on as when it runs.
-startType: receives a start code of SERVICE_AUTO_START, SERVICE_DEMAND_START, or SERVICE_DISABLED.
-serviceShareProcess: true if the service shares a process with other services.
-*/
-void ServiceControlManager::queryServiceConfig(std::wstring &exePath, std::wstring &accountName,
-                                               DWORD& startType, bool& serviceShareProcess) const
+std::unique_ptr< unsigned char[] > ServiceControlManager::queryServiceConfig() const
 {
-    DWORD numBytesNeeded = 0;
     DWORD bufferSize = 1024;
     std::unique_ptr< unsigned char[] > buffer(new unsigned char[bufferSize]);
 
-    bool secondTry = false;
-
-    for (int i = 0; i < 2; i++) {
-        if (::QueryServiceConfig(service_, (LPQUERY_SERVICE_CONFIG)buffer.get(),
-                                 bufferSize, &numBytesNeeded)) {
+    for (int attempt = 0; attempt < 2; attempt++) {
+        DWORD numBytesNeeded = 0;
+        const auto result = ::QueryServiceConfig(service_, (LPQUERY_SERVICE_CONFIG)buffer.get(), bufferSize, &numBytesNeeded);
+        if (result) {
             break;
         }
 
         DWORD lastError = ::GetLastError();
+
+        if (lastError == ERROR_INSUFFICIENT_BUFFER && attempt == 0) {
+            bufferSize = numBytesNeeded;
+            buffer.reset(new unsigned char[bufferSize]);
+            continue;
+        }
+
         std::wostringstream errorMsg;
 
         switch (lastError) {
         case ERROR_INSUFFICIENT_BUFFER:
-            if (secondTry) {
-                errorMsg << "queryServiceConfig: insufficient buffer space to query the service's configuration - " << serviceName_;
-                break;
-            }
-
-            bufferSize = numBytesNeeded;
-            buffer.reset(new unsigned char[bufferSize]);
-            numBytesNeeded = 0;
-            secondTry = true;
-            continue;
+            errorMsg << "queryServiceConfig: insufficient buffer space to query the service's configuration - " << serviceName_;
+            break;
 
         case ERROR_ACCESS_DENIED:
             errorMsg << "queryServiceConfig: insufficient user rights to query the service's configuration - " << serviceName_;
@@ -255,11 +253,46 @@ void ServiceControlManager::queryServiceConfig(std::wstring &exePath, std::wstri
         throw std::system_error(lastError, std::system_category(), wstring_to_string(errorMsg.str()));
     }
 
+    return buffer;
+}
+
+/*
+Retrieves the configuration parameters of the service. openService must be called before calling this method.
+exePath: receives the full path to the service's executable.
+accountName: receives the account name in the form of DomainName\Username, which the service process will be logged on as when it runs.
+startType: receives a start code of SERVICE_AUTO_START, SERVICE_DEMAND_START, or SERVICE_DISABLED.
+serviceShareProcess: true if the service shares a process with other services.
+*/
+void ServiceControlManager::queryServiceConfig(std::wstring &exePath, std::wstring &accountName,
+                                               DWORD& startType, bool& serviceShareProcess) const
+{
+    auto buffer = queryServiceConfig();
+
     LPQUERY_SERVICE_CONFIG lpConfig = (LPQUERY_SERVICE_CONFIG)buffer.get();
     startType           = lpConfig->dwStartType;
-    exePath             = lpConfig->lpBinaryPathName;
     serviceShareProcess = (lpConfig->dwServiceType == SERVICE_WIN32_SHARE_PROCESS);
-    accountName         = lpConfig->lpServiceStartName;
+    exePath             = (lpConfig->lpBinaryPathName  != NULL ? lpConfig->lpBinaryPathName : L"");
+    accountName         = (lpConfig->lpServiceStartName != NULL ? lpConfig->lpServiceStartName : L"");
+}
+
+/*
+Retrieves the names of the services and load-ordering groups the system must start before this
+service. openService must be called before calling this method.
+*/
+std::vector<std::wstring> ServiceControlManager::queryServiceDependencies() const
+{
+    auto buffer = queryServiceConfig();
+
+    LPQUERY_SERVICE_CONFIG lpConfig = (LPQUERY_SERVICE_CONFIG)buffer.get();
+
+    // lpDependencies is a double-null-terminated array of null-separated names, and is NULL when
+    // the service has no dependencies.
+    std::vector<std::wstring> dependencies;
+    for (LPCWSTR name = lpConfig->lpDependencies; name != NULL && *name != L'\0'; name += wcslen(name) + 1) {
+        dependencies.emplace_back(name);
+    }
+
+    return dependencies;
 }
 
 /*
@@ -854,48 +887,7 @@ Retrieves the full path to the service's executable.
 */
 std::wstring ServiceControlManager::exePath() const
 {
-    DWORD numBytesNeeded = 0;
-    DWORD bufferSize = 1024;
-    std::unique_ptr< unsigned char[] > buffer(new unsigned char[bufferSize]);
-
-    bool secondTry = false;
-
-    for (int i = 0; i < 2; i++) {
-        if (::QueryServiceConfig(service_, (LPQUERY_SERVICE_CONFIG)buffer.get(),
-                                 bufferSize, &numBytesNeeded)) {
-            break;
-        }
-
-        DWORD lastError = ::GetLastError();
-        std::wostringstream errorMsg;
-
-        switch (lastError) {
-        case ERROR_INSUFFICIENT_BUFFER:
-            if (secondTry) {
-                errorMsg << "queryServiceConfig: insufficient buffer space to query the service's configuration - " << serviceName_;
-                break;
-            }
-
-            buffer.reset(new unsigned char[numBytesNeeded]);
-            numBytesNeeded = 0;
-            secondTry = true;
-            continue;
-
-        case ERROR_ACCESS_DENIED:
-            errorMsg << "queryServiceConfig: insufficient user rights to query the service's configuration - " << serviceName_;
-            break;
-
-        case ERROR_INVALID_HANDLE:
-            errorMsg << "queryServiceConfig: the service has not been opened - " << serviceName_;
-            break;
-
-        default:
-            errorMsg << "queryServiceConfig failed to query the service " << serviceName_ << " - " << lastError;
-            break;
-        }
-
-        throw std::system_error(lastError, std::system_category(), wstring_to_string(errorMsg.str()));
-    }
+    auto buffer = queryServiceConfig();
 
     LPQUERY_SERVICE_CONFIG lpConfig = (LPQUERY_SERVICE_CONFIG)buffer.get();
     std::wstring cmdLine(lpConfig->lpBinaryPathName);
@@ -920,37 +912,136 @@ std::wstring ServiceControlManager::exePath() const
     return exePath;
 }
 
-std::wstring ServiceControlManager::serviceStatusToString(DWORD status)
+std::string ServiceControlManager::serviceStatusToString(DWORD status)
 {
-    std::wstring desc;
+    std::string desc;
     switch (status) {
     case SERVICE_STOPPED:
-        desc = L"stopped";
+        desc = "stopped";
         break;
     case SERVICE_START_PENDING:
-        desc = L"start pending";
+        desc = "start pending";
         break;
     case SERVICE_STOP_PENDING:
-        desc = L"stop pending";
+        desc = "stop pending";
         break;
     case SERVICE_RUNNING:
-        desc = L"running";
+        desc = "running";
         break;
     case SERVICE_CONTINUE_PENDING:
-        desc = L"continue pending";
+        desc = "continue pending";
         break;
     case SERVICE_PAUSE_PENDING:
-        desc = L"pause pending";
+        desc = "pause pending";
         break;
     case SERVICE_PAUSED:
-        desc = L"paused";
+        desc = "paused";
         break;
     default:
-        desc = L"unknown";
+        desc = "unknown";
         break;
     }
 
     return desc;
+}
+
+std::string ServiceControlManager::serviceStartTypeToString(DWORD startType)
+{
+    std::string desc;
+    switch (startType) {
+    case SERVICE_BOOT_START:
+        desc = "boot start";
+        break;
+    case SERVICE_SYSTEM_START:
+        desc = "system start";
+        break;
+    case SERVICE_AUTO_START:
+        desc = "automatic";
+        break;
+    case SERVICE_DEMAND_START:
+        desc = "manual";
+        break;
+    case SERVICE_DISABLED:
+        desc = "disabled";
+        break;
+    default:
+        desc = "unknown";
+        break;
+    }
+
+    return desc;
+}
+
+void ServiceControlManager::logServiceStatusAndConfig(LPCTSTR serviceName, bool logDependencies, const LogFunction &log)
+{
+    if (serviceName == NULL || !log) {
+        return;
+    }
+
+    const std::string name = wstring_to_string(serviceName);
+    std::vector<std::wstring> dependencies;
+    bool configQueried = false;
+
+    try {
+        ServiceControlManager scm;
+        scm.openSCM(SC_MANAGER_CONNECT);
+        scm.openService(serviceName, SERVICE_QUERY_CONFIG | SERVICE_QUERY_STATUS);
+
+        std::wstring exePath, accountName;
+        DWORD startType = 0;
+        bool sharesProcess = false;
+        scm.queryServiceConfig(exePath, accountName, startType, sharesProcess);
+        if (logDependencies) {
+            dependencies = scm.queryServiceDependencies();
+        }
+        configQueried = true;
+
+        // The non-throwing status query keeps a status failure from costing us the configuration we
+        // already have; it reports state 0, which serviceStatusToString renders as 'unknown'.
+        std::error_code ec;
+        const DWORD status = scm.queryServiceStatus(ec);
+
+        std::ostringstream msg;
+        msg << name << " is " << serviceStatusToString(status) << ", start type '"
+            << serviceStartTypeToString(startType) << "', logon account '"
+            << wstring_to_string(accountName) << "', binary '" << wstring_to_string(exePath) << "'";
+        log(msg.str());
+    }
+    catch (std::system_error &ex) {
+        log("could not query the configuration of service " + name + " - " + ex.what());
+    }
+
+    if (!configQueried || !logDependencies) {
+        return;
+    }
+
+    for (const auto &dependency : dependencies) {
+        // A name prefixed with SC_GROUP_IDENTIFIER is a load-ordering group rather than a service,
+        // so there is nothing to open and query.
+        if (dependency.front() == SC_GROUP_IDENTIFIER) {
+            log(name + " depends on load-ordering group '" + wstring_to_string(dependency.substr(1)) + "'");
+            continue;
+        }
+
+        const std::string dependencyName = wstring_to_string(dependency);
+
+        try {
+            ServiceControlManager scm;
+            scm.openSCM(SC_MANAGER_CONNECT);
+            scm.openService(dependency.c_str(), SERVICE_QUERY_CONFIG | SERVICE_QUERY_STATUS);
+
+            const DWORD startType = scm.queryServiceStartType();
+            const DWORD status = scm.queryServiceStatus();
+
+            std::ostringstream msg;
+            msg << "dependency " << dependencyName << " is " << serviceStatusToString(status)
+                << " (start type '" << serviceStartTypeToString(startType) << "')";
+            log(msg.str());
+        }
+        catch (std::system_error &ex) {
+            log("could not query dependency " + dependencyName + " - " + ex.what());
+        }
+    }
 }
 
 } // end namespace wsl

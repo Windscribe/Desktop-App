@@ -7,7 +7,7 @@
 #include "utils/extraconfig.h"
 #include "utils/crashhandler.h"
 #include "utils/log/categories.h"
-#include "utils/ras_service_win.h"
+#include "utils/servicecontrolmanager.h"
 #include "utils/winutils.h"
 #include "utils/ws_assert.h"
 
@@ -100,11 +100,18 @@ void IKEv2Connection_win::run()
     hostsAndDnsProtectionSet_ = false;
     connHandle_ = NULL;
 
+    if (!isRASRunning(helper_) && !enableRAS()) {
+        emit error(ConnectError::kOSServiceUnavailable);
+        emit disconnected();
+        return;
+    }
+
     // Duplicate a real handle to this worker thread so the RAS callback (which runs on a RAS-owned
     // thread) can QueueUserAPC back to us.  Held for the lifetime of the instance and closed by the
     // destructor; by the time run() returns, RasHangUp has completed and no further callbacks fire.
     HANDLE dup = NULL;
-    if (::DuplicateHandle(::GetCurrentProcess(), ::GetCurrentThread(), ::GetCurrentProcess(), &dup, 0, FALSE, DUPLICATE_SAME_ACCESS)) {
+    const auto result = ::DuplicateHandle(::GetCurrentProcess(), ::GetCurrentThread(), ::GetCurrentProcess(), &dup, 0, FALSE, DUPLICATE_SAME_ACCESS);
+    if (result) {
         workerThreadHandle_.setHandle(dup);
 
         // Attempt loop: re-entered only when a WAN reinstall/enable recovery wants to retry the dial.
@@ -163,7 +170,7 @@ void IKEv2Connection_win::stop()
     if (stopThreadEvent_.isValid()) {
         BOOL result = ::SetEvent(stopThreadEvent_.getHandle());
         if (result == FALSE) {
-            qCCritical(LOG_CONNECTION) << "IKEv2Connection_win::stop - SetEvent failed:" << ::GetLastError();
+            qCCritical(LOG_IKEV2) << "IKEv2Connection_win::stop - SetEvent failed:" << ::GetLastError();
         }
     }
 }
@@ -185,7 +192,7 @@ IKEv2Connection_win::DialResult IKEv2Connection_win::startDial()
     // Clean up any stale connections left over from a previous crash or abnormal termination.  If a
     // stale "Windscribe IKEv2" RAS connection exists, RasSetEntryProperties can crash with an access
     // violation inside the RAS API due to orphaned internal state.
-    const QVector<HRASCONN> staleConns = getActiveIkev2Connections();
+    const QVector<HRASCONN> staleConns = getActiveIkev2Connections(helper_);
     for (HRASCONN h : staleConns) {
         if (stopRequested()) {
             return DialResult::Stopped;
@@ -194,20 +201,19 @@ IKEv2Connection_win::DialResult IKEv2Connection_win::startDial()
         blockingDisconnect(h, true);
     }
     if (!staleConns.isEmpty()) {
-        removeIkev2ConnectionFromOS();
+        removeIkev2ConnectionFromOS(helper_);
     }
 
     bool ikev2DeviceInitialized = false;
     RASDEVINFO devInfo;
     if (!findIKEv2Device(&devInfo)) {
-        qCInfo(LOG_IKEV2) << "Trying restart SstpSvc and RasMan";
-        if (!RAS_Service_win::instance().restartRASServices(helper_)) {
-            qCInfo(LOG_IKEV2) << "Failed to start SstpSvc and/or RasMan services";
+        qCInfo(LOG_IKEV2) << "Could not find the IKEv2 device. Restarting the Remote Access Connection Manager service.";
+        if (!helper_->enableRAS()) {
+            qCWarning(LOG_IKEV2) << "Failed to restart the Remote Access Connection Manager service";
         } else {
-            qCInfo(LOG_IKEV2) << "SstpSvc and/or RasMan services restarted";
             ikev2DeviceInitialized = findIKEv2Device(&devInfo);
             if (!ikev2DeviceInitialized) {
-                qCWarning(LOG_IKEV2) << "getIKEv2Device failed again";
+                qCWarning(LOG_IKEV2) << "Aborting IKEv2 connection. Could not find the IKEv2 device after restarting the Remote Access Connection Manager service.";
             }
         }
     } else {
@@ -408,7 +414,7 @@ IKEv2Connection_win::ReinstallResult IKEv2Connection_win::handleReinstallWan()
 
     // With issues 498 and 576, it was found that only restarting the app would rectify the AuthNotify
     // error.  Removing the connection here helps with those (non-reproducible) issues and does no harm.
-    removeIkev2ConnectionFromOS();
+    removeIkev2ConnectionFromOS(helper_);
 
     cntFailedConnectionAttempts_++;
     if (cntFailedConnectionAttempts_ >= kMaxFailedConnectionAttempts) {
@@ -577,39 +583,47 @@ DWORD CALLBACK IKEv2Connection_win::rasDialCallbackProc(ULONG_PTR dwCallbackId, 
     return TRUE;
 }
 
-void IKEv2Connection_win::removeIkev2ConnectionFromOS()
+void IKEv2Connection_win::removeIkev2ConnectionFromOS(Helper *helper)
 {
-    DWORD dwErr = RasDeleteEntry(NULL, IKEV2_CONNECTION_NAME);
-    if (dwErr != ERROR_SUCCESS && dwErr != ERROR_CANNOT_FIND_PHONEBOOK_ENTRY) {
-        qCWarning(LOG_IKEV2) << "RasDeleteEntry failed with error:" << dwErr;
+    // This method is also called during app shutdown.  Only make the RAS API call if the RasMan service is running
+    // or it will block for 20-30s.
+    if (isRASRunning(helper)) {
+        DWORD dwErr = RasDeleteEntry(NULL, IKEV2_CONNECTION_NAME);
+        if (dwErr != ERROR_SUCCESS && dwErr != ERROR_CANNOT_FIND_PHONEBOOK_ENTRY) {
+            qCWarning(LOG_IKEV2) << "RasDeleteEntry failed with error:" << dwErr;
+        }
     }
 }
 
-QVector<HRASCONN> IKEv2Connection_win::getActiveIkev2Connections()
+QVector<HRASCONN> IKEv2Connection_win::getActiveIkev2Connections(Helper *helper)
 {
     QVector<HRASCONN> v;
 
-    DWORD dwCb = 0;
-    DWORD dwConnections = 0;
-    LPRASCONN lpRasConn = NULL;
+    // This method is also called during app initialization.  Only make the RAS API call if the RasMan service is running
+    // or it will block for 20-30s.
+    if (isRASRunning(helper)) {
+        DWORD dwCb = 0;
+        DWORD dwConnections = 0;
+        LPRASCONN lpRasConn = NULL;
 
-    DWORD result = RasEnumConnections(lpRasConn, &dwCb, &dwConnections);
-    if (result == ERROR_BUFFER_TOO_SMALL) {
-        QByteArray arr(dwCb, Qt::Uninitialized);
-        lpRasConn = (LPRASCONN)arr.data();
-        lpRasConn[0].dwSize = sizeof(RASCONN);
-        result = RasEnumConnections(lpRasConn, &dwCb, &dwConnections);
-        if (result == ERROR_SUCCESS) {
-            for (DWORD i = 0; i < dwConnections; i++) {
-                if (wcscmp(lpRasConn[i].szEntryName, IKEV2_CONNECTION_NAME) == 0) {
-                    v << lpRasConn[i].hrasconn;
+        DWORD result = RasEnumConnections(lpRasConn, &dwCb, &dwConnections);
+        if (result == ERROR_BUFFER_TOO_SMALL) {
+            QByteArray arr(dwCb, Qt::Uninitialized);
+            lpRasConn = (LPRASCONN)arr.data();
+            lpRasConn[0].dwSize = sizeof(RASCONN);
+            result = RasEnumConnections(lpRasConn, &dwCb, &dwConnections);
+            if (result == ERROR_SUCCESS) {
+                for (DWORD i = 0; i < dwConnections; i++) {
+                    if (wcscmp(lpRasConn[i].szEntryName, IKEV2_CONNECTION_NAME) == 0) {
+                        v << lpRasConn[i].hrasconn;
+                    }
                 }
+            } else {
+                qCWarning(LOG_IKEV2) << "IKEv2Connection_win::getActiveIkev2Connections() - RasEnumConnections failed with error:" << result;
             }
-        } else {
-            qCWarning(LOG_IKEV2) << "IKEv2Connection_win::getActiveIkev2Connections() - RasEnumConnections failed with error:" << result;
+        } else if (result != ERROR_SUCCESS) {
+            qCWarning(LOG_IKEV2) << "IKEv2Connection_win::getActiveIkev2Connections() - initial RasEnumConnections failed with error:" << result;
         }
-    } else if (result != ERROR_SUCCESS) {
-        qCWarning(LOG_IKEV2) << "IKEv2Connection_win::getActiveIkev2Connections() - initial RasEnumConnections failed with error:" << result;
     }
 
     return v;
@@ -771,4 +785,53 @@ bool IKEv2Connection_win::isRasDisconnected(HRASCONN connHandle)
         qCWarning(LOG_IKEV2) << "RasGetConnectStatus failed with error:" << result;
     }
     return false;
+}
+
+bool IKEv2Connection_win::isRASRunning(Helper *helper)
+{
+    DWORD status = 0; // Status undetermined
+    try {
+        wsl::ServiceControlManager scm;
+        scm.openSCM(SC_MANAGER_CONNECT);
+        scm.openService(L"RasMan", SERVICE_QUERY_STATUS);
+        status = scm.queryServiceStatus();
+    }
+    catch (std::system_error& ex) {
+        qCWarning(LOG_IKEV2) << "IKEv2Connection_win::isRASRunning -" << ex.what();
+    }
+
+    // We were unable to query the status of the service, likely due to third-party security
+    // software blocking/restricting our access to the SCM.  See if the elevated helper process
+    // can do it.
+    if (status == 0 && helper != nullptr) {
+        status = helper->queryRASStatus();
+    }
+
+    if (status != SERVICE_RUNNING) {
+        qCWarning(LOG_IKEV2) << "IKEv2Connection_win::isRASRunning - RasMan service is" << wsl::ServiceControlManager::serviceStatusToString(status);
+        return false;
+    }
+
+    return true;
+}
+
+bool IKEv2Connection_win::enableRAS() const
+{
+    try {
+        wsl::ServiceControlManager scm;
+        scm.openSCM(SC_MANAGER_CONNECT);
+        scm.openService(L"RasMan", SERVICE_QUERY_STATUS | SERVICE_START);
+        scm.startService(5000);
+        return true;
+    }
+    catch (std::system_error& ex) {
+        qCWarning(LOG_IKEV2) << "IKEv2Connection_win::enableRAS -" << ex.what();
+    }
+
+    if (stopRequested()) {
+        return false;
+    }
+
+    // Could not start the service ouselves. See if the helper can start it.
+    return helper_->enableRAS();
 }
