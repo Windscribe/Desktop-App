@@ -2815,13 +2815,6 @@ Jeśli ponowna instalacja nie pomoże, skontaktuj się z pomocą techniczną Win
     </message>
 </context>
 <context>
-    <name>ServerRatingsTooltip</name>
-    <message>
-        <source>Rate speed</source>
-        <translation>Oceń prędkość</translation>
-    </message>
-</context>
-<context>
     <name>SharingFeatures::SharingFeaturesWindowItem</name>
     <message>
         <source>Sharing Features</source>

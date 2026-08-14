@@ -78,8 +78,6 @@ public:
     void getWebSessionTokenForAddEmail();
     void getWebSessionTokenForManageRobertRules();
 
-    void speedRating(int rating, const QString &localExternalIp);
-
     void setBlockConnect(bool isBlockConnect);
 
     void getRobertFilters();

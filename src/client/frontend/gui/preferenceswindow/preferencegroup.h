@@ -18,6 +18,9 @@ public:
     void clearItems(bool skipFirst = false);
     void addItem(CommonGraphics::BaseItem *item, bool isWideDividerLine = false);
 
+    // Suppresses the per-item relayout so a bulk insert costs one layout pass instead of one per item.
+    void setBatchMode(bool batchMode);
+
     void setDescription(const QString &desc, bool error = false);
     void setDescription(const QString &desc, const QString &descUrl);
     void showDescription();
@@ -65,6 +68,7 @@ private:
     bool error_;
     bool drawBackground_;
     bool descHidden_;
+    bool batchMode_;
 
     QVariantAnimation descAnimation_;
     double descAnimationProgress_;

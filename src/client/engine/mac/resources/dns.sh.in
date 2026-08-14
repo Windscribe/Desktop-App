@@ -12,21 +12,45 @@ if [ "$1" = "-up" ] ; then
     while read -r option
     do
         case ${option} in
+            *DOMAIN-SEARCH*|*DOMAIN-ROUTE*)
+                # Search/routing domains are not the primary DomainName; don't let them clobber DOMAIN.
+                ;;
             *DOMAIN*)
-                DOMAIN_NAME=${option//dhcp-option DOMAIN /}
+                # Server-pushed values skip the helper whitelist. Drop the option unless the value is
+                # bare (prefix matched) and metacharacter-free, so no residue can break out of the
+                # quoted scutil line below.
+                value=${option#dhcp-option * }
+                [ "$value" = "$option" ] && continue
+                [ -n "$value" ] || continue
+                [ "$value" = "$(printf '%s' "$value" | tr -cd 'A-Za-z0-9._-')" ] || continue
+                DOMAIN_NAME=$value
+                ;;
+            *DNSSEC*)
+                # Carries no address; keep it out of the DNS arm below.
                 ;;
             *DNS*)
-                # Accumulate every `dhcp-option DNS <addr>` into a space-separated list so that
-                # both IPv4 and IPv6 nameservers reach scutil. The original loop kept only the
-                # last entry; with dual-stack WG configs the helper now passes multiple
-                # `dhcp-option DNS …` lines (one per address) and ServerAddresses is an array.
-                VPN_DNS="${VPN_DNS:+${VPN_DNS} }${option//dhcp-option DNS /}"
+                # Accumulate each pushed address into a space-separated list (dual-stack WG passes one
+                # `dhcp-option DNS …` line per address; ServerAddresses is an array). Same
+                # drop-on-anomaly handling as DOMAIN.
+                value=${option#dhcp-option * }
+                [ "$value" = "$option" ] && continue
+                [ -n "$value" ] || continue
+                [ "$value" = "$(printf '%s' "$value" | tr -cd '0-9A-Fa-f.:')" ] || continue
+                VPN_DNS="${VPN_DNS:+${VPN_DNS} }${value}"
                 ;;
         esac
     done <<< "${FOREIGN_OPTIONS}"
 
     echo "DOMAIN: $DOMAIN_NAME"
     echo "VPN DNS: $VPN_DNS"
+
+    # An all-invalid DNS push leaves VPN_DNS empty; omit the ServerAddresses line entirely (a
+    # whitespace-only scutil line is a no-op) rather than write an empty array.
+    if [ -n "$VPN_DNS" ]; then
+        VPN_DNS_LINE="d.add ServerAddresses * ${VPN_DNS}"
+    else
+        VPN_DNS_LINE=""
+    fi
 
     # Save the current global settings
     echo "Saving current global network settings"
@@ -62,7 +86,7 @@ _EOF
     echo "Creating new network service with UUID: ${SERVICE_UUID}"
     scutil <<_EOF
         d.init
-        d.add ServerAddresses * ${VPN_DNS}
+        ${VPN_DNS_LINE}
         d.add DomainName "${DOMAIN_NAME}"
         d.add ConfirmedServiceID "${SERVICE_UUID}"
         d.add InterfaceName "${VPN_IF}"
@@ -80,7 +104,7 @@ _EOF
         set State:/Network/Service/${SERVICE_UUID}/IPv4
 
         d.init
-        d.add ServerAddresses * ${VPN_DNS}
+        ${VPN_DNS_LINE}
         d.add DomainName "${DOMAIN_NAME}"
         d.add "__CONFIGURATION_ID__" "Default: 0"
         d.add "__FLAGS__" 2

@@ -64,21 +64,39 @@ void CGroups::disable()
 {
     spdlog::debug("cgroups disable");
 
-    Utils::executeCommand(WS_LINUX_INSTALL_DIR "/scripts/cgroups-down");
+    std::string out;
+    const int ret = Utils::executeCommand(WS_LINUX_INSTALL_DIR "/scripts/cgroups-down", {}, &out);
+    if (ret != 0) {
+        spdlog::error("cgroups-down script failed: {}", out);
+    }
 }
 
 void CGroups::addApp(pid_t pid)
 {
+    // Without the root we would open a path relative to /, where ofstream's default
+    // out|trunc would have root create the file rather than fail.
+    const std::string root = findNetclsRoot();
+    if (root.empty()) {
+        spdlog::error("cgroups addApp: no net_cls hierarchy");
+        return;
+    }
+
     std::ofstream out;
-    out.open((findNetclsRoot() + "/" WS_PRODUCT_NAME_LOWER "/cgroup.procs").c_str());
+    out.open((root + "/" WS_PRODUCT_NAME_LOWER "/cgroup.procs").c_str());
     out << pid;
     out.close();
 }
 
 void CGroups::removeApp(pid_t pid)
 {
+    const std::string root = findNetclsRoot();
+    if (root.empty()) {
+        spdlog::error("cgroups removeApp: no net_cls hierarchy");
+        return;
+    }
+
     std::ofstream out;
-    out.open((findNetclsRoot() + "/cgroup.procs").c_str());
+    out.open((root + "/cgroup.procs").c_str());
     out << pid;
     out.close();
 }
@@ -100,7 +118,7 @@ std::string CGroups::findNetclsRoot()
             continue;
         }
         // path is from after "net_cls on " until we see " type cgroup"
-        net_cls_root_ = line.substr(pos + 11, line.find(" type cgroup") - 11);
+        net_cls_root_ = line.substr(pos + 11, line.find(" type cgroup") - (pos + 11));
         return net_cls_root_;
     }
     return std::string();

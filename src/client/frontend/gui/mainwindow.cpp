@@ -340,9 +340,6 @@ MainWindow::MainWindow() :
     connect(mainWindowController_->getExitWindow(), &GeneralMessageWindow::GeneralMessageWindowItem::acceptClick, this, &MainWindow::onExitWindowAccept);
     connect(mainWindowController_->getExitWindow(), &GeneralMessageWindow::GeneralMessageWindowItem::rejectClick, this, &MainWindow::onExitWindowReject);
 
-    connect(mainWindowController_, &MainWindowController::sendServerRatingUp, this, &MainWindow::onMainWindowControllerSendServerRatingUp);
-    connect(mainWindowController_, &MainWindowController::sendServerRatingDown, this, &MainWindow::onMainWindowControllerSendServerRatingDown);
-
     // preferences changes signals
     connect(backend_->getPreferences(), &Preferences::firewallSettingsChanged, this, &MainWindow::onPreferencesFirewallSettingsChanged);
     connect(backend_->getPreferences(), &Preferences::shareProxyGatewayChanged, this, &MainWindow::onPreferencesShareProxyGatewayChanged);
@@ -2250,8 +2247,6 @@ void MainWindow::onBackendConnectStateChanged(const types::ConnectState &connect
 
         updateAppIconType(AppIconType::CONNECTING);
         trayIcon_->updateIconType(AppIconType::CONNECTING);
-        mainWindowController_->clearServerRatingsTooltipState();
-
     } else if (connectState.connectState == CONNECT_STATE_DISCONNECTED) {
         // Reset the flag when disconnected
         receivedInitialIpAfterConnect_ = false;
@@ -3508,16 +3503,6 @@ void MainWindow::onRevealConnectStateChanged(bool revealingConnect)
 {
     revealingConnectWindow_ = revealingConnect;
     update();
-}
-
-void MainWindow::onMainWindowControllerSendServerRatingUp()
-{
-    backend_->speedRating(1, PersistentState::instance().lastExternalIp());
-}
-
-void MainWindow::onMainWindowControllerSendServerRatingDown()
-{
-    backend_->speedRating(0, PersistentState::instance().lastExternalIp());
 }
 
 void MainWindow::onScaleChanged()

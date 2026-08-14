@@ -556,6 +556,7 @@ void PreferencesWindowItem::onAdvParametersClick()
 
 void PreferencesWindowItem::setPreferencesWindowToSplitTunnelingAppsHome()
 {
+    splitTunnelingAppsWindowItem_->ensureAppsPopulated();
     scrollAreaItem_->setItem(splitTunnelingAppsWindowItem_);
     splitTunnelingAppsWindowItem_->updateScaling();
     connectionWindowItem_->setScreen(CONNECTION_SCREEN_SPLIT_TUNNELING);

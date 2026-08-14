@@ -1,5 +1,10 @@
 #pragma once
 
+#include <atomic>
+#include <memory>
+
+#include <QThreadPool>
+
 #include "commongraphics/baseitem.h"
 #include "preferenceswindow/preferencegroup.h"
 #include "types/splittunneling.h"
@@ -10,6 +15,8 @@
 
 namespace PreferencesWindow {
 
+struct EnumerationResult;
+
 class SplitTunnelingAppsGroup : public PreferenceGroup
 {
     Q_OBJECT
@@ -19,10 +26,12 @@ public:
     explicit SplitTunnelingAppsGroup(ScalableGraphicsObject *parent,
                                      const QString &desc = "",
                                      const QString &descUrl = "");
+    ~SplitTunnelingAppsGroup() override;
 
     QList<types::SplitTunnelingApp> apps();
     void setApps(QList<types::SplitTunnelingApp> apps);
     void addApp(types::SplitTunnelingApp &app);
+    void ensureSearchAppsPopulated();
 
     void setLoggedIn(bool loggedIn);
 
@@ -45,9 +54,10 @@ private slots:
     void onSearchItemClicked();
 
 private:
+    void onAppsEnumerated(std::shared_ptr<EnumerationResult> result);
+    void requestIcons(const QStringList &appPaths);
     bool addAppInternal(types::SplitTunnelingApp &app);
     void addSearchApp(types::SplitTunnelingApp &app);
-    void populateSearchApps();
     void showFilteredSearchItems(QString filter);
     void toggleAppItemActive(AppSearchItem *item);
     AppIncludedItem *appByName(QString name);
@@ -63,6 +73,9 @@ private:
     QMap<AppSearchItem *, types::SplitTunnelingApp> searchApps_;
 
     OP_MODE mode_;
+    bool searchAppsRequested_;
+    QThreadPool threadPool_;
+    std::atomic<bool> stopRequested_;
 };
 
 } // namespace PreferencesWindow

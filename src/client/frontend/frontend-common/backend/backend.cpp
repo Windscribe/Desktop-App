@@ -366,11 +366,6 @@ void Backend::getWebSessionTokenForManageRobertRules()
     engine_->getWebSessionToken(WEB_SESSION_PURPOSE_MANAGE_ROBERT_RULES);
 }
 
-void Backend::speedRating(int rating, const QString &localExternalIp)
-{
-    engine_->speedRating(rating, localExternalIp);
-}
-
 void Backend::setBlockConnect(bool isBlockConnect)
 {
     if (engine_->isBlockConnect() != isBlockConnect)

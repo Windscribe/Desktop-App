@@ -11,31 +11,6 @@
 #elif defined Q_OS_LINUX
 #endif
 
-#ifdef Q_OS_WIN
-Q_GUI_EXPORT QPixmap qt_pixmapFromWinHICON(HICON icon);
-#endif
-
-QPixmap WidgetUtils::extractProgramIcon(QString filePath)
-{
-#ifdef Q_OS_WIN
-    if (filePath.contains("WindowsApps"))
-    {
-        return WidgetUtils_win::extractWindowsAppProgramIcon(filePath);
-    }
-    else
-    {
-        return WidgetUtils_win::extractProgramIcon(filePath);
-    }
-#elif defined Q_OS_MACOS
-    return WidgetUtils_mac::extractProgramIcon(filePath);
-#elif defined Q_OS_LINUX
-    //todo linux
-    WS_ASSERT(false);
-    Q_UNUSED(filePath);
-    return QPixmap();
-#endif
-}
-
 QScreen *WidgetUtils::slightlySaferScreenAt(QPoint pt)
 {
     QScreen *screen = QGuiApplication::screenAt(pt); // this can fail when screen coords are weird

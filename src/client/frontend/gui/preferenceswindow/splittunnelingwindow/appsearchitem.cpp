@@ -12,10 +12,6 @@ namespace PreferencesWindow {
 AppSearchItem::AppSearchItem(types::SplitTunnelingApp app, ScalableGraphicsObject *parent)
   : BaseItem (parent, PREFERENCE_GROUP_ITEM_HEIGHT*G_SCALE), opacity_(OPACITY_HALF), app_(app)
 {
-    if (app_.icon.isEmpty()) {
-        app_.icon = "preferences/WHITE_QUESTION_MARK_ICON";
-    }
-
     connect(&opacityAnimation_, &QVariantAnimation::valueChanged, this, &AppSearchItem::onOpacityChanged);
     connect(this, &BaseItem::hoverEnter, this, &AppSearchItem::onHoverEnter);
     connect(this, &BaseItem::hoverLeave, this, &AppSearchItem::onHoverLeave);
@@ -28,7 +24,7 @@ void AppSearchItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opt
 
     // app icon
 #if !defined (Q_OS_LINUX)
-    QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIconIndependentPixmap(app_.icon);
+    QSharedPointer<IndependentPixmap> p = icon_;
     if (!p) {
         p = ImageResourcesSvg::instance().getIndependentPixmap("preferences/WHITE_QUESTION_MARK_ICON");
     }
@@ -117,6 +113,17 @@ void AppSearchItem::setAppIcon(QString icon)
 {
     app_.icon = icon;
     update();
+}
+
+void AppSearchItem::setIcon(QSharedPointer<IndependentPixmap> icon)
+{
+    icon_ = icon;
+    update();
+}
+
+QSharedPointer<IndependentPixmap> AppSearchItem::icon() const
+{
+    return icon_;
 }
 
 }

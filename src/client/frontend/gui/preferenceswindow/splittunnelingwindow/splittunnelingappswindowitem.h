@@ -16,6 +16,7 @@ public:
     QString caption() const override;
     QList<types::SplitTunnelingApp> getApps();
     void addAppManually(types::SplitTunnelingApp app);
+    void ensureAppsPopulated();
 
     void setLoggedIn(bool loggedIn);
 

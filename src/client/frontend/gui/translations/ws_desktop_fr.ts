@@ -2815,13 +2815,6 @@ Si la réinstallation ne résout pas le problème, veuillez contacter le support
     </message>
 </context>
 <context>
-    <name>ServerRatingsTooltip</name>
-    <message>
-        <source>Rate speed</source>
-        <translation>Vitesse de débit</translation>
-    </message>
-</context>
-<context>
     <name>SharingFeatures::SharingFeaturesWindowItem</name>
     <message>
         <source>Sharing Features</source>

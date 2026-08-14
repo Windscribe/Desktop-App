@@ -1,10 +1,20 @@
 #pragma once
 
 #include <algorithm>
+#include <cctype>
+#include <cerrno>
+#include <cstdlib>
 #include <sstream>
 #include <string>
 #include <unordered_set>
+#include <vector>
 #include <spdlog/spdlog.h>
+
+#ifdef _WIN32
+#include "../windows/network_validation.h"
+#else
+#include "validation_posix.h"
+#endif
 
 // OpenVPN directive filter for the privileged helper.
 // This is the single source of truth for directive filtering.
@@ -353,6 +363,169 @@ inline bool hasBalancedInlineBlocks(const std::string &config)
     return !inside;  // False if still inside an unclosed block
 }
 
+// Validate a bare IP literal (v4 or v6) through the platform's existing address validator. This is
+// the single place that bridges the string/wstring difference between the POSIX and Windows helpers.
+inline bool isValidatedIpLiteral(const std::string &s)
+{
+#ifdef _WIN32
+    // The Windows validator takes wide strings. A legitimate IP literal is pure ASCII; reject any
+    // high byte up front so the per-char widen can't sign-extend (MSVC char is signed) into a
+    // surprising wide code point.
+    std::wstring wide;
+    wide.reserve(s.size());
+    for (unsigned char c : s) {
+        if (c > 0x7f) {
+            return false;
+        }
+        wide.push_back(static_cast<wchar_t>(c));
+    }
+    return NetworkValidation::isValidIpAddress(wide);
+#else
+    return Validation::isValidIpAddress(s);
+#endif
+}
+
+// Whitespace-split a config line into words, stopping at an inline comment — a token beginning with
+// '#' or ';' — to match OpenVPN treating those as a comment at a token boundary.
+inline void splitDirectiveWords(const std::string &line, std::vector<std::string> &words)
+{
+    words.clear();
+    std::istringstream stream(line);
+    std::string word;
+    while (stream >> word) {
+        if (word[0] == '#' || word[0] == ';') {
+            break;
+        }
+        words.push_back(word);
+    }
+}
+
+// A quote or backslash never appears in a legitimate dhcp-option/dns parameter, and allowing one
+// would reintroduce the OpenVPN-tokenizer differential (a quoted span hides internal whitespace from
+// our plain whitespace split, but OpenVPN re-splits it in the hook). Reject any parameter word that
+// carries one. The trailing comment is already excluded by splitDirectiveWords, so it isn't checked.
+inline bool anyWordHasQuoteOrBackslash(const std::vector<std::string> &words)
+{
+    for (const std::string &w : words) {
+        if (w.find_first_of("\"'\\") != std::string::npos) {
+            return true;
+        }
+    }
+    return false;
+}
+
+// dhcp-option is allowed by name, but its DNS value flows verbatim (as foreign_option_N) into the
+// privileged DNS hook scripts OpenVPN runs as root, where it is word-split — so a value must not be
+// able to carry extra words (e.g. a late "--address=unixexec:..." that root busctl would treat as an
+// option). Once quotes/backslashes are rejected (anyWordHasQuoteOrBackslash), OpenVPN's tokenization
+// matches a plain whitespace split, so we require the DNS value to be exactly one bare IP literal.
+// DNS and DNS6 accept either family (OpenVPN options.c). update-systemd-resolved maps '-'/'_' and
+// dispatches the DNS-IPV4/DNS-IPV6 spellings straight to the family-specific hook, so those aliases
+// are additionally family-checked (v6 under *IPV4, or v4 under *IPV6, is rejected). Other subtypes
+// (DOMAIN, DOMAIN-SEARCH, DNSSEC, ...) pass through.
+inline bool isDhcpOptionValueAllowed(const std::string &line)
+{
+    std::vector<std::string> words;
+    splitDirectiveWords(line, words);
+    if (anyWordHasQuoteOrBackslash(words)) {
+        return false;
+    }
+    // words[0] is the directive itself ("dhcp-option" or "--dhcp-option").
+    if (words.size() < 2) {
+        return true;  // bare "dhcp-option"; OpenVPN itself rejects it
+    }
+
+    std::string subtype = words[1];
+    std::transform(subtype.begin(), subtype.end(), subtype.begin(),
+                   [](unsigned char c) { return std::tolower(c); });
+
+    const bool isV4Alias = (subtype == "dns-ipv4" || subtype == "dns_ipv4");
+    const bool isV6Alias = (subtype == "dns-ipv6" || subtype == "dns_ipv6");
+    if (subtype == "dns" || subtype == "dns6" || isV4Alias || isV6Alias) {
+        if (words.size() != 3 || !isValidatedIpLiteral(words[2])) {
+            return false;
+        }
+        const bool hasColon = words[2].find(':') != std::string::npos;
+        if ((isV4Alias && hasColon) || (isV6Alias && !hasColon)) {
+            return false;
+        }
+        return true;
+    }
+    return true;
+}
+
+// A DNS server port, matching OpenVPN dns.c dns_server_port_parse: a base-10 number in [1, 65535]
+// with the whole string consumed.
+inline bool isDnsServerPort(const std::string &s)
+{
+    if (s.empty()) {
+        return false;
+    }
+    errno = 0;
+    char *endptr = nullptr;
+    const unsigned long value = std::strtoul(s.c_str(), &endptr, 10);
+    return errno == 0 && *endptr == '\0' && value != 0 && value <= 65535UL;
+}
+
+// One entry of a "dns server <n> address <addr> [<addr>...]" list, validated to match OpenVPN 2.7's
+// dns.c dns_server_addr_parse exactly: "v4", "v4:port", bare "v6", or "[v6]:port". A malformed
+// port, a bracketed form without a port, or a non-IP address rejects the token (and so the whole
+// directive) rather than being silently accepted.
+inline bool isDnsAddressToken(const std::string &token)
+{
+    const size_t first = token.find(':');
+    const size_t last = token.rfind(':');
+
+    if (first == std::string::npos || first == last) {
+        // No colon, or exactly one: IPv4 with an optional ":port".
+        if (last != std::string::npos) {
+            if (last == 0 || !isDnsServerPort(token.substr(last + 1))) {
+                return false;
+            }
+            return isValidatedIpLiteral(token.substr(0, last));
+        }
+        return isValidatedIpLiteral(token);
+    }
+
+    // More than one colon: IPv6, either bare or bracketed "[v6]:port".
+    if (token[0] == '[') {
+        if (last < 2 || token[last - 1] != ']') {
+            return false;  // '[' requires a matching ']' immediately before the port colon
+        }
+        const std::string addr = token.substr(1, (last - 1) - 1);
+        if (addr.empty() || !isDnsServerPort(token.substr(last + 1))) {
+            return false;
+        }
+        return isValidatedIpLiteral(addr);
+    }
+    return isValidatedIpLiteral(token);
+}
+
+// dns (OpenVPN 2.6) is allowed by name. Only its "dns server <n> address <addr>..." form carries
+// resolver IPs that could reach a root DNS context, so validate every address token is an IP (the
+// same class of concern as dhcp-option DNS). Quotes/backslashes are rejected for the same
+// tokenizer-differential reason. Every other form (search-domains, resolve-domains, dnssec,
+// transport, sni) carries no IP and passes through.
+inline bool isDnsDirectiveValueAllowed(const std::string &line)
+{
+    std::vector<std::string> words;
+    splitDirectiveWords(line, words);
+    if (anyWordHasQuoteOrBackslash(words)) {
+        return false;
+    }
+    if (words.size() >= 4 && words[1] == "server" && words[3] == "address") {
+        if (words.size() < 5) {
+            return false;  // "address" with no value
+        }
+        for (size_t j = 4; j < words.size(); ++j) {
+            if (!isDnsAddressToken(words[j])) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
 // Returns true if the directive on this line is allowed.
 // Empty lines, comments (#, ;), and inline block tags (<...>) are always allowed.
 // The insideInlineBlock parameter tracks whether we are inside a known inline
@@ -407,6 +580,12 @@ inline bool isAllowed(const std::string &line, bool &insideInlineBlock, bool all
         return false;
     }
     if (bareOnlyDirectives().count(name) > 0 && hasNonCommentArgument(line)) {
+        return false;
+    }
+    if (name == "dhcp-option" && !isDhcpOptionValueAllowed(line)) {
+        return false;
+    }
+    if (name == "dns" && !isDnsDirectiveValueAllowed(line)) {
         return false;
     }
     return true;
@@ -506,6 +685,8 @@ inline bool filterConfig(const std::string &config, std::string &out)
             if (!name.empty()) {
                 if (ignoredDirectives().count(name) > 0) {
                     spdlog::info("Ignored OpenVPN directive: {}", name);
+                } else if (allowedDirectives().count(name) > 0) {
+                    spdlog::warn("Blocked OpenVPN directive with disallowed value: {}", name);
                 } else {
                     spdlog::warn("Blocked non-whitelisted OpenVPN directive: {}", name);
                 }

@@ -30,7 +30,6 @@ DBUS_DEST="org.freedesktop.resolve1"
 DBUS_NODE="/org/freedesktop/resolve1"
 WINDSCRIBE_SYSTEMD_CONFIG_DIR="/usr/local/lib/systemd/resolved.conf.d"
 WINDSCRIBE_SYSTEMD_CONFIG_FILE="$WINDSCRIBE_SYSTEMD_CONFIG_DIR/windscribe.conf"
-PATH="$PATH:/usr/local/sbin:/usr/sbin:/sbin"
 
 SCRIPT_NAME="${BASH_SOURCE[0]##*/}"
 
@@ -48,8 +47,9 @@ usage() {
 }
 
 busctl_call() {
-  # Preserve busctl's exit status
-  busctl call "$DBUS_DEST" "$DBUS_NODE" "${DBUS_DEST}.Manager" "$@" || {
+  # Preserve busctl's exit status. "--" stops busctl option parsing before the operands so a DNS
+  # value can never be interpreted as a busctl option (e.g. --address=unixexec:...).
+  busctl call "$DBUS_DEST" "$DBUS_NODE" "${DBUS_DEST}.Manager" -- "$@" || {
     local -i status=$?
     emerg "'busctl' exited with status $status"
     return $status
@@ -112,8 +112,8 @@ up() {
   dns_ips=()
   for opt in ${!foreign_option_*}; do
     eval "dns=\${$opt#dhcp-option DNS }"
-    if [[ $dns =~ [0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3} ]]; then
-      dns_ips+=($dns)
+    if [[ $dns =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
+      dns_ips+=("$dns")
     fi
   done
 
@@ -236,7 +236,10 @@ process_dns_ipv4() {
 
   info "Adding IPv4 DNS Server ${address}"
   (( dns_server_count += 1 ))
-  dns_servers+=(2 4 ${address//./ })
+  # Split into quoted octets so no part of the value can word-split into a separate busctl operand.
+  local IFS=. a b c d
+  read -r a b c d <<<"$address"
+  dns_servers+=(2 4 "$a" "$b" "$c" "$d")
 }
 
 # Enforces RFC 5952:

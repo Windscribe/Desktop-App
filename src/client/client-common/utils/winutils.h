@@ -21,6 +21,7 @@ namespace WinUtils
     void getOSVersionAndBuild(QString &osVersion, QString &build);
     QMap<QString,QString> enumerateInstalledProgramIconLocations();
     QStringList enumerateRunningProgramLocations(bool allowDuplicate = false);
+    bool isOnLocalVolume(const QString &path);
     QStringList enumerateSubkeyNames(HKEY rootKey, const QString &keyPath);
     QStringList enumerateProcesses(const QString &processName);
 

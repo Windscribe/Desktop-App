@@ -2815,13 +2815,6 @@ Wenn die Neuinstallation nicht hilft, wenden Sie sich bitte an den Windscribe-Su
     </message>
 </context>
 <context>
-    <name>ServerRatingsTooltip</name>
-    <message>
-        <source>Rate speed</source>
-        <translation>Geschwindigkeit bewerten</translation>
-    </message>
-</context>
-<context>
     <name>SharingFeatures::SharingFeaturesWindowItem</name>
     <message>
         <source>Sharing Features</source>

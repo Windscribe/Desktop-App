@@ -2815,13 +2815,6 @@ Yeniden yükleme yardımcı olmazsa, lütfen yardım için Windscribe desteği i
     </message>
 </context>
 <context>
-    <name>ServerRatingsTooltip</name>
-    <message>
-        <source>Rate speed</source>
-        <translation>Hız oranı</translation>
-    </message>
-</context>
-<context>
     <name>SharingFeatures::SharingFeaturesWindowItem</name>
     <message>
         <source>Sharing Features</source>

@@ -2,6 +2,7 @@
 
 #include "commongraphics/baseitem.h"
 #include "commongraphics/iconbutton.h"
+#include "graphicresources/independentpixmap.h"
 #include "types/splittunneling.h"
 
 namespace PreferencesWindow {
@@ -17,6 +18,8 @@ public:
     QString getFullName();
     QString getAppIcon();
     void setAppIcon(QString icon);
+    void setIcon(QSharedPointer<IndependentPixmap> icon);
+    QSharedPointer<IndependentPixmap> icon() const;
 
     void updateIcons();
 
@@ -31,6 +34,7 @@ private slots:
 private:
     double opacity_;
     types::SplitTunnelingApp app_;
+    QSharedPointer<IndependentPixmap> icon_;
 
     QVariantAnimation opacityAnimation_;
 };

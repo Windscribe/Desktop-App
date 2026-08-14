@@ -15,7 +15,6 @@
 #     foreign_option_3='dhcp-option DOMAIN be.bnc.ch'
 #
 
-PATH="$PATH:/usr/local/sbin:/usr/sbin:/sbin"
 command -v resolvconf || exit 0
 [ "$script_type" ] || exit 0
 [ "$dev" ] || exit 0
@@ -29,14 +28,6 @@ resolvconf_iface_prefix() {
     done < /etc/resolvconf/interface-order
 }
 
-split_into_parts()
-{
-    part1="$1"
-    part2="$2"
-    part3="$3"
-}
-
-
 case "$script_type" in
   up)
     NMSRVRS=""
@@ -44,10 +35,16 @@ case "$script_type" in
     for optionvarname in ${!foreign_option_*} ; do
         option="${!optionvarname}"
         echo "$option"
-        split_into_parts $option
+        # Quoted read: no word-splitting or globbing of the pushed value (an unquoted expansion
+        # would let a value like `DOMAIN *` glob against the CWD into the search line).
+        read -r part1 part2 part3 <<<"$option"
         if [ "$part1" = "dhcp-option" ] ; then
             if [ "$part2" = "DNS" ] ; then
-                NMSRVRS="${NMSRVRS:+$NMSRVRS }$part3"
+                # Only trust a bare IP (v4 dotted-quad or v6 hex/colon) as a nameserver; drop a
+                # pushed value carrying trailing junk rather than writing it into resolv.conf.
+                if [[ "$part3" =~ ^[0-9]{1,3}(\.[0-9]{1,3}){3}$ ]] || [[ "$part3" =~ ^[0-9A-Fa-f:]+$ ]] ; then
+                    NMSRVRS="${NMSRVRS:+$NMSRVRS }$part3"
+                fi
             elif [ "$part2" = "DOMAIN" ] ; then
                 SRCHS="${SRCHS:+$SRCHS }$part3"
             fi

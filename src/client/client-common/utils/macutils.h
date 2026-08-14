@@ -30,6 +30,7 @@ namespace MacUtils
     // Split Routing
     QString iconPathFromBinPath(const QString &binPath);
     QList<QString> enumerateInstalledPrograms();
+    bool isOnLocalVolume(const QString &path);
 
     void getNSWindowCenter(void *nsView, int &outX, int &outY);
     bool dynamicStoreEntryHasKey(const QString &entry, const QString &key);

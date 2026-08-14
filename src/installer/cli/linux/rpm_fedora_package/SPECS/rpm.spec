@@ -23,6 +23,7 @@ Requires:	glibc >= 2.35
 Requires:	libstdc++
 Requires:	glib2
 Requires:	zlib
+Requires:	libbrotli
 Requires:	dbus-libs
 Requires:	systemd-libs
 Requires:	sudo

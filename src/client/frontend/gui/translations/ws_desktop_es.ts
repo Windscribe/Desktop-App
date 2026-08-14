@@ -2815,13 +2815,6 @@ Si la reinstalación no ayuda, póngase en contacto con el soporte de Windscribe
     </message>
 </context>
 <context>
-    <name>ServerRatingsTooltip</name>
-    <message>
-        <source>Rate speed</source>
-        <translation>Califica la velocidad</translation>
-    </message>
-</context>
-<context>
     <name>SharingFeatures::SharingFeaturesWindowItem</name>
     <message>
         <source>Sharing Features</source>

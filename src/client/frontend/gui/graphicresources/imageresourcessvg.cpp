@@ -24,7 +24,6 @@ ImageResourcesSvg::~ImageResourcesSvg()
 void ImageResourcesSvg::clearHash()
 {
     hashIndependent_.clear();
-    iconHashes_.clear();
 }
 
 
@@ -57,23 +56,6 @@ QSharedPointer<IndependentPixmap> ImageResourcesSvg::getIndependentPixmap(const 
             return hashIndependent_.find(name).value();
         } else {
             //WS_ASSERT(false);
-            return nullptr;
-        }
-    }
-}
-
-QSharedPointer<IndependentPixmap> ImageResourcesSvg::getIconIndependentPixmap(const QString &name)
-{
-    QMutexLocker locker(&mutex_);
-    auto it = iconHashes_.find(name);
-    if (it != iconHashes_.end()) {
-        return it.value();
-    } else {
-        if (loadIconFromResource(name)) {
-            return iconHashes_.find(name).value();
-        } else {
-            // qCDebug(LOG_BASIC) << "Failed to load Icon: " << name;
-            // WS_ASSERT(false);
             return nullptr;
         }
     }
@@ -125,18 +107,6 @@ void ImageResourcesSvg::run()
         }
     }
     qCDebug(LOG_BASIC) << "ImageResourcesSvg::run() - all SVGs loaded";
-}
-
-bool ImageResourcesSvg::loadIconFromResource(const QString &name)
-{
-    if (QFile::exists(name)) {
-        QPixmap p = WidgetUtils::extractProgramIcon(name);
-        if (!p.isNull()) {
-            iconHashes_[name] = QSharedPointer<IndependentPixmap>(new IndependentPixmap(p));
-            return true;
-        }
-    }
-    return false;
 }
 
 bool ImageResourcesSvg::loadFromResource(const QString &name)

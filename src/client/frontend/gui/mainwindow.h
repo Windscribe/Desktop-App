@@ -284,9 +284,6 @@ private slots:
     void onSplitTunnelingAppsAddButtonClick();
     void onRevealConnectStateChanged(bool revealingConnect);
 
-    void onMainWindowControllerSendServerRatingUp();
-    void onMainWindowControllerSendServerRatingDown();
-
     void onScaleChanged();
     void onDpiScaleManagerNewScreen(QScreen *screen);
     void onFocusWindowChanged(QWindow *focusWindow);

@@ -4,8 +4,6 @@
 # Manages /etc/gai.conf to prioritize IPv4 when VPN blocks IPv6
 # Usage: gai-ipv4-priority up|down
 
-PATH="$PATH:/usr/local/sbin:/usr/sbin:/sbin"
-
 GAI_CONF="/etc/gai.conf"
 WINDSCRIBE_MARKER="# Added by Windscribe to prioritize IPv4 when IPv6 is blocked"
 

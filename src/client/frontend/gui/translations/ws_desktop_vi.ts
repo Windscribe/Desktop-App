@@ -2815,13 +2815,6 @@ Nếu việc cài đặt lại không hiệu quả, vui lòng liên hệ với b
     </message>
 </context>
 <context>
-    <name>ServerRatingsTooltip</name>
-    <message>
-        <source>Rate speed</source>
-        <translation>Tốc độ tốc độ</translation>
-    </message>
-</context>
-<context>
     <name>SharingFeatures::SharingFeaturesWindowItem</name>
     <message>
         <source>Sharing Features</source>

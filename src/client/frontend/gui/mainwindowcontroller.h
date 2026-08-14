@@ -123,8 +123,6 @@ public:
 
     void hideLocationsWindow();
 
-    void clearServerRatingsTooltipState();
-
     bool eventFilter(QObject *watched, QEvent *event) override;
 
 #ifdef Q_OS_MACOS
@@ -135,9 +133,6 @@ signals:
     void shadowUpdated();
     void revealConnectWindowStateChanged(bool revealing);
     void preferencesCollapsed();
-
-    void sendServerRatingUp();
-    void sendServerRatingDown();
 
 private slots:
     void onExpandLocationsListAnimationFinished();
@@ -158,9 +153,6 @@ private slots:
     void onBottomInfoPosChanged();
 
     void onSignupWindowHeightChanged();
-
-    void onTooltipControllerSendServerRatingUp();
-    void onTooltipControllerSendServerRatingDown();
 
     void onAppSkinChanged(APP_SKIN s);
     void onUpdateWidgetAnimationProgressChanged(QVariant value);

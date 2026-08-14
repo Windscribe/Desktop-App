@@ -397,6 +397,45 @@ QStringList WinUtils::enumerateRunningProgramLocations(bool allowDuplicate)
     return result;
 }
 
+bool WinUtils::isOnLocalVolume(const QString &path)
+{
+    // GetDriveType answers from the mount manager without any I/O against the volume itself, so this
+    // cannot stall on a dead share, unlike touching the path.
+    QString p = path;
+    p.replace('/', '\\');
+    if (p.startsWith("\\\\?\\")) {
+        p = p.mid(4);
+    }
+    if (p.startsWith("\\\\") || p.startsWith("UNC\\", Qt::CaseInsensitive)) {
+        return false;
+    }
+    if (p.length() < 2 || p[1] != ':') {
+        return false;
+    }
+    const std::wstring root = (p.left(2) + "\\").toStdWString();
+    const UINT type = GetDriveType(root.c_str());
+    if (type != DRIVE_FIXED && type != DRIVE_REMOVABLE && type != DRIVE_RAMDISK) {
+        return false;
+    }
+
+    // A reparse point (symlink, junction, cloud placeholder) can route a lexically local path onto the
+    // network; refuse the indirection rather than resolve it. Probing one prefix at a time keeps the
+    // lookup on components already proven local, and GetFileAttributes does not follow the last one.
+    for (qsizetype pos = p.indexOf('\\', 3); ; pos = p.indexOf('\\', pos + 1)) {
+        const QString prefix = (pos == -1) ? p : p.left(pos);
+        const DWORD attrs = GetFileAttributes(prefix.toStdWString().c_str());
+        if (attrs == INVALID_FILE_ATTRIBUTES) {
+            return true;
+        }
+        if (attrs & FILE_ATTRIBUTE_REPARSE_POINT) {
+            return false;
+        }
+        if (pos == -1) {
+            return true;
+        }
+    }
+}
+
 static std::string readAllFromPipe(HANDLE hPipe)
 {
     const int BUFFER_SIZE = 1024;

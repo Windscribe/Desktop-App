@@ -5,8 +5,6 @@
 
 namespace WidgetUtils {
 
-QPixmap extractProgramIcon(QString filePath);
-
 QScreen *slightlySaferScreenAt(QPoint pt);
 
 QScreen *screenByName(const QString &name);

@@ -5,12 +5,7 @@
 #include "graphicresources/fontmanager.h"
 #include "graphicresources/imageresourcessvg.h"
 #include "preferenceswindow/preferencesconst.h"
-#include "widgetutils/widgetutils.h"
 #include "dpiscalemanager.h"
-
-#if defined(Q_OS_MACOS)
-#include "utils/macutils.h"
-#endif
 
 namespace PreferencesWindow {
 
@@ -28,14 +23,6 @@ AppIncludedItem::AppIncludedItem(types::SplitTunnelingApp app, ScalableGraphicsO
     deleteButton_->setHoverOpacity(OPACITY_FULL);
     connect(deleteButton_, &IconButton::clicked, this, &AppIncludedItem::deleteClicked);
 
-    if (app_.icon.isEmpty()) {
-#if defined(Q_OS_WIN)
-        app_.icon = app_.fullName;
-#elif defined(Q_OS_MACOS)
-        app_.icon = MacUtils::iconPathFromBinPath(app_.fullName);
-#endif
-    }
-
     updatePositions();
 }
 
@@ -49,7 +36,7 @@ void AppIncludedItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *o
     // app icon
 #if !defined(Q_OS_LINUX)
     painter->save();
-    QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIconIndependentPixmap(app_.icon);
+    QSharedPointer<IndependentPixmap> p = icon_;
     if (!p) {
         p = ImageResourcesSvg::instance().getIndependentPixmap("preferences/WHITE_QUESTION_MARK_ICON");
     }
@@ -92,6 +79,12 @@ QString AppIncludedItem::getAppIcon()
 bool AppIncludedItem::isActive()
 {
     return app_.active;
+}
+
+void AppIncludedItem::setIcon(QSharedPointer<IndependentPixmap> icon)
+{
+    icon_ = icon;
+    update();
 }
 
 void AppIncludedItem::onToggleChanged(bool checked)

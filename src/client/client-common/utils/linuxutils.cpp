@@ -4,6 +4,7 @@
 #include <QFile>
 #include <QProcess>
 #include <QRegularExpression>
+#include <QSet>
 #include <QTextStream>
 
 #include <sys/syscall.h>
@@ -140,11 +141,16 @@ QMap<QString, QString> enumerateInstalledPrograms()
         dirs.prepend(QString::fromLocal8Bit(xdgDataHome));
     }
 
+    // Desktop entries are identified by their filename, and the first directory in search order wins. Only an
+    // entry we could read shadows a later one: a deliberate Type= or NoDisplay= skip hides the system entry,
+    // but a broken user override must not.
+    QSet<QString> seenEntries;
+
     for (auto dir : dirs) {
         for (auto filename : QDir(dir + "/applications").entryList(QStringList("*.desktop"), QDir::Files)) {
             QString file = dir + "/applications/" + filename;
             // If we already have this application from a previous directory, ignore it
-            if (programs.keys().contains(file)) {
+            if (seenEntries.contains(filename)) {
                 continue;
             }
 
@@ -157,10 +163,12 @@ QMap<QString, QString> enumerateInstalledPrograms()
 
             // Omit entries without Type=Application
             if (contents.indexOf(QRegularExpression("^Type=Application$")) == -1) {
+                seenEntries.insert(filename);
                 continue;
             }
             // Omit entries with NoDisplay=true
             if (contents.indexOf(QRegularExpression("^NoDisplay=true$")) != -1) {
+                seenEntries.insert(filename);
                 continue;
             }
             int idx = contents.indexOf(QRegularExpression("^Exec=.*"));
@@ -171,6 +179,7 @@ QMap<QString, QString> enumerateInstalledPrograms()
             // Extract the contents of the first Exec= line
             QString exec = extractExeName(contents[idx].mid(5));
             if (!exec.isEmpty()) {
+                seenEntries.insert(filename);
                 int iconIdx = contents.indexOf(QRegularExpression("^Icon=.*"));
                 if (iconIdx == -1) {
                     // best guess
@@ -241,7 +250,7 @@ QString extractExeName(const QString &execLine)
 
         path = convertToAbsolutePath(block);
         if (!path.isEmpty()) {
-            if (QFileInfo(QFile(path)).fileName() == "flatpak") {
+            if (QFileInfo(path).fileName() == "flatpak") {
                 isFlatpak = true;
                 continue;
             }

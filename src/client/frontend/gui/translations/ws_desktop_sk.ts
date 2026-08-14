@@ -2815,13 +2815,6 @@ Ak preinštalovanie nepomôže, obráťte sa na podporu Windscribe a požiadajte
     </message>
 </context>
 <context>
-    <name>ServerRatingsTooltip</name>
-    <message>
-        <source>Rate speed</source>
-        <translation>Ohodnotiť rýchlosť</translation>
-    </message>
-</context>
-<context>
     <name>SharingFeatures::SharingFeaturesWindowItem</name>
     <message>
         <source>Sharing Features</source>

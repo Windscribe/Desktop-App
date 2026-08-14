@@ -28,7 +28,6 @@ public:
     void finishGracefully();
 
     QSharedPointer<IndependentPixmap> getIndependentPixmap(const QString &name);
-    QSharedPointer<IndependentPixmap> getIconIndependentPixmap(const QString &name);
 
     QSharedPointer<IndependentPixmap> getFlag(const QString &flagName);
     QSharedPointer<IndependentPixmap> getCircleFlag(const QString &flagName);
@@ -41,14 +40,12 @@ private:
     ImageResourcesSvg();
     virtual ~ImageResourcesSvg();
 
-    QHash<QString, QSharedPointer<IndependentPixmap> > iconHashes_;
     QHash<QString, QSharedPointer<IndependentPixmap> > hashIndependent_;
     std::atomic<bool> bNeedFinish_;
     bool bFininishedGracefully_;
     QRecursiveMutex mutex_;
 
 
-    bool loadIconFromResource(const QString &name);
     bool loadFromResource(const QString &name);
     bool loadFromResourceWithCustomSize(const QString &name, int width, int height, int flags);
     QSharedPointer<IndependentPixmap> getIndependentPixmapScaled(const QString &name, int width, int height, int flags);

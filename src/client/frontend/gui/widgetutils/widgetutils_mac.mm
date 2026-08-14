@@ -7,15 +7,6 @@
 
 #include <QDebug>
 
-QPixmap WidgetUtils_mac::extractProgramIcon(const QString &filePath)
-{
-    // TODO: QIcon constructor sometimes throws this WARNING into log:
-    // "libpng warning: iCCP: known incorrect sRGB profile"
-    QIcon icon(filePath);
-    int size = 18 * G_SCALE;
-    return QPixmap(icon.pixmap(QSize(size, size)));
-}
-
 void WidgetUtils_mac::allowMinimizeForFramelessWindow(QWidget *window)
 {
     NSWindow* nsWindow = [(__bridge NSView*)reinterpret_cast<void*>(window->winId()) window];

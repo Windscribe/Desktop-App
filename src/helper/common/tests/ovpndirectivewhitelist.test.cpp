@@ -188,6 +188,176 @@ void testTopLevelDirectiveFiltering()
     VERIFY(contains(out, "remote example.com 1194"));
 }
 
+// dhcp-option is whitelisted by name, but its DNS value reaches the root DNS hook scripts. The
+// filter must reject any DNS-family value (DNS, DNS6, and the alias spellings) that isn't a
+// single bare IP.
+void testDhcpOptionValueFiltering()
+{
+    std::string out;
+
+    // Legitimate single-address forms (v4 or v6) pass through untouched.
+    VERIFY(filters("dhcp-option DNS 10.255.255.2\n", out));
+    VERIFY(contains(out, "dhcp-option DNS 10.255.255.2"));
+    VERIFY(filters("dhcp-option DNS 2606:4700:4700::1111\n", out));
+    VERIFY(contains(out, "2606:4700:4700::1111"));
+
+    // The reported injection: a quoted DNS value hiding a busctl option must be stripped. Quoting is
+    // never needed for a DNS value, so any quote (or backslash) rejects the line outright.
+    VERIFY(filters("dhcp-option DNS \"1.2.3.4 --address=unixexec:path=/tmp/x\"\n", out));
+    VERIFY(!contains(out, "--address"));
+    VERIFY(!contains(out, "unixexec"));
+
+    // Unquoted extra tokens after the address are stripped too.
+    VERIFY(filters("dhcp-option DNS 1.2.3.4 --address=unixexec:path=/tmp/x\n", out));
+    VERIFY(!contains(out, "--address"));
+
+    // Quoting the whole "DNS <payload>" as one parameter can't smuggle it either (quote rejected).
+    VERIFY(filters("dhcp-option \"DNS 1.2.3.4 --address=unixexec:path=/tmp/x\"\n", out));
+    VERIFY(!contains(out, "--address"));
+
+    // The subtype is matched case-insensitively (the hooks lowercase it): lowercase dns and dns6
+    // are validated the same as their uppercase forms.
+    VERIFY(filters("dhcp-option dns 10.255.255.2\n", out));
+    VERIFY(contains(out, "dhcp-option dns 10.255.255.2"));
+    VERIFY(filters("dhcp-option dns6 2606:4700:4700::1111\n", out));
+    VERIFY(contains(out, "dhcp-option dns6 2606:4700:4700::1111"));
+
+    // dhcp-option DNS takes exactly one address; a second one means the whole line is rejected.
+    VERIFY(filters("dhcp-option DNS 1.2.3.4 5.6.7.8\n", out));
+    VERIFY(!contains(out, "5.6.7.8"));
+
+    // A non-IP DNS value is rejected.
+    VERIFY(filters("dhcp-option DNS not-an-ip\n", out));
+    VERIFY(!contains(out, "not-an-ip"));
+
+    // OpenVPN 2.7 accepts DNS6 like DNS (one v4-or-v6 address), so it passes with a valid IP but is
+    // still rejected when the value smuggles extra tokens.
+    VERIFY(filters("dhcp-option DNS6 2606:4700:4700::1111\n", out));
+    VERIFY(contains(out, "dhcp-option DNS6 2606:4700:4700::1111"));
+    VERIFY(filters("dhcp-option DNS6 1.2.3.4 --address=unixexec:path=/tmp/x\n", out));
+    VERIFY(!contains(out, "--address"));
+
+    // update-systemd-resolved dispatches process_<subtype> with '-' mapped to '_', so the
+    // DNS-IPV4/DNS-IPV6 spellings reach the same address sinks and get the same validation.
+    VERIFY(filters("dhcp-option DNS-IPV4 1.2.3.4\n", out));
+    VERIFY(contains(out, "dhcp-option DNS-IPV4 1.2.3.4"));
+    VERIFY(filters("dhcp-option DNS-IPV4 unixexec:path=/tmp/x.1.2.3\n", out));
+    VERIFY(!contains(out, "unixexec"));
+    VERIFY(filters("dhcp-option DNS_IPV6 2606:4700:4700::1111\n", out));
+    VERIFY(contains(out, "dhcp-option DNS_IPV6 2606:4700:4700::1111"));
+    VERIFY(filters("dhcp-option DNS_IPV4 1.2.3.4 5.6.7.8\n", out));
+    VERIFY(!contains(out, "5.6.7.8"));
+    VERIFY(filters("dhcp-option dns_ipv6 2606:4700:4700::1111\n", out));
+    VERIFY(contains(out, "dhcp-option dns_ipv6 2606:4700:4700::1111"));
+    VERIFY(filters("dhcp-option Dns-IpV4 not-an-ip\n", out));
+    VERIFY(!contains(out, "not-an-ip"));
+
+    // A DNS-family subtype with no value at all is rejected.
+    VERIFY(filters("dhcp-option DNS\n", out));
+    VERIFY(!contains(out, "DNS"));
+
+    // An IPV4 alias carrying a v6 literal (or IPV6 carrying a v4) is rejected: those spellings are
+    // dispatched to the family-specific hook, so the address must match the family.
+    VERIFY(filters("dhcp-option DNS-IPV4 2606:4700:4700::1111\n", out));
+    VERIFY(!contains(out, "2606:4700:4700::1111"));
+    VERIFY(filters("dhcp-option DNS-IPV6 1.2.3.4\n", out));
+    VERIFY(!contains(out, "1.2.3.4"));
+
+    // The "--"-prefixed spelling of the directive is validated the same way.
+    VERIFY(filters("--dhcp-option DNS 1.2.3.4\n", out));
+    VERIFY(contains(out, "dhcp-option DNS 1.2.3.4"));
+    VERIFY(filters("--dhcp-option DNS 1.2.3.4 --address=unixexec:path=/tmp/x\n", out));
+    VERIFY(!contains(out, "--address"));
+
+    // A high-byte (non-ASCII) character in the address fails IP validation and drops the line.
+    VERIFY(filters("dhcp-option DNS 1.2.3.4\xC3\xA9\n", out));
+    VERIFY(!contains(out, "1.2.3.4"));
+
+    // Other dhcp-option subtypes are unaffected.
+    VERIFY(filters("dhcp-option DOMAIN-ROUTE .\n", out));
+    VERIFY(contains(out, "dhcp-option DOMAIN-ROUTE ."));
+    VERIFY(filters("dhcp-option DOMAIN example.com\n", out));
+    VERIFY(contains(out, "dhcp-option DOMAIN example.com"));
+
+    // A trailing inline comment is not part of the value; the DNS line still passes, even when the
+    // comment itself contains quotes or backslashes.
+    VERIFY(filters("dhcp-option DNS 8.8.8.8 # my dns\n", out));
+    VERIFY(contains(out, "dhcp-option DNS 8.8.8.8"));
+    VERIFY(filters("dhcp-option DNS 8.8.8.8 ;note\n", out));
+    VERIFY(contains(out, "dhcp-option DNS 8.8.8.8"));
+    VERIFY(filters("dhcp-option DNS 8.8.8.8 # o'brien's \"dns\"\n", out));
+    VERIFY(contains(out, "dhcp-option DNS 8.8.8.8"));
+}
+
+// The dns (OpenVPN 2.6) directive: address-list IPs are validated (a non-IP token rejects the line),
+// while the non-address forms carry no IP and pass through.
+void testDnsDirectiveFiltering()
+{
+    std::string out;
+
+    VERIFY(filters("dns server 0 address 1.1.1.1\n", out));
+    VERIFY(contains(out, "dns server 0 address 1.1.1.1"));
+    VERIFY(filters("dns server 0 address 1.1.1.1 8.8.8.8\n", out));
+    VERIFY(contains(out, "8.8.8.8"));
+    VERIFY(filters("dns server 0 address 1.1.1.1:53\n", out));
+    VERIFY(contains(out, "1.1.1.1:53"));
+    VERIFY(filters("dns server 0 address 2606:4700:4700::1111\n", out));
+    VERIFY(contains(out, "2606:4700:4700::1111"));
+    VERIFY(filters("dns server 0 address [2606:4700:4700::1111]:853\n", out));
+    VERIFY(contains(out, "[2606:4700:4700::1111]:853"));
+
+    // A malformed address entry rejects the whole directive (not just its port): a bracketed form
+    // without a port, a zero/out-of-range/non-numeric port.
+    VERIFY(filters("dns server 0 address [2606:4700:4700::1111]\n", out));
+    VERIFY(!contains(out, "2606:4700:4700::1111"));
+    VERIFY(filters("dns server 0 address 1.1.1.1:0\n", out));
+    VERIFY(!contains(out, "1.1.1.1"));
+    VERIFY(filters("dns server 0 address 1.1.1.1:99999\n", out));
+    VERIFY(!contains(out, "1.1.1.1"));
+    VERIFY(filters("dns server 0 address 1.1.1.1:53x\n", out));
+    VERIFY(!contains(out, "1.1.1.1"));
+    VERIFY(filters("dns server 0 address 1.1.1.1:\n", out));
+    VERIFY(!contains(out, "1.1.1.1"));
+    VERIFY(filters("dns server 0 address [1.2.3.4]:53\n", out));
+    VERIFY(!contains(out, "1.2.3.4"));
+
+    // "address" with no value is an explicit reject, not a silent accept.
+    VERIFY(filters("dns server 0 address\n", out));
+    VERIFY(!contains(out, "address"));
+
+    // A non-IP token anywhere in the address list rejects the whole line.
+    VERIFY(filters("dns server 0 address 1.1.1.1 --address=unixexec:path=/tmp/x\n", out));
+    VERIFY(!contains(out, "--address"));
+    VERIFY(filters("dns server 0 address not-an-ip\n", out));
+    VERIFY(!contains(out, "not-an-ip"));
+
+    // A quoted value is rejected outright.
+    VERIFY(filters("dns server 0 address \"1.1.1.1 --foo\"\n", out));
+    VERIFY(!contains(out, "--foo"));
+
+    // Non-address forms carry no IP and pass through untouched.
+    VERIFY(filters("dns search-domains example.com\n", out));
+    VERIFY(contains(out, "dns search-domains example.com"));
+    VERIFY(filters("dns server 0 dnssec yes\n", out));
+    VERIFY(contains(out, "dns server 0 dnssec yes"));
+}
+
+// The anti-censorship i1-i5 directives carry a quoted value with heavy punctuation. The client
+// generator emits them and the helper's filter writes the config, so the filter must pass such a
+// line through byte-for-byte — a stripped i-directive would silently break the connection. (This
+// pins the generator/filter contract on the helper side.)
+void testAntiCensorshipIParamsPassThrough()
+{
+    const std::string iparam =
+        "i1 \"<b 0xf0-9a_7c=3d.2e:1f/4a+5b,6c;7d(8e)9f[a0]b1{c2}d3|e4*f5&g6^h7%i8$j9#k0!l1?m2@n3~o4`p5>\"";
+    const std::string config = iparam + "\nudp-stuffing\ntcp-split-reset\n";
+    std::string out;
+    VERIFY(filters(config, out));
+    VERIFY(contains(out, iparam));
+    VERIFY(contains(out, "udp-stuffing"));
+    VERIFY(contains(out, "tcp-split-reset"));
+}
+
 } // namespace
 
 int main()
@@ -201,6 +371,9 @@ int main()
     testMaxLengthLineAccepted();
     testBareDoubleDashRejected();
     testTopLevelDirectiveFiltering();
+    testDhcpOptionValueFiltering();
+    testDnsDirectiveFiltering();
+    testAntiCensorshipIParamsPassThrough();
 
     if (g_failures == 0) {
         printf("All OvpnDirectiveWhitelist differential tests passed.\n");

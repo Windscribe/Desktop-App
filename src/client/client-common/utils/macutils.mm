@@ -7,33 +7,19 @@
 #include <QHostAddress>
 #include <QScopeGuard>
 
+#include <dirent.h>
 #include <libproc.h>
+#include <limits.h>
+#include <sys/mount.h>
+#include <sys/stat.h>
+#include <unistd.h>
+
+#include <vector>
 
 #include "executable_signature/executable_signature.h"
 #include "log/categories.h"
 #include "macutils.h"
 #include "utils.h"
-
-namespace {
-
-QList<QString> listedCmdResults(const QString &cmd)
-{
-    QList<QString> result;
-    QString response = Utils::execCmd(cmd);
-
-    const QList<QString> lines = response.split("\n");
-    for (const QString &line : lines)
-    {
-        const QString iName = line.trimmed();
-        if (iName != "")
-        {
-            result.append(iName);
-        }
-    }
-
-    return result;
-}
-}
 
 void MacUtils::activateApp()
 {
@@ -109,29 +95,162 @@ bool MacUtils::isAppAlreadyRunning()
     return response.trimmed() != "";
 }
 
+// getfsstat(MNT_NOWAIT) returns the kernel's cached mount records without asking each filesystem to
+// refresh, so it cannot stall on a dead mount. The prefix match is lexical for the same reason:
+// stat'ing the path would trigger automounts and hang on exactly the volumes this exists to avoid.
+static bool clearOfNonLocalMounts(const QString &path)
+{
+    int count = getfsstat(nullptr, 0, MNT_NOWAIT);
+    if (count <= 0) {
+        return false;
+    }
+    // Over-allocate so a volume mounted between the two calls cannot be silently truncated away.
+    std::vector<struct statfs> mounts(count + 8);
+    count = getfsstat(mounts.data(), static_cast<int>(mounts.size() * sizeof(struct statfs)), MNT_NOWAIT);
+    if (count <= 0) {
+        return false;
+    }
+
+    const QString p = path.endsWith('/') ? path : path + '/';
+    for (int i = 0; i < count; i++) {
+        if ((mounts[i].f_flags & MNT_LOCAL) && strcmp(mounts[i].f_fstypename, "autofs") != 0) {
+            continue;
+        }
+        const QString mountPoint = QString::fromUtf8(mounts[i].f_mntonname);
+        const QString prefix = mountPoint.endsWith('/') ? mountPoint : mountPoint + '/';
+        // Every mount the path traverses must be local, not just the deepest: reaching a local volume
+        // mounted beneath a network directory still walks through the dead parent. Case-insensitive
+        // because the default filesystem is, and over-matching can only add refusals.
+        if (p.startsWith(prefix, Qt::CaseInsensitive)) {
+            return false;
+        }
+        // A mount below the path sits where bundle reads descend, so it is refused the same way.
+        if (prefix.startsWith(p, Qt::CaseInsensitive)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool MacUtils::isOnLocalVolume(const QString &path)
+{
+    // Only canonical-form absolute paths: '.', '..', doubled or trailing separators make the lexical
+    // mount match below diverge from what traversal actually crosses. cleanPath is purely lexical.
+    if (!path.startsWith('/') || path != QDir::cleanPath(path)) {
+        return false;
+    }
+
+    if (!clearOfNonLocalMounts(path)) {
+        return false;
+    }
+
+    // A symlink component can route a lexically local path onto a network volume; refuse the indirection
+    // rather than resolve it. lstat reads the link itself, and each prefix probed is already proven local.
+    const QByteArray native = path.toUtf8();
+    for (qsizetype pos = native.indexOf('/', 1); ; pos = native.indexOf('/', pos + 1)) {
+        const QByteArray prefix = (pos == -1) ? native : native.left(pos);
+        struct stat st;
+        if (lstat(prefix.constData(), &st) != 0) {
+            return true;
+        }
+        if (S_ISLNK(st.st_mode)) {
+            return false;
+        }
+        if (pos == -1) {
+            return true;
+        }
+    }
+}
+
 QString MacUtils::iconPathFromBinPath(const QString &binPath)
 {
-    QString iconPath = "";
-    const QString iconFolderPath = binPath + "/Contents/Resources/";
-    const QString listIcnsCmd = "ls '" + iconFolderPath + "' | grep .icns";
-
-    QList<QString> icons = listedCmdResults(listIcnsCmd);
-
-    if (icons.length() > 0)
-    {
-        iconPath = iconFolderPath + icons[0];
+    if (!isOnLocalVolume(binPath)) {
+        return QString();
     }
-    return iconPath;
+
+    // Own pool: this runs on a worker thread that has no event loop, so nothing else drains one.
+    @autoreleasepool {
+        NSBundle *bundle = [NSBundle bundleWithPath:binPath.toNSString()];
+        if (bundle != nil) {
+            NSString *iconFile = [[bundle infoDictionary] objectForKey:@"CFBundleIconFile"];
+            if ([iconFile isKindOfClass:[NSString class]] && [iconFile length] > 0) {
+                NSString *resolved = [bundle pathForResource:iconFile ofType:@"icns"];
+                if (resolved == nil) {
+                    resolved = [bundle pathForResource:iconFile ofType:nil];
+                }
+                if (resolved != nil) {
+                    return QString::fromNSString(resolved);
+                }
+            }
+        }
+    }
+
+    // Apps that declare their icon in an asset catalog (CFBundleIconName) have no Info.plist path to follow.
+    const QDir resourcesDir(binPath + "/Contents/Resources");
+    const QStringList icons = resourcesDir.entryList(QStringList("*.icns"), QDir::Files, QDir::Name);
+    if (!icons.isEmpty()) {
+        return resourcesDir.filePath(icons.first());
+    }
+
+    return QString();
 }
 
 QList<QString> MacUtils::enumerateInstalledPrograms()
 {
-    QString cmd = "ls -d1 /Applications/* | grep .app";
-    QList<QString> list = listedCmdResults(cmd);
     QList<QString> apps;
 
-    for (const QString &path: std::as_const(list)) {
-        apps << QString::fromStdString(QFileInfo(path).filesystemCanonicalFilePath());
+    // QDir's type filters classify every entry, and classification stats through a symlink -- hanging on
+    // a link into a dead mount before the loop could refuse it. readdir lists names and touches nothing.
+    DIR *dir = opendir("/Applications");
+    if (dir == nullptr) {
+        return apps;
+    }
+    QStringList entries;
+    while (struct dirent *entry = readdir(dir)) {
+        const QString name = QString::fromUtf8(entry->d_name);
+        if (name.endsWith(".app", Qt::CaseInsensitive) && !name.startsWith('.')) {
+            entries << name;
+        }
+    }
+    closedir(dir);
+    entries.sort();
+
+    for (const QString &entry : entries) {
+        const QString entryPath = "/Applications/" + entry;
+        // A dead volume mounted at the entry would park lstat itself, so it is refused from the mount
+        // table before anything touches it.
+        if (!clearOfNonLocalMounts(entryPath)) {
+            continue;
+        }
+        const QByteArray native = entryPath.toUtf8();
+        struct stat st;
+        if (lstat(native.constData(), &st) != 0) {
+            continue;
+        }
+        if (S_ISLNK(st.st_mode)) {
+            // Raw readlink reads the link inode and never follows it; QFileInfo::symLinkTarget() stats the
+            // target to classify the link, which hangs on a dead mount.
+            char target[PATH_MAX];
+            const ssize_t len = readlink(native.constData(), target, sizeof(target) - 1);
+            if (len <= 0) {
+                continue;
+            }
+            QString targetPath = QString::fromUtf8(target, len);
+            if (!targetPath.startsWith('/')) {
+                targetPath = "/Applications/" + targetPath;
+            }
+            // A passing target has no symlink components, so it is the final hop and canonicalizing
+            // below cannot wander into a dead mount.
+            if (!isOnLocalVolume(QDir::cleanPath(targetPath))) {
+                continue;
+            }
+        } else if (!S_ISDIR(st.st_mode)) {
+            continue;
+        }
+        const QString path = QString::fromStdString(QFileInfo(entryPath).filesystemCanonicalFilePath());
+        if (!path.isEmpty()) {
+            apps << path;
+        }
     }
     return apps;
 }

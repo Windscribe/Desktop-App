@@ -1,10 +1,22 @@
-2.24.8 beta (09/08/2026)
+2.24.9 (14/08/2026)
+All:
+   * Improved API retry access to use bounded per-resource exponential backoff, starting at 1 second and doubling to a 5-minute cap with jitter. #1962
+macOS:
+   * Fixed local privilege escalation vulnerability involving handling of OpenVPN's dhcp-option parameter in custom configs. #1959
+   * Fixed app may hang indefinitely on launch due to delays while constructing the Split Tunneling application picker. #1956
+Linux:
+   * Fixed local privilege escalation vulnerability involving cgroups-down script. #1957
+   * Fixed local privilege escalation vulnerability involving handling of OpenVPN's dhcp-option parameter in custom configs. #1959
+   * Fixed CLI-only app is missing a dependency for libbrotli. #1958
+
+
+2.24.8 (09/08/2026)
 Windows:
-    * Improved connection failed messaging when IKEv2 (RAS) services are unavailable. #1953
-    * Fixed app startup/shutdown delay when IKEv2 (RAS) services are unavailable. #1953
+   * Improved connection failed messaging when IKEv2 (RAS) services are unavailable. #1953
+   * Fixed app startup/shutdown delay when IKEv2 (RAS) services are unavailable. #1953
 
 
-2.24.7 beta (05/08/2026)
+2.24.7 (05/08/2026)
 All:
    * Fixed first click on Rotate IP may not rotate IP. #1702
 Windows:
@@ -13,7 +25,7 @@ Linux:
    * Fixed line-wrapped resolvectl output omits resolvers from DNS leak protection. #1952
 
 
-2.24.6 guinea pig (29/07/2026)
+2.24.6 (29/07/2026)
 Windows:
    * Fixed OpenVPN adapter creation failure insufficiently reported to the user. #1950
 macOS:
@@ -22,7 +34,7 @@ Linux:
    * Fixed WireGuard may fail to connect if IPv6 is disabled in the kernel. #1948
 
 
-2.24.5 guinea pig (23/07/2026)
+2.24.5 (23/07/2026)
 All:
    * Added a SECURITY.md document. #1942
    * Improved the ConnectionManager sub-system. #1896.
@@ -32,7 +44,7 @@ All:
    * Fixed Account tab Add Email text may overlap when account has no email and language is non-English. #1944
 
 
-2.24.4 guinea pig (21/07/2026)
+2.24.4 (21/07/2026)
 All:
    * Fixed Connected DNS split-DNS reachability to internal RFC1918 DNS servers while the VPN is active. #1914
    * Fixed cached WireGuard config is not cleared when its keys are invalidated. #1916
@@ -44,7 +56,7 @@ Linux:
    * Fixed local root escalation vulnerability involving OpenVPN inline-parser differences and root-execution-capable directives in custom OpenVPN configs. #1938
 
 
-2.24.3 guinea pig (16/07/2026)
+2.24.3 (16/07/2026)
 All:
    * Improved Custom SNI handling by keeping Custom SNI Domain visible/editable independently of the Protocol Tweaks mode, while still applying it only to Stealth/stunnel and WSTunnel connections. #1935
    * Improved wsnet/desktop hardening by validating values received from wsnet and applying wsnet security-audit fixes for URL construction, TLS/network handling, logging, parsing, and failover robustness. #1924 wsnet #32
@@ -66,7 +78,7 @@ Linux:
    * Fixed local root escalation chain involving SGID helper descriptor reuse and OpenVPN custom config parser differences. #1928
    
 
-2.24.2 guinea pig (08/07/2026)
+2.24.2 (08/07/2026)
 All:
    * Added custom SNI support for stunnel/wstunnel anti-censorship connections. #1794
    * Added cross-platform diagnostics for API connectivity login failures so logs can better distinguish DNS, routing, proxy, IPv4/IPv6, and local security-policy failures. #1884
@@ -140,7 +152,7 @@ Linux:
    * Fixed DNS leak protection allowing pre-VPN OS DNS resolvers when DNS traffic egressed over the VPN interface. #1898
 
 
-2.23.9 beta (23/06/2026)
+2.23.9 (23/06/2026)
 All:
    * Improved Belarusian translations in the GUI and CLI from GitHub user dubovy-achvelak. #1890
    * Fixed Always On+ firewall state eventually showing the Ignore SSL errors prompt during blocked or delayed connectivity. #1889

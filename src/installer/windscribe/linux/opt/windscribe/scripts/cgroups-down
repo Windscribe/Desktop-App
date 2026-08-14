@@ -1,11 +1,5 @@
 #!/bin/bash
 
-net_cls_root="`mount -l | grep cgroup | grep net_cls | cut -d ' ' -f 3 | head -n 1`"
-if [ -z "$net_cls_root" ]; then
-    echo "Could not find cgroup root"
-    exit 1
-fi
-
 # Delete our routing table
 ip rule del priority 16383 table main suppress_prefixlength 1 2>/dev/null
 ip rule flush table windscribe 2>/dev/null
@@ -21,8 +15,18 @@ ip -6 route flush table windscribe 2>/dev/null
 ip -6 rule flush table windscribe_include 2>/dev/null
 ip -6 route flush table windscribe_include 2>/dev/null
 
-# Clear net_cls id
-for i in `cat "$net_cls_root/windscribe/cgroup.procs"`; do
-    echo $i > "$net_cls_root/cgroup.procs" 2>/dev/null
-done
-rmdir "$net_cls_root/windscribe"
+# Clear net_cls id. Below the routing cleanup, which needs no cgroup: an absent hierarchy
+# just means there is nothing left to tear down.
+# -t cgroup is load-bearing: without it any user can udisks-mount a filesystem whose label
+# puts "cgroup" and "net_cls" into its path, and we write through this path as root.
+net_cls_root="`mount -l -t cgroup | grep "net_cls on" | cut -d ' ' -f 3 | head -n 1`"
+if [ -n "$net_cls_root" ]; then
+    for i in `cat "$net_cls_root/windscribe/cgroup.procs" 2>/dev/null`; do
+        echo $i > "$net_cls_root/cgroup.procs" 2>/dev/null
+    done
+    rmdir "$net_cls_root/windscribe" 2>/dev/null
+fi
+
+# Every command above may legitimately find its target already gone on a teardown, so their
+# failures are not errors. The helper still sees an outright failure to run this script.
+exit 0

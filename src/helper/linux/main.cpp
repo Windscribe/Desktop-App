@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include <syslog.h>
 #include <signal.h>
 #include <spdlog/spdlog.h>
@@ -17,6 +18,11 @@ void handler_sigterm(int signum)
 
 int main(int argc, const char *argv[])
 {
+    // Pin before anything can spawn a child: every command we run as root goes through a shell,
+    // and the packages invoke us outside systemd (--reset-mac-addresses from prerm/preun), where
+    // the unit's Environment=PATH does not apply and dpkg hands us /usr/local/{sbin,bin} first.
+    setenv("PATH", "/usr/sbin:/usr/bin:/sbin:/bin", 1);
+
     // Initialize logger
     std::string path = WS_LINUX_LOG_DIR;
     //mkdir(path.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);

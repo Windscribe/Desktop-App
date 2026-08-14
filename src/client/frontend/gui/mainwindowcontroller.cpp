@@ -167,9 +167,6 @@ MainWindowController::MainWindowController(QWidget *parent, LocationsWindow *loc
     shadowManager_->addRectangle(QRect(0, 0, 0, 0), ShadowManager::SHAPE_ID_EXIT, false);
     connect(shadowManager_, &ShadowManager::shadowUpdated, this, &MainWindowController::shadowUpdated);
 
-    connect(&TooltipController::instance(), &TooltipController::sendServerRatingUp, this, &MainWindowController::onTooltipControllerSendServerRatingUp);
-    connect(&TooltipController::instance(), &TooltipController::sendServerRatingDown, this, &MainWindowController::onTooltipControllerSendServerRatingDown);
-
     connect(&updateWidgetAnimation_, &QVariantAnimation::valueChanged, this, &MainWindowController::onUpdateWidgetAnimationProgressChanged);
     connect(&updateWidgetAnimation_, &QVariantAnimation::finished, this, &MainWindowController::onVanGoghAnimationFinished);
 
@@ -842,16 +839,6 @@ void MainWindowController::onSignupWindowHeightChanged()
                                               signupWindow_->boundingRect().height()));
     updateMainAndViewGeometry(false);
     keepWindowInsideScreenCoordinates();
-}
-
-void MainWindowController::onTooltipControllerSendServerRatingUp()
-{
-    emit sendServerRatingUp();
-}
-
-void MainWindowController::onTooltipControllerSendServerRatingDown()
-{
-    emit sendServerRatingDown();
 }
 
 void MainWindowController::gotoInitializationWindow()
@@ -1800,11 +1787,6 @@ void MainWindowController::hideLocationsWindow()
                                   LOCATIONS_WINDOW_WIDTH * G_SCALE,
                                   0);
     locationsWindow_->show();
-}
-
-void MainWindowController::clearServerRatingsTooltipState()
-{
-    TooltipController::instance().clearServerRatings();
 }
 
 bool MainWindowController::eventFilter(QObject *watched, QEvent *event)

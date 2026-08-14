@@ -16,7 +16,7 @@ namespace PreferencesWindow {
 PreferenceGroup::PreferenceGroup(ScalableGraphicsObject *parent, const QString &desc, const QString &descUrl)
     : BaseItem(parent, 0), desc_(desc), errorDesc_(""), descUrl_(descUrl), descRightMargin_(PREFERENCES_MARGIN_X), descHeight_(0),
       borderWidth_(2), icon_(new IconButton(ICON_WIDTH, ICON_HEIGHT, "preferences/INFO_ICON", "", this, OPACITY_SIXTY)),
-      error_(false), drawBackground_(true), descHidden_(false)
+      error_(false), drawBackground_(true), descHidden_(false), batchMode_(false)
 {
     connect(icon_, &IconButton::clicked, this, &PreferenceGroup::onIconClicked);
 
@@ -124,7 +124,22 @@ void PreferenceGroup::addItem(CommonGraphics::BaseItem *item, bool isWideDivider
     items_ << item;
 
     updatePositions();
-    emit itemsChanged();
+    if (!batchMode_) {
+        emit itemsChanged();
+    }
+}
+
+void PreferenceGroup::setBatchMode(bool batchMode)
+{
+    if (batchMode_ == batchMode) {
+        return;
+    }
+    batchMode_ = batchMode;
+
+    if (!batchMode_) {
+        updatePositions();
+        emit itemsChanged();
+    }
 }
 
 void PreferenceGroup::clearItems(bool skipFirst)
@@ -188,6 +203,11 @@ void PreferenceGroup::setDescriptionBorderWidth(int width)
 
 void PreferenceGroup::updatePositions()
 {
+    // Items also reach this via heightChanged when they are hidden, so the batch guard belongs here.
+    if (batchMode_) {
+        return;
+    }
+
     // calculate right margin
     if (!error_ && !descUrl_.isEmpty()) {
         descRightMargin_ = (2*PREFERENCES_MARGIN_X + ICON_WIDTH)*G_SCALE;

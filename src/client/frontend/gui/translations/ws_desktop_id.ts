@@ -2815,13 +2815,6 @@ Jika penginstalan ulang tidak membantu, hubungi dukungan Windscribe untuk mendap
     </message>
 </context>
 <context>
-    <name>ServerRatingsTooltip</name>
-    <message>
-        <source>Rate speed</source>
-        <translation>Kecepatan laju</translation>
-    </message>
-</context>
-<context>
     <name>SharingFeatures::SharingFeaturesWindowItem</name>
     <message>
         <source>Sharing Features</source>

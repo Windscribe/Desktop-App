@@ -398,15 +398,6 @@ void Engine::sendConfirmEmail()
     QMetaObject::invokeMethod(this, "sendConfirmEmailImpl");
 }
 
-void Engine::speedRating(int rating, const QString &localExternalIp)
-{
-    QMutexLocker locker(&mutex_);
-    if (bInitialized_)
-    {
-        QMetaObject::invokeMethod(this, "speedRatingImpl", Q_ARG(int, rating), Q_ARG(QString, localExternalIp));
-    }
-}
-
 void Engine::emergencyConnectClick()
 {
     QMutexLocker locker(&mutex_);
@@ -1332,14 +1323,6 @@ void Engine::firewallOffImpl()
     firewallController_->firewallOff();
     emit firewallStateChanged(false);
     updateFirewallOnBoot();
-}
-
-void Engine::speedRatingImpl(int rating, const QString &localExternalIp)
-{
-    WSNet::instance()->serverAPI()->speedRating(WSNet::instance()->apiResourcersManager()->authHash(), lastConnectingHostname_.toStdString(), localExternalIp.toStdString(), rating,
-        [](ServerApiRetCode serverApiRetCode, const std::string &jsonData) {
-            // We don't need a result.
-        });
 }
 
 void Engine::setSettingsImpl(const types::EngineSettings &engineSettings)

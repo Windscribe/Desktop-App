@@ -5,6 +5,9 @@ Wants=network-pre.target
 
 [Service]
 Type=simple
+# Pinned so the scripts we run as root resolve their tools from distro directories only;
+# systemd's default puts /usr/local/{sbin,bin} ahead of these.
+Environment=PATH=/usr/sbin:/usr/bin:/sbin:/bin
 ExecStart=/opt/windscribe/helper
 
 [Install]

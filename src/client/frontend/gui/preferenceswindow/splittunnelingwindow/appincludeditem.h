@@ -3,6 +3,7 @@
 #include "commongraphics/baseitem.h"
 #include "commongraphics/iconbutton.h"
 #include "commongraphics/togglebutton.h"
+#include "graphicresources/independentpixmap.h"
 #include "types/splittunneling.h"
 
 namespace PreferencesWindow {
@@ -17,6 +18,8 @@ public:
     QString getName();
     QString getAppIcon();
     bool isActive();
+
+    void setIcon(QSharedPointer<IndependentPixmap> icon);
 
     void setSelected(bool selected) override;
     void updateScaling() override;
@@ -33,6 +36,7 @@ private slots:
 
 private:
     types::SplitTunnelingApp app_;
+    QSharedPointer<IndependentPixmap> icon_;
     IconButton *deleteButton_;
     ToggleButton *toggleButton_;
 

@@ -47,6 +47,11 @@ void SplitTunnelingAppsWindowItem::addAppManually(types::SplitTunnelingApp app)
     splitTunnelingAppsGroup_->addApp(app);
 }
 
+void SplitTunnelingAppsWindowItem::ensureAppsPopulated()
+{
+    splitTunnelingAppsGroup_->ensureSearchAppsPopulated();
+}
+
 void SplitTunnelingAppsWindowItem::onAppsUpdated(QList<types::SplitTunnelingApp> apps)
 {
     // Clears error and sets the default description

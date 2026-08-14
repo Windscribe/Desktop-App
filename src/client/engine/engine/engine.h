@@ -103,8 +103,6 @@ public:
     void recordInstall();
     void sendConfirmEmail();
 
-    void speedRating(int rating, const QString &localExternalIp);  //rate current connection(0 - down, 1 - up)
-
     void updateCurrentInternetConnectivity();
 
     // emergency connect functions
@@ -251,7 +249,6 @@ private slots:
 
     void firewallOnImpl();
     void firewallOffImpl();
-    void speedRatingImpl(int rating, const QString &localExternalIp);
     void setSettingsImpl(const types::EngineSettings &engineSettings);
     void startProxySharingImpl(const types::ShareProxyGateway &settings);
     void stopProxySharingImpl();
