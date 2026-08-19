@@ -34,11 +34,11 @@
     </message>
     <message>
         <source>The Windows Base Filtering Engine service is not running and could not be started. This core Windows service must be running to install Windscribe. Third-party security/firewall software is most often the cause of this issue.</source>
-        <translation>Служба Windows Base Filtering Engine не працуе і не можа быць запушчана. Гэтая асноўная служба Windows павінна працаваць для ўсталёўкі Windscribe. Часьцей за ўсё праблему выклікае староньняе ахоўнае праґрамнае забесьпячэньне альбо брандмаўэр.</translation>
+        <translation>Служба Windows Base Filtering Engine не працуе і не можа быць запушчаная. Гэтая сыстэмная служба Windows павінна працаваць, каб усталяваць Windscribe. Часьцей за ўсё праблему выклікае староньняе ахоўнае праґрамнае забесьпячэньне альбо брандмаўэр.</translation>
     </message>
     <message>
         <source>Windscribe is unable to connect to the Windows Base Filtering Engine service. Connecting to this core Windows service is required to install Windscribe. Third-party security/firewall software is most often the cause of this issue.</source>
-        <translation>Windscribe не можа падлучыцца да службы Windows Base Filtering Engine. Для ўсталёўкі Windscribe неабходна падлучэньне да гэтай асноўнай службы Windows. Часьцей за ўсё праблему выклікае староньняе ахоўнае праґрамнае забесьпячэньне альбо брандмаўэр.</translation>
+        <translation>Windscribe не можа падлучыцца да службы Windows Base Filtering Engine. Для ўсталёўкі Windscribe неабходна падлучэньне да гэтай сыстэмнай службы Windows. Часьцей за ўсё праблему выклікае староньняе ахоўнае праґрамнае забесьпячэньне альбо брандмаўэр.</translation>
     </message>
     <message>
         <source>Windscribe is unable to install its helper service. Please manually uninstall Windscribe and try again. If this issue persists, please contact our Technical Support.</source>
@@ -50,11 +50,12 @@
     </message>
     <message>
         <source>The installer could not launch its file extraction utility. Antivirus software or Windows security features (e.g. Smart App Control) may be blocking the installation.</source>
-        <translation>Усталёўшчык не мог запусціць сваю ўтыліту для распаўсюджвання файлаў. Антывіруснае праграмнае забеспячэнне або сістэмы бяспекі Windows (напрыклад, Smart App Control) могуць блакаваць устаноўку.</translation>
+        <translation>Усталёўнік не змог запусьціць утыліту для распакаваньня файлаў. Усталяваньне могуць блякаваць антывіруснае праґрамнае забесьпячэньне альбо функцыі бясьпекі Windows (напрыклад, Smart App Control).</translation>
+        <translation>Усталёўнік не змог запусьціць утыліту для распакаваньня файлаў. Антывіруснае праґрамнае забесьпячэньне альбо функцыі бясьпекі Windows (напрыклад, Smart App Control) могуць блякаваць усталяваньне.</translation>
     </message>
     <message>
         <source>The application files could not be extracted to the installation folder. A file may be locked by another program, the disk may be full, or the downloaded installer may be damaged. If this issue persists, download the installer again and retry.</source>
-        <translation>Файлы прыкладання не маглі быць распакаваныя ў тэчку ўстаноўкі. Файл можа быць заблакаваны іншай праграмай, дыск можа быць запоўнены, або загружаны ўсталёўшчык можа быць пашкоджаны. Калі праблема застанецца, спампуйце ўсталёўшчык зноў і паспрабуйце зноў.</translation>
+        <translation>Не ўдалося распакаваць файлы ў каталёґ усталяваньня. Магчыма, файл выкарыстоўваецца іншай праґрамай, дыск запоўнены альбо спампаваны ўсталёўнік пашкоджаны. Калі праблема захаваецца, спампуйце ўсталёўнік яшчэ раз і паспрабуйце зноў.</translation>
     </message>
     <message>
         <source>The installation could not be completed successfully. Please contact our Technical Support.</source>

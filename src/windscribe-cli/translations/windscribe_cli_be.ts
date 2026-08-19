@@ -184,11 +184,11 @@
     </message>
     <message>
         <source>Error: Could not generate connection configuration</source>
-        <translation>Памылка: Не ўдалося стварыць канфігурацыю злучэння</translation>
+        <translation>Памылка: не ўдалося стварыць канфіґурацыю злучэньня</translation>
     </message>
     <message>
         <source>Error: Local DNS server is not available. Connected DNS has been set back to Auto</source>
-        <translation>Памылка: Лакальны DNS-сервер недаступны. Падключаны DNS вярнулі ў аўтаматычную станцыю</translation>
+        <translation>Памылка: лякальны DNS-сэрвэр недасяжны. Падлучаны DNS-сэрвэр быў зноў усталяваны ў рэжым &quot;Аўта&quot;</translation>
     </message>
     <message>
         <source>Unknown state</source>
@@ -308,11 +308,11 @@
     </message>
     <message>
         <source>Error: WireGuard adapter setup failed</source>
-        <translation>Памылка: Не ўдалося наладзіць адаптар WireGuard</translation>
+        <translation>Памылка: не ўдалося наладзіць адаптар WireGuard</translation>
     </message>
     <message>
         <source>Error: VPN adapter setup failed</source>
-        <translation>Памылка: Не ўдалося наладзіць VPN-адаптар</translation>
+        <translation>Памылка: не ўдалося наладзіць VPN-адаптар</translation>
     </message>
     <message>
         <source>(Device name: %1)</source>
