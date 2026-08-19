@@ -22,4 +22,7 @@ endif()
 
 if(IS_BUILD_TESTS)
    add_subdirectory(common/tests)
+   if(APPLE)
+      add_subdirectory(macos/tests)
+   endif()
 endif()

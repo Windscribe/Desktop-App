@@ -243,8 +243,8 @@ void DownloadHelper::removeAutoUpdateInstallerFiles()
 #endif
 
 #ifdef Q_OS_MACOS
-    // remove temp installer.app on mac:
-    // | installer.app was unpacked from above .dmg
+    // Legacy cleanup: pre-DMG-verify builds unpacked installer.app into the download dir. The current
+    // flow hands the .dmg to the helper, so this only clears leftovers from an older version.
     const QString & installerApp = downloadDirectory_ + "/" + WS_MAC_INSTALLER_BUNDLE_NAME;
     if (QFile::exists(installerApp)) {
         qCDebug(LOG_DOWNLOADER) << "Removing auto-update temporary installer app";

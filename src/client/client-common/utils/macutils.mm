@@ -14,6 +14,8 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#include <algorithm>
+#include <cerrno>
 #include <vector>
 
 #include "executable_signature/executable_signature.h"
@@ -98,7 +100,7 @@ bool MacUtils::isAppAlreadyRunning()
 // getfsstat(MNT_NOWAIT) returns the kernel's cached mount records without asking each filesystem to
 // refresh, so it cannot stall on a dead mount. The prefix match is lexical for the same reason:
 // stat'ing the path would trigger automounts and hang on exactly the volumes this exists to avoid.
-static bool clearOfNonLocalMounts(const QString &path)
+static bool clearOfNonLocalMounts(const QString &path, bool checkBelow)
 {
     int count = getfsstat(nullptr, 0, MNT_NOWAIT);
     if (count <= 0) {
@@ -125,41 +127,88 @@ static bool clearOfNonLocalMounts(const QString &path)
             return false;
         }
         // A mount below the path sits where bundle reads descend, so it is refused the same way.
-        if (prefix.startsWith(p, Qt::CaseInsensitive)) {
+        if (checkBelow && prefix.startsWith(p, Qt::CaseInsensitive)) {
             return false;
         }
     }
     return true;
 }
 
-bool MacUtils::isOnLocalVolume(const QString &path)
+// System paths need two symlink hops (/Applications/Safari.app -> /System/Cryptexes/App -> the Preboot
+// cryptex); 8 is a conservative budget across all links in one path, far past any real layout.
+static constexpr int kMaxSymlinkHops = 8;
+
+static bool isOnLocalVolumeImpl(const QString &path, int hops, bool checkBelow)
 {
     // Only canonical-form absolute paths: '.', '..', doubled or trailing separators make the lexical
-    // mount match below diverge from what traversal actually crosses. cleanPath is purely lexical.
-    if (!path.startsWith('/') || path != QDir::cleanPath(path)) {
+    // mount match below diverge from what traversal actually crosses. cleanPath is purely lexical --
+    // and it keeps above-root ".." (the kernel clamps "/.." to "/"), so a cleaned path can lead with it.
+    if (!path.startsWith('/') || path != QDir::cleanPath(path) || path == "/.." || path.startsWith("/../")) {
         return false;
     }
 
-    if (!clearOfNonLocalMounts(path)) {
+    if (!clearOfNonLocalMounts(path, checkBelow)) {
         return false;
     }
 
-    // A symlink component can route a lexically local path onto a network volume; refuse the indirection
-    // rather than resolve it. lstat reads the link itself, and each prefix probed is already proven local.
+    // A symlink component can route a lexically local path onto a network volume; expand it lexically
+    // (readlink reads the link inode, never the target) and re-prove the rewritten path from the mount
+    // table up. Every prefix probed here is already proven local, so lstat/readlink cannot stall.
     const QByteArray native = path.toUtf8();
     for (qsizetype pos = native.indexOf('/', 1); ; pos = native.indexOf('/', pos + 1)) {
         const QByteArray prefix = (pos == -1) ? native : native.left(pos);
         struct stat st;
         if (lstat(prefix.constData(), &st) != 0) {
-            return true;
+            // Absent paths are safe to accept -- the consumer's own stat fails just as fast. Any other
+            // failure (ENAMETOOLONG on an over-expanded rewrite, EACCES) leaves the tail unproven: refuse.
+            return errno == ENOENT || errno == ENOTDIR;
         }
         if (S_ISLNK(st.st_mode)) {
-            return false;
+            if (hops <= 0) {
+                return false;
+            }
+            char target[PATH_MAX];
+            const ssize_t len = readlink(prefix.constData(), target, sizeof(target) - 1);
+            if (len <= 0) {
+                return false;
+            }
+            QString targetPath = QString::fromUtf8(target, len);
+            // Link content is raw bytes: if it doesn't round-trip through UTF-16, the path proven below
+            // is not the one the kernel resolves.
+            if (targetPath.toUtf8() != QByteArray(target, static_cast<qsizetype>(len))) {
+                return false;
+            }
+            // A "." collapses in place and a leading ".." run in a relative target climbs only components
+            // already proven non-symlink, so both collapse faithfully. Any other ".." collapses across an
+            // unproven component the kernel enters first (following links, crossing mounts) -- refuse.
+            const QStringList parts = targetPath.split('/', Qt::SkipEmptyParts);
+            qsizetype firstReal = 0;
+            if (!targetPath.startsWith('/')) {
+                while (firstReal < parts.size() && (parts[firstReal] == "." || parts[firstReal] == "..")) {
+                    firstReal++;
+                }
+            }
+            for (qsizetype i = firstReal; i < parts.size(); i++) {
+                if (parts[i] == "..") {
+                    return false;
+                }
+            }
+            if (!targetPath.startsWith('/')) {
+                targetPath = QString::fromUtf8(prefix.left(prefix.lastIndexOf('/'))) + '/' + targetPath;
+            }
+            const QString remainder = (pos == -1) ? QString() : QString::fromUtf8(native.mid(pos));
+            // One cleanPath over the whole join: a target resolving to "/" would otherwise double the slash.
+            return isOnLocalVolumeImpl(QDir::cleanPath(targetPath + remainder), hops - 1, checkBelow);
         }
         if (pos == -1) {
             return true;
         }
     }
+}
+
+bool MacUtils::isOnLocalVolume(const QString &path)
+{
+    return isOnLocalVolumeImpl(path, kMaxSymlinkHops, true);
 }
 
 QString MacUtils::iconPathFromBinPath(const QString &binPath)
@@ -199,59 +248,63 @@ QList<QString> MacUtils::enumerateInstalledPrograms()
 {
     QList<QString> apps;
 
-    // QDir's type filters classify every entry, and classification stats through a symlink -- hanging on
-    // a link into a dead mount before the loop could refuse it. readdir lists names and touches nothing.
-    DIR *dir = opendir("/Applications");
-    if (dir == nullptr) {
-        return apps;
-    }
-    QStringList entries;
-    while (struct dirent *entry = readdir(dir)) {
-        const QString name = QString::fromUtf8(entry->d_name);
-        if (name.endsWith(".app", Qt::CaseInsensitive) && !name.startsWith('.')) {
-            entries << name;
+    // Finder's Applications view is a merge: Apple's stock apps (App Store, Mail, ...) actually live
+    // in /System/Applications and its Utilities folder.
+    for (const char *root : {"/Applications", "/Applications/Utilities", "/System/Applications", "/System/Applications/Utilities"}) {
+        // /Applications/Utilities is user-created territory where a symlink or dead mount would park
+        // opendir itself. Roots are only listed, never descended, and each entry is re-proven below,
+        // so a mount beneath the root must not refuse it.
+        if (!isOnLocalVolumeImpl(QString::fromUtf8(root), kMaxSymlinkHops, false)) {
+            continue;
         }
-    }
-    closedir(dir);
-    entries.sort();
+        // QDir's type filters classify every entry, and classification stats through a symlink -- hanging on
+        // a link into a dead mount before the loop could refuse it. readdir lists names and touches nothing.
+        DIR *dir = opendir(root);
+        if (dir == nullptr) {
+            continue;
+        }
+        QStringList entries;
+        while (struct dirent *entry = readdir(dir)) {
+            const QString name = QString::fromUtf8(entry->d_name);
+            if (name.endsWith(".app", Qt::CaseInsensitive) && !name.startsWith('.')) {
+                entries << name;
+            }
+        }
+        closedir(dir);
 
-    for (const QString &entry : entries) {
-        const QString entryPath = "/Applications/" + entry;
-        // A dead volume mounted at the entry would park lstat itself, so it is refused from the mount
-        // table before anything touches it.
-        if (!clearOfNonLocalMounts(entryPath)) {
-            continue;
-        }
-        const QByteArray native = entryPath.toUtf8();
-        struct stat st;
-        if (lstat(native.constData(), &st) != 0) {
-            continue;
-        }
-        if (S_ISLNK(st.st_mode)) {
-            // Raw readlink reads the link inode and never follows it; QFileInfo::symLinkTarget() stats the
-            // target to classify the link, which hangs on a dead mount.
-            char target[PATH_MAX];
-            const ssize_t len = readlink(native.constData(), target, sizeof(target) - 1);
-            if (len <= 0) {
+        for (const QString &entry : entries) {
+            const QString entryPath = QString::fromUtf8(root) + '/' + entry;
+            // Proves every hop local from the mount table before anything here stats the entry; symlinked
+            // entries (Safari.app -> the App cryptex) are expanded and re-proven inside.
+            if (!isOnLocalVolume(entryPath)) {
                 continue;
             }
-            QString targetPath = QString::fromUtf8(target, len);
-            if (!targetPath.startsWith('/')) {
-                targetPath = "/Applications/" + targetPath;
-            }
-            // A passing target has no symlink components, so it is the final hop and canonicalizing
-            // below cannot wander into a dead mount.
-            if (!isOnLocalVolume(QDir::cleanPath(targetPath))) {
+            const QFileInfo info(entryPath);
+            if (!info.isDir()) {
                 continue;
             }
-        } else if (!S_ISDIR(st.st_mode)) {
-            continue;
-        }
-        const QString path = QString::fromStdString(QFileInfo(entryPath).filesystemCanonicalFilePath());
-        if (!path.isEmpty()) {
-            apps << path;
+            // De-dup on the canonical path: a user symlink in /Applications to a /System/Applications app
+            // lands here from both roots.
+            const QString path = QString::fromStdString(info.filesystemCanonicalFilePath());
+            if (!path.isEmpty() && !apps.contains(path)) {
+                apps << path;
+            }
         }
     }
+
+    // The multi-root merge and canonicalization (cryptex paths) both scramble name order, and the picker
+    // shows rows in list order, named with ".app" stripped -- sort on that key, path tiebreak for determinism.
+    auto displayName = [](const QString &path) {
+        QString name = QFileInfo(path).fileName();
+        if (name.endsWith(".app", Qt::CaseInsensitive)) {
+            name.chop(4);
+        }
+        return name;
+    };
+    std::sort(apps.begin(), apps.end(), [&displayName](const QString &a, const QString &b) {
+        const int cmp = displayName(a).compare(displayName(b), Qt::CaseInsensitive);
+        return (cmp != 0) ? cmp < 0 : a < b;
+    });
     return apps;
 }
 

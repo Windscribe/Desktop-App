@@ -146,4 +146,36 @@ if(BUILD_INSTALLER)
                 "${BUILD_EXE_DIR}/${WS_MAC_RESOLVED_NAME}.dmg"
         WORKING_DIRECTORY "${BUILD_INSTALLER_FILES}"
     )
+
+    # Sign the DMG itself. A disk-image signature covers every byte of the image, so the helper can
+    # verify the whole image before mounting it during auto-update; a bundle signature leaves some files
+    # unchecked. -i pins the identifier the helper checks. The inner .app stays signed+notarized (above)
+    # so older helpers that still extract-and-verify the .app can keep updating to this release.
+    add_custom_command(TARGET build-dmg POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E echo "Signing DMG..."
+        COMMAND ${CODESIGN_EXECUTABLE}
+                --force
+                --timestamp
+                --identifier "${WS_MAC_INSTALLER_DMG_BUNDLE_ID}"
+                --sign "Developer ID Application"
+                "${BUILD_EXE_DIR}/${WS_MAC_RESOLVED_NAME}.dmg"
+        COMMAND ${CODESIGN_EXECUTABLE} -v "${BUILD_EXE_DIR}/${WS_MAC_RESOLVED_NAME}.dmg"
+    )
+
+    # Notarize + staple the DMG so its signature/ticket is offline-verifiable after download.
+    if(ENABLE_NOTARIZE)
+        add_custom_command(TARGET build-dmg POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E echo "Notarizing DMG..."
+            COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/tools/notarize.sh --dmg
+                    "${DEVELOPMENT_TEAM}"
+                    "${BUILD_EXE_DIR}"
+                    "${WS_MAC_RESOLVED_NAME}"
+        )
+        # Fail the build if stapling invalidated the signature the helper verifies at update time.
+        add_custom_command(TARGET build-dmg POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E echo "Verifying stapled DMG signature..."
+            COMMAND ${CODESIGN_EXECUTABLE} --verify --strict --verbose=2
+                    "${BUILD_EXE_DIR}/${WS_MAC_RESOLVED_NAME}.dmg"
+        )
+    endif()
 endif()

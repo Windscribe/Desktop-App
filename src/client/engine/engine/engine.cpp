@@ -2110,28 +2110,17 @@ void Engine::onDownloadHelperFinished(const DownloadHelper::DownloadState &state
     qCInfo(LOG_AUTO_UPDATER) << "Installer signature valid";
 #elif defined Q_OS_MACOS
 
-    const QString tempInstallerFilename = autoUpdaterHelper_->copyInternalInstallerToTempFromDmg(installerPath_);
-    QFile::remove(installerPath_);
-
-    if (tempInstallerFilename == "")
-    {
-        emit updateVersionChanged(0, UPDATE_VERSION_STATE_DONE, autoUpdaterHelper_->error());
-        return;
-    }
-
-    // Stage the unpacked installer.app into a root-owned location and verify its signature
-    // there. This closes the TOCTOU window between verification and posix_spawn: a same-user
-    // attacker cannot swap the bundle once it lives in /Library/Application Support/Windscribe/update
-    // (root:wheel 0711). QProcess::startDetached on the inner Mach-O bypasses Gatekeeper, so
-    // protecting the bytes on disk is the only thing standing between the user and arbitrary
-    // elevated execution if they later approve the installer's auth prompt.
-    // Persist the cleanup flag *before* invoking the helper so a crash inside the helper
-    // (or between IPC return and any subsequent work) still results in cleanup on the next
-    // engine init. If staging fails, the flag stays set — the next stage call wipes the
-    // entire update dir anyway, so a leftover flag is self-healing rather than a leak.
+    // Hand the downloaded DMG straight to the helper, which verifies the whole image's signature and
+    // extracts the installer from a read-only mount as root. Extracting to a user-writable temp first
+    // would let a same-user attacker tamper the tree before the helper reads it. Verifying the image
+    // (not the extracted bundle) covers every byte, and the root-owned stage closes the TOCTOU window
+    // between verification and posix_spawn: the user cannot swap the bytes before approving the
+    // installer's auth prompt, which is the only thing standing between them and elevated execution.
+    // Persist the cleanup flag *before* invoking the helper so a crash still results in cleanup on the
+    // next engine init; if staging fails the flag stays set and the next stage call wipes the dir.
     QSettings().setValue("engine/pendingInstallerCleanup", true);
-    const QString stagedPath = helper_->installerStageAndVerify(tempInstallerFilename);
-    Utils::removeDirectory(tempInstallerFilename);
+    const QString stagedPath = helper_->installerStageAndVerify(installerPath_);
+    QFile::remove(installerPath_);
     if (stagedPath.isEmpty())
     {
         qCInfo(LOG_AUTO_UPDATER) << "Failed to stage/verify installer";

@@ -5,14 +5,17 @@
 #include <fcntl.h>
 #include <filesystem>
 #include <limits.h>
+#include <mutex>
 #include <stdint.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <vector>
 #include <spdlog/spdlog.h>
 
 #include "files_manager.h"
 #include "firewallcontroller.h"
 #include "firewallonboot.h"
+#include "installer/staging.h"
 #include "ipc/helper_security.h"
 #include "macspoofingonboot.h"
 #include "macutils.h"
@@ -885,48 +888,46 @@ std::string clearWifiHistoryData(const std::string &pars)
     return serializeResult(success);
 }
 
+static constexpr int kHdiutilAttachTimeoutSecs = 300;
+static constexpr int kHdiutilDetachTimeoutSecs = 30;
+
+// Serializes installerStageAndVerify and installerCleanupStaged: both touch the fixed shared stage
+// paths and the XPC queue is concurrent, so overlapping calls would race remove_all/mkdir/attach.
+static std::mutex g_stageMutex;
+
 std::string installerStageAndVerify(const std::string &pars)
 {
-    std::string srcPath;
-    deserializePars(pars, srcPath);
+    std::lock_guard<std::mutex> stageLock(g_stageMutex);
 
-    if (srcPath.empty()) {
+    std::string dmgPath;
+    deserializePars(pars, dmgPath);
+
+    if (dmgPath.empty()) {
         spdlog::error("installerStageAndVerify: empty source path");
         return serializeResult(std::string(), false);
     }
 
-    // Reject anything that isn't a real .app bundle. is_directory() follows symlinks, so we
-    // use symlink_status() explicitly on each path component — a bundle whose Contents or
-    // Contents/MacOS is a symlink would get its symlinks preserved by std::filesystem::copy
-    // (with copy_symlinks) and the staged copy could escape kStageDir via the symlink target.
-    // Rejecting up front gives a clearer error than waiting for signature verification to fail.
-    std::error_code ec;
-    auto isRealDir = [](const std::string &p) {
-        std::error_code lec;
-        auto st = std::filesystem::symlink_status(p, lec);
-        return !lec && std::filesystem::is_directory(st) && !std::filesystem::is_symlink(st);
-    };
-    if (!isRealDir(srcPath) ||
-        !isRealDir(srcPath + "/Contents") ||
-        !isRealDir(srcPath + "/Contents/MacOS")) {
-        spdlog::error("installerStageAndVerify: source \"{}\" is not a real .app bundle", srcPath);
-        return serializeResult(std::string(), false);
-    }
-
-    // Staging in a root-owned directory closes the TOCTOU window: a same-user attacker
-    // cannot replace the verified bundle between signature check and posix_spawn since
-    // the directory is root-owned and 0711 (traverse-only) for everyone else. The
-    // verification is done on the *staged* copy for the same reason.
+    // Staging in a root-owned directory closes the TOCTOU window: a same-user attacker cannot replace
+    // the verified installer between the signature check and posix_spawn, since the directory is
+    // root-owned and 0711 (traverse-only) for everyone else.
     static const std::string kStageDir = Utils::kInstallerStageDir;
     static const std::string kStagedBundle = kStageDir + "/installer.app";
+    static const std::string kStagedDmg = kStageDir + "/installer.dmg";
+    static const std::string kMountPoint = kStageDir + "/mnt";
+    static const std::string kMountedBundle = kMountPoint + "/" WS_MAC_INSTALLER_BUNDLE_NAME;
 
+    std::error_code ec;
     if (!Utils::ensureVendorDir()) {
         return serializeResult(std::string(), false);
     }
 
-    // Clear any prior staging state — symmetric with installerCleanupStaged below.
-    // Wipes the entire stage dir (not just installer.app)
-    // so any debris from a previous run can't survive into a new stage.
+    // A prior run killed between attach and detach can leave kMountPoint mounted; remove_all cannot
+    // clear a busy mount, and a stale mount would make the mkdir(kMountPoint) below fail EEXIST and
+    // wedge every future update. Detach first (a harmless no-op when nothing is mounted).
+    Staging::runWithTimeout("/usr/bin/hdiutil", {"detach", kMountPoint, "-force"}, kHdiutilDetachTimeoutSecs);
+
+    // Clear any prior staging state — symmetric with installerCleanupStaged below. Wipes the whole
+    // stage dir so debris from a previous run can't survive into a new stage.
     std::filesystem::remove_all(kStageDir, ec);
 
     std::filesystem::create_directories(kStageDir, ec);
@@ -938,92 +939,132 @@ std::string installerStageAndVerify(const std::string &pars)
         spdlog::error("installerStageAndVerify: chown stage dir failed: {}", IO::strerror(errno));
         return serializeResult(std::string(), false);
     }
-    // 0711: root can write, everyone else can only traverse (no listing). The GUI runs as
-    // the user and only needs +x on each path component to posix_spawn the inner binary;
-    // it does not need to readdir() the staging dir.
+    // 0711: root can write, everyone else can only traverse. The GUI runs as the user and only needs
+    // +x on each path component to posix_spawn the inner binary; it does not readdir() the stage.
     if (chmod(kStageDir.c_str(), S_IRWXU | S_IXGRP | S_IXOTH) != 0) {
         spdlog::error("installerStageAndVerify: chmod stage dir failed: {}", IO::strerror(errno));
         return serializeResult(std::string(), false);
     }
 
-    // Pre-create the staged bundle root with root-only (0700) perms so the bundle is never
-    // user-accessible during the copy or verification windows. A malicious source bundle can
-    // contain hard links to root-only-readable files (e.g. another user's ssh keys); the
-    // recursive copy reads those bytes as root and writes regular files into the staged
-    // bundle. If the bundle were user-traversable during the verify window (which includes
-    // a full re-hash of the bundle by SecStaticCodeCheckValidity), an attacker could open
-    // the leaked path and read the contents. 0700 on the bundle root makes that impossible.
+    // Freeze the downloaded DMG into the root-owned stage before verifying, so the bytes we verify are
+    // the bytes we mount — a same-user attacker cannot swap the image after the check. freezeRegularFile
+    // refuses a symlink/non-regular source; a smuggled hard link is caught by the signature check below.
+    if (!Staging::freezeRegularFile(dmgPath, kStagedDmg)) {
+        std::filesystem::remove_all(kStageDir, ec);
+        return serializeResult(std::string(), false);
+    }
+
+    // Verify the DMG as a flat file. A disk-image signature covers every byte of the image, so nothing
+    // inside can be altered without failing this check. A bundle signature, by contrast, leaves some
+    // files (e.g. .DS_Store) unchecked — which is why we verify the image, not the extracted bundle.
+    ExecutableSignature sigCheck;
+    if (!sigCheck.verifyWithBundleId(kStagedDmg, WS_MAC_INSTALLER_DMG_BUNDLE_ID)) {
+        spdlog::error("installerStageAndVerify: dmg signature verify failed: {}", sigCheck.lastError());
+        std::filesystem::remove_all(kStageDir, ec);
+        return serializeResult(std::string(), false);
+    }
+
+    // Mount the verified image read-only at a root-owned, non-browsable mount point and extract from
+    // there. The source is now Windscribe-authored, byte-verified, and immutable, so the recursive copy
+    // cannot ingest a smuggled hard link or symlink from an attacker; -owners off keeps extracted
+    // ownership predictable regardless of the image's on-disk uids.
+    if (mkdir(kMountPoint.c_str(), S_IRWXU) != 0) {
+        spdlog::error("installerStageAndVerify: mkdir mount point failed: {}", IO::strerror(errno));
+        std::filesystem::remove_all(kStageDir, ec);
+        return serializeResult(std::string(), false);
+    }
+    int attachRc = Staging::runWithTimeout("/usr/bin/hdiutil",
+                                  {"attach", "-readonly", "-nobrowse", "-noverify", "-owners", "off",
+                                   "-mountpoint", kMountPoint, kStagedDmg},
+                                  kHdiutilAttachTimeoutSecs);
+    if (attachRc != 0) {
+        spdlog::error("installerStageAndVerify: hdiutil attach failed ({})", attachRc);
+        Staging::runWithTimeout("/usr/bin/hdiutil", {"detach", kMountPoint, "-force"}, kHdiutilDetachTimeoutSecs);
+        std::filesystem::remove_all(kStageDir, ec);
+        return serializeResult(std::string(), false);
+    }
+
+    // Pre-create the staged bundle root 0700 so it is never user-accessible until finalize widens it.
     if (mkdir(kStagedBundle.c_str(), S_IRWXU) != 0) {
         spdlog::error("installerStageAndVerify: mkdir staged bundle failed: {}", IO::strerror(errno));
-        std::filesystem::remove_all(kStagedBundle, ec);
+        Staging::runWithTimeout("/usr/bin/hdiutil", {"detach", kMountPoint, "-force"}, kHdiutilDetachTimeoutSecs);
+        std::filesystem::remove_all(kStageDir, ec);
         return serializeResult(std::string(), false);
     }
-
-    // copy_symlinks (rather than the default follow-symlinks) is important: app bundles
-    // contain internal symlinks (notably inside .framework Versions) that must be preserved
-    // as symlinks rather than dereferenced into duplicate copies. With a pre-existing dst
-    // directory, std::filesystem::copy descends into srcPath and copies the contents into
-    // our 0700-locked kStagedBundle.
-    std::filesystem::copy(srcPath, kStagedBundle,
+    // copy_symlinks preserves the framework-internal symlinks a bundle legitimately contains.
+    std::error_code copyEc;
+    std::filesystem::copy(kMountedBundle, kStagedBundle,
                           std::filesystem::copy_options::recursive |
                           std::filesystem::copy_options::copy_symlinks,
-                          ec);
-    if (ec) {
-        spdlog::error("installerStageAndVerify: copy failed: {}", ec.message());
-        std::filesystem::remove_all(kStagedBundle, ec);
+                          copyEc);
+    // The mount must come down whether the copy succeeded or not; nothing below needs it. A failed
+    // detach only leaves a mount the next run's leading detach reclaims, so log and continue.
+    if (Staging::runWithTimeout("/usr/bin/hdiutil", {"detach", kMountPoint, "-force"}, kHdiutilDetachTimeoutSecs) != 0) {
+        spdlog::warn("installerStageAndVerify: post-copy hdiutil detach failed; left for next-run cleanup");
+    }
+    std::filesystem::remove(kMountPoint, ec);
+    std::filesystem::remove(kStagedDmg, ec);
+    if (copyEc) {
+        spdlog::error("installerStageAndVerify: extract from mounted image failed: {}", copyEc.message());
+        std::filesystem::remove_all(kStageDir, ec);
         return serializeResult(std::string(), false);
     }
 
-    // Belt-and-braces: even if libcxx's copy explicitly chmod()s the bundle root from the
-    // source's mode, re-lock to 0700 before verification.
+    // Belt-and-braces: re-lock the bundle root to 0700 before finalize (libcxx copy may chmod it).
     if (chmod(kStagedBundle.c_str(), S_IRWXU) != 0) {
         spdlog::error("installerStageAndVerify: chmod staged bundle failed: {}", IO::strerror(errno));
-        std::filesystem::remove_all(kStagedBundle, ec);
+        std::filesystem::remove_all(kStageDir, ec);
         return serializeResult(std::string(), false);
     }
 
-    ExecutableSignature sigCheck;
-    if (!sigCheck.verifyWithBundleId(kStagedBundle, WS_MAC_INSTALLER_BUNDLE_ID)) {
-        spdlog::error("installerStageAndVerify: signature verify failed: {}", sigCheck.lastError());
-        std::filesystem::remove_all(kStagedBundle, ec);
-        return serializeResult(std::string(), false);
-    }
-
-    // Verification succeeded — the bundle is the genuine Windscribe installer. Widen perms
-    // so the GUI (running as the user) can posix_spawn the inner Mach-O. Walk the *destination*
-    // tree (root-owned, no race with the user-writable source) and apply each entry's source
-    // mode with go-w stripped. If the source disappeared meanwhile, fall back to sensible
-    // defaults — the dest is root-owned regardless, so we still control everything.
-    auto stripGoWrite = [](std::filesystem::perms p) {
-        return p & ~(std::filesystem::perms::group_write | std::filesystem::perms::others_write);
-    };
-    auto applyFinalMode = [&](const std::filesystem::path &src, const std::filesystem::path &dst) {
+    // Widen perms so the GUI (as the user) can posix_spawn the inner Mach-O. Modes are fixed constants so
+    // no source mode bit can become setuid on a root-owned binary; owner-exec (harmless: 0755 vs 0644) is
+    // the one bit taken from the extracted copy. This is safe because the bundle was extracted from a
+    // byte-verified, read-only disk image, so every file is genuine — there is no attacker content to
+    // expose. A skipped symlink is a success; false means a mode may not have landed.
+    auto applyFinalMode = [](const std::filesystem::path &dst) -> bool {
         std::error_code permEc;
         auto dstStatus = std::filesystem::symlink_status(dst, permEc);
-        if (permEc || std::filesystem::is_symlink(dstStatus)) {
-            return;
+        if (permEc) {
+            spdlog::error("installerStageAndVerify: finalize stat failed for \"{}\": {}", dst.native(), permEc.message());
+            return false;
         }
-        std::filesystem::perms perms;
-        auto srcStatus = std::filesystem::symlink_status(src, permEc);
-        if (!permEc && !std::filesystem::is_symlink(srcStatus)) {
-            perms = srcStatus.permissions();
-        } else if (std::filesystem::is_directory(dstStatus)) {
-            perms = std::filesystem::perms::owner_all
-                  | std::filesystem::perms::group_read | std::filesystem::perms::group_exec
-                  | std::filesystem::perms::others_read | std::filesystem::perms::others_exec;
-        } else {
-            perms = std::filesystem::perms::owner_read | std::filesystem::perms::owner_write
-                  | std::filesystem::perms::group_read
-                  | std::filesystem::perms::others_read;
+        if (std::filesystem::is_symlink(dstStatus)) {
+            return true;
         }
-        std::filesystem::permissions(dst, stripGoWrite(perms),
+        constexpr auto kRwxRxRx = std::filesystem::perms::owner_all
+                                | std::filesystem::perms::group_read | std::filesystem::perms::group_exec
+                                | std::filesystem::perms::others_read | std::filesystem::perms::others_exec;
+        constexpr auto kRwRR = std::filesystem::perms::owner_read | std::filesystem::perms::owner_write
+                             | std::filesystem::perms::group_read
+                             | std::filesystem::perms::others_read;
+        bool executable = std::filesystem::is_directory(dstStatus) ||
+                          (dstStatus.permissions() & std::filesystem::perms::owner_exec) != std::filesystem::perms::none;
+        std::filesystem::permissions(dst, executable ? kRwxRxRx : kRwRR,
                                      std::filesystem::perm_options::replace, permEc);
+        if (permEc) {
+            spdlog::error("installerStageAndVerify: finalize chmod failed for \"{}\": {}", dst.native(), permEc.message());
+        }
+        return !permEc;
     };
-    applyFinalMode(srcPath, kStagedBundle);
-    for (auto it = std::filesystem::recursive_directory_iterator(kStagedBundle, ec);
-         !ec && it != std::filesystem::recursive_directory_iterator(); it.increment(ec)) {
-        applyFinalMode(std::filesystem::path(srcPath) / it->path().lexically_relative(kStagedBundle),
-                       it->path());
+    // Strip children first while the 0700 root still gates the tree, then widen the root last;
+    // opening it before every inner setuid bit is cleared would expose a root-owned, user-
+    // reachable setuid file. Any failure — iterator abort or a failed chmod — must fail closed.
+    bool finalizeOk = true;
+    std::error_code walkEc;
+    for (auto it = std::filesystem::recursive_directory_iterator(kStagedBundle, walkEc);
+         finalizeOk && !walkEc && it != std::filesystem::recursive_directory_iterator(); it.increment(walkEc)) {
+        finalizeOk = applyFinalMode(it->path());
+    }
+    // Root widened (0755, from the fixed directory mode) only if the whole walk succeeded
+    // (short-circuit); any failure wipes and fails.
+    if (walkEc || !finalizeOk || !applyFinalMode(kStagedBundle)) {
+        // The lambda already logged its own failures; only the iterator error is unreported here.
+        if (walkEc) {
+            spdlog::error("installerStageAndVerify: perm finalize walk failed: {}", walkEc.message());
+        }
+        std::filesystem::remove_all(kStageDir, ec);
+        return serializeResult(std::string(), false);
     }
 
     return serializeResult(kStagedBundle, true);
@@ -1031,6 +1072,7 @@ std::string installerStageAndVerify(const std::string &pars)
 
 std::string installerCleanupStaged(const std::string &pars)
 {
+    std::lock_guard<std::mutex> stageLock(g_stageMutex);
     std::error_code ec;
     std::filesystem::remove_all(Utils::kInstallerStageDir, ec);
     if (ec) {

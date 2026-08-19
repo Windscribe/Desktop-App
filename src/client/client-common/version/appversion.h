@@ -21,7 +21,7 @@ public:
     QString semanticVersionString() const; // 2.x.y
 
     // can be switched to staging only for guinea pig builds
-#ifdef WINDSCRIBE_IS_GUINEA_PIG
+#if defined(WINDSCRIBE_IS_GUINEA_PIG) || defined(WINDSCRIBE_IS_BETA)
     void switchToStaging() { isStaging_ = true; }
 #endif
     bool isStaging() const { return isStaging_; }

@@ -73,6 +73,10 @@ set(WS_MAC_GUI_BUNDLE_ID "com.windscribe.client")
 set(WS_MAC_HELPER_BUNDLE_ID "com.windscribe.helper.macos")
 set(WS_MAC_LAUNCHER_BUNDLE_ID "com.windscribe.launcher.macos")
 set(WS_MAC_INSTALLER_BUNDLE_ID "com.windscribe.installer.macos")
+# Signing identifier for the update DMG itself (a flat file, not a bundle). The helper verifies the
+# whole downloaded image against this before mounting it. A bundle signature leaves some files (e.g.
+# .DS_Store) unchecked; a flat disk-image signature covers every byte, so nothing inside can be altered.
+set(WS_MAC_INSTALLER_DMG_BUNDLE_ID "com.windscribe.installer.dmg")
 set(WS_MAC_SPLIT_TUNNEL_BUNDLE_ID "com.windscribe.client.splittunnelextension")
 
 # This is the service name/label for the IKEv2 password in the keychain.

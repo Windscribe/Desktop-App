@@ -30,6 +30,8 @@ set(SOURCES
     installer/files.cpp
     installer/files.h
     installer/iinstall_block.h
+    installer/staging.cpp
+    installer/staging.h
     ipc/helper_security.h
     ipc/helper_security.mm
     macspoofingonboot.cpp

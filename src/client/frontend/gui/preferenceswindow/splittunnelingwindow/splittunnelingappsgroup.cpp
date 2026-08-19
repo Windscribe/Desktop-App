@@ -276,7 +276,7 @@ EnumerationResult enumerateInstalledApps(const std::atomic<bool> &stop)
         QString name = QFileInfo(exePath).fileName();
 #ifdef Q_OS_MACOS
         // On macOS, remove the ".app" suffix when used as a name
-        if (name.endsWith(".app")) {
+        if (name.endsWith(".app", Qt::CaseInsensitive)) {
             name = name.left(name.length() - 4);
         }
 #endif

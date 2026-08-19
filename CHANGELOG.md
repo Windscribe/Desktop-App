@@ -1,3 +1,12 @@
+2.24.10 (19/08/2026)
+All:
+   * Improved retry, backoff, and failover handling in wsnet. #1969
+   * Fixed failed captcha treated as something to failover on and retry. #1962
+macOS:
+   * Fixed local privilege escalation vulnerability via inherited SUID/SGID bits in staged updater bundle. #1964
+   * Fixed app skips symlinks and some commmon app folders when constructing the Split Tunneling application picker. #1956
+
+
 2.24.9 (14/08/2026)
 All:
    * Improved API retry access to use bounded per-resource exponential backoff, starting at 1 second and doubling to a 5-minute cap with jitter. #1962
