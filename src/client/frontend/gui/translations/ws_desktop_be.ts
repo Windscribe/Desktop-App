@@ -1524,7 +1524,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Control the mode of behaviour of the Windscribe firewall. Always On modes disable Allow LAN Traffic to prevent DNS leaks.</source>
-        <translation>Наладзьце рэжым працы брандмаўэра Windscribe. Рэжымы &quot;Заўсёды&quot; адключаюць &quot;Дазвол LAN-трафіка&quot;, каб прадухіліць уцечкі DNS-запытаў.</translation>
+        <translation>Наладзьце рэжым працы брандмаўэра Windscribe. Рэжымы &quot;Заўсёды&quot; адключаюць &quot;Дазвол LAN-трафіку&quot;, каб прадухіліць уцечкі DNS-запытаў.</translation>
     </message>
     <message>
         <source>Configure egress IP stack for VPN connections (WireGuard only).</source>
@@ -2341,7 +2341,7 @@ Connect to a network first</source>
     <name>PreferencesWindow::SplitTunnelingAddressesGroup</name>
     <message>
         <source>There are too many IPs/CIDR ranges in the list. Please remove some before adding more.</source>
-        <translation>У спісе зашмат IPs/CIDR дыяпазонаў. Выдаліце некалькі, перш чым дадаць новыя.</translation>
+        <translation>У спісе зашмат IP/CIDR дыяпазонаў. Выдаліце некалькі, перш чым дадаць новыя.</translation>
     </message>
     <message>
         <source>IP or hostname already exists. Please enter a new IP or hostname.</source>

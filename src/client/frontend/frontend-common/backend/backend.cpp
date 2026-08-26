@@ -192,8 +192,7 @@ void Backend::loginWithAuthHash()
 
 void Backend::loginWithLastLoginSettings()
 {
-    WS_ASSERT(loginState_ != LOGIN_STATE_LOGGING_IN);
-    loginState_ = LOGIN_STATE_LOGGING_IN;
+    // No state assignment here: the delegates below assert and set it, and setting it first would trip their assert.
     if (bLastLoginWithAuthHash_)
         loginWithAuthHash();
     else

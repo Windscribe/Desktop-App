@@ -1,5 +1,7 @@
 #include "network_utils_win.h"
 
+#include <atomic>
+
 #include <QHostAddress>
 #include <QList>
 
@@ -254,108 +256,92 @@ static QList<IpForwardRow> getIpForwardTable()
     return forwardTable;
 }
 
-static QString networkNameFromInterfaceGUID(QString adapterGUID)
+// Finds the OS network object the given adapter is connected to. Returns a failed HRESULT if the
+// query failed; success with an empty network means the adapter has no connection.
+static HRESULT networkForInterfaceGUID(const QString &adapterGUID, CComPtr<INetwork> &network)
 {
-    QString result = "";
+    // Log once per failure streak, rearming on success: this runs on every network-change
+    // notification, so a persistent failure would flood the log.
+    static std::atomic<HRESULT> lastLoggedHr = S_OK;
 
-    INetworkListManager *pNetListManager = NULL;
+    CComPtr<INetworkListManager> pNetListManager;
     HRESULT hr = CoCreateInstance(CLSID_NetworkListManager, NULL,
                                   CLSCTX_ALL, IID_INetworkListManager,
                                   (LPVOID *)&pNetListManager);
     if (FAILED(hr)) {
-        qCCritical(LOG_BASIC) << "Failed to create CLSID_NetworkListManager:" << hr;
-        return result;
+        if (lastLoggedHr.exchange(hr) == S_OK) {
+            qCCritical(LOG_BASIC) << "Failed to create CLSID_NetworkListManager:" << hr;
+        }
+        return hr;
     }
+    lastLoggedHr = S_OK;
 
     CComPtr<IEnumNetworkConnections> pEnumNetworkConnections;
     hr = pNetListManager->GetNetworkConnections(&pEnumNetworkConnections);
-    if (SUCCEEDED(hr)) {
-        DWORD dwReturn = 0;
-        while (true) {
-            CComPtr<INetworkConnection> pNetConnection;
-            hr = pEnumNetworkConnections->Next(1, &pNetConnection, &dwReturn);
-            if (SUCCEEDED(hr) && dwReturn > 0) {
-                GUID adapterID;
-                if (pNetConnection->GetAdapterId(&adapterID) == S_OK) {
-                    QString adapterIDStr = guidToQString(adapterID);
+    if (FAILED(hr)) {
+        return hr;
+    }
 
-                    if (adapterGUID == adapterIDStr) {
-                        CComPtr<INetwork> pNetwork;
-                        if (pNetConnection->GetNetwork(&pNetwork) == S_OK) {
-                            BSTR bstrName = NULL;
-                            if (pNetwork->GetName(&bstrName) == S_OK) {
-                                result = QString::fromWCharArray(bstrName);
-                                SysFreeString(bstrName);
-                            }
-                        }
-                        break;
-                    }
-                }
-            }
-            else {
-                break;
-            }
+    while (true) {
+        CComPtr<INetworkConnection> pNetConnection;
+        DWORD dwReturn = 0;
+        hr = pEnumNetworkConnections->Next(1, &pNetConnection, &dwReturn);
+        if (FAILED(hr)) {
+            return hr;
+        }
+        if (dwReturn == 0) {
+            break;
+        }
+
+        GUID adapterID;
+        if (pNetConnection->GetAdapterId(&adapterID) == S_OK && QString::compare(adapterGUID, guidToQString(adapterID), Qt::CaseInsensitive) == 0) {
+            return pNetConnection->GetNetwork(&network);
         }
     }
 
-    pEnumNetworkConnections.Release();
-    pNetListManager->Release();
+    return S_OK;
+}
+
+static QString networkNameFromInterfaceGUID(QString adapterGUID)
+{
+    QString result = "";
+
+    CComPtr<INetwork> pNetwork;
+    if (SUCCEEDED(networkForInterfaceGUID(adapterGUID, pNetwork)) && pNetwork) {
+        BSTR bstrName = NULL;
+        if (pNetwork->GetName(&bstrName) == S_OK) {
+            result = QString::fromWCharArray(bstrName);
+            SysFreeString(bstrName);
+        }
+    }
 
     return result;
 }
 
 static bool isNetworkUnidentified(const QString &adapterGUID)
 {
-    INetworkListManager *pNetListManager = NULL;
-    HRESULT hr = CoCreateInstance(CLSID_NetworkListManager, NULL,
-                                  CLSCTX_ALL, IID_INetworkListManager,
-                                  (LPVOID *)&pNetListManager);
-    if (FAILED(hr)) {
+    CComPtr<INetwork> pNetwork;
+    if (FAILED(networkForInterfaceGUID(adapterGUID, pNetwork)) || !pNetwork) {
         return false;
     }
 
     bool result = false;
 
-    CComPtr<IEnumNetworkConnections> pEnumNetworkConnections;
-    hr = pNetListManager->GetNetworkConnections(&pEnumNetworkConnections);
-    if (SUCCEEDED(hr)) {
-        DWORD dwReturn = 0;
-        while (true) {
-            CComPtr<INetworkConnection> pNetConnection;
-            hr = pEnumNetworkConnections->Next(1, &pNetConnection, &dwReturn);
-            if (SUCCEEDED(hr) && dwReturn > 0) {
-                GUID adapterID;
-                if (pNetConnection->GetAdapterId(&adapterID) == S_OK) {
-                    if (adapterGUID == guidToQString(adapterID)) {
-                        CComPtr<INetwork> pNetwork;
-                        if (pNetConnection->GetNetwork(&pNetwork) == S_OK) {
-                            CComPtr<IPropertyBag> pPropBag;
-                            if (SUCCEEDED(pNetwork->QueryInterface(IID_IPropertyBag, (void**)&pPropBag))) {
-                                VARIANT var;
-                                VariantInit(&var);
-                                if (SUCCEEDED(pPropBag->Read(NA_NetworkClass, &var, nullptr))) {
-                                    VARIANT varConverted;
-                                    VariantInit(&varConverted);
-                                    if (SUCCEEDED(VariantChangeType(&varConverted, &var, 0, VT_I4))) {
-                                        NLM_NETWORK_CLASS networkClass = static_cast<NLM_NETWORK_CLASS>(varConverted.lVal);
-                                        result = (networkClass == NLM_NETWORK_IDENTIFYING || networkClass == NLM_NETWORK_UNIDENTIFIED);
-                                    }
-                                    VariantClear(&varConverted);
-                                }
-                                VariantClear(&var);
-                            }
-                        }
-                        break;
-                    }
-                }
-            } else {
-                break;
+    CComPtr<IPropertyBag> pPropBag;
+    if (SUCCEEDED(pNetwork->QueryInterface(IID_IPropertyBag, (void**)&pPropBag))) {
+        VARIANT var;
+        VariantInit(&var);
+        if (SUCCEEDED(pPropBag->Read(NA_NetworkClass, &var, nullptr))) {
+            VARIANT varConverted;
+            VariantInit(&varConverted);
+            if (SUCCEEDED(VariantChangeType(&varConverted, &var, 0, VT_I4))) {
+                NLM_NETWORK_CLASS networkClass = static_cast<NLM_NETWORK_CLASS>(varConverted.lVal);
+                result = (networkClass == NLM_NETWORK_IDENTIFYING || networkClass == NLM_NETWORK_UNIDENTIFIED);
             }
+            VariantClear(&varConverted);
         }
+        VariantClear(&var);
     }
-
-    pEnumNetworkConnections.Release();
-    pNetListManager->Release();
 
     return result;
 }
@@ -533,6 +519,21 @@ QString NetworkUtils_win::currentNetworkInterfaceGuid()
     }
 
     return row.interfaceGuid;
+}
+
+std::optional<QString> NetworkUtils_win::networkIdFromInterfaceGuid(const QString &adapterGuid)
+{
+    CComPtr<INetwork> pNetwork;
+    if (FAILED(networkForInterfaceGUID(adapterGuid, pNetwork)) || !pNetwork) {
+        return std::nullopt;
+    }
+
+    GUID networkId;
+    if (pNetwork->GetNetworkId(&networkId) != S_OK) {
+        return std::nullopt;
+    }
+
+    return guidToQString(networkId);
 }
 
 bool NetworkUtils_win::haveActiveInterface()

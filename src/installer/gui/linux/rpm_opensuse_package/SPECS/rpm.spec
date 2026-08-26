@@ -29,6 +29,7 @@ Requires:	libglvnd
 Requires:	libX11-6
 Requires:	fontconfig
 Requires:	freetype2
+Requires:	libdbus-1-3
 Requires:	libsystemd0
 Requires:	libxcb1
 Requires:	libxcb-util1

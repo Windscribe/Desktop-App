@@ -1,10 +1,22 @@
+2.24.11 (26/08/2026)
+All:
+   * Improved Belarusian translations in the GUI, installer and CLI from GitHub user dubovy-achvelak. #1973
+   * Fixed app may get stuck on the logging in screen. #1974
+   * Fixed Help/About->Jobs link referencing stale URL. #1975
+Windows:
+   * Fixed file disclosure vulnerability in the helper. #1980
+   * Fixed network name does not refresh after waking on a different network. #1982
+Linux:
+   * Fixed openSUSE packaging missing libdbus-1-3. #1976
+
+
 2.24.10 (19/08/2026)
 All:
    * Improved retry, backoff, and failover handling in wsnet. #1969
    * Fixed failed captcha treated as something to failover on and retry. #1962
 macOS:
    * Fixed local privilege escalation vulnerability via inherited SUID/SGID bits in staged updater bundle. #1964
-   * Fixed app skips symlinks and some commmon app folders when constructing the Split Tunneling application picker. #1956
+   * Fixed app skips symlinks and some common app folders when constructing the Split Tunneling application picker. #1956
 
 
 2.24.9 (14/08/2026)

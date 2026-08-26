@@ -50,7 +50,6 @@
     </message>
     <message>
         <source>The installer could not launch its file extraction utility. Antivirus software or Windows security features (e.g. Smart App Control) may be blocking the installation.</source>
-        <translation>Усталёўнік не змог запусьціць утыліту для распакаваньня файлаў. Усталяваньне могуць блякаваць антывіруснае праґрамнае забесьпячэньне альбо функцыі бясьпекі Windows (напрыклад, Smart App Control).</translation>
         <translation>Усталёўнік не змог запусьціць утыліту для распакаваньня файлаў. Антывіруснае праґрамнае забесьпячэньне альбо функцыі бясьпекі Windows (напрыклад, Smart App Control) могуць блякаваць усталяваньне.</translation>
     </message>
     <message>

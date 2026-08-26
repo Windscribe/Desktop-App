@@ -1185,7 +1185,8 @@ void MainWindow::onPreferencesLoginClick()
         setCursor(Qt::WaitCursor);
         logoutReason_ = LOGOUT_GO_TO_LOGIN;
         backend_->logout(false);
-    } else if (mainWindowController_->currentWindowAfterAnimation() == MainWindowController::WINDOW_ID_GENERAL_MESSAGE) {
+    } else if (mainWindowController_->currentWindowAfterAnimation() == MainWindowController::WINDOW_ID_GENERAL_MESSAGE &&
+               GeneralMessageController::instance().hasMessages()) {
         // Collapsing the preferences window caused an alert, such as unsaved changes.
         // Instead of transitioning directly to the login window, we modify the alert source.
         GeneralMessageController::instance().setSource(MainWindowController::WINDOW_ID_LOGIN);
@@ -1846,7 +1847,9 @@ void MainWindow::onBackendLoginFinished()
                                                                       selectedLocation_->locationdId().isCustomConfigsLocation());
         updateConnectWindowStateProtocolPortDisplay();
         // If the general message window is being shown before we finished login, we have had a critical error.  Do not override the window until it is dismissed.
-        if (mainWindowController_->currentWindow() == MainWindowController::WINDOW_ID_GENERAL_MESSAGE) {
+        if ((mainWindowController_->currentWindow() == MainWindowController::WINDOW_ID_GENERAL_MESSAGE ||
+             mainWindowController_->currentWindowAfterAnimation() == MainWindowController::WINDOW_ID_GENERAL_MESSAGE) &&
+            GeneralMessageController::instance().hasMessages()) {
             GeneralMessageController::instance().setSource(MainWindowController::WINDOW_ID_CONNECT);
         } else {
             mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_CONNECT);
@@ -2389,7 +2392,9 @@ void MainWindow::onBackendLogoutFinished()
 
     mainWindowController_->getWelcomeWindow()->setEmergencyConnectState(false);
 
-    if (mainWindowController_->currentWindow() == MainWindowController::WINDOW_ID_GENERAL_MESSAGE) {
+    if ((mainWindowController_->currentWindow() == MainWindowController::WINDOW_ID_GENERAL_MESSAGE ||
+         mainWindowController_->currentWindowAfterAnimation() == MainWindowController::WINDOW_ID_GENERAL_MESSAGE) &&
+        GeneralMessageController::instance().hasMessages()) {
         GeneralMessageController::instance().setSource(isGotoLogin ? MainWindowController::WINDOW_ID_LOGIN : MainWindowController::WINDOW_ID_WELCOME);
     } else if (isGotoLogin) {
         gotoLoginWindow();
@@ -3809,7 +3814,10 @@ void MainWindow::openUpgradeExternalWindow()
 void MainWindow::gotoLoginWindow()
 {
     setFirewallTurnOffButtonVisibility(backend_->isFirewallEnabled());
-    if (mainWindowController_->currentWindow() == MainWindowController::WINDOW_ID_GENERAL_MESSAGE) {
+    // curWindow_ can lag during a transition; redirecting an already-dismissed alert would drop this window change entirely.
+    if ((mainWindowController_->currentWindow() == MainWindowController::WINDOW_ID_GENERAL_MESSAGE ||
+         mainWindowController_->currentWindowAfterAnimation() == MainWindowController::WINDOW_ID_GENERAL_MESSAGE) &&
+        GeneralMessageController::instance().hasMessages()) {
         GeneralMessageController::instance().setSource(MainWindowController::WINDOW_ID_LOGIN);
     } else {
         mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_LOGIN);

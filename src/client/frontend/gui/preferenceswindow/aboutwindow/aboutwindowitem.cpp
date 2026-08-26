@@ -37,7 +37,7 @@ AboutWindowItem::AboutWindowItem(ScalableGraphicsObject *parent, Preferences *pr
     group_->addItem(blogLink_);
 
     jobsLink_ = new LinkItem(group_, LinkItem::LinkType::EXTERNAL_LINK, "",
-                             "https://angel.co/company/windscribe");
+                             "https://windscribe.com/jobs");
     group_->addItem(jobsLink_);
 
     licensesLink_ = new LinkItem(group_, LinkItem::LinkType::EXTERNAL_LINK, "",

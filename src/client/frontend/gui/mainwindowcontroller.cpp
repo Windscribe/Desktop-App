@@ -414,11 +414,13 @@ MainWindowController::WINDOW_ID MainWindowController::currentWindow()
 
 MainWindowController::WINDOW_ID MainWindowController::currentWindowAfterAnimation()
 {
-    if (queueWindowChanges_.empty()) {
-        return curWindow_;
+    // Return the final window to be shown after animations. Commands are not windows, so skip them.
+    for (auto it = queueWindowChanges_.crbegin(); it != queueWindowChanges_.crend(); ++it) {
+        if (*it != WINDOW_CMD_CLOSE_EXIT && *it != WINDOW_CMD_CLOSE_EXIT_FROM_PREFS && *it != WINDOW_CMD_UPDATE_BOTTOM_INFO) {
+            return *it;
+        }
     }
-    // Return the final window to be shown after animations
-    return queueWindowChanges_.last();
+    return curWindow_;
 }
 
 MainWindowController::WINDOW_ID MainWindowController::windowBeforeExit()
@@ -461,7 +463,18 @@ void MainWindowController::changeWindow(MainWindowController::WINDOW_ID windowId
 
     // specific commands
     if (windowId == WINDOW_CMD_UPDATE_BOTTOM_INFO) {
+        // Handled synchronously with no animation, so keep draining, or queued transitions behind it are never
+        // shown. Never drain a transition past a live alert or unanswered logout/exit confirmation (they own
+        // the screen until dismissed); commands never take the screen and may be the dismissal itself.
         onBottomInfoHeightChanged();
+        if (!queueWindowChanges_.isEmpty() &&
+            (((curWindow_ != WINDOW_ID_GENERAL_MESSAGE || !GeneralMessageController::instance().hasMessages()) &&
+              curWindow_ != WINDOW_ID_LOGOUT && curWindow_ != WINDOW_ID_EXIT) ||
+             queueWindowChanges_.head() == WINDOW_CMD_CLOSE_EXIT ||
+             queueWindowChanges_.head() == WINDOW_CMD_CLOSE_EXIT_FROM_PREFS ||
+             queueWindowChanges_.head() == WINDOW_CMD_UPDATE_BOTTOM_INFO)) {
+            handleNextWindowChange();
+        }
         return;
     } else if (windowId == WINDOW_CMD_CLOSE_EXIT_FROM_PREFS) {
         closeExitWindow(true);
@@ -472,6 +485,17 @@ void MainWindowController::changeWindow(MainWindowController::WINDOW_ID windowId
     }
 
     if (windowId == curWindow_) {
+        // A queued duplicate of the current window starts no animation, so keep draining, or queued transitions
+        // behind it are never shown. Never drain a transition past a live alert or unanswered logout/exit
+        // confirmation (they own the screen until dismissed); commands never take the screen and may be the dismissal itself.
+        if (!queueWindowChanges_.isEmpty() &&
+            (((curWindow_ != WINDOW_ID_GENERAL_MESSAGE || !GeneralMessageController::instance().hasMessages()) &&
+              curWindow_ != WINDOW_ID_LOGOUT && curWindow_ != WINDOW_ID_EXIT) ||
+             queueWindowChanges_.head() == WINDOW_CMD_CLOSE_EXIT ||
+             queueWindowChanges_.head() == WINDOW_CMD_CLOSE_EXIT_FROM_PREFS ||
+             queueWindowChanges_.head() == WINDOW_CMD_UPDATE_BOTTOM_INFO)) {
+            handleNextWindowChange();
+        }
         return;
     }
 

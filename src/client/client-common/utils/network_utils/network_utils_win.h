@@ -39,5 +39,10 @@ namespace NetworkUtils_win
     bool isSsidAccessAvailable();
 
     QString currentNetworkInterfaceGuid();
+
+    // OS identity of the network the given adapter is connected to. Returns nullopt when there is no
+    // answer: the query failed or the adapter has no connection in the OS network list.
+    std::optional<QString> networkIdFromInterfaceGuid(const QString &adapterGuid);
+
     bool haveActiveInterface();
 }

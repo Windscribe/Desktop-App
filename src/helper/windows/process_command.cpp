@@ -836,6 +836,42 @@ std::string installerStageAndVerify(const std::string &pars)
     std::wstring srcPath;
     deserializePars(pars, srcPath);
 
+    // The NUL check has to come first, because CreateFileW below stops at the first NUL: a path
+    // such as L"C:/Users/other/secret.docx\0/installer.exe" satisfies the next two checks while
+    // opening a different file.
+    if (srcPath.find(L'\0') != std::wstring::npos) {
+        spdlog::error("installerStageAndVerify: refusing source path with an embedded NUL");
+        return serializeResult(std::wstring(), false);
+    }
+
+    // Require a drive-rooted local path ("C:\..." or "C:/..."). This rejects UNC and the device
+    // namespace, along with drive-relative and CWD-relative paths. UNC is the case that matters: it
+    // would make the helper authenticate outbound to a caller-chosen SMB server as the machine
+    // account, a coercion primitive a local caller cannot obtain on its own.
+    bool isLocalPath = false;
+    if (srcPath.size() >= 3 && srcPath[1] == L':' && (srcPath[2] == L'\\' || srcPath[2] == L'/')) {
+        isLocalPath = (srcPath[0] >= L'A' && srcPath[0] <= L'Z') || (srcPath[0] >= L'a' && srcPath[0] <= L'z');
+    }
+    if (!isLocalPath) {
+        spdlog::error(L"installerStageAndVerify: refusing non-local source path: {}", srcPath);
+        return serializeResult(std::wstring(), false);
+    }
+
+    // Require the exact file name the engine downloads, compared on the final path component only.
+    // The caller picks the path but not the name of a file it might want the helper to read, and the
+    // reparse-point and hard-link rejections below block the two ways an arbitrary target could be
+    // aliased behind an accepted name - so pinning the name is what keeps this from being a general
+    // "read any file SYSTEM can reach" primitive. Tighter than an ".exe" suffix test, which would also
+    // accept an alternate data stream ("...\secret.docx:installer.exe"). Split on both separators:
+    // the engine builds the path with Qt, so it arrives with forward slashes. The drive-rooted check
+    // above guarantees a separator, and find_last_of returning npos would still yield the whole
+    // string here, so no additional guard is needed.
+    const std::wstring fileName = srcPath.substr(srcPath.find_last_of(L"/\\") + 1);
+    if (!Utils::iequals(fileName, L"installer.exe")) {
+        spdlog::error(L"installerStageAndVerify: refusing unexpected source file name: {}", srcPath);
+        return serializeResult(std::wstring(), false);
+    }
+
     // Open the downloaded installer once and bind every subsequent check and the copy itself to
     // this exact handle. FILE_FLAG_OPEN_REPARSE_POINT opens a reparse-point source as the reparse
     // point itself instead of following it, so we can reject symlinks/junctions on the handle.
@@ -867,6 +903,18 @@ std::string installerStageAndVerify(const std::string &pars)
     // write, but this keeps the guarantee independent of OS version.
     if (srcInfo.nNumberOfLinks != 1) {
         spdlog::error("installerStageAndVerify: refusing multi-link source ({} links)", srcInfo.nNumberOfLinks);
+        return serializeResult(std::wstring(), false);
+    }
+    // The caller can create their own installer.exe in a directory they own, and nothing stops them
+    // making it enormous cheaply: FSCTL_SET_SPARSE plus a large SetEndOfFile needs no privilege on
+    // NTFS in your own directory. GetFileInformationByHandle then reports the logical size, the copy
+    // loop reads zeros for the unallocated ranges, and WriteFile turns them into real allocated bytes
+    // in Program Files.  A cheap, repeatable way to fill the system volume as SYSTEM, immune to the
+    // user's disk quota.
+    constexpr ULONGLONG kMaxInstallerSize = 128ull * 1024 * 1024;
+    const ULONGLONG srcSize = (static_cast<ULONGLONG>(srcInfo.nFileSizeHigh) << 32) | srcInfo.nFileSizeLow;
+    if (srcSize == 0 || srcSize > kMaxInstallerSize) {
+        spdlog::error("installerStageAndVerify: refusing source of size {} (limit {})", srcSize, kMaxInstallerSize);
         return serializeResult(std::wstring(), false);
     }
 

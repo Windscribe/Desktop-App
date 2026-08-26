@@ -1,8 +1,10 @@
 #pragma once
 
+#include <optional>
+
+#include "engine/helper/helper.h"
 #include "inetworkdetectionmanager.h"
 #include "networkchangeworkerthread.h"
-#include "engine/helper/helper.h"
 #include "types/networkinterface.h"
 
 class NetworkDetectionManager_win : public INetworkDetectionManager
@@ -27,6 +29,8 @@ private:
     Helper *helper_;
     NetworkChangeWorkerThread *networkWorker_;
     types::NetworkInterface curNetworkInterface_;
+    std::optional<QString> curNetworkId_;
+    bool refreshedOnMissingId_ = false;
     bool bLastIsOnline_;
 
     bool isOnlineImpl();

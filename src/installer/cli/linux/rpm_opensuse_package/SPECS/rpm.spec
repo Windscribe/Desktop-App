@@ -26,6 +26,7 @@ Requires:	libstdc++6
 Requires:	glib2
 Requires:	zlib
 Requires:	libbrotlidec1
+Requires:	libdbus-1-3
 Requires:	libsystemd0
 Requires:	sudo
 Requires:	shadow
