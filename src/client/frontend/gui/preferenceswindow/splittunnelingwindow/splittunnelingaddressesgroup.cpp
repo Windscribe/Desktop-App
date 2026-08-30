@@ -120,6 +120,8 @@ void SplitTunnelingAddressesGroup::onDeleteClicked()
 
 SplitTunnelingAddressesGroup::ValidationCode SplitTunnelingAddressesGroup::validate(QString &address)
 {
+    address = NetworkingValidation::normalizeIpCidrOrDomain(address);
+
     if (!NetworkingValidation::isIpCidrOrDomain(address)) {
         return ValidationCode::ERROR_INVALID;
     }

@@ -193,6 +193,31 @@ void TestNetworkingValidation::testIsDomain()
     QVERIFY(NetworkingValidation::isDomainWithWildcard("*.google.com"));
 }
 
+void TestNetworkingValidation::testNormalizeIpCidrOrDomain()
+{
+    // Already-valid values are returned trimmed, unchanged in substance.
+    QCOMPARE(NetworkingValidation::normalizeIpCidrOrDomain("google.com"), QString("google.com"));
+    QCOMPARE(NetworkingValidation::normalizeIpCidrOrDomain("  1.2.3.4  "), QString("1.2.3.4"));
+    QCOMPARE(NetworkingValidation::normalizeIpCidrOrDomain("10.0.0.0/24"), QString("10.0.0.0/24"));
+    QCOMPARE(NetworkingValidation::normalizeIpCidrOrDomain("snapp.ir"), QString("snapp.ir"));
+
+    // Pasted URLs should reduce to the host so split-tunneling can accept them.
+    QCOMPARE(NetworkingValidation::normalizeIpCidrOrDomain("https://snapp.ir/"), QString("snapp.ir"));
+    QCOMPARE(NetworkingValidation::normalizeIpCidrOrDomain("http://snapp.ir"), QString("snapp.ir"));
+    QCOMPARE(NetworkingValidation::normalizeIpCidrOrDomain("https://www.google.com/search?q=test"), QString("www.google.com"));
+    QCOMPARE(NetworkingValidation::normalizeIpCidrOrDomain("https://example.com:443/path"), QString("example.com"));
+    QCOMPARE(NetworkingValidation::normalizeIpCidrOrDomain("https://1.2.3.4/"), QString("1.2.3.4"));
+    QCOMPARE(NetworkingValidation::normalizeIpCidrOrDomain("https://[2001:db8::1]/"), QString("2001:db8::1"));
+
+    // Bare host with a trailing slash or path (no scheme).
+    QCOMPARE(NetworkingValidation::normalizeIpCidrOrDomain("snapp.ir/"), QString("snapp.ir"));
+    QCOMPARE(NetworkingValidation::normalizeIpCidrOrDomain("snapp.ir/foo"), QString("snapp.ir"));
+
+    // Invalid input is returned trimmed but not rewritten into something else.
+    QCOMPARE(NetworkingValidation::normalizeIpCidrOrDomain("  not a host  "), QString("not a host"));
+    QCOMPARE(NetworkingValidation::normalizeIpCidrOrDomain("https://"), QString("https://"));
+}
+
 void TestNetworkingValidation::testIsIpv4AndIsIpv6()
 {
     // v4 literals

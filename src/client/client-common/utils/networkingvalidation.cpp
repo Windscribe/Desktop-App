@@ -4,6 +4,7 @@
 #include <QAbstractSocket>
 #include <QHostAddress>
 #include <QRegularExpression>
+#include <QUrl>
 
 namespace {
 
@@ -145,6 +146,36 @@ bool NetworkingValidation::isIpOrDomain(const QString &str)
 bool NetworkingValidation::isIpCidrOrDomain(const QString &str)
 {
     return (isIpCidr(str) || isDomain(str));
+}
+
+QString NetworkingValidation::normalizeIpCidrOrDomain(const QString &str)
+{
+    const QString trimmed = str.trimmed();
+    if (trimmed.isEmpty() || isIpCidrOrDomain(trimmed)) {
+        return trimmed;
+    }
+
+    // Accept pasted URLs like https://example.com/path by extracting the host.
+    const QUrl url(trimmed, QUrl::TolerantMode);
+    if (url.isValid() && !url.scheme().isEmpty() && !url.host().isEmpty()) {
+        const QString host = url.host();
+        if (isIpCidrOrDomain(host)) {
+            return host;
+        }
+    }
+
+    // Bare hostname with a trailing slash or path: "example.com/" or "example.com/foo"
+    if (!trimmed.contains(QLatin1String("://"))) {
+        const int slash = trimmed.indexOf(QLatin1Char('/'));
+        if (slash > 0) {
+            const QString beforeSlash = trimmed.left(slash);
+            if (isIpCidrOrDomain(beforeSlash)) {
+                return beforeSlash;
+            }
+        }
+    }
+
+    return trimmed;
 }
 
 // checking the correctness of the address for the ctrld utility

@@ -16,6 +16,7 @@ private slots:
     void testIsIpAndIsDomain_smoke();
     void testIsIp();
     void testIsDomain();
+    void testNormalizeIpCidrOrDomain();
     void testIsIpv4AndIsIpv6();
     void testIsIpCidr();
     void testIsValidIpForCidr();

@@ -15,6 +15,10 @@ public:
     static bool isDomainWithWildcard(const QString &str);
     static bool isIpOrDomain(const QString &str);
     static bool isIpCidrOrDomain(const QString &str);
+    // If `str` is already a valid IP/CIDR/domain, return it trimmed. If it looks like a URL
+    // (e.g. "https://example.com/path"), return the extracted host when that host is a valid
+    // IP or domain. Otherwise return the trimmed original string unchanged.
+    static QString normalizeIpCidrOrDomain(const QString &str);
     static bool isCtrldCorrectAddress(const QString &str);
 
     static bool isValidIpForCidr(const QString &str);
