@@ -1,3 +1,8 @@
+2.24.12 (31/08/2026)
+macOS:
+   * Fixed local privilege escalation vulnerability via a race condition in the staged updater bundle. #1987
+
+
 2.24.11 (26/08/2026)
 All:
    * Improved Belarusian translations in the GUI, installer and CLI from GitHub user dubovy-achvelak. #1973

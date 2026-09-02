@@ -615,8 +615,15 @@ std::string deleteRoute(const std::string &pars)
     return std::string();
 }
 
+// Serializes every installer command: all touch the fixed shared stage paths or the global Files,
+// and the XPC queue is concurrent, so overlapping calls would race the payload verify-then-read and
+// the DMG remove_all/mkdir/attach.
+static std::mutex g_stageMutex;
+
 std::string removeOldInstall(const std::string &pars)
 {
+    std::lock_guard<std::mutex> stageLock(g_stageMutex);
+
     std::string installPath;
     deserializePars(pars, installPath);
 
@@ -815,6 +822,8 @@ static bool stageArchiveFromCallerBundle(std::string &outTempPath)
 
 std::string setInstallerPaths(const std::string &pars)
 {
+    std::lock_guard<std::mutex> stageLock(g_stageMutex);
+
     // Wire-format compat: deserialize and ignore. Both the install destination
     // and the archive source are derived from the helper-trusted state (a
     // hardcoded /Applications path and the verified caller bundle), never from
@@ -832,6 +841,8 @@ std::string setInstallerPaths(const std::string &pars)
 
 std::string executeFilesStep(const std::string &pars)
 {
+    std::lock_guard<std::mutex> stageLock(g_stageMutex);
+
     Files *files = FilesManager::instance().files();
     if (files) {
         bool success = (files->executeStep() == 1);
@@ -890,10 +901,6 @@ std::string clearWifiHistoryData(const std::string &pars)
 
 static constexpr int kHdiutilAttachTimeoutSecs = 300;
 static constexpr int kHdiutilDetachTimeoutSecs = 30;
-
-// Serializes installerStageAndVerify and installerCleanupStaged: both touch the fixed shared stage
-// paths and the XPC queue is concurrent, so overlapping calls would race remove_all/mkdir/attach.
-static std::mutex g_stageMutex;
 
 std::string installerStageAndVerify(const std::string &pars)
 {
