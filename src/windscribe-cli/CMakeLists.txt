@@ -89,7 +89,8 @@ else()
     )
     list(APPEND SOURCES
          ../client/client-common/utils/executable_signature/executablesignature_linux.cpp
-         ../client/client-common/utils/linuxutils.cpp)
+         ../client/client-common/utils/linuxutils.cpp
+         ../client/client-common/utils/steamgames.cpp)
 endif()
 
 add_executable(${WS_CLI_TARGET} ${SOURCES})
