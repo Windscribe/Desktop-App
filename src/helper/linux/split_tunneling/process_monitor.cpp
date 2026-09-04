@@ -10,9 +10,13 @@
 #include <linux/netlink.h>
 #include <poll.h>
 #include <sstream>
+#include <stdlib.h>
 #include <sys/socket.h>
+#include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <unordered_map>
+#include <unordered_set>
 #include <spdlog/spdlog.h>
 
 #include "cgroups.h"
@@ -23,6 +27,111 @@
 #define SEND_MESSAGE_SIZE (NLMSG_SPACE(SEND_MESSAGE_LEN))
 #define RECV_MESSAGE_SIZE (NLMSG_SPACE(RECV_MESSAGE_LEN))
 #define BUFSIZE (std::max(std::max(SEND_MESSAGE_SIZE, RECV_MESSAGE_SIZE), 1024UL))
+
+namespace {
+
+// /proc/<pid>/exe is always a fully resolved path, so a stored app path that traverses a symlink
+// (Steam's ~/.steam/steam -> ~/.local/share/Steam, usrmerge /bin -> /usr/bin, ...) can never
+// compare equal to it as a raw string. Resolve the stored path once, when the app list is set,
+// so both sides of the comparison are canonical. Snap entries are exempt: /snap/bin/<name> is a
+// symlink to the snap runner ELF itself, and the snap match in compareCmd depends on the stored
+// path keeping its /snap/ shape.
+std::string canonicalizeAppPath(const std::string &path)
+{
+    if (path.empty() || path.front() != '/' || path.rfind("/snap/", 0) == 0) {
+        return path;
+    }
+    char *resolved = realpath(path.c_str(), nullptr);
+    if (resolved == nullptr) {
+        // Not on disk (uninstalled or moved): keep the literal form, same as before.
+        return path;
+    }
+    std::string out(resolved);
+    free(resolved);
+    return out;
+}
+
+// Tokens of the shebang line ("#!/bin/bash -e" -> {"/bin/bash", "-e"}), or nullopt when the
+// file is not a script. Only ever called on paths already stat-verified as regular files:
+// opening anything else (a FIFO with no writer, for instance) would block the caller
+// indefinitely.
+std::optional<std::vector<std::string>> readShebangTokens(const std::string &path)
+{
+    if (path.empty() || path.front() != '/') {
+        return std::nullopt;
+    }
+    std::ifstream f(path);
+    std::string line;
+    if (!std::getline(f, line)) {
+        return std::nullopt;
+    }
+    if (line.rfind("#!", 0) != 0) {
+        return std::nullopt;
+    }
+    std::istringstream tokens(line.substr(2));
+    std::vector<std::string> words;
+    std::string word;
+    while (tokens >> word) {
+        words.push_back(word);
+    }
+    if (words.empty()) {
+        return std::nullopt;
+    }
+    return words;
+}
+
+std::string findExecutableInPath(const std::string &name)
+{
+    if (name.empty() || name.find('/') != std::string::npos) {
+        return std::string();
+    }
+    const char *pathEnv = getenv("PATH");
+    if (pathEnv == nullptr) {
+        return std::string();
+    }
+    std::istringstream dirs(pathEnv);
+    std::string dir;
+    while (std::getline(dirs, dir, ':')) {
+        if (dir.empty()) {
+            continue;
+        }
+        const std::string candidate = dir + "/" + name;
+        struct stat st = {};
+        if (stat(candidate.c_str(), &st) == 0 && S_ISREG(st.st_mode)) {
+            return candidate;
+        }
+    }
+    return std::string();
+}
+std::optional<std::vector<std::string>> readArgv(pid_t pid)
+{
+    std::ifstream f("/proc/" + std::to_string(pid) + "/cmdline", std::ios::binary);
+    if (!f.is_open()) {
+        return std::nullopt;
+    }
+    std::string data((std::istreambuf_iterator<char>(f)), std::istreambuf_iterator<char>());
+    if (data.empty()) {
+        return std::nullopt; // kernel threads and zombies have an empty cmdline
+    }
+    std::vector<std::string> argv;
+    size_t start = 0;
+    while (start < data.size()) {
+        size_t end = data.find('\0', start);
+        if (end == std::string::npos) {
+            end = data.size();
+        }
+        if (end > start) {
+            argv.emplace_back(data, start, end - start);
+        }
+        start = end + 1;
+    }
+    if (argv.empty()) {
+        return std::nullopt;
+    }
+    return argv;
+}
+
+} // namespace
 
 void ProcessMonitor::monitorWorker(void *ctx)
 {
@@ -53,10 +162,16 @@ void ProcessMonitor::monitorWorker(void *ctx)
             break;
         }
 
+        // Snapshot the rules once per batch: setApps() may replace them on the command thread
+        // while this loop runs, and the monitor thread must never iterate a mutating vector.
+        std::vector<AppRule> rules;
+        {
+            std::lock_guard<std::mutex> guard(appsMutex_);
+            rules = rules_;
+        }
+
         struct nlmsghdr *nlh = (struct nlmsghdr *)buff;
         while (NLMSG_OK(nlh, ret)) {
-            std::string cmd;
-
             if (nlh->nlmsg_type == NLMSG_NOOP) {
                 nlh = NLMSG_NEXT(nlh, ret);
                 continue;
@@ -69,12 +184,12 @@ void ProcessMonitor::monitorWorker(void *ctx)
 
             switch (ev->what) {
                 case 0x00000001: // PROC_EVENT_FORK:
-                    if (compareCmd(ev->event_data.fork.child_pid, apps_)) {
+                    if (compareCmd(ev->event_data.fork.child_pid, rules)) {
                         CGroups::instance().addApp(ev->event_data.fork.child_pid);
                     }
                     break;
                 case 0x00000002: // PROC_EVENT_EXEC:
-                    if (compareCmd(ev->event_data.exec.process_pid, apps_)) {
+                    if (compareCmd(ev->event_data.exec.process_pid, rules)) {
                         CGroups::instance().addApp(ev->event_data.exec.process_pid);
                     }
                     break;
@@ -110,21 +225,36 @@ ProcessMonitor::~ProcessMonitor()
 
 void ProcessMonitor::setApps(const std::vector<std::string> &apps)
 {
+    // Build the rules before taking the lock: ruleFor does filesystem I/O, and the monitor
+    // thread needs the same mutex for its per-batch snapshot — holding it across stat/open
+    // calls on a slow path would stall event processing.
+    std::vector<AppRule> newRules;
+    newRules.reserve(apps.size());
+    for (const auto &app : apps) {
+        newRules.push_back(ruleFor(app));
+    }
+
+    std::vector<std::string> oldApps;
+    {
+        std::lock_guard<std::mutex> guard(appsMutex_);
+        oldApps = apps_;
+        apps_ = apps;
+        rules_ = std::move(newRules);
+    }
+
     if (isEnabled_) {
         for (auto app : apps) {
-            if (std::find(apps_.begin(), apps_.end(), app) == apps_.end()) {
+            if (std::find(oldApps.begin(), oldApps.end(), app) == oldApps.end()) {
                 addApp(app);
             }
         }
 
-        for (auto app : apps_) {
+        for (auto app : oldApps) {
             if (std::find(apps.begin(), apps.end(), app) == apps.end()) {
                 removeApp(app);
             }
         }
     }
-
-    apps_ = apps;
 }
 
 bool ProcessMonitor::enable()
@@ -150,7 +280,12 @@ bool ProcessMonitor::enable()
         return false;
     }
 
-    for (auto app : apps_) {
+    std::vector<std::string> apps;
+    {
+        std::lock_guard<std::mutex> guard(appsMutex_);
+        apps = apps_;
+    }
+    for (auto app : apps) {
         addApp(app);
     }
     isEnabled_ = true;
@@ -170,9 +305,50 @@ void ProcessMonitor::disable()
     isEnabled_ = false;
 }
 
+ProcessMonitor::AppRule ProcessMonitor::ruleFor(const std::string &app)
+{
+    // Normalize trailing slashes so directory prefix matching never compares against "dir//file".
+    std::string path = app;
+    while (path.size() > 1 && path.back() == '/') {
+        path.pop_back();
+    }
+
+    AppRule rule;
+    rule.raw = path;
+    rule.canonical = canonicalizeAppPath(rule.raw);
+    struct stat st = {};
+    if (stat(rule.canonical.c_str(), &st) != 0) {
+        return rule;
+    }
+    if (S_ISDIR(st.st_mode)) {
+        rule.isDirectory = true;
+        rule.canonicalSlash = rule.canonical + "/";
+        rule.rawSlash = rule.raw + "/";
+    } else if (S_ISREG(st.st_mode)) {
+        // Scripts only; anything else (FIFO, socket, device) must never be opened here.
+        const std::optional<std::vector<std::string>> shebang = readShebangTokens(rule.canonical);
+        if (shebang) {
+            std::string interpreter = canonicalizeAppPath((*shebang)[0]);
+            // "#!/usr/bin/env bash" execs env, which immediately execs bash; resolve the env
+            // argument so the durable interpreter state is what matches (the env moment itself
+            // lasts only microseconds).
+            if (interpreter.size() >= 4
+                && interpreter.compare(interpreter.size() - 4, 4, "/env") == 0
+                && shebang->size() >= 2 && (*shebang)[1][0] != '-') {
+                const std::string resolved = findExecutableInPath((*shebang)[1]);
+                if (!resolved.empty()) {
+                    interpreter = canonicalizeAppPath(resolved);
+                }
+            }
+            rule.scriptInterpreter = std::move(interpreter);
+        }
+    }
+    return rule;
+}
+
 void ProcessMonitor::addApp(const std::string &exe) {
     spdlog::info("process monitor add app: {}", exe);
-    std::vector<pid_t> pids = findPids(exe);
+    const std::vector<pid_t> pids = expandToDescendants(findPids(exe));
     for (auto pid : pids) {
         CGroups::instance().addApp(pid);
     }
@@ -180,15 +356,74 @@ void ProcessMonitor::addApp(const std::string &exe) {
 
 void ProcessMonitor::removeApp(const std::string &exe) {
     spdlog::info("process monitor remove app: {}", exe);
-    std::vector<pid_t> pids = findPids(exe);
+    const std::vector<pid_t> pids = expandToDescendants(findPids(exe));
     for (auto pid : pids) {
         CGroups::instance().removeApp(pid);
     }
 }
 
+// A matched launcher's already-running children (a game started before its entry was added, or
+// before the VPN connected) are not in the cgroup: membership is inherited only on fork, never
+// retroactively. When a scan matches a root process, pull its whole living subtree in with it,
+// and move it back out on removal, symmetrically.
+std::vector<pid_t> ProcessMonitor::expandToDescendants(const std::vector<pid_t> &roots)
+{
+    if (roots.empty()) {
+        return roots;
+    }
+
+    std::unordered_map<pid_t, pid_t> ppidOf;
+    DIR *dp = opendir("/proc");
+    if (dp == NULL) {
+        return roots;
+    }
+    struct dirent *ep;
+    while ((ep = readdir(dp))) {
+        if (ep->d_type != DT_DIR || ep->d_name[0] < '0' || ep->d_name[0] > '9') {
+            continue;
+        }
+        std::ifstream f(std::string("/proc/") + ep->d_name + "/stat");
+        std::string line;
+        if (!std::getline(f, line)) {
+            continue;
+        }
+        // pid (comm) state ppid ...: comm may contain spaces or parens, so parse after the
+        // last ')'.
+        const size_t close = line.rfind(')');
+        if (close == std::string::npos) {
+            continue;
+        }
+        std::istringstream fields(line.substr(close + 1));
+        std::string state;
+        pid_t ppid = 0;
+        if (fields >> state >> ppid) {
+            ppidOf[std::stoi(ep->d_name)] = ppid;
+        }
+    }
+    closedir(dp);
+
+    std::unordered_set<pid_t> selected(roots.begin(), roots.end());
+    for (const auto &entry : ppidOf) {
+        pid_t cur = entry.second;
+        for (int depth = 0; cur > 0 && depth < 128; ++depth) {
+            if (selected.count(cur)) {
+                selected.insert(entry.first);
+                break;
+            }
+            const auto it = ppidOf.find(cur);
+            if (it == ppidOf.end()) {
+                break;
+            }
+            cur = it->second;
+        }
+    }
+    return std::vector<pid_t>(selected.begin(), selected.end());
+}
+
 std::vector<pid_t> ProcessMonitor::findPids(const std::string &exe)
 {
     std::vector<pid_t> pids;
+    const AppRule rule = ruleFor(exe); // classify the entry once, not once per /proc entry
 
     DIR *dp = NULL;
     struct dirent *ep;
@@ -202,7 +437,7 @@ std::vector<pid_t> ProcessMonitor::findPids(const std::string &exe)
     while ((ep = readdir(dp))) {
         // numeric directories are pids in /proc
         if (ep->d_type == DT_DIR && ep->d_name[0] >= '0' && ep->d_name[0] <= '9') {
-            if (compareCmd(std::stoi(ep->d_name), {exe})) {
+            if (compareCmd(std::stoi(ep->d_name), {rule})) {
                 pids.push_back(std::stoi(ep->d_name));
             }
         }
@@ -212,36 +447,72 @@ std::vector<pid_t> ProcessMonitor::findPids(const std::string &exe)
     return pids;
 }
 
-bool ProcessMonitor::compareCmd(pid_t pid, const std::vector<std::string> &exes) {
+bool ProcessMonitor::compareCmd(pid_t pid, const std::vector<AppRule> &rules) {
     std::string cmd = getCmdByPid(pid);
+    std::optional<std::vector<std::string>> argv;
+    bool argvRead = false;
     std::optional<std::string> flatpakId;
     bool flatpakIdComputed = false;
 
-    for (auto exe : exes) {
-        if (cmd == exe) {
+    for (const AppRule &rule : rules) {
+        if (!cmd.empty() && (cmd == rule.raw || cmd == rule.canonical)) {
             return true;
         }
 
         // Flatpak app ID match: stored value looks like reverse-DNS (no slashes, has a dot).
         // Resolve the running process's Flatpak app ID lazily via cgroup, only when we actually
         // have an app-ID-shaped rule to match against.
-        if (!exe.empty() && exe.find('/') == std::string::npos && exe.find('.') != std::string::npos) {
+        if (!rule.raw.empty() && rule.raw.find('/') == std::string::npos && rule.raw.find('.') != std::string::npos) {
             if (!flatpakIdComputed) {
                 flatpakId = getFlatpakAppIdByPid(pid);
                 flatpakIdComputed = true;
             }
-            if (flatpakId && *flatpakId == exe) {
+            if (flatpakId && *flatpakId == rule.raw) {
                 return true;
             }
         }
 
         // handle snap
-        int idx = exe.find("/snap/");
+        int idx = rule.raw.find("/snap/");
         if (idx != std::string::npos) {
-            std::string prefix = exe.substr(0, idx + 6);
-            std::string suffix = exe.substr(exe.rfind("/"));
+            std::string prefix = rule.raw.substr(0, idx + 6);
+            std::string suffix = rule.raw.substr(rule.raw.rfind("/"));
             if (cmd.rfind(prefix, 0) == 0 && cmd.find(suffix, cmd.size() - suffix.length()) == cmd.size() - suffix.length()) {
                 return true;
+            }
+        }
+
+        // Directory entries (e.g. a Steam game's install folder, resolved from its library
+        // manifest): every executable launched from within the tree belongs to the entry,
+        // whatever each binary is named (launcher, helper, the game itself).
+        if (rule.isDirectory && !cmd.empty()
+            && (cmd.rfind(rule.canonicalSlash, 0) == 0 || cmd.rfind(rule.rawSlash, 0) == 0)) {
+            return true;
+        }
+
+        // Script-wrapped launchers (e.g. Steam's /usr/bin/steam, a shell script that execs the
+        // real client ELF from the Steam root). /proc/<pid>/exe is never a script path — while
+        // the interpreter runs the script, exe is the interpreter and the script path appears
+        // in argv — so a script entry matches only at that moment, and only when the process's
+        // exe IS the interpreter the script's shebang names and an argv token equals the stored
+        // path. Both halves are required: the interpreter check keeps unrelated programs that
+        // merely mention the path as a data argument (grep, editors) out, and matching on the
+        // full path instead of a basename keeps same-named binaries elsewhere on the system
+        // out. The single match point is sufficient: cgroup membership survives the exec of the
+        // wrapped binary, and every descendant of the launcher (the games it spawns) inherits
+        // it on fork. One consequence is deliberate: a launcher that was already exec'd before
+        // monitoring began cannot be identified anymore and waits for its next launch.
+        if (!rule.scriptInterpreter.empty() && cmd == rule.scriptInterpreter) {
+            if (!argvRead) {
+                argv = readArgv(pid);
+                argvRead = true;
+            }
+            if (argv) {
+                for (const std::string &token : *argv) {
+                    if (token == rule.raw || token == rule.canonical) {
+                        return true;
+                    }
+                }
             }
         }
     }
