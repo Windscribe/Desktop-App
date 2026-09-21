@@ -159,7 +159,8 @@ enum SPLIT_TUNNEL_START_FAIL_REASON {
     // macOS only: the system extension is not enabled in System Settings, so the user is guided to
     // enable it.  Used only for the genuine not-enabled case -- not for a session that failed while the
     // extension was enabled, where that guidance would be wrong.
-    SPLIT_TUNNEL_START_FAIL_REASON_MAC_EXTENSION_NOT_ENABLED = 1
+    SPLIT_TUNNEL_START_FAIL_REASON_MAC_EXTENSION_NOT_ENABLED = 1,
+    SPLIT_TUNNEL_START_FAIL_REASON_MAC_SESSION_ENDED = 2
 };
 
 enum INIT_STATE {

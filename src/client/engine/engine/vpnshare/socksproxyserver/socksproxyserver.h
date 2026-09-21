@@ -3,9 +3,12 @@
 #include "socksproxyconnectionmanager.h"
 #include "../connecteduserscounter.h"
 #include "../proxyauthconfig.h"
+#include "../proxyconnectionmanager.h"  // for base class visibility in tests
 
 #include <QHostAddress>
 #include <QTcpServer>
+
+class TestProxyServers;
 
 namespace SocksProxyServer {
 
@@ -17,7 +20,6 @@ public:
     virtual ~SocksProxyServer();
 
     bool startServer(const QHostAddress &bindAddress, int prefixLength, quint16 port, const ProxyAuth::Config &auth);
-    void stopServer();
 
     int getConnectedUsersCount();
 
@@ -36,6 +38,17 @@ private:
     ProxyAuth::Config auth_;
     QHostAddress bindAddress_;
     int prefixLength_ = 0;
+    // Bounds what peers can pin in this process; every accepted connection holds at least one descriptor.
+    static int maxConnections_;
+    // One warning per rejection episode and reason, cleared by the next accepted connection; a rejected peer can retry
+    // at line rate and would otherwise flood the log.
+    bool offSubnetLogged_ = false;
+    bool limitLogged_ = false;
+
+    // Terminal: the worker threads are not restarted, so this only runs from the destructor.
+    void stopServer();
+
+    friend class ::TestProxyServers;
 };
 
 } // namespace SocksProxyServer

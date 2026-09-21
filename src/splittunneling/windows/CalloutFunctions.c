@@ -85,6 +85,56 @@ static BOOLEAN isV6AddressInExclusionList(const UINT8 *remoteAddr, const WINDSCR
     return FALSE;
 }
 
+// Anyone able to add WFP filters can point one at our callout GUIDs with no provider context
+// at all, so nothing about the blob may be assumed. Returns NULL unless the context is present
+// and large enough for the address list its own cntExcludeAddresses claims.
+static const FWP_BYTE_BLOB *getCalloutDataBlob(const FWPS_FILTER1 *filter, SIZE_T headerSize)
+{
+    const FWP_BYTE_BLOB *blob;
+
+    if (!filter->providerContext || filter->providerContext->type != FWPM_GENERAL_CONTEXT) {
+        return NULL;
+    }
+
+    blob = filter->providerContext->dataBuffer;
+    if (!blob || !blob->data || blob->size < headerSize) {
+        return NULL;
+    }
+    return blob;
+}
+
+static WINDSCRIBE_CALLOUT_DATA *getCalloutData(const FWPS_FILTER1 *filter)
+{
+    const SIZE_T headerSize = FIELD_OFFSET(WINDSCRIBE_CALLOUT_DATA, excludeAddresses);
+    const FWP_BYTE_BLOB *blob = getCalloutDataBlob(filter, headerSize);
+    if (!blob) {
+        return NULL;
+    }
+
+    if (blob->size < headerSize +
+        (SIZE_T)((const WINDSCRIBE_CALLOUT_DATA *)blob->data)->cntExcludeAddresses * sizeof(UINT32)) {
+        KdPrintEx((DPFLTR_IHVDRIVER_ID, DPFLTR_INFO_LEVEL, "WindscribeSplitTunnel: callout data too small\n"));
+        return NULL;
+    }
+    return (WINDSCRIBE_CALLOUT_DATA *)blob->data;
+}
+
+static WINDSCRIBE_CALLOUT_DATA_V6 *getCalloutDataV6(const FWPS_FILTER1 *filter)
+{
+    const SIZE_T headerSize = FIELD_OFFSET(WINDSCRIBE_CALLOUT_DATA_V6, excludeAddresses);
+    const FWP_BYTE_BLOB *blob = getCalloutDataBlob(filter, headerSize);
+    if (!blob) {
+        return NULL;
+    }
+
+    if (blob->size < headerSize +
+        (SIZE_T)((const WINDSCRIBE_CALLOUT_DATA_V6 *)blob->data)->cntExcludeAddresses * IPV6_ADDRESS_LENGTH) {
+        KdPrintEx((DPFLTR_IHVDRIVER_ID, DPFLTR_INFO_LEVEL, "WindscribeSplitTunnel: callout data (v6) too small\n"));
+        return NULL;
+    }
+    return (WINDSCRIBE_CALLOUT_DATA_V6 *)blob->data;
+}
+
 VOID NTAPI
 ClassifyFn(
     IN const FWPS_INCOMING_VALUES0* inFixedValues,
@@ -101,23 +151,17 @@ ClassifyFn(
 
     NT_ASSERT(inFixedValues);
     NT_ASSERT(inMetaValues);
-    NT_ASSERT(layerData);
-    NT_ASSERT(classifyContext);
     NT_ASSERT(filter);
     NT_ASSERT(classifyOut);
-    NT_ASSERT(filter->providerContext);
-    NT_ASSERT(filter->providerContext->type == FWPM_GENERAL_CONTEXT);
-    NT_ASSERT(filter->providerContext->dataBuffer);
-    NT_ASSERT(filter->providerContext->dataBuffer->data);
 
     NTSTATUS status = STATUS_SUCCESS;
     UINT64 classifyHandle = 0;
     PVOID dataPointer = NULL;
     FWPS_BIND_REQUEST *bindRequest = NULL;
     FWPS_CONNECT_REQUEST *connectRequest = NULL;
-    WINDSCRIBE_CALLOUT_DATA *calloutData = (WINDSCRIBE_CALLOUT_DATA *)filter->providerContext->dataBuffer->data;
+    WINDSCRIBE_CALLOUT_DATA *calloutData = getCalloutData(filter);
 
-    if (!layerData || !classifyContext || !(classifyOut->rights & FWPS_RIGHT_ACTION_WRITE)) {
+    if (!calloutData || !layerData || !classifyContext || !(classifyOut->rights & FWPS_RIGHT_ACTION_WRITE)) {
         return;
     }
 
@@ -129,6 +173,13 @@ ClassifyFn(
     }
 
     if (inFixedValues->layerId == FWPS_LAYER_ALE_CONNECT_REDIRECT_V4) {
+        // The socket is already bound to our address on a reauthorize pass, and re-entering
+        // the modify path here is what lets a second FwpsApplyModifiedLayerData reach the
+        // same layer data (bugchecks NETIO!FeApplyModifiedLayerData).
+        if (inFixedValues->incomingValue[FWPS_FIELD_ALE_CONNECT_REDIRECT_V4_FLAGS].value.uint32 & FWP_CONDITION_FLAG_IS_REAUTHORIZE) {
+            goto cleanup;
+        }
+
         // skip modification if a remote address in the exclusion list(these are usually local address ranges)
         UINT32 remoteIp = inFixedValues->incomingValue[FWPS_FIELD_ALE_CONNECT_REDIRECT_V4_IP_REMOTE_ADDRESS].value.uint32;
         for (int i = 0; i < calloutData->cntExcludeAddresses / 2; i++) {
@@ -137,8 +188,14 @@ ClassifyFn(
                 goto cleanup;
             }
         }
+    } else if (inFixedValues->layerId == FWPS_LAYER_ALE_BIND_REDIRECT_V4) {
+        if (inFixedValues->incomingValue[FWPS_FIELD_ALE_BIND_REDIRECT_V4_FLAGS].value.uint32 & FWP_CONDITION_FLAG_IS_REAUTHORIZE) {
+            goto cleanup;
+        }
     }
 
+    // All "skip" checks must run before this point: a successful acquire obliges us to call
+    // FwpsApplyModifiedLayerData, and that may be done only once per acquired layer data.
     status = FwpsAcquireWritableLayerDataPointer(classifyHandle, filter->filterId, 0, &dataPointer, classifyOut);
     if (status != STATUS_SUCCESS) {
         KdPrintEx((DPFLTR_IHVDRIVER_ID, DPFLTR_INFO_LEVEL, "WindscribeSplitTunnel: FwpsAcquireWritableLayerDataPointer failed\n"));
@@ -171,10 +228,6 @@ ClassifyFn(
         }
 
     } else if (inFixedValues->layerId == FWPS_LAYER_ALE_BIND_REDIRECT_V4) {
-        if (inFixedValues->incomingValue[FWPS_FIELD_ALE_BIND_REDIRECT_V4_FLAGS].value.uint32 & FWP_CONDITION_FLAG_IS_REAUTHORIZE) {
-            goto cleanup;
-        }
-
         bindRequest = (FWPS_BIND_REQUEST *)dataPointer;
 
         // Prevent infinite redirection
@@ -232,23 +285,17 @@ ClassifyFnV6(
 
     NT_ASSERT(inFixedValues);
     NT_ASSERT(inMetaValues);
-    NT_ASSERT(layerData);
-    NT_ASSERT(classifyContext);
     NT_ASSERT(filter);
     NT_ASSERT(classifyOut);
-    NT_ASSERT(filter->providerContext);
-    NT_ASSERT(filter->providerContext->type == FWPM_GENERAL_CONTEXT);
-    NT_ASSERT(filter->providerContext->dataBuffer);
-    NT_ASSERT(filter->providerContext->dataBuffer->data);
 
     NTSTATUS status = STATUS_SUCCESS;
     UINT64 classifyHandle = 0;
     PVOID dataPointer = NULL;
     FWPS_BIND_REQUEST *bindRequest = NULL;
     FWPS_CONNECT_REQUEST *connectRequest = NULL;
-    WINDSCRIBE_CALLOUT_DATA_V6 *calloutData = (WINDSCRIBE_CALLOUT_DATA_V6 *)filter->providerContext->dataBuffer->data;
+    WINDSCRIBE_CALLOUT_DATA_V6 *calloutData = getCalloutDataV6(filter);
 
-    if (!layerData || !classifyContext || !(classifyOut->rights & FWPS_RIGHT_ACTION_WRITE)) {
+    if (!calloutData || !layerData || !classifyContext || !(classifyOut->rights & FWPS_RIGHT_ACTION_WRITE)) {
         return;
     }
 
@@ -260,13 +307,24 @@ ClassifyFnV6(
     }
 
     if (inFixedValues->layerId == FWPS_LAYER_ALE_CONNECT_REDIRECT_V6) {
+        // See the v4 path: skip reauthorize before entering the modify path.
+        if (inFixedValues->incomingValue[FWPS_FIELD_ALE_CONNECT_REDIRECT_V6_FLAGS].value.uint32 & FWP_CONDITION_FLAG_IS_REAUTHORIZE) {
+            goto cleanup;
+        }
+
         FWP_BYTE_ARRAY16 *remoteIp = inFixedValues->incomingValue[FWPS_FIELD_ALE_CONNECT_REDIRECT_V6_IP_REMOTE_ADDRESS].value.byteArray16;
         if (isV6AddressInExclusionList(remoteIp->byteArray16, calloutData)) {
             KdPrintEx((DPFLTR_IHVDRIVER_ID, DPFLTR_INFO_LEVEL, "WindscribeSplitTunnel: skipped v6 (local range)\n"));
             goto cleanup;
         }
+    } else if (inFixedValues->layerId == FWPS_LAYER_ALE_BIND_REDIRECT_V6) {
+        if (inFixedValues->incomingValue[FWPS_FIELD_ALE_BIND_REDIRECT_V6_FLAGS].value.uint32 & FWP_CONDITION_FLAG_IS_REAUTHORIZE) {
+            goto cleanup;
+        }
     }
 
+    // All "skip" checks must run before this point: a successful acquire obliges us to call
+    // FwpsApplyModifiedLayerData, and that may be done only once per acquired layer data.
     status = FwpsAcquireWritableLayerDataPointer(classifyHandle, filter->filterId, 0, &dataPointer, classifyOut);
     if (status != STATUS_SUCCESS) {
         KdPrintEx((DPFLTR_IHVDRIVER_ID, DPFLTR_INFO_LEVEL, "WindscribeSplitTunnel: FwpsAcquireWritableLayerDataPointer (v6) failed\n"));
@@ -294,10 +352,6 @@ ClassifyFnV6(
         }
 
     } else if (inFixedValues->layerId == FWPS_LAYER_ALE_BIND_REDIRECT_V6) {
-        if (inFixedValues->incomingValue[FWPS_FIELD_ALE_BIND_REDIRECT_V6_FLAGS].value.uint32 & FWP_CONDITION_FLAG_IS_REAUTHORIZE) {
-            goto cleanup;
-        }
-
         bindRequest = (FWPS_BIND_REQUEST *)dataPointer;
 
         UINT32 timesRedirected = 0;

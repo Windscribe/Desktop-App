@@ -55,6 +55,8 @@ private slots:
 
     // ConnectedDnsInfo
     void testConnectedDnsInfo_badUpstream1();
+    void testConnectedDnsInfo_badTlsUpstream();
+    void testConnectedDnsInfo_tlsPersistence();
     void testConnectedDnsInfo_capHostnames();
     void testConnectedDnsInfo_filtersInvalidHostnames();
     void testConnectedDnsInfo_normalizesUnspecifiedUpstream();

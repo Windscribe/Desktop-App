@@ -1,7 +1,7 @@
 #pragma once
 
 #include <QObject>
-#include <QMap>
+#include <QHash>
 
 class ConnectedUsersCounter : public QObject
 {
@@ -9,8 +9,7 @@ class ConnectedUsersCounter : public QObject
 public:
     explicit ConnectedUsersCounter(QObject *parent);
     void newUserConnected(const QString &hostname);
-    void userDiconnected(const QString &hostname);
-    void reset();
+    void userDisconnected(const QString &hostname);
 
     int getConnectedUsersCount();
 
@@ -18,9 +17,8 @@ signals:
     void usersCountChanged();
 
 private:
-    enum { MAX_NOT_ACTIVITY_TIME = 10000 };
-    QMap<QString, int> connections_;
-    int lastCnt_;
+    QHash<QString, int> connections_;
+    int lastCnt_ = 0;
 
     void checkUsersCount();
 };

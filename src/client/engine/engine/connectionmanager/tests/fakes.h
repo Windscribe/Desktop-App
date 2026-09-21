@@ -12,7 +12,7 @@
 #include "engine/connectionmanager/connectors/iconnectionplatformpolicy.h"
 #include "engine/connectionmanager/connectors/openvpn/openvpnsessionparams.h"
 #include "engine/connectionmanager/connectors/wireguard/wireguardsessionparams.h"
-#include "engine/connectionmanager/isleepevents.h"
+#include "engine/sleepevents/isleepevents.h"
 #include "engine/dns/ctrldmanager/ictrldmanager.h"
 #include "engine/helper/ihelperbackend.h"
 #include "engine/locationsmodel/baselocationinfo.h"

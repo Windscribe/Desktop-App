@@ -1,13 +1,14 @@
 #pragma once
 
+#include "engine/helper/helper.h"
+#include "engine/networkdetectionmanager/inetworkdetectionmanager.h"
 #include "imacaddresscontroller.h"
-#include "../NetworkDetectionManager/networkdetectionmanager_win.h"
 
 class MacAddressController_win : public IMacAddressController
 {
     Q_OBJECT
 public:
-    MacAddressController_win(QObject *parent, NetworkDetectionManager_win *ndManager);
+    MacAddressController_win(QObject *parent, INetworkDetectionManager *ndManager, Helper *helper);
     ~MacAddressController_win() override;
 
     void initMacAddrSpoofing(const types::MacAddrSpoofing &macAddrSpoofing) override;
@@ -25,7 +26,12 @@ private:
     types::MacAddrSpoofing macAddrSpoofing_;
     types::NetworkInterface lastNetworkInterface_;
 
-    NetworkDetectionManager_win* const networkDetectionManager_;
+    INetworkDetectionManager* const networkDetectionManager_;
+    Helper *helper_;
+
+    void applyMacAddressSpoof(int ifIndex, const QString &macAddress);
+    void removeMacAddressSpoof(int ifIndex);
+    void resetAdapter(int ifIndex);
 
     void checkMacSpoofAppliedCorrectly();
 };

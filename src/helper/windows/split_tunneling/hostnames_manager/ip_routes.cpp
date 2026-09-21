@@ -38,6 +38,70 @@ ULONG getInterfaceMetric(unsigned long ifIndex, ADDRESS_FAMILY family)
     return interfaceRow.Metric;
 }
 
+// True when the row is directly attached (unspecified next hop).
+bool isOnLink(const MIB_IPFORWARD_ROW2 &row)
+{
+    static const IN6_ADDR kZeroV6 = {};
+    if (row.NextHop.si_family == AF_INET)
+        return row.NextHop.Ipv4.sin_addr.S_un.S_addr == 0;
+    if (row.NextHop.si_family == AF_INET6)
+        return std::memcmp(&row.NextHop.Ipv6.sin6_addr, &kZeroV6, sizeof(kZeroV6)) == 0;
+    return false;
+}
+
+bool isInterfaceConnected(unsigned long ifIndex, ADDRESS_FAMILY family)
+{
+    MIB_IPINTERFACE_ROW interfaceRow;
+    std::memset(&interfaceRow, 0, sizeof(interfaceRow));
+    interfaceRow.Family = family;
+    interfaceRow.InterfaceIndex = ifIndex;
+    return GetIpInterfaceEntry(&interfaceRow) == NO_ERROR && interfaceRow.Connected;
+}
+
+types::IpAddressRange toRange(const IP_ADDRESS_PREFIX &prefix)
+{
+    if (prefix.Prefix.si_family == AF_INET) {
+        return types::IpAddressRange(
+            types::IpAddress(types::IpAddress::IPv4,
+                             reinterpret_cast<const uint8_t *>(&prefix.Prefix.Ipv4.sin_addr), 4),
+            static_cast<uint8_t>(prefix.PrefixLength));
+    }
+    if (prefix.Prefix.si_family == AF_INET6) {
+        return types::IpAddressRange(
+            types::IpAddress(types::IpAddress::IPv6,
+                             reinterpret_cast<const uint8_t *>(&prefix.Prefix.Ipv6.sin6_addr), 16),
+            static_cast<uint8_t>(prefix.PrefixLength));
+    }
+    return types::IpAddressRange();
+}
+
+// Destinations the OS can already reach without a gateway over a live interface.
+// Windows resolves equal-prefix routes by effective metric (RouteMetric + InterfaceMetric), and the
+// exclusion rows below carry the physical interface metric in both terms, so they can outrank a
+// directly attached subnet's on-link row (metric 256 + interface metric) and hijack its traffic.
+std::set<types::IpAddressRange> collectOnLinkPrefixes()
+{
+    std::set<types::IpAddressRange> result;
+    static const ADDRESS_FAMILY kFamilies[] = { AF_INET, AF_INET6 };
+    for (const ADDRESS_FAMILY family : kFamilies) {
+        PMIB_IPFORWARD_TABLE2 table = nullptr;
+        if (GetIpForwardTable2(family, &table) != NO_ERROR || table == nullptr) {
+            spdlog::warn("IpRoutes: GetIpForwardTable2(family={}) failed", static_cast<int>(family));
+            continue;
+        }
+        for (ULONG i = 0; i < table->NumEntries; ++i) {
+            const MIB_IPFORWARD_ROW2 &row = table->Table[i];
+            if (!isOnLink(row) || !isInterfaceConnected(row.InterfaceIndex, family))
+                continue;
+            const auto dest = toRange(row.DestinationPrefix);
+            if (dest.isValid())
+                result.insert(dest);
+        }
+        FreeMibTable(table);
+    }
+    return result;
+}
+
 } // namespace
 
 IpRoutes::IpRoutes()
@@ -47,9 +111,15 @@ IpRoutes::IpRoutes()
 void IpRoutes::setIps(const types::IpAddress &gatewayIp,
                       const types::IpAddress &gatewayIpV6,
                       unsigned long ifIndex,
-                      const std::vector<types::IpAddressRange> &ips)
+                      const std::vector<types::IpAddressRange> &ips,
+                      bool isExclude)
 {
     std::lock_guard<std::recursive_mutex> guard(mutex_);
+
+    // Fetched lazily: only exclude mode can collide with an existing on-link route, and only
+    // when there is at least one new destination to install.
+    bool haveOnLinkPrefixes = false;
+    std::set<types::IpAddressRange> onLinkPrefixes;
 
     // Cache per-family metric — fetched lazily on first need.
     bool haveMetricV4 = false, haveMetricV6 = false;
@@ -87,6 +157,17 @@ void IpRoutes::setIps(const types::IpAddress &gatewayIp,
     for (const auto &ip : ipsSet) {
         if (activeRoutes_.find(ip) != activeRoutes_.end())
             continue;
+
+        if (isExclude) {
+            if (!haveOnLinkPrefixes) {
+                onLinkPrefixes = collectOnLinkPrefixes();
+                haveOnLinkPrefixes = true;
+            }
+            if (onLinkPrefixes.count(ip) != 0) {
+                spdlog::info("IpRoutes::setIps(), {} is directly attached, keeping the existing on-link route", ip.toString());
+                continue;
+            }
+        }
 
         // Pick the right gateway for this destination's family.
         const types::IpAddress *gw = nullptr;

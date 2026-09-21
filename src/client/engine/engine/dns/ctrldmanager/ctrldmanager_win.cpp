@@ -5,6 +5,7 @@
 #include "engine/connectionmanager/connectors/openvpn/availableport.h"
 #include "utils/executable_signature/executable_signature.h"
 #include "utils/log/logger.h"
+#include "utils/networkingvalidation.h"
 #include "utils/winutils.h"
 #include "utils/ws_assert.h"
 
@@ -48,9 +49,9 @@ bool CtrldManager_win::runProcess(const QString &upstream1, const QString &upstr
 
     args << "run";
     args << "--listen=" + ip + ":53";
-    args << "--primary_upstream=" + addWsSuffix(upstream1);
+    args << "--primary_upstream=" + NetworkingValidation::ctrldUpstream(upstream1);
     if (!upstream2.isEmpty()) {
-        args << "--secondary_upstream=" + addWsSuffix(upstream2);
+        args << "--secondary_upstream=" + NetworkingValidation::ctrldUpstream(upstream2);
         if (!domains.isEmpty()) {
             args << "--domains=" + domains.join(',');
         }
@@ -108,8 +109,11 @@ void CtrldManager_win::onReadyReadStandardOutput()
     };
 }
 
-void CtrldManager_win::onProcessErrorOccurred(QProcess::ProcessError /*error*/)
+void CtrldManager_win::onProcessErrorOccurred(QProcess::ProcessError error)
 {
+    if (error == QProcess::Crashed && !bProcessStarted_) {
+        return;
+    }
     qCWarning(LOG_CTRLD) << "ctrld process error:" << process_->errorString();
 }
 
@@ -147,4 +151,3 @@ void CtrldManager_win::terminateAppCtrldProcesses()
     process.start(taskkillPath, QStringList() << "/f" << "/t" << "/im" << WS_PRODUCT_NAME_LOWER "ctrld.exe");
     process.waitForFinished(2000);
 }
-

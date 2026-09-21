@@ -1,6 +1,6 @@
-#include <QtTest>
-
 #include "networkingvalidation.test.h"
+
+#include <QtTest>
 
 void TestNetworkingValidation::testIsValidMacAddress()
 {
@@ -328,6 +328,8 @@ void TestNetworkingValidation::testIsCtrldCorrectAddress()
     QVERIFY(NetworkingValidation::isCtrldCorrectAddress("dns.example.com"));
     QVERIFY(NetworkingValidation::isCtrldCorrectAddress("https://cloudflare-dns.com/dns-query"));
     QVERIFY(NetworkingValidation::isCtrldCorrectAddress("sdns://AgMAAAAAAAAACjEuMS4xLjE"));
+    QVERIFY(NetworkingValidation::isCtrldCorrectAddress("sdns://AgMAAAAAAAAACjEuMS4xLjE-_"));
+    QVERIFY(!NetworkingValidation::isCtrldCorrectAddress("sdns://AgMAAAAAAAAACjEuMS4xLjE="));
 
     QVERIFY(!NetworkingValidation::isCtrldCorrectAddress(""));
     QVERIFY(!NetworkingValidation::isCtrldCorrectAddress("abc;rm -rf"));
@@ -335,6 +337,39 @@ void TestNetworkingValidation::testIsCtrldCorrectAddress()
     QVERIFY(!NetworkingValidation::isCtrldCorrectAddress(QString("https://cloudflare-dns.com/dns-query\n")));
     QVERIFY(!NetworkingValidation::isCtrldCorrectAddress(QString("sdns://AgMAAAAAAAAACjEuMS4xLjE\n")));
     QVERIFY(!NetworkingValidation::isCtrldCorrectAddress(QString("dns.example.com\n")));
+}
+
+void TestNetworkingValidation::testCtrldUpstream()
+{
+    const QList<QPair<QString, QString>> accepted = {{"tls://dns.quad9.net", "dns.quad9.net"},
+                                                     {"tls://dns.quad9.net:853", "dns.quad9.net"},
+                                                     {"TLS://dns.quad9.net", "dns.quad9.net"},
+                                                     {"tls://dns.quad9.net:443", "dns.quad9.net:443"},
+                                                     {"tls://dns.quad9.net:0853", "dns.quad9.net"},
+                                                     {"tls://dns.quad9.net:00443", "dns.quad9.net:443"}};
+    for (const auto &[input, endpoint] : accepted) {
+        QVERIFY2(NetworkingValidation::isCtrldCorrectAddress(input), qPrintable(input));
+        QCOMPARE(NetworkingValidation::ctrldTlsEndpoint(input), endpoint);
+        QCOMPARE(NetworkingValidation::ctrldUpstream(input), endpoint);
+    }
+    for (const QString &input : {QString("tls://"), QString("tls://9.9.9.9"), QString("tls://9.9.9.9:853"),
+                                 QString("tls://[2620:fe::fe]:853"), QString("tls://dns.quad9.net:0"),
+                                 QString("tls://dns.quad9.net:65536"), QString("tls://dns.quad9.net:"),
+                                 QString("tls://dns.quad9.net:853:853"), QString("tls://dns.quad9.net/"),
+                                 QString("tls://user@dns.quad9.net"), QString("tls://dns.quad9.net?x=1"),
+                                 QString("tls://dns.quad9.net#fragment"), QString("tls://dns.quad9.net\n"),
+                                 QString("tls://dns.quad9.net:853\n"), QString(" tls://dns.quad9.net"),
+                                 QString("tls://dns.quad9.net") + QChar(0)}) {
+        QVERIFY2(!NetworkingValidation::isCtrldCorrectAddress(input), qPrintable(input));
+        QVERIFY(NetworkingValidation::ctrldTlsEndpoint(input).isEmpty());
+    }
+    for (const QString &input : {QString(), QString("dns.quad9.net"), QString("9.9.9.9"),
+                                 QString("https://dns.quad9.net/dns-query"), QString("sdns://AgMAAAAAAAAACjEuMS4xLjE")}) {
+        QCOMPARE(NetworkingValidation::ctrldUpstream(input), input);
+    }
+    QCOMPARE(NetworkingValidation::ctrldUpstream("https://dns.controld.com/abcd"), QString("https://dns.controld.com/abcd?int=ws"));
+    QCOMPARE(NetworkingValidation::ctrldUpstream("2620:fe::fe"), QString("[2620:fe::fe]:53"));
+    QCOMPARE(NetworkingValidation::ctrldUpstream("::1"), QString("[::1]:53"));
 }
 
 QTEST_MAIN(TestNetworkingValidation)

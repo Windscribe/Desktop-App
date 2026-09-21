@@ -633,7 +633,9 @@ void Engine::initPart2()
     ReachAbilityEvents::instance().init();
 #endif
 
-    networkDetectionManager_ = CrossPlatformObjectFactory::createNetworkDetectionManager(this, helper_);
+    // Owned by the ConnectionManager built below, which reparents it; both consumers only subscribe.
+    ISleepEvents *sleepEvents = CrossPlatformObjectFactory::createSleepEvents(this);
+    networkDetectionManager_ = CrossPlatformObjectFactory::createNetworkDetectionManager(this, helper_, sleepEvents);
 
     DnsServersConfiguration::instance().setDnsServersPolicy(engineSettings_.dnsPolicy());
     WSNet::instance()->dnsResolver()->setDnsServers(DnsServersConfiguration::instance().getCurrentDnsServers());
@@ -733,7 +735,7 @@ void Engine::initPart2()
     connectionManager_ = new ConnectionManager(this, networkDetectionManager_, dnsConfigurator_,
                                                new ConnectionFactory(helper_), new ConnectionPlatformPolicy(helper_),
                                                new ConnectionAttemptStrategyFactory(),
-                                               CrossPlatformObjectFactory::createSleepEvents(nullptr));
+                                               sleepEvents);
     connectionManager_->setPacketSize(packetSize_);
     connectionManager_->setFirewallAlwaysOnPlusEnabled(engineSettings_.firewallSettings().mode == FIREWALL_MODE_ALWAYS_ON_PLUS);
 
@@ -814,14 +816,11 @@ void Engine::initPart2()
     // Connect system extension state change signal
     connect(SystemExtensions_mac::instance(), &SystemExtensions_mac::stateChanged, this, &Engine::onSystemExtensionStateChanged);
 
-    // The manager emits this when the proxy session dies while the cached extension state still reads
-    // active -- ambiguous between a provider crash and a System Settings disable the cache hasn't caught
-    // up to.  Surface MAC_EXTENSION_NOT_ENABLED for both: it's the actionable message (re-enabling also
-    // restarts a crashed provider) and matches the system-extension-state path, so an overlap shows one
-    // message.  Queued from the macOS main thread; `this` context drops the connection on destruction.
-    connect(&SplitTunnelExtensionManager::instance(), &SplitTunnelExtensionManager::startFailed, this, [this]() {
+    // Preserve the distinction between a failed start and a session that stopped after starting.
+    connect(&SplitTunnelExtensionManager::instance(), &SplitTunnelExtensionManager::startFailed, this,
+            [this](SPLIT_TUNNEL_START_FAIL_REASON reason) {
         if (SplitTunnelExtensionManager::instance().isActive()) {
-            emit splitTunnelingStartFailed(SPLIT_TUNNEL_START_FAIL_REASON_MAC_EXTENSION_NOT_ENABLED);
+            emit splitTunnelingStartFailed(reason);
         }
     }, Qt::QueuedConnection);
 #endif
@@ -3235,7 +3234,8 @@ void Engine::onSystemExtensionStateChanged(SystemExtensions_mac::SystemExtension
             SplitTunnelExtensionManager::instance().resetManager();
         }
         if (isConnected && SplitTunnelExtensionManager::instance().isActive()) {
-            emit splitTunnelingStartFailed(SPLIT_TUNNEL_START_FAIL_REASON_MAC_EXTENSION_NOT_ENABLED);
+            emit splitTunnelingStartFailed(newState == SystemExtensions_mac::Inactive
+                ? SPLIT_TUNNEL_START_FAIL_REASON_MAC_EXTENSION_NOT_ENABLED : SPLIT_TUNNEL_START_FAIL_REASON_DEFAULT);
         }
     }
     // PendingUserApproval is not a failure: the user is mid-approval, so neither start nor turn off.

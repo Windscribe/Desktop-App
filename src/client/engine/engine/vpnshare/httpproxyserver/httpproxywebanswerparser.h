@@ -1,29 +1,29 @@
 #pragma once
 
-#include "utils/boost_includes.h"
+#include <QByteArray>
+#include "httpproxyheader.h"  // for shared is_char/is_ctl/etc.
 #include "httpproxywebanswer.h"
-#include "httpproxyrequestparser.h"
 
 namespace HttpProxyServer {
 
 class HttpProxyWebAnswerParser
 {
 public:
-    HttpProxyWebAnswerParser();
+    enum class Result { Complete, Incomplete, Malformed, TooLarge };
 
-    TRI_BOOL parse(const QByteArray &arr, quint32 &outParsed);
+    // maxBytes bounds what is accumulated before parse() gives up with TooLarge; the owner decides the limit.
+    explicit HttpProxyWebAnswerParser(int maxBytes);
+
+    Result parse(const QByteArray &arr, quint32 &outParsed);
 
     HttpProxyWebAnswer &getAnswer() { return answer_; }
 
 private:
     HttpProxyWebAnswer answer_;
+    const int maxBytes_;
+    int consumedBytes_ = 0;
 
-    TRI_BOOL consume(char input);
-
-    static bool is_char(int c);
-    static bool is_ctl(int c);
-    static bool is_tspecial(int c);
-    static bool is_digit(int c);
+    Result consume(char input);
 
     enum state
     {

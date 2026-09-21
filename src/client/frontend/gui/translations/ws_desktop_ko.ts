@@ -586,6 +586,14 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
 <context>
     <name>MainWindow</name>
     <message>
+        <source>Split Tunneling Stopped</source>
+        <translation>분할 터널링 중지됨</translation>
+    </message>
+    <message>
+        <source>The split tunneling session ended unexpectedly. Please reconnect to retry. If this persists, please contact support.</source>
+        <translation>분할 터널링 세션이 예기치 않게 종료되었습니다. 다시 연결하여 재시도하세요. 문제가 지속되면 지원팀에 문의하세요.</translation>
+    </message>
+    <message>
         <source>Logging you in...</source>
         <translation>로그인 중...</translation>
     </message>

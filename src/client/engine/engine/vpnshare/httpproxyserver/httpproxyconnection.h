@@ -3,13 +3,17 @@
 #include <QHostAddress>
 #include <QObject>
 #include <QTcpSocket>
+#include <QTimer>
 #include <memory>
 #include <wsnet/WSNet.h>
-#include "httpproxyrequestparser.h"
-#include "httpproxywebanswerparser.h"
-#include "httpproxyreply.h"
 #include "../proxyauthconfig.h"
 #include "../socketutils/socketwriteall.h"
+#include "httpproxyheader.h"      // for HttpProxyHeader (used in auth challenge)
+#include "httpproxyreply.h"
+#include "httpproxyrequestparser.h"
+#include "httpproxywebanswerparser.h"
+
+class TestProxyServers;
 
 namespace HttpProxyServer {
 
@@ -19,8 +23,6 @@ class HttpProxyConnection : public QObject
 public:
     explicit HttpProxyConnection(qintptr socketDescriptor, const QString &hostname,
                                  const ProxyAuth::Config &auth, QObject *parent = nullptr);
-
-    bool start(qintptr socketDescriptor);
 
 public slots:
     void start();
@@ -49,7 +51,11 @@ private:
 
     const char *reply_established_ = "HTTP/1.0 200 Connection established\r\nProxy-agent: " WS_PRODUCT_NAME "\r\n\r\n";
 
-    enum { READ_CLIENT_REQUEST, RESOLVING_DESTINATION, CONNECTING_TO_EXTERNAL_SERVER, RELAY_BETWEEN_CLIENT_SERVER, READ_HEADERS_FROM_WEBSERVER, STATE_WRITE_HTTP_ERROR } state_;
+    enum State {
+        READ_CLIENT_REQUEST, RESOLVING_DESTINATION, CONNECTING_TO_EXTERNAL_SERVER,
+        RELAY_BETWEEN_CLIENT_SERVER, RELAY_DRAINING, READ_HEADERS_FROM_WEBSERVER, STATE_WRITE_HTTP_ERROR
+    };
+    State state_;
     HttpProxyRequestParser requestParser_;
     HttpProxyWebAnswerParser webAnswerParser_;
 
@@ -64,7 +70,15 @@ private:
 
     bool bAlreadyClosedAndEmitFinished_;
     quint64 preRelayBytes_ = 0;
+    QTimer *phaseTimer_ = nullptr;
+    static int phaseTimeoutMs_;
+
+    friend class ::TestProxyServers;
+
     void closeSocketsAndEmitFinished();
+    void setState(State newState);
+    void relayClientToUpstream();
+    void relayUpstreamToClient();
 
     bool sendChallenge();
     void writeError(HttpProxyReply::status_type status);

@@ -16,6 +16,8 @@ public:
     static bool isIpOrDomain(const QString &str);
     static bool isIpCidrOrDomain(const QString &str);
     static bool isCtrldCorrectAddress(const QString &str);
+    static QString ctrldTlsEndpoint(const QString &str);
+    static QString ctrldUpstream(const QString &str);
 
     static bool isValidIpForCidr(const QString &str);
     static bool isLocalIp(const QString &str);

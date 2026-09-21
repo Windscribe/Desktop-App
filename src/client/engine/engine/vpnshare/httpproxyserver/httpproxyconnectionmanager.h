@@ -1,35 +1,21 @@
 #pragma once
 
-#include <QObject>
-#include <QMap>
+#include "../proxyconnectionmanager.h"
 #include "httpproxyconnection.h"
-#include "../connecteduserscounter.h"
-#include "../proxyauthconfig.h"
 
 namespace HttpProxyServer {
 
-class HttpProxyConnectionManager : public QObject
+class HttpProxyConnectionManager : public ProxyServer::ProxyConnectionManager
 {
     Q_OBJECT
 public:
     explicit HttpProxyConnectionManager(QObject *parent, int threadsCount, ConnectedUsersCounter *usersCounter);
 
-public:
-    void newConnection(qintptr socketDescriptor, const ProxyAuth::Config &auth);
-    void closeAllConnections();
-    void stop();
+    void newConnection(qintptr socketDescriptor, const QString &peer, const ProxyAuth::Config &auth);
 
 private slots:
     void onConnectionFinished(const QString &hostname);
 
-private:
-    QMap<QThread *, quint32> threads_;
-    QMap<HttpProxyConnection *, QThread *> connections_;
-    ConnectedUsersCounter *usersCounter_;
-
-    QThread *getLessBusyThread();
-    void addConnectionToThread(QThread *thread, HttpProxyConnection *connection);
-    void dumpThreads();
 };
 
 } // namespace HttpProxyServer

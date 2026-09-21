@@ -586,6 +586,14 @@ Jika Anda kehilangan hash akun, itu akan hilang selamanya dan dukungan tidak dap
 <context>
     <name>MainWindow</name>
     <message>
+        <source>Split Tunneling Stopped</source>
+        <translation>Terowongan Terpisah Dihentikan</translation>
+    </message>
+    <message>
+        <source>The split tunneling session ended unexpectedly. Please reconnect to retry. If this persists, please contact support.</source>
+        <translation>Sesi terowongan terpisah berakhir secara tidak terduga. Silakan sambungkan kembali untuk mencoba lagi. Jika masalah berlanjut, silakan hubungi dukungan.</translation>
+    </message>
+    <message>
         <source>Logging you in...</source>
         <translation>Memasukkan Anda...</translation>
     </message>

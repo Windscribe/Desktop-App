@@ -586,6 +586,14 @@ Si vous perdez le hachage de votre compte, il disparaît à jamais et le support
 <context>
     <name>MainWindow</name>
     <message>
+        <source>Split Tunneling Stopped</source>
+        <translation>Split tunneling arrêté</translation>
+    </message>
+    <message>
+        <source>The split tunneling session ended unexpectedly. Please reconnect to retry. If this persists, please contact support.</source>
+        <translation>La session de split tunneling s’est terminée de manière inattendue. Veuillez vous reconnecter pour réessayer. Si le problème persiste, veuillez contacter le support.</translation>
+    </message>
+    <message>
         <source>Logging you in...</source>
         <translation>En vous connectant...</translation>
     </message>

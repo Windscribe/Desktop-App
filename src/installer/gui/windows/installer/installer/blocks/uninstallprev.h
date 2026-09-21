@@ -4,6 +4,8 @@
 
 #include "../iinstall_block.h"
 
+namespace wsl { class ServiceControlManager; }
+
 class UninstallPrev : public IInstallBlock
 {
 public:
@@ -21,6 +23,8 @@ private:
     std::wstring removeQuotes(const std::wstring &str) const;
     void doFactoryReset() const;
     void stopService() const;
+    bool terminateService(wsl::ServiceControlManager &scm) const;
+    bool killProcess(DWORD processId, const std::wstring &expectedImagePath, int waitMs) const;
     int taskKill(const std::wstring &exeName) const;
     void terminateProtocolHandlers() const;
 };

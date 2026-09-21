@@ -3,6 +3,7 @@
 #include <QDeadlineTimer>
 #include <QSettings>
 
+#include <chrono>
 #include <filesystem>
 #include <shlobj_core.h>
 #include <windows.h>
@@ -20,6 +21,61 @@
 #include "win32handle.h"
 
 using namespace std;
+
+/*
+Enables or disables SeDebugPrivilege for this process, reporting through wasEnabled whether it was
+already enabled so the caller can put the token back exactly as it found it.
+
+Windows gives a service process a DACL that grants Administrators query access only - 0x1400,
+PROCESS_QUERY_INFORMATION | PROCESS_QUERY_LIMITED_INFORMATION - so an elevated installer cannot
+open the helper for PROCESS_TERMINATE on the DACL alone.  SeDebugPrivilege bypasses that check; it
+is present but disabled in an elevated token, hence this call.  taskkill /f does the same thing.
+
+Enabling grants this process nothing it could not already grant itself - any code running at high
+integrity can enable a privilege its token already holds - but the enabled state is inherited by
+child processes, and this block goes on to launch the previous install's uninstaller.  So the
+caller holds it across the OpenProcess call and no longer.
+*/
+static bool setDebugPrivilege(bool enable, bool *wasEnabled = NULL)
+{
+    wsl::Win32Handle token;
+    if (!::OpenProcessToken(::GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, token.data())) {
+        spdlog::warn("OpenProcessToken failed ({}).", ::GetLastError());
+        return false;
+    }
+
+    TOKEN_PRIVILEGES privileges = {};
+    privileges.PrivilegeCount = 1;
+    privileges.Privileges[0].Attributes = (enable ? SE_PRIVILEGE_ENABLED : 0);
+    if (!::LookupPrivilegeValue(NULL, SE_DEBUG_NAME, &privileges.Privileges[0].Luid)) {
+        spdlog::warn("LookupPrivilegeValue for SeDebugPrivilege failed ({}).", ::GetLastError());
+        return false;
+    }
+
+    TOKEN_PRIVILEGES previous = {};
+    DWORD previousSize = sizeof(previous);
+    const BOOL adjusted = ::AdjustTokenPrivileges(token.getHandle(), FALSE, &privileges, sizeof(privileges),
+                                                  &previous, &previousSize);
+    // AdjustTokenPrivileges reports success when it assigns nothing, so the last error has to be
+    // checked as well.
+    const DWORD lastError = ::GetLastError();
+    if (!adjusted || lastError == ERROR_NOT_ALL_ASSIGNED) {
+        spdlog::warn("Could not {} SeDebugPrivilege ({}).", (enable ? "enable" : "disable"), lastError);
+        return false;
+    }
+
+    if (wasEnabled != NULL) {
+        // PreviousState only carries the privileges the call actually modified, so an empty one
+        // means the token already held SeDebugPrivilege in the state we asked for.  A LocalSystem
+        // token - an Intune or SCCM deployment - has it enabled from the start and lands here;
+        // reading that as "was disabled" would have the caller disable what it did not enable.
+        *wasEnabled = (previous.PrivilegeCount == 0)
+                          ? enable
+                          : ((previous.Privileges[0].Attributes & SE_PRIVILEGE_ENABLED) != 0);
+    }
+
+    return true;
+}
 
 UninstallPrev::UninstallPrev(bool isFactoryReset, double weight) : IInstallBlock(weight, L"UninstallPrev"),
     state_(0), isFactoryReset_(isFactoryReset)
@@ -271,15 +327,199 @@ void UninstallPrev::doFactoryReset() const
     }
 }
 
+/*
+Stops the helper and does not return until it is stopped, the escalation below has run, or both have
+failed.  The uninstaller we launch next deletes the service, and the Service block after it creates
+the replacement; both fail (ERROR_SERVICE_MARKED_FOR_DELETE) against a helper that is still winding
+down, which the user sees as HELPER_INSTALL.
+*/
 void UninstallPrev::stopService() const
 {
+    // The helper's stop is cooperative: it does not acknowledge the SCM until the command it is
+    // executing returns, and some of those (netsh, WMI, ICS) have no bound of their own.  The wait
+    // below is what a healthy but busy teardown needs; anything past it is a helper we cannot talk
+    // our way out of, so we take the process down instead of proceeding against a live service.
+    constexpr int kStopTimeoutMs = 20000;
+
+    const wstring serviceName = ApplicationInfo::serviceName();
+
     try {
         wsl::ServiceControlManager scm;
-        scm.stopService(ApplicationInfo::serviceName().c_str());
+        scm.openSCM(SC_MANAGER_CONNECT);
+
+        if (!scm.isServiceInstalled(serviceName.c_str())) {
+            spdlog::info(L"The {} service is not installed; nothing to stop.", serviceName);
+            return;
+        }
+
+        // SERVICE_QUERY_CONFIG so the escalation can name the helper binary for its taskkill fallback.
+        scm.openService(serviceName.c_str(), SERVICE_QUERY_CONFIG | SERVICE_QUERY_STATUS | SERVICE_STOP);
+
+        error_code ec;
+        const DWORD stateBefore = scm.queryServiceStatus(ec);
+        spdlog::info("The helper is {} before the stop request.",
+                     wsl::ServiceControlManager::serviceStatusToString(stateBefore));
+
+        const auto started = std::chrono::steady_clock::now();
+        const auto elapsedMs = [&started]() {
+            return std::chrono::duration_cast<std::chrono::milliseconds>(
+                       std::chrono::steady_clock::now() - started).count();
+        };
+
+        // Succeeds for a helper that is already stopped, one we stop here, and one somebody else
+        // is already stopping - the last of which used to return immediately without waiting.
+        if (scm.stopService(ec, kStopTimeoutMs)) {
+            spdlog::info("The helper is stopped ({} ms).", elapsedMs());
+            return;
+        }
+
+        error_code stateEc;
+        const DWORD stateAfter = scm.queryServiceStatus(stateEc);
+        spdlog::error("The helper did not stop within {} ms - {} ({}).  It is now {}.",
+                      elapsedMs(), ec.message(), ec.value(),
+                      wsl::ServiceControlManager::serviceStatusToString(stateAfter));
+
+        // The stop is cooperative, so the helper can acknowledge the SCM just after our wait gives
+        // up.  A stopped helper is all the callers need; the escalation below has no process left
+        // to work with and would report a live helper against one that is already gone.
+        if (!stateEc && stateAfter == SERVICE_STOPPED) {
+            spdlog::warn("The helper stopped on its own just after the wait expired ({} ms).", elapsedMs());
+            return;
+        }
+
+        wsl::ServiceControlManager::logServiceStatusAndConfig(serviceName.c_str(), true,
+                                                              [](const std::string &message) {
+            spdlog::error("stopService: {}", message);
+        });
+
+        if (terminateService(scm)) {
+            spdlog::warn("The helper had to be terminated to stop it ({} ms).", elapsedMs());
+            return;
+        }
+
+        // The logging and the escalation above each take time the helper can use to finish its
+        // stop, so the verdict below is only worth printing against what the SCM says now.
+        const DWORD stateFinal = scm.queryServiceStatus(stateEc);
+        if (!stateEc && stateFinal == SERVICE_STOPPED) {
+            spdlog::warn("The helper stopped on its own while we were terminating it ({} ms).", elapsedMs());
+            return;
+        }
+
+        // Nothing left to try here.  We still run the uninstall: the blocks that follow delete and
+        // recreate the service and have waits of their own, so an install that can still succeed
+        // should not be abandoned at this point.  The lines above name the reason if it does not.
+        spdlog::error("Proceeding with the uninstall against a helper that is still running."
+                      "  The service replacement may fail.");
     }
     catch (system_error& ex) {
         spdlog::error("UninstallPrev::stopService {} ({})", ex.what(), ex.code().value());
     }
+}
+
+/*
+Last resort for a helper that will not acknowledge the SCM: kill the process hosting it.  The SCM
+moves the service to SERVICE_STOPPED once the process is gone, which is all the uninstaller and the
+Service block need.  Returns true only once the SCM confirms that.
+*/
+bool UninstallPrev::terminateService(wsl::ServiceControlManager &scm) const
+{
+    constexpr int kTerminateTimeoutMs = 5000;
+
+    error_code ec;
+    const DWORD processId = scm.queryServiceProcessId(ec);
+    if (processId == 0) {
+        if (ec) {
+            spdlog::error("Could not identify the helper process to terminate - {} ({}).", ec.message(), ec.value());
+        }
+        else {
+            // The SCM attributes no process to a service it considers stopped, so this is the same
+            // late stop the caller checks for - not a failure, and not something to log as one.
+            spdlog::warn("The SCM no longer attributes a process to the helper; nothing to terminate.");
+        }
+        return false;
+    }
+
+    // Named from the SCM's own record of the binary rather than assembled from the service name,
+    // so both the identity check and the fallback still target the right image if the two ever
+    // diverge.
+    const wstring imagePath = removeQuotes(scm.exePath());
+    const wstring exeName = Path::extractName(imagePath);
+    spdlog::warn(L"Terminating the helper process {} ({}).", exeName, processId);
+
+    // taskkill runs as its own elevated process and enables SeDebugPrivilege for itself, so it is
+    // worth a try even when we could not do the same here.  It matches on the image name, so it
+    // cannot hit an unrelated process the way a stale pid could.
+    if (!killProcess(processId, imagePath, kTerminateTimeoutMs)) {
+        spdlog::warn(L"Falling back to taskkill for {}.", exeName);
+        if (exeName.empty() || taskKill(exeName) != NO_ERROR) {
+            return false;
+        }
+    }
+
+    // Process death and the SCM's bookkeeping are not simultaneous; the callers that follow read
+    // the SCM, so that is what we have to see settle.
+    if (!scm.waitForServiceStopped(ec, kTerminateTimeoutMs)) {
+        spdlog::error("The helper process was terminated but the service is still not stopped - {} ({}).",
+                      ec.message(), ec.value());
+        return false;
+    }
+
+    return true;
+}
+
+/*
+Terminates processId, but only after confirming through the handle that it really is the helper,
+and waits up to waitMs for it to go away.  Returns false without logging an error for anything the
+taskkill fallback in the caller can still recover from.
+*/
+bool UninstallPrev::killProcess(DWORD processId, const wstring &expectedImagePath, int waitMs) const
+{
+    bool wasEnabled = false;
+    const bool adjusted = setDebugPrivilege(true, &wasEnabled);
+
+    wsl::Win32Handle process(::OpenProcess(PROCESS_TERMINATE | SYNCHRONIZE | PROCESS_QUERY_LIMITED_INFORMATION,
+                                           FALSE, processId));
+    const DWORD openError = ::GetLastError();
+
+    // Back to how we found it, before anything else runs and certainly before this block launches
+    // the previous install's uninstaller, which would otherwise inherit the enabled privilege.
+    if (adjusted && !wasEnabled) {
+        setDebugPrivilege(false);
+    }
+
+    if (!process.isValid()) {
+        spdlog::warn("Could not open the helper process {} ({}).", processId, openError);
+        return false;
+    }
+
+    // The pid came from the SCM moments ago and the helper is in the middle of stopping, so it may
+    // well have exited and had its pid reused since.  Terminating with SeDebugPrivilege in hand is
+    // not something to do to a process we have not identified.  The handle pins whatever we opened,
+    // so reading the image through it settles the identity for good.
+    wchar_t imagePath[MAX_PATH] = {};
+    DWORD imagePathLength = ARRAYSIZE(imagePath);
+    if (!::QueryFullProcessImageName(process.getHandle(), 0, imagePath, &imagePathLength)) {
+        spdlog::warn("Could not read the image path of process {} ({}).", processId, ::GetLastError());
+        return false;
+    }
+
+    if (::_wcsicmp(imagePath, expectedImagePath.c_str()) != 0) {
+        spdlog::warn(L"Process {} is {}, not the helper ({}); leaving it alone.",
+                     processId, imagePath, expectedImagePath);
+        return false;
+    }
+
+    if (!::TerminateProcess(process.getHandle(), 1)) {
+        const DWORD lastError = ::GetLastError();
+        // The helper may have finished its teardown on its own between the query above and here.
+        // A process that is already gone is the outcome we wanted, whatever the call reported.
+        if (process.wait(0) != WAIT_OBJECT_0) {
+            spdlog::warn("Could not terminate the helper process {} ({}).", processId, lastError);
+            return false;
+        }
+    }
+
+    return (process.wait(waitMs) == WAIT_OBJECT_0);
 }
 
 bool UninstallPrev::extractUninstaller() const

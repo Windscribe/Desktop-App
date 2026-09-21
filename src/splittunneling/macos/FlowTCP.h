@@ -11,6 +11,10 @@ NS_ASSUME_NONNULL_BEGIN
 {
     NSMutableDictionary<NSValue *, nw_connection_t> *activeConnections_;  // Maps NEAppProxyTCPFlow -> nw_connection_t
     Settings *settings_;
+    // activeConnections_ is reached from the connection's main-queue callbacks and from flow completions
+    // on other queues, so every access is serialised under @synchronized(self).  stopped_ (same lock)
+    // rejects new connections once cleanup has run.
+    BOOL stopped_;
 }
 
 - (instancetype)init;

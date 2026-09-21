@@ -2,7 +2,7 @@ if(NOT TARGET wsnet::wsnet)
     include(FetchContent)
     FetchContent_Declare(wsnet
         GIT_REPOSITORY https://github.com/Windscribe/wsnet.git
-        GIT_TAG        1.5.32
+        GIT_TAG        1.5.34.1
     )
     set(IS_BUILD_TESTS OFF)
     FetchContent_MakeAvailable(wsnet)

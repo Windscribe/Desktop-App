@@ -156,6 +156,45 @@ bool NetworkingValidation::isCtrldCorrectAddress(const QString &str)
     return isIp(str) || isDomain(str) || isValidUrlForCtrld(str);
 }
 
+QString NetworkingValidation::ctrldTlsEndpoint(const QString &str)
+{
+    if (!str.startsWith("tls://", Qt::CaseInsensitive)) {
+        return {};
+    }
+    QString hostname = str.mid(6);
+    int port = 853;
+    const int colon = hostname.indexOf(QLatin1Char(':'));
+    if (colon >= 0) {
+        // A port is a digits-only bounded number, which is exactly what the prefix parser checks.
+        port = parsePrefix(hostname.mid(colon + 1), 65535);
+        hostname.truncate(colon);
+    }
+    // ctrld infers plain DNS from IP literals, so only hostnames can safely lose the TLS scheme.
+    if (!isValidPort(port) || !isDomain(hostname)) {
+        return {};
+    }
+    // ctrld assumes 853 for a bare hostname, so only a different port is passed along.
+    return port == 853 ? hostname : hostname + QLatin1Char(':') + QString::number(port);
+}
+
+// If user supplies DoH resolver that's on *.controld.com, append ?int=ws to the URI when making queries.
+// ie. user spplies: https://dns.controld.com/abcd12344 -> send queries to https://dns.controld.com/abcd12344?int=ws
+QString NetworkingValidation::ctrldUpstream(const QString &upstream)
+{
+    const QString tlsEndpoint = ctrldTlsEndpoint(upstream);
+    if (!tlsEndpoint.isEmpty()) {
+        return tlsEndpoint;
+    }
+    // ctrld treats a bare IPv6 literal as a hostname; only the bracketed host:port form is a plain resolver.
+    if (isIpv6(upstream)) {
+        return "[" + upstream + "]:53";
+    }
+    if (upstream.contains("https://", Qt::CaseInsensitive) && upstream.contains("controld.com", Qt::CaseInsensitive)) {
+        return upstream + "?int=ws";
+    }
+    return upstream;
+}
+
 bool NetworkingValidation::isValidIpForCidr(const QString &str)
 {
     const int slashPos = str.indexOf(QLatin1Char('/'));
@@ -255,8 +294,8 @@ bool NetworkingValidation::isUnspecifiedIp(const QString &str)
 bool NetworkingValidation::isValidUrlForCtrld(const QString &str)
 {
     QRegularExpression httpsRegex(QRegularExpression::anchoredPattern("((https|h3):\\/)\\/?([^:\\/\\s]+)((\\/\\w+)*\\/)([\\w\\-\\.]+[^#?\\s]+)(.*)?(#[\\w\\-]+)?"));
-    QRegularExpression sdnsRegex(QRegularExpression::anchoredPattern("sdns:\\/\\/[A-Za-z0-9]+"));
-    return httpsRegex.match(str).hasMatch() || sdnsRegex.match(str).hasMatch();
+    QRegularExpression sdnsRegex(QRegularExpression::anchoredPattern("sdns:\\/\\/[A-Za-z0-9_-]+"));
+    return httpsRegex.match(str).hasMatch() || sdnsRegex.match(str).hasMatch() || !ctrldTlsEndpoint(str).isEmpty();
 }
 
 bool NetworkingValidation::isReservedIp(const QString &str)

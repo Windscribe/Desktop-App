@@ -308,9 +308,26 @@ void Uninstaller::UninstallHelper()
         wsl::ServiceControlManager svcCtrl;
         svcCtrl.openSCM(SC_MANAGER_ALL_ACCESS);
 
-        if (svcCtrl.isServiceInstalled(serviceName.c_str())) {
-            svcCtrl.deleteService(serviceName.c_str());
+        if (!svcCtrl.isServiceInstalled(serviceName.c_str())) {
+            spdlog::info("The Windscribe service is not installed; nothing to remove.");
+            return;
         }
+
+        // The error_code overload marks the service for deletion even when it cannot be stopped
+        // first, then waits for the SCM to drop it.  A helper that is wedged in its shutdown must
+        // not cost us the deletion: leaving the service registered is what makes the next install
+        // fail with ERROR_SERVICE_MARKED_FOR_DELETE or ERROR_SERVICE_EXISTS.
+        error_code ec;
+        if (!svcCtrl.deleteService(serviceName.c_str(), ec)) {
+            spdlog::warn("WARNING: failed to delete the Windscribe service - {} ({})", ec.message(), ec.value());
+            wsl::ServiceControlManager::logServiceStatusAndConfig(serviceName.c_str(), false,
+                                                                  [](const std::string &message) {
+                spdlog::warn("UninstallHelper: {}", message);
+            });
+            return;
+        }
+
+        spdlog::info("The Windscribe service was removed.");
     }
     catch (system_error& ex) {
         spdlog::warn("WARNING: failed to delete the Windscribe service - {}", ex.what());

@@ -1,10 +1,15 @@
 #pragma once
 
 #include <atomic>
+#include <functional>
 #include <memory>
+
 #include <QtCore/QObject>
 #include <QtCore/QString>
 #include <QtCore/QStringList>
+
+#include "systemextensions_mac.h"
+#include "types/enums.h"
 
 class SplitTunnelExtensionManager : public QObject
 {
@@ -15,6 +20,7 @@ public:
     // String parameters are taken by value (cheap, implicitly shared) so the internal blocks capture
     // their own copies.
     void startExtension(QString primaryInterface, QString vpnInterface);
+    // An explicit stop permits retrying a failed session.
     void stopExtension();
     // Call when the OS reports the extension disabled/removed in System Settings: stop the session and
     // drop the now-stale cached manager so the next start reloads a fresh configuration from preferences.
@@ -24,18 +30,18 @@ public:
     void setSplitTunnelSettings(bool isActive, bool isExclude, QStringList bundleIds, QStringList ips, QStringList hostnames);
 
 signals:
-    // Emitted (from the macOS main thread) when an attempted start is given up internally -- the start
-    // API failed, or a watchdog-confirmed dead session -- while the OS extension itself is present and
-    // active.  The engine connects this with a queued connection and surfaces it via
-    // splitTunnelingStartFailed, which alerts the user and disables the feature in the UI.
-    void startFailed();
+    // Session termination preserves the preference and waits for the next VPN connection to retry.
+    void startFailed(SPLIT_TUNNEL_START_FAIL_REASON reason);
 
 private:
-    SplitTunnelExtensionManager();
+    friend class TestSplitTunnelExtensionManager;
+    using StateQuery = std::function<void(SystemExtensions_mac::StateCallback)>;
+    explicit SplitTunnelExtensionManager(StateQuery query = SystemExtensions_mac::queryFreshState);
     ~SplitTunnelExtensionManager();
     SplitTunnelExtensionManager(const SplitTunnelExtensionManager&) = delete;
     SplitTunnelExtensionManager& operator=(const SplitTunnelExtensionManager&) = delete;
 
+    void confirmSessionEnded(void *session);
     void reconcile();
     void setupManager();
     void dropManager();
@@ -48,4 +54,5 @@ private:
     // Held behind a pointer so this header stays plain C++ (State holds Objective-C objects).
     struct State;
     std::unique_ptr<State> state_;
+    StateQuery queryState_;
 };

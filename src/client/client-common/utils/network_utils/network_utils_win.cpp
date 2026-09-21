@@ -318,7 +318,7 @@ static QString networkNameFromInterfaceGUID(QString adapterGUID)
     return result;
 }
 
-static bool isNetworkUnidentified(const QString &adapterGUID)
+bool NetworkUtils_win::isNetworkUnidentified(const QString &adapterGUID)
 {
     CComPtr<INetwork> pNetwork;
     if (FAILED(networkForInterfaceGUID(adapterGUID, pNetwork)) || !pNetwork) {
@@ -354,7 +354,7 @@ static bool isRowUsableForAppVpn(const IfTable2Row &row)
     case IF_TYPE_IEEE80216_WMAN:
     case IF_TYPE_WWANPP:
     case IF_TYPE_WWANPP2:
-        if (isNetworkUnidentified(row.interfaceGuid)) {
+        if (NetworkUtils_win::isNetworkUnidentified(row.interfaceGuid)) {
             return false;
         }
         break;

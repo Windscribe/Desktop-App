@@ -58,8 +58,6 @@ namespace Utils
     // get list of openvpn exe names from package
     std::vector<std::string> getOpenVpnExeNames();
 
-    void createAppUserAndGroup();
-
     // check if the app has been uninstalled
     bool isAppUninstalled();
 

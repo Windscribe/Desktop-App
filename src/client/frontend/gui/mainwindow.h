@@ -4,26 +4,27 @@
 #include <QSystemTrayIcon>
 #include <QWidget>
 #include <QWidgetAction>
-#include "generalmessagecontroller.h"
-#include "mainwindowcontroller.h"
 
-#include "locationswindow/locationswindow.h"
+#include "api_responses/checkupdate.h"
+#include "api_responses/robertfilter.h"
 #include "backend/backend.h"
-#include "localipcserver/localipcserver.h"
 #include "backend/notificationscontroller.h"
+#include "blockconnect.h"
+#include "dialogs/advancedparametersdialog.h"
+#include "freetrafficnotificationcontroller.h"
+#include "generalmessagecontroller.h"
+#include "graphicresources/iconmanager.h"
+#include "localipcserver/localipcserver.h"
+#include "locations/model/selectedlocation.h"
+#include "locationswindow/locationswindow.h"
 #include "log/logviewerwindow.h"
 #include "loginattemptscontroller.h"
+#include "mainwindowcontroller.h"
 #include "multipleaccountdetection/imultipleaccountdetection.h"
-#include "blockconnect.h"
-#include "freetrafficnotificationcontroller.h"
-#include "graphicresources/iconmanager.h"
-#include "trayicon.h"
-#include "dialogs/advancedparametersdialog.h"
-#include "locations/model/selectedlocation.h"
-#include "api_responses/robertfilter.h"
-#include "api_responses/checkupdate.h"
 #include "protocolwindow/protocolwindowmode.h"
 #include "sounds/soundmanager.h"
+#include "splittunnelfailurepolicy.h"
+#include "trayicon.h"
 
 #if defined(Q_OS_MACOS)
 #include "permissions/permissionmonitor_mac.h"
@@ -305,6 +306,7 @@ private slots:
 #endif
 
 private:
+    SplitTunnelFailurePolicy splitTunnelFailurePolicy_;
     void gotoWelcomeWindow();
     void gotoLoginWindow();
     void gotoLogoutWindow();

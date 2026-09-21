@@ -28,7 +28,7 @@ void HostnamesManager::enable(const types::IpAddress &gatewayIp,
         gatewayIpV6_ = gatewayIpV6;
         ifIndex_ = ifIndex;
         ipRoutes_.clear();
-        ipRoutes_.setIps(gatewayIp_, gatewayIpV6_, ifIndex_, ipsLatest_);
+        ipRoutes_.setIps(gatewayIp_, gatewayIpV6_, ifIndex_, ipsLatest_, isExcludeMode_);
         FirewallFilter::instance().setSplitTunnelingWhitelistIps(ipsLatest_);
         // Mirror to CalloutFilter (see setV6WhitelistIps for the mode-specific v6 handling)
         // so manual IP/range entries apply before DNS resolution finishes; resolved
@@ -105,7 +105,7 @@ void HostnamesManager::dnsResolverCallback(std::map<std::string, DnsResolver::Ho
     hostsIps.insert(hostsIps.end(), ipsLatest_.begin(), ipsLatest_.end());
 
     if (isEnabled_) {
-        ipRoutes_.setIps(gatewayIp_, gatewayIpV6_, ifIndex_, hostsIps);
+        ipRoutes_.setIps(gatewayIp_, gatewayIpV6_, ifIndex_, hostsIps, isExcludeMode_);
         FirewallFilter::instance().setSplitTunnelingWhitelistIps(hostsIps);
         if (calloutFilter_) {
             calloutFilter_->setV6WhitelistIps(hostsIps);

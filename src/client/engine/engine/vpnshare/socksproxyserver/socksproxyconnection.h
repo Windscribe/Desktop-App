@@ -4,15 +4,17 @@
 #include <QList>
 #include <QObject>
 #include <QTcpSocket>
+#include <QTimer>
 #include <memory>
 #include <wsnet/WSNet.h>
 
-#include "socksstructs.h"
-#include "socksproxyreadexactly.h"
-#include "socksproxyidentreqparser.h"
 #include "../proxyauthconfig.h"
 #include "../socketutils/socketwriteall.h"
 #include "socksproxycommandparser.h"
+#include "socksproxyidentreqparser.h"
+#include "socksstructs.h"
+
+class TestProxyServers;
 
 namespace SocksProxyServer {
 
@@ -22,8 +24,6 @@ class SocksProxyConnection : public QObject
 public:
     explicit SocksProxyConnection(qintptr socketDescriptor, const QString &hostname,
                                   const ProxyAuth::Config &auth, QObject *parent = nullptr);
-
-    bool start(qintptr socketDescriptor);
 
 public slots:
     void start();
@@ -35,8 +35,6 @@ signals:
 private slots:
     void onSocketDisconnected();
     void onSocketReadyRead();
-
-    /*void onSocketAllDataWritten();*/
 
     void onExternalSocketConnected();
     void onExternalSocketDisconnected();
@@ -51,7 +49,11 @@ private:
     QString hostname_;
     ProxyAuth::Config auth_;
 
-    enum { READ_IDENT_REQ, READ_AUTH, READ_COMMANDS, RESOLVING_DESTINATION, CONNECT_TO_HOST, RELAY_BETWEEN_CLIENT_SERVER } state_;
+    enum State {
+        READ_IDENT_REQ, READ_AUTH, READ_COMMANDS, RESOLVING_DESTINATION, CONNECT_TO_HOST, RELAY_BETWEEN_CLIENT_SERVER,
+        RELAY_DRAINING, WRITE_FINAL_REPLY
+    };
+    State state_;
 
     QByteArray socketReadArr_;
     SocketWriteAll *writeAllSocket_;
@@ -59,11 +61,14 @@ private:
 
     SocksProxyIdentReqParser identReqParser_;
     SocksProxyCommandParser commandParser_;
-    QScopedPointer<SocksProxyReadExactly> readExactly_;
 
     std::shared_ptr<wsnet::WSNetCancelableCallback> dnsLookupCancelable_;
 
     bool bAlreadyClosedAndEmitFinished_;
+    QTimer *phaseTimer_ = nullptr;
+    static int phaseTimeoutMs_;
+
+    friend class ::TestProxyServers;
 
     QByteArray getByteArrayFromSocks5Resp(const socks5_resp &resp);
 
@@ -72,6 +77,10 @@ private:
     void handleCommandRequest();
     void connectExternal(const QHostAddress &addr, quint16 port);
     void sendReply(quint8 reply);
+    void writeFinalReply(const QByteArray &reply);
+    void setState(State newState);
+    void relayClientToUpstream();
+    void relayUpstreamToClient();
 
 };
 

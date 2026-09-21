@@ -40,6 +40,9 @@ namespace NetworkUtils_win
 
     QString currentNetworkInterfaceGuid();
 
+    // Returns true if the network is still in the identifying or unidentified state (NLA).
+    bool isNetworkUnidentified(const QString &adapterGUID);
+
     // OS identity of the network the given adapter is connected to. Returns nullopt when there is no
     // answer: the query failed or the adapter has no connection in the OS network list.
     std::optional<QString> networkIdFromInterfaceGuid(const QString &adapterGuid);

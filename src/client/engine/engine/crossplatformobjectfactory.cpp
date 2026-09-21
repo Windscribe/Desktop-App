@@ -2,22 +2,22 @@
 #include "utils/log/logger.h"
 
 #ifdef Q_OS_WIN
-    #include "connectionmanager/sleepevents_win.h"
     #include "connectivitydiagnostic/connectivitydiagnosticcollector_win.h"
     #include "dns/ctrldmanager/ctrldmanager_win.h"
     #include "firewall/firewallcontroller_win.h"
     #include "helper/helperbackend_win.h"
     #include "macaddresscontroller/macaddresscontroller_win.h"
     #include "networkdetectionmanager/networkdetectionmanager_win.h"
+    #include "sleepevents/sleepevents_win.h"
 
 #elif defined Q_OS_MACOS
-    #include "connectionmanager/sleepevents_mac.h"
     #include "connectivitydiagnostic/connectivitydiagnosticcollector_mac.h"
     #include "dns/ctrldmanager/ctrldmanager_posix.h"
     #include "firewall/firewallcontroller_mac.h"
     #include "helper/helperbackend_mac.h"
     #include "macaddresscontroller/macaddresscontroller_mac.h"
     #include "networkdetectionmanager/networkdetectionmanager_mac.h"
+    #include "sleepevents/sleepevents_mac.h"
 #elif defined Q_OS_LINUX
     #include "connectivitydiagnostic/connectivitydiagnosticcollector_linux.h"
     #include "dns/ctrldmanager/ctrldmanager_posix.h"
@@ -52,13 +52,17 @@ FirewallController *CrossPlatformObjectFactory::createFirewallController(QObject
 
 }
 
-INetworkDetectionManager *CrossPlatformObjectFactory::createNetworkDetectionManager(QObject *parent, Helper *helper)
+INetworkDetectionManager *CrossPlatformObjectFactory::createNetworkDetectionManager(QObject *parent, Helper *helper,
+                                                                                    ISleepEvents *sleepEvents)
 {
 #ifdef Q_OS_WIN
-    return new NetworkDetectionManager_win(parent, helper);
+    Q_UNUSED(helper);
+    return new NetworkDetectionManager_win(parent, sleepEvents);
 #elif defined Q_OS_MACOS
+    Q_UNUSED(sleepEvents);
     return new NetworkDetectionManager_mac(parent, helper);
 #elif defined Q_OS_LINUX
+    Q_UNUSED(sleepEvents);
     return new NetworkDetectionManager_linux(parent, helper);
 #endif
 }
@@ -66,8 +70,7 @@ INetworkDetectionManager *CrossPlatformObjectFactory::createNetworkDetectionMana
 IMacAddressController *CrossPlatformObjectFactory::createMacAddressController(QObject *parent, INetworkDetectionManager *ndManager, Helper *helper)
 {
 #ifdef Q_OS_WIN
-    Q_UNUSED(helper);
-    return new MacAddressController_win(parent, static_cast<NetworkDetectionManager_win*>(ndManager));
+    return new MacAddressController_win(parent, ndManager, helper);
 #elif defined Q_OS_MACOS
     return new MacAddressController_mac(parent, static_cast<NetworkDetectionManager_mac*>(ndManager), helper);
 #elif defined Q_OS_LINUX

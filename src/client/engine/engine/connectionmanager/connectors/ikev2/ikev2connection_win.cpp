@@ -65,6 +65,9 @@ void IKEv2Connection_win::startConnect()
     initialEnableIkev2Compression_ = ExtraConfig::instance().isUseIkev2Compression();
 
     ::ResetEvent(stopThreadEvent_.getHandle());
+    // Auto-reset, so a notification that arrived during the previous teardown would otherwise still be
+    // latched and fire the monitor loop immediately on this connect.
+    ::ResetEvent(notifyEvent_.getHandle());
 
     start(LowPriority);
 }
@@ -145,9 +148,9 @@ void IKEv2Connection_win::run()
             if (res == MonitorResult::AuthError) {
                 emit error(ConnectError::kAuthFailure);
             } else if (res == MonitorResult::Failed) {
-                // Drop detection could not be armed for the just-established tunnel or a transient connection failure occurred.
-                // Fail over rather than give up.  The engine drives its own disconnect for this (non-auth) error, but the extra
-                // disconnected() below is harmless -- see the teardown note at the tail.
+                // A transient connection failure occurred.  Fail over rather than give up.  The engine drives
+                // its own disconnect for this (non-auth) error, but the extra disconnected() below is
+                // harmless -- see the teardown note at the tail.
                 emit error(ConnectError::kTransientTunnelFailure);
             }
             break;
@@ -355,16 +358,16 @@ IKEv2Connection_win::MonitorResult IKEv2Connection_win::monitorLoop()
             return MonitorResult::Stop;
         } else if (result == WAIT_OBJECT_0 + 1) {
             // notifyEvent_ -- RasConnectionNotification fired.  It only says "something changed"; confirm
-            // the tunnel is actually down before reporting a drop, and otherwise re-arm.
-            if (isRasDisconnected(connHandle_)) {
+            // the tunnel is actually down before reporting a drop, and otherwise re-arm.  The registration
+            // is process-wide and survives a previous connection, so before we are connected this may be an
+            // unrelated RAS disconnect landing while connHandle_ is not yet committed -- which
+            // isRasDisconnected() cannot distinguish from a real drop.  Pre-connect failures come from the
+            // dial-state callbacks instead.
+            if (connectedSignalEmited_ && isRasDisconnected(connHandle_)) {
                 qCWarning(LOG_IKEV2) << "RasConnectionNotification indicates the connection has dropped";
                 return MonitorResult::Dropped;
             }
-            // Re-arm for the next event.  If we can no longer arm drop detection we have lost the
-            // ability to notice a future disconnect, so treat it as a drop.
-            if (!armDropDetection()) {
-                return MonitorResult::Dropped;
-            }
+            armDropDetection();
         } else if (result == WAIT_IO_COMPLETION) {
             // A dial-state APC ran on this thread (handleDialState).  It applies the connected transition
             // inline; for terminal outcomes it sets pendingResult_ for us to act on here.
@@ -378,6 +381,13 @@ IKEv2Connection_win::MonitorResult IKEv2Connection_win::monitorLoop()
                 return MonitorResult::Failed;
             }
         } else if (result == WAIT_TIMEOUT) {
+            // The notification is one-shot and may have failed to arm at all, so this poll -- not the
+            // event -- is what guarantees a drop is eventually noticed.  Only meaningful once connected;
+            // before that the dial-state callbacks report failures.
+            if (connectedSignalEmited_ && isRasDisconnected(connHandle_)) {
+                qCWarning(LOG_IKEV2) << "RasGetConnectStatus poll indicates the connection has dropped";
+                return MonitorResult::Dropped;
+            }
             emitStatistics();
         } else {
             qCCritical(LOG_IKEV2) << "WaitForMultipleObjectsEx failed:" << ::GetLastError();
@@ -386,16 +396,19 @@ IKEv2Connection_win::MonitorResult IKEv2Connection_win::monitorLoop()
     }
 }
 
-bool IKEv2Connection_win::armDropDetection()
+void IKEv2Connection_win::armDropDetection()
 {
-    // Without drop detection we cannot notice a future disconnect, so callers treat an arming failure
-    // as a connection failure rather than proceeding silently.
-    const DWORD err = RasConnectionNotification(connHandle_, notifyEvent_.getHandle(), RASCN_Disconnection);
+    // Registered for every RAS connection rather than for connHandle_: resolving a specific handle races
+    // with RasMan committing the just-established connection and fails with ERROR_NO_CONNECTION.  Either
+    // form only tells us "something changed", and callers confirm with isRasDisconnected() regardless, so
+    // the only cost is an occasional wake-up for an unrelated RAS connection.
+    //
+    // Purely a latency optimization over monitorLoop()'s periodic poll, so an arming failure is survivable
+    // and must not fail the connection.
+    const DWORD err = RasConnectionNotification(reinterpret_cast<HRASCONN>(INVALID_HANDLE_VALUE), notifyEvent_.getHandle(), RASCN_Disconnection);
     if (err != ERROR_SUCCESS) {
         qCWarning(LOG_IKEV2) << "RasConnectionNotification failed to arm drop detection:" << err;
-        return false;
     }
-    return true;
 }
 
 IKEv2Connection_win::ReinstallResult IKEv2Connection_win::handleReinstallWan()
@@ -519,12 +532,7 @@ void IKEv2Connection_win::handleDialState(HRASCONN connHandle, RASCONNSTATE rasc
         // Only the first transition into the connected state is interesting; ignore any repeats so we
         // never emit connected() twice.
         if (rascs == RASCS_Connected && !connectedSignalEmited_) {
-            // Arm asynchronous drop detection for the established tunnel.  If we cannot arm it we have
-            // no way to detect a future drop, so fail the connection instead of reporting it connected.
-            if (!armDropDetection()) {
-                pendingResult_ = PendingResult::ConnectFailed;
-                return;
-            }
+            armDropDetection();
             helper_->addIKEv2DefaultRoute();
             // A concurrent stop() on the engine thread may have signaled stopThreadEvent_ while we armed
             // drop detection / added the route above.  If so, abandon the connected transition rather than
@@ -658,8 +666,11 @@ void IKEv2Connection_win::blockingDisconnect(HRASCONN connHandle, bool alertable
     // in ConnectionManager::blockingDisconnect to ensure we exit here before the engine bails and starts
     // tearing the connector down.
     while (totalTimer.elapsed() < kBlockingDisconnectTimeoutMs) {
-        if (isRasDisconnected(connHandle)) {
-            qCInfo(LOG_IKEV2) << "IKEv2Connection_win::blockingDisconnect() - RasGetConnectStatus indicates we're disconnected";
+        // RASCS_Disconnected means the session is down, not that the RAS state machine has
+        // finished.  Reusing the phonebook entry before ERROR_INVALID_HANDLE can fail or crash
+        // RasSetEntryProperties on the reconnect that follows a drop.
+        if (isRasFullyTerminated(connHandle)) {
+            qCInfo(LOG_IKEV2) << "IKEv2Connection_win::blockingDisconnect() - RasGetConnectStatus indicates the connection is fully terminated";
             return;
         }
 
@@ -776,15 +787,35 @@ bool IKEv2Connection_win::isRasDisconnected(HRASCONN connHandle)
     RASCONNSTATUS status;
     memset(&status, 0, sizeof(status));
     status.dwSize = sizeof(status);
-    
+
     const DWORD result = RasGetConnectStatus(connHandle, &status);
     if (result == ERROR_INVALID_HANDLE || result == ERROR_NO_CONNECTION) {
         qCInfo(LOG_IKEV2) << "RasGetConnectStatus indicated disconnected via error code:" << result;
         return true;
-    } else if (result != ERROR_SUCCESS) {
+    }
+    if (result != ERROR_SUCCESS) {
         qCWarning(LOG_IKEV2) << "RasGetConnectStatus failed with error:" << result;
+        return false;
+    }
+    // A drop may be reported as a state on an otherwise valid handle rather than by invalidating it,
+    // so the error codes above alone are not enough for callers polling for liveness.
+    if (status.rasconnstate == RASCS_Disconnected) {
+        qCInfo(LOG_IKEV2) << "RasGetConnectStatus indicated disconnected via state, error:" << status.dwError;
+        return true;
     }
     return false;
+}
+
+bool IKEv2Connection_win::isRasFullyTerminated(HRASCONN connHandle)
+{
+    RASCONNSTATUS status;
+    memset(&status, 0, sizeof(status));
+    status.dwSize = sizeof(status);
+
+    // After RasHangUp, MSDN requires waiting until RasGetConnectStatus returns ERROR_INVALID_HANDLE
+    // before the phonebook entry can be reused.  RASCS_Disconnected and ERROR_NO_CONNECTION only
+    // mean the session dropped; the RAS state machine may still be tearing the port down.
+    return RasGetConnectStatus(connHandle, &status) == ERROR_INVALID_HANDLE;
 }
 
 bool IKEv2Connection_win::isRASRunning(Helper *helper)

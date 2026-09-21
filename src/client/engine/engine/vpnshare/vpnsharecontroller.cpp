@@ -12,6 +12,40 @@
 #include "utils/utils.h"
 #include "utils/ws_assert.h"
 
+#ifndef Q_OS_WIN
+#include <algorithm>
+#include <cerrno>
+#include <cstring>
+#include <sys/resource.h>
+#include <sys/select.h>
+#endif
+
+#ifndef Q_OS_WIN
+namespace {
+
+// Each relayed connection holds two descriptors and the default soft limit on macOS is 256, which the connection cap
+// alone could exhaust. FD_SETSIZE covers the cap with room to spare and keeps any select() user in the process safe.
+constexpr rlim_t kOpenFileTarget = FD_SETSIZE;
+
+void raiseOpenFileLimit()
+{
+    struct rlimit limit;
+    if (getrlimit(RLIMIT_NOFILE, &limit) != 0) {
+        return;
+    }
+    const rlim_t target = std::min(limit.rlim_max, kOpenFileTarget);
+    if (limit.rlim_cur >= target) {
+        return;
+    }
+    limit.rlim_cur = target;
+    if (setrlimit(RLIMIT_NOFILE, &limit) != 0) {
+        qCWarning(LOG_BASIC) << "Failed to raise the open file limit to" << target << ":" << strerror(errno);
+    }
+}
+
+}  // namespace
+#endif
+
 VpnShareController::VpnShareController(QObject *parent, Helper *helper, INetworkDetectionManager *networkDetectionManager) : QObject(parent),
     networkDetectionManager_(networkDetectionManager),
     httpProxyServer_(NULL),
@@ -113,6 +147,10 @@ void VpnShareController::startProxySharing(const types::ShareProxyGateway &setti
         emit proxySharingFailed(PROXY_SHARING_ERROR_MISSING_CREDENTIALS);
         return;
     }
+
+#ifndef Q_OS_WIN
+    raiseOpenFileLimit();
+#endif
 
     // Start the proxy sharing
     bool isStarted = false;

@@ -42,6 +42,7 @@ struct ConnectedDnsInfo
     void normalize();
 
     bool isCustomIPv4Address() const;
+    bool isSplitDnsActive() const;
 
     // IPs of ctrld upstreams that use plain DNS (:53) and therefore must be reachable through
     // DNS-leak protection. DoH/DoT (https:// / hostname) upstreams are excluded — they use :443 and

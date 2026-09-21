@@ -22,4 +22,5 @@ private slots:
     void testIsLocalIp();
     void testIsUnspecifiedIp();
     void testIsCtrldCorrectAddress();
+    void testCtrldUpstream();
 };

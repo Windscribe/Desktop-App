@@ -49,7 +49,12 @@ QList<CONNECTED_DNS_TYPE> ConnectedDnsInfo::allAvailableTypes()
 
 bool ConnectedDnsInfo::isCustomIPv4Address() const
 {
-    return type == CONNECTED_DNS_TYPE_CUSTOM && NetworkingValidation::isIp(upStream1) && isSplitDns == false;
+    return type == CONNECTED_DNS_TYPE_CUSTOM && NetworkingValidation::isIp(upStream1) && !isSplitDnsActive();
+}
+
+bool ConnectedDnsInfo::isSplitDnsActive() const
+{
+    return isSplitDns && !upStream2.isEmpty() && !hostnames.isEmpty();
 }
 
 QStringList ConnectedDnsInfo::ctrldPlainUpstreamIps() const
@@ -87,11 +92,9 @@ QStringList ConnectedDnsInfo::ctrldPlainUpstreamIps() const
     const QString ip1 = bareIp(upStream1);
     if (!ip1.isEmpty())
         ips << ip1;
-    if (isSplitDns) {
-        const QString ip2 = bareIp(upStream2);
-        if (!ip2.isEmpty())
-            ips << ip2;
-    }
+    const QString ip2 = isSplitDnsActive() ? bareIp(upStream2) : QString();
+    if (!ip2.isEmpty())
+        ips << ip2;
     return ips;
 }
 
@@ -209,8 +212,9 @@ void ConnectedDnsInfo::validate()
     }
     QStringList filtered;
     filtered.reserve(hostnames.size());
+    // A split-DNS rule is matched against query names, so an IP literal could never apply.
     for (const QString &h : hostnames) {
-        if (NetworkingValidation::isIp(h) || NetworkingValidation::isDomainWithWildcard(h)) {
+        if (NetworkingValidation::isDomainWithWildcard(h)) {
             filtered.append(h);
         } else {
             qCWarning(LOG_BASIC) << "ConnectedDnsInfo: dropping invalid split-DNS hostname";

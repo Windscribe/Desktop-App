@@ -11,9 +11,12 @@
 void LaunchOnStartup_linux::setLaunchOnStartup(bool enable)
 {
 #ifdef CLI_ONLY
-    int err = system("systemctl --user enable " WS_PRODUCT_NAME_LOWER);
+    const char *command = enable
+        ? "systemctl --user enable " WS_PRODUCT_NAME_LOWER
+        : "systemctl --user disable " WS_PRODUCT_NAME_LOWER;
+    int err = system(command);
     if (err != 0) {
-        qCWarning(LOG_BASIC) << "Could not enable user service for launch on startup";
+        qCWarning(LOG_BASIC) << "Could not update user service launch on startup state";
     }
 #else
     const QString destDir = QDir::homePath() + "/.config/autostart";

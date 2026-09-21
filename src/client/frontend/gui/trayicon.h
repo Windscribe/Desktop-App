@@ -41,10 +41,6 @@ public:
     QRect trayIconRect();
     void setLoggedIn(bool loggedIn);
     bool isTrayIconPositionAvailable() const;
-#if defined(Q_OS_MACOS)
-    void showTrayMenu();
-#endif
-
 signals:
     void activated(QSystemTrayIcon::ActivationReason reason);
     void connectClick();
@@ -67,6 +63,7 @@ private slots:
 private:
     void createMenuItems();
     void clearMenu();
+    void clearMenuTree(QMenu *menu);
     void updateTrayIconColor();
 
 #ifdef Q_OS_MACOS
@@ -101,7 +98,4 @@ private:
     bool trayIconPositionAvailable_;
     QRect initialTrayIconRect_;
     QElapsedTimer elapsedTimer_;
-#if defined(Q_OS_MACOS)
-    QElapsedTimer menuHideTimer_;
-#endif
 };

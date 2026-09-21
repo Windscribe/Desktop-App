@@ -4,12 +4,13 @@
 #include <errno.h>
 #include <filesystem>
 #include <grp.h>
+#include <spdlog/spdlog.h>
 #include <sstream>
 #include <sys/stat.h>
 #include <unistd.h>
 
-#include <spdlog/spdlog.h>
 #include "../common/io_posix.h"
+#include "appuser.h"
 #include "firewallcontroller.h"
 #include "ipc/helper_security.h"
 #include "process_command.h"
@@ -141,7 +142,7 @@ void Server::run()
         return;
     }
 
-    Utils::createAppUserAndGroup();
+    AppUser::createUserAndGroup();
 
     // Verified rather than assumed: a wrong owner or mode can arrive from outside the helper (an older
     // install, another installer) and cannot be repaired from here, so serve nothing instead.

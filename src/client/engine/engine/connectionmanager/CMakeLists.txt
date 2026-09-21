@@ -41,7 +41,6 @@ target_sources(engine PRIVATE
     attemptstrategy/iconnectionattemptstrategyfactory.h
     attemptstrategy/manualconnectionattemptstrategy.cpp
     attemptstrategy/manualconnectionattemptstrategy.h
-    isleepevents.h
 )
 
 if (WIN32)
@@ -52,8 +51,6 @@ if (WIN32)
         connectors/wireguard/wireguardconnection_win.h
         connectors/wireguard/wireguardringlogger.cpp
         connectors/wireguard/wireguardringlogger.h
-        sleepevents_win.cpp
-        sleepevents_win.h
     )
 elseif(APPLE)
     target_sources(engine PRIVATE
@@ -63,8 +60,6 @@ elseif(APPLE)
         connectors/ikev2/networkextensionlog_mac.h
         connectors/wireguard/wireguardconnection_posix.cpp
         connectors/wireguard/wireguardconnection_posix.h
-        sleepevents_mac.h
-        sleepevents_mac.mm
     )
 elseif(UNIX)
     target_sources(engine PRIVATE

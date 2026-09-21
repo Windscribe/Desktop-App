@@ -5,6 +5,7 @@
 #include "utils/boost_includes.h"
 #include "version/appversion.h"
 
+#include <ctype.h>
 #include <stdlib.h>
 
 #ifdef Q_OS_WIN
@@ -159,10 +160,10 @@ long HttpProxyRequest::getContentLength()
 std::string HttpProxyRequest::processClientHeaders()
 {
     std::string ret;
-    //todo: check buffer bounds
-    char buf[4096];
     bool isExistViaHeader = false;
     assert(!isConnectMethod());
+    const std::string via = std::to_string(http_version_major) + "." + std::to_string(http_version_minor) + " " WS_PRODUCT_NAME
+        " proxy (" + AppVersion::instance().version().toStdString() + "/" + AppVersion::instance().build().toStdString() + ")";
 
     for (auto it = headers.begin(); it != headers.end(); ++it)
     {
@@ -170,11 +171,7 @@ std::string HttpProxyRequest::processClientHeaders()
         {
             if (boost::iequals(it->name,"via"))
             {
-                int len = snprintf(buf, 4096, "Via: %s, %hu.%hu %s (%s/%s)\r\n",
-                        it->value.c_str(), http_version_major, http_version_minor, WS_PRODUCT_NAME " proxy", AppVersion::instance().version().toStdString().c_str(),
-                        AppVersion::instance().build().toStdString().c_str());
-                WS_ASSERT((unsigned int)len < sizeof(buf));
-                ret += buf;
+                ret += "Via: " + it->value + ", " + via + "\r\n";
                 isExistViaHeader = true;
             }
             else
@@ -186,11 +183,7 @@ std::string HttpProxyRequest::processClientHeaders()
 
     if (!isExistViaHeader)
     {
-        int len = snprintf(buf, 4096, "Via: %hu.%hu %s (%s/%s)\r\n",
-                http_version_major, http_version_minor, WS_PRODUCT_NAME " proxy", AppVersion::instance().version().toStdString().c_str(),
-                AppVersion::instance().build().toStdString().c_str());
-        WS_ASSERT((unsigned int)len < sizeof(buf));
-        ret += buf;
+        ret += "Via: " + via + "\r\n";
     }
 
     ret += "\r\n";
@@ -228,17 +221,23 @@ int HttpProxyRequest::extractUrl(const char *url, int default_port)
 
     // Find a proper port in www.site.com:8001 URLs
     int portRet = stripReturnPort(host);
+    if (portRet < 0)
+    {
+        return -1;
+    }
 
     port = (portRet != 0) ? portRet : default_port;
 
     // Remove any surrounding '[' and ']' from IPv6 literals
-    host.insert(host.begin(), '[');
-    host.insert(host.end(), ']');
-    p = strrchr ((char *)host.c_str(), ']');
-    if (p && (*(host.c_str()) == '['))
+    if (host.size() >= 2 && host.front() == '[' && host.back() == ']')
     {
-        host.erase(host.begin());
-        host.erase(host.end() - 1);
+        host = host.substr(1, host.size() - 2);
+    }
+
+    // A bare port or empty brackets leaves nothing to resolve.
+    if (host.empty())
+    {
+        return -1;
     }
 
     return 0;
@@ -270,7 +269,6 @@ int HttpProxyRequest::stripReturnPort(std::string &hostStr)
 {
     char *ptr1;
     char *ptr2;
-    int return_port;
 
     ptr1 = strrchr ((char *)hostStr.c_str(), ':');
     if (ptr1 == NULL)
@@ -286,14 +284,18 @@ int HttpProxyRequest::stripReturnPort(std::string &hostStr)
     }
 
     ptr1++;
-    if (sscanf (ptr1, "%d", &return_port) != 1)    // one conversion required
+    // Reject anything that is not a whole number in the TCP port range; a wrapped or defaulted port would
+    // silently send the request somewhere the client did not ask for.
+    char *end = nullptr;
+    const long return_port = strtol(ptr1, &end, 10);
+    if (!isdigit(static_cast<unsigned char>(*ptr1)) || *end != '\0' || return_port < 1 || return_port > 65535)
     {
-        return_port = 0;
+        return -1;
     }
 
     hostStr.erase(hostStr.rfind(':'));
 
-    return return_port;
+    return static_cast<int>(return_port);
 }
 
 bool HttpProxyRequest::shouldSkipHeader(const std::string &headerName)

@@ -59,6 +59,7 @@ set(PROJECT_SOURCES
     loginattemptscontroller.h
     mainwindow.cpp
     mainwindow.h
+    splittunnelfailurepolicy.h
     mainwindowcontroller.cpp
     mainwindowcontroller.h
     mainwindowstate.cpp

@@ -1,10 +1,9 @@
-#include <QtTest>
-
 #include "settingsvalidation.test.h"
 
 #include <QSettings>
 #include <QTemporaryDir>
 #include <QTemporaryFile>
+#include <QtTest>
 
 #include "types/backgroundsettings.h"
 #include "types/connecteddnsinfo.h"
@@ -385,6 +384,48 @@ void TestSettingsValidation::testConnectedDnsInfo_badUpstream1()
     QCOMPARE(dns.type, CONNECTED_DNS_TYPE_AUTO);
 }
 
+void TestSettingsValidation::testConnectedDnsInfo_badTlsUpstream()
+{
+    types::ConnectedDnsInfo dns;
+    dns.type = CONNECTED_DNS_TYPE_CUSTOM;
+    dns.upStream1 = "tls://9.9.9.9";
+    dns.validate();
+    QVERIFY(dns.upStream1.isEmpty());
+    QCOMPARE(dns.type, CONNECTED_DNS_TYPE_AUTO);
+
+    types::ConnectedDnsInfo split;
+    split.type = CONNECTED_DNS_TYPE_CUSTOM;
+    split.isSplitDns = true;
+    split.upStream1 = "tls://dns.quad9.net";
+    split.upStream2 = "tls://[2620:fe::fe]:853";
+    split.hostnames = QStringList{"example.com"};
+    split.validate();
+    QCOMPARE(split.upStream1, QString("tls://dns.quad9.net"));
+    QVERIFY(split.upStream2.isEmpty());
+    QCOMPARE(split.type, CONNECTED_DNS_TYPE_CUSTOM);
+}
+
+void TestSettingsValidation::testConnectedDnsInfo_tlsPersistence()
+{
+    types::ConnectedDnsInfo dns;
+    dns.type = CONNECTED_DNS_TYPE_CUSTOM;
+    dns.isSplitDns = true;
+    dns.upStream1 = "tls://dns.quad9.net";
+    dns.upStream2 = "tls://dns.quad9.net:443";
+    dns.hostnames = QStringList{"example.com"};
+    {
+        types::EngineSettings settings;
+        settings.setConnectedDnsInfo(dns);
+        settings.saveToSettings();
+    }
+    types::EngineSettings reloaded;
+    QVERIFY(reloaded.loadFromSettings());
+    const types::ConnectedDnsInfo saved = reloaded.connectedDnsInfo();
+    QVERIFY(saved == dns);
+    QVERIFY(!saved.isCustomIPv4Address());
+    QVERIFY(saved.ctrldPlainUpstreamIps().isEmpty());
+}
+
 void TestSettingsValidation::testConnectedDnsInfo_capHostnames()
 {
     types::ConnectedDnsInfo dns;
@@ -407,7 +448,7 @@ void TestSettingsValidation::testConnectedDnsInfo_filtersInvalidHostnames()
     dns.hostnames = QStringList{"valid.example.com", "abc;rm -rf", "1.2.3.4", "another bad one"};
     dns.validate();
     QVERIFY(dns.hostnames.contains("valid.example.com"));
-    QVERIFY(dns.hostnames.contains("1.2.3.4"));
+    QVERIFY(!dns.hostnames.contains("1.2.3.4"));
     QVERIFY(!dns.hostnames.contains("abc;rm -rf"));
     QVERIFY(!dns.hostnames.contains("another bad one"));
 }

@@ -29,7 +29,8 @@ private:
         domain_name,
         address_ipv4,
         address_ipv6,
-        port
+        port,
+        done
     } state_;
 
     unsigned int bytesReaded_;

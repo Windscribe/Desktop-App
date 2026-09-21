@@ -152,7 +152,9 @@ void GeneralMessageController::showNext()
         window->setShowUsername(!(message->flags & GeneralMessage::kNoUsername));
         window->setShowPassword(true);
         window->setAcceptText(message->acceptText, true);
-        window->setUsername(message->username);
+        if (!(message->flags & GeneralMessage::kNoUsername)) {
+            window->setUsername(message->username);
+        }
     } else {
         window->setShowUsername(false);
         window->setShowPassword(false);

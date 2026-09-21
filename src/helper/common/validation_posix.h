@@ -103,9 +103,8 @@ bool isValidUapiKeyField(const char *fieldName, const std::string &value);
 // macOS WireGuard communicators before the values are written as newline-delimited UAPI records.
 bool isValidAmneziawgObfuscationFields(const AmneziawgConfig &config);
 
-// Normalize an address string (IP, domain, or URL).
-// Returns the address unchanged if it's a valid IPv4 or domain;
-// otherwise attempts to parse and serialize as a URL.
+// Normalize an address string. IPv4, domain, domain:port and [ipv6]:port are returned unchanged;
+// anything else is parsed and re-serialized as a URL.
 // Returns "" if the input is none of the above.
 std::string normalizeAddress(const std::string &address);
 

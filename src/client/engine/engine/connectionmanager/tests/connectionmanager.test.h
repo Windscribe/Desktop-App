@@ -124,6 +124,8 @@ private slots:
     void testDnsCtrldKilledOnUserDisconnect();
     void testDnsCtrldKilledOnReconnect();
     void testDnsSplitDnsPassesUpstreamsAndHostnames();
+    void testDnsIncompleteSplitDns_data();
+    void testDnsIncompleteSplitDns();
     void testDnsDohUpstreamQueries();
     void testConnectorErrorWhileStoppingIsInert();
     void testSecondClickDisconnectWhileStoppingIsNoOp();

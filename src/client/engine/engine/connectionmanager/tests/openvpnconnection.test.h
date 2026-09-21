@@ -29,6 +29,7 @@ private slots:
     void testPrepareInvalidNodeIpFails();
     void testParsePushReplyRedirectGateway();
     void testParsePushReplyNoRedirectGateway();
+    void testParsePushReplyIpv6Options();
     void testParsePushReplyMalformed();
     void testParseDeviceOpenedReply();
     void testParseDeviceOpenedReplyMalformed();

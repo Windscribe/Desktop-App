@@ -586,6 +586,14 @@ Hesabınızı kaybederseniz, sonsuza dek kaybolur ve destek size onu kurtarmaya 
 <context>
     <name>MainWindow</name>
     <message>
+        <source>Split Tunneling Stopped</source>
+        <translation>Ayrık tünelleme durduruldu</translation>
+    </message>
+    <message>
+        <source>The split tunneling session ended unexpectedly. Please reconnect to retry. If this persists, please contact support.</source>
+        <translation>Ayrık tünelleme oturumu beklenmedik şekilde sona erdi. Tekrar denemek için lütfen yeniden bağlanın. Sorun devam ederse lütfen destek ile iletişime geçin.</translation>
+    </message>
+    <message>
         <source>Logging you in...</source>
         <translation>Oturumunuz açılıyor...</translation>
     </message>

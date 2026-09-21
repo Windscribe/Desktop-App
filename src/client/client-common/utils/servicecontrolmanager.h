@@ -21,7 +21,6 @@ public:
     explicit ServiceControlManager();
     ~ServiceControlManager();
 
-    void deleteService(LPCTSTR serviceName, bool stopRunningService = true);
     bool deleteService(LPCTSTR serviceName, std::error_code& ec, int timeoutMs = 20000) noexcept;
 
     void installService(LPCTSTR serviceName, LPCTSTR binaryPathName,
@@ -49,6 +48,9 @@ public:
     DWORD queryServiceStartType() const;
     DWORD queryServiceStatus() const;
     DWORD queryServiceStatus(std::error_code& ec) const noexcept;
+    // Process id of the open service, or 0 if it is not running or the id cannot be determined.
+    // The service must have been opened with SERVICE_QUERY_STATUS.
+    DWORD queryServiceProcessId(std::error_code& ec) const noexcept;
     void sendControlCode(DWORD code) const;
     void setServiceDescription(LPCTSTR description) const;
     void setServiceSIDType(DWORD serviceSidType) const;
@@ -57,6 +59,12 @@ public:
     void stopService(int timeoutMs = 20000);
     void stopService(LPCTSTR serviceName, int timeoutMs = 20000);
     bool stopService(std::error_code& ec, int timeoutMs = 20000) noexcept;
+
+    // Waits at most timeoutMs for the open service to report SERVICE_STOPPED, without issuing a
+    // stop request of its own.  Use it to ride out a stop somebody else already started: a service
+    // in SERVICE_STOP_PENDING rejects further stop controls, so stopService cannot wait on one it
+    // did not initiate.
+    bool waitForServiceStopped(std::error_code& ec, int timeoutMs = 20000) const noexcept;
 
     // Prevents the initiation of, and aborts any currently running, start/stop requests.
     void blockStartStopRequests();

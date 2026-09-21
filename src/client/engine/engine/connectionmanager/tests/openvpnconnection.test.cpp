@@ -248,6 +248,28 @@ void TestOpenVPNConnection::testParsePushReplyNoRedirectGateway()
     QCOMPARE(QString::fromStdString(info.adapterIpV4().toString()), QString("10.255.255.6"));
 }
 
+void TestOpenVPNConnection::testParsePushReplyIpv6Options()
+{
+    OpenVPNConnection conn(nullptr, helper_, types::Protocol::OPENVPN_UDP, makeSessionParams());
+    // Verbatim from a user report: ifconfig-ipv6 precedes the IPv4 ifconfig, and redirect-gateway
+    // appears twice.
+    const QString reply = ">LOG:1788931456,,PUSH: Received control message: 'PUSH_REPLY,"
+                          "dhcp-option DNS 192.168.101.1,route-ipv6 2000::/3,"
+                          "redirect-gateway def1 bypass-dhcp,redirect-gateway ipv6,tun-ipv6,"
+                          "route-gateway 192.168.101.1,topology subnet,ping 35,ping-restart 180,"
+                          "ifconfig-ipv6 2002:5fd7:2da8:1::29/112 2002:5fd7:2da8:1::1,"
+                          "ifconfig 192.168.101.41 255.255.255.0,peer-id 1,cipher CHACHA20-POLY1305'";
+    AdapterGatewayInfo info;
+    bool redirect = false;
+
+    QVERIFY(conn.parsePushReply(reply, info, redirect));
+
+    QVERIFY(redirect);
+    QCOMPARE(QString::fromStdString(info.adapterIpV4().toString()), QString("192.168.101.41"));
+    QCOMPARE(QString::fromStdString(info.gatewayV4().toString()), QString("192.168.101.1"));
+    QCOMPARE(info.dnsServersAsStringList(), QStringList({"192.168.101.1"}));
+}
+
 void TestOpenVPNConnection::testParsePushReplyMalformed()
 {
     OpenVPNConnection conn(nullptr, helper_, types::Protocol::OPENVPN_UDP, makeSessionParams());

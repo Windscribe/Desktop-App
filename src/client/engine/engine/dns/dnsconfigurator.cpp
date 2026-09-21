@@ -55,7 +55,7 @@ bool DnsConfigurator::prepare()
     // start ctrld utility
     if (usesDnsProxy()) {
         bool bStarted = false;
-        if (connectedDnsInfo_.isSplitDns) {
+        if (connectedDnsInfo_.isSplitDnsActive()) {
             bStarted = ctrldManager_->runProcess(connectedDnsInfo_.upStream1, connectedDnsInfo_.upStream2, connectedDnsInfo_.hostnames);
         } else {
             bStarted = ctrldManager_->runProcess(connectedDnsInfo_.upStream1, QString(), QStringList());

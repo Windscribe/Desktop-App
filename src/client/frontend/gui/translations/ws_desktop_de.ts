@@ -586,6 +586,14 @@ Wenn du den Hash deines Kontos verlierst, ist er für immer weg und der Support 
 <context>
     <name>MainWindow</name>
     <message>
+        <source>Split Tunneling Stopped</source>
+        <translation>Split-Tunneling gestoppt</translation>
+    </message>
+    <message>
+        <source>The split tunneling session ended unexpectedly. Please reconnect to retry. If this persists, please contact support.</source>
+        <translation>Die Split-Tunneling-Sitzung wurde unerwartet beendet. Bitte stellen Sie die Verbindung erneut her, um es noch einmal zu versuchen. Wenn das Problem weiterhin besteht, kontaktieren Sie bitte den Support.</translation>
+    </message>
+    <message>
         <source>Logging you in...</source>
         <translation>Sie werden eingeloggt...</translation>
     </message>

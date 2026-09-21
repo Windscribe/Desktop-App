@@ -98,7 +98,7 @@ private:
     static bool wanReinstalled_;
 
 private:
-    bool armDropDetection();
+    void armDropDetection();
     void cleanupHostsAndDnsProtection();
     void emitStatistics();
     bool enableRAS() const;
@@ -116,6 +116,7 @@ private:
 
     static void blockingDisconnect(HRASCONN connHandle, bool alertable);
     static bool isRasDisconnected(HRASCONN connHandle);
+    static bool isRasFullyTerminated(HRASCONN connHandle);
     static bool isTransientConnectError(DWORD dwError);
     static QString rasConnStateToString(RASCONNSTATE state);
 };

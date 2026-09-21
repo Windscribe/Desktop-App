@@ -18,6 +18,13 @@ namespace DnsUtils
 static int runCommand(const QString &program, const QStringList &args, QString &out)
 {
     QProcess p;
+    // Pin the child's locale so the parsers downstream never see translated output. C.UTF-8 rather than C
+    // so non-ASCII names survive nmcli's charset conversion; LANGUAGE is unset because older glibc lets it
+    // override LC_ALL for messages.
+    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+    env.insert("LC_ALL", "C.UTF-8");
+    env.remove("LANGUAGE");
+    p.setProcessEnvironment(env);
     p.start(program, args);
     if (!p.waitForFinished(2000)) {
         p.kill();

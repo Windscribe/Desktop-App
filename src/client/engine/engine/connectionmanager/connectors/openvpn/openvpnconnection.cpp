@@ -924,13 +924,17 @@ bool OpenVPNConnection::parsePushReply(const QString &reply, AdapterGatewayInfo 
 
     for (auto it : values)
     {
+        // Match the option name exactly: a substring test makes "ifconfig-ipv6" hit the "ifconfig"
+        // branch and fail IPv4 validation on its v6 argument, aborting the whole reply.
+        const QStringList v = it.split(' ');
+        const QString &option = v.first();
+
         if (it.contains("redirect-gateway def1", Qt::CaseInsensitive))
         {
             outRedirectDefaultGateway = true;
         }
-        else if (it.contains("route-gateway", Qt::CaseInsensitive))
+        else if (option.compare("route-gateway", Qt::CaseInsensitive) == 0)
         {
-            const QStringList v = it.split(' ');
             if (v.count() != 2)
             {
                 qCCritical(LOG_CONNECTION) << "Can't parse route-gateway message";
@@ -950,9 +954,8 @@ bool OpenVPNConnection::parsePushReply(const QString &reply, AdapterGatewayInfo 
                 }
             }
         }
-        else if (it.contains("ifconfig", Qt::CaseInsensitive))
+        else if (option.compare("ifconfig", Qt::CaseInsensitive) == 0)
         {
-            const QStringList v = it.split(' ');
             if (v.count() != 3)
             {
                 qCCritical(LOG_CONNECTION) << "Can't parse ifconfig message";
@@ -972,9 +975,8 @@ bool OpenVPNConnection::parsePushReply(const QString &reply, AdapterGatewayInfo 
                 }
             }
         }
-        else if (it.contains("dhcp-option", Qt::CaseInsensitive))
+        else if (option.compare("dhcp-option", Qt::CaseInsensitive) == 0)
         {
-            const QStringList v = it.split(' ');
             if (v.count() != 3)
             {
                 qCCritical(LOG_CONNECTION) << "Can't parse dhcp-option message";

@@ -1,7 +1,8 @@
 #include "httpproxyserver.h"
 #include "../proxydestinationfilter.h"
-#include "utils/ws_assert.h"
+#include "../socketutils/nativesocket.h"
 #include "utils/log/categories.h"
+#include "utils/ws_assert.h"
 
 #ifdef Q_OS_WIN
 #include <winsock2.h>
@@ -9,16 +10,22 @@
 #else
 #include <arpa/inet.h>
 #include <sys/socket.h>
-#include <unistd.h>
 #endif
 
 namespace HttpProxyServer {
+
+int HttpProxyServer::maxConnections_ = 128;
 
 HttpProxyServer::HttpProxyServer(QObject *parent) : QTcpServer(parent)
 {
     usersCounter_ = new ConnectedUsersCounter(this);
     connect(usersCounter_, &ConnectedUsersCounter::usersCountChanged, this, &HttpProxyServer::usersCountChanged);
     connectionManager_ = new HttpProxyConnectionManager(this, 4, usersCounter_);
+    // Qt stops accepting after a non-transient accept failure and never resumes on its own; the listener stays
+    // bound but dead until this server is recreated, so make that state visible.
+    connect(this, &QTcpServer::acceptError, this, [this](QAbstractSocket::SocketError error) {
+        qCWarning(LOG_HTTP_SERVER) << "Accept failed, no longer accepting connections:" << error << errorString();
+    });
 }
 
 HttpProxyServer::~HttpProxyServer()
@@ -50,7 +57,6 @@ void HttpProxyServer::stopServer()
         close();
     }
     connectionManager_->stop();
-    usersCounter_->reset();
 }
 
 int HttpProxyServer::getConnectedUsersCount()
@@ -79,15 +85,25 @@ void HttpProxyServer::incomingConnection(qintptr socketDescriptor)
         peer = QHostAddress(reinterpret_cast<sockaddr*>(&addr));
     }
     if (!ProxyDestinationFilter::isAllowedPeer(peer, bindAddress_, prefixLength_)) {
-        qCWarning(LOG_HTTP_SERVER) << "Rejecting off-subnet, non-private proxy peer" << peer.toString();
-#ifdef Q_OS_WIN
-        ::closesocket(static_cast<SOCKET>(socketDescriptor));
-#else
-        ::close(static_cast<int>(socketDescriptor));
-#endif
+        if (!offSubnetLogged_) {
+            qCWarning(LOG_HTTP_SERVER) << "Rejecting off-subnet, non-private proxy peer" << peer.toString();
+            offSubnetLogged_ = true;
+        }
+        SocketUtils::closeNativeSocket(socketDescriptor);
         return;
     }
-    connectionManager_->newConnection(socketDescriptor, auth_);
+    const QString peerAddress = peer.toString();
+    if (connectionManager_->connectionCount() >= maxConnections_) {
+        if (!limitLogged_) {
+            qCWarning(LOG_HTTP_SERVER) << "Rejecting proxy peer" << peerAddress << ": connection limit reached";
+            limitLogged_ = true;
+        }
+        SocketUtils::closeNativeSocket(socketDescriptor);
+        return;
+    }
+    offSubnetLogged_ = false;
+    limitLogged_ = false;
+    connectionManager_->newConnection(socketDescriptor, peerAddress, auth_);
 }
 
 

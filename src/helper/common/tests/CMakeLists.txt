@@ -34,6 +34,11 @@ if(IS_BUILD_TESTS)
     ws_add_test(ovpndirectivewhitelist)
 
     if(NOT WIN32)
+        add_executable(spawn.test spawn.test.cpp ../spawn_posix.cpp ../io_posix.cpp)
+        target_link_libraries(spawn.test PRIVATE spdlog::spdlog)
+        set_target_properties(spawn.test PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
+        ws_add_test(spawn)
+
         add_executable(validation.test
             validation.test.cpp
             ../validation_posix.cpp

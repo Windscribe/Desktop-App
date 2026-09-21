@@ -3,7 +3,8 @@
 
 #include <QWidgetAction>
 
-LocationsTrayMenu::LocationsTrayMenu(QAbstractItemModel *model, const QFont &font, const QRect &trayIconGeometry)
+LocationsTrayMenu::LocationsTrayMenu(QWidget *parent, QAbstractItemModel *model, const QFont &font, const QRect &trayIconGeometry) :
+    QMenu(parent)
 {
     QWidgetAction *widgetAction = new QWidgetAction(this);
     LocationsTrayMenuWidget * locationsWidget = new LocationsTrayMenuWidget(nullptr, model, font, trayIconGeometry);

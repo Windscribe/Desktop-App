@@ -6,6 +6,7 @@ target_sources(engine PRIVATE
 
 if (WIN32)
     target_sources(engine PRIVATE
+        inetworkdetectionmanager_win_data_source.h
         networkchangeworkerthread.cpp
         networkchangeworkerthread.h
         networkdetectionmanager_win.cpp

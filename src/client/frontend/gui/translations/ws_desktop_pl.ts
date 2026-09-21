@@ -586,6 +586,14 @@ Jeśli stracisz hash konta, znika na zawsze i wsparcie nie pomoże ci go odzyska
 <context>
     <name>MainWindow</name>
     <message>
+        <source>Split Tunneling Stopped</source>
+        <translation>Dzielone tunelowanie zatrzymane</translation>
+    </message>
+    <message>
+        <source>The split tunneling session ended unexpectedly. Please reconnect to retry. If this persists, please contact support.</source>
+        <translation>Sesja dzielonego tunelowania nieoczekiwanie się zakończyła. Połącz się ponownie, aby spróbować jeszcze raz. Jeśli problem będzie się powtarzał, skontaktuj się z pomocą techniczną.</translation>
+    </message>
+    <message>
         <source>Logging you in...</source>
         <translation>Logowanie...</translation>
     </message>

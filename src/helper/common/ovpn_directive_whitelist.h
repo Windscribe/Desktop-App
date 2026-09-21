@@ -332,7 +332,7 @@ inline bool hasBalancedInlineBlocks(const std::string &config)
 
     while (std::getline(stream, line)) {
         size_t start = 0;
-        while (start < line.size() && (line[start] == ' ' || line[start] == '\t')) {
+        while (start < line.size() && (line[start] == ' ' || line[start] == '\t' || line[start] == '\r')) {
             ++start;
         }
         if (start >= line.size() || line[start] != '<') {

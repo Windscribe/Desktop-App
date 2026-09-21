@@ -1,4 +1,5 @@
 #include "httpproxyrequestparser.h"
+#include "httpproxyheader.h"  // for HttpProxyHeader (used in parse)
 
 namespace HttpProxyServer {
 
@@ -287,35 +288,6 @@ TRI_BOOL HttpProxyRequestParser::consume(char input)
         default:
             return TRI_FALSE;
         }
-}
-
-bool HttpProxyRequestParser::is_char(int c)
-{
-    return c >= 0 && c <= 127;
-}
-
-bool HttpProxyRequestParser::is_ctl(int c)
-{
-    return (c >= 0 && c <= 31) || (c == 127);
-}
-
-bool HttpProxyRequestParser::is_tspecial(int c)
-{
-    switch (c)
-    {
-        case '(': case ')': case '<': case '>': case '@':
-        case ',': case ';': case ':': case '\\': case '"':
-        case '/': case '[': case ']': case '?': case '=':
-        case '{': case '}': case ' ': case '\t':
-            return true;
-        default:
-            return false;
-    }
-}
-
-bool HttpProxyRequestParser::is_digit(int c)
-{
-    return c >= '0' && c <= '9';
 }
 
 } // namespace HttpProxyServer

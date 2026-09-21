@@ -9,7 +9,7 @@
 #include "engine/connectionmanager/connectors/iconnectionplatformpolicy.h"
 #include "engine/dns/idnsconfigurator.h"
 #include "engine/networkdetectionmanager/inetworkdetectionmanager.h"
-#include "isleepevents.h"
+#include "engine/sleepevents/isleepevents.h"
 #include "utils/extraconfig.h"
 #include "types/connectionsettings.h"
 #include "types/enums.h"

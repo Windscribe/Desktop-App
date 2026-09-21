@@ -586,6 +586,14 @@ Se perdi l&apos;hash dell&apos;account, è sparito per sempre e il supporto non 
 <context>
     <name>MainWindow</name>
     <message>
+        <source>Split Tunneling Stopped</source>
+        <translation>Split tunneling arrestato</translation>
+    </message>
+    <message>
+        <source>The split tunneling session ended unexpectedly. Please reconnect to retry. If this persists, please contact support.</source>
+        <translation>La sessione di split tunneling è terminata inaspettatamente. Riconnettiti per riprovare. Se il problema persiste, contatta l’assistenza.</translation>
+    </message>
+    <message>
         <source>Logging you in...</source>
         <translation>Accedendo all&apos;accesso...</translation>
     </message>

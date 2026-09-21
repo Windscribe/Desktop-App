@@ -586,6 +586,14 @@ Nếu bạn mất hàm băm tài khoản của mình, nó sẽ biến mất vĩn
 <context>
     <name>MainWindow</name>
     <message>
+        <source>Split Tunneling Stopped</source>
+        <translation>Đường hầm phân chia đã dừng</translation>
+    </message>
+    <message>
+        <source>The split tunneling session ended unexpectedly. Please reconnect to retry. If this persists, please contact support.</source>
+        <translation>Phiên đường hầm phân chia đã kết thúc đột ngột. Vui lòng kết nối lại để thử lại. Nếu sự cố vẫn tiếp diễn, vui lòng liên hệ bộ phận hỗ trợ.</translation>
+    </message>
+    <message>
         <source>Logging you in...</source>
         <translation>Đăng nhập bạn vào...</translation>
     </message>

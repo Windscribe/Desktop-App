@@ -586,6 +586,14 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
 <context>
     <name>MainWindow</name>
     <message>
+        <source>Split Tunneling Stopped</source>
+        <translation>Η διαίρεση διοχέτευσης διακόπηκε</translation>
+    </message>
+    <message>
+        <source>The split tunneling session ended unexpectedly. Please reconnect to retry. If this persists, please contact support.</source>
+        <translation>Η συνεδρία διαίρεσης διοχέτευσης τερματίστηκε απροσδόκητα. Συνδεθείτε ξανά για να επαναλάβετε την προσπάθεια. Αν το πρόβλημα επιμένει, επικοινωνήστε με την υποστήριξη.</translation>
+    </message>
+    <message>
         <source>Logging you in...</source>
         <translation>Η σύνδεσή σας...</translation>
     </message>

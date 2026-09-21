@@ -3,16 +3,20 @@
 #include <QHostAddress>
 #include <QThread>
 #include "../proxydestinationfilter.h"
-#include "utils/ws_assert.h"
+#include "../socketutils/nativesocket.h"
 #include "utils/log/categories.h"
+#include "utils/ws_assert.h"
 
 namespace SocksProxyServer {
 
-// Cap on client bytes pipelined after the SOCKS5 command and before we transition into relay. Without this, an
-// upload to an unreachable/slow upstream could balloon the per-connection buffer for tens of seconds (DNS + TCP
-// connect timeouts). 64 KiB is well above any expected pre-relay payload.
-constexpr int kMaxBufferedBytesBeforeRelay = 64 * 1024;
+// Bounds what a relay holds in this process when one side stops reading: each socket buffers at most this much unread
+// data, and a source is not read while its destination has this much unsent.
+constexpr int kRelayBufferBytes = 64 * 1024;
 
+// The greeting, the authentication, the command and the resolve must each complete within this deadline. While the
+// destination is connected there is no deadline (connecting itself is bounded by the socket's own connect timeout); once it
+// closes, the drain to the client must keep making progress within this deadline.
+int SocksProxyConnection::phaseTimeoutMs_ = 30000;
 
 SocksProxyConnection::SocksProxyConnection(qintptr socketDescriptor, const QString &hostname,
                                            const ProxyAuth::Config &auth, QObject *parent)
@@ -27,13 +31,21 @@ void SocksProxyConnection::start()
     //qCDebug(LOG_SOCKS_SERVER) << "start thread:" << QThread::currentThreadId();
     socket_ = new QTcpSocket(this);
     if (!socket_->setSocketDescriptor(socketDescriptor_)) {
+        // The socket did not adopt the descriptor, so nothing else will ever release it.
+        SocketUtils::closeNativeSocket(socketDescriptor_);
+        closeSocketsAndEmitFinished();
         return;
     }
-    state_ = READ_IDENT_REQ;
-    readExactly_.reset(new SocksProxyReadExactly(sizeof(socks5_ident_req)));
+    phaseTimer_ = new QTimer(this);
+    phaseTimer_->setSingleShot(true);
+    connect(phaseTimer_, &QTimer::timeout, this, &SocksProxyConnection::closeSocketsAndEmitFinished);
+
+    socket_->setReadBufferSize(kRelayBufferBytes);
     connect(socket_, &QTcpSocket::disconnected, this, &SocksProxyConnection::onSocketDisconnected);
     connect(socket_, &QTcpSocket::readyRead, this, &SocksProxyConnection::onSocketReadyRead);
+    connect(socket_, &QTcpSocket::bytesWritten, this, &SocksProxyConnection::relayUpstreamToClient);
     writeAllSocket_ = new SocketWriteAll(this, socket_);
+    setState(READ_IDENT_REQ);
 }
 
 void SocksProxyConnection::forceClose()
@@ -44,11 +56,35 @@ void SocksProxyConnection::forceClose()
 void SocksProxyConnection::onSocketDisconnected()
 {
     //qCDebug(LOG_SOCKS_SERVER) << "onSocketDisconnected connection closed.";
+    // Our own close() lands here too, after it has already emptied the socket.
+    if (bAlreadyClosedAndEmitFinished_) {
+        return;
+    }
+    // Forward what the client sent before it left, congested upstream or not; the close below flushes it as far as it can.
+    if (state_ == RELAY_BETWEEN_CLIENT_SERVER) {
+        const QByteArray arr = socket_->readAll();
+        if (!arr.isEmpty()) {
+            writeAllSocketExternal_->write(arr);
+        }
+    }
     closeSocketsAndEmitFinished();
 }
 
 void SocksProxyConnection::onSocketReadyRead()
 {
+    if (state_ == RELAY_BETWEEN_CLIENT_SERVER) {
+        relayClientToUpstream();
+        return;
+    }
+    if (state_ == RELAY_DRAINING) {
+        // The upstream is gone; keep taking the client's bytes so it is not blocked writing while it still owes us a read.
+        socket_->readAll();
+        return;
+    }
+    if (state_ == RESOLVING_DESTINATION || state_ == CONNECT_TO_HOST) {
+        // Leave the bytes in the socket's bounded buffer; the kernel throttles the client until the upstream is up.
+        return;
+    }
     socketReadArr_.append(socket_->readAll());
 
     if (state_ == READ_IDENT_REQ) {
@@ -57,18 +93,6 @@ void SocksProxyConnection::onSocketReadyRead()
         handleAuthRequest();
     } else if (state_ == READ_COMMANDS) {
         handleCommandRequest();
-    } else if (state_ == RESOLVING_DESTINATION || state_ == CONNECT_TO_HOST) {
-        // Buffer client bytes that arrive while we're resolving / connecting. They'll be flushed in
-        // onExternalSocketConnected once we transition to relay.
-        if (socketReadArr_.size() > kMaxBufferedBytesBeforeRelay) {
-            qCWarning(LOG_SOCKS_SERVER) << "Client buffered" << socketReadArr_.size()
-                                        << "bytes during resolve/connect; closing";
-            closeSocketsAndEmitFinished();
-            return;
-        }
-    } else if (state_ == RELAY_BETWEEN_CLIENT_SERVER) {
-        writeAllSocketExternal_->write(socketReadArr_);
-        socketReadArr_.clear();
     } else {
         qCCritical(LOG_SOCKS_SERVER) << "SocksProxyConnection::onSocketReadyRead() unknown state:" << state_;
         closeSocketsAndEmitFinished();
@@ -91,9 +115,7 @@ void SocksProxyConnection::handleIdentRequest()
         socks5_answer answer;
         answer.Version = identReqParser_.identReq().Version;
         answer.Method = 0xFF;
-        writeAllSocket_->write(QByteArray((const char *)&answer, sizeof(answer)));
-        connect(writeAllSocket_, &SocketWriteAll::allDataWriteFinished, this, &SocksProxyConnection::closeSocketsAndEmitFinished, Qt::UniqueConnection);
-        writeAllSocket_->setEmitAllDataWritten();
+        writeFinalReply(QByteArray((const char *)&answer, sizeof(answer)));
         return;
     }
 
@@ -113,13 +135,19 @@ void SocksProxyConnection::handleIdentRequest()
     answer.Version = 0x05;
     if (offered) {
         answer.Method = wantedMethod;
-        state_ = auth_.required ? READ_AUTH : READ_COMMANDS;
+        setState(auth_.required ? READ_AUTH : READ_COMMANDS);
         writeAllSocket_->write(QByteArray((const char *)&answer, sizeof(answer)));
+        if (!socketReadArr_.isEmpty()) {
+            // Pipelined bytes after the method selection.
+            if (state_ == READ_AUTH) {
+                handleAuthRequest();
+            } else {
+                handleCommandRequest();
+            }
+        }
     } else {
         answer.Method = 0xFF;
-        writeAllSocket_->write(QByteArray((const char *)&answer, sizeof(answer)));
-        connect(writeAllSocket_, &SocketWriteAll::allDataWriteFinished, this, &SocksProxyConnection::closeSocketsAndEmitFinished, Qt::UniqueConnection);
-        writeAllSocket_->setEmitAllDataWritten();
+        writeFinalReply(QByteArray((const char *)&answer, sizeof(answer)));
     }
 }
 
@@ -150,13 +178,12 @@ void SocksProxyConnection::handleAuthRequest()
     const bool ok = (ver == 0x01) && !auth_.username.isEmpty() && !auth_.password.isEmpty() && userOk && passOk;
 
     char reply[2] = { 0x01, static_cast<char>(ok ? 0x00 : 0x01) };
-    writeAllSocket_->write(QByteArray(reply, sizeof(reply)));
     if (!ok) {
-        connect(writeAllSocket_, &SocketWriteAll::allDataWriteFinished, this, &SocksProxyConnection::closeSocketsAndEmitFinished, Qt::UniqueConnection);
-        writeAllSocket_->setEmitAllDataWritten();
+        writeFinalReply(QByteArray(reply, sizeof(reply)));
         return;
     }
-    state_ = READ_COMMANDS;
+    writeAllSocket_->write(QByteArray(reply, sizeof(reply)));
+    setState(READ_COMMANDS);
     if (!socketReadArr_.isEmpty()) {
         // Pipelined command bytes after auth.
         handleCommandRequest();
@@ -173,7 +200,9 @@ void SocksProxyConnection::handleCommandRequest()
     }
     if (res != TRI_TRUE) {
         qCCritical(LOG_SOCKS_SERVER) << "SocksProxyConnection: incorrect input command packet";
-        closeSocketsAndEmitFinished();
+        const quint8 addrType = commandParser_.cmd().AddrType;
+        const bool knownAddrType = addrType == 0x01 || addrType == 0x03 || addrType == 0x04;
+        sendReply(knownAddrType ? 0x01 : 0x08);  // general failure, or address type not supported
         return;
     }
     socketReadArr_.remove(0, parsed);
@@ -190,12 +219,12 @@ void SocksProxyConnection::handleCommandRequest()
     if (commandParser_.cmd().AddrType == 0x01) {  // ip4
         quint32 ipv4;
         memcpy(&ipv4, &commandParser_.cmd().DestAddr.IPv4, sizeof(quint32));
-        QHostAddress addr(ipv4);
+        QHostAddress addr(ntohl(ipv4));
         if (!ProxyDestinationFilter::isAllowedDestination(addr)) {
             sendReply(0x02);  // not allowed by ruleset
             return;
         }
-        connectExternal(addr, commandParser_.cmd().DestPort);
+        connectExternal(addr, ntohs(commandParser_.cmd().DestPort));
     } else if (commandParser_.cmd().AddrType == 0x04) {  // ip6
         quint8 *ip6Addr = (quint8 *)&commandParser_.cmd().DestAddr.IPv6;
         QHostAddress addr(ip6Addr);
@@ -203,14 +232,16 @@ void SocksProxyConnection::handleCommandRequest()
             sendReply(0x02);
             return;
         }
-        connectExternal(addr, commandParser_.cmd().DestPort);
+        connectExternal(addr, ntohs(commandParser_.cmd().DestPort));
     } else if (commandParser_.cmd().AddrType == 0x03) {  // domain
         std::string hostname(commandParser_.cmd().DestAddr.Domain, commandParser_.cmd().DestAddr.DomainLen);
-        const quint16 port = commandParser_.cmd().DestPort;
-        state_ = RESOLVING_DESTINATION;
+        const quint16 port = ntohs(commandParser_.cmd().DestPort);
+        setState(RESOLVING_DESTINATION);
         dnsLookupCancelable_ = ProxyDestinationFilter::resolve(QString::fromStdString(hostname), this,
             [this, port, hostname](bool resolved, const QList<QHostAddress> &allowed) {
-                if (state_ != RESOLVING_DESTINATION) return;
+                if (bAlreadyClosedAndEmitFinished_ || state_ != RESOLVING_DESTINATION) {
+                    return;
+                }
                 if (!resolved) {
                     qCWarning(LOG_SOCKS_SERVER) << "DNS lookup failed for SOCKS5 destination" << QString::fromStdString(hostname);
                     sendReply(0x04);  // host unreachable
@@ -222,9 +253,6 @@ void SocksProxyConnection::handleCommandRequest()
                 }
                 connectExternal(allowed.first(), port);
             });
-    } else {
-        qCWarning(LOG_SOCKS_SERVER) << "SocksProxyConnection: unsupported addr type" << commandParser_.cmd().AddrType;
-        sendReply(0x08);  // address type not supported
     }
 }
 
@@ -235,9 +263,11 @@ void SocksProxyConnection::connectExternal(const QHostAddress &addr, quint16 por
     connect(socketExternal_, &QTcpSocket::disconnected, this, &SocksProxyConnection::onExternalSocketDisconnected);
     connect(socketExternal_, &QTcpSocket::readyRead, this, &SocksProxyConnection::onExternalSocketReadyRead);
     connect(socketExternal_, &QTcpSocket::errorOccurred, this, &SocksProxyConnection::onExternalSocketError);
+    connect(socketExternal_, &QTcpSocket::bytesWritten, this, &SocksProxyConnection::relayClientToUpstream);
+    socketExternal_->setReadBufferSize(kRelayBufferBytes);
 
     writeAllSocketExternal_ = new SocketWriteAll(this, socketExternal_);
-    state_ = CONNECT_TO_HOST;
+    setState(CONNECT_TO_HOST);
     socketExternal_->connectToHost(addr, port);
 }
 
@@ -250,16 +280,21 @@ void SocksProxyConnection::sendReply(quint8 reply)
     resp.Reserved = 0;
     resp.AddrType = 0x01;
     resp.BindPort = 0;
-    writeAllSocket_->write(getByteArrayFromSocks5Resp(resp));
-    connect(writeAllSocket_, &SocketWriteAll::allDataWriteFinished, this, &SocksProxyConnection::closeSocketsAndEmitFinished, Qt::UniqueConnection);
-    writeAllSocket_->setEmitAllDataWritten();
+    writeFinalReply(getByteArrayFromSocks5Resp(resp));
 }
 
-/*void HttpProxyConnection::onSocketAllDataWritten()
+void SocksProxyConnection::writeFinalReply(const QByteArray &reply)
 {
-    qCDebug(LOG_HTTP_SERVER) << "onSocketAllDataWritten connection closed.";
-    closeSocketsAndEmitFinished();
-}*/
+    // Nothing the peer sends after a final reply is meaningful; stop reading so it cannot re-enter the parsers.
+    // The reply is small enough to complete into the kernel buffer whether or not the peer reads, so no deadline.
+    disconnect(socket_, &QTcpSocket::readyRead, this, &SocksProxyConnection::onSocketReadyRead);
+    state_ = WRITE_FINAL_REPLY;
+    phaseTimer_->stop();
+    writeAllSocket_->write(reply);
+    connect(writeAllSocket_, &SocketWriteAll::allDataWriteFinished, this, &SocksProxyConnection::closeSocketsAndEmitFinished,
+            Qt::UniqueConnection);
+    writeAllSocket_->setEmitAllDataWritten();
+}
 
 void SocksProxyConnection::onExternalSocketConnected()
 {
@@ -270,12 +305,13 @@ void SocksProxyConnection::onExternalSocketConnected()
         //resp.BindPort = 0x00;
         //memset(&resp.BindAddr.IPv4, 0, sizeof(resp.BindAddr.IPv4));
         writeAllSocket_->write(getByteArrayFromSocks5Resp(resp));
-        state_ = RELAY_BETWEEN_CLIENT_SERVER;
-        // Flush any client bytes that arrived during resolution/connect.
+        setState(RELAY_BETWEEN_CLIENT_SERVER);
+        // Flush any client bytes pipelined after the command, then whatever the socket buffered while we connected.
         if (!socketReadArr_.isEmpty()) {
             writeAllSocketExternal_->write(socketReadArr_);
             socketReadArr_.clear();
         }
+        relayClientToUpstream();
     } else {
         WS_ASSERT(false);
     }
@@ -283,52 +319,23 @@ void SocksProxyConnection::onExternalSocketConnected()
 
 void SocksProxyConnection::onExternalSocketDisconnected()
 {
-    // Drain any pending writes to the client and then close. If we don't have
-    // a writer (shouldn't normally happen post-relay), close immediately.
-    if (writeAllSocket_) {
-        connect(writeAllSocket_, &SocketWriteAll::allDataWriteFinished, this, &SocksProxyConnection::closeSocketsAndEmitFinished, Qt::UniqueConnection);
-        writeAllSocket_->setEmitAllDataWritten();
-    } else {
-        closeSocketsAndEmitFinished();
+    if (bAlreadyClosedAndEmitFinished_ || state_ == WRITE_FINAL_REPLY) {
+        return;
     }
+    if (state_ != RELAY_BETWEEN_CLIENT_SERVER) {
+        closeSocketsAndEmitFinished();
+        return;
+    }
+    // Hand the client what the upstream already delivered; the pump closes once it is all written. Reading the client here
+    // restarts its read notifier if congestion had paused it, so the discard path keeps the client unblocked meanwhile.
+    setState(RELAY_DRAINING);
+    socket_->readAll();
+    relayUpstreamToClient();
 }
 
 void SocksProxyConnection::onExternalSocketReadyRead()
 {
-    QByteArray arr = socketExternal_->readAll();
-    if (state_ == RELAY_BETWEEN_CLIENT_SERVER) {
-        writeAllSocket_->write(arr);
-    }
-    /*else if (state_ == READ_HEADERS_FROM_WEBSERVER)
-    {
-        quint32 parsed;
-        TRI_BOOL ret;
-        ret = webAnswerParser_.parse(arr, parsed);
-
-        if (ret == TRI_TRUE)
-        {
-            std::string s = webAnswerParser_.getAnswer().processServerHeaders(requestParser_.getRequest().http_version_major,
-                                                                              requestParser_.getRequest().http_version_minor);
-            writeAllSocket_->write(QByteArray(s.c_str(), s.length()));
-
-            quint32 remainingData = arr.size() - parsed;
-            if (remainingData > 0)
-            {
-                writeAllSocket_->write(QByteArray(arr.data() + parsed, remainingData));
-            }
-            state_ = RELAY_BETWEEN_CLIENT_SERVER;
-        }
-        else if (ret == TRI_FALSE)
-        {
-            //todo send error reply
-            qCDebug(LOG_HTTP_SERVER) << "Parse webserver answer and headers failed";
-            closeSocketsAndEmitFinished();
-        }
-    }
-    else
-    {
-        WS_ASSERT(false);
-    }*/
+    relayUpstreamToClient();
 }
 
 void SocksProxyConnection::onExternalSocketError(QAbstractSocket::SocketError socketError)
@@ -355,10 +362,8 @@ void SocksProxyConnection::onExternalSocketError(QAbstractSocket::SocketError so
         }
         qCWarning(LOG_SOCKS_SERVER) << "External connect failed:" << socketExternal_->errorString() << "reply" << reply;
         sendReply(reply);
-    } else {
-        // Mid-relay error — just close.
-        closeSocketsAndEmitFinished();
     }
+    // Any other error is followed by disconnected(), which hands the client whatever the upstream already delivered.
 }
 
 void SocksProxyConnection::closeSocketsAndEmitFinished()
@@ -372,13 +377,69 @@ void SocksProxyConnection::closeSocketsAndEmitFinished()
             dnsLookupCancelable_.reset();
         }
         bAlreadyClosedAndEmitFinished_ = true;
+        if (phaseTimer_) {
+            phaseTimer_->stop();
+        }
         if (socket_) {
             socket_->close();
         }
+        // A connected upstream still gets a best-effort flush of what the client sent. A connecting one is aborted,
+        // because a plain close would let it report connected() later.
         if (socketExternal_) {
-            socketExternal_->close();
+            if (socketExternal_->state() == QAbstractSocket::ConnectedState) {
+                socketExternal_->close();
+            } else {
+                socketExternal_->abort();
+            }
         }
         emit finished(hostname_);
+    }
+}
+
+void SocksProxyConnection::setState(State newState)
+{
+    state_ = newState;
+    // Relay has no deadline and connecting is bounded by the socket's own connect timeout (whose error path sends the
+    // reply); every other phase gets a fresh deadline.
+    if (newState == RELAY_BETWEEN_CLIENT_SERVER || newState == CONNECT_TO_HOST) {
+        phaseTimer_->stop();
+    } else {
+        phaseTimer_->start(phaseTimeoutMs_);
+    }
+}
+
+void SocksProxyConnection::relayClientToUpstream()
+{
+    if (bAlreadyClosedAndEmitFinished_ || (state_ != RELAY_BETWEEN_CLIENT_SERVER)) {
+        return;
+    }
+    if (socketExternal_->bytesToWrite() < kRelayBufferBytes) {
+        const QByteArray arr = socket_->readAll();
+        if (!arr.isEmpty()) {
+            writeAllSocketExternal_->write(arr);
+        }
+    }
+}
+
+void SocksProxyConnection::relayUpstreamToClient()
+{
+    if (bAlreadyClosedAndEmitFinished_ || (state_ != RELAY_BETWEEN_CLIENT_SERVER && state_ != RELAY_DRAINING)) {
+        return;
+    }
+    if (socket_->bytesToWrite() < kRelayBufferBytes) {
+        const QByteArray arr = socketExternal_->readAll();
+        if (!arr.isEmpty()) {
+            writeAllSocket_->write(arr);
+        }
+    }
+    if (state_ == RELAY_DRAINING) {
+        // Every call here is progress (the client took data, or the upstream just closed), so re-entering restarts the
+        // deadline. A closed upstream leaves its unread bytes buffered; the relay is done once the client has them all.
+        setState(RELAY_DRAINING);
+        if (socketExternal_->bytesAvailable() == 0 && socket_->bytesToWrite() == 0) {
+            closeSocketsAndEmitFinished();
+        }
+        return;
     }
 }
 

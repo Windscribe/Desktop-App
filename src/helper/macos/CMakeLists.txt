@@ -19,7 +19,11 @@ set(SOURCES
     ../common/validation_posix.h
     ../common/wg_handshake_tracker.h
     3rdparty/pstream.h
+    appuser.cpp
+    appuser.h
     clear_wifi_history/clear_wifi_history.mm
+    directory_mac.h
+    directory_mac.mm
     files_manager.cpp
     files_manager.h
     firewallcontroller.cpp
@@ -88,6 +92,7 @@ target_link_libraries(${WS_MAC_HELPER_BUNDLE_ID}
                       skyr::skyr-url
                       spdlog::spdlog
                       "-framework Foundation"
+                      "-framework OpenDirectory"
                       "-framework Security"
                       "-framework SystemConfiguration"
                       "-sectcreate __TEXT __info_plist ${CMAKE_CURRENT_BINARY_DIR}/helper-info.plist.configured"

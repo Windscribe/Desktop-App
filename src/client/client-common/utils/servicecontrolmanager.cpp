@@ -210,6 +210,22 @@ DWORD ServiceControlManager::queryServiceStatus(std::error_code& ec) const noexc
     return 0;
 }
 
+DWORD ServiceControlManager::queryServiceProcessId(std::error_code& ec) const noexcept
+{
+    ec.clear();
+
+    SERVICE_STATUS_PROCESS status;
+    DWORD bytesNeeded = 0;
+    if (::QueryServiceStatusEx(service_, SC_STATUS_PROCESS_INFO, (LPBYTE)&status, sizeof(status), &bytesNeeded)) {
+        // The SCM reports 0 for a service that is not running, and for one whose hosting process
+        // it cannot attribute.  Either way there is no process the caller can act on.
+        return status.dwProcessId;
+    }
+
+    ec.assign(::GetLastError(), std::system_category());
+    return 0;
+}
+
 std::unique_ptr< unsigned char[] > ServiceControlManager::queryServiceConfig() const
 {
     DWORD bufferSize = 1024;
@@ -465,6 +481,39 @@ void ServiceControlManager::stopService(int timeoutMs)
     throw std::system_error(ec, wstring_to_string(errorMsg.str()));
 }
 
+/*
+Waits at most timeoutMs for the open service to reach SERVICE_STOPPED.  Issues no stop request of
+its own, so it serves a stop this class initiated and one already in progress equally well.
+*/
+bool ServiceControlManager::waitForServiceStopped(std::error_code& ec, int timeoutMs) const noexcept
+{
+    ec.clear();
+
+    const auto deadline = std::chrono::steady_clock::now() + std::chrono::milliseconds(timeoutMs);
+    for (;;) {
+        if (blockStartStopRequests_) {
+            ec.assign(ERROR_CANCELLED, std::system_category());
+            return false;
+        }
+
+        const DWORD currentState = queryServiceStatus(ec);
+        if (ec) {
+            return false;
+        }
+
+        if (currentState == SERVICE_STOPPED) {
+            return true;
+        }
+
+        if (std::chrono::steady_clock::now() >= deadline) {
+            ec.assign(ERROR_SERVICE_REQUEST_TIMEOUT, std::system_category());
+            return false;
+        }
+
+        ::Sleep(50);
+    }
+}
+
 bool ServiceControlManager::stopService(std::error_code& ec, int timeoutMs) noexcept
 {
     ec.clear();
@@ -475,35 +524,35 @@ bool ServiceControlManager::stopService(std::error_code& ec, int timeoutMs) noex
     }
 
     SERVICE_STATUS status;
-    auto result = ::ControlService(service_, SERVICE_CONTROL_STOP, &status);
-    if (result) {
-        // Wait for stop service command to complete.
-        DWORD currentState = status.dwCurrentState;
-
-        const auto deadline = std::chrono::steady_clock::now() + std::chrono::milliseconds(timeoutMs);
-        while (!blockStartStopRequests_ && currentState != SERVICE_STOPPED) {
-            ::Sleep(50);
-            currentState = queryServiceStatus(ec);
-            if (ec) {
-                return false;
-            }
-            if (std::chrono::steady_clock::now() >= deadline) {
-                break;
-            }
-        }
-
-        if (currentState == SERVICE_STOPPED) {
+    if (::ControlService(service_, SERVICE_CONTROL_STOP, &status)) {
+        if (status.dwCurrentState == SERVICE_STOPPED) {
             return true;
         }
 
-        DWORD error = (blockStartStopRequests_ ? ERROR_CANCELLED : ERROR_SERVICE_REQUEST_TIMEOUT);
-        ec.assign(error, std::system_category());
-        return false;
+        return waitForServiceStopped(ec, timeoutMs);
     }
 
-    DWORD lastError = ::GetLastError();
+    const DWORD lastError = ::GetLastError();
     if (lastError == ERROR_SERVICE_NOT_ACTIVE) {
         return true;
+    }
+
+    // A service that is already stopping rejects the stop control, but the caller's intent - the
+    // service is stopped by the time we return - can still be met by waiting out the stop somebody
+    // else started.  Without this, a stop that races an in-progress shutdown fails immediately
+    // having waited for nothing, and the caller proceeds against a service that is still running.
+    if (lastError == ERROR_SERVICE_CANNOT_ACCEPT_CTRL) {
+        std::error_code statusEc;
+        const DWORD currentState = queryServiceStatus(statusEc);
+        if (!statusEc) {
+            if (currentState == SERVICE_STOPPED) {
+                return true;
+            }
+
+            if (currentState == SERVICE_STOP_PENDING) {
+                return waitForServiceStopped(ec, timeoutMs);
+            }
+        }
     }
 
     ec.assign(lastError, std::system_category());
@@ -520,57 +569,6 @@ void ServiceControlManager::stopService(LPCTSTR serviceName, int timeoutMs)
         openService(serviceName, SERVICE_QUERY_STATUS | SERVICE_STOP);
         stopService(timeoutMs);
     }
-}
-
-/*
-Initiates deletion of the service from the SCM database. The specified service must exist and openSCM
-must be called before calling this method. This method does not wait for the service to be deleted.
-If the system/SCM are busy, it may take some time for the service to be actually deleted from the SCM
-database.
-*/
-void ServiceControlManager::deleteService(LPCTSTR serviceName, bool stopRunningService)
-{
-    openService(serviceName);
-
-    if (stopRunningService) {
-        if (queryServiceStatus() != SERVICE_STOPPED) {
-            stopService();
-        }
-    }
-
-    BOOL result = ::DeleteService(service_);
-
-    // Get error code before CloseService possibly changes it.
-    DWORD lastError = ::GetLastError();
-
-    // Close our handle to the service so the SCM can delete it.
-    closeService();
-
-    if (result) {
-        return;
-    }
-
-    std::wostringstream errorMsg;
-
-    switch (lastError) {
-    case ERROR_ACCESS_DENIED:
-        errorMsg << "deleteService: insufficient user rights to delete service - " << serviceName;
-        break;
-
-    case ERROR_INVALID_HANDLE:
-        errorMsg << "deleteService: the SCM is not open - " << serviceName;
-        break;
-
-    case ERROR_SERVICE_MARKED_FOR_DELETE:
-        errorMsg << "deleteService: service has already been marked for deletion - " << serviceName;
-        break;
-
-    default:
-        errorMsg << "deleteService failed to delete the service " << serviceName << " - " << lastError;
-        break;
-    }
-
-    throw std::system_error(lastError, std::system_category(), wstring_to_string(errorMsg.str()));
 }
 
 /*
@@ -604,7 +602,7 @@ bool ServiceControlManager::deleteService(LPCTSTR serviceName, std::error_code& 
             break;
         default:
             // Ignoring stopService failure, as we still need to mark the service for deletion even if we couldn't stop it.
-            stopService(ec);
+            stopService(ec, timeoutMs);
             ec.clear();
             break;
         }
@@ -640,6 +638,10 @@ bool ServiceControlManager::deleteService(LPCTSTR serviceName, std::error_code& 
         ::Sleep(50);
     } while (std::chrono::steady_clock::now() < deadline);
 
+    // The loop above leaves ec clear: a service marked for deletion still opens, so every
+    // iteration succeeded.  Name the timeout, or the callers that log ec on a false return give
+    // success as the reason for the failure.
+    ec.assign(ERROR_SERVICE_REQUEST_TIMEOUT, std::system_category());
     return false;
 }
 

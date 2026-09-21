@@ -1,5 +1,9 @@
-#import <NetworkExtension/NetworkExtension.h>
 #include "splittunnelextensionmanager_mac.h"
+
+#import <NetworkExtension/NetworkExtension.h>
+#include <QPointer>
+
+#include "splittunnelextensionstate_mac.h"
 #include "systemextensions_mac.h"
 #include "types/ipaddress.h"
 #include "utils/extraconfig.h"
@@ -16,23 +20,6 @@
 // a live sendProviderMessage so the provider re-resolves without dropping flows; only if the provider is
 // not up does it fall back to the restart path.  The session's status observer and the one-time manager
 // setup re-enter reconcile(), so every async event re-derives its action from the current desired state.
-
-struct SplitTunnelExtensionManager::State
-{
-    NETransparentProxyManager *proxyManager = nil; // cached; nil until setupManager succeeds
-    id statusObserver = nil;  // persistent session status observer; drives reconcile()
-    bool setupInFlight = false;
-    bool wantStarted = false; // desired: a proxy session should be up
-    bool startIssued = false; // startTunnel succeeded and the session has not been seen down since;
-                              // session.status updates asynchronously, so this guards double-starts
-    bool dirty = false;       // settings/interfaces changed since the session last started; restart
-    bool isExclude = false;
-    QString primaryInterface;
-    QString vpnInterface;
-    QStringList appPaths;
-    QStringList ips;
-    QStringList hostnames;
-};
 
 // Builds the routing-settings keys (apps/IPs/hostnames/mode) shared by a full start and a live settings
 // update.  The interface keys are added only by getExtensionOptions: they can change only on a
@@ -126,7 +113,8 @@ SplitTunnelExtensionManager &SplitTunnelExtensionManager::instance()
     return *instance;
 }
 
-SplitTunnelExtensionManager::SplitTunnelExtensionManager() : isActive_(false), state_(std::make_unique<State>())
+SplitTunnelExtensionManager::SplitTunnelExtensionManager(StateQuery query)
+    : isActive_(false), state_(std::make_unique<State>()), queryState_(std::move(query))
 {
 }
 
@@ -205,7 +193,7 @@ bool SplitTunnelExtensionManager::sendSettingsUpdate()
 void SplitTunnelExtensionManager::startExtension(QString primaryInterface, QString vpnInterface)
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        if (!isActive_) {
+        if (!isActive_ || state_->sessionFailed) {
             return;
         }
         State *state = state_.get();
@@ -224,7 +212,9 @@ void SplitTunnelExtensionManager::startExtension(QString primaryInterface, QStri
 void SplitTunnelExtensionManager::stopExtension()
 {
     dispatch_async(dispatch_get_main_queue(), ^{
+        ++state_->failureGeneration;
         state_->wantStarted = false;
+        state_->sessionFailed = false;
         reconcile();
     });
 }
@@ -232,6 +222,7 @@ void SplitTunnelExtensionManager::stopExtension()
 void SplitTunnelExtensionManager::resetManager()
 {
     dispatch_async(dispatch_get_main_queue(), ^{
+        ++state_->failureGeneration;
         state_->wantStarted = false;
         state_->startIssued = false;
         reconcile();      // stops a still-live session via the !wantStarted path before we drop the handle
@@ -287,7 +278,7 @@ void SplitTunnelExtensionManager::reconcile()
             // in engine.cpp).  lastKnownState() is touched only on this (main) thread.
             if (status != NEVPNStatusInvalid &&
                 SystemExtensions_mac::instance()->lastKnownState() == SystemExtensions_mac::Active) {
-                emit startFailed();
+                emit startFailed(SPLIT_TUNNEL_START_FAIL_REASON_DEFAULT);
             }
         } else {
             state->startIssued = true;
@@ -335,35 +326,10 @@ void SplitTunnelExtensionManager::setupManager()
             }
             const NEVPNStatus status = session.status;
             if (state->startIssued && (status == NEVPNStatusDisconnected || status == NEVPNStatusInvalid)) {
-                // The status is read live and can be stale: right after a restart issues its start, a
-                // queued notification still reads the pre-start Disconnected.  Confirm on a delay -- a
-                // live session publishes Connecting well within it; a dead one still reads down.  Do
-                // not restart a dead session here (a crashing provider must not loop); a genuine
-                // session death is surfaced so the user is alerted and the feature disabled.  A start
-                // issued inside the window whose session is genuinely still down is given up along with
-                // the dead one.
+                // A queued notification may still see the pre-start Disconnected status. Confirm after
+                // a delay before reporting failure; reconnect is required once the session stays down.
                 dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-                    if (!state->startIssued || session != state->proxyManager.connection) {
-                        return;
-                    }
-                    const NEVPNStatus now = session.status;
-                    if (now != NEVPNStatusDisconnected && now != NEVPNStatusInvalid) {
-                        return;
-                    }
-                    qCWarning(LOG_SPLIT_TUNNEL_EXTENSION) << "Split tunnel extension session ended unexpectedly";
-                    state->startIssued = false;
-                    state->wantStarted = false;
-                    if (now == NEVPNStatusInvalid) {
-                        // The configuration is gone: the extension was disabled or removed.  Rebuild it
-                        // on the next start.
-                        dropManager();
-                    } else if (SystemExtensions_mac::instance()->lastKnownState() == SystemExtensions_mac::Active) {
-                        // Session died with the cache still reading Active (crash or a not-yet-seen
-                        // disable): surface the failure (see the startFailed handler in engine.cpp).  A
-                        // not-Active cache is owned by the system-extension-state path, so stay silent.
-                        // lastKnownState() is touched only on this (main) thread.
-                        emit startFailed();
-                    }
+                    confirmSessionEnded((__bridge void *)session);
                 });
                 return;
             }
@@ -425,6 +391,38 @@ void SplitTunnelExtensionManager::setupManager()
             }];
         });
     }];
+}
+
+void SplitTunnelExtensionManager::confirmSessionEnded(void *sessionPtr)
+{
+    State *state = state_.get();
+    NETunnelProviderSession *session = (__bridge NETunnelProviderSession *)sessionPtr;
+    if (!state->startIssued || session != state->proxyManager.connection) {
+        return;
+    }
+    const NEVPNStatus now = session.status;
+    if (now != NEVPNStatusDisconnected && now != NEVPNStatusInvalid) {
+        return;
+    }
+    qCWarning(LOG_SPLIT_TUNNEL_EXTENSION) << "Split tunnel extension session ended unexpectedly";
+    state->startIssued = false;
+    state->wantStarted = false;
+    state->sessionFailed = true;
+    if (now == NEVPNStatusInvalid) {
+        // An invalid session does not establish whether the system extension was disabled.
+        dropManager();
+    }
+    const quint64 generation = ++state->failureGeneration;
+    QPointer<SplitTunnelExtensionManager> self(this);
+    queryState_([self, generation](SystemExtensions_mac::SystemExtensionState extensionState) {
+        if (!self || !self->isActive_ || !self->state_->sessionFailed || self->state_->failureGeneration != generation) {
+            return;
+        }
+        // Query failure cannot establish a disable; the session did stop, so preserve the preference.
+        const bool disabled = extensionState == SystemExtensions_mac::Inactive;
+        emit self->startFailed(disabled ? SPLIT_TUNNEL_START_FAIL_REASON_MAC_EXTENSION_NOT_ENABLED
+                                       : SPLIT_TUNNEL_START_FAIL_REASON_MAC_SESSION_ENDED);
+    });
 }
 
 // Forgets the cached manager (the configuration was deleted externally); setupManager re-runs on the

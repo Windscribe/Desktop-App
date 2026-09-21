@@ -586,6 +586,14 @@ Pokud ztratíte hash účtu, je navždy pryč a podpora vám nemůže pomoci ho 
 <context>
     <name>MainWindow</name>
     <message>
+        <source>Split Tunneling Stopped</source>
+        <translation>Rozdělené tunelové propojení zastaveno</translation>
+    </message>
+    <message>
+        <source>The split tunneling session ended unexpectedly. Please reconnect to retry. If this persists, please contact support.</source>
+        <translation>Relace rozděleného tunelového propojení neočekávaně skončila. Znovu se připojte a zkuste to znovu. Pokud problém přetrvává, kontaktujte prosím podporu.</translation>
+    </message>
+    <message>
         <source>Logging you in...</source>
         <translation>Přihlašuji vás...</translation>
     </message>

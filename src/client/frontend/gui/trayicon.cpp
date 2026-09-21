@@ -13,6 +13,10 @@
 #include "utils/hardcodedsettings.h"
 #include "widgetutils/widgetutils.h"
 
+#ifdef Q_OS_MACOS
+#include "widgetutils/widgetutils_mac.h"
+#endif
+
 #ifdef Q_OS_WIN
 #include "widgetutils/widgetutils_win.h"
 #endif
@@ -43,13 +47,13 @@ TrayIcon::TrayIcon(QObject *parent, Backend *backend, Preferences *preferences)
     // Calling createTrayMenuItems() once here makes everything work.
     createMenuItems();
 
-#ifndef Q_OS_MACOS
-    // WORKAROUND (Qt 6.11.1 / macOS 27): on macOS the menu is popped up manually in
-    // MainWindow::onTrayActivated() rather than attached as the status item's native context menu.
-    // Attaching it triggers a crash in Qt's status item menu tracking (QCocoaSystemTrayIcon::emitActivated),
-    // which reads NSApp.currentEvent.clickCount without checking the event is a mouse event; on
-    // macOS 27 the begin-tracking notification arrives outside the mouse event context.
-    // Remove this guard (and the manual-popup workaround) once Qt guards the event type.
+#ifdef Q_OS_MACOS
+    // Qt reads clickCount from a non-mouse event when a native tray menu starts tracking on macOS 27.
+    WidgetUtils_mac::disableQtTrayMenuTrackingCallback();
+    if (!preferences_->isDockedToTray()) {
+        trayIcon_.setContextMenu(&trayMenu_);
+    }
+#else
     trayIcon_.setContextMenu(&trayMenu_);
 #endif
     connect(&trayMenu_, &QMenu::aboutToShow, this, &TrayIcon::onMenuAboutToShow);
@@ -83,6 +87,8 @@ TrayIcon::TrayIcon(QObject *parent, Backend *backend, Preferences *preferences)
 
 TrayIcon::~TrayIcon()
 {
+    // Qt releases a menu item's native counterpart only when its action is removed from a live menu.
+    clearMenu();
 }
 
 void TrayIcon::show()
@@ -148,39 +154,20 @@ void TrayIcon::onTrayActivated(QSystemTrayIcon::ActivationReason reason)
     emit activated(reason);
 }
 
-#if defined(Q_OS_MACOS)
-// WORKAROUND (Qt 6.11.1 / macOS 27): manual menu popup that replaces the status item's native
-// context menu, which crashes in Qt's menu tracking on macOS 27. See the setContextMenu guard in
-// the constructor. This whole method can be removed once the Qt bug is fixed upstream.
-void TrayIcon::showTrayMenu()
-{
-    // Toggle: a native context menu hides on a second click, so mimic that here. Clicking the
-    // status item while the menu is open first dismisses the popup (an outside click), so on some
-    // machines the menu has already closed by the time this fires; treat a click right after a
-    // hide as the toggle-off and don't re-open.
-    if (trayMenu_.isVisible() || (menuHideTimer_.isValid() && menuHideTimer_.elapsed() < 250)) {
-        trayMenu_.hide();
-        menuHideTimer_.invalidate();
-        return;
-    }
-    const QRect rc = trayIconRect();
-    trayMenu_.popup(QPoint(rc.left(), rc.bottom()));
-}
-#endif
-
 void TrayIcon::onMenuAboutToShow()
 {
     clearMenu();
     createMenuItems();
+#if defined(Q_OS_MACOS)
+    // The status item swallows the click once a native menu is attached, so Qt never reports the activation.
+    emit activated(QSystemTrayIcon::Trigger);
+#endif
 }
 
 void TrayIcon::onMenuAboutToHide()
 {
 #ifdef Q_OS_WIN
     locationsMenu_.clear();
-#endif
-#if defined(Q_OS_MACOS)
-    menuHideTimer_.restart();
 #endif
 }
 
@@ -203,28 +190,28 @@ void TrayIcon::createMenuItems()
 
 #ifdef USE_LOCATIONS_TRAY_MENU_NATIVE
         if (backend_->locationsModelManager()->sortedLocationsProxyModel()->rowCount() > 0) {
-            QSharedPointer<LocationsTrayMenuNative> menu(new LocationsTrayMenuNative(nullptr, backend_->locationsModelManager()->sortedLocationsProxyModel()), &QObject::deleteLater);
+            QSharedPointer<LocationsTrayMenuNative> menu(new LocationsTrayMenuNative(&trayMenu_, backend_->locationsModelManager()->sortedLocationsProxyModel()), &QObject::deleteLater);
             menu->setTitle(tr("Locations"));
             trayMenu_.addMenu(menu.get());
             connect(menu.get(), &LocationsTrayMenuNative::locationSelected, this, &TrayIcon::onLocationsTrayMenuLocationSelected);
             locationsMenu_.append(menu);
         }
         if (backend_->locationsModelManager()->favoriteCitiesProxyModel()->rowCount() > 0) {
-            QSharedPointer<LocationsTrayMenuNative> menu(new LocationsTrayMenuNative(nullptr, backend_->locationsModelManager()->favoriteCitiesProxyModel()), &QObject::deleteLater);
+            QSharedPointer<LocationsTrayMenuNative> menu(new LocationsTrayMenuNative(&trayMenu_, backend_->locationsModelManager()->favoriteCitiesProxyModel()), &QObject::deleteLater);
             menu->setTitle(tr("Favourites"));
             trayMenu_.addMenu(menu.get());
             connect(menu.get(), &LocationsTrayMenuNative::locationSelected, this, &TrayIcon::onLocationsTrayMenuLocationSelected);
             locationsMenu_.append(menu);
         }
         if (backend_->locationsModelManager()->staticIpsProxyModel()->rowCount() > 0) {
-            QSharedPointer<LocationsTrayMenuNative> menu(new LocationsTrayMenuNative(nullptr, backend_->locationsModelManager()->staticIpsProxyModel()), &QObject::deleteLater);
+            QSharedPointer<LocationsTrayMenuNative> menu(new LocationsTrayMenuNative(&trayMenu_, backend_->locationsModelManager()->staticIpsProxyModel()), &QObject::deleteLater);
             menu->setTitle(tr("Static IPs"));
             trayMenu_.addMenu(menu.get());
             connect(menu.get(), &LocationsTrayMenuNative::locationSelected, this, &TrayIcon::onLocationsTrayMenuLocationSelected);
             locationsMenu_.append(menu);
         }
         if (backend_->locationsModelManager()->customConfigsProxyModel()->rowCount() > 0) {
-            QSharedPointer<LocationsTrayMenuNative> menu(new LocationsTrayMenuNative(nullptr, backend_->locationsModelManager()->customConfigsProxyModel()), &QObject::deleteLater);
+            QSharedPointer<LocationsTrayMenuNative> menu(new LocationsTrayMenuNative(&trayMenu_, backend_->locationsModelManager()->customConfigsProxyModel()), &QObject::deleteLater);
             menu->setTitle(tr("Custom configs"));
             trayMenu_.addMenu(menu.get());
             connect(menu.get(), &LocationsTrayMenuNative::locationSelected, this, &TrayIcon::onLocationsTrayMenuLocationSelected);
@@ -232,28 +219,28 @@ void TrayIcon::createMenuItems()
         }
 #else
         if (backend_->locationsModelManager()->sortedLocationsProxyModel()->rowCount() > 0) {
-            QSharedPointer<LocationsTrayMenu> menu(new LocationsTrayMenu(backend_->locationsModelManager()->sortedLocationsProxyModel(), trayMenu_.font(), trayIcon_.geometry()), &QObject::deleteLater);
+            QSharedPointer<LocationsTrayMenu> menu(new LocationsTrayMenu(&trayMenu_, backend_->locationsModelManager()->sortedLocationsProxyModel(), trayMenu_.font(), trayIcon_.geometry()), &QObject::deleteLater);
             menu->setTitle(tr("Locations"));
             trayMenu_.addMenu(menu.get());
             connect(menu.get(), &LocationsTrayMenu::locationSelected, this, &TrayIcon::onLocationsTrayMenuLocationSelected);
             locationsMenu_.append(menu);
         }
         if (backend_->locationsModelManager()->favoriteCitiesProxyModel()->rowCount() > 0) {
-            QSharedPointer<LocationsTrayMenu> menu(new LocationsTrayMenu(backend_->locationsModelManager()->favoriteCitiesProxyModel(), trayMenu_.font(), trayIcon_.geometry()), &QObject::deleteLater);
+            QSharedPointer<LocationsTrayMenu> menu(new LocationsTrayMenu(&trayMenu_, backend_->locationsModelManager()->favoriteCitiesProxyModel(), trayMenu_.font(), trayIcon_.geometry()), &QObject::deleteLater);
             menu->setTitle(tr("Favourites"));
             trayMenu_.addMenu(menu.get());
             connect(menu.get(), &LocationsTrayMenu::locationSelected, this, &TrayIcon::onLocationsTrayMenuLocationSelected);
             locationsMenu_.append(menu);
         }
         if (backend_->locationsModelManager()->staticIpsProxyModel()->rowCount() > 0) {
-            QSharedPointer<LocationsTrayMenu> menu(new LocationsTrayMenu(backend_->locationsModelManager()->staticIpsProxyModel(), trayMenu_.font(), trayIcon_.geometry()), &QObject::deleteLater);
+            QSharedPointer<LocationsTrayMenu> menu(new LocationsTrayMenu(&trayMenu_, backend_->locationsModelManager()->staticIpsProxyModel(), trayMenu_.font(), trayIcon_.geometry()), &QObject::deleteLater);
             menu->setTitle(tr("Static IPs"));
             trayMenu_.addMenu(menu.get());
             connect(menu.get(), &LocationsTrayMenu::locationSelected, this, &TrayIcon::onLocationsTrayMenuLocationSelected);
             locationsMenu_.append(menu);
         }
         if (backend_->locationsModelManager()->customConfigsProxyModel()->rowCount() > 0) {
-            QSharedPointer<LocationsTrayMenu> menu(new LocationsTrayMenu(backend_->locationsModelManager()->customConfigsProxyModel(), trayMenu_.font(), trayIcon_.geometry()), &QObject::deleteLater);
+            QSharedPointer<LocationsTrayMenu> menu(new LocationsTrayMenu(&trayMenu_, backend_->locationsModelManager()->customConfigsProxyModel(), trayMenu_.font(), trayIcon_.geometry()), &QObject::deleteLater);
             menu->setTitle(tr("Custom configs"));
             trayMenu_.addMenu(menu.get());
             connect(menu.get(), &LocationsTrayMenu::locationSelected, this, &TrayIcon::onLocationsTrayMenuLocationSelected);
@@ -277,8 +264,22 @@ void TrayIcon::clearMenu()
 {
     trayMenu_.clear();
 #ifndef Q_OS_LINUX
+    for (const auto &menu : locationsMenu_) {
+        clearMenuTree(menu.get());
+    }
     locationsMenu_.clear();
 #endif
+}
+
+void TrayIcon::clearMenuTree(QMenu *menu)
+{
+    // Qt frees a menu item's native counterpart (and its icon) only when the action is removed from a live menu;
+    // deleting a QMenu outright leaks them all. Empty every submenu bottom-up before the QMenus are deleted.
+    const QList<QMenu *> submenus = menu->findChildren<QMenu *>(QString(), Qt::FindDirectChildrenOnly);
+    for (QMenu *submenu : submenus) {
+        clearMenuTree(submenu);
+    }
+    menu->clear();
 }
 
 void TrayIcon::updateTrayIconColor()
@@ -477,8 +478,9 @@ void TrayIcon::checkTrayIconPosition()
 
 void TrayIcon::onDockedModeChanged(bool isDocked)
 {
-    // WORKAROUND (Qt 6.11.1 / macOS 27): no native context menu is attached/detached here because
-    // macOS pops the menu manually (see showTrayMenu). When the Qt crash is fixed upstream, restore
-    // the setContextMenu(nullptr)/setContextMenu(menu) swap for the docked/undocked transition.
-    Q_UNUSED(isDocked);
+    if (isDocked) {
+        trayIcon_.setContextMenu(nullptr);
+    } else {
+        trayIcon_.setContextMenu(&trayMenu_);
+    }
 }

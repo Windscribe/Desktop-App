@@ -44,6 +44,9 @@ static SystemExtensions_mac::SystemExtensionState unconfirmedQueryFallback()
 @interface SystemExtensionRequestDelegate : NSObject <OSSystemExtensionRequestDelegate>
 @property (nonatomic) BOOL isPropertiesRequest;
 @property (nonatomic) BOOL completed;
+@property (nonatomic) BOOL requireFreshState;
+@property (nonatomic) BOOL hasProperties;
+@property (nonatomic) quint64 activationGeneration;
 @property (nonatomic, copy) void (^onState)(SystemExtensions_mac::SystemExtensionState);
 @property (nonatomic, strong) SystemExtensionRequestDelegate *selfRef;
 - (void)finishWithState:(SystemExtensions_mac::SystemExtensionState)state;
@@ -65,6 +68,11 @@ static SystemExtensions_mac::SystemExtensionState unconfirmedQueryFallback()
         return;
     }
     self.completed = YES;
+    SystemExtensions_mac *inst = SystemExtensions_mac::instance();
+    if (self.requireFreshState && (!self.hasProperties || inst->isActivationInFlight() ||
+                                  self.activationGeneration != inst->activationGeneration())) {
+        state = SystemExtensions_mac::Unknown;
+    }
     // Mismatch bookkeeping sits at this chokepoint so the completed guard covers it (a late result
     // after the watchdog must not touch it).  Only a confirmed query carries a version; an unreadable
     // bundled version fails closed (activation is attempted, no session starts on the enabled copy).
@@ -81,12 +89,16 @@ static SystemExtensions_mac::SystemExtensionState unconfirmedQueryFallback()
     if (self.onState) {
         self.onState(state);
     }
+    if (self.requireFreshState && state != SystemExtensions_mac::Unknown) {
+        inst->onExtensionStateChanged(state);
+    }
     dispatch_async(dispatch_get_main_queue(), ^{ self.selfRef = nil; });
 }
 
 // Properties-query result.  Several entries can share our bundle id (e.g. a staged replacement beside
 // the old copy), so prefer enabled over awaiting-approval over disabled; absent means not installed.
 - (void)request:(nonnull OSSystemExtensionRequest *)request foundProperties:(nonnull NSArray<OSSystemExtensionProperties *> *)properties {
+    self.hasProperties = YES;
     BOOL found = NO;
     BOOL anyEnabled = NO;
     BOOL anyAwaitingApproval = NO;
@@ -164,9 +176,11 @@ static SystemExtensions_mac::SystemExtensionState unconfirmedQueryFallback()
 // timeout -- it may wait as long as the user takes in the approval dialog, and timing it out would
 // falsely report Inactive mid-approval.
 static void submitExtensionRequest(OSSystemExtensionRequest *request, BOOL isPropertiesRequest,
-                                   void (^onState)(SystemExtensions_mac::SystemExtensionState)) {
+                                   void (^onState)(SystemExtensions_mac::SystemExtensionState), BOOL requireFreshState = NO) {
     SystemExtensionRequestDelegate *delegate = [[SystemExtensionRequestDelegate alloc] init];
     delegate.isPropertiesRequest = isPropertiesRequest;
+    delegate.requireFreshState = requireFreshState;
+    delegate.activationGeneration = SystemExtensions_mac::instance()->activationGeneration();
     delegate.onState = onState;
     delegate.selfRef = delegate;
     request.delegate = delegate;
@@ -182,6 +196,23 @@ static void submitExtensionRequest(OSSystemExtensionRequest *request, BOOL isPro
             qCWarning(LOG_SPLIT_TUNNEL_EXTENSION) << "System extension properties request timed out";
             [strongDelegate finishWithState:unconfirmedQueryFallback()];
         }
+    });
+}
+
+void SystemExtensions_mac::queryFreshState(StateCallback callback)
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (instance()->activationInFlight_) {
+            callback(Unknown);
+            return;
+        }
+        OSSystemExtensionRequest *request = [OSSystemExtensionRequest
+            propertiesRequestForExtension:kSplitTunnelBundleId queue:dispatch_get_main_queue()];
+        if (!request) {
+            callback(Unknown);
+            return;
+        }
+        submitExtensionRequest(request, YES, ^(SystemExtensionState state) { callback(state); }, YES);
     });
 }
 
@@ -240,6 +271,7 @@ void SystemExtensions_mac::requestActivation() {
     }
 
     activationInFlight_ = true;
+    ++activationGeneration_;
     currentActivationRequest_ = (__bridge void *)request;
     qCInfo(LOG_SPLIT_TUNNEL_EXTENSION) << "Submitting system extension activation request";
     submitExtensionRequest(request, NO, ^(SystemExtensions_mac::SystemExtensionState state) {

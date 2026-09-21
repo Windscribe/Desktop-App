@@ -37,6 +37,34 @@ static std::vector<std::string> hostnamesVectorFromList(NSArray *hostnames)
     return result;
 }
 
+// Path-boundary prefix: "/Applications/Safari.app" matches itself and
+// "/Applications/Safari.app/Contents/...", but not "/Applications/Safari.app.evil".
+// A configured entry can carry a trailing separator ("/Applications/Safari.app/") -- it comes straight
+// from the preferences file, which only checks that the path exists -- and names the same bundle, so the
+// separator is stripped before comparing.  An entry that is nothing but separators names no app, and
+// matches nothing rather than every process on the system.
+static BOOL appPathMatchesPrefix(NSString *appPath, NSString *prefix)
+{
+    NSUInteger prefixLength = prefix.length;
+    while (prefixLength > 0 && [prefix characterAtIndex:prefixLength - 1] == '/') {
+        prefixLength--;
+    }
+    if (prefixLength == 0 || ![appPath hasPrefix:[prefix substringToIndex:prefixLength]]) {
+        return NO;
+    }
+    return appPath.length == prefixLength || [appPath characterAtIndex:prefixLength] == '/';
+}
+
+// How long a failed code-signing lookup suppresses a retry for the same audit token.  Long enough to
+// keep a UDP flow's per-datagram checks off the Security calls, short enough that a transient failure
+// costs one window rather than the life of the process.
+static const NSTimeInterval kAppPathFailureRetryInterval = 5.0;
+
+@interface Settings ()
+// Resolves the on-disk path of the process behind an audit token, or nil if it cannot be determined.
+- (NSString * _Nullable)resolveAppPathForAuditToken:(NSData *)auditToken;
+@end
+
 @implementation Settings
 
 @synthesize primaryInterface = primaryInterface_;
@@ -47,6 +75,10 @@ static std::vector<std::string> hostnamesVectorFromList(NSArray *hostnames)
     self = [super init];
     if (self) {
         lock_ = OS_UNFAIR_LOCK_INIT;
+        appPathCache_ = [[NSCache alloc] init];
+        appPathCache_.countLimit = 256;
+        appPathFailureCache_ = [[NSCache alloc] init];
+        appPathFailureCache_.countLimit = 256;
         if (!options) {
             if (error) {
                 *error = [NSError errorWithDomain:@WS_MAC_SPLIT_TUNNEL_BUNDLE_ID
@@ -154,80 +186,109 @@ static std::vector<std::string> hostnamesVectorFromList(NSArray *hostnames)
     }
     // manager (and the resolver thread it owns) is destroyed when the last reference drops.
 
-    primaryInterface_ = nil;
-    vpnInterface_ = nil;
+    // primaryInterface_/vpnInterface_ are deliberately left alone: they are unguarded start options (see
+    // the header) that flow callbacks still running on other queues read.  Clearing them here was a write
+    // racing those reads, and handleNewFlow: crashed in strcmp on the resulting NULL name.  They are
+    // released along with this object, which a stopped session drops anyway.
     isDebug_ = false;
 }
 
-- (BOOL)isInAppList:(NEAppProxyFlow *)flow paths:(NSArray *)appPaths {
-    BOOL result = NO;
-
-    // Create mutable attributes dictionary
+- (NSString * _Nullable)resolveAppPathForAuditToken:(NSData *)auditToken {
     CFMutableDictionaryRef mutableAttributes = CFDictionaryCreateMutable(NULL, 1,
         &kCFTypeDictionaryKeyCallBacks,
         &kCFTypeDictionaryValueCallBacks);
 
     if (!mutableAttributes) {
         spdlog::error("Failed to create mutable attributes dictionary");
-        return NO;
+        return nil;
     }
 
-    // Add audit token to dictionary
-    CFDictionaryAddValue(mutableAttributes, kSecGuestAttributeAudit, (CFDataRef)(flow.metaData.sourceAppAuditToken));
+    CFDictionaryAddValue(mutableAttributes, kSecGuestAttributeAudit, (__bridge CFDataRef)auditToken);
 
-    // Create immutable copy
     CFDictionaryRef attributes = CFDictionaryCreateCopy(NULL, mutableAttributes);
     CFRelease(mutableAttributes);
 
     if (!attributes) {
         spdlog::error("Failed to create immutable attributes dictionary");
-        return NO;
+        return nil;
     }
     auto attributesGuard = wsl::wsScopeGuard([attributes]{ CFRelease(attributes); });
 
-    // Get dynamic code reference
     SecCodeRef dynamicCodeRef = NULL;
-    OSStatus status = SecCodeCopyGuestWithAttributes(nil, attributes, kSecCSDefaultFlags, &dynamicCodeRef);
+    OSStatus status = SecCodeCopyGuestWithAttributes(NULL, attributes, kSecCSDefaultFlags, &dynamicCodeRef);
     if (status != errSecSuccess) {
         spdlog::error("Failed to create code reference from audit token: {}", status);
-        return NO;
+        return nil;
     }
     auto dynamicCodeGuard = wsl::wsScopeGuard([dynamicCodeRef]{ CFRelease(dynamicCodeRef); });
 
-    // Get static code reference
     SecStaticCodeRef codeRef = NULL;
     status = SecCodeCopyStaticCode(dynamicCodeRef, kSecCSDefaultFlags, &codeRef);
     if (status != errSecSuccess) {
         spdlog::error("Failed to get static code reference: {}", status);
-        return NO;
+        return nil;
     }
     auto codeGuard = wsl::wsScopeGuard([codeRef]{ CFRelease(codeRef); });
 
-    // Get path URL
     CFURLRef pathURL = NULL;
     status = SecCodeCopyPath(codeRef, kSecCSDefaultFlags, &pathURL);
     if (status != errSecSuccess) {
         spdlog::error("Failed to get path URL: {}", status);
-        return NO;
+        return nil;
     }
     auto pathGuard = wsl::wsScopeGuard([pathURL]{ CFRelease(pathURL); });
 
-    // Convert URL to path string
     NSString *appPath = [(__bridge NSURL *)pathURL path];
     if (!appPath) {
         spdlog::error("Failed to get path string");
-        return NO;
+        return nil;
+    }
+    return appPath;
+}
+
+- (SplitTunnelAppMatch)appMatchForFlow:(NEAppProxyFlow *)flow paths:(NSArray *)appPaths {
+    if (appPaths.count == 0) {
+        // Nothing to match against, so attribution cannot change the answer: No, not Unknown.
+        return SplitTunnelAppMatchNo;
     }
 
-    // Check if the app path starts with any of the paths in appPaths
+    // The token is nullable (a flow from a process the system cannot attribute has none), and handing a
+    // nil value to CFDictionaryAddValue below throws NSInvalidArgumentException, which would take the
+    // whole extension -- and with it every split flow -- down.  Logged at debug: UDP runs this per
+    // datagram, so an unattributable flow must not flood the log at the default error level.
+    NSData *auditToken = flow.metaData.sourceAppAuditToken;
+    if (!auditToken) {
+        spdlog::debug("Flow has no source app audit token");
+        return SplitTunnelAppMatchUnknown;
+    }
+
+    // Cache the resolved path, not membership in appPaths: a live update can swap the list, and
+    // SecCodeCopyGuestWithAttributes on every UDP datagram is the expensive part.
+    NSString *appPath = [appPathCache_ objectForKey:auditToken];
+    if (!appPath) {
+        // A token whose lookup just failed is not retried (nor logged again) until the window passes:
+        // failures are not cached, so without this every datagram of that flow repeats the three
+        // Security calls.  systemUptime is monotonic, so a wall-clock change cannot stretch the window.
+        const NSTimeInterval now = NSProcessInfo.processInfo.systemUptime;
+        NSNumber *lastFailure = [appPathFailureCache_ objectForKey:auditToken];
+        if (lastFailure && now - lastFailure.doubleValue < kAppPathFailureRetryInterval) {
+            return SplitTunnelAppMatchUnknown;
+        }
+
+        appPath = [self resolveAppPathForAuditToken:auditToken];
+        if (!appPath) {
+            [appPathFailureCache_ setObject:@(now) forKey:auditToken];
+            return SplitTunnelAppMatchUnknown;
+        }
+        [appPathCache_ setObject:appPath forKey:auditToken];
+    }
+
     for (NSString *path in appPaths) {
-        if ([appPath hasPrefix:path]) {
-            result = YES;
-            break;
+        if (appPathMatchesPrefix(appPath, path)) {
+            return SplitTunnelAppMatchYes;
         }
     }
-
-    return result;
+    return SplitTunnelAppMatchNo;
 }
 
 - (BOOL)isSplitTunnelApplicable:(NEAppProxyFlow *)flow remoteEndpoint:(nw_endpoint_t)remoteEndpoint {
@@ -243,7 +304,17 @@ static std::vector<std::string> hostnamesVectorFromList(NSArray *hostnames)
     manager = ipHostnamesManager_;
     os_unfair_lock_unlock(&lock_);
 
-    bool isInAppList = [self isInAppList:flow paths:appPaths];
+    const SplitTunnelAppMatch match = [self appMatchForFlow:flow paths:appPaths];
+
+    // The process could not be attributed, so fail closed: leave the flow on the default route, which is
+    // the tunnel.  Inclusive mode has to say so explicitly -- an unattributable flow would otherwise fall
+    // through to the IP check below and be split out of the tunnel on the strength of a lookup that never
+    // answered.  Exclusive mode already falls back to the tunnel, so Unknown and No lead to the same
+    // place there and the attribution-independent IP/hostname rules still get their say.
+    if (match == SplitTunnelAppMatchUnknown && !isExclude) {
+        return NO;
+    }
+    const bool isInAppList = (match == SplitTunnelAppMatchYes);
 
     // If excluding and app is in the app list, split tunnel this flow.
     if (isExclude && isInAppList) {

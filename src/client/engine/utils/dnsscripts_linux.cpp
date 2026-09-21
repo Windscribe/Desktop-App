@@ -1,8 +1,12 @@
 #include "dnsscripts_linux.h"
-#include "utils/log/categories.h"
+
 #include <QFile>
 #include <QProcess>
+#include <QRegularExpression>
 #include <QStandardPaths>
+#include <QTextStream>
+
+#include "utils/log/categories.h"
 
 DnsScripts_linux::SCRIPT_TYPE DnsScripts_linux::dnsManager() {
     if (dnsManager_ == DNS_MANAGER_AUTOMATIC) {
@@ -33,6 +37,7 @@ DnsScripts_linux::SCRIPT_TYPE DnsScripts_linux::detectScript()
     bool isSystemdResolvedServiceRunning = false;
     QString resolvConfFileSymlink;
     QString resolvConfFileHeader;
+    QString resolvConfText;
 
     // check if the resolvconf utility is installed and resolve its real target
     {
@@ -58,7 +63,8 @@ DnsScripts_linux::SCRIPT_TYPE DnsScripts_linux::detectScript()
     {
         QFile file("/etc/resolv.conf");
         if (file.open(QIODevice::ReadOnly)) {
-            QTextStream in(&file);
+            resolvConfText = QString::fromUtf8(file.readAll());
+            QTextStream in(&resolvConfText);
             while (!in.atEnd()) {
                 QString line = in.readLine();
                 if (line.startsWith("#")) {
@@ -74,20 +80,42 @@ DnsScripts_linux::SCRIPT_TYPE DnsScripts_linux::detectScript()
                           "; isSystemdResolvedServiceRunning =" << isSystemdResolvedServiceRunning << "; resolvConfFileSymlink =" << resolvConfFileSymlink;
     qCDebug(LOG_BASIC) << "/etc/resolv.conf header:" << resolvConfFileHeader;
 
-    // choosing a DNS-manager method based on the collected information
-    //
-    // first method: we check if the resolv.conf file is symlinked to determine what is being used
-    // and if its symlinked to: /run/systemd/resolve/resolv.conf then we know its systemd-resolved, regardless of which package is installed.
-    // also, the systemd-resolved service must be running
-    if (isSystemdResolvedServiceRunning && resolvConfFileSymlink.contains("/run/systemd", Qt::CaseInsensitive)) {
+    return selectScript(isSystemdResolvedServiceRunning, isResolvConfInstalled, resolvConfSymlink,
+                        resolvConfFileSymlink, resolvConfText);
+}
+
+DnsScripts_linux::SCRIPT_TYPE DnsScripts_linux::selectScript(bool serviceRunning, bool resolvconfInstalled,
+                                                           const QString &resolvconfTarget, const QString &resolvConfTarget,
+                                                           const QString &resolvConfText)
+{
+    static const QRegularExpression stubNameserver(
+        QStringLiteral("^[\\t ]*nameserver[\\t ]+127\\.0\\.0\\.(?:53|54)(?=[\\t \\r]*(?:[#;]|$))"),
+        QRegularExpression::MultilineOption);
+    static const QRegularExpression nameserverLine(
+        QStringLiteral("^[\\t ]*nameserver(?=[\\t \\r]|$)[^\\r\\n]*"), QRegularExpression::MultilineOption);
+    bool onlyResolvedStubs = false;
+    auto nameservers = nameserverLine.globalMatch(resolvConfText);
+    while (nameservers.hasNext()) {
+        onlyResolvedStubs = stubNameserver.match(nameservers.next().captured()).hasMatch();
+        if (!onlyResolvedStubs) {
+            break;
+        }
+    }
+    const bool usesResolved = resolvConfTarget == "/run/systemd/resolve/stub-resolv.conf"
+        || resolvConfTarget == "/run/systemd/resolve/resolv.conf"
+        || resolvConfTarget == "/usr/lib/systemd/resolv.conf"
+        || resolvConfTarget == "/lib/systemd/resolv.conf"
+        || onlyResolvedStubs;
+
+    // The stub can be configured in a regular file, independently of the installed resolvconf package.
+    // Only choose the direct resolved script when its service is running.
+    if (serviceRunning && usesResolved) {
         qCInfo(LOG_BASIC) << "The DNS installation method -> systemd-resolved";
         return SYSTEMD_RESOLVED;
     }
 
-    // second method: based on check that the resolvconf utility is installed and either:
-    // it's a symlink to resolvectl AND /etc/resolv.conf is a symlink to /run/systemd/... (systemd resolvconf) or,
-    // it's not a symlink (e.g. openresolv)
-    if (isResolvConfInstalled && (!resolvConfSymlink.endsWith("resolvectl") || resolvConfFileSymlink.contains("/run/systemd", Qt::CaseInsensitive))) {
+    // The resolvectl compatibility command needs resolved configuration; standalone resolvconf does not.
+    if (resolvconfInstalled && (!resolvconfTarget.endsWith("resolvectl") || usesResolved)) {
         qCInfo(LOG_BASIC) << "The DNS installation method -> resolvconf";
         return RESOLV_CONF;
     }

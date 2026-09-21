@@ -3,7 +3,6 @@
 
 ConnectedUsersCounter::ConnectedUsersCounter(QObject *parent) : QObject(parent)
 {
-    lastCnt_ = 0;
 }
 
 void ConnectedUsersCounter::newUserConnected(const QString &hostname)
@@ -20,7 +19,7 @@ void ConnectedUsersCounter::newUserConnected(const QString &hostname)
     checkUsersCount();
 }
 
-void ConnectedUsersCounter::userDiconnected(const QString &hostname)
+void ConnectedUsersCounter::userDisconnected(const QString &hostname)
 {
     auto it = connections_.find(hostname);
     if (it != connections_.end())
@@ -35,12 +34,6 @@ void ConnectedUsersCounter::userDiconnected(const QString &hostname)
     {
         WS_ASSERT(false);
     }
-    checkUsersCount();
-}
-
-void ConnectedUsersCounter::reset()
-{
-    connections_.clear();
     checkUsersCount();
 }
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QByteArray>
+#include "httpproxyheader.h"  // for shared is_char/is_ctl/etc.
 #include "httpproxyrequest.h"
 
 namespace HttpProxyServer {
@@ -20,11 +21,6 @@ private:
     HttpProxyRequest request_;
 
     TRI_BOOL consume(char input);
-
-    static bool is_char(int c);
-    static bool is_ctl(int c);
-    static bool is_tspecial(int c);
-    static bool is_digit(int c);
 
     enum state
     {

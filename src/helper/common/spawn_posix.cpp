@@ -392,6 +392,10 @@ bool spawnDetached(const std::string &exePath,
         }
         targetUid = pw->pw_uid;
         targetGid = pw->pw_gid;
+        if (targetUid == 0 || targetGid == 0) {
+            spdlog::error("spawnDetached: refusing to drop privileges to UID 0 or GID 0 for user \"{}\"", opts.runAsUser);
+            return false;
+        }
     }
 
     std::vector<std::string> envStorage = buildEnvStorage(opts.extraEnv);

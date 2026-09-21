@@ -26,6 +26,27 @@ static bool hasEmbeddedNul(const std::string &s)
     return s.find('\0') != std::string::npos;
 }
 
+// Digits only, so a sign or whitespace that strtol would skip past is rejected.
+static bool isValidPortNumber(const std::string &port)
+{
+    if (port.empty()) {
+        return false;
+    }
+    for (char c : port) {
+        if (c < '0' || c > '9') {
+            return false;
+        }
+    }
+    errno = 0;
+    long p = strtol(port.c_str(), nullptr, 10);
+    return errno == 0 && p >= 1 && p <= 65535;
+}
+
+static bool isBracketedIpAddress(const std::string &host)
+{
+    return host.size() > 2 && host.front() == '[' && host.back() == ']' && isValidIpAddress(host.substr(1, host.size() - 2));
+}
+
 bool isValidIpAddress(const std::string &ip)
 {
     // Reject a scope-id suffix (e.g. "fe80::1%en0"): make_address parses it as valid, but callers
@@ -135,19 +156,7 @@ bool isValidPeerEndpoint(const std::string &endpoint)
         return false;
     }
     std::string host = endpoint.substr(0, colon);
-    std::string port = endpoint.substr(colon + 1);
-
-    if (port.empty()) {
-        return false;
-    }
-    for (char c : port) {
-        if (c < '0' || c > '9') {
-            return false;
-        }
-    }
-    errno = 0;
-    long p = strtol(port.c_str(), nullptr, 10);
-    if (errno != 0 || p < 1 || p > 65535) {
+    if (!isValidPortNumber(endpoint.substr(colon + 1))) {
         return false;
     }
 
@@ -244,12 +253,9 @@ bool isValidDomain(const std::string &address)
         return false;
     }
 
+    // The host parser also succeeds on an empty host and on IP literals, which are not domains.
     auto domain = skyr::parse_host(address);
-    if (!domain) {
-        return false;
-    }
-
-    return true;
+    return domain && domain->is_domain_name();
 }
 
 bool isValidInterfaceName(const std::string &interfaceName)
@@ -374,6 +380,16 @@ std::string normalizeAddress(const std::string &address)
 
     if (isValidDomain(address)) {
         return addr;
+    }
+
+    // A DNS-over-TLS upstream on a non-default port is domain:port and an IPv6 resolver is
+    // [address]:port; neither is an address nor a URL form.
+    const size_t colon = address.rfind(':');
+    if (colon != std::string::npos && isValidPortNumber(address.substr(colon + 1))) {
+        const std::string host = address.substr(0, colon);
+        if (isValidDomain(host) || isBracketedIpAddress(host)) {
+            return addr;
+        }
     }
 
     auto url = skyr::parse(address);

@@ -1,5 +1,4 @@
 #include "httpproxywebanswer.h"
-#include "utils/ws_assert.h"
 #include "utils/boost_includes.h"
 #include "version/appversion.h"
 
@@ -7,12 +6,12 @@ namespace HttpProxyServer {
 
 long HttpProxyWebAnswer::getContentLength()
 {
-    //todo: make map instead vector
+    // Linear scan is fine (few headers). Could use QMap<QString, QString> if this becomes hot.
     for (auto it = headers.begin(); it != headers.end(); ++it)
     {
-        if (boost::iequals(it->name,"content-length"))
+        if (boost::iequals(it->name, "content-length"))
         {
-            return atol (it->value.c_str());
+            return atol(it->value.c_str());
         }
     }
     return -1;
@@ -21,13 +20,11 @@ long HttpProxyWebAnswer::getContentLength()
 std::string HttpProxyWebAnswer::processServerHeaders(unsigned int major, unsigned int minor)
 {
     std::string ret;
-    //todo: check buffer bounds
-    char buf[4096];
     bool isExistViaHeader = false;
-
+    const std::string via = std::to_string(major) + "." + std::to_string(minor) + " " WS_PRODUCT_NAME " proxy ("
+        + AppVersion::instance().version().toStdString() + "/" + AppVersion::instance().build().toStdString() + ")";
 
     ret = answer + "\r\n";
-
 
     for (auto it = headers.begin(); it != headers.end(); ++it)
     {
@@ -35,11 +32,7 @@ std::string HttpProxyWebAnswer::processServerHeaders(unsigned int major, unsigne
         {
             if (boost::iequals(it->name,"via"))
             {
-                int len = snprintf(buf, 4096, "Via: %s, %hu.%hu %s (%s/%s)\r\n",
-                        it->value.c_str(), (unsigned short)major, (unsigned short)minor, WS_PRODUCT_NAME " proxy", AppVersion::instance().version().toStdString().c_str(),
-                        AppVersion::instance().build().toStdString().c_str());
-                WS_ASSERT((unsigned int)len < sizeof(buf));
-                ret += buf;
+                ret += "Via: " + it->value + ", " + via + "\r\n";
                 isExistViaHeader = true;
             }
             else
@@ -51,12 +44,11 @@ std::string HttpProxyWebAnswer::processServerHeaders(unsigned int major, unsigne
 
     if (!isExistViaHeader)
     {
-        int len = snprintf(buf, 4096, "Via: %hu.%hu %s (%s/%s)\r\n",
-                (unsigned short)major, (unsigned short)minor, WS_PRODUCT_NAME " proxy", AppVersion::instance().version().toStdString().c_str(),
-                AppVersion::instance().build().toStdString().c_str());
-        WS_ASSERT((unsigned int)len < sizeof(buf));
-        ret += buf;
+        ret += "Via: " + via + "\r\n";
     }
+
+    // The upstream connection carries a single request, so the client must not reuse this one either.
+    ret += "Connection: close\r\n";
 
     ret += "\r\n";
 

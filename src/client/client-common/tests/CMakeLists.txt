@@ -41,6 +41,22 @@ if(IS_BUILD_TESTS)
         ws_add_test(networkutilslinux)
     endif()
 
+    # Linux-only: Utils::execCmd pins the child's locale only on Linux, where system utilities translate
+    # their output.
+    if(UNIX AND NOT APPLE)
+        add_executable(utilslinux.test
+            utilslinux.test.cpp
+            utilslinux.test.h
+        )
+        target_link_libraries(utilslinux.test PRIVATE
+            Qt6::Test Qt6::Network engine client-common spdlog::spdlog ${OS_SPECIFIC_LIBRARIES})
+        target_include_directories(utilslinux.test PRIVATE
+            ${PROJECT_DIRECTORY}/client-common
+        )
+        set_target_properties(utilslinux.test PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
+        ws_add_test(utilslinux)
+    endif()
+
     # Linux-only: DnsLeakParse reads resolvectl/nmcli output. Compiles the parser and ipaddress
     # directly instead of linking client-common, keeping the target free of Qt — the same module is
     # compiled into the root helper, which has no Qt.

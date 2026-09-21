@@ -586,6 +586,14 @@ Se perderes o hash da tua conta, ele desaparece para sempre e o suporte não te 
 <context>
     <name>MainWindow</name>
     <message>
+        <source>Split Tunneling Stopped</source>
+        <translation>Túnel dividido parado</translation>
+    </message>
+    <message>
+        <source>The split tunneling session ended unexpectedly. Please reconnect to retry. If this persists, please contact support.</source>
+        <translation>A sessão do túnel dividido terminou inesperadamente. Volte a ligar-se para tentar novamente. Se o problema persistir, contacte o suporte.</translation>
+    </message>
+    <message>
         <source>Logging you in...</source>
         <translation>A iniciar sessão...</translation>
     </message>

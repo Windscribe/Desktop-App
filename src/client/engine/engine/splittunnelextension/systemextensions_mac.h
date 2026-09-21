@@ -1,6 +1,7 @@
 #pragma once
 
 #include <atomic>
+#include <functional>
 
 #include <QObject>
 
@@ -15,6 +16,12 @@ public:
         PendingUserApproval,
         Unknown
     };
+
+    using StateCallback = std::function<void(SystemExtensionState)>;
+
+    // Independent properties query begun after a session failure; never substitutes cached state.
+    // The callback runs on the macOS main queue, with Unknown on failure or timeout.
+    static void queryFreshState(StateCallback callback);
 
     // The last state delivered through onExtensionStateChanged; unconfirmed queries fall back to it
     // (see unconfirmedQueryFallback in the .mm).
@@ -38,6 +45,9 @@ public:
     // in the .mm).
     void setEnabledVersionMismatch(bool mismatch) { enabledVersionMismatch_ = mismatch; }
 
+    bool isActivationInFlight() const { return activationInFlight_; }
+    quint64 activationGeneration() const { return activationGeneration_; }
+
 signals:
     void stateChanged(SystemExtensionState newState);
 
@@ -45,6 +55,7 @@ public slots:
     void onExtensionStateChanged(SystemExtensionState newState);
 
 private:
+    friend class TestSplitTunnelExtensionManager;
     SystemExtensions_mac();
     ~SystemExtensions_mac();
 
@@ -77,6 +88,7 @@ private:
     // supersede a prompt the user dismissed (see requestActivation).  Deliberately no watchdog: the OS
     // always delivers some delegate report, and a submit with no report after it is diagnosable in logs.
     bool activationInFlight_ = false;
+    quint64 activationGeneration_ = 0;
 
     // Identity of the most recent activation request (unretained, compared only, never dereferenced).
     // A prompt left pending stays open at the OS after its report clears the flag; when a re-enable

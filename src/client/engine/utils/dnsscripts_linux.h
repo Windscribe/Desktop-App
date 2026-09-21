@@ -1,7 +1,8 @@
 #pragma once
 
-#include "types/enums.h"
 #include <QString>
+
+#include "types/enums.h"
 
 class IHelper;
 class QWidget;
@@ -23,6 +24,8 @@ public:
 
 private:
     DnsScripts_linux();
+    static SCRIPT_TYPE selectScript(bool serviceRunning, bool resolvconfInstalled, const QString &resolvconfTarget,
+                                    const QString &resolvConfTarget, const QString &resolvConfText);
 
     DNS_MANAGER_TYPE dnsManager_;
     SCRIPT_TYPE detectScript();

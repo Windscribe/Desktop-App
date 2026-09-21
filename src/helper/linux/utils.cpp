@@ -37,14 +37,19 @@ int executeCommand(const std::string &cmd, const std::vector<std::string> &args,
         pOutputStr->clear();
     }
 
+    // Utilities such as nmcli and ping translate their output under a non-English locale, which breaks
+    // the callers that parse it. C.UTF-8 rather than C so non-ASCII connection names survive nmcli's
+    // charset conversion; LANGUAGE is unset because older glibc lets it override LC_ALL for messages.
+    const std::string localeEnv = "export LC_ALL=C.UTF-8; unset LANGUAGE; ";
+
     // Merge stderr into stdout via a subshell and read only that one pipe: draining two pipes
     // separately can deadlock if the child fills the one we aren't reading. The ( ) wrapper makes
     // the redirect cover every stage of a pipeline, not just the last, and leaves the exit status
     // unchanged.
     if (appendFromStdErr) {
-        cmdLine = "( " + cmdLine + " ) 2>&1";
+        cmdLine = "( " + localeEnv + cmdLine + " ) 2>&1";
     } else {
-        cmdLine = "( " + cmdLine + " ) 2>/dev/null";
+        cmdLine = "( " + localeEnv + cmdLine + " ) 2>/dev/null";
     }
 
     redi::ipstream proc(cmdLine, redi::pstreams::pstdout);

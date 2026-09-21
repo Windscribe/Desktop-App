@@ -39,6 +39,8 @@ bool SocksProxyIdentReqParser::consume(char input)
         if (bytesReaded_ == (sizeof(ident_req_.Version) + sizeof(identReq().NumberOfMethods)))
         {
             state_ = methods;
+            // With no methods the request ends here; reading on would consume the next message's bytes.
+            return identReq().NumberOfMethods == 0;
         }
     }
     else if (state_ == methods)

@@ -27,4 +27,4 @@ inline bool secureEqual(const QByteArray &a, const QByteArray &b)
     return diff == 0;
 }
 
-}  // namespace ProxyAuth
+} // namespace ProxyAuth

@@ -3,6 +3,7 @@
 #include <QDir>
 #include <QStandardPaths>
 #include "utils/log/categories.h"
+#include "utils/networkingvalidation.h"
 #include "utils/ws_assert.h"
 
 CtrldManager_posix::CtrldManager_posix(QObject *parent, Helper *helper, bool isCreateLog) : ICtrldManager(parent, isCreateLog), helper_(helper), bProcessStarted_(false)
@@ -19,7 +20,8 @@ bool CtrldManager_posix::runProcess(const QString &upstream1, const QString &ups
 {
     WS_ASSERT(!bProcessStarted_);
 
-    if (helper_->startCtrld(addWsSuffix(upstream1), addWsSuffix(upstream2), domains, isCreateLog_)) {
+    if (helper_->startCtrld(NetworkingValidation::ctrldUpstream(upstream1), NetworkingValidation::ctrldUpstream(upstream2),
+                            domains, isCreateLog_)) {
         bProcessStarted_ = true;
         qCInfo(LOG_CTRLD) << "ctrld started";
     }

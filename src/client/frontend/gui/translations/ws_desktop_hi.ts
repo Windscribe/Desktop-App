@@ -586,6 +586,14 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
 <context>
     <name>MainWindow</name>
     <message>
+        <source>Split Tunneling Stopped</source>
+        <translation>स्प्लिट टनलिंग रुक गई</translation>
+    </message>
+    <message>
+        <source>The split tunneling session ended unexpectedly. Please reconnect to retry. If this persists, please contact support.</source>
+        <translation>स्प्लिट टनलिंग सत्र अप्रत्याशित रूप से समाप्त हो गया। कृपया दोबारा प्रयास करने के लिए फिर से कनेक्ट करें। यदि समस्या बनी रहती है, तो कृपया सहायता से संपर्क करें।</translation>
+    </message>
+    <message>
         <source>Logging you in...</source>
         <translation>आपको लॉग इन करें ...</translation>
     </message>

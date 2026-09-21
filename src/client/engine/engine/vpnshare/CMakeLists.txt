@@ -7,6 +7,8 @@ target_sources(engine PRIVATE
         httpproxyserver/httpproxyconnection.h
         httpproxyserver/httpproxyconnectionmanager.cpp
         httpproxyserver/httpproxyconnectionmanager.h
+        proxyconnectionmanager.cpp
+        proxyconnectionmanager.h
         httpproxyserver/httpproxyheader.h
         httpproxyserver/httpproxyreply.cpp
         httpproxyserver/httpproxyreply.h
@@ -20,6 +22,7 @@ target_sources(engine PRIVATE
         httpproxyserver/httpproxywebanswer.h
         httpproxyserver/httpproxywebanswerparser.cpp
         httpproxyserver/httpproxywebanswerparser.h
+        socketutils/nativesocket.h
         socketutils/socketwriteall.cpp
         socketutils/socketwriteall.h
         socksproxyserver/socksproxycommandparser.cpp
@@ -30,8 +33,6 @@ target_sources(engine PRIVATE
         socksproxyserver/socksproxyconnectionmanager.h
         socksproxyserver/socksproxyidentreqparser.cpp
         socksproxyserver/socksproxyidentreqparser.h
-        socksproxyserver/socksproxyreadexactly.cpp
-        socksproxyserver/socksproxyreadexactly.h
         socksproxyserver/socksproxyserver.cpp
         socksproxyserver/socksproxyserver.h
         socksproxyserver/socksstructs.h

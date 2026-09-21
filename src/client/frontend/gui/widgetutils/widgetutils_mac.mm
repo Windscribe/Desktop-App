@@ -1,11 +1,20 @@
-#import <Cocoa/Cocoa.h>
-#include <AppKit/AppKit.h>
-
-#include <QIcon>
 #include "widgetutils_mac.h"
-#include "dpiscalemanager.h"
+
+#import <Cocoa/Cocoa.h>
+#import <objc/runtime.h>
 
 #include <QDebug>
+#include <QIcon>
+
+#include "dpiscalemanager.h"
+
+namespace {
+
+void ignoreTrayMenuTracking(id, SEL, NSNotification *)
+{
+}
+
+}
 
 void WidgetUtils_mac::allowMinimizeForFramelessWindow(QWidget *window)
 {
@@ -40,6 +49,13 @@ void WidgetUtils_mac::allowMoveBetweenSpacesForWindow(QWidget *window, bool dock
     } else {
         [nsWindow setCollectionBehavior:NSWindowCollectionBehaviorDefault];
     }
+}
+
+void WidgetUtils_mac::disableQtTrayMenuTrackingCallback()
+{
+    Class delegateClass = objc_getClass("QStatusItemDelegate");
+    Method callback = class_getInstanceMethod(delegateClass, @selector(statusItemMenuBeganTracking:));
+    method_setImplementation(callback, reinterpret_cast<IMP>(ignoreTrayMenuTracking));
 }
 
 void WidgetUtils_mac::setNeedsDisplayForWindow(QWidget *widget)

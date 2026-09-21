@@ -4,17 +4,18 @@
 #include <chrono>
 #include <cstring>
 #include <filesystem>
+#include <spdlog/spdlog.h>
 #include <sstream>
 #include <sys/stat.h>
 #include <sys/wait.h>
 #include <thread>
 #include <unistd.h>
-#include <spdlog/spdlog.h>
 
-#include "3rdparty/pstream.h"
-#include "firewallonboot.h"
 #include "../common/io_posix.h"
 #include "../common/validation_posix.h"
+#include "3rdparty/pstream.h"
+#include "directory_mac.h"
+#include "firewallonboot.h"
 
 namespace Utils
 {
@@ -162,34 +163,6 @@ std::vector<std::string> getOpenVpnExeNames()
     return { WS_PRODUCT_NAME_LOWER "openvpn" };
 }
 
-void createAppUserAndGroup()
-{
-    // Always attempt to recreate group/user, even if they exist.
-
-    // Create group
-    Utils::executeCommand("dscl", {".", "-create", "/Groups/" WS_PRODUCT_NAME_LOWER});
-    // Below attributes are required for group to be considered valid
-    Utils::executeCommand("dscl", {".", "-create", "/Groups/" WS_PRODUCT_NAME_LOWER, "gid", WS_MAC_GID});
-    Utils::executeCommand("dscl", {".", "-create", "/Groups/" WS_PRODUCT_NAME_LOWER, "passwd", "*"});
-    Utils::executeCommand("dscl", {".", "-create", "/Groups/" WS_PRODUCT_NAME_LOWER, "GroupMembership", WS_PRODUCT_NAME_LOWER});
-    Utils::executeCommand("dscl", {".", "-create", "/Groups/" WS_PRODUCT_NAME_LOWER, "RealName", WS_PRODUCT_NAME " Apps Group"});
-
-    // Create user
-    Utils::executeCommand("dscl", {".", "-create", "/Users/" WS_PRODUCT_NAME_LOWER, "IsHidden", "1"});
-    // Below attributes are required for user to be considered valid
-    Utils::executeCommand("dscl", {".", "-create", "/Users/" WS_PRODUCT_NAME_LOWER, "gid", WS_MAC_GID});
-    // For some reason macOS may prompt on this if the user already exists with an uid, so only do this if the user's uid is not set
-
-    std::string uidStr;
-    Utils::executeCommand("id", {"-u", WS_PRODUCT_NAME_LOWER}, &uidStr);
-    if (uidStr != WS_MAC_UID "\n") {
-        spdlog::info("Creating " WS_PRODUCT_NAME_LOWER " user with uid " WS_MAC_UID " (existing uid {})", uidStr);
-        Utils::executeCommand("dscl", {".", "-create", "/Users/" WS_PRODUCT_NAME_LOWER, "uid", WS_MAC_UID});
-    }
-    Utils::executeCommand("dscl", {".", "-create", "/Users/" WS_PRODUCT_NAME_LOWER, "passwd", "*"});
-    Utils::executeCommand("dscl", {".", "-create", "/Users/" WS_PRODUCT_NAME_LOWER, "RealName", WS_PRODUCT_NAME " Apps User"});
-    Utils::executeCommand("dscl", {".", "-create", "/Users/" WS_PRODUCT_NAME_LOWER, "UserShell", "/bin/false"});
-}
 
 bool isAppUninstalled()
 {
@@ -226,10 +199,13 @@ void deleteSelf()
     if (ec) {
         spdlog::warn("Failed to remove archive temp dir: {}", ec.message());
     }
-    // Note that the following command generally fails with a permission error and does not actually remove the user.
-    // It seems on MacOS you need a Secure Token account to delete a user, and even though the privileged helper is running as root, it doesn't have a Secure Token.
-    Utils::executeCommand("dscl", {".", "-delete", "/Users/" WS_PRODUCT_NAME_LOWER});
-    Utils::executeCommand("dscl", {".", "-delete", "/Groups/" WS_PRODUCT_NAME_LOWER});
+    // The following deletion generally fails with a permission error: macOS appears to require a Secure Token account
+    // to delete a user, and the privileged helper has no Secure Token even though it runs as root.
+    Directory::Node node;
+    if (node) {
+        node.deleteRecord(Directory::RecordType::User, WS_PRODUCT_NAME_LOWER);
+        node.deleteRecord(Directory::RecordType::Group, WS_PRODUCT_NAME_LOWER);
+    }
 }
 
 bool hasWhitespaceInString(const std::string &str)

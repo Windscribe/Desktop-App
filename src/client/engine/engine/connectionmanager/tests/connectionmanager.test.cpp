@@ -11,7 +11,6 @@
 #include "engine/connectionmanager/classifyconnecterror.h"
 #include "engine/connectionmanager/connectionmanager.h"
 #include "engine/connectionmanager/connectors/connectionfactory.h"
-#include "engine/connectionmanager/isleepevents.h"
 #include "engine/dns/dnsconfigurator.h"
 #include "engine/helper/helper.h"
 #include "extraconfig_mock.h"
@@ -1791,6 +1790,53 @@ void TestConnectionManager::testDnsSplitDnsPassesUpstreamsAndHostnames()
     QCOMPARE(dnsConfigurator_->primaryDnsServer(), QString("127.0.0.10"));
     QCOMPARE(dnsConfigurator_->tunnelDnsServers("10.255.255.2"), QStringList() << "1.2.3.4" << "127.0.0.10");
     QCOMPARE(dnsConfigurator_->dnsWhitelistIps(), QStringList() << "127.0.0.10" << "1.2.3.4" << "5.6.7.8");
+}
+
+void TestConnectionManager::testDnsIncompleteSplitDns_data()
+{
+    QTest::addColumn<QString>("primary");
+    QTest::addColumn<QString>("secondary");
+    QTest::addColumn<QStringList>("domains");
+    QTest::addColumn<bool>("proxy");
+    QTest::addColumn<bool>("enabled");
+
+    QTest::newRow("ip-no-domains") << QString("1.1.1.1") << QString("1.0.0.1") << QStringList() << false << true;
+    QTest::newRow("ip-no-secondary") << QString("1.1.1.1") << QString() << QStringList("example.com") << false << true;
+    QTest::newRow("ip-neither") << QString("1.1.1.1") << QString() << QStringList() << false << true;
+    QTest::newRow("doh-no-domains") << QString("https://dns.example.com/query") << QString("1.0.0.1") << QStringList() << true << true;
+    QTest::newRow("doh-no-secondary") << QString("https://dns.example.com/query") << QString() << QStringList("example.com") << true << true;
+    QTest::newRow("ip-disabled") << QString("1.1.1.1") << QString("1.0.0.1")
+                                << QStringList("example.com") << false << false;
+    QTest::newRow("doh-disabled") << QString("https://dns.example.com/query") << QString("1.0.0.1")
+                                 << QStringList("example.com") << true << false;
+}
+
+void TestConnectionManager::testDnsIncompleteSplitDns()
+{
+    QFETCH(QString, primary);
+    QFETCH(QString, secondary);
+    QFETCH(QStringList, domains);
+    QFETCH(bool, proxy);
+    QFETCH(bool, enabled);
+    types::ConnectedDnsInfo info = makeDnsInfo(CONNECTED_DNS_TYPE_CUSTOM, primary);
+    info.isSplitDns = enabled;
+    info.upStream2 = secondary;
+    info.hostnames = domains;
+    QVERIFY(!info.isSplitDnsActive());
+    dnsConfigurator_->setConnectedDnsInfo(info);
+
+    QVERIFY(dnsConfigurator_->prepare());
+    QCOMPARE(ctrldManager_->runCount(), proxy ? 1 : 0);
+    const QString expectedDns = proxy ? QString("127.0.0.10") : primary;
+    QCOMPARE(dnsConfigurator_->primaryDnsServer(), expectedDns);
+    QCOMPARE(dnsConfigurator_->tunnelDnsServers("10.255.255.2"), QStringList(expectedDns));
+    QVERIFY(!info.ctrldPlainUpstreamIps().contains("1.0.0.1"));
+    if (proxy) {
+        QCOMPARE(ctrldManager_->lastUpstream1(), primary);
+        QVERIFY(ctrldManager_->lastUpstream2().isEmpty());
+        QVERIFY(ctrldManager_->lastDomains().isEmpty());
+        QCOMPARE(dnsConfigurator_->dnsWhitelistIps(), QStringList(expectedDns));
+    }
 }
 
 void TestConnectionManager::testDnsDohUpstreamQueries()

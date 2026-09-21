@@ -90,6 +90,40 @@ void testIsValidPeerEndpoint()
     VERIFY(!Validation::isValidPeerEndpoint(withNul("1.2.3.4", kPayload + ":51820")));
 }
 
+void testIsValidDomain()
+{
+    VERIFY(Validation::isValidDomain("dns.quad9.net"));
+    VERIFY(Validation::isValidDomain("1dot1dot1dot1.cloudflare-dns.com"));
+    VERIFY(Validation::isValidDomain("*.company.int"));
+    VERIFY(!Validation::isValidDomain(""));
+    VERIFY(!Validation::isValidDomain("1.2.3.4"));
+    VERIFY(!Validation::isValidDomain("127.1"));
+    VERIFY(!Validation::isValidDomain("[::1]"));
+    VERIFY(!Validation::isValidDomain("::1"));
+    VERIFY(!Validation::isValidDomain(withNul("dns.quad9.net", kPayload)));
+}
+
+void testNormalizeAddress()
+{
+    VERIFY(Validation::normalizeAddress("dns.quad9.net") == "dns.quad9.net");
+    VERIFY(Validation::normalizeAddress("dns.quad9.net:443") == "dns.quad9.net:443");
+    VERIFY(Validation::normalizeAddress("1dot1dot1dot1.cloudflare-dns.com:443") == "1dot1dot1dot1.cloudflare-dns.com:443");
+    VERIFY(Validation::normalizeAddress("https://dns.controld.com/abcd?int=ws") == "https://dns.controld.com/abcd?int=ws");
+    VERIFY(Validation::normalizeAddress("1dot1dot1dot1.cloudflare-dns.com:0").empty());
+    VERIFY(Validation::normalizeAddress("1dot1dot1dot1.cloudflare-dns.com:").empty());
+    VERIFY(Validation::normalizeAddress("1dot1dot1dot1.cloudflare-dns.com:65536").empty());
+    VERIFY(Validation::normalizeAddress("1dot1dot1dot1.cloudflare-dns.com:+443").empty());
+    VERIFY(Validation::normalizeAddress(":443").empty());
+    VERIFY(Validation::normalizeAddress("[::1]:443") == "[::1]:443");
+    VERIFY(Validation::normalizeAddress("127.1:443").empty());
+    VERIFY(Validation::normalizeAddress("[2620:fe::fe]:53") == "[2620:fe::fe]:53");
+    VERIFY(Validation::normalizeAddress("[2620:fe::fe]").empty());
+    VERIFY(Validation::normalizeAddress("[2620:fe::fe]:0").empty());
+    VERIFY(Validation::normalizeAddress("[fe80::1%en0]:53").empty());
+    VERIFY(Validation::normalizeAddress("[dns.quad9.net]:53").empty());
+    VERIFY(Validation::normalizeAddress(withNul("dns.quad9.net", ":443")).empty());
+}
+
 void testIpLists()
 {
     VERIFY(Validation::isValidIpList("1.1.1.1, 8.8.8.8"));
@@ -119,6 +153,8 @@ int main()
     testIsValidIpCidr();
     testIsValidIpv4Cidr();
     testIsValidPeerEndpoint();
+    testIsValidDomain();
+    testNormalizeAddress();
     testIpLists();
     testTypesIpAddress();
 

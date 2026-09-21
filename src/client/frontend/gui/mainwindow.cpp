@@ -2183,6 +2183,7 @@ void MainWindow::onBackendMyIpChanged(QString ip, bool isFromDisconnectedState)
 
 void MainWindow::onBackendConnectStateChanged(const types::ConnectState &connectState)
 {
+    splitTunnelFailurePolicy_.onConnectionStateChanged(connectState.connectState);
     mainWindowController_->getConnectWindow()->updateConnectState(connectState);
 
     if (connectState.location.isValid()) {
@@ -3426,24 +3427,6 @@ void MainWindow::onTrayActivated(QSystemTrayIcon::ActivationReason reason)
                 setBackendAppActiveState(false);
             }
             break;
-#elif defined(Q_OS_MACOS)
-        case QSystemTrayIcon::Trigger:
-        case QSystemTrayIcon::DoubleClick:
-            deactivationTimer_.stop();
-            if (backend_->getPreferences()->isDockedToTray()) {
-                onDockIconClicked();
-            } else {
-                // WORKAROUND (Qt 6.11.1 / macOS 27): pop the menu manually instead of relying on a
-                // native context menu attached to the status item. See the setContextMenu guard in
-                // TrayIcon's constructor. Revert to the shared handling once Qt is fixed upstream.
-                trayIcon_->showTrayMenu();
-            }
-            break;
-        case QSystemTrayIcon::Context:
-            if (!backend_->getPreferences()->isDockedToTray()) {
-                trayIcon_->showTrayMenu();
-            }
-            break;
 #else
         case QSystemTrayIcon::Trigger:
         case QSystemTrayIcon::DoubleClick:
@@ -3960,30 +3943,29 @@ void MainWindow::onSelectedLocationRemoved()
 
 void MainWindow::onSplitTunnelingStartFailed(SPLIT_TUNNEL_START_FAIL_REASON reason)
 {
-    // The connect-status path emits this on any post-connect helper failure, which is not specific to
-    // split tunneling; ignore it entirely unless the feature is actually on, so a user who never
-    // enabled split tunneling is not shown a "split tunneling could not be started" dialog.  This gate
-    // is also what dedups overlapping failures: the disable below clears the flag synchronously, so a
-    // second emission arriving while the dialog is still up returns here rather than relying on the
-    // alert system to suppress a duplicate.
-    if (!backend_->getPreferences()->splitTunnelingSettings().active) {
+    const auto action = splitTunnelFailurePolicy_.handle(reason, backend_->getPreferences()->splitTunnelingSettings().active);
+    if (action.disable) {
+        // The connect-window toggle has its own signal, separate from the Preferences setting.
+        types::SplitTunnelingSettings settings = backend_->getPreferences()->splitTunnelingSettings();
+        settings.active = false;
+        backend_->getPreferences()->setSplitTunnelingSettings(settings);
+        mainWindowController_->getConnectWindow()->setSplitTunnelingState(false);
+    }
+    if (!action.show) {
         return;
     }
 
-    // Disable the feature at the source of truth right away, before the dialog is shown.  This emits
-    // splitTunnelingChanged, which updates the Preferences UI and notifies the engine; the connect
-    // window toggle is driven by a separate signal, so it is cleared explicitly.
-    types::SplitTunnelingSettings settings = backend_->getPreferences()->splitTunnelingSettings();
-    settings.active = false;
-    backend_->getPreferences()->setSplitTunnelingSettings(settings);
-
-    mainWindowController_->getConnectWindow()->setSplitTunnelingState(false);
-
 #if defined(Q_OS_MACOS)
+    if (reason == SPLIT_TUNNEL_START_FAIL_REASON_MAC_SESSION_ENDED) {
+        GeneralMessageController::instance().showMessage("WARNING_YELLOW",
+            tr("Split Tunneling Stopped"),
+            tr("The split tunneling session ended unexpectedly. Please reconnect to retry. "
+               "If this persists, please contact support."),
+            GeneralMessageController::tr(GeneralMessageController::kOk));
+        return;
+    }
     if (reason == SPLIT_TUNNEL_START_FAIL_REASON_MAC_EXTENSION_NOT_ENABLED) {
-        // The extension couldn't run (disabled in System Settings, or a dead session ambiguous between
-        // a crash and a not-yet-seen disable).  Guide the user to System Settings -- actionable for both
-        // (re-enabling restarts a crashed provider).  Only the connect-status failure falls through.
+        // Only a confirmed disabled or missing extension directs the user to System Settings.
         GeneralMessageController::instance().showMessage("WARNING_YELLOW",
                                                tr("Error Starting Split Tunneling"),
                                                tr("The split tunneling feature has been disabled because the Windscribe split tunnel extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again."),

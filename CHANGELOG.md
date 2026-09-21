@@ -1,3 +1,26 @@
+2.25.1 (21/09/2026)
+All:
+   * Improved Custom Connected DNS to support scheme-prefixed DoT endpoints, including an explicit default port. #2006
+   * Improved Custom Connected DNS handling to avoid starting ctrld for a plain-IP upstream when Split DNS has no domains configured. #2003
+   * Fixed intentional ctrld shutdowns being logged as crashes. #2003
+   * Fixed Proxy Gateway retaining silent, unauthenticated connections without connection limits or a handshake timeout. Reported by Souparna Majumder. #1994
+Windows:
+   * Improved split tunneling compatibility with other WFP redirectors to address potential system crashes. #1967
+   * Fixed network name and per-network settings remaining stale after waking on a different network through the same adapter. #1982
+   * Fixed installer starting the previous uninstaller before the helper service has finished stopping. #1993
+   * Fixed potential IKEv2 reconnect loop when asynchronous RAS disconnect notification fails to register with the OS. #1999
+macOS:
+   * Improved service-account creation and validation, including handling user ID conflicts and reporting creation failures. #2000
+   * Fixed menu bar icon not opening the app while another application is full screen. #1986
+   * Fixed a potential split tunneling extension crash caused by unsynchronized connection-table updates. #1998
+   * Fixed potential app crash when connecting with a custom OpenVPN config. #2008
+Linux:
+   * Fixed local privilege escalation vulnerability involving custom OpenVPN config parsing. #1996
+   * Fixed CLI-only app ignoring the Launch on Startup preference when disabled. #1988
+   * Fixed MTU detection and hotspot adapter detection failing with non-English system locales. #1989
+   * Fixed systemd-resolved detection for additional resolv.conf symlink targets and stub-resolver configurations. #2002
+
+
 2.24.13 (08/09/2026)
 Windows:
    * Fixed app crash on startup when the user profile path contains non-ASCII characters. #1992

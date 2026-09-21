@@ -73,6 +73,10 @@ TRI_BOOL SocksProxyCommandParser::consume(char input)
     else if (state_ == domain_len)
     {
         cmd_.DestAddr.DomainLen = input;
+        if (cmd_.DestAddr.DomainLen == 0)
+        {
+            return TRI_FALSE;
+        }
         bytesReaded_++;
         domainNameReaded_ = 0;
         state_ = domain_name;
@@ -90,7 +94,7 @@ TRI_BOOL SocksProxyCommandParser::consume(char input)
     else if (state_ == address_ipv4)
     {
         char *p = (char *)&cmd_.DestAddr.IPv4;
-        p[sizeof(cmd_.DestAddr.IPv4) - addressReaded_ - 1] = input;
+        p[addressReaded_] = input;
         addressReaded_++;
         if (addressReaded_ == sizeof(cmd_.DestAddr.IPv4))
         {
@@ -101,7 +105,7 @@ TRI_BOOL SocksProxyCommandParser::consume(char input)
     else if (state_ == address_ipv6)
     {
         char *p = (char *)&cmd_.DestAddr.IPv6;
-        p[sizeof(cmd_.DestAddr.IPv6) - addressReaded_ - 1] = input;
+        p[addressReaded_] = input;
         addressReaded_++;
         if (addressReaded_ == sizeof(cmd_.DestAddr.IPv6))
         {
@@ -112,12 +116,18 @@ TRI_BOOL SocksProxyCommandParser::consume(char input)
     else if (state_ == port)
     {
         char *p = (char *)&cmd_.DestPort;
-        p[sizeof(cmd_.DestPort) - portReaded_ - 1] = input;
+        p[portReaded_] = input;
         portReaded_++;
         if (portReaded_ == sizeof(cmd_.DestPort))
         {
+            state_ = done;
             return TRI_TRUE;
         }
+    }
+    else if (state_ == done)
+    {
+        // A completed command accepts nothing more; further bytes must not be written anywhere.
+        return TRI_FALSE;
     }
     else
     {
