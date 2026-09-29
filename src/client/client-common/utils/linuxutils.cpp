@@ -2,6 +2,7 @@
 
 #include <QDir>
 #include <QFile>
+#include <QHash>
 #include <QProcess>
 #include <QRegularExpression>
 #include <QSet>
@@ -14,6 +15,7 @@
 #include "log/categories.h"
 
 #include "utils.h"
+#include "steamgames.h"
 
 namespace LinuxUtils
 {
@@ -128,6 +130,18 @@ QMap<QString, QString> enumerateInstalledPrograms()
 {
     QMap<QString, QString> programs;
 
+    // Steam games run via `steam steam://rungameid/<id>`, which resolves to the Steam launcher
+    // script and would collapse every game into a single "steam" entry (and never match the
+    // game's own processes). Resolve them to their install directories instead, so each game
+    // appears and is excluded individually; the helper matches any executable under such a
+    // directory entry.
+    const std::vector<SteamGames::Game> steamGames = SteamGames::enumerateInstalledGames();
+    QHash<QString, QString> steamDirByAppId;
+    for (const auto &game : steamGames) {
+        steamDirByAppId.insert(QString::fromStdString(game.appId),
+                               QString::fromStdString(game.installDir));
+    }
+
     // On Linux, we are looking for desktop entries. These are located under the applications dir at ~/.local/share, and each dir in $XDG_DATA_DIRS
     QByteArray xdgDataDirs = qgetenv("XDG_DATA_DIRS");
     if (xdgDataDirs.isEmpty()) {
@@ -175,9 +189,26 @@ QMap<QString, QString> enumerateInstalledPrograms()
             if (idx == -1) {
                 continue;
             }
+            const QString execLine = contents[idx].mid(5);
+
+            // Steam's per-game desktop entries launch through a steam:// URL. Map the app id to
+            // the game's install directory when the game is installed; otherwise fall through,
+            // leaving the entry as the Steam launcher (which the helper excludes as a tree).
+            static const QRegularExpression steamRunRe("steam://rungameid/(\\d+)");
+            const QRegularExpressionMatch steamMatch = steamRunRe.match(execLine);
+            if (steamMatch.hasMatch()) {
+                const QString gameDir = steamDirByAppId.value(steamMatch.captured(1));
+                if (!gameDir.isEmpty()) {
+                    seenEntries.insert(filename);
+                    const int iconIdx = contents.indexOf(QRegularExpression("^Icon=.*"));
+                    programs[gameDir] = iconIdx == -1 ? QStringLiteral("steam")
+                                                      : contents[iconIdx].mid(5);
+                    continue;
+                }
+            }
 
             // Extract the contents of the first Exec= line
-            QString exec = extractExeName(contents[idx].mid(5));
+            QString exec = extractExeName(execLine);
             if (!exec.isEmpty()) {
                 seenEntries.insert(filename);
                 int iconIdx = contents.indexOf(QRegularExpression("^Icon=.*"));
@@ -188,6 +219,16 @@ QMap<QString, QString> enumerateInstalledPrograms()
                     programs[exec] = contents[iconIdx].mid(5);
                 }
             }
+        }
+    }
+
+    // Steam only writes desktop entries for games the user gave a shortcut; list every other
+    // installed library game too so it is selectable by name. The row's display name comes from
+    // the install directory's basename; "steam" is the icon-theme fallback.
+    for (const auto &game : steamGames) {
+        const QString gameDir = QString::fromStdString(game.installDir);
+        if (!programs.contains(gameDir)) {
+            programs[gameDir] = QStringLiteral("steam");
         }
     }
     return programs;
