@@ -301,7 +301,9 @@ private:
 struct SplitTunneling
 {
     static constexpr int kMaxApps = 50;
-    static constexpr int kMaxHostnames = 50;
+    // Raised from 50: large hostname-based split-tunnel lists are a supported use case
+    // (well under the 4 MiB helper IPC frame limit at ~260 bytes/hostname worst case).
+    static constexpr int kMaxHostnames = 500;
     static constexpr int kMaxIpRoutes = 4096;
     static constexpr int kMaxStringLen = 4096;
 
