@@ -7,22 +7,9 @@
 #include <algorithm>
 #include <cctype>
 #include <string>
-#include <string_view>
 #include <vector>
 
 namespace path_matching {
-
-// Pressure-vessel (Steam's sandbox) bind-mounts host system paths under /run/host, so
-// paths read out of /proc for sandboxed processes may carry that prefix.
-inline std::string stripRunHostPrefix(const std::string &path)
-{
-    constexpr std::string_view kPrefix = "/run/host";
-    if (path.size() > kPrefix.size() && path.compare(0, kPrefix.size(), kPrefix) == 0
-        && path[kPrefix.size()] == '/') {
-        return path.substr(kPrefix.size());
-    }
-    return path;
-}
 
 inline std::vector<std::string> splitPathLower(const std::string &s, char sep)
 {

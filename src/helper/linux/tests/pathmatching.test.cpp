@@ -1,8 +1,8 @@
 // Regression tests for the split-tunneling process monitor's wine/Proton path matching
 // (path_matching.h).  A Proton game's /proc/<pid>/exe is the wine preloader inside the
 // Proton install, never the game binary, so directory rules can never match the exe; the
-// fallback signals are the process working directory and argv[0]'s Windows drive-mapped
-// path (live-observed form: "S:\common\Deadlock\game\bin\win64\deadlock.exe" against rule
+// match signal is argv[0]'s Windows drive-mapped path (live-observed form:
+// "S:\common\Deadlock\game\bin\win64\deadlock.exe" against rule
 // /mnt/big/SteamLibrary/steamapps/common/Deadlock).  These cases pin the matching
 // semantics and the false-positive gates.  No external test framework; returns the number
 // of failed checks (0 on success).
@@ -69,12 +69,7 @@ int main()
     VERIFY(!windowsPathMatchesRule("deadlock.exe", deadlockDir, true));
     VERIFY(!windowsPathMatchesRule("", deadlockDir, true));
 
-    VERIFY(stripRunHostPrefix("/run/host/usr/bin/foo") == "/usr/bin/foo");
-    VERIFY(stripRunHostPrefix("/run/host") == "/run/host");            // no trailing component: unchanged
-    VERIFY(stripRunHostPrefix("/run/hosto/usr/bin/foo") == "/run/hosto/usr/bin/foo"); // prefix must be a full component
-    VERIFY(stripRunHostPrefix("/usr/bin/foo") == "/usr/bin/foo");
-
-    // Live preloader exe observed via /proc on the user's machine.
+    // The exe gate must hold for the live preloader exe observed via /proc.
     VERIFY(exeLooksLikeWineHost("/run/host/usr/share/steam/compatibilitytools.d/proton-cachyos-slr/files/lib/wine/x86_64-unix/wine64-preloader"));
     VERIFY(exeLooksLikeWineHost("/usr/bin/wineserver"));
     VERIFY(exeLooksLikeWineHost("/opt/lutris/.../files/bin/wine64"));
