@@ -1,6 +1,5 @@
 #pragma once
 
-#include <chrono>
 #include <condition_variable>
 #include <mutex>
 #include <optional>
@@ -55,9 +54,6 @@ private:
     std::condition_variable rulesCv_;
     bool rulesWake_ = false;
     bool rulesStop_ = false;
-    // Periodic re-resolution (staleness guard: symlinks are re-resolved on every rebuild, but
-    // an entry set long before a game update would otherwise never trigger one).
-    std::chrono::steady_clock::time_point lastRulesBuild_;
 
     bool functional_;
     bool testing_;
@@ -71,7 +67,7 @@ private:
     void rulesWorker();
     void requestRulesRebuild();
     void scanAndAddAll();
-    void removeAppsForEntry(const std::string &entry);
+    void removeAppsForEntry(const std::string &entry, const std::vector<AppRule> &rules);
     std::vector<pid_t> findPidsForRule(const AppRule &rule);
     std::string getCmdByPid(pid_t pid);
     std::optional<std::string> getFlatpakAppIdByPid(pid_t pid);

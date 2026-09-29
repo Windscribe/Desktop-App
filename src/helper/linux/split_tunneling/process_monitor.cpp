@@ -271,7 +271,6 @@ void ProcessMonitor::rulesWorker()
             std::lock_guard<std::mutex> guard(appsMutex_);
             rules_ = std::move(newRules);
         }
-        lastRulesBuild_ = std::chrono::steady_clock::now();
 
         // Rules changed: re-scan so entries added while their game is already running take
         // effect now, without waiting for the next launch.
@@ -293,8 +292,10 @@ void ProcessMonitor::requestRulesRebuild()
 void ProcessMonitor::setApps(const std::vector<std::string> &apps)
 {
     std::vector<std::string> removed;
+    std::vector<AppRule> oldRules;
     {
         std::lock_guard<std::mutex> guard(appsMutex_);
+        oldRules = rules_;
         for (const auto &old : apps_) {
             if (std::find(apps.begin(), apps.end(), old) == apps.end()) {
                 removed.push_back(old);
@@ -303,12 +304,13 @@ void ProcessMonitor::setApps(const std::vector<std::string> &apps)
         apps_ = apps;
     }
 
-    // Removals are applied synchronously against the rules that admitted those processes;
-    // additions land via the worker's post-swap rescan (ruleFor touches the filesystem and
-    // must stay off the IPC command thread).
+    // Removals are applied synchronously against a snapshot of the rules that admitted
+    // those processes, taken before the entry swap so a concurrent worker rebuild cannot
+    // drop the entry's rule mid-removal; additions land via the worker's post-swap rescan
+    // (ruleFor touches the filesystem and must stay off the IPC command thread).
     if (isEnabled_) {
         for (const auto &entry : removed) {
-            removeAppsForEntry(entry);
+            removeAppsForEntry(entry, oldRules);
         }
     }
     requestRulesRebuild();
@@ -432,14 +434,8 @@ void ProcessMonitor::scanAndAddAll()
     }
 }
 
-void ProcessMonitor::removeAppsForEntry(const std::string &entry) {
+void ProcessMonitor::removeAppsForEntry(const std::string &entry, const std::vector<AppRule> &rules) {
     spdlog::info("process monitor remove app: {}", entry);
-
-    std::vector<AppRule> rules;
-    {
-        std::lock_guard<std::mutex> guard(appsMutex_);
-        rules = rules_;
-    }
 
     std::vector<pid_t> pids;
     for (const AppRule &rule : rules) {
