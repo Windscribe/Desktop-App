@@ -20,6 +20,7 @@
 #include <spdlog/spdlog.h>
 
 #include "cgroups.h"
+#include "path_matching.h"
 #include "../utils.h"
 
 #define SEND_MESSAGE_LEN (NLMSG_LENGTH(sizeof(struct cn_msg) + sizeof(enum proc_cn_mcast_op)))
@@ -129,6 +130,22 @@ std::optional<std::vector<std::string>> readArgv(pid_t pid)
         return std::nullopt;
     }
     return argv;
+}
+
+// Pressure-vessel path remapping, Windows drive-mapped path matching and their gating
+// predicates live in path_matching.h (pure, unit-testable).  This namespace keeps only
+// the /proc readers.
+
+std::optional<std::string> getCwdByPid(pid_t pid)
+{
+    char buf[PATH_MAX];
+    const std::string link = "/proc/" + std::to_string(pid) + "/cwd";
+    const ssize_t n = readlink(link.c_str(), buf, PATH_MAX - 1);
+    if (n <= 0) {
+        return std::nullopt;
+    }
+    buf[n] = '\0';
+    return std::string(buf);
 }
 
 } // namespace
@@ -451,6 +468,8 @@ bool ProcessMonitor::compareCmd(pid_t pid, const std::vector<AppRule> &rules) {
     std::string cmd = getCmdByPid(pid);
     std::optional<std::vector<std::string>> argv;
     bool argvRead = false;
+    std::optional<std::string> cwd;
+    bool cwdRead = false;
     std::optional<std::string> flatpakId;
     bool flatpakIdComputed = false;
 
@@ -510,6 +529,47 @@ bool ProcessMonitor::compareCmd(pid_t pid, const std::vector<AppRule> &rules) {
             if (argv) {
                 for (const std::string &token : *argv) {
                     if (token == rule.raw || token == rule.canonical) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        // Wine/Proton games: /proc/<pid>/exe is the wine preloader inside the Proton
+        // install (rendered under /run/host by pressure-vessel), never the game binary,
+        // so neither file nor directory rules can match it.  The game process still
+        // identifies itself through its working directory (wine points it at the game
+        // install tree) and, for wine hosts only, argv[0] carrying the Windows
+        // drive-mapped exe path.  Shells are exempt from the cwd signal: a user shell
+        // cd'd into an excluded directory would pass the exemption to every child it
+        // spawns.
+        if (rule.isDirectory && !path_matching::isShellExePath(cmd)) {
+            if (!cwdRead) {
+                cwd = getCwdByPid(pid);
+                cwdRead = true;
+            }
+            if (cwd) {
+                const std::string c = path_matching::stripRunHostPrefix(*cwd);
+                if (c.rfind(rule.canonicalSlash, 0) == 0 || c.rfind(rule.rawSlash, 0) == 0) {
+                    return true;
+                }
+            }
+        }
+
+        // The exe gate mirrors the script-matching discipline: only trust a Windows
+        // drive-mapped argv token when the process exe is actually a wine host binary,
+        // so unrelated programs that merely mention such a path cannot match.
+        if (path_matching::exeLooksLikeWineHost(cmd)) {
+            if (!argvRead) {
+                argv = readArgv(pid);
+                argvRead = true;
+            }
+            if (argv) {
+                const bool sameRulePath = (rule.raw == rule.canonical);
+                for (const std::string &token : *argv) {
+                    if (path_matching::windowsPathMatchesRule(token, rule.canonical, rule.isDirectory)
+                        || (!sameRulePath
+                            && path_matching::windowsPathMatchesRule(token, rule.raw, rule.isDirectory))) {
                         return true;
                     }
                 }
