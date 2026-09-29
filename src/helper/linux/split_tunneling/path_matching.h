@@ -52,8 +52,7 @@ inline std::vector<std::string> splitPathLower(const std::string &s, char sep)
 // ("bin") cannot produce a false positive.  A directory rule matches when the token path
 // continues below the rule dir; a file rule only when the token is exactly that file.
 // Known limitation: a prefix whose drive maps exactly to the rule dir itself (some Lutris
-// setups) shares no path components with the rule and cannot match here; the caller's
-// working-directory signal covers that case.
+// setups) shares no path components with the rule and cannot match here.
 inline bool windowsPathMatchesRule(const std::string &token, const std::string &rulePath, bool isDirectory)
 {
     // Cheap prune before any copies: a Windows drive-mapped token must contain ':'.
@@ -120,19 +119,6 @@ inline bool exeLooksLikeWineHost(const std::string &exe)
     const size_t slash = exe.rfind('/');
     const std::string base = (slash == std::string::npos) ? exe : exe.substr(slash + 1);
     return base.rfind("wine", 0) == 0;
-}
-
-// True for interactive shells.  Used to keep the working-directory signal from
-// classifying a shell the user cd'd into an excluded directory: cgroup membership is
-// inherited by the shell's future children, which would silently bypass the VPN.
-inline bool isShellExePath(const std::string &exe)
-{
-    const size_t slash = exe.rfind('/');
-    const std::string_view base = (slash == std::string::npos)
-        ? std::string_view(exe)
-        : std::string_view(exe).substr(slash + 1);
-    return base == "sh" || base == "bash" || base == "dash" || base == "zsh"
-        || base == "ksh" || base == "fish" || base == "csh" || base == "tcsh";
 }
 
 } // namespace path_matching

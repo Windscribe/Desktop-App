@@ -83,14 +83,6 @@ int main()
     VERIFY(!exeLooksLikeWineHost("/usr/bin/gwine"));
     VERIFY(!exeLooksLikeWineHost("/usr/bin/steam"));
 
-    VERIFY(isShellExePath("/usr/bin/bash"));
-    VERIFY(isShellExePath("/bin/dash"));
-    VERIFY(isShellExePath("/run/host/usr/bin/zsh"));
-    VERIFY(isShellExePath("fish"));
-    VERIFY(!isShellExePath("/usr/bin/gamescope"));
-    VERIFY(!isShellExePath("/run/host/usr/share/steam/compatibilitytools.d/proton-cachyos-slr/files/lib/wine/x86_64-unix/wine64-preloader"));
-    VERIFY(!isShellExePath("/usr/bin/python3.13"));
-
     if (g_failures == 0) {
         printf("pathmatching.test: all checks passed\n");
     } else {

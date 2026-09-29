@@ -136,18 +136,6 @@ std::optional<std::vector<std::string>> readArgv(pid_t pid)
 // predicates live in path_matching.h (pure, unit-testable).  This namespace keeps only
 // the /proc readers.
 
-std::optional<std::string> getCwdByPid(pid_t pid)
-{
-    char buf[PATH_MAX];
-    const std::string link = "/proc/" + std::to_string(pid) + "/cwd";
-    const ssize_t n = readlink(link.c_str(), buf, PATH_MAX - 1);
-    if (n <= 0) {
-        return std::nullopt;
-    }
-    buf[n] = '\0';
-    return std::string(buf);
-}
-
 } // namespace
 
 void ProcessMonitor::monitorWorker(void *ctx)
@@ -167,6 +155,12 @@ void ProcessMonitor::monitorWorker(void *ctx)
             spdlog::error("process monitor poll error {}", ret);
             return;
         } else if (ret == 0) {
+            // Idle tick: periodically re-resolve rules so symlinks moved by game updates
+            // do not go stale for the rest of the session (240 ticks x 250 ms = 60 s).
+            if (++idleTicks_ >= 240) {
+                idleTicks_ = 0;
+                requestRulesRebuild();
+            }
             continue;
         }
 
@@ -233,45 +227,91 @@ void ProcessMonitor::monitorWorker(void *ctx)
 ProcessMonitor::ProcessMonitor() : isEnabled_(false), thread_(nullptr), sock_(-1), running_(false), functional_(false), testing_(false)
 {
     selfTest();
+
+    rulesThread_ = std::thread(&ProcessMonitor::rulesWorker, this);
 }
 
 ProcessMonitor::~ProcessMonitor()
 {
     stopMonitoring();
+
+    {
+        std::lock_guard<std::mutex> guard(rulesMutex_);
+        rulesStop_ = true;
+    }
+    rulesCv_.notify_all();
+    if (rulesThread_.joinable()) {
+        rulesThread_.join();
+    }
+}
+
+void ProcessMonitor::rulesWorker()
+{
+    std::vector<std::string> apps;
+    while (true) {
+        {
+            std::unique_lock<std::mutex> lock(rulesMutex_);
+            rulesCv_.wait(lock, [this] { return rulesWake_ || rulesStop_; });
+            if (rulesStop_) {
+                return;
+            }
+            rulesWake_ = false;
+        }
+
+        {
+            std::lock_guard<std::mutex> guard(appsMutex_);
+            apps = apps_;
+        }
+        std::vector<AppRule> newRules;
+        newRules.reserve(apps.size());
+        for (const auto &app : apps) {
+            newRules.push_back(ruleFor(app));
+        }
+        {
+            std::lock_guard<std::mutex> guard(appsMutex_);
+            rules_ = std::move(newRules);
+        }
+        lastRulesBuild_ = std::chrono::steady_clock::now();
+
+        // Rules changed: re-scan so entries added while their game is already running take
+        // effect now, without waiting for the next launch.
+        if (isEnabled_) {
+            scanAndAddAll();
+        }
+    }
+}
+
+void ProcessMonitor::requestRulesRebuild()
+{
+    {
+        std::lock_guard<std::mutex> guard(rulesMutex_);
+        rulesWake_ = true;
+    }
+    rulesCv_.notify_all();
 }
 
 void ProcessMonitor::setApps(const std::vector<std::string> &apps)
 {
-    // Build the rules before taking the lock: ruleFor does filesystem I/O, and the monitor
-    // thread needs the same mutex for its per-batch snapshot — holding it across stat/open
-    // calls on a slow path would stall event processing.
-    std::vector<AppRule> newRules;
-    newRules.reserve(apps.size());
-    for (const auto &app : apps) {
-        newRules.push_back(ruleFor(app));
-    }
-
-    std::vector<std::string> oldApps;
+    std::vector<std::string> removed;
     {
         std::lock_guard<std::mutex> guard(appsMutex_);
-        oldApps = apps_;
+        for (const auto &old : apps_) {
+            if (std::find(apps.begin(), apps.end(), old) == apps.end()) {
+                removed.push_back(old);
+            }
+        }
         apps_ = apps;
-        rules_ = std::move(newRules);
     }
 
+    // Removals are applied synchronously against the rules that admitted those processes;
+    // additions land via the worker's post-swap rescan (ruleFor touches the filesystem and
+    // must stay off the IPC command thread).
     if (isEnabled_) {
-        for (auto app : apps) {
-            if (std::find(oldApps.begin(), oldApps.end(), app) == oldApps.end()) {
-                addApp(app);
-            }
-        }
-
-        for (auto app : oldApps) {
-            if (std::find(apps.begin(), apps.end(), app) == apps.end()) {
-                removeApp(app);
-            }
+        for (const auto &entry : removed) {
+            removeAppsForEntry(entry);
         }
     }
+    requestRulesRebuild();
 }
 
 bool ProcessMonitor::enable()
@@ -297,14 +337,7 @@ bool ProcessMonitor::enable()
         return false;
     }
 
-    std::vector<std::string> apps;
-    {
-        std::lock_guard<std::mutex> guard(appsMutex_);
-        apps = apps_;
-    }
-    for (auto app : apps) {
-        addApp(app);
-    }
+    scanAndAddAll();
     isEnabled_ = true;
     return true;
 }
@@ -363,18 +396,59 @@ ProcessMonitor::AppRule ProcessMonitor::ruleFor(const std::string &app)
     return rule;
 }
 
-void ProcessMonitor::addApp(const std::string &exe) {
-    spdlog::info("process monitor add app: {}", exe);
-    const std::vector<pid_t> pids = expandToDescendants(findPids(exe));
-    for (auto pid : pids) {
+// Scans /proc against the current rules and moves every matching process (plus its living
+// subtree — membership is inherited only on fork, never retroactively) into the cgroup.
+// Idempotent: writing an already-member pid to cgroup.procs is a no-op.
+void ProcessMonitor::scanAndAddAll()
+{
+    std::vector<AppRule> rules;
+    {
+        std::lock_guard<std::mutex> guard(appsMutex_);
+        rules = rules_;
+    }
+    if (rules.empty()) {
+        return;
+    }
+
+    std::vector<pid_t> pids;
+    DIR *dp = opendir("/proc");
+    if (dp == NULL) {
+        spdlog::error("process monitor could not open /proc filesystem");
+        return;
+    }
+    struct dirent *ep;
+    while ((ep = readdir(dp))) {
+        if (ep->d_type == DT_DIR && ep->d_name[0] >= '0' && ep->d_name[0] <= '9') {
+            const pid_t pid = std::stoi(ep->d_name);
+            if (compareCmd(pid, rules)) {
+                pids.push_back(pid);
+            }
+        }
+    }
+    closedir(dp);
+
+    for (auto pid : expandToDescendants(pids)) {
         CGroups::instance().addApp(pid);
     }
 }
 
-void ProcessMonitor::removeApp(const std::string &exe) {
-    spdlog::info("process monitor remove app: {}", exe);
-    const std::vector<pid_t> pids = expandToDescendants(findPids(exe));
-    for (auto pid : pids) {
+void ProcessMonitor::removeAppsForEntry(const std::string &entry) {
+    spdlog::info("process monitor remove app: {}", entry);
+
+    std::vector<AppRule> rules;
+    {
+        std::lock_guard<std::mutex> guard(appsMutex_);
+        rules = rules_;
+    }
+
+    std::vector<pid_t> pids;
+    for (const AppRule &rule : rules) {
+        if (rule.raw == entry) {
+            const std::vector<pid_t> matches = findPidsForRule(rule);
+            pids.insert(pids.end(), matches.begin(), matches.end());
+        }
+    }
+    for (auto pid : expandToDescendants(pids)) {
         CGroups::instance().removeApp(pid);
     }
 }
@@ -437,10 +511,9 @@ std::vector<pid_t> ProcessMonitor::expandToDescendants(const std::vector<pid_t> 
     return std::vector<pid_t>(selected.begin(), selected.end());
 }
 
-std::vector<pid_t> ProcessMonitor::findPids(const std::string &exe)
+std::vector<pid_t> ProcessMonitor::findPidsForRule(const AppRule &rule)
 {
     std::vector<pid_t> pids;
-    const AppRule rule = ruleFor(exe); // classify the entry once, not once per /proc entry
 
     DIR *dp = NULL;
     struct dirent *ep;
@@ -468,8 +541,6 @@ bool ProcessMonitor::compareCmd(pid_t pid, const std::vector<AppRule> &rules) {
     std::string cmd = getCmdByPid(pid);
     std::optional<std::vector<std::string>> argv;
     bool argvRead = false;
-    std::optional<std::string> cwd;
-    bool cwdRead = false;
     std::optional<std::string> flatpakId;
     bool flatpakIdComputed = false;
 
@@ -537,28 +608,14 @@ bool ProcessMonitor::compareCmd(pid_t pid, const std::vector<AppRule> &rules) {
 
         // Wine/Proton games: /proc/<pid>/exe is the wine preloader inside the Proton
         // install (rendered under /run/host by pressure-vessel), never the game binary,
-        // so neither file nor directory rules can match it.  The game process still
-        // identifies itself through its working directory (wine points it at the game
-        // install tree) and, for wine hosts only, argv[0] carrying the Windows
-        // drive-mapped exe path.  Shells are exempt from the cwd signal: a user shell
-        // cd'd into an excluded directory would pass the exemption to every child it
-        // spawns.
-        if (rule.isDirectory && !path_matching::isShellExePath(cmd)) {
-            if (!cwdRead) {
-                cwd = getCwdByPid(pid);
-                cwdRead = true;
-            }
-            if (cwd) {
-                const std::string c = path_matching::stripRunHostPrefix(*cwd);
-                if (c.rfind(rule.canonicalSlash, 0) == 0 || c.rfind(rule.rawSlash, 0) == 0) {
-                    return true;
-                }
-            }
-        }
-
-        // The exe gate mirrors the script-matching discipline: only trust a Windows
-        // drive-mapped argv token when the process exe is actually a wine host binary,
-        // so unrelated programs that merely mention such a path cannot match.
+        // so neither file nor directory rules can match it.  The game process is
+        // identified through argv[0], which carries the Windows drive-mapped exe path.
+        // Matching deliberately does NOT use the working directory: a shell cd'd into
+        // an excluded directory would pass the exemption to every child it spawns,
+        // letting any executable selectively escape the tunnel.  The exe gate below
+        // mirrors the script-matching discipline: only trust a Windows drive-mapped
+        // argv token when the process exe is actually a wine host binary, so unrelated
+        // programs that merely mention such a path cannot match.
         if (path_matching::exeLooksLikeWineHost(cmd)) {
             if (!argvRead) {
                 argv = readArgv(pid);

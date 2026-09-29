@@ -1,5 +1,7 @@
 #pragma once
 
+#include <chrono>
+#include <condition_variable>
 #include <mutex>
 #include <optional>
 #include <string>
@@ -34,25 +36,43 @@ private:
 
     bool isEnabled_;
     std::vector<std::string> apps_;  // raw entries in client form (add/remove diff logic)
-    std::vector<AppRule> rules_;     // matching form of apps_, rebuilt together with apps_
-    std::mutex appsMutex_;           // guards apps_/rules_ against the monitor thread
+    std::vector<AppRule> rules_;     // matching form of apps_, maintained by the rules worker
+    std::mutex appsMutex_;           // guards apps_/rules_ against the monitor and rules threads
 
     std::thread *thread_;
     int sock_;
     bool running_;
 
+    // Rule construction touches the filesystem (realpath/stat on client-supplied paths), which
+    // can block indefinitely on an unresponsive FUSE/SMB/NFS mount.  It therefore runs on a
+    // dedicated worker thread, never on the netlink monitor or IPC command threads: setApps()
+    // only swaps in the raw entry list and wakes the worker, which resolves, swaps in the new
+    // rules, and rescans /proc so entries added while a game is already running take effect
+    // without a relaunch.  The monitor thread keeps matching against the previous rules until
+    // the swap lands.
+    std::thread rulesThread_;
+    std::mutex rulesMutex_;
+    std::condition_variable rulesCv_;
+    bool rulesWake_ = false;
+    bool rulesStop_ = false;
+    // Periodic re-resolution (staleness guard: symlinks are re-resolved on every rebuild, but
+    // an entry set long before a game update would otherwise never trigger one).
+    std::chrono::steady_clock::time_point lastRulesBuild_;
+
     bool functional_;
     bool testing_;
+    int idleTicks_ = 0;  // monitorWorker's 250 ms poll timeout counter (rules refresh cadence)
 
     ProcessMonitor();
     ~ProcessMonitor();
-
     static AppRule ruleFor(const std::string &app);
     static std::vector<pid_t> expandToDescendants(const std::vector<pid_t> &roots);
 
-    void addApp(const std::string &exe);
-    void removeApp(const std::string &exe);
-    std::vector<pid_t> findPids(const std::string &exe);
+    void rulesWorker();
+    void requestRulesRebuild();
+    void scanAndAddAll();
+    void removeAppsForEntry(const std::string &entry);
+    std::vector<pid_t> findPidsForRule(const AppRule &rule);
     std::string getCmdByPid(pid_t pid);
     std::optional<std::string> getFlatpakAppIdByPid(pid_t pid);
 
