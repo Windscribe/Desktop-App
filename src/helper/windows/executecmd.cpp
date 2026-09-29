@@ -4,7 +4,9 @@
 
 #include <spdlog/spdlog.h>
 #include "utils.h"
+#include "utils/systemlibloader.h"
 #include "utils/win32handle.h"
+#include "utils/wsscopeguard.h"
 
 ExecuteCmdResult ExecuteCmd::executeBlockingCmd(const std::wstring &cmd, HANDLE user_token)
 {
@@ -107,6 +109,116 @@ ExecuteCmdResult ExecuteCmd::executeNonblockingCmd(const std::wstring &cmd, cons
     }
 
     return res;
+}
+
+ExecuteCmdResult ExecuteCmd::executeNonblockingCmdAsUser(const std::wstring &exePath, const std::wstring &cmdLine,
+                                                         const std::wstring &workingDir, HANDLE userToken,
+                                                         HANDLE inheritHandle, HANDLE *outProcessHandle)
+{
+    ExecuteCmdResult res;
+    if (outProcessHandle) {
+        *outProcessHandle = NULL;
+    }
+
+    if (userToken == nullptr || userToken == INVALID_HANDLE_VALUE) {
+        spdlog::error("executeNonblockingCmdAsUser: missing user token");
+        return res;
+    }
+    if (exePath.empty() || cmdLine.empty()) {
+        spdlog::error("executeNonblockingCmdAsUser: empty exe or command line");
+        return res;
+    }
+
+    std::unique_ptr<wchar_t[]> exec(new wchar_t[32767]);
+    wcsncpy_s(exec.get(), 32767, cmdLine.c_str(), _TRUNCATE);
+
+    const bool inherit = (inheritHandle != nullptr && inheritHandle != INVALID_HANDLE_VALUE);
+    const DWORD attrCount = inherit ? 1 : 0;
+
+    SIZE_T attrSize = 0;
+    ::InitializeProcThreadAttributeList(nullptr, attrCount, 0, &attrSize);
+    if (attrSize == 0) {
+        spdlog::error("executeNonblockingCmdAsUser InitializeProcThreadAttributeList(size) failed: {}", ::GetLastError());
+        return res;
+    }
+
+    auto *attrList = static_cast<LPPROC_THREAD_ATTRIBUTE_LIST>(::HeapAlloc(::GetProcessHeap(), 0, attrSize));
+    if (attrList == nullptr) {
+        spdlog::error("executeNonblockingCmdAsUser HeapAlloc failed");
+        return res;
+    }
+    auto freeAttr = wsl::wsScopeGuard([&] {
+        ::DeleteProcThreadAttributeList(attrList);
+        ::HeapFree(::GetProcessHeap(), 0, attrList);
+    });
+
+    if (!::InitializeProcThreadAttributeList(attrList, attrCount, 0, &attrSize)) {
+        spdlog::error("executeNonblockingCmdAsUser InitializeProcThreadAttributeList failed: {}", ::GetLastError());
+        freeAttr.dismiss();
+        ::HeapFree(::GetProcessHeap(), 0, attrList);
+        return res;
+    }
+
+    HANDLE inheritHandles[1] = { inheritHandle };
+    if (inherit) {
+        if (!::UpdateProcThreadAttribute(attrList, 0, PROC_THREAD_ATTRIBUTE_HANDLE_LIST,
+                                         inheritHandles, sizeof(HANDLE), nullptr, nullptr)) {
+            spdlog::error("executeNonblockingCmdAsUser UpdateProcThreadAttribute failed: {}", ::GetLastError());
+            return res;
+        }
+    }
+
+    STARTUPINFOEXW siex;
+    ZeroMemory(&siex, sizeof(siex));
+    siex.StartupInfo.cb = sizeof(siex);
+    siex.lpAttributeList = attrList;
+
+    PVOID envBlock = nullptr;
+    bool haveEnv = false;
+    try {
+        // This DLL is not in the KnownDLLs list.
+        wsl::SystemLibLoader userenvLib("userenv.dll");
+        const auto createEnvironmentBlock = userenvLib.getFunction<BOOL WINAPI(LPVOID *, HANDLE, BOOL)>("CreateEnvironmentBlock");
+        const auto destroyEnvironmentBlock = userenvLib.getFunction<BOOL WINAPI(LPVOID)>("DestroyEnvironmentBlock");
+        haveEnv = createEnvironmentBlock(&envBlock, userToken, FALSE) != FALSE;
+        if (!haveEnv) {
+            spdlog::warn("executeNonblockingCmdAsUser CreateEnvironmentBlock failed ({}); launching without a user env block",
+                         ::GetLastError());
+        }
+        auto envGuard = wsl::wsScopeGuard([&] {
+            if (haveEnv) {
+                destroyEnvironmentBlock(envBlock);
+            }
+        });
+
+        const DWORD flags = CREATE_NO_WINDOW | NORMAL_PRIORITY_CLASS | CREATE_UNICODE_ENVIRONMENT | EXTENDED_STARTUPINFO_PRESENT;
+        const wchar_t *cwd = workingDir.empty() ? nullptr : workingDir.c_str();
+
+        PROCESS_INFORMATION pi;
+        ZeroMemory(&pi, sizeof(pi));
+
+        BOOL created = ::CreateProcessAsUserW(userToken, exePath.c_str(), exec.get(), nullptr, nullptr,
+                                              inherit ? TRUE : FALSE, flags, haveEnv ? envBlock : nullptr, cwd,
+                                              &siex.StartupInfo, &pi);
+        if (!created) {
+            spdlog::error("executeNonblockingCmdAsUser CreateProcessAsUser failed: {}", ::GetLastError());
+            return res;
+        }
+
+        ::CloseHandle(pi.hThread);
+        res.processId = pi.dwProcessId;
+        if (outProcessHandle) {
+            *outProcessHandle = pi.hProcess;
+        } else {
+            ::CloseHandle(pi.hProcess);
+        }
+        res.success = true;
+        return res;
+    }
+    catch (const std::system_error &ex) {
+        spdlog::error("executeNonblockingCmdAsUser userenv load failed: {}", ex.what());
+        return res;
+    }
 }
 
 std::wstring ExecuteCmd::toWString(const std::string &input)

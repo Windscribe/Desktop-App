@@ -235,15 +235,17 @@ void MainWindow::onInstallerCallback()
         }
         break;
     case wsl::STATE_CANCELED:
-    case wsl::STATE_LAUNCHED:
         // Worker-thread callback: post the exit to the GUI thread; a direct cross-thread qApp->exit()
         // intermittently fails to return from exec().
-        QMetaObject::invokeMethod(qApp, &QCoreApplication::exit, Qt::QueuedConnection, 0);
+        QMetaObject::invokeMethod(qApp, &QCoreApplication::exit, Qt::QueuedConnection, wsl::ERROR_USER_CANCELED);
+        break;
+    case wsl::STATE_LAUNCHED:
+        QMetaObject::invokeMethod(qApp, &QCoreApplication::exit, Qt::QueuedConnection, wsl::ERROR_NONE);
         break;
     case wsl::STATE_FINISHED:
         installerShim_->finish();
         break;
-    case wsl::STATE_ERROR:
+    case wsl::STATE_ERROR: {
         QString errorMsg;
         wsl::INSTALLER_ERROR error = installerShim_->lastError();
         if (error == wsl::ERROR_PERMISSION) {
@@ -290,12 +292,13 @@ void MainWindow::onInstallerCallback()
             // On Windows this will go to the system debugger (e.g. Debug View app).
             qDebug() << errorMsg;
             // Posted to the GUI thread: see STATE_LAUNCHED above.
-            QMetaObject::invokeMethod(qApp, &QCoreApplication::exit, Qt::QueuedConnection, 0);
+            QMetaObject::invokeMethod(qApp, &QCoreApplication::exit, Qt::QueuedConnection, wsl::ERROR_OTHER);
         }
         else {
             QMetaObject::invokeMethod(this, &MainWindow::showError, Qt::QueuedConnection, tr("Installation failed"), errorMsg, true);
         }
         break;
+    }
     }
 }
 
@@ -307,7 +310,7 @@ void MainWindow::onMinimizeClicked()
 void MainWindow::onCloseClicked()
 {
     if (exiting_) {
-        qApp->exit();
+        qApp->exit(exitCode_);
     } else {
         showExitPrompt();
     }
@@ -354,6 +357,9 @@ void MainWindow::showError(const QString &title, const QString &desc, bool fatal
     }
 
     fatalError_ = fatal;
+    if (fatal) {
+        exitCode_ = wsl::ERROR_OTHER;
+    }
 
     disconnect(alertWindow_, nullptr, nullptr, nullptr);
 
@@ -379,6 +385,7 @@ void MainWindow::showExitPrompt()
     }
 
     exiting_ = true;
+    exitCode_ = wsl::ERROR_USER_CANCELED;
 
     disconnect(alertWindow_, nullptr, nullptr, nullptr);
 
@@ -456,7 +463,7 @@ void MainWindow::onAlertWindowPrimaryButtonClicked()
 {
     showActiveWindowAfterAlert();
     if (fatalError_ || exiting_) {
-        qApp->exit();
+        qApp->exit(exitCode_);
     }
 }
 
@@ -465,7 +472,7 @@ void MainWindow::onAlertWindowEscapeClicked()
     showActiveWindowAfterAlert();
     exiting_ = false;
     if (fatalError_) {
-        qApp->exit();
+        qApp->exit(exitCode_);
     }
 }
 

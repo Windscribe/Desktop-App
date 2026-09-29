@@ -1,11 +1,13 @@
 #include "ws_branding.h"
 #include "openvpncontroller.h"
 
+#include <cstdint>
 #include <codecvt>
 #include <fstream>
 #include <memory>
 #include <sstream>
 #include <stdexcept>
+#include <vector>
 #include <spdlog/spdlog.h>
 
 #include <winsock2.h>
@@ -15,13 +17,13 @@
 #include <boost/algorithm/string.hpp>
 
 #include "types/global_consts.h"
-#include "utils.h"
+#include "../utils.h"
 
 #if defined(USE_SIGNATURE_CHECK)
 #include "utils/executable_signature/executable_signature.h"
 #endif
 
-#include "../common/ovpn_directive_whitelist.h"
+#include "../../common/ovpn_directive_whitelist.h"
 
 
 OpenVPNController::OpenVPNController()
@@ -30,6 +32,7 @@ OpenVPNController::OpenVPNController()
 
 void OpenVPNController::release()
 {
+    terminateProcess();
     removeAdapter();
 }
 
@@ -61,6 +64,7 @@ bool OpenVPNController::createAdapter(bool useDCODriver)
 
 void OpenVPNController::removeAdapter()
 {
+    msgChannel_.stop();
     // The OpenVPN process has been (or is being) torn down; release the retained handle.
     openVpnProcess_.closeHandle();
 
@@ -68,6 +72,25 @@ void OpenVPNController::removeAdapter()
         adapterCreated_ = false;
         deleteAdapter();
     }
+}
+
+bool OpenVPNController::terminateProcess()
+{
+    bool hadProcess = false;
+    if (openVpnProcess_.isValid()) {
+        hadProcess = true;
+        if (!openVpnProcess_.isSignaled()) {
+            if (!::TerminateProcess(openVpnProcess_.getHandle(), 1)) {
+                spdlog::error("OpenVPNController::terminateProcess TerminateProcess failed: {}", ::GetLastError());
+                msgChannel_.stop();
+                return false;
+            }
+            openVpnProcess_.wait(5000);
+        }
+    }
+    msgChannel_.stop();
+    openVpnProcess_.closeHandle();
+    return hadProcess;
 }
 
 void OpenVPNController::deleteAdapter(bool bestEffort)
@@ -86,15 +109,22 @@ void OpenVPNController::deleteAdapter(bool bestEffort)
 
 ExecuteCmdResult OpenVPNController::runOpenvpn(std::wstring &config, const std::wstring &httpProxy,
                                                unsigned int httpPort, const std::wstring &socksProxy, unsigned int socksPort,
-                                               unsigned int &outPort)
+                                               HANDLE clientPipe, unsigned int &outPort)
 {
     outPort = 0;
 
+    msgChannel_.stop();
     // Release any handle from a previous run before launching a new process.
     openVpnProcess_.closeHandle();
 
+    wsl::Win32Handle userToken;
+    if (!Utils::getPipeClientPrimaryToken(clientPipe, userToken.data())) {
+        spdlog::error("runOpenvpn: could not obtain the pipe client's primary token");
+        return ExecuteCmdResult();
+    }
+
     std::wstring filename;
-    if (!writeOVPNFile(config, httpProxy, httpPort, socksProxy, socksPort, filename)) {
+    if (!writeOVPNFile(config, httpProxy, httpPort, socksProxy, socksPort, userToken.getHandle(), filename)) {
         return ExecuteCmdResult();
     }
 
@@ -108,16 +138,36 @@ ExecuteCmdResult OpenVPNController::runOpenvpn(std::wstring &config, const std::
     }
 #endif
 
-    const std::wstring cwd = Utils::getDirPathFromFullPath(filename);
-    const std::wstring strCmd = L"\"" + ovpnExe + L"\" --config \"" + filename + L"\"";
+    if (!msgChannel_.create()) {
+        spdlog::error("runOpenvpn: could not create msg-channel pipe");
+        return ExecuteCmdResult();
+    }
 
-    // Retain the process handle so the OpenVPN PID cannot be reused by another process while it runs.
+    const std::wstring cwd = Utils::getDirPathFromFullPath(filename);
+    const HANDLE msgClient = msgChannel_.clientHandle();
+    const std::wstring strCmd = L"\"" + ovpnExe + L"\" --config \"" + filename + L"\" --msg-channel "
+                                + std::to_wstring(static_cast<unsigned long long>(reinterpret_cast<uintptr_t>(msgClient)));
+
     HANDLE processHandle = NULL;
-    ExecuteCmdResult res = ExecuteCmd::instance().executeNonblockingCmd(strCmd, cwd, &processHandle);
+    ExecuteCmdResult res = ExecuteCmd::instance().executeNonblockingCmdAsUser(
+        ovpnExe, strCmd, cwd, userToken.getHandle(), msgClient, &processHandle);
+    msgChannel_.closeClientHandle();
     if (!res.success) {
+        msgChannel_.stop();
         return res;
     }
     openVpnProcess_.setHandle(processHandle);
+
+    if (!msgChannel_.start(openVpnProcess_.getHandle())) {
+        spdlog::error("runOpenvpn: could not start msg-channel worker");
+        if (openVpnProcess_.isValid()) {
+            ::TerminateProcess(openVpnProcess_.getHandle(), 1);
+            openVpnProcess_.closeHandle();
+        }
+        msgChannel_.stop();
+        res.success = false;
+        return res;
+    }
 
     // OpenVPN binds its management socket on an OS-assigned port (the config requests
     // "management 127.0.0.1 0"). Resolve that port from the spawned process so the engine connects
@@ -125,15 +175,12 @@ ExecuteCmdResult OpenVPNController::runOpenvpn(std::wstring &config, const std::
     if (!resolveManagementPort(res.processId, outPort)) {
         spdlog::error("Could not resolve OpenVPN management port for pid {}", res.processId);
         // Kill the process we just launched; without a resolvable management port it is unusable.
-        if (openVpnProcess_.isValid()) {
-            TerminateProcess(openVpnProcess_.getHandle(), 1);
-            openVpnProcess_.closeHandle();
-        }
+        terminateProcess();
         res.success = false;
         return res;
     }
 
-    spdlog::info("OpenVPN running, pid {}, management port {}", res.processId, outPort);
+    spdlog::info("OpenVPN running unelevated, pid {}, management port {}", res.processId, outPort);
     return res;
 }
 
@@ -190,7 +237,8 @@ bool OpenVPNController::resolveManagementPort(unsigned long pid, unsigned int &o
 }
 
 bool OpenVPNController::writeOVPNFile(std::wstring &config, const std::wstring &httpProxy, unsigned int httpPort,
-                                      const std::wstring &socksProxy, unsigned int socksPort, std::wstring &filename)
+                                      const std::wstring &socksProxy, unsigned int socksPort, HANDLE userToken,
+                                      std::wstring &filename)
 {
     // Replace the deprecated (as of OpenVPN 2.5) ciphers flag received from the server API with the proper one.
     boost::replace_all(config, L"ncp-ciphers", L"data-ciphers");
@@ -228,8 +276,21 @@ bool OpenVPNController::writeOVPNFile(std::wstring &config, const std::wstring &
 
     spdlog::debug("Writing OpenVPN config");
 
-    // The filtered config can carry custom-config inline keys and credentials.
-    if (!Utils::createRestrictedFile(filePath)) {
+    // The filtered config can carry custom-config inline keys and credentials. Grant the pipe
+    // client's user SID read so the unelevated OpenVPN process can open the file; SY/BA keep FA.
+    DWORD sidLen = 0;
+    ::GetTokenInformation(userToken, TokenUser, nullptr, 0, &sidLen);
+    if (sidLen == 0) {
+        spdlog::error("writeOVPNFile: GetTokenInformation(size) failed: {}", ::GetLastError());
+        return false;
+    }
+    std::vector<BYTE> sidBuf(sidLen);
+    if (!::GetTokenInformation(userToken, TokenUser, sidBuf.data(), sidLen, &sidLen)) {
+        spdlog::error("writeOVPNFile: GetTokenInformation failed: {}", ::GetLastError());
+        return false;
+    }
+    const PSID userSid = reinterpret_cast<TOKEN_USER *>(sidBuf.data())->User.Sid;
+    if (!Utils::createRestrictedFileForUser(filePath, userSid)) {
         return false;
     }
 

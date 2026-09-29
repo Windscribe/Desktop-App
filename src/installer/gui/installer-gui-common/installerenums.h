@@ -13,6 +13,7 @@ enum INSTALLER_STATE {
 };
 
 enum INSTALLER_ERROR {
+    ERROR_NONE = 0,
     ERROR_OTHER = 1,
     ERROR_PERMISSION,
     ERROR_KILL,
@@ -33,7 +34,10 @@ enum INSTALLER_ERROR {
     ERROR_EXTRACT_LAUNCH,
     // Extraction of the app payload failed; the 7z exit code and error output
     // are in installer.log.
-    ERROR_EXTRACT_FAILED
+    ERROR_EXTRACT_FAILED,
+    // User quit the installer.  Named to avoid colliding with the Windows.h
+    // ERROR_CANCELLED macro when this header is included from a Win32 TU.
+    ERROR_USER_CANCELED
 };
 
 // Stable identifiers shown in error dialogs ("Error code: ...").  Never translated,
@@ -41,6 +45,7 @@ enum INSTALLER_ERROR {
 inline const char *errorCodeName(INSTALLER_ERROR error)
 {
     switch (error) {
+    case ERROR_NONE:                    return "NONE";
     case ERROR_OTHER:                   return "OTHER";
     case ERROR_PERMISSION:              return "PERMISSION";
     case ERROR_KILL:                    return "KILL";
@@ -57,6 +62,7 @@ inline const char *errorCodeName(INSTALLER_ERROR error)
     case ERROR_INTERNAL:                return "INTERNAL";
     case ERROR_EXTRACT_LAUNCH:          return "EXTRACT_LAUNCH";
     case ERROR_EXTRACT_FAILED:          return "EXTRACT_FAILED";
+    case ERROR_USER_CANCELED:           return "USER_CANCELED";
     }
     return "UNKNOWN";
 }

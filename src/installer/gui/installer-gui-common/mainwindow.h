@@ -2,6 +2,7 @@
 
 #include "alertwindow.h"
 #include "initialwindow.h"
+#include "installerenums.h"
 #include "installer_shim.h"
 #include "options.h"
 #include "settingswindow.h"
@@ -49,6 +50,7 @@ private:
     bool fatalError_ = false;
     bool exiting_ = false;
     bool installing_ = false;
+    wsl::INSTALLER_ERROR exitCode_ = wsl::ERROR_NONE;
     QPoint dragPosition_;
     std::wstring lastCustomPathWarning_;
 

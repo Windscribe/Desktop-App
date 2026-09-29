@@ -28,6 +28,12 @@ public:
     // keep the handle open to prevent the spawned process's PID from being reused while it runs.
     // When outProcessHandle is null the handle is closed immediately (legacy behaviour).
     ExecuteCmdResult executeNonblockingCmd(const std::wstring &cmd, const std::wstring &workingDir, HANDLE *outProcessHandle = nullptr);
+    // Spawn as userToken (TokenPrimary). inheritHandle, if valid, is the only handle the child
+    // inherits (PROC_THREAD_ATTRIBUTE_HANDLE_LIST). exePath is passed as lpApplicationName so the
+    // child image cannot be redirected via PATH.
+    ExecuteCmdResult executeNonblockingCmdAsUser(const std::wstring &exePath, const std::wstring &cmdLine,
+                                                const std::wstring &workingDir, HANDLE userToken,
+                                                HANDLE inheritHandle, HANDLE *outProcessHandle = nullptr);
 
 private:
     ExecuteCmd() = default;

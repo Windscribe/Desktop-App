@@ -35,4 +35,18 @@ if(IS_BUILD_TESTS)
     )
     set_target_properties(networkvalidation.test PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
     ws_add_test(networkvalidation)
+
+    add_executable(ovpnmsgparse.test
+        ovpnmsgparse.test.cpp
+        ../openvpn/ovpn_msg_parse.cpp
+    )
+    target_link_libraries(ovpnmsgparse.test PRIVATE
+        Ws2_32
+    )
+    target_include_directories(ovpnmsgparse.test PRIVATE
+        ..
+        "${VCPKG_ROOT}/installed/${VCPKG_TARGET_TRIPLET}/include"
+    )
+    set_target_properties(ovpnmsgparse.test PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
+    ws_add_test(ovpnmsgparse)
 endif(IS_BUILD_TESTS)

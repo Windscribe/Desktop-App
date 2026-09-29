@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Windows.h>
 #include <string>
 #include <map>
 #include <functional>
@@ -8,7 +9,7 @@
 std::string setSplitTunnelingSettings(const std::string &pars);
 std::string sendConnectStatus(const std::string &pars);
 std::string changeMtu(const std::string &pars);
-std::string executeOpenVPN(const std::string &pars);
+std::string executeOpenVPN(const std::string &pars, HANDLE clientPipe);
 std::string executeTaskKill(const std::string &pars);
 std::string startWireGuard(const std::string &pars);
 std::string stopWireGuard(const std::string &pars);
@@ -60,7 +61,7 @@ static const std::map<const HelperCommand, std::function<std::string(const std::
     { HelperCommand::setSplitTunnelingSettings, setSplitTunnelingSettings },
     { HelperCommand::sendConnectStatus, sendConnectStatus },
     { HelperCommand::changeMtu, changeMtu },
-    { HelperCommand::executeOpenVPN, executeOpenVPN },
+    // executeOpenVPN is dispatched directly by processCommand (needs the client pipe handle).
     { HelperCommand::executeTaskKill, executeTaskKill },
     { HelperCommand::startWireGuard, startWireGuard },
     { HelperCommand::stopWireGuard, stopWireGuard },
@@ -109,4 +110,4 @@ static const std::map<const HelperCommand, std::function<std::string(const std::
     { HelperCommand::installerCleanupStaged, installerCleanupStaged },
 };
 
-std::string processCommand(HelperCommand cmdId, const std::string &pars);
+std::string processCommand(HelperCommand cmdId, const std::string &pars, HANDLE clientPipe);

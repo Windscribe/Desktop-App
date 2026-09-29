@@ -30,7 +30,9 @@ set(SOURCES
     macaddressspoof.cpp
     main.cpp
     network_validation.cpp
-    openvpncontroller.cpp
+    openvpn/openvpncontroller.cpp
+    openvpn/ovpn_msg_channel.cpp
+    openvpn/ovpn_msg_parse.cpp
     pipe_for_process.cpp
     process_command.cpp
     reinstall_wan_ikev2.cpp

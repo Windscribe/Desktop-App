@@ -1,3 +1,11 @@
+2.25.2 (29/09/2026)
+Windows:
+   * Improved app security by running the OpenVPN daemon unelevated. #1985
+   * Improved installer to return specific Windows error codes when a failure occurs. #2011
+Linux:
+   * Fixed CLI from the GUI package fails on a headless environment with a no-display error. #2010
+
+
 2.25.1 (21/09/2026)
 All:
    * Improved Custom Connected DNS to support scheme-prefixed DoT endpoints, including an explicit default port. #2006

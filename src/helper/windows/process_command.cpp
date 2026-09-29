@@ -30,7 +30,7 @@
 #include "network_validation.h"
 #include "ipv6_firewall.h"
 #include "macaddressspoof.h"
-#include "openvpncontroller.h"
+#include "openvpn/openvpncontroller.h"
 #include "reinstall_wan_ikev2.h"
 #include "remove_app_network_profiles.h"
 #include "split_tunneling/split_tunneling.h"
@@ -49,8 +49,14 @@ struct SPLIT_TUNNELING_PARS
     SPLIT_TUNNELING_PARS() : isEnabled(false), isExclude(true), isVpnConnected(false) {}
 } g_SplitTunnelingPars;
 
-std::string processCommand(HelperCommand cmdId, const std::string &pars)
+std::string processCommand(HelperCommand cmdId, const std::string &pars, HANDLE clientPipe)
 {
+    // executeOpenVPN needs the caller's pipe so it can spawn OpenVPN as that user. Dispatched
+    // directly rather than through kCommands (whose handlers take only the serialized parameters).
+    if (cmdId == HelperCommand::executeOpenVPN) {
+        return executeOpenVPN(pars, clientPipe);
+    }
+
     const auto command = kCommands.find(cmdId);
     if (command == kCommands.end()) {
         spdlog::error("Unknown command id: {}", (int)cmdId);
@@ -183,14 +189,15 @@ std::string changeMtu(const std::string &pars)
     return std::string();
 }
 
-std::string executeOpenVPN(const std::string &pars)
+std::string executeOpenVPN(const std::string &pars, HANDLE clientPipe)
 {
     std::wstring config, httpProxy, socksProxy;
     unsigned int httpPort, socksPort;
     deserializePars(pars, config, httpProxy, httpPort, socksProxy, socksPort);
 
     unsigned int port = 0;
-    const auto res = OpenVPNController::instance().runOpenvpn(config, httpProxy, httpPort, socksProxy, socksPort, port);
+    const auto res = OpenVPNController::instance().runOpenvpn(config, httpProxy, httpPort, socksProxy, socksPort,
+                                                              clientPipe, port);
     // Return the OS-assigned management port and the OpenVPN PID so the engine can verify it
     // connects to the genuine, helper-spawned OpenVPN process.
     return serializeResult(res.success, port, static_cast<unsigned long>(res.processId));
@@ -203,6 +210,11 @@ std::string executeTaskKill(const std::string &pars)
 
     ExecuteCmdResult res;
     if (target == kTargetOpenVpn) {
+        if (OpenVPNController::instance().terminateProcess()) {
+            res.success = true;
+            return serializeResult(res.success, res.exitCode, res.output);
+        }
+        // Fallback for an orphaned daemon whose handle we no longer hold (e.g. after helper restart).
         std::wstringstream killCmd;
         killCmd << Utils::getSystemDir() << L"\\taskkill.exe /f /t /im " WS_PRODUCT_NAME_LOWER_W L"openvpn.exe";
         spdlog::debug(L"executeTaskKill, cmd={}", killCmd.str());

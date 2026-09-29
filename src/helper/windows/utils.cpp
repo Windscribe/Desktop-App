@@ -183,6 +183,119 @@ bool createRestrictedFile(const std::wstring &path)
     return true;
 }
 
+static bool isSidStringSafeForSddl(const std::wstring &sid)
+{
+    // ConvertSidToStringSidW produces "S-1-5-..." with digits and hyphens only. Reject anything
+    // else before interpolating into an SDDL string, so a ')' cannot close the ACE early.
+    if (sid.size() < 3 || sid[0] != L'S' || sid[1] != L'-') {
+        return false;
+    }
+    for (size_t i = 2; i < sid.size(); ++i) {
+        const wchar_t c = sid[i];
+        if (c != L'-' && (c < L'0' || c > L'9')) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool createRestrictedFileForUser(const std::wstring &path, PSID userSid)
+{
+    if (userSid == nullptr || !::IsValidSid(userSid)) {
+        spdlog::error("createRestrictedFileForUser - invalid user SID");
+        return false;
+    }
+
+    LPWSTR sidStr = nullptr;
+    if (!::ConvertSidToStringSidW(userSid, &sidStr)) {
+        spdlog::error("createRestrictedFileForUser - ConvertSidToStringSidW failed: {}", ::GetLastError());
+        return false;
+    }
+    auto freeSidStr = wsl::wsScopeGuard([&] {
+        ::LocalFree(sidStr);
+    });
+
+    const std::wstring sid(sidStr);
+    if (!isSidStringSafeForSddl(sid)) {
+        spdlog::error(L"createRestrictedFileForUser - refusing unsafe SID string: {}", sid);
+        return false;
+    }
+
+    const std::wstring sddl = L"D:P(A;;FA;;;SY)(A;;FA;;;BA)(A;;FR;;;" + sid + L")";
+
+    SECURITY_ATTRIBUTES sa;
+    sa.nLength = sizeof(SECURITY_ATTRIBUTES);
+    sa.bInheritHandle = FALSE;
+    if (!::ConvertStringSecurityDescriptorToSecurityDescriptorW(sddl.c_str(), SDDL_REVISION_1, &sa.lpSecurityDescriptor, NULL)) {
+        spdlog::error("createRestrictedFileForUser - failed to build security descriptor: {}", ::GetLastError());
+        return false;
+    }
+    auto freeSD = wsl::wsScopeGuard([&] {
+        ::LocalFree(sa.lpSecurityDescriptor);
+    });
+
+    std::error_code ec;
+    std::filesystem::remove(path, ec);
+    if (ec) {
+        spdlog::error("createRestrictedFileForUser - could not remove stale file: {}", ec.message());
+        return false;
+    }
+
+    wsl::Win32Handle hFile(::CreateFileW(path.c_str(), GENERIC_WRITE, 0, &sa, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, NULL));
+    if (!hFile.isValid()) {
+        spdlog::error("createRestrictedFileForUser - could not create file: {}", ::GetLastError());
+        return false;
+    }
+    return true;
+}
+
+bool getPipeClientPrimaryToken(HANDLE hPipe, HANDLE *outToken)
+{
+    if (outToken == nullptr) {
+        return false;
+    }
+    *outToken = nullptr;
+
+    DWORD pidClient = 0;
+    if (!::GetNamedPipeClientProcessId(hPipe, &pidClient) || pidClient == 0) {
+        spdlog::error("getPipeClientPrimaryToken GetNamedPipeClientProcessId failed {}", ::GetLastError());
+        return false;
+    }
+
+    DWORD clientSessionId = 0;
+    if (!::ProcessIdToSessionId(pidClient, &clientSessionId)) {
+        spdlog::error("getPipeClientPrimaryToken ProcessIdToSessionId failed {}", ::GetLastError());
+        return false;
+    }
+    if (clientSessionId == 0) {
+        spdlog::error("getPipeClientPrimaryToken rejecting client pid {} in Session 0", pidClient);
+        return false;
+    }
+
+    wsl::Win32Handle process(::OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, pidClient));
+    if (!process.isValid()) {
+        spdlog::error("getPipeClientPrimaryToken OpenProcess failed {}", ::GetLastError());
+        return false;
+    }
+
+    wsl::Win32Handle processToken;
+    if (!::OpenProcessToken(process.getHandle(), TOKEN_DUPLICATE | TOKEN_QUERY, processToken.data())) {
+        spdlog::error("getPipeClientPrimaryToken OpenProcessToken failed {}", ::GetLastError());
+        return false;
+    }
+
+    HANDLE primary = nullptr;
+    if (!::DuplicateTokenEx(processToken.getHandle(),
+                            TOKEN_ASSIGN_PRIMARY | TOKEN_DUPLICATE | TOKEN_QUERY | TOKEN_ADJUST_DEFAULT | TOKEN_ADJUST_SESSIONID,
+                            nullptr, SecurityImpersonation, TokenPrimary, &primary)) {
+        spdlog::error("getPipeClientPrimaryToken DuplicateTokenEx failed {}", ::GetLastError());
+        return false;
+    }
+
+    *outToken = primary;
+    return true;
+}
+
 bool hasWhitespaceInString(const std::wstring &str)
 {
     // Also reject an embedded NUL: it isn't whitespace, but OpenVPN's C-string config parser would

@@ -1,4 +1,5 @@
 #include <Windows.h>
+#include <sddl.h>
 
 #include <cstdio>
 #include <fileapi.h>
@@ -16,22 +17,33 @@
 #include "wsprocessmitigations.h"
 #include "wsscopeguard.h"
 
-static std::optional<bool> isElevated()
+// Machine-wide (Global\) so two sessions cannot install at once.  Branded so a white-label
+// build does not collide with Windscribe's mutex.
+static constexpr wchar_t kInstallerMutexName[] = L"Global\\" WS_APP_IDENTIFIER_W L"Installer";
+
+// Set from -silent before any UI.  Store/Intune/SCCM launches have no user to dismiss a dialog.
+static bool silentInstall = false;
+
+// Returns ERROR_SUCCESS and writes *elevated, or a Win32 error if the process
+// token could not be queried.  GetLastError is captured before Win32Handle
+// runs CloseHandle, which would overwrite it.
+static DWORD checkElevation(bool *elevated)
 {
     wsl::Win32Handle token;
     BOOL result = OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, token.data());
     if (result == FALSE) {
-        return std::nullopt;
+        return ::GetLastError();
     }
 
     TOKEN_ELEVATION Elevation;
     DWORD cbSize = sizeof(TOKEN_ELEVATION);
     result = GetTokenInformation(token.getHandle(), TokenElevation, &Elevation, sizeof(Elevation), &cbSize);
     if (result == FALSE) {
-        return std::nullopt;
+        return ::GetLastError();
     }
 
-    return Elevation.TokenIsElevated;
+    *elevated = Elevation.TokenIsElevated != FALSE;
+    return ERROR_SUCCESS;
 }
 
 static int showMessageBox(HWND hOwner, LPCTSTR szTitle, UINT nStyle, LPCTSTR szFormat, ...)
@@ -43,9 +55,12 @@ static int showMessageBox(HWND hOwner, LPCTSTR szTitle, UINT nStyle, LPCTSTR szF
     _vsntprintf_s(Buf, 1024, _TRUNCATE, szFormat, arg_list);
     va_end(arg_list);
 
-    int nResult = ::MessageBox(hOwner, Buf, szTitle, nStyle);
+    if (silentInstall) {
+        ::OutputDebugString(Buf);
+        return 0;
+    }
 
-    return nResult;
+    return ::MessageBox(hOwner, Buf, szTitle, nStyle);
 }
 
 static void debugMessage(LPCTSTR szFormat, ...)
@@ -138,8 +153,11 @@ static DWORD launchAndWait(const std::wstring &exePath, const wchar_t *params, D
     processHandle.wait(INFINITE);
     if (exitCode != nullptr) {
         if (!::GetExitCodeProcess(processHandle.getHandle(), exitCode)) {
-            *exitCode = 0;
-            debugMessage(_T("Windscribe Installer - GetExitCodeProcess failed: %lu"), ::GetLastError());
+            *exitCode = ::GetLastError();
+            if (*exitCode == ERROR_SUCCESS) {
+                *exitCode = ERROR_GEN_FAILURE;
+            }
+            debugMessage(_T("Windscribe Installer - GetExitCodeProcess failed: %lu"), *exitCode);
         }
     }
 
@@ -161,6 +179,53 @@ static void deleteFolder(const std::filesystem::path &folder)
     }
 }
 
+// Administrators + SYSTEM only, so a non-elevated process cannot squat the name and block
+// installation.  ConvertStringSecurityDescriptorToSecurityDescriptorW is in Microsoft-signed
+// advapi32, so it is compatible with this process's Microsoft-signed-only load policy.
+static DWORD createInstallerMutexSecurityAttributes(SECURITY_ATTRIBUTES *sa)
+{
+    sa->nLength = sizeof(SECURITY_ATTRIBUTES);
+    sa->bInheritHandle = FALSE;
+    sa->lpSecurityDescriptor = nullptr;
+    if (!::ConvertStringSecurityDescriptorToSecurityDescriptorW(
+            L"D:P(A;;GA;;;SY)(A;;GA;;;BA)", SDDL_REVISION_1, &sa->lpSecurityDescriptor, nullptr)) {
+        return ::GetLastError();
+    }
+    return ERROR_SUCCESS;
+}
+
+// Creates (or opens) the single-instance mutex and stores the handle in mutex, which must
+// remain alive for the rest of this process so the inner installer is covered too.
+// ERROR_SUCCESS: this process now holds the only instance.
+// ERROR_INSTALL_ALREADY_RUNNING: another instance already holds it.
+// Any other Win32 code: the mutex could not be created.
+static DWORD acquireSingleInstanceMutex(wsl::Win32Handle &mutex)
+{
+    SECURITY_ATTRIBUTES sa;
+    const DWORD sdErr = createInstallerMutexSecurityAttributes(&sa);
+    if (sdErr != ERROR_SUCCESS) {
+        return sdErr;
+    }
+    auto freeSd = wsl::wsScopeGuard([&] {
+        if (sa.lpSecurityDescriptor) {
+            ::LocalFree(sa.lpSecurityDescriptor);
+        }
+    });
+
+    HANDLE handle = ::CreateMutexW(&sa, FALSE, kInstallerMutexName);
+    const DWORD err = ::GetLastError();
+    if (handle == nullptr) {
+        return err;
+    }
+
+    mutex.setHandle(handle);
+    if (err == ERROR_ALREADY_EXISTS) {
+        mutex.closeHandle();
+        return ERROR_INSTALL_ALREADY_RUNNING;
+    }
+    return ERROR_SUCCESS;
+}
+
 static bool isOSCompatible()
 {
     NTSTATUS (WINAPI *RtlGetVersion)(LPOSVERSIONINFOEXW);
@@ -180,33 +245,107 @@ static bool isOSCompatible()
     return (rtlOsVer.dwBuildNumber >= kMinWindowsBuildNumber);
 }
 
+// True when cmdParam contains a standalone -silent token.  Parsed without CommandLineToArgvW
+// so this process does not load shell32 (see launchAndWait).
+static bool hasSilentFlag(LPCWSTR cmdParam)
+{
+    if (cmdParam == nullptr) {
+        return false;
+    }
+
+    const wchar_t *p = cmdParam;
+    while (*p) {
+        while (*p == L' ' || *p == L'\t') {
+            ++p;
+        }
+        if (*p == L'\0') {
+            break;
+        }
+
+        const wchar_t *tokenStart;
+        const wchar_t *tokenEnd;
+        if (*p == L'"') {
+            ++p;
+            tokenStart = p;
+            while (*p && *p != L'"') {
+                ++p;
+            }
+            tokenEnd = p;
+            if (*p == L'"') {
+                ++p;
+            }
+        } else {
+            tokenStart = p;
+            while (*p && *p != L' ' && *p != L'\t') {
+                ++p;
+            }
+            tokenEnd = p;
+        }
+
+        if ((tokenEnd - tokenStart) == 7 && wcsncmp(tokenStart, L"-silent", 7) == 0) {
+            return true;
+        }
+    }
+    return false;
+}
+
+// Process exit code is a Win32 error code: ERROR_SUCCESS on success, or a specific
+// failure such as ERROR_CANCELLED, ERROR_ELEVATION_REQUIRED, ERROR_OLD_WIN_VERSION,
+// ERROR_INSTALL_ALREADY_RUNNING, or ERROR_INSTALL_FAILURE.  Callers (Store, Intune,
+// SCCM, scripts) can distinguish outcomes without parsing UI or logs.
 int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpszCmdParam, int nCmdShow)
 {
+    silentInstall = hasSilentFlag(lpszCmdParam);
+
     if (!IsWindows10OrGreater()) {
         showMessageBox(NULL, _T("Windscribe Installer"), MB_OK | MB_ICONSTOP,
                        _T("The Windscribe app cannot be installed on this version of Windows.  It requires Windows 10 or newer."));
-        return -1;
+        return ERROR_OLD_WIN_VERSION;
     }
 
     // The executable requests requireAdministrator, so the OS elevates this process at launch.  Verify elevation defensively.
-    const auto isAdmin = isElevated();
-    if (!isAdmin.has_value()) {
+    bool isAdmin = false;
+    const DWORD elevationErr = checkElevation(&isAdmin);
+    if (elevationErr != ERROR_SUCCESS) {
         showMessageBox(NULL, _T("Windscribe Installer"), MB_OK | MB_ICONSTOP,
-                       _T("Couldn't determine if user has administrative rights."));
-        return -1;
+                       _T("Couldn't determine if user has administrative rights (%lu)."), elevationErr);
+        return elevationErr;
     }
-    if (!isAdmin.value()) {
+    if (!isAdmin) {
         showMessageBox(NULL, _T("Windscribe Installer"), MB_OK | MB_ICONSTOP,
                        _T("The Windscribe installer requires administrator privileges to run."));
-        return -1;
+        return ERROR_ELEVATION_REQUIRED;
+    }
+
+    // Hold this handle until wWinMain returns so the mutex covers the inner installer that
+    // launchAndWait waits on.  Taken before the log is opened so a second instance cannot
+    // rotate the first instance's installer.log out from under it.
+    wsl::Win32Handle instanceMutex;
+    {
+        const DWORD err = acquireSingleInstanceMutex(instanceMutex);
+        if (err == ERROR_INSTALL_ALREADY_RUNNING) {
+            showMessageBox(NULL, _T("Windscribe Installer"), MB_OK | MB_ICONSTOP,
+                           _T("Another Windscribe installer is already running.  Complete or close that")
+                           _T(" installer before starting a new one."));
+            return ERROR_INSTALL_ALREADY_RUNNING;
+        }
+        if (err != ERROR_SUCCESS) {
+            showMessageBox(NULL, _T("Windscribe Installer"), MB_OK | MB_ICONSTOP,
+                           _T("Failed to create the installer single-instance mutex (%lu)."), err);
+            return err;
+        }
     }
 
     if (!isOSCompatible()) {
-        auto response = showMessageBox(NULL, _T("Windscribe Installer"), MB_YESNO | MB_ICONWARNING,
-                                       _T("The Windscribe app may not function correctly on this version of Windows.  It requires Windows 10"
-                                          " build %lu or newer for full functionality.\n\nDo you want to proceed with the install?"), kMinWindowsBuildNumber);
-        if (response != IDYES) {
-            return -1;
+        if (silentInstall) {
+            debugMessage(_T("Windscribe installer proceeding on a Windows build older than %lu (silent)"), kMinWindowsBuildNumber);
+        } else {
+            auto response = showMessageBox(NULL, _T("Windscribe Installer"), MB_YESNO | MB_ICONWARNING,
+                                           _T("The Windscribe app may not function correctly on this version of Windows.  It requires Windows 10"
+                                              " build %lu or newer for full functionality.\n\nDo you want to proceed with the install?"), kMinWindowsBuildNumber);
+            if (response != IDYES) {
+                return ERROR_CANCELLED;
+            }
         }
     }
 
@@ -228,7 +367,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpszC
     if (!randomSuffix) {
         showMessageBox(NULL, _T("Windscribe Installer"), MB_OK | MB_ICONSTOP,
                        _T("Failed to generate a secure random suffix for the installer directory."));
-        return -1;
+        return ERROR_GEN_FAILURE;
     }
 
     {
@@ -239,9 +378,10 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpszC
         wchar_t windowsDir[MAX_PATH];
         const UINT len = ::GetWindowsDirectoryW(windowsDir, MAX_PATH);
         if (len == 0 || len >= MAX_PATH) {
+            const DWORD err = (len == 0) ? ::GetLastError() : ERROR_INSUFFICIENT_BUFFER;
             showMessageBox(NULL, _T("Windscribe Installer"), MB_OK | MB_ICONSTOP,
-                           _T("Couldn't locate Windows directory (%lu)"), ::GetLastError());
-            return -1;
+                           _T("Couldn't locate Windows directory (%lu)"), err);
+            return err;
         }
 
         installPath = windowsDir;
@@ -261,16 +401,19 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpszC
                            _T("The installer directory '%s' already exists.  This is unexpected and may indicate")
                            _T(" a tampering attempt.  Please reboot and try again, and contact Windscribe support")
                            _T(" if the problem persists."), installPath.c_str());
-            return -1;
+            return err;
         }
         if (err != ERROR_SUCCESS) {
             showMessageBox(NULL, _T("Windscribe Installer"), MB_OK | MB_ICONSTOP,
                            _T("Failed to create the installer directory '%s' (%lu)."), installPath.c_str(), err);
-            return -1;
+            return err;
         }
     }
 
     debugMessage(L"Windscribe bootstrapper installing to %s", installPath.c_str());
+    if (silentInstall) {
+        logToFile(persistentLog, "info", L"Bootstrap running in silent mode");
+    }
     logToFile(persistentLog, "info", L"Bootstrap staging the Windscribe installer to " + installPath.wstring());
 
     // Extract archive
@@ -284,14 +427,14 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpszC
         logToFile(persistentLog, "error", L"Bootstrap failed to extract the Windscribe decompressor");
         showMessageBox(NULL, _T("Windscribe Installer"), MB_OK | MB_ICONSTOP,
                        _T("Failed to extract the Windscribe decompressor."));
-        return -1;
+        return ERROR_INSTALL_FAILURE;
     }
 
     if (!archive.extract(L"Installer", L"windscribeinstaller.7z", installPath, installPath)) {
         logToFile(persistentLog, "error", L"Bootstrap failed to extract the Windscribe installer");
         showMessageBox(NULL, _T("Windscribe Installer"), MB_OK | MB_ICONSTOP,
                        _T("Failed to extract the Windscribe installer."));
-        return -1;
+        return ERROR_INSTALL_FAILURE;
     }
 
     std::filesystem::path app(installPath);
@@ -305,19 +448,26 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpszC
         logToFile(persistentLog, "error", L"Bootstrap was unable to launch the installer (" + std::to_wstring(result) + L")");
         showMessageBox(NULL, _T("Windscribe Installer"), MB_OK | MB_ICONSTOP,
                        _T("Windows was unable to launch the installer (%lu)"), result);
-        return -1;
+        return result;
     }
 
-    if (exitCode != 0) {
+    if (exitCode == ERROR_CANCELLED) {
+        logToFile(persistentLog, "info", L"The installer was cancelled");
+    } else if (exitCode != ERROR_SUCCESS) {
         debugMessage(_T("Windscribe installer exited with an error: %lu"), exitCode);
-        // A non-zero exit code means the installer process died abnormally (its own error
-        // handling exits with 0), so its log may end abruptly; record the code here.
         wchar_t exitCodeMsg[128];
-        swprintf_s(exitCodeMsg, L"The installer exited with an unexpected code %lu (0x%08X), indicating it may have crashed", exitCode, exitCode);
-        logToFile(persistentLog, "error", exitCodeMsg);
-        showMessageBox(NULL, _T("Windscribe Installer"), MB_OK | MB_ICONSTOP,
-                       _T("The installer reported an unexpected exit code, indicating it may have crashed during exit.")
-                       _T(" Please report this failure to Windscribe support."));
+        // Win32 error codes fit in 16 bits.  Larger values are typically NTSTATUS / exception
+        // codes from an abnormal termination (crash, abort), not a mapped installer error.
+        if (exitCode > 0xFFFF) {
+            swprintf_s(exitCodeMsg, L"The installer exited with an unexpected code %lu (0x%08X), indicating it may have crashed", exitCode, exitCode);
+            logToFile(persistentLog, "error", exitCodeMsg);
+            showMessageBox(NULL, _T("Windscribe Installer"), MB_OK | MB_ICONSTOP,
+                           _T("The installer reported an unexpected exit code, indicating it may have crashed during exit.")
+                           _T(" Please report this failure to Windscribe support."));
+        } else {
+            swprintf_s(exitCodeMsg, L"The installer exited with code %lu (0x%08X)", exitCode, exitCode);
+            logToFile(persistentLog, "error", exitCodeMsg);
+        }
     }
 
     return exitCode;

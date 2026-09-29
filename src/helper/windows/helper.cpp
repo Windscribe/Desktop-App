@@ -11,7 +11,7 @@
 #include "firewallfilter.h"
 #include "firewallonboot.h"
 #include "ipv6_firewall.h"
-#include "openvpncontroller.h"
+#include "openvpn/openvpncontroller.h"
 #include "process_command.h"
 #include "split_tunneling/split_tunneling.h"
 #include "utils.h"
@@ -220,7 +220,8 @@ void Helper::processClientRequests()
 
         clientMessage_.response.clear();
         try {
-            clientMessage_.response = processCommand((HelperCommand)clientMessage_.cmdId, clientMessage_.request);
+            clientMessage_.response = processCommand((HelperCommand)clientMessage_.cmdId, clientMessage_.request,
+                                                     clientPipe_.getHandle());
         } catch (const std::exception &ex) {
             spdlog::error("Helper IPC: processCommand({}) exception: {}", clientMessage_.cmdId, ex.what());
         }

@@ -211,7 +211,12 @@ int main(int argc, char *argv[])
 #else
         // use non-static start detached to prevent GUI output from polluting cli
         QProcess process;
+#ifdef Q_OS_LINUX
+        process.setProgram("systemd-run");
+        process.setArguments({"--user", "--collect", "--", appPath});
+#else
         process.setProgram(appPath);
+#endif
         process.setWorkingDirectory(workingDir);
         process.setStandardOutputFile(QProcess::nullDevice());
         process.setStandardErrorFile(QProcess::nullDevice());
