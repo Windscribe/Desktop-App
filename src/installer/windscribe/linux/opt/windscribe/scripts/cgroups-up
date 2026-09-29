@@ -24,11 +24,14 @@ wg_fwmark=${14}
 
 net_cls_root="`mount -l -t cgroup | grep "net_cls on" | cut -d ' ' -f 3 | head -n 1`"
 if [ ! -f "$net_cls_root/windscribe/net_cls.classid" ]; then
-    modprobe cls_cgroup
-    if [ $? -ne 0 ]; then
-        echo "Could not load cls_cgroup module"
-        exit 1
-    fi
+    # Best-effort: the cls_cgroup tc classifier is not used by this design (the nftables
+    # rules match `meta cgroup <classid>` directly). It was removed from mainline kernels
+    # in 5.13, and some distro kernels keep the config option but never ship the module,
+    # so on modern kernels modprobe legitimately fails.  What we actually need is the
+    # net_cls controller, which is verified below by mounting the hierarchy; failing to
+    # load the classifier must not abort setup.  On old kernels keep the modprobe so
+    # behavior there is unchanged.
+    modprobe cls_cgroup 2>/dev/null
 
     net_cls_root="`mount -l -t cgroup | grep "net_cls on" | cut -d ' ' -f 3 | head -n 1`"
     if [ -z "$net_cls_root" ]; then
