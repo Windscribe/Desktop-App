@@ -657,9 +657,8 @@ void TestSettingsValidation::testSplitTunneling_mixedRouteCapsKeepIpRoutes()
 {
     types::SplitTunneling st;
     constexpr int kIpRouteCount = 128;
-    constexpr int kHostnameCount = types::SplitTunneling::kMaxHostnames + 10;
-    for (int i = 0; i < qMax(kIpRouteCount, kHostnameCount); ++i) {
-        if (i < kHostnameCount) {
+    for (int i = 0; i < kIpRouteCount; ++i) {
+        if (i < types::SplitTunneling::kMaxHostnames + 10) {
             types::SplitTunnelingNetworkRoute hostname;
             hostname.name = QString("host%1.example.com").arg(i);
             hostname.type = SPLIT_TUNNELING_NETWORK_ROUTE_TYPE_HOSTNAME;
@@ -667,15 +666,13 @@ void TestSettingsValidation::testSplitTunneling_mixedRouteCapsKeepIpRoutes()
             st.networkRoutes << hostname;
         }
 
-        if (i < kIpRouteCount) {
-            types::SplitTunnelingNetworkRoute ipRoute;
-            ipRoute.name = (i % 2 == 0)
-                ? QString("10.%1.0.0/16").arg(i)
-                : QString("203.0.113.%1").arg(i);
-            ipRoute.type = SPLIT_TUNNELING_NETWORK_ROUTE_TYPE_IP;
-            ipRoute.active = true;
-            st.networkRoutes << ipRoute;
-        }
+        types::SplitTunnelingNetworkRoute ipRoute;
+        ipRoute.name = (i % 2 == 0)
+            ? QString("10.%1.0.0/16").arg(i)
+            : QString("203.0.113.%1").arg(i);
+        ipRoute.type = SPLIT_TUNNELING_NETWORK_ROUTE_TYPE_IP;
+        ipRoute.active = true;
+        st.networkRoutes << ipRoute;
     }
 
     st.validate();
