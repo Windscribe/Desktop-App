@@ -49,6 +49,7 @@ struct Peer {
     QString presharedKey;
     QString allowedIps = "0.0.0.0/0";
     QString endpoint = "198.51.100.1:51820";
+    QString extra;
     bool include = true;
 
     QString build() const
@@ -69,6 +70,7 @@ struct Peer {
         if (!endpoint.isNull()) {
             s += QStringLiteral("Endpoint = %1\n").arg(endpoint);
         }
+        s += extra;
         return s;
     }
 };
@@ -97,6 +99,15 @@ std::unique_ptr<customconfigs::ICustomConfig> loadConfig(const QString &interfac
     i.extra = interfaceExtra;
     return loadRawConfig(i.build() + Peer().build(), errOut);
 }
+
+QSharedPointer<WireGuardConfig> wireGuardConfigOf(const std::unique_ptr<customconfigs::ICustomConfig> &c)
+{
+    auto *wg = dynamic_cast<customconfigs::WireguardCustomConfig *>(c.get());
+    return wg ? wg->getWireGuardConfig("198.51.100.1") : nullptr;
+}
+
+const QString kValidHeaderProtectionKey = "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8=";
+const QString kHeaderProtectionPaddings = "S1 = 12\nS2 = 20\nS3 = 30\nS4 = 40\n";
 
 } // namespace
 
@@ -416,6 +427,201 @@ void TestWireguardCustomConfig::testAddressWhitespaceTolerated()
     auto *wg = dynamic_cast<customconfigs::WireguardCustomConfig *>(c.get());
     QVERIFY(wg != nullptr);
     QCOMPARE(wg->getWireGuardConfig("198.51.100.1")->clientIpAddress(), QStringLiteral("10.0.0.2/32"));
+}
+
+void TestWireguardCustomConfig::testValidAwg3Params()
+{
+    QString err;
+    auto c = loadConfig(
+        "HeaderProtectionKey = " + kValidHeaderProtectionKey + "\n" + kHeaderProtectionPaddings +
+        "ContentPaddingAddition = 0-16\n"
+        "RekeyAfterTime = 100-140\n"
+        "RekeyTimeout = 5\n"
+        "RejectAfterTime = 180-200\n"
+        "KeepaliveTimeout = 10-12\n"
+        "MaxHandshakeAttempts = 20\n"
+        "RandomTrailers = on\n"
+        "DisableCookies = FALSE\n",
+        &err);
+    QVERIFY(c != nullptr);
+    QVERIFY2(c->isCorrect(), qPrintable(err));
+
+    const auto wg = wireGuardConfigOf(c);
+    QVERIFY(wg != nullptr);
+    const QString file = wg->generateConfigFile();
+    QVERIFY(file.contains("HeaderProtectionKey = " + kValidHeaderProtectionKey + "\n"));
+    QVERIFY(file.contains("ContentPaddingAddition = 0-16\n"));
+    QVERIFY(file.contains("RekeyAfterTime = 100-140\n"));
+    QVERIFY(file.contains("RekeyTimeout = 5\n"));
+    QVERIFY(file.contains("RejectAfterTime = 180-200\n"));
+    QVERIFY(file.contains("KeepaliveTimeout = 10-12\n"));
+    QVERIFY(file.contains("MaxHandshakeAttempts = 20\n"));
+    QVERIFY(file.contains("RandomTrailers = true\n"));
+    QVERIFY(file.contains("DisableCookies = false\n"));
+
+    const AmneziawgConfig helperConfig = wg->amneziawgParamToHelperConfig();
+    QCOMPARE(QString::fromStdString(helperConfig.headerProtectionKey),
+             QStringLiteral("000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f"));
+    QCOMPARE(QString::fromStdString(helperConfig.randomTrailers), QStringLiteral("true"));
+    QCOMPARE(QString::fromStdString(helperConfig.disableCookies), QStringLiteral("false"));
+}
+
+void TestWireguardCustomConfig::testAwg3UnsetKeysNotEmitted()
+{
+    QString err;
+    auto c = loadConfig("H1 = 97329410\n", &err);
+    QVERIFY(c != nullptr);
+    QVERIFY2(c->isCorrect(), qPrintable(err));
+    const QString file = wireGuardConfigOf(c)->generateConfigFile();
+    for (const char *key : {"HeaderProtectionKey", "ContentPaddingAddition", "RekeyAfterTime", "RekeyTimeout",
+                            "RejectAfterTime", "KeepaliveTimeout", "MaxHandshakeAttempts", "RandomTrailers",
+                            "DisableCookies"}) {
+        QVERIFY2(!file.contains(key), key);
+    }
+}
+
+void TestWireguardCustomConfig::testHeaderProtectionKeyIsAmneziawg()
+{
+    QString err;
+    auto c = loadConfig("HeaderProtectionKey = " + kValidHeaderProtectionKey + "\n" + kHeaderProtectionPaddings, &err);
+    QVERIFY(c != nullptr);
+    QVERIFY2(c->isCorrect(), qPrintable(err));
+    QVERIFY(wireGuardConfigOf(c)->haveAmneziawgParam());
+}
+
+void TestWireguardCustomConfig::testHeaderProtectionKeyRequiresPaddings()
+{
+    const QString key = "HeaderProtectionKey = " + kValidHeaderProtectionKey + "\n";
+    const std::pair<QString, QString> cases[] = {
+        {"", "S1"},
+        {"S1 = 12\nS2 = 12\nS3 = 12\n", "S4"},
+        {"S1 = 11\nS2 = 12\nS3 = 12\nS4 = 12\n", "S1"},
+    };
+    for (const auto &[paddings, rejected] : cases) {
+        QString err;
+        auto c = loadConfig(key + paddings, &err);
+        QVERIFY(c != nullptr);
+        QVERIFY2(!c->isCorrect(), qPrintable(paddings));
+        QVERIFY2(err.endsWith(rejected), qPrintable(err));
+    }
+}
+
+void TestWireguardCustomConfig::testInvalidHeaderProtectionKey()
+{
+    for (const QString &value : {QStringLiteral("AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHg=="),  // 31 bytes
+                                 QStringLiteral("not-base64")}) {
+        auto c = loadConfig("HeaderProtectionKey = " + value + "\n");
+        QVERIFY(c != nullptr);
+        QVERIFY2(!c->isCorrect(), qPrintable(value));
+    }
+}
+
+void TestWireguardCustomConfig::testInvalidAwg3Range()
+{
+    for (const QString &value : {QStringLiteral("1-"), QStringLiteral("-1"), QStringLiteral("5-3"),
+                                 QStringLiteral("abc"), QStringLiteral("1-2-3"), QStringLiteral("4294967296")}) {
+        auto c = loadConfig("RekeyTimeout = " + value + "\n");
+        QVERIFY(c != nullptr);
+        QVERIFY2(!c->isCorrect(), qPrintable(value));
+    }
+}
+
+void TestWireguardCustomConfig::testInvalidAwg3Bool()
+{
+    auto c = loadConfig("RandomTrailers = maybe\n");
+    QVERIFY(c != nullptr);
+    QVERIFY(!c->isCorrect());
+}
+
+void TestWireguardCustomConfig::testAwg3RejectsSmuggledNewline()
+{
+    auto c = loadConfig("RekeyTimeout = \"5\\nPostUp = /bin/sh -c evil\"\n");
+    QVERIFY(c != nullptr);
+    QVERIFY(!c->isCorrect());
+}
+
+void TestWireguardCustomConfig::testPersistentKeepaliveDefault()
+{
+    auto c = loadConfig("");
+    QVERIFY(c != nullptr);
+    QVERIFY(c->isCorrect());
+    QVERIFY(wireGuardConfigOf(c)->generateConfigFile().contains("PersistentKeepalive = 25\n"));
+}
+
+void TestWireguardCustomConfig::testNoDisconnectOnStaleHandshake()
+{
+    auto c = loadConfig("");
+    QVERIFY(c != nullptr);
+    QVERIFY(c->isCorrect());
+    QVERIFY(!wireGuardConfigOf(c)->disconnectOnStaleHandshake());
+    QVERIFY(WireGuardConfig().disconnectOnStaleHandshake());
+}
+
+void TestWireguardCustomConfig::testPersistentKeepaliveValues()
+{
+    const std::pair<QString, QString> cases[] = {
+        {"15", "15"},
+        {"off", "0"},
+        {"0", "0"},
+    };
+    for (const auto &[input, expected] : cases) {
+        Peer p;
+        p.extra = "PersistentKeepalive = " + input + "\n";
+        QString err;
+        auto c = loadRawConfig(Iface().build() + p.build(), &err);
+        QVERIFY(c != nullptr);
+        QVERIFY2(c->isCorrect(), qPrintable(input + ": " + err));
+        const auto wg = wireGuardConfigOf(c);
+        QCOMPARE(wg->peerPersistentKeepalive(), expected);
+        QVERIFY(wg->generateConfigFile().contains("PersistentKeepalive = " + expected + "\n"));
+    }
+}
+
+void TestWireguardCustomConfig::testPersistentKeepaliveRangeRequiresAmneziawg()
+{
+    Peer p;
+    p.extra = "PersistentKeepalive = 10-20\n";
+    auto vanilla = loadRawConfig(Iface().build() + p.build());
+    QVERIFY(vanilla != nullptr);
+    QVERIFY(!vanilla->isCorrect());
+
+    Iface i;
+    i.extra = "H1 = 97329410\n";
+    QString err;
+    auto awg = loadRawConfig(i.build() + p.build(), &err);
+    QVERIFY(awg != nullptr);
+    QVERIFY2(awg->isCorrect(), qPrintable(err));
+    QCOMPARE(wireGuardConfigOf(awg)->peerPersistentKeepalive(), QStringLiteral("10-20"));
+}
+
+void TestWireguardCustomConfig::testInvalidPersistentKeepalive()
+{
+    for (const QString &value : {QStringLiteral("4294967296"), QStringLiteral("abc"), QStringLiteral("20-10")}) {
+        Peer p;
+        p.extra = "PersistentKeepalive = " + value + "\n";
+        Iface i;
+        i.extra = "H1 = 97329410\n";
+        auto c = loadRawConfig(i.build() + p.build());
+        QVERIFY(c != nullptr);
+        QVERIFY2(!c->isCorrect(), qPrintable(value));
+    }
+}
+
+void TestWireguardCustomConfig::testPersistentKeepaliveAboveUint16()
+{
+    Peer p;
+    p.extra = "PersistentKeepalive = 70000\n";
+    auto vanilla = loadRawConfig(Iface().build() + p.build());
+    QVERIFY(vanilla != nullptr);
+    QVERIFY(!vanilla->isCorrect());
+
+    Iface i;
+    i.extra = "H1 = 97329410\n";
+    QString err;
+    auto awg = loadRawConfig(i.build() + p.build(), &err);
+    QVERIFY(awg != nullptr);
+    QVERIFY2(awg->isCorrect(), qPrintable(err));
+    QCOMPARE(wireGuardConfigOf(awg)->peerPersistentKeepalive(), QStringLiteral("70000"));
 }
 
 QTEST_MAIN(TestWireguardCustomConfig)

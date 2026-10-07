@@ -94,7 +94,6 @@ private slots:
     void testOnlineButNoDefaultAdapterWaitsForNetwork();
     void testNoWaitPolicyFailsFastWhenOffline();
     void testLockdownModeIkev2Error();
-    void testTunnelTestAttemptsZeroSurfacesResult();
     void testRequestUsernameForwarded();
     void testRequestPasswordForwarded();
     void testUsernameRequestAnsweredFromSessionCache();
@@ -173,7 +172,6 @@ private slots:
     void testBlockingDisconnectFromConnectedRunsCleanup();
     void testUpdateConnectionSettingsDuringReconnectingIsDeferred();
     void testEmptyWalkFailsWithLocationUnavailable();
-    void testTunnelTestAttemptsZeroSuccessDropsIp();
     void testErrorQueuedBeforeSleepIgnoredInSleeping();
     void testErrorAfterBlockingDisconnectIgnored();
     void testClassifyPrepareErrorMatrix();

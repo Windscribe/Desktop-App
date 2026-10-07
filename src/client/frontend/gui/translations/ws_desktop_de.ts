@@ -2715,6 +2715,14 @@ Wenn die Neuinstallation nicht hilft, wenden Sie sich bitte an den Windscribe-Su
         <translation>AmneziaWG init-Parameter enthält ungültige Zeichen</translation>
     </message>
     <message>
+        <source>Invalid AmneziaWG parameter: %1</source>
+        <translation>Ungültiger AmneziaWG-Parameter: %1</translation>
+    </message>
+    <message>
+        <source>Invalid &quot;PersistentKeepalive&quot; value</source>
+        <translation>Ungültiger &quot;PersistentKeepalive&quot;-Wert</translation>
+    </message>
+    <message>
         <source>Static IPs</source>
         <translation>Statische IP-Adressen</translation>
     </message>

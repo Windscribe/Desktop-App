@@ -46,6 +46,7 @@ private:
     QString endpointPort_;
     uint endpointPortNumber_ = 0;
     bool isAllowFirewallAfterConnection_ = true;
+    QString persistentKeepalive_;
     api_responses::AmneziawgUnblockParam obfuscationParams_;
 };
 

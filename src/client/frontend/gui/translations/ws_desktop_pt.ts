@@ -2715,6 +2715,14 @@ Se a reinstalação não ajudar, entre em contato com o suporte do Windscribe pa
         <translation>O parâmetro de entrada do AmneziaWG contém caracteres inválidos</translation>
     </message>
     <message>
+        <source>Invalid AmneziaWG parameter: %1</source>
+        <translation>Parámetro Invalid AmneziaWG: %1</translation>
+    </message>
+    <message>
+        <source>Invalid &quot;PersistentKeepalive&quot; value</source>
+        <translation>Valor &quot;PersistentKeepalive&quot; inválido</translation>
+    </message>
+    <message>
         <source>Static IPs</source>
         <translation>IPs estáticos</translation>
     </message>

@@ -4,6 +4,7 @@
 
 #include <optional>
 
+#include "types/ipaddress.h"
 #include "types/networkinterface.h"
 
 namespace NetworkUtils_win
@@ -35,6 +36,16 @@ namespace NetworkUtils_win
     // and/or a global (non link-local, non loopback) unicast IPv6 address. Both outputs are set
     // to false if the interface has no such address or no longer exists.
     void interfaceAddressPresence(unsigned long ifIndex, bool &hasIpv4, bool &hasGlobalIpv6);
+
+    // True once `address` on the interface has finished duplicate address detection. Until then the
+    // address is Tentative and Windows refuses to send from it (WSAEHOSTUNREACH), even with routes in place.
+    // Matched by value: any other address on the adapter (APIPA, a leftover) says nothing about the tunnel's.
+    bool isIpv4AddressPreferred(unsigned long ifIndex, const types::IpAddress &address);
+    // OpenVPN and AmneziaWG (wintun) bring the tunnel up while its address is still Tentative (~3s), so
+    // their connectors hold connected() back until isIpv4AddressPreferred(), polling at this interval.
+    // Past the cap the tunnel is reported anyway, so an address that never settles cannot stall the connect.
+    constexpr int kAddressPreferredPollMs = 50;
+    constexpr int kAddressPreferredMaxWaitMs = 4000;
 
     bool isSsidAccessAvailable();
 

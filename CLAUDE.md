@@ -38,7 +38,7 @@ client-desktop/
 ├── cmake/                  # CMake configuration files
 ├── data/                   # Application resources and test data
 ├── build/                  # Build output (created during build)
-├── build-libs/            # Compiled dependencies (WireGuard, WSTunnel, etc.)
+├── build-libs/            # Compiled dependencies (WSTunnel, Wintun, etc.)
 ├── build-exe/             # Final installers/packages (created during build)
 └── CMakeLists.txt         # Root build configuration
 ```
@@ -132,7 +132,6 @@ Windscribe's custom networking library with anti-censorship capabilities. It is 
 - **`build_all.py`** - Main Python build orchestrator
 - **`base/`** - Python build utilities
 - **`deps/`** - Dependency installation scripts
-  - `install_wireguard` - WireGuard library installer
   - `install_wstunnel` - WSTunnel binary installer
   - `install_openvpn_dco` - OpenVPN DCO driver (Windows)
   - `install_wintun` - Wintun driver (Windows)
@@ -176,7 +175,7 @@ Most components have separate implementations:
 - Wintun driver (Windows userspace)
 - wireguard-nt (Windows native driver)
 - WireGuard kernel module (Linux)
-- WireGuard-go (macOS userspace)
+- amneziawg-go (macOS/Linux userspace, used for both WireGuard and AmneziaWG)
 
 **OpenVPN**:
 - OpenVPN 2.x process
@@ -290,13 +289,11 @@ Navigate to `tools/deps/` and run installation scripts **in order**:
 ```bash
 install_openvpn_dco [--arm64]
 install_wintun [--arm64]
-install_wireguard [--arm64]
 install_wstunnel [--arm64]
 ```
 
 **macOS/Linux**:
 ```bash
-./install_wireguard
 ./install_wstunnel
 ```
 

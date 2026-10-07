@@ -3,7 +3,7 @@
 # Copyright (c) 2020-2026, Windscribe Limited. All rights reserved.
 # ------------------------------------------------------------------------------
 variables:
-  VERSION_OVPN_DCO_WIN: '2.8.2'
+  VERSION_OVPN_DCO_WIN: '2.8.7'
   ARTIFACT_OVPN_DCO_WIN: 'ovpn-dco-win.zip'
-  CHECKSUM_OVPN_DCO_WIN_AMD64: 'c34a8f26f71d16e31228a06fbfd6d13449861e27051efc44c4de49c45ae7a282'
-  CHECKSUM_OVPN_DCO_WIN_ARM64: 'e16736357530c0076f036c628483f1672086f8cc2ba7e8f04afa599fc8deeced'
+  CHECKSUM_OVPN_DCO_WIN_AMD64: '6ee142c11b5e98a2411751b6327dde811ffdd468d34727ce513e7321f8e96495'
+  CHECKSUM_OVPN_DCO_WIN_ARM64: '3f7027e1d5696d4a033b43aa45ac473491ce928f7ca8ca0c5fafd32a81da7bbc'

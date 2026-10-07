@@ -111,7 +111,7 @@ void RoutesManager::doActionsForInclusiveModeWireGuard(const ConnectStatus &conn
     const auto &vpn = connectStatus.vpnAdapter;
 
     // wireguard-windows installs AllowedIPs routes with NextHop = 0.0.0.0 / :: (on-link), see
-    // tools/deps/custom_amneziawg-windows/addressconfig.go (`route.NextHop = net.IPv4zero`).
+    // tunnel/addressconfig.go in amneziawg-windows (`route.NextHop = net.IPv4zero`).
     // Routes::deleteRoute matches byte-exact on NextHop, so we must pass the same on-link
     // sentinel here — using vpn.adapterIp would silently fail to delete the /1 routes,
     // leaving them in place and forcing all v4 traffic through the tunnel even in inclusive

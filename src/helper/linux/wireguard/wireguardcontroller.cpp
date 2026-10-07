@@ -81,7 +81,8 @@ bool WireGuardController::stop()
 
 bool WireGuardController::configure(const std::string &clientPrivateKey, const std::string &peerPublicKey, const std::string &peerPresharedKey,
                                     const std::string &peerEndpoint, const std::vector<std::string> &allowedIps, uint32_t fwmark, uint16_t listenPort,
-                                    const AmneziawgConfig &amneziawgConfig)
+                                    const AmneziawgConfig &amneziawgConfig, const std::string &persistentKeepalive,
+                                    bool disconnectOnStaleHandshake)
 {
     return is_initialized_
         && comm_->configure(clientPrivateKey,
@@ -91,7 +92,7 @@ bool WireGuardController::configure(const std::string &clientPrivateKey, const s
                             allowedIps,
                             fwmark,
                             listenPort,
-                            amneziawgConfig);
+                            amneziawgConfig, persistentKeepalive, disconnectOnStaleHandshake);
 }
 
 unsigned long WireGuardController::getStatus(

@@ -2715,6 +2715,14 @@ Si la réinstallation ne résout pas le problème, veuillez contacter le support
         <translation>Le paramètre d’init d’AmneziaWG contient des caractères invalides</translation>
     </message>
     <message>
+        <source>Invalid AmneziaWG parameter: %1</source>
+        <translation>Invalid AmneziaWG parameter&#xa0;: %1</translation>
+    </message>
+    <message>
+        <source>Invalid &quot;PersistentKeepalive&quot; value</source>
+        <translation>Valeur invalide « PersistentKeepalive »</translation>
+    </message>
+    <message>
         <source>Static IPs</source>
         <translation>Adresses IP statiques</translation>
     </message>

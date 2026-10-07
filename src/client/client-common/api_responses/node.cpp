@@ -7,6 +7,7 @@ namespace api_responses {
 
 void Node::initFromWsnet(const wsnet::ServerNode &src)
 {
+    d->id_ = src.id;
     d->ips_ = { QString::fromStdString(src.ip),
                 QString::fromStdString(src.ip2),
                 QString::fromStdString(src.ip3) };
@@ -14,6 +15,12 @@ void Node::initFromWsnet(const wsnet::ServerNode &src)
     d->weight_   = src.weight;
     d->ipv6_ = (src.ipv6 != 0);
     d->isValid_  = true;
+}
+
+int Node::getId() const
+{
+    WS_ASSERT(d->isValid_);
+    return d->id_;
 }
 
 QString Node::getHost() const
@@ -43,7 +50,8 @@ bool Node::isIpv6Support() const
 
 bool Node::operator==(const Node &other) const
 {
-    return d->ips_ == other.d->ips_ &&
+    return d->id_ == other.d->id_ &&
+           d->ips_ == other.d->ips_ &&
            d->host_ == other.d->host_ &&
            d->weight_ == other.d->weight_ &&
            d->ipv6_ == other.d->ipv6_ &&

@@ -328,7 +328,7 @@ message(STATUS "==================================================")
 message(STATUS "")
 
 # ------------------------------------------------------------------------------
-# Custom Dependencies (WireGuard, WSTunnel, Wintun, OpenVPN DCO)
+# Custom Dependencies (WSTunnel, Wintun, OpenVPN DCO)
 # ------------------------------------------------------------------------------
 
 # Verify WINDSCRIBE_BUILD_LIBS_PATH is set (from architectures.cmake)

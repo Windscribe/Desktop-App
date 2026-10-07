@@ -1277,23 +1277,6 @@ void TestConnectionManager::testLockdownModeIkev2Error()
     QVERIFY(!cm_->timerReconnection_.isActive());
 }
 
-void TestConnectionManager::testTunnelTestAttemptsZeroSurfacesResult()
-{
-    connectIkev2();
-    QCOMPARE(cm_->state_, ConnectionManager::State::kConnected);
-    // ExtraConfig pins the tunnel-test attempt count to 0: the result is surfaced to the UI as-is
-    // without failing over. Drive it through the tunnel-test seam rather than an on-disk config.
-    ExtraConfigMock::hasTunnelTestAttempts = true;
-    ExtraConfigMock::tunnelTestAttempts = 0;
-
-    QSignalSpy testTunnelSpy(cm_, &ConnectionManager::testTunnelResult);
-    cm_->onTunnelTestResult(false, "");
-
-    QCOMPARE(testTunnelSpy.count(), 1);
-    QCOMPARE(testTunnelSpy.at(0).at(0).toBool(), false);
-    QCOMPARE(cm_->state_, ConnectionManager::State::kConnected);
-}
-
 void TestConnectionManager::testRequestUsernameForwarded()
 {
     // The connector asking for a username is forwarded to the UI when no session-cached
@@ -2930,22 +2913,6 @@ void TestConnectionManager::testEmptyWalkFailsWithLocationUnavailable()
     QCOMPARE(qvariant_cast<ConnectError>(errorSpy.at(0).at(0)), ConnectError::kLocationUnavailable);
     QCOMPARE(cm_->state_, ConnectionManager::State::kDisconnected);
     QCOMPARE(connectionFactory_->createdCount(), 0);
-}
-
-void TestConnectionManager::testTunnelTestAttemptsZeroSuccessDropsIp()
-{
-    connectIkev2();
-    ExtraConfigMock::hasTunnelTestAttempts = true;
-    ExtraConfigMock::tunnelTestAttempts = 0;
-
-    QSignalSpy testTunnelSpy(cm_, &ConnectionManager::testTunnelResult);
-    cm_->onTunnelTestResult(true, "203.0.113.7");
-
-    // The attempts-pinned-to-0 escape hatch surfaces the result as-is, without the IP.
-    QCOMPARE(testTunnelSpy.count(), 1);
-    QCOMPARE(testTunnelSpy.at(0).at(0).toBool(), true);
-    QCOMPARE(testTunnelSpy.at(0).at(1).toString(), QString(""));
-    QCOMPARE(cm_->state_, ConnectionManager::State::kConnected);
 }
 
 void TestConnectionManager::testErrorQueuedBeforeSleepIgnoredInSleeping()

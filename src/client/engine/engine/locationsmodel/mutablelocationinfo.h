@@ -35,6 +35,7 @@ public:
     bool selectNodeByHostname(const QString &hostname);
 
     QString getIpForSelectedNode(int indIp) const;
+    int getIdForSelectedNode() const;
     QString getHostnameForSelectedNode() const;
     QString getWgPubKeyForSelectedNode() const;
     QString getWgIpForSelectedNode() const;

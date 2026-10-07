@@ -1,6 +1,7 @@
 #include "amneziawgunblockparams.h"
 
 #include <QDebug>
+#include <algorithm>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
@@ -10,17 +11,25 @@
 
 namespace api_responses {
 
+QStringList AmneziawgUnblockParam::v3Values() const
+{
+    return {headerProtectionKey, contentPaddingAddition, rekeyAfterTime, rekeyTimeout, rejectAfterTime,
+            keepaliveTimeout, maxHandshakeAttempts, randomTrailers, disableCookies};
+}
+
 bool AmneziawgUnblockParam::isValid() const
 {
     // We do not check title or countries, as a WG custom config with AmneziaWG params will not have these.
+    const QStringList v3 = v3Values();
     return (jc > 0) || (jmin > 0) || (jmax > 0) || (s1 > 0) || (s2 > 0) || (s3 > 0) || (s4 > 0) ||
-           (!h1.isEmpty()) || (!h2.isEmpty()) || (!h3.isEmpty()) || (!h4.isEmpty()) || (!iValues.isEmpty());
+           (!h1.isEmpty()) || (!h2.isEmpty()) || (!h3.isEmpty()) || (!h4.isEmpty()) || (!iValues.isEmpty()) ||
+           std::any_of(v3.begin(), v3.end(), [](const QString &v) { return !v.isEmpty(); });
 }
 
 bool AmneziawgUnblockParam::hasPrintableObfuscationValues() const
 {
     QStringList values = iValues;
-    values << h1 << h2 << h3 << h4;
+    values << h1 << h2 << h3 << h4 << v3Values();
     for (const QString &value : std::as_const(values)) {
         if (!value.isEmpty() && !NetworkingValidation::isPrintableSingleLineAscii(value)) {
             return false;
@@ -221,6 +230,15 @@ QDebug operator<<(QDebug debug, const AmneziawgUnblockParam &param)
                     << ", h3=" << param.h3
                     << ", h4=" << param.h4
                     << ", iValues=" << param.iValues
+                    << ", headerProtectionKey=" << (param.headerProtectionKey.isEmpty() ? "" : "<set>")
+                    << ", contentPaddingAddition=" << param.contentPaddingAddition
+                    << ", rekeyAfterTime=" << param.rekeyAfterTime
+                    << ", rekeyTimeout=" << param.rekeyTimeout
+                    << ", rejectAfterTime=" << param.rejectAfterTime
+                    << ", keepaliveTimeout=" << param.keepaliveTimeout
+                    << ", maxHandshakeAttempts=" << param.maxHandshakeAttempts
+                    << ", randomTrailers=" << param.randomTrailers
+                    << ", disableCookies=" << param.disableCookies
                     << ")";
     return debug;
 }

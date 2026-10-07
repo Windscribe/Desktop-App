@@ -54,6 +54,11 @@ private:
 
     boost::asio::io_context io_context_;
     boost::asio::steady_timer connectRetryTimer_;
+#ifdef Q_OS_WIN
+    // Holds connected() back until the adapter address is Preferred; see NetworkUtils_win::kAddressPreferredMaxWaitMs.
+    boost::asio::steady_timer adapterReadyTimer_;
+    QElapsedTimer adapterReadyElapsed_;
+#endif
 
     QString config_;
     QString username_;
@@ -137,6 +142,7 @@ private:
     void funcRunOpenVPN();
 #ifdef Q_OS_WIN
     void funcFailAdapterSetup();
+    void waitForAdapterReady(const boost::system::error_code &err);
 #endif
     void asyncConnectToManagementSocket();
     void retryConnectToManagementSocket(const boost::system::error_code& err);

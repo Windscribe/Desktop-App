@@ -164,7 +164,8 @@ bool Helper_posix::configureWireGuard(const WireGuardConfig &config)
     AmneziawgConfig amneziawgConfig = config.amneziawgParamToHelperConfig();
 
     auto result = sendCommand(HelperCommand::configureWireGuard, clientPrivateKey, clientIpAddress, clientDnsAddressList,
-                              peerPublicKey, peerPresharedKey, peerEndpoint, allowedIps, listenPort, dnsManager, amneziawgConfig);
+                              peerPublicKey, peerPresharedKey, peerEndpoint, allowedIps, listenPort, dnsManager, amneziawgConfig,
+                              config.peerPersistentKeepalive().toStdString(), config.disconnectOnStaleHandshake());
     bool success = false;
     deserializeAnswer(result, success);
     return success;

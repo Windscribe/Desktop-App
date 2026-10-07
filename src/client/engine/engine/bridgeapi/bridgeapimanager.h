@@ -14,7 +14,7 @@ public:
     explicit BridgeApiManager(QObject *parent);
     virtual ~BridgeApiManager();
 
-    void setConnectedState(bool isConnected, const QString &nodeAddress, const types::Protocol &protocol, const QString &pinnedIp = QString());
+    void setConnectedState(bool isConnected, int nodeId, const types::Protocol &protocol, const QString &pinnedIp = QString());
 
     void rotateIp();
 

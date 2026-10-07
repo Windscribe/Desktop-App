@@ -2715,6 +2715,14 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <translation>يحتوي معامل AmneziaWG init على أحرف غير صالحة</translation>
     </message>
     <message>
+        <source>Invalid AmneziaWG parameter: %1</source>
+        <translation>معامل AmneziaWG غير صحيح: ٪1</translation>
+    </message>
+    <message>
+        <source>Invalid &quot;PersistentKeepalive&quot; value</source>
+        <translation>قيمة &quot;PersistentKeepalive&quot; غير صالحة</translation>
+    </message>
+    <message>
         <source>Static IPs</source>
         <translation>عناوين IP ثابتة</translation>
     </message>

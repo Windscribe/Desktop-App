@@ -20,7 +20,10 @@ public:
     {
         lastHandshake_ = 0;
         lastHandshakeChangeTime_ = 0;
+        enabled_ = true;
     }
+
+    void setEnabled(bool enabled) { enabled_ = enabled; }
 
     // Updates the baseline when the handshake value advances; returns seconds since it last advanced.
     int64_t update(uint64_t handshake)
@@ -39,7 +42,7 @@ public:
 
     bool isStale(uint64_t handshake)
     {
-        return update(handshake) > kStaleThresholdSec;
+        return enabled_ && update(handshake) > kStaleThresholdSec;
     }
 
 private:
@@ -60,4 +63,5 @@ private:
 
     uint64_t lastHandshake_ = 0;
     int64_t lastHandshakeChangeTime_ = 0;
+    bool enabled_ = true;
 };

@@ -17,7 +17,8 @@ public:
     virtual bool configure(const std::string &clientPrivateKey, const std::string &peerPublicKey,
         				   const std::string &peerPresharedKey, const std::string &peerEndpoint,
         				   const std::vector<std::string> &allowedIps, uint32_t fwmark,
-        				   uint16_t listenPort, const AmneziawgConfig &amneziawgConfig);
+        				   uint16_t listenPort, const AmneziawgConfig &amneziawgConfig, const std::string &persistentKeepalive,
+        				   bool disconnectOnStaleHandshake);
     virtual unsigned long getStatus(unsigned int *errorCode, unsigned long long *bytesReceived,
         							unsigned long long *bytesTransmitted);
 

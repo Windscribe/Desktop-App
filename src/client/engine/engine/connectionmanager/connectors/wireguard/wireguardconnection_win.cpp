@@ -1,5 +1,6 @@
 #include "wireguardconnection_win.h"
 
+#include <QElapsedTimer>
 #include <QScopeGuard>
 #include <QStandardPaths>
 #include <QTimer>
@@ -61,6 +62,7 @@ void WireGuardConnection::startConnect()
     handshakeTracker_.reset();
     // Config and endpoint were assembled by prepare(); the DNS override comes from the attempt environment.
     wireGuardConfig_ = dialConfig();
+    handshakeTracker_.setEnabled(wireGuardConfig_.disconnectOnStaleHandshake());
 
     ::ResetEvent(stopThreadEvent_.getHandle());
 
@@ -373,7 +375,31 @@ void WireGuardConnection::onTunnelConnected()
 {
     connectedSignalEmited_ = true;
     AdapterGatewayInfo info = AdapterUtils_win::getConnectedAdapterInfo(QString::fromStdWString(kWireGuardAdapterIdentifier));
-    emit connected(info);
+    if (waitForAdapterAddressPreferred(info)) {
+        emit connected(info);
+    }
+}
+
+bool WireGuardConnection::waitForAdapterAddressPreferred(const AdapterGatewayInfo &info)
+{
+    // AmneziaWG's wintun adapter gets its address while already up, so duplicate address detection
+    // holds it Tentative for ~3s after the handshake. wireguard-nt configures the adapter before
+    // bringing it up with DAD off, so for plain WireGuard the first check passes.
+    QElapsedTimer elapsed;
+    elapsed.start();
+    bool isPreferred = NetworkUtils_win::isIpv4AddressPreferred(info.ifIndex(), info.adapterIpV4());
+    while (!isPreferred && elapsed.elapsed() < NetworkUtils_win::kAddressPreferredMaxWaitMs) {
+        // Intentionally non-alertable: we are usually inside a timer APC, and nesting the other timer APCs here
+        // would re-enter the log/stats handlers. They stay queued and run once this loop returns.
+        if (stopThreadEvent_.wait(NetworkUtils_win::kAddressPreferredPollMs) != WAIT_TIMEOUT) {
+            return false;
+        }
+        isPreferred = NetworkUtils_win::isIpv4AddressPreferred(info.ifIndex(), info.adapterIpV4());
+    }
+
+    qCInfo(LOG_CONNECTION) << "WireGuard adapter" << (isPreferred ? "address preferred" : "wait timed out")
+                           << "after" << elapsed.elapsed() << "ms";
+    return true;
 }
 
 void CALLBACK WireGuardConnection::checkServiceRunningProc(LPVOID lpArgToCompletionRoutine, DWORD dwTimerLowValue, DWORD dwTimerHighValue)

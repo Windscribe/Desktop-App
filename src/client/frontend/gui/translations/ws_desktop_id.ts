@@ -2715,6 +2715,14 @@ Jika penginstalan ulang tidak membantu, hubungi dukungan Windscribe untuk mendap
         <translation>Parameter init AmneziaWG berisi karakter yang tidak valid</translation>
     </message>
     <message>
+        <source>Invalid AmneziaWG parameter: %1</source>
+        <translation>Parameter AmneziaWG tidak valid: %1</translation>
+    </message>
+    <message>
+        <source>Invalid &quot;PersistentKeepalive&quot; value</source>
+        <translation>Nilai &quot;PersistentKeepalive&quot; tidak valid</translation>
+    </message>
+    <message>
         <source>Static IPs</source>
         <translation>IP statis</translation>
     </message>

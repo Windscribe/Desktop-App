@@ -40,6 +40,11 @@
         "advobfuscator",
         "miniaudio",
         "ctrld",
+        "amneziawg",
+        {
+            "name": "wireguard-windows",
+            "platform": "windows"
+        },
         {
             "name": "tap-windows6-driver",
             "platform": "windows"

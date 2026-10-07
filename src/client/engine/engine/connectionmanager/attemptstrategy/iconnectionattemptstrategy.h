@@ -23,6 +23,9 @@ struct CurrentConnectionDescr
 {
     CONNECTION_NODE_TYPE connectionNodeType = CONNECTION_NODE_ERROR;
 
+    // Identity of the selected API node; custom configs have no node.
+    int nodeId = 0;
+
     // Endpoint fields, filled for every node type (custom configs leave verifyX509name and
     // isIpv6Support at their defaults).
     QString ip;

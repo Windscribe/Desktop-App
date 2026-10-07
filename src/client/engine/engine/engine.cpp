@@ -1664,7 +1664,7 @@ void Engine::onConnectionManagerConnected()
     connectStateController_->setConnectedState(locationId_);
     // If IP is pinned for this location, skip tunnel tests; it will be done once the IP is pinned in onConnectedStateChanged()
     if (pinnedNode_.second.isEmpty()) {
-        testVPNTunnel_->startTests(connectionManager_->currentProtocol()); // It is important that the tunnel tests start after setConnectedState().
+        testVPNTunnel_->startTests(!locationId_.isCustomConfigsLocation()); // It is important that the tunnel tests start after setConnectedState().
     }
 
     if (tryLoginNextConnectOrDisconnect_) {
@@ -1847,7 +1847,6 @@ void Engine::onConnectionManagerInterfaceUpdated(const QString &interfaceName)
 
 void Engine::onConnectionManagerConnectingToHostname(const QString &hostname, const QString &ip, const QStringList &dnsServers)
 {
-    lastConnectingHostname_ = hostname;
     emit connectingHostnameChanged(hostname);
     connectStateController_->setConnectingState(locationId_);
 
@@ -3021,13 +3020,6 @@ void Engine::stopPacketDetectionImpl()
 
 void Engine::onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON /*reason*/, ConnectError /*err*/, const LocationID &lid)
 {
-    // Cancel any pending delayed VPN state timer
-    if (delayedVpnStateTimer_) {
-        delayedVpnStateTimer_->stop();
-        delayedVpnStateTimer_->deleteLater();
-        delayedVpnStateTimer_ = nullptr;
-    }
-
     // The rotated address is only worth waiting for while the connection that produced it lasts. This
     // also covers the tunnel test failing into a reconnect, which reports no result at all.
     if (state != CONNECT_STATE_CONNECTED) {
@@ -3049,37 +3041,16 @@ void Engine::onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON /*reas
         SplitTunnelExtensionManager::instance().stopExtension();
     }
 #endif
-    QString nodeAddress = (state == CONNECT_STATE_CONNECTED) ? lastConnectingHostname_ : QString();
+    int nodeId = (state == CONNECT_STATE_CONNECTED) ? connectionManager_->currentNodeId() : 0;
     QString pinnedIp = (state == CONNECT_STATE_CONNECTED) ? pinnedNode_.second : QString();
     types::Protocol protocol = (state == CONNECT_STATE_CONNECTED) ? connectionManager_->currentProtocol() : types::Protocol();
-    bridgeApiManager_->setConnectedState(state == CONNECT_STATE_CONNECTED, nodeAddress, protocol, pinnedIp);
+    bridgeApiManager_->setConnectedState(state == CONNECT_STATE_CONNECTED, nodeId, protocol, pinnedIp);
 
     // The Always On+ firewall blocks API access only while disconnected, so the effective connectivity
     // for wsnet changes together with the connect state.
     updateWsnetConnectivityState();
 
-#ifdef Q_OS_WIN
-
-    if (state == CONNECT_STATE_CONNECTED && (protocol.isOpenVpnProtocol() || (protocol.isWireGuardProtocol() && !effectiveAmneziawgPreset().isEmpty()))) {
-        // - Delay setting VPN connected state for OpenVPN protocols on Windows due to #576
-        // - Delay when using AmneziaWG as their usage of the wintun driver suffers from the same adapter setup delay as OpenVPN, in particular the
-        //   DNS is not set correctly on the adapter after the tunnel is reported as live.
-        delayedVpnStateTimer_ = new QTimer(this);
-        delayedVpnStateTimer_->setSingleShot(true);
-        connect(delayedVpnStateTimer_, &QTimer::timeout, this, [this]() {
-            if (!isCleanup_) {
-                WSNet::instance()->setIsConnectedToVpnState(true);
-            }
-            delayedVpnStateTimer_->deleteLater();
-            delayedVpnStateTimer_ = nullptr;
-        });
-        delayedVpnStateTimer_->start(4000);
-    } else {
-        WSNet::instance()->setIsConnectedToVpnState(state == CONNECT_STATE_CONNECTED);
-    }
-#else
     WSNet::instance()->setIsConnectedToVpnState(state == CONNECT_STATE_CONNECTED);
-#endif
 }
 
 void Engine::updateProxySettings()
@@ -3355,7 +3326,7 @@ void Engine::onIpRotateFinished(bool success)
         rotateResampling_ = true;
         rotateResampleAttempts_ = 0;
         rotateResampleTimer_.start();
-        testVPNTunnel_->startTests(connectionManager_->currentProtocol());
+        testVPNTunnel_->startTests(!locationId_.isCustomConfigsLocation());
     }
 }
 
@@ -3377,7 +3348,7 @@ void Engine::onIpPinFinished(const QString &ip)
     } else {
         // If IP pinning failed, we should start tunnel tests now to determine our actual IP.
         // GUI side will show a message accordingly if the actual IP does not match the pinned IP.
-        testVPNTunnel_->startTests(connectionManager_->currentProtocol());
+        testVPNTunnel_->startTests(!locationId_.isCustomConfigsLocation());
     }
 }
 

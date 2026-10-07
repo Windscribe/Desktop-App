@@ -2,6 +2,7 @@
 
 #include "helper_commands.h"
 
+#include <algorithm>
 #include <cctype>
 #include <cerrno>
 #include <cstdlib>
@@ -447,6 +448,27 @@ bool isValidAmneziawgObfuscationFields(const AmneziawgConfig &config)
             spdlog::error("Validation: rejecting AmneziaWG H-value with non-printable characters");
             return false;
         }
+    }
+    for (const auto &[key, value] : config.v3UapiFields()) {
+        if (!value->empty() && !isPrintableSingleLineAscii(*value)) {
+            spdlog::error("Validation: rejecting AmneziaWG {} with non-printable characters", key);
+            return false;
+        }
+    }
+    return true;
+}
+
+bool isValidUapiRange(const std::string &value)
+{
+    const auto dash = value.find('-');
+    const std::string lo = value.substr(0, dash);
+    const std::string hi = dash == std::string::npos ? lo : value.substr(dash + 1);
+    const auto isNumber = [](const std::string &s) {
+        return !s.empty() && s.size() <= 10 && std::all_of(s.begin(), s.end(), [](unsigned char c) { return std::isdigit(c); });
+    };
+    if (!isNumber(lo) || !isNumber(hi)) {
+        spdlog::error("Validation: rejecting invalid UAPI range \"{}\"", value);
+        return false;
     }
     return true;
 }

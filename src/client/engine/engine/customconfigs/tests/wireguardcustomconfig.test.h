@@ -45,4 +45,21 @@ private slots:
     void testOversizedFile();
     void testIValueAtLimit();
     void testIValueTooLong();
+
+    void testValidAwg3Params();
+    void testAwg3UnsetKeysNotEmitted();
+    void testHeaderProtectionKeyIsAmneziawg();
+    void testHeaderProtectionKeyRequiresPaddings();
+    void testInvalidHeaderProtectionKey();
+    void testInvalidAwg3Range();
+    void testInvalidAwg3Bool();
+    void testAwg3RejectsSmuggledNewline();
+
+    void testPersistentKeepaliveDefault();
+    void testPersistentKeepaliveValues();
+    void testPersistentKeepaliveRangeRequiresAmneziawg();
+    void testInvalidPersistentKeepalive();
+    void testPersistentKeepaliveAboveUint16();
+
+    void testNoDisconnectOnStaleHandshake();
 };

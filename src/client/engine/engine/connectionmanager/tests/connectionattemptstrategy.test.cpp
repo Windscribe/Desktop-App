@@ -1,6 +1,7 @@
 #include "connectionattemptstrategy.test.h"
 
 #include <QtTest>
+#include <wsnet/WSNetServerLocations.h>
 
 #include "engine/connectionmanager/attemptstrategy/autoconnectionattemptstrategy.h"
 #include "engine/connectionmanager/attemptstrategy/connectionattemptstrategyfactory.h"
@@ -22,11 +23,11 @@ QSharedPointer<locationsmodel::MutableLocationInfo> makeLocationInfo()
 {
     QVector<QSharedPointer<const locationsmodel::BaseNode>> nodes;
     nodes << QSharedPointer<const locationsmodel::BaseNode>(
-        new locationsmodel::ApiLocationNode({"10.0.0.1", "10.0.0.1", "10.0.0.1"}, "node1", 1, "pubkey1", false));
+        new locationsmodel::ApiLocationNode({"10.0.0.1", "10.0.0.1", "10.0.0.1"}, "node1", 1, "pubkey1", false, 101));
     nodes << QSharedPointer<const locationsmodel::BaseNode>(
-        new locationsmodel::ApiLocationNode({"10.0.0.2", "10.0.0.2", "10.0.0.2"}, "node2", 1, "pubkey2", false));
+        new locationsmodel::ApiLocationNode({"10.0.0.2", "10.0.0.2", "10.0.0.2"}, "node2", 1, "pubkey2", false, 102));
     nodes << QSharedPointer<const locationsmodel::BaseNode>(
-        new locationsmodel::ApiLocationNode({"10.0.0.3", "10.0.0.3", "10.0.0.3"}, "node3", 1, "pubkey3", false));
+        new locationsmodel::ApiLocationNode({"10.0.0.3", "10.0.0.3", "10.0.0.3"}, "node3", 1, "pubkey3", false, 103));
     return QSharedPointer<locationsmodel::MutableLocationInfo>::create(
         LocationID::createApiLocationId(1, "City", "Nick"), "Location", nodes, 0, "dns.host", "");
 }
@@ -52,7 +53,7 @@ QSharedPointer<locationsmodel::MutableLocationInfo> makeStaticIpsLocationInfo()
     QVector<QSharedPointer<const locationsmodel::BaseNode>> nodes;
     nodes << QSharedPointer<const locationsmodel::BaseNode>(
         new locationsmodel::StaticLocationNode({"10.1.0.1", "10.1.0.2", "10.1.0.3"}, "static1", "pubkey1", "10.255.255.1",
-                                               "dns.static", "user1", "pass1", staticPorts, false));
+                                               "dns.static", "user1", "pass1", staticPorts, false, 201));
     return QSharedPointer<locationsmodel::MutableLocationInfo>::create(
         LocationID::createStaticIpsLocationId("City", "10.1.0.1"), "Static", nodes, 0, "dns.host", "");
 }
@@ -69,6 +70,29 @@ void TestConnectionAttemptStrategy::init()
     ExtraConfigMock::reset();
 }
 
+void TestConnectionAttemptStrategy::testNodeIdentityFromWsnet()
+{
+    wsnet::ServerNode source;
+    source.id = 101;
+    source.host = "shared-host";
+    source.ip = "192.0.2.1";
+    source.ip2 = "192.0.2.2";
+    source.ip3 = "192.0.2.3";
+
+    api_responses::Node first;
+    first.initFromWsnet(source);
+    QCOMPARE(first.getId(), 101);
+
+    api_responses::Node second;
+    second.initFromWsnet(source);
+    QVERIFY(first == second);
+    source.id = 102;
+    second.initFromWsnet(source);
+    QCOMPARE(second.getId(), 102);
+    QCOMPARE(first.getId(), 101);
+    QVERIFY(first != second);
+}
+
 void TestConnectionAttemptStrategy::testManualWireGuardOverrideSelectsNodeByIp()
 {
     auto li = makeLocationInfo();
@@ -78,6 +102,7 @@ void TestConnectionAttemptStrategy::testManualWireGuardOverrideSelectsNodeByIp()
                                              makePortMap({types::Protocol::WIREGUARD}), "");
 
     QCOMPARE(li->getHostnameForSelectedNode(), QString("node2"));
+    QCOMPARE(strategy.getCurrentConnectionSettings().nodeId, 102);
 }
 
 void TestConnectionAttemptStrategy::testManualOverrideIgnoredForNonWireGuard()
@@ -109,10 +134,12 @@ void TestConnectionAttemptStrategy::testManualRetryAdvancesNode()
     ManualConnectionAttemptStrategy strategy(li, types::ConnectionSettings(types::Protocol::WIREGUARD, 443, false),
                                              makePortMap({types::Protocol::WIREGUARD}), "");
     QCOMPARE(li->getHostnameForSelectedNode(), QString("node1"));
+    QCOMPARE(strategy.getCurrentConnectionSettings().nodeId, 101);
 
     strategy.putFailedConnection();
 
     QCOMPARE(li->getHostnameForSelectedNode(), QString("node2"));
+    QCOMPARE(strategy.getCurrentConnectionSettings().nodeId, 102);
 }
 
 void TestConnectionAttemptStrategy::testManualRetryKeepsPreferredNode()
@@ -152,6 +179,7 @@ void TestConnectionAttemptStrategy::testAutoWireGuardOverrideSelectsNodeByIp()
     AutoConnectionAttemptStrategy strategy(li, makePortMap({types::Protocol::WIREGUARD}), false, false, false, "");
 
     QCOMPARE(li->getHostnameForSelectedNode(), QString("node2"));
+    QCOMPARE(strategy.getCurrentConnectionSettings().nodeId, 102);
 }
 
 void TestConnectionAttemptStrategy::testAutoRetryReadsOverrideLive()
@@ -405,6 +433,7 @@ void TestConnectionAttemptStrategy::testManualStaticIpsWireguardIpOverride()
 
     const CurrentConnectionDescr descr = strategy.getCurrentConnectionSettings();
     QCOMPARE(descr.connectionNodeType, CONNECTION_NODE_STATIC_IPS);
+    QCOMPARE(descr.nodeId, 201);
     QCOMPARE(descr.protocol, types::Protocol(types::Protocol::WIREGUARD));
     QCOMPARE(descr.port, 443u);
     QCOMPARE(descr.ip, QString("10.255.255.1"));
@@ -580,6 +609,7 @@ void TestConnectionAttemptStrategy::testCustomConfigOvpnDescriptorAndNodeAdvance
 
     CurrentConnectionDescr descr = strategy.getCurrentConnectionSettings();
     QCOMPARE(descr.connectionNodeType, CONNECTION_NODE_CUSTOM_CONFIG);
+    QCOMPARE(descr.nodeId, 0);
     QCOMPARE(descr.ip, QString("1.2.3.4"));
     QCOMPARE(descr.port, 443u);
     QCOMPARE(descr.protocol, types::Protocol(types::Protocol::OPENVPN_UDP));
@@ -614,6 +644,7 @@ void TestConnectionAttemptStrategy::testCustomConfigWireGuardDescriptor()
 
     const CurrentConnectionDescr descr = strategy.getCurrentConnectionSettings();
     QCOMPARE(descr.connectionNodeType, CONNECTION_NODE_CUSTOM_CONFIG);
+    QCOMPARE(descr.nodeId, 0);
     QCOMPARE(descr.ip, QString("1.2.3.4"));
     QCOMPARE(descr.port, 51820u);
     QCOMPARE(descr.protocol, types::Protocol(types::Protocol::WIREGUARD));

@@ -91,8 +91,6 @@ Go to subfolder `tools/deps` and run the following scripts in order. Append `--a
 ```
 install_openvpn_dco
 install_wintun
-install_wireguard
-install_amneziawg
 install_wstunnel
 ```
 
@@ -163,8 +161,6 @@ git clone https://github.com/Windscribe/ws-vcpkg-registry.git
 Go to subfolder `tools/deps` and run the following scripts in order. Libraries will be placed in `build-libs`.
 
 ```
-install_wireguard
-install_amneziawg
 install_wstunnel
 ```
 
@@ -200,7 +196,7 @@ The repository contains Dockerfile to simplify building process. Skip all the ot
 ```
 - Build all the dependencies:
 ```bash
-  for i in qt wireguard amneziawg wstunnel; do sudo docker run --rm -v .:/w ws-builder /bin/bash -c "cd /w/tools/deps/ && ./install_$i"; done
+  for i in qt wstunnel; do sudo docker run --rm -v .:/w ws-builder /bin/bash -c "cd /w/tools/deps/ && ./install_$i"; done
 ```
 - Build the application:
 ```bash
@@ -237,8 +233,6 @@ git clone https://github.com/Windscribe/ws-vcpkg-registry.git
 Go to subfolder `tools/deps` and run the following scripts in order. Libraries will be placed in `build-libs`.
 
 ```
-install_wireguard
-install_amneziawg
 install_wstunnel
 ```
 

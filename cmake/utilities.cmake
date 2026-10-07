@@ -80,13 +80,13 @@ function(ws_resolve_bundled_helpers)
     set(_SRC_ctrld_POSIX       "${_vcpkg_tools}/ctrld/ctrld")
     set(_SRC_wstunnel_WIN     "${_build_libs}/wstunnel/${_p}wstunnel.exe")
     set(_SRC_wstunnel_POSIX    "${_build_libs}/wstunnel/${_p}wstunnel")
-    set(_SRC_amneziawg_POSIX   "${_build_libs}/wireguard/${_p}amneziawg")
+    set(_SRC_amneziawg_POSIX   "${_vcpkg_tools}/amneziawg/amneziawg-go")
 
     # amneziawg on Windows bundles raw DLLs instead of a single prefixed binary.
     set(_SRC_amneziawg_WIN_DLLS
-        "${_build_libs}/wireguard/tunnel.dll|tunnel.dll"
-        "${_build_libs}/wireguard/wireguard.dll|wireguard.dll"
-        "${_build_libs}/wireguard/amneziawgtunnel.dll|amneziawgtunnel.dll"
+        "${_vcpkg_tools}/wireguard-windows/tunnel.dll|tunnel.dll"
+        "${_vcpkg_tools}/wireguard-windows/wireguard.dll|wireguard.dll"
+        "${_vcpkg_tools}/amneziawg/amneziawgtunnel.dll|amneziawgtunnel.dll"
     )
 
     set(_helpers "")

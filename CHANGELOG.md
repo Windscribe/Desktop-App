@@ -1,7 +1,24 @@
+2.25.3 (07/10/2026)
+All:
+   * Improved implementation of post-connect tunnel validation and connected IP state. #1954
+   * Updated OpenSSL to 4.0.3. #2021
+   * Updated OpenVPN to 2.7.7. #2020
+   * Updated Qt to 6.12.0. #2022
+Windows:
+   * Fixed installer displaying error dialogs when -silent is specified on the command-line. #2011
+   * Updated AmneziaWG to 3.1.20260814. #2015
+   * Updated OpenVPN DCO driver to 2.8.7. #2016
+macOS:
+   * Updated AmneziaWG to 3.1.20260828. #2015
+Linux:
+   * Updated AmneziaWG to 3.1.20260828. #2015
+
+
 2.25.2 (29/09/2026)
 Windows:
    * Improved app security by running the OpenVPN daemon unelevated. #1985
    * Improved installer to return specific Windows error codes when a failure occurs. #2011
+   * Fixed no tunnel traffic with inclusive split tunneling and custom OpenVPN config server that pushes ifconfig-ipv6. #2001
 Linux:
    * Fixed CLI from the GUI package fails on a headless environment with a no-display error. #2010
 

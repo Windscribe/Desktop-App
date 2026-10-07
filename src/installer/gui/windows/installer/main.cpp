@@ -28,6 +28,8 @@ namespace
 {
 int argCount = 0;
 LPWSTR *argList = nullptr;
+// Set from -silent before any UI.  Store/Intune/SCCM launches have no user to dismiss a dialog.
+bool silentInstall = false;
 
 // Returns ERROR_SUCCESS and writes *elevated, or a Win32 error if the process
 // token could not be queried.  GetLastError is captured before Win32Handle
@@ -57,6 +59,11 @@ static DWORD checkElevation(bool *elevated)
 
 static int WSMessageBox(const QString &title, const QString &text)
 {
+    if (silentInstall) {
+        spdlog::warn(L"{}: {}", title.toStdWString(), text.toStdWString());
+        return 0;
+    }
+
     QScopedPointer<QMessageBox> box(new QMessageBox(QMessageBox::Critical, title, text));
     return box->exec();
 }
@@ -291,6 +298,8 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
         spdlog::set_default_logger(std::make_shared<spdlog::logger>("teardown"));
     });
 
+    silentInstall = CheckCommandLineArgument(L"-silent");
+
 #if !defined(_M_ARM64)
     if (isWindowsOnArm()) {
         WSMessageBox(QObject::tr("Windscribe Installer"),
@@ -333,7 +342,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
 
     if (!ops.updating)
     {
-        ops.silent = CheckCommandLineArgument(L"-silent");
+        ops.silent = silentInstall;
         if (ops.silent) {
             expectedArgumentCount += 1;
         }
@@ -441,8 +450,8 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
         return elevationErr;
     }
 
-    // MainWindow does not create a UI when running in silent mode.  We'll have to use a standard messagebox
-    // for this edge case.
+    // MainWindow does not create a UI in silent mode, so a missing-elevation
+    // failure has to be reported and returned here.
     if (!isAdmin && ops.silent) {
         WSMessageBox(QObject::tr("Windscribe Install Error"),
                      QObject::tr("You don't have sufficient permissions to run this application. Administrative privileges are required to install Windscribe."));
@@ -450,7 +459,12 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
     }
 
     MainWindow w(isAdmin, ops);
-    w.show();
+    if (ops.silent) {
+        // Keep the event loop alive for installer callbacks; no window is shown.
+        a.setQuitOnLastWindowClosed(false);
+    } else {
+        w.show();
+    }
 
     // loggingTeardownGuard unregisters the crash handlers and flushes/releases the logger.
     // MainWindow reports success / user-canceled / failed; map those to Win32 codes

@@ -8,8 +8,6 @@ QString remoteIp;
 QString extraConfigForOpenVpn;
 bool hasMtuOffsetOpenVpn = false;
 int mtuOffsetOpenVpn = 0;
-bool hasTunnelTestAttempts = false;
-int tunnelTestAttempts = 0;
 bool tunnelTestNoError = false;
 
 void reset()
@@ -18,8 +16,6 @@ void reset()
     extraConfigForOpenVpn.clear();
     hasMtuOffsetOpenVpn = false;
     mtuOffsetOpenVpn = 0;
-    hasTunnelTestAttempts = false;
-    tunnelTestAttempts = 0;
     tunnelTestNoError = false;
     ExtraConfig::instance().setDetectedIp(QString());
 }
@@ -42,10 +38,6 @@ QString ExtraConfig::getRemoteIpFromExtraConfig() { return ExtraConfigMock::remo
 int ExtraConfig::getMtuOffsetIkev2(bool &success) { success = false; return 0; }
 int ExtraConfig::getMtuOffsetOpenVpn(bool &success) { success = ExtraConfigMock::hasMtuOffsetOpenVpn; return ExtraConfigMock::mtuOffsetOpenVpn; }
 int ExtraConfig::getMtuOffsetWireguard(bool &success) { success = false; return 0; }
-int ExtraConfig::getTunnelTestStartDelay(bool &success) { success = false; return 0; }
-int ExtraConfig::getTunnelTestTimeout(bool &success) { success = false; return 0; }
-int ExtraConfig::getTunnelTestRetryDelay(bool &success) { success = false; return 0; }
-int ExtraConfig::getTunnelTestAttempts(bool &success) { success = ExtraConfigMock::hasTunnelTestAttempts; return ExtraConfigMock::tunnelTestAttempts; }
 bool ExtraConfig::getIsTunnelTestNoError() { return ExtraConfigMock::tunnelTestNoError; }
 bool ExtraConfig::getOverrideUpdateChannelToInternal() { return false; }
 bool ExtraConfig::getIsStaging() { return false; }

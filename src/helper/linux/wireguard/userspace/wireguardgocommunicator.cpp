@@ -203,15 +203,19 @@ bool WireGuardGoCommunicator::forceStop(const std::string &deviceName)
 bool WireGuardGoCommunicator::configure(const std::string &clientPrivateKey, const std::string &peerPublicKey,
                                         const std::string &peerPresharedKey, const std::string &peerEndpoint,
                                         const std::vector<std::string> &allowedIps, uint32_t fwmark,
-                                        uint16_t listenPort, const AmneziawgConfig &amneziawgConfig)
+                                        uint16_t listenPort, const AmneziawgConfig &amneziawgConfig, const std::string &persistentKeepalive,
+                                        bool disconnectOnStaleHandshake)
 {
+    handshakeTracker_.setEnabled(disconnectOnStaleHandshake);
+
     Connection connection(deviceName_);
     if (connection.getStatus() != Connection::Status::OK) {
         spdlog::error("WireGuardGoCommunicator::configure(): no connection to daemon");
         return false;
     }
 
-    if (!Validation::isValidAmneziawgObfuscationFields(amneziawgConfig)) {
+    if (!Validation::isValidAmneziawgObfuscationFields(amneziawgConfig) ||
+        !Validation::isValidUapiRange(persistentKeepalive)) {
         return false;
     }
 
@@ -280,16 +284,19 @@ bool WireGuardGoCommunicator::configure(const std::string &clientPrivateKey, con
                 fprintf(connection, "i%zu=%s\n", i + 1, amneziawgConfig.iValues[i].c_str());
             }
         }
+
+        for (const auto &[key, value] : amneziawgConfig.v3UapiFields()) {
+            if (!value->empty()) {
+                fprintf(connection, "%s=%s\n", key, value->c_str());
+            }
+        }
     }
 
-    // persistent_keepalive_interval is needed to force handshake right after
-    // the interface is configured. Otherwise, Wireguard waits for any incoming
-    // packet to the network interface, which interfere with the blocking firewall.
     fprintf(connection,
         "public_key=%s\n"
         "endpoint=%s\n"
-        "persistent_keepalive_interval=25\n",
-        peerPublicKey.c_str(), peerEndpoint.c_str());
+        "persistent_keepalive_interval=%s\n",
+        peerPublicKey.c_str(), peerEndpoint.c_str(), persistentKeepalive.c_str());
     if (!peerPresharedKey.empty())
         fprintf(connection, "preshared_key=%s\n", peerPresharedKey.c_str());
     fprintf(connection, "%s", "replace_allowed_ips=true\n");

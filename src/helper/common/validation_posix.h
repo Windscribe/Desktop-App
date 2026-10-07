@@ -103,6 +103,9 @@ bool isValidUapiKeyField(const char *fieldName, const std::string &value);
 // macOS WireGuard communicators before the values are written as newline-delimited UAPI records.
 bool isValidAmneziawgObfuscationFields(const AmneziawgConfig &config);
 
+// Returns true for "N" or "N-M" of up-to-10-digit decimals. Range bounds are left to the daemon.
+bool isValidUapiRange(const std::string &value);
+
 // Normalize an address string. IPv4, domain, domain:port and [ipv6]:port are returned unchanged;
 // anything else is parsed and re-serialized as a URL.
 // Returns "" if the input is none of the above.

@@ -828,6 +828,33 @@ QString NetworkUtils_win::getRoutingTable()
     return WinUtils::executeBlockingCmd(cmd, "", 50).trimmed();
 }
 
+bool NetworkUtils_win::isIpv4AddressPreferred(unsigned long ifIndex, const types::IpAddress &address)
+{
+    if (!address.isValid() || !address.isV4()) {
+        return false;
+    }
+
+    PMIB_UNICASTIPADDRESS_TABLE table = nullptr;
+    const DWORD result = GetUnicastIpAddressTable(AF_INET, &table);
+    if (result != NO_ERROR || table == nullptr) {
+        qCDebug(LOG_BASIC) << "isIpv4AddressPreferred: GetUnicastIpAddressTable failed" << result;
+        return false;
+    }
+
+    bool isPreferred = false;
+    for (ULONG i = 0; i < table->NumEntries; i++) {
+        const MIB_UNICASTIPADDRESS_ROW &row = table->Table[i];
+        if (row.InterfaceIndex == ifIndex && row.Address.Ipv4.sin_addr.S_un.S_addr == address.ipv4NetworkOrder()
+            && row.DadState == IpDadStatePreferred) {
+            isPreferred = true;
+            break;
+        }
+    }
+
+    FreeMibTable(table);
+    return isPreferred;
+}
+
 bool NetworkUtils_win::isSsidAccessAvailable()
 {
     return !g_SsidAccessDenied;

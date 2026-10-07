@@ -41,10 +41,6 @@ public:
     void setDetectedIp(const QString &ip) { detectedIp_ = ip; }
     QString getDetectedIp() { return detectedIp_; }
 
-    int getTunnelTestStartDelay(bool &success);
-    int getTunnelTestTimeout(bool &success);
-    int getTunnelTestRetryDelay(bool &success);
-    int getTunnelTestAttempts(bool &success);
     bool getIsTunnelTestNoError();
 
     bool getOverrideUpdateChannelToInternal();

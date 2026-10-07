@@ -9,9 +9,10 @@
       {
         "kind": "git",
         "repository": "https://github.com/Windscribe/ws-vcpkg-registry",
-        "baseline": "ef9b1277cc637891ca2b17638e21aa5d71f8f379",
+        "baseline": "f703d83b84a29485dba36a350372941a7b358068",
         "packages": [
           "7zip",
+          "amneziawg",
           "boost-context",
           "boost-process",
           "c-ares",
@@ -31,7 +32,8 @@
           "scapix-bin",
           "skyr-url",
           "spdlog",
-          "tap-windows6-driver"
+          "tap-windows6-driver",
+          "wireguard-windows"
         ]
       }
     ]

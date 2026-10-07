@@ -11,8 +11,6 @@ extern QString remoteIp;
 extern QString extraConfigForOpenVpn;
 extern bool hasMtuOffsetOpenVpn;
 extern int mtuOffsetOpenVpn;
-extern bool hasTunnelTestAttempts;
-extern int tunnelTestAttempts;
 extern bool tunnelTestNoError;
 
 // Restores all knobs (and the instance's detected ip) to defaults; call from the fixture's init().

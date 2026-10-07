@@ -140,6 +140,24 @@ QString WireGuardConfig::generateConfigFile() const
             }
             ts << "I" << i + 1 << " = " << iv << '\n';
         }
+
+        const auto &p = client_.amneziawgParam;
+        const std::pair<const char *, const QString *> v3Keys[] = {
+            {"HeaderProtectionKey", &p.headerProtectionKey},
+            {"ContentPaddingAddition", &p.contentPaddingAddition},
+            {"RekeyAfterTime", &p.rekeyAfterTime},
+            {"RekeyTimeout", &p.rekeyTimeout},
+            {"RejectAfterTime", &p.rejectAfterTime},
+            {"KeepaliveTimeout", &p.keepaliveTimeout},
+            {"MaxHandshakeAttempts", &p.maxHandshakeAttempts},
+            {"RandomTrailers", &p.randomTrailers},
+            {"DisableCookies", &p.disableCookies},
+        };
+        for (const auto &[key, value] : v3Keys) {
+            if (!value->isEmpty()) {
+                ts << key << " = " << *value << '\n';
+            }
+        }
     }
 
     ts << '\n';
@@ -152,11 +170,7 @@ QString WireGuardConfig::generateConfigFile() const
     }
 
     ts << "AllowedIPs = " << expandCatchAllRoutes(peer_.allowedIps) << '\n';
-
-    // PersistentKeepalive is needed to force handshake right after
-    // the interface is configured. Otherwise, Wireguard waits for any incoming
-    // packet to the network interface, which interfere with the blocking firewall.
-    ts << "PersistentKeepalive = 25\n";
+    ts << "PersistentKeepalive = " << peer_.persistentKeepalive << '\n';
     ts.flush();
 
     return config;
@@ -174,6 +188,8 @@ void WireGuardConfig::reset()
     peer_.presharedKey.clear();
     peer_.endpoint.clear();
     peer_.allowedIps.clear();
+    peer_.persistentKeepalive = kDefaultPersistentKeepalive;
+    disconnectOnStaleHandshake_ = true;
 }
 
 bool WireGuardConfig::generateKeyPair()
@@ -306,6 +322,17 @@ AmneziawgConfig WireGuardConfig::amneziawgParamToHelperConfig() const
         for (const auto &iValue : client_.amneziawgParam.iValues) {
             config.iValues.push_back(iValue.toStdString());
         }
+        // The UAPI takes the key as hex; the config file form is base64.
+        config.headerProtectionKey =
+            QByteArray::fromBase64(client_.amneziawgParam.headerProtectionKey.toLatin1()).toHex().toStdString();
+        config.contentPaddingAddition = client_.amneziawgParam.contentPaddingAddition.toStdString();
+        config.rekeyAfterTime = client_.amneziawgParam.rekeyAfterTime.toStdString();
+        config.rekeyTimeout = client_.amneziawgParam.rekeyTimeout.toStdString();
+        config.rejectAfterTime = client_.amneziawgParam.rejectAfterTime.toStdString();
+        config.keepaliveTimeout = client_.amneziawgParam.keepaliveTimeout.toStdString();
+        config.maxHandshakeAttempts = client_.amneziawgParam.maxHandshakeAttempts.toStdString();
+        config.randomTrailers = client_.amneziawgParam.randomTrailers.toStdString();
+        config.disableCookies = client_.amneziawgParam.disableCookies.toStdString();
         if (ExtraConfig::instance().getWireGuardVerboseLogging()) {
             qCDebug(LOG_CONNECTION) << "WireGuardConfig::amneziawgParamToHelperConfig" << client_.amneziawgParam;
         }

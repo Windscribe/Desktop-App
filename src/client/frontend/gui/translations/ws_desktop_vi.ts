@@ -2715,6 +2715,14 @@ Nếu việc cài đặt lại không hiệu quả, vui lòng liên hệ với b
         <translation>Tham số init AmneziaWG chứa các ký tự không hợp lệ</translation>
     </message>
     <message>
+        <source>Invalid AmneziaWG parameter: %1</source>
+        <translation>Tham số AmneziaWG không hợp lệ: %1</translation>
+    </message>
+    <message>
+        <source>Invalid &quot;PersistentKeepalive&quot; value</source>
+        <translation>Giá trị &quot;PersistentKeepalive&quot; không hợp lệ</translation>
+    </message>
+    <message>
         <source>Static IPs</source>
         <translation>IP tĩnh</translation>
     </message>

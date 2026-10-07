@@ -142,6 +142,12 @@ QString MutableLocationInfo::getIpForSelectedNode(int indIp) const
     return nodes_[selectedNode_]->getIp(indIp);
 }
 
+int MutableLocationInfo::getIdForSelectedNode() const
+{
+    WS_ASSERT(selectedNode_ >= 0 && selectedNode_ < nodes_.count());
+    return nodes_[selectedNode_]->getId();
+}
+
 QString MutableLocationInfo::getHostnameForSelectedNode() const
 {
     WS_ASSERT(selectedNode_ >= 0 && selectedNode_ < nodes_.count());

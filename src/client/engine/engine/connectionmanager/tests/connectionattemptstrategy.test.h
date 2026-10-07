@@ -9,6 +9,7 @@ class TestConnectionAttemptStrategy : public QObject
 private slots:
     void initTestCase();
     void init();
+    void testNodeIdentityFromWsnet();
     void testManualWireGuardOverrideSelectsNodeByIp();
     void testManualOverrideIgnoredForNonWireGuard();
     void testManualInvalidOverrideFallsBackToPreferredHostname();

@@ -3,6 +3,7 @@
 #include <cstddef>
 #include <stdexcept>
 #include <string>
+#include <utility>
 #include <vector>
 #include <sstream>
 #include <spdlog/spdlog.h>
@@ -230,11 +231,45 @@ struct AmneziawgConfig
     // I1, I2, I3, I4, I5 (in order).  Only I1 is mandatory, the others may not exist.
     std::vector<std::string> iValues;
 
+    // AmneziaWG 3.x, already in UAPI form: ranges "N" or "N-M", booleans "true"/"false", the key in hex.
+    std::string headerProtectionKey;
+    std::string contentPaddingAddition;
+    std::string rekeyAfterTime;
+    std::string rekeyTimeout;
+    std::string rejectAfterTime;
+    std::string keepaliveTimeout;
+    std::string maxHandshakeAttempts;
+    std::string randomTrailers;
+    std::string disableCookies;
+
+    std::vector<std::pair<const char *, const std::string *>> v3UapiFields() const
+    {
+        return {
+            {"header_protection_key", &headerProtectionKey},
+            {"content_padding_addition", &contentPaddingAddition},
+            {"rekey_after_time", &rekeyAfterTime},
+            {"rekey_timeout", &rekeyTimeout},
+            {"reject_after_time", &rejectAfterTime},
+            {"keepalive_timeout", &keepaliveTimeout},
+            {"max_handshake_attempts", &maxHandshakeAttempts},
+            {"random_trailers", &randomTrailers},
+            {"disable_cookies", &disableCookies},
+        };
+    }
+
     bool isValid() const
     {
         // We do not check the title, as a WG custom config with AmneziaWG params will not have one.
-        return (jc > 0) || (jmin > 0) || (jmax > 0) || (s1 > 0) || (s2 > 0) || (s3 > 0) || (s4 > 0) ||
-               (!h1.empty()) || (!h2.empty()) || (!h3.empty()) || (!h4.empty()) || (!iValues.empty());
+        if ((jc > 0) || (jmin > 0) || (jmax > 0) || (s1 > 0) || (s2 > 0) || (s3 > 0) || (s4 > 0) ||
+            (!h1.empty()) || (!h2.empty()) || (!h3.empty()) || (!h4.empty()) || (!iValues.empty())) {
+            return true;
+        }
+        for (const auto &field : v3UapiFields()) {
+            if (!field.second->empty()) {
+                return true;
+            }
+        }
+        return false;
     }
 };
 
@@ -330,6 +365,15 @@ void serialize(Archive &ar, AmneziawgConfig &a, const unsigned int /*version*/)
     ar & a.h3;
     ar & a.h4;
     ar & a.iValues;
+    ar & a.headerProtectionKey;
+    ar & a.contentPaddingAddition;
+    ar & a.rekeyAfterTime;
+    ar & a.rekeyTimeout;
+    ar & a.rejectAfterTime;
+    ar & a.keepaliveTimeout;
+    ar & a.maxHandshakeAttempts;
+    ar & a.randomTrailers;
+    ar & a.disableCookies;
 }
 }
 }

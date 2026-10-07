@@ -25,12 +25,16 @@ public:
     QString peerPresharedKey() const { return peer_.presharedKey; }
     QString peerEndpoint() const { return peer_.endpoint; }
     QString peerAllowedIps() const { return peer_.allowedIps; }
+    QString peerPersistentKeepalive() const { return peer_.persistentKeepalive; }
     void setPeerPublicKey(const QString &publicKey) { peer_.publicKey = publicKey; }
     void setPeerEndpoint(const QString &endpoint) { peer_.endpoint = endpoint; }
     void setPeerPresharedKey(const QString &presharedKey) { peer_.presharedKey = presharedKey; }
     void setPeerAllowedIPs(const QString &allowedIPs) { peer_.allowedIps = allowedIPs; }
+    void setPeerPersistentKeepalive(const QString &keepalive) { peer_.persistentKeepalive = keepalive; }
     void setClientIpAddress(const QString &ip) { client_.ipAddress = ip; }
     void setClientDnsAddress(const QString &dns) { client_.dnsAddress = dns; }
+    bool disconnectOnStaleHandshake() const { return disconnectOnStaleHandshake_; }
+    void setDisconnectOnStaleHandshake(bool disconnect) { disconnectOnStaleHandshake_ = disconnect; }
     bool haveServerGeneratedPeerParams() const;
 
     // True when the persisted fields (client keypair + server-generated peer params + client IP)
@@ -70,7 +74,17 @@ private:
         QString presharedKey;
         QString endpoint;
         QString allowedIps;
+        // "N" or "N-M" seconds, "0" disables. The nonzero default forces the handshake right after the interface is
+        // configured; otherwise WireGuard waits for a packet on the interface, which interferes with the blocking firewall.
+        QString persistentKeepalive = kDefaultPersistentKeepalive;
     } peer_;
+
+    // Our servers discard the client key once the handshake stops advancing, and only a new wgconfig API call recovers,
+    // so the tunnel is torn down instead. Custom-config peers keep their static keys and WireGuard re-handshakes on its
+    // own, while a quiet tunnel (keepalive off, or a rekey interval past the threshold) never advances the handshake.
+    bool disconnectOnStaleHandshake_ = true;
+
+    static constexpr const char *kDefaultPersistentKeepalive = "25";
 
     // for serialization
     static constexpr quint32 versionForSerialization_ = 2;  // should increment the version if the data format is changed

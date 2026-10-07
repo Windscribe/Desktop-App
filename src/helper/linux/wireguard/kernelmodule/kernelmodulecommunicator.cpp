@@ -4,6 +4,7 @@
 #include "wireguard.h"
 #include <boost/asio.hpp>
 #include <boost/algorithm/hex.hpp>
+#include <charconv>
 #include <sys/socket.h>
 #include <spdlog/spdlog.h>
 
@@ -140,8 +141,22 @@ bool KernelModuleCommunicator::setPeerEndpoint(wg_peer *peer, const std::string 
 bool KernelModuleCommunicator::configure(const std::string &clientPrivateKey,
                                          const std::string &peerPublicKey, const std::string &peerPresharedKey,
                                          const std::string &peerEndpoint, const std::vector<std::string> &allowedIps,
-                                         uint32_t fwmark, uint16_t listenPort, const AmneziawgConfig &amneziawgConfig)
+                                         uint32_t fwmark, uint16_t listenPort, const AmneziawgConfig &amneziawgConfig,
+                                         const std::string &persistentKeepalive,
+                                         bool disconnectOnStaleHandshake)
 {
+    handshakeTracker_.setEnabled(disconnectOnStaleHandshake);
+
+    // The kernel module takes a single uint16. Keepalive ranges are an AmneziaWG feature, and AmneziaWG
+    // configs always run on amneziawg-go, so a range here is invalid input.
+    uint16_t keepalive = 0;
+    const char *keepaliveEnd = persistentKeepalive.data() + persistentKeepalive.size();
+    const auto [keepalivePtr, keepaliveErr] = std::from_chars(persistentKeepalive.data(), keepaliveEnd, keepalive);
+    if (keepaliveErr != std::errc() || keepalivePtr != keepaliveEnd) {
+        spdlog::error("KernelModuleCommunicator: invalid persistent keepalive \"{}\"", persistentKeepalive);
+        return false;
+    }
+
     std::string buf;
     wg_peer new_peer;
 
@@ -165,7 +180,7 @@ bool KernelModuleCommunicator::configure(const std::string &clientPrivateKey,
         memcpy(&new_peer.preshared_key, buf.c_str(), sizeof(wg_key));
     }
     new_peer.flags = (enum wg_peer_flags)(WGPEER_HAS_PERSISTENT_KEEPALIVE_INTERVAL | new_peer.flags); // NOLINT: ignore C-style flag casting
-    new_peer.persistent_keepalive_interval = 25;
+    new_peer.persistent_keepalive_interval = keepalive;
 
     if (!setPeerEndpoint(&new_peer, peerEndpoint))
         return false;

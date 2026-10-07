@@ -71,6 +71,7 @@ public:
     bool isAllowFirewallAfterConnectionRuntime() const;
 
     types::Protocol currentProtocol() const;
+    int currentNodeId() const { return currentConnectionDescr_.nodeId; }
 
     void updateConnectionSettings(
         const types::ConnectionSettings &connectionSettings,

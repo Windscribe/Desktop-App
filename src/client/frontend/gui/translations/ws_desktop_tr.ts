@@ -2715,6 +2715,14 @@ Yeniden yükleme yardımcı olmazsa, lütfen yardım için Windscribe desteği i
         <translation>AmneziaWG init parametresi geçersiz karakterler içerir</translation>
     </message>
     <message>
+        <source>Invalid AmneziaWG parameter: %1</source>
+        <translation>Geçersiz AmneziaWG parametresi: %1</translation>
+    </message>
+    <message>
+        <source>Invalid &quot;PersistentKeepalive&quot; value</source>
+        <translation>Geçersiz &quot;PersistentKeepalive&quot; değeri</translation>
+    </message>
+    <message>
         <source>Static IPs</source>
         <translation>Statik IP&apos;ler</translation>
     </message>

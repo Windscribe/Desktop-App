@@ -16,6 +16,7 @@
 
 #ifdef Q_OS_WIN
     #include "engine/adapterutils_win.h"
+    #include "utils/network_utils/network_utils_win.h"
     #include "utils/winutils.h"
 #elif defined (Q_OS_LINUX)
     #include <sys/socket.h>
@@ -30,7 +31,11 @@
 
 OpenVPNConnection::OpenVPNConnection(QObject *parent, Helper *helper, types::Protocol protocol, const OpenVpnSessionParams &sessionParams) :
     IConnection(parent, protocol), helper_(helper), sessionParams_(sessionParams),
-    bStopThread_(false), connectRetryTimer_(io_context_), currentState_(STATUS_DISCONNECTED),
+    bStopThread_(false), connectRetryTimer_(io_context_),
+#ifdef Q_OS_WIN
+    adapterReadyTimer_(io_context_),
+#endif
+    currentState_(STATUS_DISCONNECTED),
     isRedirectGatewayObserved_(false), privKeyPassword_("")
 {
     capabilities_ = openVpnConnectorCapabilities();
@@ -401,6 +406,29 @@ void OpenVPNConnection::funcFailAdapterSetup()
 }
 #endif
 
+#ifdef Q_OS_WIN
+void OpenVPNConnection::waitForAdapterReady(const boost::system::error_code &err)
+{
+    // Every path that supersedes this wait (a newer CONNECTED, RECONNECTING, a disconnect) cancels the
+    // timer on this io_context thread; the checks below cover a completion already queued at that point.
+    if (err || bStopThread_ || getCurrentState() != STATUS_CONNECTED) {
+        return;
+    }
+
+    const bool isPreferred = NetworkUtils_win::isIpv4AddressPreferred(connectionAdapterInfo_.ifIndex(),
+                                                                      connectionAdapterInfo_.adapterIpV4());
+    if (!isPreferred && adapterReadyElapsed_.elapsed() < NetworkUtils_win::kAddressPreferredMaxWaitMs) {
+        adapterReadyTimer_.expires_after(std::chrono::milliseconds(NetworkUtils_win::kAddressPreferredPollMs));
+        adapterReadyTimer_.async_wait(boost::bind(&OpenVPNConnection::waitForAdapterReady, this, boost::asio::placeholders::error));
+        return;
+    }
+
+    qCInfo(LOG_CONNECTION) << "OpenVPN adapter" << (isPreferred ? "address preferred" : "wait timed out")
+                           << "after" << adapterReadyElapsed_.elapsed() << "ms";
+    emit connected(connectionAdapterInfo_);
+}
+#endif
+
 void OpenVPNConnection::asyncConnectToManagementSocket()
 {
 #ifdef Q_OS_WIN
@@ -711,7 +739,13 @@ void OpenVPNConnection::handleRead(const boost::system::error_code &err, size_t 
                     qCCritical(LOG_CONNECTION) << "Can't parse CONNECTED,SUCCESS control message";
                 }
                 setCurrentState(STATUS_CONNECTED);
+#ifdef Q_OS_WIN
+                adapterReadyTimer_.cancel();
+                adapterReadyElapsed_.start();
+                waitForAdapterReady(boost::system::error_code());
+#else
                 emit connected(connectionAdapterInfo_);
+#endif
             }
             else if (serverReply.contains("CONNECTED,ERROR", Qt::CaseInsensitive))
             {
@@ -723,6 +757,9 @@ void OpenVPNConnection::handleRead(const boost::system::error_code &err, size_t 
                 stateVariables_.isAcceptSigTermCommand_ = false;
                 stateVariables_.bWasStateNotification = false;
                 setCurrentState(STATUS_CONNECTED_TO_SOCKET);
+#ifdef Q_OS_WIN
+                adapterReadyTimer_.cancel();
+#endif
                 emit reconnecting();
             }
         }
@@ -811,6 +848,9 @@ void OpenVPNConnection::handleRead(const boost::system::error_code &err, size_t 
 
 void OpenVPNConnection::funcDisconnect()
 {
+#ifdef Q_OS_WIN
+    adapterReadyTimer_.cancel();
+#endif
     int curState = getCurrentState();
     if (!stateVariables_.bSigTermSent && (curState == STATUS_CONNECTED_TO_SOCKET || curState == STATUS_CONNECTED))
     {

@@ -43,6 +43,7 @@ CurrentConnectionDescr IConnectionAttemptStrategy::descrForSelectedNode(location
     CurrentConnectionDescr ccd;
 
     ccd.connectionNodeType = CONNECTION_NODE_DEFAULT;
+    ccd.nodeId = locationInfo->getIdForSelectedNode();
     ccd.protocol = protocol;
     ccd.port = port;
 

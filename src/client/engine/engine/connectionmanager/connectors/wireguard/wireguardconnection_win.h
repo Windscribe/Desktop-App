@@ -47,6 +47,8 @@ private:
     bool isAmneziaWG() const;
     quint64 lastHandshake() const;
     void onTunnelConnected();
+    // False when the connection is stopped while waiting, so connected() must not be emitted.
+    bool waitForAdapterAddressPreferred(const AdapterGatewayInfo &info);
     void onWireguardHandshakeFailure();
     void resetLogReader();
     bool startService();

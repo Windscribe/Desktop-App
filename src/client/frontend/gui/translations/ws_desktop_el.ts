@@ -2767,6 +2767,14 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <translation>Η παράμετρος init AmneziaWG περιέχει μη έγκυρους χαρακτήρες</translation>
     </message>
     <message>
+        <source>Invalid AmneziaWG parameter: %1</source>
+        <translation>Μη έγκυρη παράμετρος AmneziaWG: %1</translation>
+    </message>
+    <message>
+        <source>Invalid &quot;PersistentKeepalive&quot; value</source>
+        <translation>Μη έγκυρη τιμή &quot;PersistentKeepalive&quot;</translation>
+    </message>
+    <message>
         <source>Static IPs</source>
         <translation>Στατικές IP</translation>
     </message>

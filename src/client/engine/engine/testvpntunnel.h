@@ -1,14 +1,9 @@
 #pragma once
 
-#include <QElapsedTimer>
 #include <QObject>
-#include <QTimer>
-#include <QTime>
-#include <QVector>
 #include <wsnet/WSNet.h>
-#include "types/protocol.h"
 
-// do set of tests after VPN tunnel is established
+// Qt-side handle for the tunnel test wsnet runs after the VPN tunnel is established.
 class TestVPNTunnel : public QObject
 {
     Q_OBJECT
@@ -17,32 +12,17 @@ public:
     virtual ~TestVPNTunnel();
 
 public slots:
-    void startTests(const types::Protocol &protocol = types::Protocol());
+    void startTests(bool isBridgeAllowed);
     void stopTests();
 
 signals:
     void testsFinished(bool bSuccess, const QString &ipAddress);
 
-private slots:
-    void onPingTestAnswer(wsnet::ServerApiRetCode serverApiRetCode, const std::string &ipAddress);
-    void doNextPingTest();
-    void startTestImpl();
-    void onTestsSkipped();
-
 private:
-    bool bRunning_;
-    int curTest_;
-    QElapsedTimer elapsed_;
-    QTime lastTimeForCallWithLog_;
-    int testRetryDelay_;
-    bool doCustomTunnelTest_;
-    QElapsedTimer elapsedOverallTimer_;
-
-    QVector<uint> timeouts_;
-
-    types::Protocol protocol_;
-
     std::shared_ptr<wsnet::WSNetCancelableCallback> curRequest_;
+    // Tells the current run apart from one already stopped, whose result can still be queued in the
+    // event loop when the next run starts.
+    quint64 runId_ = 0;
 
-    std::shared_ptr<wsnet::WSNetCancelableCallback> callPingTest(std::uint32_t timeoutMs);
+    void onTestFinished(quint64 runId, bool isSuccess, const std::string &ipv4, const std::string &ipv6);
 };

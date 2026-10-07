@@ -2715,6 +2715,14 @@ Jeśli ponowna instalacja nie pomoże, skontaktuj się z pomocą techniczną Win
         <translation>Parametr init AmneziaWG zawiera nieprawidłowe znaki</translation>
     </message>
     <message>
+        <source>Invalid AmneziaWG parameter: %1</source>
+        <translation>Nieprawidłowy parametr AmneziaWG: %1</translation>
+    </message>
+    <message>
+        <source>Invalid &quot;PersistentKeepalive&quot; value</source>
+        <translation>Nieprawidłowa wartość &quot;PersistentKeepalive&quot;</translation>
+    </message>
+    <message>
         <source>Static IPs</source>
         <translation>Statyczne adresy IP</translation>
     </message>

@@ -91,7 +91,7 @@ int wmain(int argc, wchar_t *argv[])
     }
 
     typedef bool WireGuardTunnelService(const unsigned short* settings);
-    typedef BOOL AmneziaWGTunnelService(LPCWSTR settings, LPCWSTR adapterName);
+    typedef BOOL AmneziaWGTunnelService(LPCWSTR settings, LPCWSTR adapterName, LPCWSTR rootDirectory);
 
     bool startResult;
     if (useAmneziaWG) {
@@ -113,7 +113,10 @@ int wmain(int argc, wchar_t *argv[])
         configStream.close();
 
         // Need to use the same adapter name as regular WireGuard as we look for this name in the client app.
-        startResult = tunnelProc(configContents.c_str(), WS_APP_IDENTIFIER_W L"Wireguard");
+        // The config's folder is the root directory so the ring log lands where the client reads it, as tunnel.dll
+        // does on its own.
+        const std::wstring rootDirectory = std::filesystem::path(configFile).parent_path().native();
+        startResult = tunnelProc(configContents.c_str(), WS_APP_IDENTIFIER_W L"Wireguard", rootDirectory.c_str());
     } else {
         WireGuardTunnelService* tunnelProc = (WireGuardTunnelService*)::GetProcAddress(hTunnelDLL, "WireGuardTunnelService");
         if (tunnelProc == NULL) {

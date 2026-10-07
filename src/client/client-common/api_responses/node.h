@@ -15,6 +15,7 @@ public:
     ~NodeData() {}
 
     // data from API
+    int id_ = 0;
     QVector<QString> ips_;   // 3 ips
     QString host_;
     int weight_;
@@ -32,6 +33,7 @@ public:
 
     void initFromWsnet(const wsnet::ServerNode &src);
 
+    int getId() const;
     QString getHost() const;
     QString getIp(int ind) const;
     int getWeight() const;

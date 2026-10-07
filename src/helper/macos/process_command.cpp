@@ -252,12 +252,14 @@ std::string stopWireGuard(const std::string &pars)
 std::string configureWireGuard(const std::string &pars)
 {
     std::string clientPrivateKey, clientIpAddress, clientDnsAddressList, peerPublicKey,
-                peerPresharedKey, peerEndpoint, allowedIps;
+                peerPresharedKey, peerEndpoint, allowedIps, persistentKeepalive;
     uint16_t listenPort;
     CmdDnsManager dnsManager;
     AmneziawgConfig amneziawgConfig;
+    bool disconnectOnStaleHandshake = true;
     deserializePars(pars, clientPrivateKey, clientIpAddress, clientDnsAddressList, peerPublicKey,
-                    peerPresharedKey, peerEndpoint, allowedIps, listenPort, dnsManager, amneziawgConfig);
+                    peerPresharedKey, peerEndpoint, allowedIps, listenPort, dnsManager, amneziawgConfig, persistentKeepalive,
+                    disconnectOnStaleHandshake);
 
     bool success = false;
     if (WireGuardController::instance().isInitialized()) {
@@ -288,7 +290,7 @@ std::string configureWireGuard(const std::string &pars)
             if (!WireGuardController::instance().configure(clientPrivateKey,
                                                            peerPublicKey, peerPresharedKey,
                                                            peerEndpoint, allowed_ips_vector,
-                                                           listenPort, amneziawgConfig)) {
+                                                           listenPort, amneziawgConfig, persistentKeepalive, disconnectOnStaleHandshake)) {
                 spdlog::error("WireGuard: configureDaemon() failed");
                 break;
             }

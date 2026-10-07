@@ -2715,6 +2715,14 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <translation>AmneziaWG init पैरामीटर में अमान्य वर्ण हैं</translation>
     </message>
     <message>
+        <source>Invalid AmneziaWG parameter: %1</source>
+        <translation>अमान्य AmneziaWG पैरामीटर: %1</translation>
+    </message>
+    <message>
+        <source>Invalid &quot;PersistentKeepalive&quot; value</source>
+        <translation>अमान्य &quot;PersistentKeepalive&quot; मान</translation>
+    </message>
+    <message>
         <source>Static IPs</source>
         <translation>स्थैतिक आईपी</translation>
     </message>

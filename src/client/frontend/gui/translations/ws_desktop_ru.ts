@@ -2715,6 +2715,14 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <translation>Параметр init AmneziaWG содержит недопустимые символы</translation>
     </message>
     <message>
+        <source>Invalid AmneziaWG parameter: %1</source>
+        <translation>Неверный параметр AmneziaWG: %1</translation>
+    </message>
+    <message>
+        <source>Invalid &quot;PersistentKeepalive&quot; value</source>
+        <translation>Неверное значение «PersistentKeepalive»</translation>
+    </message>
+    <message>
         <source>Static IPs</source>
         <translation>Статические IP-адреса</translation>
     </message>

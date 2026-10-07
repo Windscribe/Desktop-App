@@ -2715,6 +2715,14 @@ Ak preinštalovanie nepomôže, obráťte sa na podporu Windscribe a požiadajte
         <translation>Parameter init AmneziaWG obsahuje neplatné znaky</translation>
     </message>
     <message>
+        <source>Invalid AmneziaWG parameter: %1</source>
+        <translation>Neplatný parameter AmneziaWG: %1</translation>
+    </message>
+    <message>
+        <source>Invalid &quot;PersistentKeepalive&quot; value</source>
+        <translation>Neplatná hodnota &quot;PersistentKeepalive&quot;</translation>
+    </message>
+    <message>
         <source>Static IPs</source>
         <translation>Statické IP adresy</translation>
     </message>

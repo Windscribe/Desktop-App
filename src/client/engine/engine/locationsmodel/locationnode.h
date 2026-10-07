@@ -15,6 +15,7 @@ public:
     virtual ~BaseNode() {}
 
 
+    virtual int getId() const { return 0; }
     virtual QString getIp(int /*ind*/) const { WS_ASSERT(false); return ""; }
     virtual QString getHostname() const { WS_ASSERT(false); return ""; }
     virtual int getWeight() const {  WS_ASSERT(false); return 1; }
@@ -33,8 +34,8 @@ public:
 class ApiLocationNode : public BaseNode
 {
 public:
-    explicit ApiLocationNode(const QStringList &ips, const QString &hostname, int weight, const QString &wg_pubkey, bool isIpv6Support)
-        : hostname_(hostname), wg_pubkey_(wg_pubkey), weight_(weight), isIpv6Support_(isIpv6Support)
+    explicit ApiLocationNode(const QStringList &ips, const QString &hostname, int weight, const QString &wg_pubkey, bool isIpv6Support, int nodeId = 0)
+        : hostname_(hostname), wg_pubkey_(wg_pubkey), weight_(weight), isIpv6Support_(isIpv6Support), nodeId_(nodeId)
     {
         WS_ASSERT(ips.count() == 3);
         ips_[0] = ips[0];
@@ -43,6 +44,7 @@ public:
     }
     virtual ~ApiLocationNode() {}
 
+    int getId() const override { return nodeId_; }
     QString getIp(int ind) const override
     {
         if (ind < 0 || ind >= 3) {
@@ -70,6 +72,7 @@ private:
     QString wg_pubkey_;
     int weight_;
     bool isIpv6Support_;
+    int nodeId_;
 };
 
 
@@ -77,8 +80,8 @@ class StaticLocationNode : public ApiLocationNode
 {
 public:
     explicit StaticLocationNode(const QStringList &ips, const QString &hostname, const QString &wg_pubkey, const QString &wg_ip, const QString &dnsName,
-                                const QString &username, const QString &password, const api_responses::StaticIpPortsVector &ipPortsVector, bool isIpv6Support) :
-            ApiLocationNode(ips, hostname, 1, wg_pubkey, isIpv6Support), dnsName_(dnsName), username_(username), password_(password), wg_ip_(wg_ip), ipPortsVector_(ipPortsVector) {}
+                                const QString &username, const QString &password, const api_responses::StaticIpPortsVector &ipPortsVector, bool isIpv6Support, int nodeId = 0) :
+            ApiLocationNode(ips, hostname, 1, wg_pubkey, isIpv6Support, nodeId), dnsName_(dnsName), username_(username), password_(password), wg_ip_(wg_ip), ipPortsVector_(ipPortsVector) {}
     virtual ~StaticLocationNode() {}
 
     QString getStaticIpDnsName() const override { return dnsName_; }

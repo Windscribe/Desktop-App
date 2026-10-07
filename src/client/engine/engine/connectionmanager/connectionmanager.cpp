@@ -1016,8 +1016,6 @@ void ConnectionManager::onTunnelTestResult(bool bSuccess, const QString &ipAddre
         return;
     }
 
-    bool hasAttempts = false;
-    int attempts = ExtraConfig::instance().getTunnelTestAttempts(hasAttempts);
     bool noError = ExtraConfig::instance().getIsTunnelTestNoError();
 
     if (bSuccess) {
@@ -1026,7 +1024,7 @@ void ConnectionManager::onTunnelTestResult(bool bSuccess, const QString &ipAddre
         attemptStrategy_->resetCachedConfigBudget();
     }
 
-    if ((hasAttempts && attempts == 0) || (noError && !bSuccess)) {
+    if (noError && !bSuccess) {
         emit testTunnelResult(bSuccess, "");
     } else if (!bSuccess) {
         if (attemptStrategy_->surfacesTunnelTestFailure()) {

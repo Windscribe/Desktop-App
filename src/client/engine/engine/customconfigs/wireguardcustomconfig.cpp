@@ -26,9 +26,44 @@ static const QRegularExpression kHeaderValueRegex(QRegularExpression::anchoredPa
 // 4096 leaves comfortable margin for the literal string form.
 static constexpr int kMaxIValueLength = 4096;
 
+// AmneziaWG 3.x range parameters: "N" or "N-M" of uint32 with N <= M (amneziawg-go UintRange).
+static const QRegularExpression kUintRangeRegex(QRegularExpression::anchoredPattern(QStringLiteral("([0-9]{1,10})(?:-([0-9]{1,10}))?")));
+
+// Vanilla configs run on the WireGuard kernel module or wireguard-nt, which take a uint16; amneziawg-go takes a uint32.
+static constexpr quint32 kMaxVanillaPersistentKeepalive = 65535;
+
+// With header protection on, amneziawg-go takes the cipher nonce from the S1-S4 padding and rejects the whole
+// config if any of them is shorter than the nonce (HeaderCipherNonceSize).
+static constexpr int kMinHeaderProtectionPadding = 12;
+
 static bool isValidWgKey(const QString &key)
 {
     return kBase64KeyRegex.match(key).hasMatch();
+}
+
+static bool isValidUintRange(const QString &value, quint64 max = 0xFFFFFFFFu)
+{
+    const QRegularExpressionMatch m = kUintRangeRegex.match(value);
+    if (!m.hasMatch()) {
+        return false;
+    }
+    const quint64 lo = m.captured(1).toULongLong();
+    const quint64 hi = m.hasCaptured(2) ? m.captured(2).toULongLong() : lo;
+    return lo <= hi && hi <= max;
+}
+
+// Normalized to "true"/"false" because the amneziawg-go UAPI parses with Go's strconv.ParseBool,
+// which rejects the awg-quick "on"/"off" spelling.
+static QString normalizeBool(const QString &value)
+{
+    const QString v = value.toLower();
+    if (v == "on" || v == "true" || v == "1" || v == "yes") {
+        return QStringLiteral("true");
+    }
+    if (v == "off" || v == "false" || v == "0" || v == "no") {
+        return QStringLiteral("false");
+    }
+    return QString();
 }
 
 // Join a QSettings multi-value list, trimming each element. The stored value must equal the form
@@ -94,6 +129,10 @@ QSharedPointer<WireGuardConfig> WireguardCustomConfig::getWireGuardConfig(const 
     if (obfuscationParams_.isValid()) {
         config->setAmneziawgParam(obfuscationParams_);
     }
+    if (!persistentKeepalive_.isEmpty()) {
+        config->setPeerPersistentKeepalive(persistentKeepalive_);
+    }
+    config->setDisconnectOnStaleHandshake(false);
     return QSharedPointer<WireGuardConfig>(config);
 }
 
@@ -177,6 +216,15 @@ void WireguardCustomConfig::loadFromFile(const QString &filepath)
         obfuscationParams_.iValues.append(file.value("I4").toString());
     if (file.contains("I5"))
         obfuscationParams_.iValues.append(file.value("I5").toString());
+    obfuscationParams_.headerProtectionKey = file.value("HeaderProtectionKey").toString().trimmed();
+    obfuscationParams_.contentPaddingAddition = file.value("ContentPaddingAddition").toString().trimmed();
+    obfuscationParams_.rekeyAfterTime = file.value("RekeyAfterTime").toString().trimmed();
+    obfuscationParams_.rekeyTimeout = file.value("RekeyTimeout").toString().trimmed();
+    obfuscationParams_.rejectAfterTime = file.value("RejectAfterTime").toString().trimmed();
+    obfuscationParams_.keepaliveTimeout = file.value("KeepaliveTimeout").toString().trimmed();
+    obfuscationParams_.maxHandshakeAttempts = file.value("MaxHandshakeAttempts").toString().trimmed();
+    obfuscationParams_.randomTrailers = file.value("RandomTrailers").toString().trimmed();
+    obfuscationParams_.disableCookies = file.value("DisableCookies").toString().trimmed();
 
     file.endGroup();
 
@@ -188,6 +236,7 @@ void WireguardCustomConfig::loadFromFile(const QString &filepath)
     publicKey_ = file.value("PublicKey").toString();
     presharedKey_ = file.value("PresharedKey").toString();
     allowedIps_ = joinTrimmed(file.value("AllowedIPs", "0.0.0.0/0").toStringList());
+    persistentKeepalive_ = file.value("PersistentKeepalive").toString().trimmed();
     if (!allowedIps_.contains("/0"))
         isAllowFirewallAfterConnection_ = false;
     QStringList endpointParts = file.value("Endpoint").toString().split(":");
@@ -299,6 +348,70 @@ void WireguardCustomConfig::validate()
                 errMessage_ = QObject::tr("AmneziaWG init parameter contains invalid characters");
                 return;
             }
+        }
+
+        const QString &hpk = obfuscationParams_.headerProtectionKey;
+        if (!hpk.isEmpty() && !isValidWgKey(hpk)) {
+            errMessage_ = QObject::tr("Invalid AmneziaWG parameter: %1").arg("HeaderProtectionKey");
+            return;
+        }
+        if (!hpk.isEmpty()) {
+            const std::pair<const char *, int> paddings[] = {
+                {"S1", obfuscationParams_.s1},
+                {"S2", obfuscationParams_.s2},
+                {"S3", obfuscationParams_.s3},
+                {"S4", obfuscationParams_.s4},
+            };
+            for (const auto &[name, padding] : paddings) {
+                if (padding < kMinHeaderProtectionPadding) {
+                    errMessage_ = QObject::tr("Invalid AmneziaWG parameter: %1").arg(name);
+                    return;
+                }
+            }
+        }
+
+        const std::pair<const char *, const QString *> ranges[] = {
+            {"ContentPaddingAddition", &obfuscationParams_.contentPaddingAddition},
+            {"RekeyAfterTime", &obfuscationParams_.rekeyAfterTime},
+            {"RekeyTimeout", &obfuscationParams_.rekeyTimeout},
+            {"RejectAfterTime", &obfuscationParams_.rejectAfterTime},
+            {"KeepaliveTimeout", &obfuscationParams_.keepaliveTimeout},
+            {"MaxHandshakeAttempts", &obfuscationParams_.maxHandshakeAttempts},
+        };
+        for (const auto &[name, value] : ranges) {
+            if (!value->isEmpty() && !isValidUintRange(*value)) {
+                errMessage_ = QObject::tr("Invalid AmneziaWG parameter: %1").arg(name);
+                return;
+            }
+        }
+
+        const std::pair<const char *, QString *> bools[] = {
+            {"RandomTrailers", &obfuscationParams_.randomTrailers},
+            {"DisableCookies", &obfuscationParams_.disableCookies},
+        };
+        for (const auto &[name, value] : bools) {
+            if (value->isEmpty()) {
+                continue;
+            }
+            *value = normalizeBool(*value);
+            if (value->isEmpty()) {
+                errMessage_ = QObject::tr("Invalid AmneziaWG parameter: %1").arg(name);
+                return;
+            }
+        }
+    }
+
+    // --- PersistentKeepalive: "N", "N-M" (AmneziaWG only) or "off" ---
+    if (persistentKeepalive_.compare("off", Qt::CaseInsensitive) == 0) {
+        persistentKeepalive_ = "0";
+    }
+    if (!persistentKeepalive_.isEmpty()) {
+        const bool isAmneziawg = obfuscationParams_.isValid();
+        const bool isRange = persistentKeepalive_.contains('-');
+        const quint64 max = isAmneziawg ? 0xFFFFFFFFu : kMaxVanillaPersistentKeepalive;
+        if (!isValidUintRange(persistentKeepalive_, max) || (isRange && !isAmneziawg)) {
+            errMessage_ = QObject::tr("Invalid \"PersistentKeepalive\" value");
+            return;
         }
     }
 }

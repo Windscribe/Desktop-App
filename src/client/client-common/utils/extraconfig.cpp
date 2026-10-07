@@ -19,10 +19,6 @@ const QString WS_MTU_OFFSET_OPENVPN_STR  = WS_PREFIX + "mtu-offset-openvpn";
 const QString WS_MTU_OFFSET_WG_STR       = WS_PREFIX + "mtu-offset-wg";
 const QString WS_UPDATE_CHANNEL_INTERNAL = WS_PREFIX + "override-update-channel-internal";
 
-const QString WS_TT_START_DELAY_STR = WS_PREFIX + "tunnel-test-start-delay";
-const QString WS_TT_TIMEOUT_STR     = WS_PREFIX + "tunnel-test-timeout";
-const QString WS_TT_RETRY_DELAY_STR = WS_PREFIX + "tunnel-test-retry-delay";
-const QString WS_TT_ATTEMPTS_STR    = WS_PREFIX + "tunnel-test-attempts";
 const QString WS_TT_NO_ERROR_STR    = WS_PREFIX + "tunnel-test-no-error";
 
 const QString WS_STAGING_STR = WS_PREFIX + "staging";
@@ -149,46 +145,6 @@ int ExtraConfig::getMtuOffsetOpenVpn(bool &success)
 int ExtraConfig::getMtuOffsetWireguard(bool &success)
 {
     return getInt(WS_MTU_OFFSET_WG_STR, success);
-}
-
-int ExtraConfig::getTunnelTestStartDelay(bool &success)
-{
-    int delay = getInt(WS_TT_START_DELAY_STR, success);
-    if (success && delay < 0) {
-        delay = 0;
-    }
-
-    return delay;
-}
-
-int ExtraConfig::getTunnelTestTimeout(bool &success)
-{
-    int timeout = getInt(WS_TT_TIMEOUT_STR, success);
-    if (success && timeout < 0) {
-        timeout = 0;
-    }
-
-    return timeout;
-}
-
-int ExtraConfig::getTunnelTestRetryDelay(bool &success)
-{
-    int delay = getInt(WS_TT_RETRY_DELAY_STR, success);
-    if (success && delay < 0) {
-        delay = 0;
-    }
-
-    return delay;
-}
-
-int ExtraConfig::getTunnelTestAttempts(bool &success)
-{
-    int attempts = getInt(WS_TT_ATTEMPTS_STR, success);
-    if (success && attempts < 0) {
-        attempts = 0;
-    }
-
-    return attempts;
 }
 
 bool ExtraConfig::getIsTunnelTestNoError()

@@ -18,7 +18,7 @@ BridgeApiManager::~BridgeApiManager()
 {
 }
 
-void BridgeApiManager::setConnectedState(bool isConnected, const QString &nodeAddress, const types::Protocol &protocol, const QString &pinnedIp)
+void BridgeApiManager::setConnectedState(bool isConnected, int nodeId, const types::Protocol &protocol, const QString &pinnedIp)
 {
     if (isConnected == isConnected_) {
         return;
@@ -32,10 +32,11 @@ void BridgeApiManager::setConnectedState(bool isConnected, const QString &nodeAd
         return;
     }
 
-    // Always call setCurrentHost when connecting, even with an empty nodeAddress (e.g. custom configs),
-    // to clear any stale host in wsnet and prevent token fetches for the wrong server.
-    // Do not use cache for non-Wireguard protocols.
-    WSNet::instance()->bridgeAPI()->setCurrentHost(protocol.isWireGuardProtocol() ? nodeAddress.toStdString() : "");
+    // Always call setCurrentNodeId when connecting, even with no node (e.g. custom configs), to clear
+    // the previous connection's node in wsnet and prevent token fetches for the wrong server. The id
+    // and not the hostname: a bridge token belongs to one node, and every node in a datacenter can
+    // answer to the same hostname. Do not use cache for non-Wireguard protocols.
+    WSNet::instance()->bridgeAPI()->setCurrentNodeId(protocol.isWireGuardProtocol() ? nodeId : 0);
 
     if (!pinnedIp.isEmpty()) {
         pinIp(pinnedIp);
