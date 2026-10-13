@@ -83,7 +83,7 @@ void TestSplitTunnelExtensionManager::sessionFailureWaitsForReconnect()
     QVERIFY(manager.state_->sessionFailed);
 
     manager.confirmSessionEnded((__bridge void *)session);
-    manager.startExtension("en0", "utun1");
+    manager.startExtension("en0", "utun1", "203.0.113.1");
     manager.setSplitTunnelSettings(true, true, {}, {"192.0.2.1"}, {});
     drainMainQueue();
     QCOMPARE(session.starts, NSUInteger(0));
@@ -92,7 +92,7 @@ void TestSplitTunnelExtensionManager::sessionFailureWaitsForReconnect()
     manager.setSplitTunnelSettings(false, true, {}, {"192.0.2.1"}, {});
     manager.stopExtension();
     manager.setSplitTunnelSettings(true, true, {}, {"192.0.2.1"}, {});
-    manager.startExtension("en0", "utun1");
+    manager.startExtension("en0", "utun1", "203.0.113.1");
     drainMainQueue();
     QCOMPARE(session.starts, NSUInteger(1));
     QVERIFY(!manager.state_->sessionFailed);
@@ -117,7 +117,7 @@ void TestSplitTunnelExtensionManager::startFailureUsesGenericReason()
     SystemExtensions_mac::instance()->onExtensionStateChanged(SystemExtensions_mac::Active);
     QSignalSpy failures(&manager, &SplitTunnelExtensionManager::startFailed);
 
-    manager.startExtension("en0", "utun1");
+    manager.startExtension("en0", "utun1", "203.0.113.1");
     drainMainQueue();
     QCOMPARE(failures.count(), 1);
     QCOMPARE(failures.at(0).at(0).value<SPLIT_TUNNEL_START_FAIL_REASON>(), SPLIT_TUNNEL_START_FAIL_REASON_DEFAULT);
@@ -239,7 +239,7 @@ void TestSplitTunnelExtensionManager::lateQueryReplyAfterStopIsIgnored()
     QVERIFY(reply);
     if (reconnect) {
         manager.stopExtension();
-        manager.startExtension("en0", "utun1");
+        manager.startExtension("en0", "utun1", "203.0.113.1");
     } else {
         manager.resetManager();
     }

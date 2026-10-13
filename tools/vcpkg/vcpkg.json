@@ -46,6 +46,12 @@
             "platform": "windows"
         },
         {
+            "name": "libarchive",
+            "default-features": false,
+            "features": [ "lzma" ],
+            "platform": "windows"
+        },
+        {
             "name": "tap-windows6-driver",
             "platform": "windows"
         },
@@ -53,5 +59,9 @@
             "name": "winreg",
             "platform": "windows"
         }
+    ],
+    "overrides": [
+        { "name": "advobfuscator", "version": "2020-06-26" },
+        { "name": "winreg", "version": "6.3.2" }
     ]
 }

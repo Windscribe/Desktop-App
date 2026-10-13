@@ -73,12 +73,24 @@ if(BUILD_APP)
     )
 endif()
 
-find_program(7ZIP_EXECUTABLE 7z PATHS "${CMAKE_CURRENT_SOURCE_DIR}/tools/bin" NO_DEFAULT_PATH)
-if(NOT 7ZIP_EXECUTABLE)
-    find_program(7ZIP_EXECUTABLE 7z)
-endif()
-if(NOT 7ZIP_EXECUTABLE)
-    message(FATAL_ERROR "7z executable not found. Please install 7-Zip or place 7z.exe in ${CMAKE_CURRENT_SOURCE_DIR}/tools/bin/")
+# CMake's own 7z writer has no executable (BCJ) filter, which made the installer about 3.5 MB larger.
+# vcpkg downloads the official 7-Zip release and checks its hash.
+if(BUILD_INSTALLER OR BUILD_BOOTSTRAP)
+    execute_process(
+        COMMAND "${VCPKG_ROOT}/vcpkg" fetch 7zip
+        OUTPUT_VARIABLE _vcpkg_fetch_output
+        RESULT_VARIABLE _vcpkg_fetch_result
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+    # The tool's path is the last line of the output
+    string(REPLACE "\n" ";" _vcpkg_fetch_lines "${_vcpkg_fetch_output}")
+    list(GET _vcpkg_fetch_lines -1 7ZIP_EXECUTABLE)
+    string(STRIP "${7ZIP_EXECUTABLE}" 7ZIP_EXECUTABLE)
+    string(REPLACE "\\" "/" 7ZIP_EXECUTABLE "${7ZIP_EXECUTABLE}")
+    if(NOT _vcpkg_fetch_result EQUAL 0 OR NOT EXISTS "${7ZIP_EXECUTABLE}")
+        message(FATAL_ERROR "vcpkg fetch 7zip failed (${_vcpkg_fetch_result}): ${_vcpkg_fetch_output}")
+    endif()
+    message(STATUS "Using 7-Zip from: ${7ZIP_EXECUTABLE}")
 endif()
 
 # Installer packaging - creates 7z archives from existing files
@@ -175,7 +187,9 @@ if(BUILD_BOOTSTRAP OR SIGN_BOOTSTRAP)
     if(BUILD_SYMBOLS)
         list(APPEND DEPLOY_COMMANDS
             COMMAND ${CMAKE_COMMAND} -E echo "Creating symbols archive..."
-            COMMAND ${7ZIP_EXECUTABLE} a "${BUILD_EXE_DIR}/${WS_WIN_RESOLVED_SYMBOLS_NAME}.zip" "${BUILD_SYMBOLS_DIR}/*" -y -bso0 -bsp0
+            # Run from inside the folder so its contents are stored at the root of the archive
+            COMMAND ${CMAKE_COMMAND} -E chdir "${BUILD_SYMBOLS_DIR}"
+                    ${CMAKE_COMMAND} -E tar cf "${BUILD_EXE_DIR}/${WS_WIN_RESOLVED_SYMBOLS_NAME}.zip" --format=zip .
         )
     endif()
 

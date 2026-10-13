@@ -9,7 +9,7 @@
 #include <tchar.h>
 #include <versionhelpers.h>
 
-#include "../utils/archive.h"
+#include "../utils/payloadextractor.h"
 #include "../utils/persistent_log.h"
 #include "../utils/secure_dir.h"
 #include "global_consts.h"
@@ -417,20 +417,13 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpszC
     logToFile(persistentLog, "info", L"Bootstrap staging the Windscribe installer to " + installPath.wstring());
 
     // Extract archive
-    wsl::Archive archive;
+    wsl::PayloadExtractor archive;
     archive.setLogFunction([&persistentLog](const std::wstring &str) {
         debugMessage(str.c_str());
         logToFile(persistentLog, "info", str);
     });
 
-    if (!archive.extractDecompressor(installPath)) {
-        logToFile(persistentLog, "error", L"Bootstrap failed to extract the Windscribe decompressor");
-        showMessageBox(NULL, _T("Windscribe Installer"), MB_OK | MB_ICONSTOP,
-                       _T("Failed to extract the Windscribe decompressor."));
-        return ERROR_INSTALL_FAILURE;
-    }
-
-    if (!archive.extract(L"Installer", L"windscribeinstaller.7z", installPath, installPath)) {
+    if (!archive.extract(L"Installer", installPath)) {
         logToFile(persistentLog, "error", L"Bootstrap failed to extract the Windscribe installer");
         showMessageBox(NULL, _T("Windscribe Installer"), MB_OK | MB_ICONSTOP,
                        _T("Failed to extract the Windscribe installer."));

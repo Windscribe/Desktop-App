@@ -1,5 +1,6 @@
 #include <QCoreApplication>
 #include <QDateTime>
+#include <QFileInfo>
 #include <QObject>
 #include <QProcess>
 
@@ -198,12 +199,13 @@ int main(int argc, char *argv[])
         }
         backendCommander->initAndSend();
 #else
+        // On Linux the CLI is run through the /usr/bin/windscribe-cli symlink, so resolve it to find the app beside the real binary.
+        const QString workingDir = QFileInfo(QCoreApplication::applicationFilePath()).canonicalPath();
 #ifdef Q_OS_WIN
-        QString appPath = QCoreApplication::applicationDirPath() + "/Windscribe.exe";
+        QString appPath = workingDir + "/Windscribe.exe";
 #else
-        QString appPath = QCoreApplication::applicationDirPath() + "/Windscribe";
+        QString appPath = workingDir + "/Windscribe";
 #endif
-        QString workingDir = QCoreApplication::applicationDirPath();
 
 #ifdef Q_OS_WIN
         QProcess::startDetached(appPath, QStringList(), workingDir);

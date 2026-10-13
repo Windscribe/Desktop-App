@@ -37,6 +37,7 @@ target_link_libraries(${WS_MAC_SPLIT_TUNNEL_BUNDLE_ID} PRIVATE
     "-framework Foundation"
     "-framework Network"
     "-framework Security"
+    bsm
     "-sectcreate __TEXT __info_plist ${CMAKE_CURRENT_BINARY_DIR}/Info.plist.configured"
     spdlog::spdlog
     c-ares::cares

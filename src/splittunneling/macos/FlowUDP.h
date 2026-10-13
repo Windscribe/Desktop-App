@@ -24,7 +24,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)init;
 - (void)setSettings:(Settings *)settings;
-- (BOOL)setupUDPConnection:(NEAppProxyUDPFlow *)flow interface:(nw_interface_t)interface;
+// onTunnel: the system routed the flow into the VPN interface (decided once in handleNewFlow).
+- (BOOL)setupUDPConnection:(NEAppProxyUDPFlow *)flow interface:(nw_interface_t)interface onTunnel:(BOOL)onTunnel;
 - (void)cleanup;
 
 @end

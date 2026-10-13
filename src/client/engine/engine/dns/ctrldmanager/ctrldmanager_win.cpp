@@ -19,8 +19,13 @@ CtrldManager_win::CtrldManager_win(QObject *parent, bool isCreateLog) : ICtrldMa
     connect(process_, &QProcess::errorOccurred, this,&CtrldManager_win::onProcessErrorOccurred);
     process_->setProcessChannelMode(QProcess::MergedChannels);
 
+    const QString appDataDir = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
+    // ctrld writes ctrld.toml to its working directory on domain-joined PCs and exits if it can't,
+    // so it must not inherit the app's (often System32 or Program Files, read-only for standard users).
+    process_->setWorkingDirectory(appDataDir);
+
     ctrldExePath_ = QCoreApplication::applicationDirPath() + "/" WS_PRODUCT_NAME_LOWER "ctrld.exe";
-    logPath_ = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation) + "/ctrld.log";
+    logPath_ = appDataDir + "/ctrld.log";
     listenIp_ = "127.0.0.1";    // default listen ip for ctrld utility
 }
 

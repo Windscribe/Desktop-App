@@ -56,7 +56,7 @@ set(WS_WIN_ADDITIONAL_FILES
     "${VCPKG_ROOT}/installed/${VCPKG_TARGET_TRIPLET}/tools/tap-windows6-driver/tap0901.cat|tapwindows6/tap0901.cat"
     "${VCPKG_ROOT}/installed/${VCPKG_TARGET_TRIPLET}/tools/tap-windows6-driver/tap0901.sys|tapwindows6/tap0901.sys"
     "${WS_INSTALLER_DIR}/windows/additional_files/driver_utils/${PACKAGE_ARCH}/devcon.exe|devcon.exe"
-    "${WS_INSTALLER_DIR}/windows/additional_files/driver_utils/${PACKAGE_ARCH}/tapctl.exe|tapctl.exe"
+    "${VCPKG_ROOT}/installed/${VCPKG_TARGET_TRIPLET}/tools/openvpn/tapctl.exe|tapctl.exe"
     "${WS_INSTALLER_DIR}/windows/additional_files/splittunnel/${PACKAGE_ARCH}/windscribesplittunnel.cat|splittunnel/windscribesplittunnel.cat"
     "${WS_INSTALLER_DIR}/windows/additional_files/splittunnel/${PACKAGE_ARCH}/windscribesplittunnel.inf|splittunnel/windscribesplittunnel.inf"
     "${WS_INSTALLER_DIR}/windows/additional_files/splittunnel/${PACKAGE_ARCH}/windscribesplittunnel.sys|splittunnel/windscribesplittunnel.sys"

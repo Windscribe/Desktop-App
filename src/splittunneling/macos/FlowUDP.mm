@@ -78,7 +78,7 @@
     [flow closeWriteWithError:error];
 }
 
-- (BOOL)setupUDPConnection:(NEAppProxyUDPFlow *)flow interface:(nw_interface_t)interface {
+- (BOOL)setupUDPConnection:(NEAppProxyUDPFlow *)flow interface:(nw_interface_t)interface onTunnel:(BOOL)onTunnel {
     Settings *settings;
     BOOL stopped;
     @synchronized (self) {
@@ -111,7 +111,7 @@
         }
         spdlog::debug("[UDP] Flow opened successfully");
         // Outbound flows that create connections will start the inbound handler
-        [self handleUDPOutboundFlow:flow interface:interface];
+        [self handleUDPOutboundFlow:flow interface:interface onTunnel:onTunnel];
     }];
 
     // For UDP, we don't know what the remote endpoint is until we process the datagrams, so we always accept the flow.
@@ -119,7 +119,7 @@
     return YES;
 }
 
-- (void)handleUDPOutboundFlow:(NEAppProxyUDPFlow *)flow interface:(nw_interface_t)interface {
+- (void)handleUDPOutboundFlow:(NEAppProxyUDPFlow *)flow interface:(nw_interface_t)interface onTunnel:(BOOL)onTunnel {
     [flow readDatagramsWithCompletionHandler:^(NSArray<NSData *> * _Nullable datagrams, NSArray<NWEndpoint *> * _Nullable endpoints, NSError * _Nullable error) {
         if (error) {
             spdlog::error("[UDP] Read error: {} ({})", [[error localizedDescription] UTF8String], error.code);
@@ -129,7 +129,7 @@
 
         if (!datagrams) {
             spdlog::debug("[UDP] No outbound data received, retrying");
-            [self handleUDPOutboundFlow:flow interface:interface];
+            [self handleUDPOutboundFlow:flow interface:interface onTunnel:onTunnel];
             return;
         }
 
@@ -160,10 +160,22 @@
 
             nw_interface_t targetInterface = interface;
 
+            const BOOL isLan = [Utils isLanRange:endpoint];
+            const BOOL isSplit = !isLan && [settings isSplitTunnelApplicable:flow remoteEndpoint:endpoint];
+
+            // Anything we relay leaves under our group, which the firewall always passes.  So a non-split datagram
+            // off the tunnel (the app bound this socket to a physical interface, or the system routed it there)
+            // is dropped, as the firewall would drop it from the app.  LAN goes on: the firewall's
+            // LAN rules apply to our group too.  The VPN server is let through only for the processes the firewall allows.
+            if (!onTunnel && !isLan && !isSplit && !([settings isVpnServer:endpoint] && [settings isFromVpnProcess:flow])) {
+                spdlog::debug("[UDP] dropping non-split datagram off the tunnel to {}", (nw_endpoint_get_hostname(endpoint) == NULL) ? "<null>" : nw_endpoint_get_hostname(endpoint));
+                continue;
+            }
+
             // DNS traffic should stay on the original (VPN) interface.  ROBERT can only be reached from the VPN interface.
             // If it's a LAN range (including the reserved 10.255.255.0/24 range), we leave the traffic on the original interface.
             // Note that the firewall may still block this later.
-            if (nw_endpoint_get_port(endpoint) == 53 || [Utils isLanRange:endpoint] || ![settings isSplitTunnelApplicable:flow remoteEndpoint:endpoint]) {
+            if (nw_endpoint_get_port(endpoint) == 53 || !isSplit) {
                 targetInterface = flow.networkInterface;
             }
 
@@ -219,7 +231,7 @@
                 });
         }
 
-        [self handleUDPOutboundFlow:flow interface:interface];
+        [self handleUDPOutboundFlow:flow interface:interface onTunnel:onTunnel];
     }];
 }
 

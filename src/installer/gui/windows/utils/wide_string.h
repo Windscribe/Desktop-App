@@ -6,14 +6,8 @@
 
 namespace wsl {
 
-// Non-throwing replacement for the deprecated std::wstring_convert, which throws
-// std::range_error on invalid UTF-8.  That matters here because some converted strings
-// are raw console output of child processes (e.g. 7zr.exe), which on localized systems
-// may not be UTF-8.  A logging helper must never take the process down.
-//
-// Tries UTF-8 first; on invalid input falls back to the system ANSI code page (the most
-// likely encoding of non-UTF-8 child process output); a wrong guess garbles the text but
-// never fails.
+// Non-throwing replacement for the deprecated std::wstring_convert, for log text.  Invalid UTF-8 falls back to the
+// system ANSI code page, the encoding of localized system error messages; a wrong guess garbles the text but never fails.
 inline std::wstring toWideString(const std::string &str)
 {
     if (str.empty()) {

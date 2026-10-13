@@ -45,7 +45,7 @@ private:
     std::function<void(std::map<std::string, HostInfo>)> resolveDomainsCallback_;
     boost::asio::io_context io_context_;
     boost::asio::executor_work_guard<boost::asio::io_context::executor_type> work_;
-    std::optional<boost::asio::deadline_timer> timer_;
+    std::optional<boost::asio::steady_timer> timer_;
     std::thread thread_;
 
     uint64_t curRequestId_ = 0;

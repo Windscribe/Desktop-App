@@ -3,15 +3,14 @@
     "default-registry": {
       "kind": "git",
       "repository": "https://github.com/microsoft/vcpkg",
-      "baseline": "e140b1fde236eb682b0d47f905e65008a191800f"
+      "baseline": "0699a19d0c6386247ce50d4dedbb8217d484d536"
     },
     "registries": [
       {
         "kind": "git",
         "repository": "https://github.com/Windscribe/ws-vcpkg-registry",
-        "baseline": "f703d83b84a29485dba36a350372941a7b358068",
+        "baseline": "c7b5c8312961668cd2f76d83ba10ecb453491813",
         "packages": [
-          "7zip",
           "amneziawg",
           "boost-context",
           "boost-process",

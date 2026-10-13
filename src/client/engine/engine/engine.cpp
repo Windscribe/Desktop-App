@@ -3191,7 +3191,8 @@ void Engine::onSystemExtensionStateChanged(SystemExtensions_mac::SystemExtension
             types::NetworkInterface interface;
             networkDetectionManager_->getCurrentNetworkInterface(interface, false);
             // This may do nothing if split tunneling is not enabled
-            SplitTunnelExtensionManager::instance().startExtension(interface.interfaceName, connectionManager_->getVpnAdapterInfo().adapterName());
+            SplitTunnelExtensionManager::instance().startExtension(interface.interfaceName, connectionManager_->getVpnAdapterInfo().adapterName(),
+                                                                   connectionManager_->getLastConnectedIp());
         }
     } else if (newState == SystemExtensions_mac::Inactive || newState == SystemExtensions_mac::Unknown) {
         // Inactive is always a confirmed result: the OS reported the extension disabled or not installed

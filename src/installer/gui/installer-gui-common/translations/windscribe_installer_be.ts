@@ -49,10 +49,6 @@
         <translation>Windscribe не ўдаецца запусьціць дапаможную службу. Прычынай можа быць староньняе ахоўнае праґрамнае забесьпячэньне альбо брандмаўэр. Калі праблема не ў гэтым, зьвярніцеся ў службу тэхнічнай падтрымкі.</translation>
     </message>
     <message>
-        <source>The installer could not launch its file extraction utility. Antivirus software or Windows security features (e.g. Smart App Control) may be blocking the installation.</source>
-        <translation>Усталёўнік не змог запусьціць утыліту для распакаваньня файлаў. Антывіруснае праґрамнае забесьпячэньне альбо функцыі бясьпекі Windows (напрыклад, Smart App Control) могуць блякаваць усталяваньне.</translation>
-    </message>
-    <message>
         <source>The application files could not be extracted to the installation folder. A file may be locked by another program, the disk may be full, or the downloaded installer may be damaged. If this issue persists, download the installer again and retry.</source>
         <translation>Не ўдалося распакаваць файлы ў каталёґ усталяваньня. Магчыма, файл выкарыстоўваецца іншай праґрамай, дыск запоўнены альбо спампаваны ўсталёўнік пашкоджаны. Калі праблема захаваецца, спампуйце ўсталёўнік яшчэ раз і паспрабуйце зноў.</translation>
     </message>

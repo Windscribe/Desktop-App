@@ -78,6 +78,8 @@ variables:
   tags: [macos-arm64-qt6]
   before_script:
     - export DEVELOPER_DIR=/Applications/Xcode15.4.app/Contents/Developer
+    # CMake 4 no longer passes the SDK, and vcpkg calls Xcode's compiler directly, which then finds no SDK
+    - export SDKROOT="$(xcrun --sdk macosx --show-sdk-path)"
     - export PYENV_ROOT="${HOME}/.pyenv"
     - export PATH="${PYENV_ROOT}/bin:${PYENV_ROOT}/shims:${PATH}"
     - eval "$(pyenv init --path)"
@@ -184,12 +186,12 @@ variables:
     - Set-Variable -name BUILD_LIBS_FOLDER_BAK -value "${BUILD_LIBS_FOLDER}"
     - if ("${ARCH_FLAG}" -eq "--arm64") { Set-Variable -name OS_IDENTIFIER -value "windows"; Set-Variable -name BUILD_LIBS_FOLDER -value "${BUILD_LIBS_FOLDER_X64}" }
     - if ("${ARCH_FLAG}" -ne "--arm64") { Set-Variable -name SKIP_DOWNLOAD -value "1" }
-    - IF(Test-Path .\$BUILD_LIBS_FOLDER\) {Get-ChildItem .\$BUILD_LIBS_FOLDER\*.zip | Foreach {.\tools\bin\7z.exe x $_.FullName -o"$BUILD_LIBS_FOLDER\"}}
+    - IF(Test-Path .\$BUILD_LIBS_FOLDER\) {Get-ChildItem .\$BUILD_LIBS_FOLDER\*.zip | Foreach {& "$env:SystemRoot\System32\tar.exe" -xf $_.FullName -C "$BUILD_LIBS_FOLDER"}}
     # Reset to original values
     - Set-Variable -name OS_IDENTIFIER -value "${OS_IDENTIFIER_BAK}"
     - Set-Variable -name BUILD_LIBS_FOLDER -value "${BUILD_LIBS_FOLDER_BAK}"
     - !reference [.download_dependencies_win, script]
-    - 'IF(Test-Path .\$BUILD_LIBS_FOLDER\) {Get-ChildItem .\$BUILD_LIBS_FOLDER\*.zip | Foreach {.\tools\bin\7z.exe x $_.FullName -o"$BUILD_LIBS_FOLDER\"}}'
+    - 'IF(Test-Path .\$BUILD_LIBS_FOLDER\) {Get-ChildItem .\$BUILD_LIBS_FOLDER\*.zip | Foreach {& "$env:SystemRoot\System32\tar.exe" -xf $_.FullName -C "$BUILD_LIBS_FOLDER"}}'
     - $env:VCPKG_ROOT = $env:VCPKG_ROOT_WINDOWS
     - $buildSymbolsFlag = if ($CI_COMMIT_TAG) { "--build-symbols" } else { "" }
     - tools/build_all ${BUILD_FLAG} ${ARCH_FLAG} --ci-mode $buildSymbolsFlag
@@ -232,7 +234,7 @@ build:win:x64:mr:
   script:
     - Set-Variable -name OS_IDENTIFIER -value "windows"
     - !reference [.download_dependencies_win, script]
-    - 'IF(Test-Path .\$BUILD_LIBS_FOLDER\) {Get-ChildItem .\$BUILD_LIBS_FOLDER\*.zip | Foreach {.\tools\bin\7z.exe x $_.FullName -o"$BUILD_LIBS_FOLDER\"}}'
+    - 'IF(Test-Path .\$BUILD_LIBS_FOLDER\) {Get-ChildItem .\$BUILD_LIBS_FOLDER\*.zip | Foreach {& "$env:SystemRoot\System32\tar.exe" -xf $_.FullName -C "$BUILD_LIBS_FOLDER"}}'
     - tools/build_all --ci-mode
     - !reference [.check_translations, script]
   rules:
@@ -440,11 +442,11 @@ build:win:arm64:mr:
     # Need the x64 Qt package so we can reference it as the QT_HOST_PATH in build_all.
     - Set-Variable -name OS_IDENTIFIER -value "windows"
     - Set-Variable -name BUILD_LIBS_FOLDER -value "${BUILD_LIBS_FOLDER_X64}"
-    - 'IF(Test-Path .\$BUILD_LIBS_FOLDER\) {Get-ChildItem .\$BUILD_LIBS_FOLDER\*.zip | Foreach {.\tools\bin\7z.exe x $_.FullName -o"$BUILD_LIBS_FOLDER\"}}'
+    - 'IF(Test-Path .\$BUILD_LIBS_FOLDER\) {Get-ChildItem .\$BUILD_LIBS_FOLDER\*.zip | Foreach {& "$env:SystemRoot\System32\tar.exe" -xf $_.FullName -C "$BUILD_LIBS_FOLDER"}}'
     - Set-Variable -name OS_IDENTIFIER -value "windows-arm64"
     - Set-Variable -name BUILD_LIBS_FOLDER -value "${BUILD_LIBS_FOLDER_ARM64}"
     - !reference [.download_dependencies_win, script]
-    - 'IF(Test-Path .\$BUILD_LIBS_FOLDER\) {Get-ChildItem .\$BUILD_LIBS_FOLDER\*.zip | Foreach {.\tools\bin\7z.exe x $_.FullName -o"$BUILD_LIBS_FOLDER\"}}'
+    - 'IF(Test-Path .\$BUILD_LIBS_FOLDER\) {Get-ChildItem .\$BUILD_LIBS_FOLDER\*.zip | Foreach {& "$env:SystemRoot\System32\tar.exe" -xf $_.FullName -C "$BUILD_LIBS_FOLDER"}}'
     - tools/build_all --arm64 --ci-mode
     - !reference [.check_translations, script]
   rules:
@@ -1289,7 +1291,7 @@ build:nightly:win:
   script:
     - Set-Variable -name OS_IDENTIFIER -value "windows"
     - !reference [.download_dependencies_win, script]
-    - 'IF(Test-Path .\$BUILD_LIBS_FOLDER\) {Get-ChildItem .\$BUILD_LIBS_FOLDER\*.zip | Foreach {.\tools\bin\7z.exe x $_.FullName -o"$BUILD_LIBS_FOLDER\"}}'
+    - 'IF(Test-Path .\$BUILD_LIBS_FOLDER\) {Get-ChildItem .\$BUILD_LIBS_FOLDER\*.zip | Foreach {& "$env:SystemRoot\System32\tar.exe" -xf $_.FullName -C "$BUILD_LIBS_FOLDER"}}'
     - tools/build_all --ci-mode --build-tests
     - ctest --test-dir build -L client-desktop --output-on-failure
   artifacts:

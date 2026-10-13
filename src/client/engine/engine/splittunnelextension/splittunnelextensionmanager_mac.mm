@@ -22,7 +22,7 @@
 // setup re-enter reconcile(), so every async event re-derives its action from the current desired state.
 
 // Builds the routing-settings keys (apps/IPs/hostnames/mode) shared by a full start and a live settings
-// update.  The interface keys are added only by getExtensionOptions: they can change only on a
+// update.  The interface and server keys are added only by getExtensionOptions: they can change only on a
 // (re)connect and require a tunnel restart, so they never travel in a live update message.
 static void addRoutingOptions(NSMutableDictionary *options, bool isExclude, const QStringList &appPaths, const QStringList &ips, const QStringList &hostnames)
 {
@@ -82,12 +82,13 @@ static NSDictionary *getRoutingOptions(bool isExclude, const QStringList &appPat
     return options;
 }
 
-static NSDictionary *getExtensionOptions(const QString &primaryInterface, const QString &vpnInterface, bool isExclude, const QStringList &appPaths, const QStringList &ips, const QStringList &hostnames)
+static NSDictionary *getExtensionOptions(const QString &primaryInterface, const QString &vpnInterface, const QString &vpnServerIp, bool isExclude, const QStringList &appPaths, const QStringList &ips, const QStringList &hostnames)
 {
     NSMutableDictionary *options = [[NSMutableDictionary alloc] init];
     addRoutingOptions(options, isExclude, appPaths, ips, hostnames);
     [options setObject:primaryInterface.toNSString() forKey:@"primaryInterface"];
     [options setObject:vpnInterface.toNSString() forKey:@"vpnInterface"];
+    [options setObject:vpnServerIp.toNSString() forKey:@"vpnServerIp"];
     return options;
 }
 
@@ -190,18 +191,20 @@ bool SplitTunnelExtensionManager::sendSettingsUpdate()
     return true;
 }
 
-void SplitTunnelExtensionManager::startExtension(QString primaryInterface, QString vpnInterface)
+void SplitTunnelExtensionManager::startExtension(QString primaryInterface, QString vpnInterface, QString vpnServerIp)
 {
     dispatch_async(dispatch_get_main_queue(), ^{
         if (!isActive_ || state_->sessionFailed) {
             return;
         }
         State *state = state_.get();
-        // On reconnect the interfaces change and the session must restart with them; a recheck with
-        // unchanged interfaces is a no-op, so the running session (and its split flows) survives.
-        if (state->primaryInterface != primaryInterface || state->vpnInterface != vpnInterface) {
+        // On reconnect the interfaces and server change and the session must restart with them; a recheck
+        // with them unchanged is a no-op, so the running session (and its split flows) survives.
+        if (state->primaryInterface != primaryInterface || state->vpnInterface != vpnInterface ||
+            state->vpnServerIp != vpnServerIp) {
             state->primaryInterface = primaryInterface;
             state->vpnInterface = vpnInterface;
+            state->vpnServerIp = vpnServerIp;
             state->dirty = true;
         }
         state->wantStarted = true;
@@ -261,7 +264,7 @@ void SplitTunnelExtensionManager::reconcile()
     if (!state->startIssued && (status == NEVPNStatusDisconnected || status == NEVPNStatusInvalid)) {
         // Build the options from the current state, so changes that landed while setup or a drain was
         // in progress are included; rapid edits coalesce into this one start.
-        NSDictionary *options = getExtensionOptions(state->primaryInterface, state->vpnInterface, state->isExclude,
+        NSDictionary *options = getExtensionOptions(state->primaryInterface, state->vpnInterface, state->vpnServerIp, state->isExclude,
                                                     state->appPaths, state->ips, state->hostnames);
         state->dirty = false;
         NSError *error = nil;

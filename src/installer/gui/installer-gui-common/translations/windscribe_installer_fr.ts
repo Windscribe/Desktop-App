@@ -49,10 +49,6 @@
         <translation>Windscribe ne peut pas démarrer son service d’assistance. Des logiciels de sécurité ou de pare-feu tiers peuvent en être la cause. Si ce n’est pas le cas, veuillez contacter notre support technique.</translation>
     </message>
     <message>
-        <source>The installer could not launch its file extraction utility. Antivirus software or Windows security features (e.g. Smart App Control) may be blocking the installation.</source>
-        <translation>L’installateur n’a pas pu lancer son utilitaire d’extraction de fichiers. Un antivirus ou des fonctionnalités de sécurité Windows (par exemple Smart App Control) peuvent bloquer l’installation.</translation>
-    </message>
-    <message>
         <source>The application files could not be extracted to the installation folder. A file may be locked by another program, the disk may be full, or the downloaded installer may be damaged. If this issue persists, download the installer again and retry.</source>
         <translation>Les fichiers applicatifs ne pouvaient pas être extraits dans le dossier d’installation. Un fichier peut être verrouillé par un autre programme, le disque peut être plein, ou l’installateur téléchargé peut être endommagé. Si ce problème persiste, téléchargez à nouveau l’installateur et réessayez.</translation>
     </message>

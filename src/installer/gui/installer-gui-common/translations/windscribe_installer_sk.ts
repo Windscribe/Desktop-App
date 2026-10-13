@@ -49,10 +49,6 @@
         <translation>Windscribe nie je schopný spustiť svoju pomocnú službu. Príčinou môže byť bezpečnostný/firewallový softvér tretích strán. Ak to tak nie je, kontaktujte prosím našu technickú podporu.</translation>
     </message>
     <message>
-        <source>The installer could not launch its file extraction utility. Antivirus software or Windows security features (e.g. Smart App Control) may be blocking the installation.</source>
-        <translation>Inštalátor nemohol spustiť nástroj na extrakciu súborov. Antivírusový softvér alebo bezpečnostné funkcie Windows (napr. Smart App Control) môžu blokovať inštaláciu.</translation>
-    </message>
-    <message>
         <source>The application files could not be extracted to the installation folder. A file may be locked by another program, the disk may be full, or the downloaded installer may be damaged. If this issue persists, download the installer again and retry.</source>
         <translation>Aplikačné súbory sa nedali rozbaliť do inštalačného priečinka. Súbor môže byť uzamknutý iným programom, disk môže byť plný alebo môže byť stiahnutý inštalátor poškodený. Ak tento problém pretrváva, stiahni inštalátor znova a skús to znova.</translation>
     </message>

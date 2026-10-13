@@ -19,7 +19,8 @@ public:
 
     // String parameters are taken by value (cheap, implicitly shared) so the internal blocks capture
     // their own copies.
-    void startExtension(QString primaryInterface, QString vpnInterface);
+    // vpnServerIp: the address the tunnel itself talks to, which the extension must never drop.
+    void startExtension(QString primaryInterface, QString vpnInterface, QString vpnServerIp);
     // An explicit stop permits retrying a failed session.
     void stopExtension();
     // Call when the OS reports the extension disabled/removed in System Settings: stop the session and

@@ -12,8 +12,8 @@
 #include "installerenums.h"
 #include "uninstall_info.h"
 #include "../../../utils/applicationinfo.h"
-#include "../../../utils/archive.h"
 #include "../../../utils/path.h"
+#include "../../../utils/payloadextractor.h"
 #include "../../../utils/utils.h"
 #include "global_consts.h"
 #include "servicecontrolmanager.h"
@@ -526,20 +526,14 @@ bool UninstallPrev::extractUninstaller() const
 {
     spdlog::info(L"Extracting uninstaller from the archive");
 
-    wsl::Archive archive;
+    wsl::PayloadExtractor archive;
     archive.setLogFunction([](const wstring &str) {
         spdlog::info(L"{}", str);
     });
 
-    const wstring exePath = Utils::getExePath();
-    if (exePath.empty()) {
-        spdlog::error(L"Could not get exe path");
-        return false;
-    }
-
     const wstring targetFolder = Path::extractDir(removeQuotes(getUninstallString()));
 
-    if (!archive.extract(L"Windscribe", L"windscribe.7z", exePath, ApplicationInfo::uninstaller(), targetFolder)) {
+    if (!archive.extract(L"Windscribe", ApplicationInfo::uninstaller(), targetFolder)) {
         return false;
     }
 

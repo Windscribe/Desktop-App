@@ -49,10 +49,6 @@
         <translation>Windscribe не может запустить свою вспомогательную службу. Причиной может быть стороннее программное обеспечение для безопасности и файрвола. Если это не так, пожалуйста, свяжитесь с нашей технической поддержкой.</translation>
     </message>
     <message>
-        <source>The installer could not launch its file extraction utility. Antivirus software or Windows security features (e.g. Smart App Control) may be blocking the installation.</source>
-        <translation>Установщик не смог запустить утилиту для извлечения файлов. Антивирусное программное обеспечение или функции безопасности Windows (например, Smart App Control) могут блокировать установку.</translation>
-    </message>
-    <message>
         <source>The application files could not be extracted to the installation folder. A file may be locked by another program, the disk may be full, or the downloaded installer may be damaged. If this issue persists, download the installer again and retry.</source>
         <translation>Файлы приложений не удалось распаковать в папку установки. Файл может быть заблокирован другой программой, диск может быть заполнен, или загруженный установщик может быть повреждён. Если проблема сохраняется, скачайте установщик снова и попробуйте снова.</translation>
     </message>

@@ -29,11 +29,7 @@ enum INSTALLER_ERROR {
     ERROR_HELPER_START,
     // An unhandled exception escaped the install run (see Installer::executionImpl).
     ERROR_INTERNAL,
-    // The bundled 7zr.exe extractor is missing or could not be launched
-    // (typically antivirus or Smart App Control interference).
-    ERROR_EXTRACT_LAUNCH,
-    // Extraction of the app payload failed; the 7z exit code and error output
-    // are in installer.log.
+    // Extraction of the app payload failed; the reason is in installer.log.
     ERROR_EXTRACT_FAILED,
     // User quit the installer.  Named to avoid colliding with the Windows.h
     // ERROR_CANCELLED macro when this header is included from a Win32 TU.
@@ -60,7 +56,6 @@ inline const char *errorCodeName(INSTALLER_ERROR error)
     case ERROR_HELPER_INSTALL:          return "HELPER_INSTALL";
     case ERROR_HELPER_START:            return "HELPER_START";
     case ERROR_INTERNAL:                return "INTERNAL";
-    case ERROR_EXTRACT_LAUNCH:          return "EXTRACT_LAUNCH";
     case ERROR_EXTRACT_FAILED:          return "EXTRACT_FAILED";
     case ERROR_USER_CANCELED:           return "USER_CANCELED";
     }

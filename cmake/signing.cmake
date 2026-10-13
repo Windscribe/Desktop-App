@@ -12,7 +12,8 @@ set(BUILD_INSTALLER_FILES "${BUILD_TEMP_DIR}/InstallerFiles")
 # ------------------------------------------------------------------------------
 
 if(WIN32)
-    set(SIGNTOOL "${CMAKE_CURRENT_SOURCE_DIR}/tools/signing/signtool.exe")
+    # The Visual Studio build environment puts the Windows SDK's signtool on PATH.
+    find_program(SIGNTOOL signtool)
     set(SIGNING_CERT "${CMAKE_CURRENT_SOURCE_DIR}/tools/signing/code_signing.der")
     set(SIGNING_TIMESTAMP "http://timestamp.digicert.com")
     set(WINDOWS_CERT_SUBJECT_NAME "Windscribe Limited")
@@ -20,8 +21,8 @@ if(WIN32)
     set(WINDOWS_SIGN_PARAMS "/fd SHA256 /td SHA256 /tr ${SIGNING_TIMESTAMP} /f ${SIGNING_CERT} /csp \"eToken Base Cryptographic Provider\" /kc \"[{{%WINDOWS_SIGNING_TOKEN_PASSWORD%}}]=%CONTAINER_NAME%\" /n \"${WINDOWS_CERT_SUBJECT_NAME}\"")
 
     if(SIGN_APP OR SIGN_INSTALLER OR SIGN_BOOTSTRAP)
-        if(NOT EXISTS "${SIGNTOOL}")
-            message(FATAL_ERROR "signtool not found at ${SIGNTOOL}. Cannot sign.")
+        if(NOT SIGNTOOL)
+            message(FATAL_ERROR "signtool not found in the Windows SDK. Cannot sign.")
         endif()
 
         if(NOT EXISTS "${SIGNING_CERT}")
@@ -40,7 +41,8 @@ if(WIN32)
         endif()
 
         add_custom_command(TARGET sign-app
-            COMMAND @for %f in (${BUILD_INSTALLER_FILES}/*.exe ${BUILD_INSTALLER_FILES}/*.dll) do @${SIGNTOOL} sign ${WINDOWS_SIGN_PARAMS} \"${BUILD_INSTALLER_FILES}/%~nxf\" >nul 2>&1
+            COMMAND @for %f in (${BUILD_INSTALLER_FILES}/*.exe ${BUILD_INSTALLER_FILES}/*.dll)
+                    do @\"${SIGNTOOL}\" sign ${WINDOWS_SIGN_PARAMS} \"${BUILD_INSTALLER_FILES}/%~nxf\" >nul 2>&1
             COMMENT "Signing Windows executables and DLLs..."
         )
     endif()

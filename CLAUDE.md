@@ -267,9 +267,14 @@ Most components have separate implementations:
 
 ### Prerequisites
 
-Install vcpkg dependencies:
-- **Windows**: `tools\vcpkg\install_ci\vcpkg_install.bat`
-- **macOS/Linux**: `tools/vcpkg/install_ci/vcpkg_install.sh`
+Install vcpkg from the [ws-vcpkg-registry](https://github.com/Windscribe/ws-vcpkg-registry), then set `VCPKG_ROOT` to the path you chose:
+```bash
+git clone https://github.com/Windscribe/ws-vcpkg-registry.git
+# Windows
+ws-vcpkg-registry\install-vcpkg\vcpkg_install.bat C:\path\to\vcpkg
+# macOS/Linux
+./ws-vcpkg-registry/install-vcpkg/vcpkg_install.sh /path/to/vcpkg
+```
 
 Install Python build dependencies:
 ```bash

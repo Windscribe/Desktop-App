@@ -1,10 +1,4 @@
 #include "resource.h"
 
-#if defined(WINDSCRIBE_ARM64_TARGET)
-7zExtractor BINARY "resources\\arm64\\7zr.exe"
-#else
-7zExtractor BINARY "resources\\amd64\\7zr.exe"
-#endif
-
 Installer BINARY "resources\\windscribeinstaller.7z"
 IDI_ICON1 ICON DISCARDABLE "resources\\windscribe.ico"

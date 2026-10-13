@@ -4,6 +4,19 @@
 #include <netinet/in.h>
 #include <spdlog/spdlog.h>
 
+// RFC1918, link-local and multicast: traffic that belongs to the local network.  Kept to the ranges the
+// firewall's LAN rules cover, since a LAN datagram is relayed on the strength of those rules.  Limited
+// broadcast (255.255.255.255) is deliberately left out: no LAN rule matches it, so the firewall drops it
+// from the app, and treating it as LAN would relay it under our always-passed group instead.
+static bool isLanRangeV4(uint32_t ip)
+{
+    return ((ip & 0xFF000000) == 0x0A000000) ||    // 10.0.0.0/8
+           ((ip & 0xFFFF0000) == 0xA9FE0000) ||    // 169.254.0.0/16
+           ((ip & 0xFFF00000) == 0xAC100000) ||    // 172.16.0.0/12
+           ((ip & 0xFFFF0000) == 0xC0A80000) ||    // 192.168.0.0/16
+           ((ip & 0xF0000000) == 0xE0000000);      // 224.0.0.0/4 multicast (mDNS, SSDP)
+}
+
 @implementation Utils
 
 + (nw_endpoint_t)convertToNewEndpoint:(NWEndpoint *)endpoint {
@@ -112,6 +125,24 @@
     return foundInterface;
 }
 
++ (BOOL)isSplitEligibleInterface:(nw_interface_t)interface {
+    // Only a network the user is actually attached to.  This leaves out loopback and every utun/ipsec
+    // tunnel (type "other"), so a flow headed into another VPN is never pulled out of it.
+    const nw_interface_type_t type = nw_interface_get_type(interface);
+    if (type != nw_interface_type_wired && type != nw_interface_type_wifi && type != nw_interface_type_cellular) {
+        return NO;
+    }
+
+    // AWDL and its low-latency/peer-to-peer siblings report as Wi-Fi.  Proxying their flows breaks
+    // AirDrop (#1513), and the firewall passes them unconditionally anyway, so they stay with the system.
+    // Same prefixes as the helper's getAwdlP2pInterfaces.
+    const char *name = nw_interface_get_name(interface);
+    if (!name) {
+        return NO;
+    }
+    return strncmp(name, "awdl", 4) != 0 && strncmp(name, "llw", 3) != 0 && strncmp(name, "p2p", 3) != 0;
+}
+
 + (BOOL)isSameEndpoint:(nw_endpoint_t)endpoint1 endpoint:(nw_endpoint_t)endpoint2 {
     if (!endpoint1 || !endpoint2) return NO;
 
@@ -152,12 +183,7 @@
 
     if (addr->sa_family == AF_INET) {
         const struct sockaddr_in *addr_in = (const struct sockaddr_in *)addr;
-        uint32_t ip = ntohl(addr_in->sin_addr.s_addr);
-
-        return ((ip & 0xFF000000) == 0x0A000000) ||    // 10.0.0.0/8
-               ((ip & 0xFFFF0000) == 0xA9FE0000) ||    // 169.254.0.0/16
-               ((ip & 0xFFF00000) == 0xAC100000) ||    // 172.16.0.0/12
-               ((ip & 0xFFFF0000) == 0xC0A80000);      // 192.168.0.0/16
+        return isLanRangeV4(ntohl(addr_in->sin_addr.s_addr));
     }
 
     if (addr->sa_family == AF_INET6) {
@@ -179,11 +205,7 @@
         if (IN6_IS_ADDR_V4MAPPED(ip6)) {
             uint32_t v4;
             std::memcpy(&v4, &ip6->s6_addr[12], sizeof(v4));
-            v4 = ntohl(v4);
-            return ((v4 & 0xFF000000) == 0x0A000000) ||
-                   ((v4 & 0xFFFF0000) == 0xA9FE0000) ||
-                   ((v4 & 0xFFF00000) == 0xAC100000) ||
-                   ((v4 & 0xFFFF0000) == 0xC0A80000);
+            return isLanRangeV4(ntohl(v4));
         }
         // Global unicast (2000::/3) and everything else — not LAN, route via split tunnel.
         return NO;

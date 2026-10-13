@@ -49,10 +49,6 @@
         <translation>Windscribe无法启动其辅助服务。第三方安全/防火墙软件可能是原因。如果不是这样，请联系我们的技术支持。</translation>
     </message>
     <message>
-        <source>The installer could not launch its file extraction utility. Antivirus software or Windows security features (e.g. Smart App Control) may be blocking the installation.</source>
-        <translation>安装程序无法启动其文件解压工具。杀毒软件或Windows安全功能（如智能应用控制）可能阻碍了安装。</translation>
-    </message>
-    <message>
         <source>The application files could not be extracted to the installation folder. A file may be locked by another program, the disk may be full, or the downloaded installer may be damaged. If this issue persists, download the installer again and retry.</source>
         <translation>应用程序文件无法解压到安装文件夹。文件可能被其他程序锁定，磁盘可能已满，或者下载的安装程序可能损坏。如果问题依旧，请重新下载安装程序并重试。</translation>
     </message>

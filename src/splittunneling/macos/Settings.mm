@@ -1,6 +1,8 @@
 #import "Settings.h"
 #import "Utils.h"
 #include <arpa/inet.h>
+#include <bsm/libbsm.h>
+#include <unistd.h>
 #include <spdlog/spdlog.h>
 #import <Security/Security.h>
 #include "../../client/client-common/utils/wsscopeguard.h"
@@ -26,6 +28,45 @@ static std::vector<std::string> ipsVectorFromLists(NSArray *ipsV4, NSArray *ipsV
         }
     }
     return ips;
+}
+
+// inet_ntop form of an address endpoint, or empty if it has none.
+static std::string endpointIpString(nw_endpoint_t endpoint)
+{
+    const struct sockaddr *addr = nw_endpoint_get_address(endpoint);
+    if (!addr) {
+        return {};
+    }
+    const void *addrPtr;
+    if (addr->sa_family == AF_INET) {
+        addrPtr = &((const struct sockaddr_in *)addr)->sin_addr;
+    } else if (addr->sa_family == AF_INET6) {
+        addrPtr = &((const struct sockaddr_in6 *)addr)->sin6_addr;
+    } else {
+        return {};
+    }
+    char ipStr[INET6_ADDRSTRLEN];
+    if (!inet_ntop(addr->sa_family, addrPtr, ipStr, sizeof(ipStr))) {
+        return {};
+    }
+    return ipStr;
+}
+
+// inet_ntop form of an IP literal, so it compares equal to endpointIpString; nil if not a literal.
+static NSString *canonicalIp(NSString *ip)
+{
+    const char *raw = ip.UTF8String;
+    if (!raw) {
+        return nil;
+    }
+    unsigned char buf[sizeof(struct in6_addr)];
+    char canonical[INET6_ADDRSTRLEN];
+    for (int family : {AF_INET, AF_INET6}) {
+        if (inet_pton(family, raw, buf) == 1 && inet_ntop(family, buf, canonical, sizeof(canonical))) {
+            return [NSString stringWithUTF8String:canonical];
+        }
+    }
+    return nil;
 }
 
 static std::vector<std::string> hostnamesVectorFromList(NSArray *hostnames)
@@ -115,6 +156,9 @@ static const NSTimeInterval kAppPathFailureRetryInterval = 5.0;
             }
             return nil;
         }
+
+        vpnServerIp_ = canonicalIp(options[@"vpnServerIp"]);
+        spdlog::debug("VPN server: {}", vpnServerIp_ ? vpnServerIp_.UTF8String : "<none>");
 
         ipHostnamesManager_ = std::make_shared<IpHostnamesManager>();
         // Routing fields (apps/IPs/hostnames/mode) and the resolver share the live-update path.
@@ -327,30 +371,33 @@ static const NSTimeInterval kAppPathFailureRetryInterval = 5.0;
     }
 
     // Otherwise, check if the remote endpoint is in the ip or hostname list.
-    const struct sockaddr *addr = nw_endpoint_get_address(remoteEndpoint);
-    if (!addr) {
-        return NO;
-    }
-
-    char ipStr[INET6_ADDRSTRLEN];
-    const void *addrPtr;
-
-    if (addr->sa_family == AF_INET) {
-        const struct sockaddr_in *addr_in = (const struct sockaddr_in *)addr;
-        addrPtr = &(addr_in->sin_addr);
-    } else if (addr->sa_family == AF_INET6) {
-        const struct sockaddr_in6 *addr_in6 = (const struct sockaddr_in6 *)addr;
-        addrPtr = &(addr_in6->sin6_addr);
-    } else {
-        return NO;
-    }
-
-    if (!inet_ntop(addr->sa_family, addrPtr, ipStr, sizeof(ipStr))) {
+    const std::string ipStr = endpointIpString(remoteEndpoint);
+    if (ipStr.empty()) {
         return NO;
     }
 
     // If excluding and IP is in the list, or if including and IP is not in the list, split tunnel this flow.
     return manager && (isExclude == manager->isIpInList(ipStr)) ? YES : NO;
+}
+
+- (BOOL)isFromVpnProcess:(NEAppProxyFlow *)flow {
+    NSData *auditToken = flow.metaData.sourceAppAuditToken;
+    if (auditToken.length != sizeof(audit_token_t)) {
+        return NO;
+    }
+    audit_token_t token;
+    memcpy(&token, auditToken.bytes, sizeof(token));
+    // main() switched us to our group, so getegid() is its gid.
+    const gid_t egid = audit_token_to_egid(token);
+    return egid == 0 || egid == getegid();
+}
+
+- (BOOL)isVpnServer:(nw_endpoint_t)endpoint {
+    if (!vpnServerIp_) {
+        return NO;
+    }
+    const std::string ipStr = endpointIpString(endpoint);
+    return !ipStr.empty() && ipStr == vpnServerIp_.UTF8String;
 }
 
 @end

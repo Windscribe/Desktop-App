@@ -28,6 +28,8 @@ typedef NS_ENUM(NSInteger, SplitTunnelAppMatch) {
     NSArray *hostnames_;
     nw_interface_t primaryInterface_;
     nw_interface_t vpnInterface_;
+    // Canonical VPN server address; start option, unguarded like the interfaces.
+    NSString *vpnServerIp_;
     bool isExclude_;
     bool isDebug_;
     std::shared_ptr<IpHostnamesManager> ipHostnamesManager_;
@@ -65,6 +67,9 @@ typedef NS_ENUM(NSInteger, SplitTunnelAppMatch) {
 // (no audit token, or a code-signing lookup that failed or is throttled); see SplitTunnelAppMatch.
 - (SplitTunnelAppMatch)appMatchForFlow:(NEAppProxyFlow *)flow paths:(NSArray *)appPaths;
 - (BOOL)isSplitTunnelApplicable:(NEAppProxyFlow *)flow remoteEndpoint:(nw_endpoint_t)remoteEndpoint;
+- (BOOL)isVpnServer:(nw_endpoint_t)endpoint;
+// Whether the flow's process may talk to the VPN server outside the tunnel: gid 0 or our group, as in the firewall.
+- (BOOL)isFromVpnProcess:(NEAppProxyFlow *)flow;
 
 @end
 

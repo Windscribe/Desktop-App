@@ -61,10 +61,6 @@
         <translation>Windscribe không thể bắt đầu dịch vụ trợ giúp. Phần mềm tường lửa/bảo mật của bên thứ ba có thể là nguyên nhân. Nếu không đúng như vậy, vui lòng liên hệ với bộ phận Hỗ trợ kỹ thuật của chúng tôi.</translation>
     </message>
     <message>
-        <source>The installer could not launch its file extraction utility. Antivirus software or Windows security features (e.g. Smart App Control) may be blocking the installation.</source>
-        <translation>Trình cài đặt không thể khởi chạy tiện ích giải nén tệp của nó. Phần mềm chống vi-rút hoặc các tính năng bảo mật của Windows (ví dụ: Kiểm soát ứng dụng thông minh) có thể chặn cài đặt.</translation>
-    </message>
-    <message>
         <source>The application files could not be extracted to the installation folder. A file may be locked by another program, the disk may be full, or the downloaded installer may be damaged. If this issue persists, download the installer again and retry.</source>
         <translation>Các tệp ứng dụng không thể được giải nén vào thư mục cài đặt. Một tệp có thể bị khóa bởi một chương trình khác, đĩa có thể đầy hoặc trình cài đặt đã tải xuống có thể bị hỏng. Nếu sự cố này vẫn tiếp diễn, hãy tải xuống lại trình cài đặt và thử lại.</translation>
     </message>

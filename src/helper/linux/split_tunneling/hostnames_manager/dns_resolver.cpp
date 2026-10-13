@@ -45,7 +45,7 @@ void DnsResolver::onDnsResolved(uint64_t requestId, const std::string &hostname,
             }
             // repeat failed requests if the timeout allows, after 500 ms
             if (bWasFailedRequests && sinceHelper(startTime_).count() < kMaxTimeoutMs) {
-                timer_.emplace(boost::asio::deadline_timer(io_context_, boost::posix_time::millisec(kRetryTimeoutMs)));
+                timer_.emplace(io_context_, std::chrono::milliseconds(kRetryTimeoutMs));
                 timer_->async_wait(std::bind(&DnsResolver::onTimer, this, std::placeholders::_1));
             } else {
                 resolveDomainsCallback_(results_);

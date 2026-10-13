@@ -49,10 +49,6 @@
         <translation>لم تتمكن Windscribe من بدء خدمة المساعدة الخاصة بها. قد يكون برنامج الأمان أو الجدار الناري من طرف ثالث هو السبب. إذا لم يكن هذا هو الحال، يرجى التواصل مع الدعم الفني لدينا.</translation>
     </message>
     <message>
-        <source>The installer could not launch its file extraction utility. Antivirus software or Windows security features (e.g. Smart App Control) may be blocking the installation.</source>
-        <translation>لم يتمكن المثبت من تشغيل أداة استخراج الملفات الخاصة به. قد تكون برامج مكافحة الفيروسات أو ميزات أمان ويندوز (مثل Smart App Control) تعيق التثبيت.</translation>
-    </message>
-    <message>
         <source>The application files could not be extracted to the installation folder. A file may be locked by another program, the disk may be full, or the downloaded installer may be damaged. If this issue persists, download the installer again and retry.</source>
         <translation>لم يكن بالإمكان استخراج ملفات التطبيقات إلى مجلد التثبيت. قد يكون الملف مقفلا بواسطة برنامج آخر، أو قد يكون القرص ممتلئا، أو قد يتضرر المثبت المحمل. إذا استمرت هذه المشكلة، قم بتحميل المثبت مرة أخرى وأعد المحاولة.</translation>
     </message>

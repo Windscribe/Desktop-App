@@ -1,3 +1,14 @@
+2.25.4 (13/10/2026)
+All:
+   * Updated third-party components from vcpkg to the latest versions for stability and security. #2032
+Windows:
+   * Improved installer to use libarchive rather than bundled 7z executable for extraction. #2023
+   * Fixed ctrld daemon may fail to launch when Connected DNS preference is Control D. #2026
+   * Fixed tapctl.exe to always match OpenVPN version. #2023
+Linux:
+   * Fixed regression introduced with the AmneziaWG update in 2.25.3. #2028
+
+
 2.25.3 (07/10/2026)
 All:
    * Improved implementation of post-connect tunnel validation and connected IP state. #1954

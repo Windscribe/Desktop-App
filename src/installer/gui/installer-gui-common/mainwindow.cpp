@@ -272,8 +272,6 @@ void MainWindow::onInstallerCallback()
             errorMsg = tr("Windscribe is unable to install its helper service. Please manually uninstall Windscribe and try again. If this issue persists, please contact our Technical Support.");
         } else if (error == wsl::ERROR_HELPER_START) {
             errorMsg = tr("Windscribe is unable to start its helper service. Third-party security/firewall software may be the cause. If this is not the case, please contact our Technical Support.");
-        } else if (error == wsl::ERROR_EXTRACT_LAUNCH) {
-            errorMsg = tr("The installer could not launch its file extraction utility. Antivirus software or Windows security features (e.g. Smart App Control) may be blocking the installation.");
         } else if (error == wsl::ERROR_EXTRACT_FAILED) {
             errorMsg = tr("The application files could not be extracted to the installation folder. A file may be locked by another program, the disk may be full, or the downloaded installer may be damaged. If this issue persists, download the installer again and retry.");
         } else {

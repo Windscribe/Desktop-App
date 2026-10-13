@@ -18,6 +18,7 @@ struct SplitTunnelExtensionManager::State
     bool isExclude = false;
     QString primaryInterface;
     QString vpnInterface;
+    QString vpnServerIp;
     QStringList appPaths;
     QStringList ips;
     QStringList hostnames;

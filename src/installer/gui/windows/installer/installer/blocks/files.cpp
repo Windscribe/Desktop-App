@@ -9,9 +9,8 @@
 #include "installerenums.h"
 #include "../settings.h"
 #include "../../../utils/applicationinfo.h"
-#include "../../../utils/archive.h"
 #include "../../../utils/path.h"
-#include "../../../utils/utils.h"
+#include "../../../utils/payloadextractor.h"
 
 using namespace std;
 
@@ -52,24 +51,15 @@ int Files::executeStep()
         }
     }
 
-    const wstring exePath = Utils::getExePath();
-    if (exePath.empty()) {
-        spdlog::error(L"Could not get exe path");
-        return -wsl::ERROR_OTHER;
-    }
-
-    wsl::Archive archive;
+    wsl::PayloadExtractor archive;
     archive.setLogFunction([](const wstring &str) {
         spdlog::info(L"{}", str);
     });
 
-    const wsl::ArchiveResult result = archive.extract(L"Windscribe", L"windscribe.7z", exePath, installPath_);
+    const wsl::ArchiveResult result = archive.extract(L"Windscribe", installPath_);
     if (!result.success()) {
-        spdlog::error(L"Files::executeStep: payload extraction failed (7z exit code {}): {}", result.exitCode, result.errorText);
+        spdlog::error(L"Files::executeStep: payload extraction failed: {}", result.errorText);
         lastError_ = result.errorText;
-        if (result.status == wsl::ArchiveResult::Status::LaunchFailed) {
-            return -wsl::ERROR_EXTRACT_LAUNCH;
-        }
         return -wsl::ERROR_EXTRACT_FAILED;
     }
 

@@ -145,15 +145,27 @@
         return NO;
     }
 
-    if (strcmp(flowInterfaceName, primaryInterfaceName) != 0 && strcmp(flowInterfaceName, vpnInterfaceName) != 0) {
-        spdlog::info("Flow interface ({}) not in primary ({}) or VPN interface ({})", flowInterfaceName, primaryInterfaceName, vpnInterfaceName);
+    // Where a split flow egresses.  A flow routed into the tunnel leaves via the primary interface, the one
+    // the tunnel itself runs over.  A flow the system routed to a physical interface -- the primary, or a
+    // secondary network such as a second LAN or Wi-Fi + cellular -- stays on that interface: moving it to
+    // the primary would send it to a network the destination may not be reachable from.  It has to be
+    // proxied rather than declined either way, because the firewall only lets the extension's group out
+    // around the tunnel; a declined flow leaves with the app's group and is dropped.
+    const BOOL onTunnel = strcmp(flowInterfaceName, vpnInterfaceName) == 0;
+    nw_interface_t egressInterface = nil;
+    if (onTunnel) {
+        egressInterface = settings.primaryInterface;
+    } else if (strcmp(flowInterfaceName, primaryInterfaceName) == 0 || [Utils isSplitEligibleInterface:flowInterface]) {
+        egressInterface = flowInterface;
+    } else {
+        spdlog::info("Flow interface ({}) is neither the VPN interface ({}) nor a physical interface", flowInterfaceName, vpnInterfaceName);
         return NO;
     }
 
     if ([flow isKindOfClass:[NEAppProxyTCPFlow class]]) {
-        return [tcpHandler_ setupTCPConnection:(NEAppProxyTCPFlow *)flow interface:settings.primaryInterface];
+        return [tcpHandler_ setupTCPConnection:(NEAppProxyTCPFlow *)flow interface:egressInterface];
     } else if ([flow isKindOfClass:[NEAppProxyUDPFlow class]]) {
-        return [udpHandler_ setupUDPConnection:(NEAppProxyUDPFlow *)flow interface:settings.primaryInterface];
+        return [udpHandler_ setupUDPConnection:(NEAppProxyUDPFlow *)flow interface:egressInterface onTunnel:onTunnel];
     }
     return NO;
 }

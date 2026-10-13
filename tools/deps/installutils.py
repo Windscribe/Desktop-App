@@ -17,7 +17,6 @@ import base.utils as utl
 
 REPOSITORY_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 TOOLS_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-TOOLS_BIN_DIR = os.path.join(TOOLS_DIR, "bin")
 TOOLS_VARS_DIR = os.path.join(TOOLS_DIR, "vars")
 TEMP_DIR = os.path.join(REPOSITORY_ROOT, "temp")
 CACHED_MAKE_COMMAND = None
@@ -132,27 +131,7 @@ def ExtractFile(localfilename, outputpath=None, deleteonsuccess=True):
         outputpath = os.path.dirname(localfilename)
     msg.HeadPrint("ExtractFile: \"{}\" to \"{}\"".format(localfilename, outputpath))
     extracted = False
-    localfilename2 = None
-    if utl.GetCurrentOS() == "win32":
-        unz_exe = os.path.join(TOOLS_BIN_DIR, "7z.exe")
-        if localfilename.endswith((".gz", ".xz")):
-            unz_cmd = [unz_exe, "e", localfilename, "-o{}".format(os.path.dirname(localfilename)),
-                       "-y", "-bso0", "-bsp2"]
-            try:
-                proc.ExecuteWithRealtimeOutput(unz_cmd)
-            except RuntimeError as e:
-                msg.Verbose(e)
-                raise InstallError("Error extracting archive file.")
-            localfilename2 = localfilename
-            localfilename = localfilename[:-3]
-        unz_cmd = [unz_exe, "x", localfilename, "-o{}".format(outputpath), "-y", "-bso0", "-bsp2"]
-        try:
-            proc.ExecuteWithRealtimeOutput(unz_cmd)
-            extracted = True
-        except RuntimeError as e:
-            msg.Verbose(e)
-            raise InstallError("Error extracting archive file.")
-    elif localfilename.endswith(".zip"):
+    if localfilename.endswith(".zip"):
         try:
             zf = zipfile.ZipFile(localfilename, mode="r")
             zf.extractall(outputpath)
@@ -176,8 +155,6 @@ def ExtractFile(localfilename, outputpath=None, deleteonsuccess=True):
     if extracted and deleteonsuccess:
         utl.RemoveFile(localfilename)
         utl.RemoveFile(os.path.join(os.path.dirname(localfilename), "pax_global_header"))
-        if localfilename2:
-            utl.RemoveFile(localfilename2)
 
 
 def DetectVisualStudioDir(installerPath, legacy=False):
