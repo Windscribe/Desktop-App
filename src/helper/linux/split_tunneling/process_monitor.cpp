@@ -10,12 +10,17 @@
 #include <linux/netlink.h>
 #include <poll.h>
 #include <sstream>
+#include <stdlib.h>
 #include <sys/socket.h>
+#include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <unordered_map>
+#include <unordered_set>
 #include <spdlog/spdlog.h>
 
 #include "cgroups.h"
+#include "path_matching.h"
 #include "../utils.h"
 
 #define SEND_MESSAGE_LEN (NLMSG_LENGTH(sizeof(struct cn_msg) + sizeof(enum proc_cn_mcast_op)))
@@ -23,6 +28,115 @@
 #define SEND_MESSAGE_SIZE (NLMSG_SPACE(SEND_MESSAGE_LEN))
 #define RECV_MESSAGE_SIZE (NLMSG_SPACE(RECV_MESSAGE_LEN))
 #define BUFSIZE (std::max(std::max(SEND_MESSAGE_SIZE, RECV_MESSAGE_SIZE), 1024UL))
+
+namespace {
+
+// /proc/<pid>/exe is always a fully resolved path, so a stored app path that traverses a symlink
+// (Steam's ~/.steam/steam -> ~/.local/share/Steam, usrmerge /bin -> /usr/bin, ...) can never
+// compare equal to it as a raw string. Resolve the stored path once, when the app list is set,
+// so both sides of the comparison are canonical. Snap entries are exempt: /snap/bin/<name> is a
+// symlink to the snap runner ELF itself, and the snap match in compareCmd depends on the stored
+// path keeping its /snap/ shape.
+std::string canonicalizeAppPath(const std::string &path)
+{
+    if (path.empty() || path.front() != '/' || path.rfind("/snap/", 0) == 0) {
+        return path;
+    }
+    char *resolved = realpath(path.c_str(), nullptr);
+    if (resolved == nullptr) {
+        // Not on disk (uninstalled or moved): keep the literal form, same as before.
+        return path;
+    }
+    std::string out(resolved);
+    free(resolved);
+    return out;
+}
+
+// Tokens of the shebang line ("#!/bin/bash -e" -> {"/bin/bash", "-e"}), or nullopt when the
+// file is not a script. Only ever called on paths already stat-verified as regular files:
+// opening anything else (a FIFO with no writer, for instance) would block the caller
+// indefinitely.
+std::optional<std::vector<std::string>> readShebangTokens(const std::string &path)
+{
+    if (path.empty() || path.front() != '/') {
+        return std::nullopt;
+    }
+    std::ifstream f(path);
+    std::string line;
+    if (!std::getline(f, line)) {
+        return std::nullopt;
+    }
+    if (line.rfind("#!", 0) != 0) {
+        return std::nullopt;
+    }
+    std::istringstream tokens(line.substr(2));
+    std::vector<std::string> words;
+    std::string word;
+    while (tokens >> word) {
+        words.push_back(word);
+    }
+    if (words.empty()) {
+        return std::nullopt;
+    }
+    return words;
+}
+
+std::string findExecutableInPath(const std::string &name)
+{
+    if (name.empty() || name.find('/') != std::string::npos) {
+        return std::string();
+    }
+    const char *pathEnv = getenv("PATH");
+    if (pathEnv == nullptr) {
+        return std::string();
+    }
+    std::istringstream dirs(pathEnv);
+    std::string dir;
+    while (std::getline(dirs, dir, ':')) {
+        if (dir.empty()) {
+            continue;
+        }
+        const std::string candidate = dir + "/" + name;
+        struct stat st = {};
+        if (stat(candidate.c_str(), &st) == 0 && S_ISREG(st.st_mode)) {
+            return candidate;
+        }
+    }
+    return std::string();
+}
+std::optional<std::vector<std::string>> readArgv(pid_t pid)
+{
+    std::ifstream f("/proc/" + std::to_string(pid) + "/cmdline", std::ios::binary);
+    if (!f.is_open()) {
+        return std::nullopt;
+    }
+    std::string data((std::istreambuf_iterator<char>(f)), std::istreambuf_iterator<char>());
+    if (data.empty()) {
+        return std::nullopt; // kernel threads and zombies have an empty cmdline
+    }
+    std::vector<std::string> argv;
+    size_t start = 0;
+    while (start < data.size()) {
+        size_t end = data.find('\0', start);
+        if (end == std::string::npos) {
+            end = data.size();
+        }
+        if (end > start) {
+            argv.emplace_back(data, start, end - start);
+        }
+        start = end + 1;
+    }
+    if (argv.empty()) {
+        return std::nullopt;
+    }
+    return argv;
+}
+
+// Pressure-vessel path remapping, Windows drive-mapped path matching and their gating
+// predicates live in path_matching.h (pure, unit-testable).  This namespace keeps only
+// the /proc readers.
+
+} // namespace
 
 void ProcessMonitor::monitorWorker(void *ctx)
 {
@@ -41,6 +155,12 @@ void ProcessMonitor::monitorWorker(void *ctx)
             spdlog::error("process monitor poll error {}", ret);
             return;
         } else if (ret == 0) {
+            // Idle tick: periodically re-resolve rules so symlinks moved by game updates
+            // do not go stale for the rest of the session (240 ticks x 250 ms = 60 s).
+            if (++idleTicks_ >= 240) {
+                idleTicks_ = 0;
+                requestRulesRebuild();
+            }
             continue;
         }
 
@@ -53,10 +173,16 @@ void ProcessMonitor::monitorWorker(void *ctx)
             break;
         }
 
+        // Snapshot the rules once per batch: setApps() may replace them on the command thread
+        // while this loop runs, and the monitor thread must never iterate a mutating vector.
+        std::vector<AppRule> rules;
+        {
+            std::lock_guard<std::mutex> guard(appsMutex_);
+            rules = rules_;
+        }
+
         struct nlmsghdr *nlh = (struct nlmsghdr *)buff;
         while (NLMSG_OK(nlh, ret)) {
-            std::string cmd;
-
             if (nlh->nlmsg_type == NLMSG_NOOP) {
                 nlh = NLMSG_NEXT(nlh, ret);
                 continue;
@@ -69,12 +195,12 @@ void ProcessMonitor::monitorWorker(void *ctx)
 
             switch (ev->what) {
                 case 0x00000001: // PROC_EVENT_FORK:
-                    if (compareCmd(ev->event_data.fork.child_pid, apps_)) {
+                    if (compareCmd(ev->event_data.fork.child_pid, rules)) {
                         CGroups::instance().addApp(ev->event_data.fork.child_pid);
                     }
                     break;
                 case 0x00000002: // PROC_EVENT_EXEC:
-                    if (compareCmd(ev->event_data.exec.process_pid, apps_)) {
+                    if (compareCmd(ev->event_data.exec.process_pid, rules)) {
                         CGroups::instance().addApp(ev->event_data.exec.process_pid);
                     }
                     break;
@@ -101,30 +227,93 @@ void ProcessMonitor::monitorWorker(void *ctx)
 ProcessMonitor::ProcessMonitor() : isEnabled_(false), thread_(nullptr), sock_(-1), running_(false), functional_(false), testing_(false)
 {
     selfTest();
+
+    rulesThread_ = std::thread(&ProcessMonitor::rulesWorker, this);
 }
 
 ProcessMonitor::~ProcessMonitor()
 {
     stopMonitoring();
+
+    {
+        std::lock_guard<std::mutex> guard(rulesMutex_);
+        rulesStop_ = true;
+    }
+    rulesCv_.notify_all();
+    if (rulesThread_.joinable()) {
+        rulesThread_.join();
+    }
+}
+
+void ProcessMonitor::rulesWorker()
+{
+    std::vector<std::string> apps;
+    while (true) {
+        {
+            std::unique_lock<std::mutex> lock(rulesMutex_);
+            rulesCv_.wait(lock, [this] { return rulesWake_ || rulesStop_; });
+            if (rulesStop_) {
+                return;
+            }
+            rulesWake_ = false;
+        }
+
+        {
+            std::lock_guard<std::mutex> guard(appsMutex_);
+            apps = apps_;
+        }
+        std::vector<AppRule> newRules;
+        newRules.reserve(apps.size());
+        for (const auto &app : apps) {
+            newRules.push_back(ruleFor(app));
+        }
+        {
+            std::lock_guard<std::mutex> guard(appsMutex_);
+            rules_ = std::move(newRules);
+        }
+
+        // Rules changed: re-scan so entries added while their game is already running take
+        // effect now, without waiting for the next launch.
+        if (isEnabled_) {
+            scanAndAddAll();
+        }
+    }
+}
+
+void ProcessMonitor::requestRulesRebuild()
+{
+    {
+        std::lock_guard<std::mutex> guard(rulesMutex_);
+        rulesWake_ = true;
+    }
+    rulesCv_.notify_all();
 }
 
 void ProcessMonitor::setApps(const std::vector<std::string> &apps)
 {
-    if (isEnabled_) {
-        for (auto app : apps) {
-            if (std::find(apps_.begin(), apps_.end(), app) == apps_.end()) {
-                addApp(app);
+    std::vector<std::string> removed;
+    std::vector<AppRule> oldRules;
+    {
+        std::lock_guard<std::mutex> guard(appsMutex_);
+        oldRules = rules_;
+        for (const auto &old : apps_) {
+            if (std::find(apps.begin(), apps.end(), old) == apps.end()) {
+                removed.push_back(old);
             }
         }
-
-        for (auto app : apps_) {
-            if (std::find(apps.begin(), apps.end(), app) == apps.end()) {
-                removeApp(app);
-            }
-        }
+        apps_ = apps;
     }
 
-    apps_ = apps;
+    // Removals are applied synchronously against a snapshot of the rules that admitted
+    // those processes, taken before the entry swap so a concurrent worker rebuild cannot
+    // drop the entry's rule mid-removal; additions land via the worker's post-swap rescan
+    // (ruleFor touches the filesystem and must stay off the IPC command thread).
+    if (isEnabled_) {
+        for (const auto &entry : removed) {
+            removeAppsForEntry(entry, oldRules);
+        }
+    }
+    requestRulesRebuild();
 }
 
 bool ProcessMonitor::enable()
@@ -150,9 +339,7 @@ bool ProcessMonitor::enable()
         return false;
     }
 
-    for (auto app : apps_) {
-        addApp(app);
-    }
+    scanAndAddAll();
     isEnabled_ = true;
     return true;
 }
@@ -170,23 +357,157 @@ void ProcessMonitor::disable()
     isEnabled_ = false;
 }
 
-void ProcessMonitor::addApp(const std::string &exe) {
-    spdlog::info("process monitor add app: {}", exe);
-    std::vector<pid_t> pids = findPids(exe);
-    for (auto pid : pids) {
+ProcessMonitor::AppRule ProcessMonitor::ruleFor(const std::string &app)
+{
+    // Normalize trailing slashes so directory prefix matching never compares against "dir//file".
+    std::string path = app;
+    while (path.size() > 1 && path.back() == '/') {
+        path.pop_back();
+    }
+
+    AppRule rule;
+    rule.raw = path;
+    rule.canonical = canonicalizeAppPath(rule.raw);
+    struct stat st = {};
+    if (stat(rule.canonical.c_str(), &st) != 0) {
+        return rule;
+    }
+    if (S_ISDIR(st.st_mode)) {
+        rule.isDirectory = true;
+        rule.canonicalSlash = rule.canonical + "/";
+        rule.rawSlash = rule.raw + "/";
+    } else if (S_ISREG(st.st_mode)) {
+        // Scripts only; anything else (FIFO, socket, device) must never be opened here.
+        const std::optional<std::vector<std::string>> shebang = readShebangTokens(rule.canonical);
+        if (shebang) {
+            std::string interpreter = canonicalizeAppPath((*shebang)[0]);
+            // "#!/usr/bin/env bash" execs env, which immediately execs bash; resolve the env
+            // argument so the durable interpreter state is what matches (the env moment itself
+            // lasts only microseconds).
+            if (interpreter.size() >= 4
+                && interpreter.compare(interpreter.size() - 4, 4, "/env") == 0
+                && shebang->size() >= 2 && (*shebang)[1][0] != '-') {
+                const std::string resolved = findExecutableInPath((*shebang)[1]);
+                if (!resolved.empty()) {
+                    interpreter = canonicalizeAppPath(resolved);
+                }
+            }
+            rule.scriptInterpreter = std::move(interpreter);
+        }
+    }
+    return rule;
+}
+
+// Scans /proc against the current rules and moves every matching process (plus its living
+// subtree — membership is inherited only on fork, never retroactively) into the cgroup.
+// Idempotent: writing an already-member pid to cgroup.procs is a no-op.
+void ProcessMonitor::scanAndAddAll()
+{
+    std::vector<AppRule> rules;
+    {
+        std::lock_guard<std::mutex> guard(appsMutex_);
+        rules = rules_;
+    }
+    if (rules.empty()) {
+        return;
+    }
+
+    std::vector<pid_t> pids;
+    DIR *dp = opendir("/proc");
+    if (dp == NULL) {
+        spdlog::error("process monitor could not open /proc filesystem");
+        return;
+    }
+    struct dirent *ep;
+    while ((ep = readdir(dp))) {
+        if (ep->d_type == DT_DIR && ep->d_name[0] >= '0' && ep->d_name[0] <= '9') {
+            const pid_t pid = std::stoi(ep->d_name);
+            if (compareCmd(pid, rules)) {
+                pids.push_back(pid);
+            }
+        }
+    }
+    closedir(dp);
+
+    for (auto pid : expandToDescendants(pids)) {
         CGroups::instance().addApp(pid);
     }
 }
 
-void ProcessMonitor::removeApp(const std::string &exe) {
-    spdlog::info("process monitor remove app: {}", exe);
-    std::vector<pid_t> pids = findPids(exe);
-    for (auto pid : pids) {
+void ProcessMonitor::removeAppsForEntry(const std::string &entry, const std::vector<AppRule> &rules) {
+    spdlog::info("process monitor remove app: {}", entry);
+
+    std::vector<pid_t> pids;
+    for (const AppRule &rule : rules) {
+        if (rule.raw == entry) {
+            const std::vector<pid_t> matches = findPidsForRule(rule);
+            pids.insert(pids.end(), matches.begin(), matches.end());
+        }
+    }
+    for (auto pid : expandToDescendants(pids)) {
         CGroups::instance().removeApp(pid);
     }
 }
 
-std::vector<pid_t> ProcessMonitor::findPids(const std::string &exe)
+// A matched launcher's already-running children (a game started before its entry was added, or
+// before the VPN connected) are not in the cgroup: membership is inherited only on fork, never
+// retroactively. When a scan matches a root process, pull its whole living subtree in with it,
+// and move it back out on removal, symmetrically.
+std::vector<pid_t> ProcessMonitor::expandToDescendants(const std::vector<pid_t> &roots)
+{
+    if (roots.empty()) {
+        return roots;
+    }
+
+    std::unordered_map<pid_t, pid_t> ppidOf;
+    DIR *dp = opendir("/proc");
+    if (dp == NULL) {
+        return roots;
+    }
+    struct dirent *ep;
+    while ((ep = readdir(dp))) {
+        if (ep->d_type != DT_DIR || ep->d_name[0] < '0' || ep->d_name[0] > '9') {
+            continue;
+        }
+        std::ifstream f(std::string("/proc/") + ep->d_name + "/stat");
+        std::string line;
+        if (!std::getline(f, line)) {
+            continue;
+        }
+        // pid (comm) state ppid ...: comm may contain spaces or parens, so parse after the
+        // last ')'.
+        const size_t close = line.rfind(')');
+        if (close == std::string::npos) {
+            continue;
+        }
+        std::istringstream fields(line.substr(close + 1));
+        std::string state;
+        pid_t ppid = 0;
+        if (fields >> state >> ppid) {
+            ppidOf[std::stoi(ep->d_name)] = ppid;
+        }
+    }
+    closedir(dp);
+
+    std::unordered_set<pid_t> selected(roots.begin(), roots.end());
+    for (const auto &entry : ppidOf) {
+        pid_t cur = entry.second;
+        for (int depth = 0; cur > 0 && depth < 128; ++depth) {
+            if (selected.count(cur)) {
+                selected.insert(entry.first);
+                break;
+            }
+            const auto it = ppidOf.find(cur);
+            if (it == ppidOf.end()) {
+                break;
+            }
+            cur = it->second;
+        }
+    }
+    return std::vector<pid_t>(selected.begin(), selected.end());
+}
+
+std::vector<pid_t> ProcessMonitor::findPidsForRule(const AppRule &rule)
 {
     std::vector<pid_t> pids;
 
@@ -202,7 +523,7 @@ std::vector<pid_t> ProcessMonitor::findPids(const std::string &exe)
     while ((ep = readdir(dp))) {
         // numeric directories are pids in /proc
         if (ep->d_type == DT_DIR && ep->d_name[0] >= '0' && ep->d_name[0] <= '9') {
-            if (compareCmd(std::stoi(ep->d_name), {exe})) {
+            if (compareCmd(std::stoi(ep->d_name), {rule})) {
                 pids.push_back(std::stoi(ep->d_name));
             }
         }
@@ -212,36 +533,99 @@ std::vector<pid_t> ProcessMonitor::findPids(const std::string &exe)
     return pids;
 }
 
-bool ProcessMonitor::compareCmd(pid_t pid, const std::vector<std::string> &exes) {
+bool ProcessMonitor::compareCmd(pid_t pid, const std::vector<AppRule> &rules) {
     std::string cmd = getCmdByPid(pid);
+    std::optional<std::vector<std::string>> argv;
+    bool argvRead = false;
     std::optional<std::string> flatpakId;
     bool flatpakIdComputed = false;
 
-    for (auto exe : exes) {
-        if (cmd == exe) {
+    for (const AppRule &rule : rules) {
+        if (!cmd.empty() && (cmd == rule.raw || cmd == rule.canonical)) {
             return true;
         }
 
         // Flatpak app ID match: stored value looks like reverse-DNS (no slashes, has a dot).
         // Resolve the running process's Flatpak app ID lazily via cgroup, only when we actually
         // have an app-ID-shaped rule to match against.
-        if (!exe.empty() && exe.find('/') == std::string::npos && exe.find('.') != std::string::npos) {
+        if (!rule.raw.empty() && rule.raw.find('/') == std::string::npos && rule.raw.find('.') != std::string::npos) {
             if (!flatpakIdComputed) {
                 flatpakId = getFlatpakAppIdByPid(pid);
                 flatpakIdComputed = true;
             }
-            if (flatpakId && *flatpakId == exe) {
+            if (flatpakId && *flatpakId == rule.raw) {
                 return true;
             }
         }
 
         // handle snap
-        int idx = exe.find("/snap/");
+        int idx = rule.raw.find("/snap/");
         if (idx != std::string::npos) {
-            std::string prefix = exe.substr(0, idx + 6);
-            std::string suffix = exe.substr(exe.rfind("/"));
+            std::string prefix = rule.raw.substr(0, idx + 6);
+            std::string suffix = rule.raw.substr(rule.raw.rfind("/"));
             if (cmd.rfind(prefix, 0) == 0 && cmd.find(suffix, cmd.size() - suffix.length()) == cmd.size() - suffix.length()) {
                 return true;
+            }
+        }
+
+        // Directory entries (e.g. a Steam game's install folder, resolved from its library
+        // manifest): every executable launched from within the tree belongs to the entry,
+        // whatever each binary is named (launcher, helper, the game itself).
+        if (rule.isDirectory && !cmd.empty()
+            && (cmd.rfind(rule.canonicalSlash, 0) == 0 || cmd.rfind(rule.rawSlash, 0) == 0)) {
+            return true;
+        }
+
+        // Script-wrapped launchers (e.g. Steam's /usr/bin/steam, a shell script that execs the
+        // real client ELF from the Steam root). /proc/<pid>/exe is never a script path — while
+        // the interpreter runs the script, exe is the interpreter and the script path appears
+        // in argv — so a script entry matches only at that moment, and only when the process's
+        // exe IS the interpreter the script's shebang names and an argv token equals the stored
+        // path. Both halves are required: the interpreter check keeps unrelated programs that
+        // merely mention the path as a data argument (grep, editors) out, and matching on the
+        // full path instead of a basename keeps same-named binaries elsewhere on the system
+        // out. The single match point is sufficient: cgroup membership survives the exec of the
+        // wrapped binary, and every descendant of the launcher (the games it spawns) inherits
+        // it on fork. One consequence is deliberate: a launcher that was already exec'd before
+        // monitoring began cannot be identified anymore and waits for its next launch.
+        if (!rule.scriptInterpreter.empty() && cmd == rule.scriptInterpreter) {
+            if (!argvRead) {
+                argv = readArgv(pid);
+                argvRead = true;
+            }
+            if (argv) {
+                for (const std::string &token : *argv) {
+                    if (token == rule.raw || token == rule.canonical) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        // Wine/Proton games: /proc/<pid>/exe is the wine preloader inside the Proton
+        // install (rendered under /run/host by pressure-vessel), never the game binary,
+        // so neither file nor directory rules can match it.  The game process is
+        // identified through argv[0], which carries the Windows drive-mapped exe path.
+        // Matching deliberately does NOT use the working directory: a shell cd'd into
+        // an excluded directory would pass the exemption to every child it spawns,
+        // letting any executable selectively escape the tunnel.  The exe gate below
+        // mirrors the script-matching discipline: only trust a Windows drive-mapped
+        // argv token when the process exe is actually a wine host binary, so unrelated
+        // programs that merely mention such a path cannot match.
+        if (path_matching::exeLooksLikeWineHost(cmd)) {
+            if (!argvRead) {
+                argv = readArgv(pid);
+                argvRead = true;
+            }
+            if (argv) {
+                const bool sameRulePath = (rule.raw == rule.canonical);
+                for (const std::string &token : *argv) {
+                    if (path_matching::windowsPathMatchesRule(token, rule.canonical, rule.isDirectory)
+                        || (!sameRulePath
+                            && path_matching::windowsPathMatchesRule(token, rule.raw, rule.isDirectory))) {
+                        return true;
+                    }
+                }
             }
         }
     }

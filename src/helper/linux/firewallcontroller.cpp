@@ -338,7 +338,14 @@ std::string FirewallController::buildSplitTunnelRules()
             if (defAdapterValid) {
                 add("st_nat_post", "meta cgroup " + classid + " oifname \"" + defaultAdapter_ + "\" masquerade");
             }
-            add("st_route_out", "meta cgroup " + classid + " meta mark set " + mark);
+            // The egress mark is also saved on the connection, and restored on ingress. "meta cgroup"
+            // alone cannot accept the reply path: skb->sk is only populated on input for
+            // early-demuxed (connected) sockets, and clients that probe many destinations from one
+            // unconnected UDP socket (game server browsers, e.g. Steam SDR pings) never early-demux,
+            // so their replies fell through to the kill-switch drop and every region showed
+            // "ping: failed".
+            add("st_route_out", "meta cgroup " + classid + " meta mark set " + mark + " ct mark set " + mark);
+            add("st_pre_cm", "meta mark set ct mark");
             // Per-IP exceptions + the cgroup accept, in the firewall jump targets so excluded
             // traffic is permitted past the drop policy.
             for (const auto &ip : splitTunnelIps_) {
@@ -355,6 +362,7 @@ std::string FirewallController::buildSplitTunnelRules()
                 }
             }
             add("st_in",  "meta cgroup " + classid + " accept");
+            add("st_in",  "meta mark " + mark + " accept");
             add("st_out", "meta cgroup " + classid + " accept");
         } else {
             // Inclusive: everything NOT in the cgroup bypasses the tunnel. connmark carries the mark
