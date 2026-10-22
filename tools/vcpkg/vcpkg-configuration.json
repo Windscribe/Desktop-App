@@ -9,7 +9,7 @@
       {
         "kind": "git",
         "repository": "https://github.com/Windscribe/ws-vcpkg-registry",
-        "baseline": "c7b5c8312961668cd2f76d83ba10ecb453491813",
+        "baseline": "edf723cad453ea7b49fae62f7f0c3545dea099df",
         "packages": [
           "amneziawg",
           "boost-context",

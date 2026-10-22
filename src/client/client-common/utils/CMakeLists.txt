@@ -32,8 +32,11 @@ target_sources(client-common PRIVATE
     network_utils/network_utils.h
     simplecrypt.cpp
     simplecrypt.h
+    systemwideapplock.cpp
+    systemwideapplock.h
     utils.cpp
     utils.h
+    ws_assert.cpp
     ws_assert.h
 )
 

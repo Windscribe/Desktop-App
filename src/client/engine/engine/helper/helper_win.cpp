@@ -107,14 +107,18 @@ bool Helper_win::executeTaskKill(CmdKillTarget target)
 }
 
 bool Helper_win::executeOpenVPN(const QString &config, const QString &httpProxy, unsigned int httpPort,
-                                const QString &socksProxy, unsigned int socksPort, unsigned int &outPort, unsigned long &outPid)
+                                const QString &socksProxy, unsigned int socksPort, unsigned int &outPort, unsigned long &outPid,
+                                QString &outDetail)
 {
+    outDetail.clear();
     auto result = sendCommand(HelperCommand::executeOpenVPN, config.toStdWString(), httpProxy.toStdWString(), httpPort,
                               socksProxy.toStdWString(), socksPort);
     bool success = false;
     unsigned int port = 0;
     unsigned long pid = 0;
-    deserializeAnswer(result, success, port, pid);
+    std::string detail;
+    deserializeAnswer(result, success, port, pid, detail);
+    outDetail = QString::fromStdString(detail);
     // Only surface the port/pid on success; on failure the helper may still return a non-zero pid
     // (e.g. a process it spawned then killed), which must not be treated as a live OpenVPN.
     if (success) {
@@ -392,19 +396,6 @@ void Helper_win::removeAppNetworkProfiles()
 void Helper_win::setIKEv2IPSecParameters()
 {
     sendCommand(HelperCommand::setIKEv2IPSecParameters);
-}
-
-bool Helper_win::makeHostsFileWritable()
-{
-    auto result = sendCommand(HelperCommand::makeHostsFileWritable);
-    bool success = false;
-    deserializeAnswer(result, success);
-    if (success) {
-        qCInfo(LOG_BASIC) << "\"hosts\" file is writable now.";
-    } else {
-        qCWarning(LOG_BASIC) << "Was not able to change \"hosts\" file permissions from read-only.";
-    }
-    return success;
 }
 
 void Helper_win::setCustomDnsIps(const QStringList &ips)

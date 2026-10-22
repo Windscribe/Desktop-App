@@ -11,6 +11,7 @@ set(SOURCES
     ../../client/client-common/utils/executable_signature/executable_signature.h
     ../common/io_posix.cpp
     ../common/io_posix.h
+    ../common/ovpn_early_exit_log.cpp
     ../common/ovpn_mgmt_posix.cpp
     ../common/ovpn_mgmt_posix.h
     ../common/spawn_posix.cpp

@@ -74,13 +74,22 @@ bool SplitTunneling::updateState()
         }
 
         if (isExclude_) {
-            // Exclude mode: host pins for excluded apps route via the default adapter.
+            // Exclude mode: excluded destinations that the main table already routes around the
+            // tunnel (e.g. a secondary LAN) are left alone; the rest, which would have used the
+            // default route, are pinned via the default adapter.
+            std::vector<std::string> tunnelDevs;
+            for (const auto &dev : {connectStatus_.vpnAdapter.adapterName, connectStatus_.vpnAdapter.adapterNameV6}) {
+                if (!dev.empty()) {
+                    tunnelDevs.push_back(dev);
+                }
+            }
             hostnamesManager_.enable(connectStatus_.defaultAdapter.gatewayIp,
                                      connectStatus_.defaultAdapter.gatewayIpV6,
                                      connectStatus_.defaultAdapter.adapterIp,
                                      connectStatus_.defaultAdapter.adapterIpV6,
                                      connectStatus_.defaultAdapter.adapterName,
-                                     connectStatus_.defaultAdapter.adapterNameV6);
+                                     connectStatus_.defaultAdapter.adapterNameV6,
+                                     tunnelDevs);
         } else {
             // Inclusive mode: host pins for included apps route via the VPN adapter.
             // The adapter IPs are also forwarded so HostnamesManager/IpRoutes can
@@ -92,7 +101,8 @@ bool SplitTunneling::updateState()
                                      connectStatus_.vpnAdapter.adapterIp,
                                      connectStatus_.vpnAdapter.adapterIpV6,
                                      connectStatus_.vpnAdapter.adapterName,
-                                     connectStatus_.vpnAdapter.adapterNameV6);
+                                     connectStatus_.vpnAdapter.adapterNameV6,
+                                     {});
         }
     } else {
         CGroups::instance().disable();

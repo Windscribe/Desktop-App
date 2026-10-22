@@ -586,6 +586,10 @@ Hesabınızı kaybederseniz, sonsuza dek kaybolur ve destek size onu kurtarmaya 
 <context>
     <name>MainWindow</name>
     <message>
+        <source>Windscribe could not update your hosts file, which IKEv2 requires. Another program, such as antivirus or endpoint security software, may be blocking changes to it. Please try again, or use a different connection mode.</source>
+        <translation>Windscribe, IKEv2 için gereken hosts dosyanızı güncelleyemedi. Virüsten koruma veya uç nokta güvenlik yazılımı gibi başka bir program dosyadaki değişiklikleri engelliyor olabilir. Lütfen tekrar deneyin veya farklı bir bağlantı modu kullanın.</translation>
+    </message>
+    <message>
         <source>Split Tunneling Stopped</source>
         <translation>Ayrık tünelleme durduruldu</translation>
     </message>
@@ -808,14 +812,6 @@ Kurtarma...</translation>
     <message>
         <source>Select an application</source>
         <translation>Bir uygulama seçin</translation>
-    </message>
-    <message>
-        <source>Read-Only File</source>
-        <translation>Salt okunur dosya</translation>
-    </message>
-    <message>
-        <source>Your hosts file is read-only. IKEv2 connectivity requires for it to be writable. Fix the issue automatically?</source>
-        <translation>Hosts dosyanız salt okunurdur. IKEv2 bağlantısının yazılabilir olması gerekir. Sorun otomatik olarak çözülsün mü?</translation>
     </message>
     <message>
         <source>The custom configuration could not be loaded.  Please check that it’s correct or contact support.</source>
@@ -2821,6 +2817,10 @@ Yeniden yükleme yardımcı olmazsa, lütfen yardım için Windscribe desteği i
     <message>
         <source>Alternate</source>
         <translation>Alternatif</translation>
+    </message>
+    <message>
+        <source>Windscribe is already running in another user session on this computer. Quit Windscribe in that session, then try again.</source>
+        <translation>Windscribe bu bilgisayarda başka bir kullanıcının oturumunda zaten çalışıyor. Lütfen o oturumda Windscribe&apos;dan çıkın ve tekrar deneyin.</translation>
     </message>
 </context>
 <context>

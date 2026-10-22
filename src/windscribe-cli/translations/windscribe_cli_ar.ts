@@ -179,6 +179,10 @@
         <translation>خطأ: غير قادر على بدء تشغيل خدمة DNS المخصصة</translation>
     </message>
     <message>
+        <source>Error: Could not update the hosts file required by IKEv2</source>
+        <translation>خطأ: تعذّر تحديث ملف hosts المطلوب لـ IKEv2</translation>
+    </message>
+    <message>
         <source>Error: Could not retrieve WireGuard configuration</source>
         <translation>خطأ: تعذر استرداد تكوين WireGuard</translation>
     </message>
@@ -189,6 +193,10 @@
     <message>
         <source>Error: Local DNS server is not available. Connected DNS has been set back to Auto</source>
         <translation>خطأ: خادم DNS المحلي غير متوفر. تم إعادة تعيين DNS المتصل إلى وضع تلقائي</translation>
+    </message>
+    <message>
+        <source>Error: The custom configuration could not be loaded</source>
+        <translation>خطأ: تعذر تحميل التكوين المخصص</translation>
     </message>
     <message>
         <source>Unknown state</source>
@@ -369,6 +377,10 @@
     <message>
         <source>Invalid IP address</source>
         <translation>عنوان IP غير صالح</translation>
+    </message>
+    <message>
+        <source>Windscribe is already running in another user session on this computer. Quit Windscribe in that session, then try again.</source>
+        <translation>يعمل Windscribe بالفعل في جلسة مستخدم آخر على هذا الكمبيوتر. يرجى إنهاء Windscribe في تلك الجلسة، ثم المحاولة مرة أخرى.</translation>
     </message>
 </context>
 </TS>

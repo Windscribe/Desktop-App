@@ -586,6 +586,10 @@ Jika Anda kehilangan hash akun, itu akan hilang selamanya dan dukungan tidak dap
 <context>
     <name>MainWindow</name>
     <message>
+        <source>Windscribe could not update your hosts file, which IKEv2 requires. Another program, such as antivirus or endpoint security software, may be blocking changes to it. Please try again, or use a different connection mode.</source>
+        <translation>Windscribe tidak dapat memperbarui file hosts Anda, yang diperlukan oleh IKEv2. Program lain, seperti antivirus atau perangkat lunak keamanan titik akhir, mungkin memblokir perubahan pada file tersebut. Silakan coba lagi, atau gunakan mode koneksi yang berbeda.</translation>
+    </message>
+    <message>
         <source>Split Tunneling Stopped</source>
         <translation>Terowongan Terpisah Dihentikan</translation>
     </message>
@@ -808,14 +812,6 @@ Memulihkan...</translation>
     <message>
         <source>Select an application</source>
         <translation>Pilih aplikasi</translation>
-    </message>
-    <message>
-        <source>Read-Only File</source>
-        <translation>File baca-saja</translation>
-    </message>
-    <message>
-        <source>Your hosts file is read-only. IKEv2 connectivity requires for it to be writable. Fix the issue automatically?</source>
-        <translation>File host Anda bersifat baca-saja. Konektivitas IKEv2 mengharuskannya dapat ditulis. Memperbaiki masalah secara otomatis?</translation>
     </message>
     <message>
         <source>The custom configuration could not be loaded.  Please check that it’s correct or contact support.</source>
@@ -2821,6 +2817,10 @@ Jika penginstalan ulang tidak membantu, hubungi dukungan Windscribe untuk mendap
     <message>
         <source>Alternate</source>
         <translation>Alternatif</translation>
+    </message>
+    <message>
+        <source>Windscribe is already running in another user session on this computer. Quit Windscribe in that session, then try again.</source>
+        <translation>Windscribe sudah berjalan di sesi pengguna lain di komputer ini. Silakan berhenti dari Windscribe di sesi tersebut, lalu coba lagi.</translation>
     </message>
 </context>
 <context>

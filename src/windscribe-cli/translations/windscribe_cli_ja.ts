@@ -179,6 +179,10 @@
         <translation>エラー:カスタムDNSサービスを開始できません</translation>
     </message>
     <message>
+        <source>Error: Could not update the hosts file required by IKEv2</source>
+        <translation>エラー：IKEv2に必要なhostsファイルを更新できませんでした</translation>
+    </message>
+    <message>
         <source>Error: Could not retrieve WireGuard configuration</source>
         <translation>エラー:WireGuard構成を取得できませんでした</translation>
     </message>
@@ -189,6 +193,10 @@
     <message>
         <source>Error: Local DNS server is not available. Connected DNS has been set back to Auto</source>
         <translation>エラー:ローカルDNSサーバーが利用できません。接続DNSは自動に戻されました</translation>
+    </message>
+    <message>
+        <source>Error: The custom configuration could not be loaded</source>
+        <translation>エラー: カスタム設定を読み込めませんでした</translation>
     </message>
     <message>
         <source>Unknown state</source>
@@ -369,6 +377,10 @@
     <message>
         <source>Invalid IP address</source>
         <translation>無効な IP アドレス</translation>
+    </message>
+    <message>
+        <source>Windscribe is already running in another user session on this computer. Quit Windscribe in that session, then try again.</source>
+        <translation>Windscribeはこのコンピューターの別のユーザーセッションですでに実行されています。そのセッションでWindscribeを終了してから、もう一度お試しください。</translation>
     </message>
 </context>
 </TS>

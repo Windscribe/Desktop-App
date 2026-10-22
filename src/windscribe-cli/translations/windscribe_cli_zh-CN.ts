@@ -179,6 +179,10 @@
         <translation>错误：无法启动自定义 DNS 服务</translation>
     </message>
     <message>
+        <source>Error: Could not update the hosts file required by IKEv2</source>
+        <translation>错误：无法更新 IKEv2 所需的 hosts 文件</translation>
+    </message>
+    <message>
         <source>Error: Could not retrieve WireGuard configuration</source>
         <translation>错误：无法检索 WireGuard 配置</translation>
     </message>
@@ -189,6 +193,10 @@
     <message>
         <source>Error: Local DNS server is not available. Connected DNS has been set back to Auto</source>
         <translation>错误：本地DNS服务器不可用。已连接的DNS被设置回自动</translation>
+    </message>
+    <message>
+        <source>Error: The custom configuration could not be loaded</source>
+        <translation>错误：无法加载自定义配置</translation>
     </message>
     <message>
         <source>Unknown state</source>
@@ -369,6 +377,10 @@
     <message>
         <source>Invalid IP address</source>
         <translation>IP 地址无效</translation>
+    </message>
+    <message>
+        <source>Windscribe is already running in another user session on this computer. Quit Windscribe in that session, then try again.</source>
+        <translation>Windscribe 已在此电脑上另一个用户的会话中运行。请在该会话中退出 Windscribe，然后重试。</translation>
     </message>
 </context>
 </TS>

@@ -3,17 +3,19 @@
 #include <QFileInfo>
 #include <QObject>
 #include <QProcess>
-
 #include <iostream>
 
 #include "backendcommander.h"
 #include "cliarguments.h"
 #include "languagecontroller.h"
+#include "strings.h"
 #include "utils.h"
 #include "utils/languagesutil.h"
 #include "utils/log/logger.h"
 #include "utils/log/paths.h"
+#include "utils/systemwideapplock.h"
 #include "utils/utils.h"
+#include "version/ws_version.h"
 
 #ifdef Q_OS_LINUX
     #include <semaphore.h>
@@ -158,6 +160,13 @@ int main(int argc, char *argv[])
         return 0;
     }
 #endif
+
+    // Before anything is started or prompted for: another user's app holds the helper, and ours would only
+    // quit. Read-only, so it cannot get in the way of an app that is starting up.
+    if (SystemWideAppLock::holder() == SystemWideAppLock::Holder::kOtherUser) {
+        logAndCout(appRunningInAnotherSessionString());
+        return 1;
+    }
 
     // If logging in, prompt for any missing credentials
     if (cliArgs.cliCommand() == CLI_COMMAND_LOGIN) {

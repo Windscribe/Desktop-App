@@ -195,12 +195,27 @@ std::string executeOpenVPN(const std::string &pars, HANDLE clientPipe)
     unsigned int httpPort, socksPort;
     deserializePars(pars, config, httpProxy, httpPort, socksProxy, socksPort);
 
+    // The proxy address must be an IP literal: the GUI restricts it to one (NetworkingValidation::
+    // isIp) and no other path sets it. Validate here too rather than trust the client — an invalid
+    // value is dropped so it can't reach the OpenVPN command line the helper builds. The proxy
+    // arguments are passed after --config, so they aren't otherwise filtered.
+    if (!httpProxy.empty() && !NetworkValidation::isValidIpAddress(httpProxy)) {
+        spdlog::warn(L"executeOpenVPN: invalid httpProxy, ignoring");
+        httpProxy.clear();
+    }
+    if (!socksProxy.empty() && !NetworkValidation::isValidIpAddress(socksProxy)) {
+        spdlog::warn(L"executeOpenVPN: invalid socksProxy, ignoring");
+        socksProxy.clear();
+    }
+
     unsigned int port = 0;
+    std::string detail;
     const auto res = OpenVPNController::instance().runOpenvpn(config, httpProxy, httpPort, socksProxy, socksPort,
-                                                              clientPipe, port);
+                                                              clientPipe, port, detail);
     // Return the OS-assigned management port and the OpenVPN PID so the engine can verify it
-    // connects to the genuine, helper-spawned OpenVPN process.
-    return serializeResult(res.success, port, static_cast<unsigned long>(res.processId));
+    // connects to the genuine, helper-spawned OpenVPN process. detail is set only when OpenVPN
+    // exits before binding that port.
+    return serializeResult(res.success, port, static_cast<unsigned long>(res.processId), detail);
 }
 
 std::string executeTaskKill(const std::string &pars)
@@ -774,12 +789,6 @@ std::string setIKEv2IPSecParameters(const std::string &pars)
     bool success = IKEv2IPSec::setIKEv2IPSecParameters();
     spdlog::debug("setIKEv2IPSecParameters: success = {}", success);
     return std::string();
-}
-
-std::string makeHostsFileWritable(const std::string &pars)
-{
-    bool success = HostsEdit::instance().makeHostsFileWritable();
-    return serializeResult(success);
 }
 
 std::string createOpenVpnAdapter(const std::string &pars)

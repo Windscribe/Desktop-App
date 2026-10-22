@@ -1,14 +1,14 @@
-#import <mach/machine.h>
-#import <sys/types.h>
-#import <sys/sysctl.h>
 #import <Foundation/Foundation.h>
-
 #include <QApplication>
-#include <spdlog/spdlog.h>
+#import <mach/machine.h>
 #include <spdlog/sinks/basic_file_sink.h>
+#include <spdlog/spdlog.h>
+#import <sys/sysctl.h>
+#import <sys/types.h>
 
 #import "mainwindow.h"
 #include "utils/log/spdlog_utils.h"
+#include "version/ws_version.h"
 
 namespace
 {

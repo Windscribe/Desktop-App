@@ -30,6 +30,7 @@ set(SOURCES
     macaddressspoof.cpp
     main.cpp
     network_validation.cpp
+    ../common/ovpn_early_exit_log.cpp
     openvpn/openvpncontroller.cpp
     openvpn/ovpn_msg_channel.cpp
     openvpn/ovpn_msg_parse.cpp
@@ -62,7 +63,7 @@ set(SOURCES
     ../../client/client-common/utils/servicecontrolmanager.cpp
 )
 
-if(CI_MODE)
+if(BUILD_SYMBOLS)
     add_compile_options("$<$<CONFIG:Release>:/Zi>")
     add_link_options("$<$<CONFIG:Release>:/DEBUG>" "$<$<CONFIG:Release>:/OPT:REF>" "$<$<CONFIG:Release>:/OPT:ICF>")
 endif()
@@ -98,6 +99,7 @@ target_link_libraries(${WS_APP_IDENTIFIER}Service
                       ntdll
                       Newdev
                       Shlwapi
+                      Rstrtmgr
                       wevtapi
                       wsnet::wsnet
                       Boost::serialization

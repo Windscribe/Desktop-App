@@ -117,7 +117,6 @@ void Backend::init()
     connect(engine_, &Engine::internetConnectivityChanged, this, &Backend::onEngineInternetConnectivityChanged);
     connect(engine_, &Engine::packetSizeChanged, this, &Backend::onEnginePacketSizeChanged);
     connect(engine_, &Engine::packetSizeDetectionStateChanged, this, &Backend::onEnginePacketSizeDetectionStateChanged);
-    connect(engine_, &Engine::hostsFileBecameWritable, this, &Backend::onEngineHostsFileBecameWritable);
     connect(engine_, &Engine::wireGuardAtKeyLimit, this, &Backend::wireGuardAtKeyLimit);
     connect(engine_, &Engine::protocolStatusChanged, this, &Backend::onEngineProtocolStatusChanged);
     connect(this, &Backend::wireGuardKeyLimitUserResponse, engine_, &Engine::onWireGuardKeyLimitUserResponse);
@@ -560,7 +559,7 @@ void Backend::onEngineMyIpUpdated(const QString &ip, bool isDisconnected)
     emit myIpChanged(ip, isDisconnected);
 }
 
-void Backend::onEngineConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, ConnectError err, const LocationID &locationId)
+void Backend::onEngineConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, ConnectError err, const QString &errorDetail, const LocationID &locationId)
 {
     if (state == CONNECT_STATE_CONNECTING || state == CONNECT_STATE_DISCONNECTING) {
         tunnelTestSuccessful_ = false;
@@ -571,6 +570,7 @@ void Backend::onEngineConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON
     connectState.connectState = state;
     connectState.disconnectReason = reason;
     connectState.connectError = err;
+    connectState.connectErrorDetail = errorDetail;
     connectState.location = locationId;
     connectStateHelper_.setConnectStateFromEngine(connectState);
 }
@@ -764,12 +764,6 @@ void Backend::onEnginePacketSizeDetectionStateChanged(bool on, bool isError)
     emit packetSizeDetectionStateChanged(on, isError);
 }
 
-void Backend::onEngineHostsFileBecameWritable()
-{
-    qCInfo(LOG_BASIC) << "Hosts file became writable -- Connecting..";
-    sendConnect(PersistentState::instance().lastLocation());
-}
-
 void Backend::abortInitialization()
 {
     emit initFinished(INIT_STATE_CLEAN);
@@ -942,13 +936,6 @@ void Backend::sendUpdateVersion(qint64 mainWindowHandle)
 void Backend::cancelUpdateVersion()
 {
     engine_->stopUpdateVersion();
-}
-
-void Backend::sendMakeHostsFilesWritableWin()
-{
-#ifdef Q_OS_WIN
-        engine_->makeHostsFileWritableWin();
-#endif
 }
 
 QString Backend::generateNewFriendlyName()

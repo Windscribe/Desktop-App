@@ -138,7 +138,7 @@ std::string executeOpenVPN(const std::string &pars, uid_t clientUid)
     // The proxy address must be an IP literal: the GUI restricts it to one (NetworkingValidation::
     // isIp) and no other path sets it. Validate here too rather than trust the client — an invalid
     // value is dropped so it can't reach the OpenVPN config the helper writes as root. The proxy
-    // lines are appended after OvpnDirectiveWhitelist::filterConfig, so they aren't otherwise
+    // lines are passed on the OpenVPN command line after --config, so they aren't otherwise
     // filtered. isValidIpAddress also rejects whitespace, subsuming the previous whitespace guard.
     if (!httpProxy.empty() && !Validation::isValidIpAddress(httpProxy)) {
         spdlog::warn("executeOpenVPN: invalid httpProxy, ignoring");
@@ -154,7 +154,7 @@ std::string executeOpenVPN(const std::string &pars, uid_t clientUid)
     // is world-traversable, so fail rather than fall back to a world-connectable socket.
     if (clientUid == (uid_t)-1) {
         spdlog::error("executeOpenVPN: client uid unknown; refusing to start OpenVPN");
-        return serializeResult(false);
+        return serializeResult(false, std::string());
     }
     std::string mgmtClientUser;
     OvpnMgmt::mgmtClientUserForUid(clientUid, mgmtClientUser);
@@ -163,9 +163,10 @@ std::string executeOpenVPN(const std::string &pars, uid_t clientUid)
     // socket and we spawn a new instance.
     OvpnMgmt::killOpenVPN();
 
-    if (!OVPN::writeOVPNFile(std::string(Utils::kHelperBinDir) + "/dns.sh", config, httpProxy, httpPort, socksProxy, socksPort, mgmtClientUser)) {
+    std::vector<std::string> extraArgs;
+    if (!OVPN::writeOVPNFile(std::string(Utils::kHelperBinDir) + "/dns.sh", config, httpProxy, httpPort, socksProxy, socksPort, mgmtClientUser, extraArgs)) {
         spdlog::error("Could not write OpenVPN config");
-        return serializeResult(false);
+        return serializeResult(false, std::string());
     }
 
     const std::string ovpnPath = Utils::getExePath() + "/" WS_PRODUCT_NAME_LOWER "openvpn";
@@ -173,26 +174,34 @@ std::string executeOpenVPN(const std::string &pars, uid_t clientUid)
     ExecutableSignature sigCheck;
     if (!sigCheck.verify(ovpnPath)) {
         spdlog::error("OpenVPN executable signature incorrect: {}", sigCheck.lastError());
-        return serializeResult(false);
+        return serializeResult(false, std::string());
     }
 
     Spawn::Options opts;
     opts.cwd = WS_POSIX_CONFIG_DIR;
-    std::vector<std::string> args = {"--config", WS_POSIX_CONFIG_DIR "/config.ovpn"};
+    // --log before --config. OpenVPN fully parses the file when it sees --config, and a
+    // non-whitelisted directive is fatal. --log is what attaches the file, so it has to be parsed
+    // first or that fatal exits before anything is written. A log directive in the file cannot
+    // replace it: the parser allowlist rejects that name, and the redirect ignores a second --log.
+    // Later arguments still override the file.
+    std::vector<std::string> args = {"--log", OVPN::logPath(),
+                                     "--config", WS_POSIX_CONFIG_DIR "/config.ovpn"};
+    args.insert(args.end(), extraArgs.begin(), extraArgs.end());
     pid_t ovpnPid = 0;
     if (!Spawn::spawnDetached(ovpnPath, args, opts, &ovpnPid)) {
-        return serializeResult(false);
+        return serializeResult(false, std::string());
     }
 
     // The non-root client must be able to connect() to the management socket OpenVPN creates as
     // root. If it never appears or can't be made connectable, this connection is unusable: report
     // failure and kill the OpenVPN we just spawned so the client's retry doesn't leave an orphaned
     // process fighting over the same socket path (mirrors the Windows path).
-    if (!OvpnMgmt::waitAndRelaxPerms(clientUid, ovpnPid)) {
+    std::string detail;
+    if (!OvpnMgmt::waitAndRelaxPerms(clientUid, ovpnPid, OVPN::logPath(), detail)) {
         OvpnMgmt::killOpenVPN();
-        return serializeResult(false);
+        return serializeResult(false, detail);
     }
-    return serializeResult(true);
+    return serializeResult(true, std::string());
 }
 
 std::string executeTaskKill(const std::string &pars)

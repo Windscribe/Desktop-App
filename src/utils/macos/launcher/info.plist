@@ -23,7 +23,7 @@
     <key>LSBackgroundOnly</key>
     <true/>
     <key>LSMinimumSystemVersion</key>
-    <string>13</string>
+    <string>14.4</string>
     <key>NSHumanReadableCopyright</key>
     <string>@WS_COPYRIGHT@</string>
     <key>NSPrincipalClass</key>

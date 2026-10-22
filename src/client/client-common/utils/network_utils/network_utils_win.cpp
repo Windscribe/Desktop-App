@@ -1,6 +1,7 @@
 #include "network_utils_win.h"
 
 #include <atomic>
+#include <utility>
 
 #include <QHostAddress>
 #include <QList>
@@ -143,12 +144,26 @@ static QList<IfTable2Row> getIfTable2()
                             pEntry->InterfaceAndOperStatusFlags.ConnectorPresent,
                             pEntry->InterfaceAndOperStatusFlags.EndPointInterface,
                             pEntry->Type,
-                            !pEntry->InterfaceAndOperStatusFlags.NotMediaConnected);
+                            !pEntry->InterfaceAndOperStatusFlags.NotMediaConnected,
+                            QByteArray(reinterpret_cast<const char *>(pEntry->PermanentPhysicalAddress),
+                                       pEntry->PhysicalAddressLength));
             if2Table.append(row);
         }
     }
 
     FreeMibTable(pIfTable2);
+
+    for (IfTable2Row &row : if2Table) {
+        if (row.connectorPresent || row.permanentAddress.isEmpty()) {
+            continue;
+        }
+        for (const IfTable2Row &other : std::as_const(if2Table)) {
+            if (other.connectorPresent && other.permanentAddress == row.permanentAddress) {
+                row.sharesAddressWithConnectorAdapter = true;
+                break;
+            }
+        }
+    }
 
     return if2Table;
 }
@@ -362,7 +377,27 @@ static bool isRowUsableForAppVpn(const IfTable2Row &row)
         break;
     }
 
-    return row.valid && row.interfaceType != IF_TYPE_PPP && !row.endPointInterface && row.connectorPresent;
+    // A Hyper-V external switch or a network bridge moves the IP to an adapter with no connector of its own, which
+    // carries the permanent address of the physical adapter underneath it.
+    return row.valid && row.interfaceType != IF_TYPE_PPP && !row.endPointInterface
+           && (row.connectorPresent || row.sharesAddressWithConnectorAdapter);
+}
+
+bool NetworkUtils_win::hasPhysicalConnector(int interfaceIndex)
+{
+    return tableRowByIndex(getIfTable2(), interfaceIndex).connectorPresent;
+}
+
+QVector<types::NetworkInterface> NetworkUtils_win::spoofableNetworkInterfaces(const QVector<types::NetworkInterface> &networkInterfaces)
+{
+    QVector<types::NetworkInterface> result;
+    for (const auto &networkInterface : networkInterfaces) {
+        if (types::NetworkInterface::isNoNetworkInterface(networkInterface.interfaceIndex)
+            || hasPhysicalConnector(networkInterface.interfaceIndex)) {
+            result << networkInterface;
+        }
+    }
+    return result;
 }
 
 static IfTable2Row lowestMetricNonVpnIfTableRow()

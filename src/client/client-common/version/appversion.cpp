@@ -2,6 +2,8 @@
 
 #include <QStringList>
 
+#include "version/ws_version.h"
+
 QString AppVersion::version() const
 {
     return version_;

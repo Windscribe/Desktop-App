@@ -174,9 +174,17 @@ def DetectVisualStudioDir(installerPath, legacy=False):
         raise InstallError("Visual Studio is not installed, which is necessary for the build. Please install Visual Studio as indicated in the README and try again.")
 
 
-def GetVisualStudioEnvironment(target_arm64_arch=False):
+def GetVisualStudioEnvironment(target_arm64_arch=False, native_arm64_host=False):
     result = None
-    architecture = "amd64_arm64" if target_arm64_arch else "amd64"
+    # arm64: native ARM64 compiler, used when the PC itself is ARM64.
+    # amd64_arm64: x64 compiler emitting ARM64, used only to cross-compile from x64 hardware.
+    # amd64: x64 compiler and x64 output.
+    if target_arm64_arch and native_arm64_host:
+        architecture = "arm64"
+    elif target_arm64_arch:
+        architecture = "amd64_arm64"
+    else:
+        architecture = "amd64"
     vs_installer_path = "C:\\Program Files (x86)\\Microsoft Visual Studio\\Installer"
     vs_path = DetectVisualStudioDir(vs_installer_path, legacy=False)
 
@@ -185,6 +193,9 @@ def GetVisualStudioEnvironment(target_arm64_arch=False):
         f"{vs_path}\\BuildTools\\VC\\Auxiliary\\Build\\vcvarsall.bat"
     ]:
         if os.path.isfile(batfile):
+            # shell=True is required: cmd /s /c strips the quotes around a quoted batch
+            # path, so a list-form launch cannot find vcvarsall.bat. vcvarsall arm64
+            # selects HostARM64 tools even when this process is x64 under emulation.
             process = subprocess.Popen(
                 "(\"{}\" {}>nul)&&\"{}\" -c \"import os; print(repr(os.environ))\"".format(
                     batfile, architecture, sys.executable), stdout=subprocess.PIPE, shell=True)

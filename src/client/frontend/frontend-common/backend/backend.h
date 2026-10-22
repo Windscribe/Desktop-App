@@ -113,8 +113,6 @@ public:
     void sendUpdateVersion(qint64 mainWindowHandle);
     void cancelUpdateVersion();
 
-    void sendMakeHostsFilesWritableWin();
-
     bool haveAutoLoginCredentials(QString &username, QString &password);
 
     void updateCurrentNetworkInterface();
@@ -147,7 +145,7 @@ private slots:
     void onEngineUpdateDownloaded(const QString &path);
     void onEngineUpdateVersionChanged(uint progressPercent, const UPDATE_VERSION_STATE &state, const UPDATE_VERSION_ERROR &error);
     void onEngineMyIpUpdated(const QString &ip, bool isDisconnected);
-    void onEngineConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, ConnectError err, const LocationID &locationId);
+    void onEngineConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, ConnectError err, const QString &errorDetail, const LocationID &locationId);
     void onEngineStatisticsUpdated(quint64 bytesIn, quint64 bytesOut, bool isTotalBytes);
     void onEngineProtocolPortChanged(const types::Protocol &protocol, const uint port);
     void onEngineRobertFiltersUpdated(bool success, const QVector<api_responses::RobertFilter> &filters);
@@ -189,7 +187,6 @@ private slots:
     void onEngineSendUserWarning(USER_WARNING_TYPE userWarningType);
     void onEnginePacketSizeChanged(const types::EngineSettings &engineSettings);
     void onEnginePacketSizeDetectionStateChanged(bool on, bool isError);
-    void onEngineHostsFileBecameWritable();
     void onEngineConnectingHostnameChanged(const QString &hostname);
     void onEngineBridgeApiAvailabilityChanged(bool isAvailable);
 

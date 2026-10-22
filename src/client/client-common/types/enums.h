@@ -63,7 +63,7 @@ enum class ConnectError {
     kTransientTunnelFailure = 8,        // network-level failure; retrying the attempt makes sense
     kTunnelEstablishmentFailure = 9,    // tunnel never established; the dialed config is suspect
     kVpnServiceSetupFailure = 10,       // OS VPN service/extension plumbing failed
-    kHostsFileNotWritable = 11,         // hosts file locked; user remediation offered
+    kHostsFileNotWritable = 11,         // hosts file could not be updated (IKEv2 on Windows)
     kCustomConfigInvalid = 12,          // custom config unusable
     kConfigFetchFailure = 13,           // server config unavailable from the API
     kLocalConfigGenerationFailure = 14, // config could not be produced locally (e.g. keygen)

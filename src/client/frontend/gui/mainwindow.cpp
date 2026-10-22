@@ -3670,15 +3670,6 @@ void MainWindow::handleDisconnectWithError(const types::ConnectState &connectSta
             qCWarning(LOG_BASIC) << "Best Location not exist or no active nodes, goto disconnected mode";
         }
         return;
-    } else if (connectState.connectError == ConnectError::kHostsFileNotWritable) {
-        GeneralMessageController::instance().showMessage("WARNING_WHITE",
-                                               tr("Read-Only File"),
-                                               tr("Your hosts file is read-only. IKEv2 connectivity requires for it to be writable. Fix the issue automatically?"),
-                                               GeneralMessageController::tr(GeneralMessageController::kYes),
-                                               GeneralMessageController::tr(GeneralMessageController::kNo),
-                                               "",
-                                               [this](bool b) { if (backend_) backend_->sendMakeHostsFilesWritableWin(); });
-        return;
 #ifdef Q_OS_MACOS
     } else if (connectState.connectError == ConnectError::kBlockedByOsPolicy) {
         msg = tr("IKEv2 connectivity is not available in MacOS Lockdown Mode. Please disable Lockdown Mode in System Settings or change your connection settings.");
@@ -3699,6 +3690,9 @@ void MainWindow::handleDisconnectWithError(const types::ConnectState &connectSta
                                                                           selectedLocation_->locationdId().isCustomConfigsLocation());
         }
         msg = tr("The custom configuration could not be loaded.  Please check that it’s correct or contact support.");
+        if (!connectState.connectErrorDetail.isEmpty()) {
+            msg += QString("\n\n") + connectState.connectErrorDetail;
+        }
     } else if (connectState.connectError == ConnectError::kDnsServiceStartFailure) {
         // Couldn't start ctrld.  Is there an existing local DNS service?
         if (NetworkUtils::DnsChecker::checkAvailabilityBlocking()) {
@@ -3751,11 +3745,17 @@ void MainWindow::handleDisconnectWithError(const types::ConnectState &connectSta
                 }
             });
         return;
+    } else if (connectState.connectError == ConnectError::kHostsFileNotWritable) {
+        msg = tr("Windscribe could not update your hosts file, which IKEv2 requires. Another program, such as antivirus or endpoint"
+                 " security software, may be blocking changes to it. Please try again, or use a different connection mode.");
     } else if (connectState.connectError == ConnectError::kOSServiceUnavailable) {
         msg = tr("The Remote Access Connection Manager (RasMan) service is not running and could not be started. This prevents IKEv2 from being used on this PC."
                  " Please try another connection mode or investigate why this core Windows service is unable to start.");
     } else {
         msg = tr("An unexpected error occurred establishing the VPN connection (Error %1).  If this error persists, try using a different protocol or contact support.").arg(static_cast<int>(connectState.connectError));
+        if (!connectState.connectErrorDetail.isEmpty()) {
+            msg += QString("\n\n") + connectState.connectErrorDetail;
+        }
     }
 
     GeneralMessageController::instance().showMessage("ERROR_ICON",

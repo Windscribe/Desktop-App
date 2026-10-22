@@ -1,3 +1,27 @@
+2.25.5 (22/10/2026)
+All:
+   * Improved the app to remove servers from the locations list with the force_disconnect flag set. #1983
+   * Updated the embedded API certificate bundle so it no longer trusts the compromised eMudhra intermediate certificates. wsnet #43
+   * Updated ctrld to 1.5.8. #2039
+   * Updated wsnet to 1.5.43. #2042
+   * Updated cURL to 8.23.0.
+Windows:
+   * Improved hosts file handling for IKEv2 connections, so the app now retries when another program has the file locked. #2024
+   * Improved the app to allow only one running instance per machine. If another signed-in Windows user is already running it, the app now explains why. #2025
+   * Fixed Auto-Connect not triggering when a Hyper-V virtual adapter is the active network interface. #2034
+   * Fixed AmneziaWG connections never completing when the config contains large I1-I5 packets. #2035
+   * Fixed OpenVPN connections failing on some Windows 11 Insider builds because the app could not detect the management port. #2036
+   * Fixed OpenVPN-based protocols failing to connect on PCs where Windows cannot rename network adapters with netsh. #2037
+   * Fixed IKEv2 connections repeatedly showing a false "Read-Only File" hosts file prompt. #2024
+macOS:
+   * Improved security of the OpenVPN daemon. #2017
+   * Fixed split tunneled traffic being blocked by the firewall on a secondary network interface. #2030
+   * Updated minimum macOS version to 14.4.
+Linux:
+   * Improved security of the OpenVPN daemon. #2017
+   * Fixed split tunneled IPs going out through the primary interface instead of their original interface. #2031
+
+
 2.25.4 (13/10/2026)
 All:
    * Updated third-party components from vcpkg to the latest versions for stability and security. #2032

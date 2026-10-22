@@ -25,7 +25,7 @@
     <key>NSHumanReadableCopyright</key>
     <string>@WS_COPYRIGHT@</string>
     <key>LSMinimumSystemVersion</key>
-        <string>13</string>
+        <string>14.4</string>
     <key>SMPrivilegedExecutables</key>
     <dict>
         <key>@WS_MAC_HELPER_BUNDLE_ID@</key>

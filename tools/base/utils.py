@@ -32,6 +32,36 @@ def GetCurrentOS():
     return _OS_CURRENT_NAME
 
 
+def IsWindowsArm64Host():
+    """True when Windows itself is ARM64, including when this process is x64 under emulation.
+
+    PROCESSOR_ARCHITECTURE follows the process, so x64 Python on Windows on Arm reports
+    AMD64. IsWow64Process2 reports the native machine of the OS regardless of the
+    process architecture.
+    """
+    if GetCurrentOS() != CURRENT_OS_WIN:
+        return False
+    import ctypes
+    from ctypes import wintypes
+    IMAGE_FILE_MACHINE_ARM64 = 0xAA64
+    kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+    is_wow64_process2 = getattr(kernel32, "IsWow64Process2", None)
+    if is_wow64_process2 is None:
+        # Windows 10 before 1709 lacks IsWow64Process2 and does not run on ARM64 PCs
+        # that this build supports.
+        return False
+    is_wow64_process2.argtypes = [wintypes.HANDLE, ctypes.POINTER(wintypes.USHORT),
+                                  ctypes.POINTER(wintypes.USHORT)]
+    is_wow64_process2.restype = wintypes.BOOL
+    kernel32.GetCurrentProcess.restype = wintypes.HANDLE
+    process_machine = wintypes.USHORT()
+    native_machine = wintypes.USHORT()
+    if not is_wow64_process2(kernel32.GetCurrentProcess(), ctypes.byref(process_machine),
+                             ctypes.byref(native_machine)):
+        return False
+    return native_machine.value == IMAGE_FILE_MACHINE_ARM64
+
+
 def LoadConfig(filename, loader=yaml.SafeLoader):
     configdata = None
     msg.Verbose("LoadConfig: \"{}\"".format(filename))

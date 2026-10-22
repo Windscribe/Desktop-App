@@ -14,7 +14,7 @@ This application provides secure, private internet access by routing your traffi
 
 **Supported Platforms**:
 - Windows 10/11 (amd64, arm64), Windows Server 2022
-- macOS 13+ (amd64, arm64)
+- macOS 14.4+ (amd64, arm64)
 - Ubuntu 22.04+, Fedora 36+, openSUSE Leap 15.6, Arch, immutable distros (amd64, arm64)
 
 ### Key Features
@@ -327,7 +327,8 @@ From the `tools/` directory:
 # Signed build (requires certificate setup)
 ./build_all --sign --use-local-secrets
 
-# Windows ARM64 build
+# Windows ARM64 cross-compile from x64 hardware. On ARM64 hardware this is the default
+# and the compiler, linker, and vcpkg host tools are the native ARM64 tools.
 ./build_all --arm64
 
 # Linux CLI-only build

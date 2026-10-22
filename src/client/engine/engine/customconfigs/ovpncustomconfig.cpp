@@ -108,20 +108,11 @@ QString OvpnCustomConfig::getOvpnData() const
 // removed "remote" commands are saved in remotes_ (to restore the config with changed hostnames/IPs before connect)
 void OvpnCustomConfig::process()
 {
-#ifdef Q_OS_LINUX
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
-#endif
-
     QFile file(filepath_);
     if (file.open(QIODevice::ReadOnly)) {
         qDebug(LOG_CUSTOM_OVPN) << "Opened:" << Utils::cleanSensitiveInfo(filepath_);
 
         bool bFoundAtLeastOneRemote = false;
-        bool bFoundVerbCommand = false;
-#if defined(Q_OS_MACOS)
-        bool bFoundScriptSecurityCommand = false;
-#endif
         bool bHasValidCipher = false;
         QString currentProtocol{ "udp" };
         QTextStream in(&file);
@@ -143,25 +134,6 @@ void OvpnCustomConfig::process()
                     qDebug(LOG_CUSTOM_OVPN) << "Extracted port:" << openVpnLine.port << " from  remote cmd:" << line;
                 }
                 bFoundAtLeastOneRemote = true;
-                continue;
-            } else if (openVpnLine.type == ParseOvpnConfigLine::OVPN_CMD_VERB) { // verb cmd
-                qDebug(LOG_CUSTOM_OVPN) << "Extracted verb:" << openVpnLine.verb;
-                if (openVpnLine.verb < 3)
-                    openVpnLine.verb = 3;
-
-                ovpnData_ += "verb " + QString::number(openVpnLine.verb) + "\n";
-                bFoundVerbCommand = true;
-                continue;
-            } else if (openVpnLine.type == ParseOvpnConfigLine::OVPN_CMD_SCRIPT_SECURITY) { // script-security cmd
-                qDebug(LOG_CUSTOM_OVPN) << "Extracted script-security:" << openVpnLine.verb;
-#ifdef Q_OS_MACOS
-                // Needed script-security at least 2 on Mac, to allow an "up" command for the DNS
-                // setup script.
-                if (openVpnLine.verb < 2)
-                    openVpnLine.verb = 2;
-                bFoundScriptSecurityCommand = true;
-#endif
-                ovpnData_ += "script-security " + QString::number(openVpnLine.verb) + "\n";
                 continue;
             } else if (openVpnLine.type == ParseOvpnConfigLine::OVPN_CMD_CIPHER) { // cipher cmd
                 qDebug(LOG_CUSTOM_OVPN) << "Extracted cipher:" << openVpnLine.protocol;
@@ -197,17 +169,6 @@ void OvpnCustomConfig::process()
             }
         }
 
-        if (!bFoundVerbCommand) {
-            ovpnData_ += "verb 3\n";
-        }
-#ifdef Q_OS_MACOS
-        // Needed script-security at least 2 on Mac, to allow an "up" command for the DNS setup
-        // script.
-        if (!bFoundScriptSecurityCommand) {
-            ovpnData_ += "script-security 2\n";
-        }
-#endif
-
         // The "BF-CBC" cipher was the default prior to OpenVPN 2.5.
         // To support old configs that used to work in older applications, add a default
         // cipher command when there is no such command in the config.
@@ -240,10 +201,6 @@ void OvpnCustomConfig::process()
         isCorrect_ = false;
         errMessage_ = "Failed to open file";
     }
-
-#ifdef Q_OS_LINUX
-#pragma GCC diagnostic pop
-#endif
 }
 
 } //namespace customconfigs

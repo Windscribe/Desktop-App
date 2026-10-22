@@ -6,41 +6,43 @@
 #include <QPointer>
 #include <spdlog/spdlog.h>
 #include <wsnet/WSNet.h>
-#include "utils/ws_assert.h"
-#include "utils/utils.h"
-#include "version/appversion.h"
-#include "utils/log/categories.h"
-#include "utils/log/mergelog.h"
-#include "utils/log/logger.h"
-#include "utils/dns_utils/dnsserversconfiguration.h"
-#include "utils/dns_utils/dnsutils.h"
-#include "utils/network_utils/dnschecker.h"
-#include "utils/extraconfig.h"
-#include "utils/hardcodedsettings.h"
-#include "utils/networkingvalidation.h"
-#include "utils/executable_signature/executable_signature.h"
+
+#include "api_responses/amneziawgunblockparams.h"
+#include "api_responses/authtoken.h"
+#include "api_responses/controlddevices.h"
+#include "api_responses/debuglog.h"
+#include "api_responses/websession.h"
+#include "apiresources/apiutils.h"
 #include "connectionmanager/attemptstrategy/connectionattemptstrategyfactory.h"
 #include "connectionmanager/attemptstrategy/emergencyconnectionattemptstrategy.h"
 #include "connectionmanager/connectionmanager.h"
 #include "connectionmanager/connectors/connectionfactory.h"
 #include "connectionmanager/connectors/connectionplatformpolicy.h"
-#include "dns/dnsconfigurator.h"
-#include "locationsmodel/customconfiglocationinfo.h"
-#include "wireguardconfig/getwireguardconfig.h"
-#include "proxy/proxyservercontroller.h"
-#include "connectstatecontroller/connectstatecontroller.h"
 #include "connectivitydiagnostic/connectivitydiagnostic.h"
+#include "connectstatecontroller/connectstatecontroller.h"
 #include "crossplatformobjectfactory.h"
-#include "testvpntunnel.h"
-#include "types/global_consts.h"
-#include "api_responses/amneziawgunblockparams.h"
-#include "api_responses/websession.h"
-#include "api_responses/debuglog.h"
-#include "api_responses/authtoken.h"
-#include "api_responses/controlddevices.h"
+#include "dns/dnsconfigurator.h"
 #include "firewall/firewallexceptions.h"
 #include "getdeviceid.h"
-#include "apiresources/apiutils.h"
+#include "locationsmodel/customconfiglocationinfo.h"
+#include "proxy/proxyservercontroller.h"
+#include "testvpntunnel.h"
+#include "types/global_consts.h"
+#include "utils/dns_utils/dnsserversconfiguration.h"
+#include "utils/dns_utils/dnsutils.h"
+#include "utils/executable_signature/executable_signature.h"
+#include "utils/extraconfig.h"
+#include "utils/hardcodedsettings.h"
+#include "utils/log/categories.h"
+#include "utils/log/logger.h"
+#include "utils/log/mergelog.h"
+#include "utils/network_utils/dnschecker.h"
+#include "utils/networkingvalidation.h"
+#include "utils/utils.h"
+#include "utils/ws_assert.h"
+#include "version/appversion.h"
+#include "version/ws_version.h"
+#include "wireguardconfig/getwireguardconfig.h"
 
 #ifdef Q_OS_WIN
     #include <Objbase.h>
@@ -55,14 +57,14 @@
 #elif defined Q_OS_MACOS
     #include "networkdetectionmanager/networkdetectionmanager_mac.h"
     #include "networkdetectionmanager/reachabilityevents.h"
-    #include "splittunnelextension/systemextensions_mac.h"
     #include "splittunnelextension/splittunnelextensionmanager_mac.h"
+    #include "splittunnelextension/systemextensions_mac.h"
+    #include "utils/interfaceutils_mac.h"
     #include "utils/macutils.h"
     #include "utils/network_utils/network_utils_mac.h"
-    #include "utils/interfaceutils_mac.h"
 #elif defined Q_OS_LINUX
-    #include "utils/executable_signature/executablesignature_linux.h"
     #include "utils/dnsscripts_linux.h"
+    #include "utils/executable_signature/executablesignature_linux.h"
     #include "utils/linuxutils.h"
     #include "utils/network_utils/network_utils_linux.h"
 #endif
@@ -564,18 +566,6 @@ void Engine::stopUpdateVersion()
     QMetaObject::invokeMethod(this, "stopUpdateVersionImpl");
 }
 
-void Engine::makeHostsFileWritableWin()
-{
-#ifdef Q_OS_WIN
-    if (helper_->makeHostsFileWritable()) {
-        emit hostsFileBecameWritable();
-    }
-    else {
-        qCCritical(LOG_BASIC) << "Error: was not able to make 'hosts' file writable.";
-    }
-#endif
-}
-
 void Engine::updateCurrentNetworkInterface()
 {
     QMetaObject::invokeMethod(this, "updateCurrentNetworkInterfaceImpl");
@@ -647,7 +637,7 @@ void Engine::initPart2()
 #ifdef Q_OS_MACOS
     macAddrSpoofing.networkInterfaces = InterfaceUtils_mac::instance().currentNetworkInterfaces(true);
 #elif defined Q_OS_WIN
-    macAddrSpoofing.networkInterfaces = NetworkUtils_win::currentNetworkInterfaces(true);
+    macAddrSpoofing.networkInterfaces = NetworkUtils_win::spoofableNetworkInterfaces(NetworkUtils_win::currentNetworkInterfaces(true));
 #elif defined Q_OS_LINUX
     macAddrSpoofing.networkInterfaces = NetworkUtils_linux::currentNetworkInterfaces(true);
 #endif
@@ -1760,7 +1750,7 @@ void Engine::onConnectionManagerReconnecting()
     WSNet::instance()->decoyTraffic()->stop();
 }
 
-void Engine::onConnectionManagerError(ConnectError err, const CurrentConnectionDescr &descr)
+void Engine::onConnectionManagerError(ConnectError err, const CurrentConnectionDescr &descr, const QString &errorDetail)
 {
     testVPNTunnel_->stopTests();
 
@@ -1821,7 +1811,7 @@ void Engine::onConnectionManagerError(ConnectError err, const CurrentConnectionD
         //emit connectError(err);
     }
 
-    connectStateController_->setDisconnectedState(DISCONNECTED_WITH_ERROR, err);
+    connectStateController_->setDisconnectedState(DISCONNECTED_WITH_ERROR, err, errorDetail);
 }
 
 void Engine::onConnectionManagerInternetConnectivityChanged(bool connectivity)
@@ -1845,8 +1835,25 @@ void Engine::onConnectionManagerInterfaceUpdated(const QString &interfaceName)
 #endif
 }
 
-void Engine::onConnectionManagerConnectingToHostname(const QString &hostname, const QString &ip, const QStringList &dnsServers)
+void Engine::onConnectionManagerConnectingToHostname(const QString &hostname, const QString &ip, const QStringList &dnsServers, int nodeId)
 {
+    lastConnectingHostname_ = hostname;
+    lastConnectingNodeId_ = nodeId;
+
+    // The pin names a node the attempt did not take -- selectNodeForAttempt could not find it (it
+    // left the list, drained or otherwise) and fell back to a weighted pick. Left standing, its
+    // address would be reported as this connection's pinned IP and would skip the tunnel test on a
+    // node nothing verified. A pin with no hostname cannot be matched either: an import keeps the IP
+    // when the hostname is invalid. isSubdomainsEqual is false for an empty hostname, so that pin is
+    // dropped here too. The persisted pin is deliberately untouched: the node may come back, and only
+    // this connection's copy is wrong.
+    if (nodeId != 0 && !pinnedNode_.second.isEmpty() &&
+        !Utils::isSubdomainsEqual(pinnedNode_.first, hostname)) {
+        qCInfo(LOG_CONNECTION) << "Pinned node" << pinnedNode_.first
+                               << "is not the node being dialed, dropping the pin for this connection";
+        pinnedNode_ = {};
+    }
+
     emit connectingHostnameChanged(hostname);
     connectStateController_->setConnectingState(locationId_);
 
@@ -1863,6 +1870,17 @@ void Engine::onConnectionManagerConnectingToHostname(const QString &hostname, co
     if (bChanged1 || bChanged2)
     {
         updateFirewallSettings();
+    }
+
+    // The only point where a node picked off a stale snapshot -- selected before the update that
+    // drained it, or re-selected by failover from the same snapshot -- becomes matchable. Posted:
+    // the emitter dials the connector right after this returns, so the stop must not nest into it.
+    if (nodeId != 0 && forceDisconnectNodeIds_.contains(nodeId)) {
+        QMetaObject::invokeMethod(this, [this] {
+            if (!isCleanup_) {
+                evacuateForceDisconnectedNode(forceDisconnectNodeIds_);
+            }
+        }, Qt::QueuedConnection);
     }
 }
 
@@ -2323,7 +2341,7 @@ void Engine::onEmergencyConnectionReconnecting()
     }
 }
 
-void Engine::onEmergencyConnectionError(ConnectError err, const CurrentConnectionDescr & /*descr*/)
+void Engine::onEmergencyConnectionError(ConnectError err, const CurrentConnectionDescr & /*descr*/, const QString & /*errorDetail*/)
 {
     qCDebug(LOG_BASIC) << "Engine::onEmergencyConnectionError(), err =" << static_cast<int>(err);
     // The frontend keys off the dedicated emergency channel, not the error code, so the real
@@ -2758,6 +2776,58 @@ void Engine::updateServerLocations(const api_responses::ServerList &serverLocati
     ApiUtils::mergeWindflixLocations(locations);
     locationsModel_->setApiLocations(locations, staticIps);
     locationsModel_->setCustomConfigLocations(customConfigs_->getConfigs());
+    // After the models, so the reconnect this may start builds its location info from the list that
+    // just went in rather than from the one it is replacing.
+    evacuateForceDisconnectedNode(serverLocations.forceDisconnectNodeIds());
+}
+
+void Engine::evacuateForceDisconnectedNode(const QSet<int> &drainedNodeIds)
+{
+    // Kept for the attempts that name their node only after this update: a node is picked from a
+    // location snapshot taken earlier, so the id checked below is still stale or unset for them.
+    forceDisconnectNodeIds_ = drainedNodeIds;
+
+    // A stop already in flight owns the disconnect that follows: connectClickImpl below would stamp
+    // senderSource "reconnect" over a logout, or turn a disconnect the user asked for into a
+    // reconnect. Logout is included: logoutImpl sets its marker and calls clickDisconnect before it
+    // returns, so isDisconnectInFlight() is already true. Nothing is lost by standing down -- that
+    // stop is not staying on this node either. Checked ahead of the state cleared below, so the
+    // evacuation is never applied by halves.
+    if (drainedNodeIds.isEmpty() || !connectionManager_ || connectionManager_->isDisconnected() ||
+        connectionManager_->isDisconnectInFlight()) {
+        return;
+    }
+
+    // Only API nodes carry the flag, and a static IP's ids come from another endpoint, free to
+    // collide with these. A custom config names no node, so the zero check below covers it.
+    if (connectionManager_->isStaticIpsLocation()) {
+        return;
+    }
+
+    // The node of the attempt in flight, which once connected is the node we are connected to. A
+    // connect attempt counts as well as an established tunnel: it is heading for the same node.
+    // Zero is an attempt that never named one, so there is nothing here to match.
+    if (lastConnectingNodeId_ == 0 || !drainedNodeIds.contains(lastConnectingNodeId_)) {
+        return;
+    }
+
+    qCInfo(LOG_CONNECTION) << "Node" << lastConnectingNodeId_ << lastConnectingHostname_
+                           << "is marked force-disconnect, reconnecting to another node";
+
+    // A pin naming the drained node cannot be honoured -- the node is gone from the list, so the
+    // reconnect lands elsewhere. Left in place, its address would be reported as the new node's
+    // pinned IP and would skip the tunnel test on a node nothing verified. The pin is a hostname
+    // and IP, so the hostname is what matches the drained node.
+    if (!pinnedNode_.first.isEmpty() &&
+        Utils::isSubdomainsEqual(pinnedNode_.first, lastConnectingHostname_)) {
+        pinnedNode_ = {};
+    }
+
+    // Nothing live to match until the redial names its own node, and the connection is not disconnected
+    // meanwhile: left set, an update landing in that window would evacuate again and kill the redial.
+    lastConnectingNodeId_ = 0;
+
+    connectClickImpl(locationId_, connectionSettingsOverride_, pinnedNode_);
 }
 
 bool Engine::isApiAccessBlockedByAlwaysOnPlusFirewall() const
@@ -3018,7 +3088,7 @@ void Engine::stopPacketDetectionImpl()
     packetSizeController_->earlyStop();
 }
 
-void Engine::onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON /*reason*/, ConnectError /*err*/, const LocationID &lid)
+void Engine::onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON /*reason*/, ConnectError /*err*/, const QString & /*errorDetail*/, const LocationID &lid)
 {
     // The rotated address is only worth waiting for while the connection that produced it lasts. This
     // also covers the tunnel test failing into a reconnect, which reports no result at all.
@@ -3171,6 +3241,11 @@ void Engine::onConnectionManagerConnectionEnded()
 {
     connId_.clear();
     emit connectionIdChanged(connId_);
+
+    // Every session end funnels through here -- the disconnect handler, an error stop and sleep alike.
+    // Left set, an update naming this node would evacuate the next attempt, which has not named its
+    // own node yet, and on sleep would redial from a session the sleep path already tore down.
+    lastConnectingNodeId_ = 0;
 }
 
 #ifdef Q_OS_MACOS

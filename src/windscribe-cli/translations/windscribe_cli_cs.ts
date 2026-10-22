@@ -179,6 +179,10 @@
         <translation>Chyba: Nelze spustit vlastní službu DNS</translation>
     </message>
     <message>
+        <source>Error: Could not update the hosts file required by IKEv2</source>
+        <translation>Chyba: Nelze aktualizovat soubor hosts vyžadovaný protokolem IKEv2</translation>
+    </message>
+    <message>
         <source>Error: Could not retrieve WireGuard configuration</source>
         <translation>Chyba: Nelze načíst konfiguraci WireGuard.</translation>
     </message>
@@ -189,6 +193,10 @@
     <message>
         <source>Error: Local DNS server is not available. Connected DNS has been set back to Auto</source>
         <translation>Chyba: Místní DNS server není dostupný. Připojené DNS bylo opět nastaveno na Auto</translation>
+    </message>
+    <message>
+        <source>Error: The custom configuration could not be loaded</source>
+        <translation>Chyba: Vlastní konfiguraci se nepodařilo načíst</translation>
     </message>
     <message>
         <source>Unknown state</source>
@@ -369,6 +377,10 @@
     <message>
         <source>Invalid IP address</source>
         <translation>Neplatná adresa IP</translation>
+    </message>
+    <message>
+        <source>Windscribe is already running in another user session on this computer. Quit Windscribe in that session, then try again.</source>
+        <translation>Aplikace Windscribe již běží v relaci jiného uživatele na tomto počítači. Ukončete aplikaci Windscribe v dané relaci a zkuste to prosím znovu.</translation>
     </message>
 </context>
 </TS>

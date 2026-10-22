@@ -95,6 +95,7 @@ CurrentConnectionDescr TestConnectionManager::makeIkev2Descr()
     CurrentConnectionDescr d;
     d.connectionNodeType = CONNECTION_NODE_DEFAULT;
     d.protocol = types::Protocol::IKEV2;
+    d.nodeId = 101;
     d.ip = "10.0.0.2";
     d.hostname = "ikev2.example.com";
     d.port = 500;
@@ -199,6 +200,8 @@ void TestConnectionManager::testHappyPathConnect()
     QCOMPARE(hostnameSpy.at(0).at(1).toString(), QString("10.0.0.2"));
     // No connector-carried tunnel DNS (non-WireGuard): the firewall whitelist gets an empty list.
     QCOMPARE(hostnameSpy.at(0).at(2).toStringList(), QStringList());
+    // The identity of the node this attempt dials, straight from the descr.
+    QCOMPARE(hostnameSpy.at(0).at(3).toInt(), 101);
     QCOMPARE(conn->startConnectCount(), 1);
     QVERIFY(!cm_->isStaticIpsLocation());
     QVERIFY(!cm_->connectingTimer_.isActive());
@@ -371,6 +374,27 @@ void TestConnectionManager::testErrorClassificationImmediateStop()
     QCOMPARE(cm_->state_, ConnectionManager::State::kDisconnected);
 }
 
+void TestConnectionManager::testErrorDetailReachesErrorDuringConnection()
+{
+    FakeConnection *conn = startConnecting();
+    QVERIFY(conn);
+
+    QSignalSpy errorSpy(cm_, &ConnectionManager::errorDuringConnection);
+    const QString detail = "Windscribe: directive not permitted in config: up (config.ovpn:12)";
+    conn->driveError(ConnectError::kCustomConfigInvalid, detail);
+
+    QTRY_COMPARE(errorSpy.count(), 1);
+    QCOMPARE(errorSpy.at(0).at(2).toString(), detail);
+
+    // A later error with no daemon text must not reuse the line the connector already handed over.
+    FakeConnection *next = startConnecting();
+    QVERIFY(next);
+    QSignalSpy nextSpy(cm_, &ConnectionManager::errorDuringConnection);
+    next->driveError(ConnectError::kLocalProcessLaunchFailure);
+    QTRY_COMPARE(nextSpy.count(), 1);
+    QVERIFY(nextSpy.at(0).at(2).toString().isEmpty());
+}
+
 void TestConnectionManager::testAuthErrorRetryableWhenNotEmit()
 {
     FakeConnection *conn = connectIkev2();
@@ -501,7 +525,9 @@ void TestConnectionManager::testClassifyConnectErrorMatrix()
     QCOMPARE(classifyConnectError(ConnectError::kNoError, true, false, false), C::Unknown);
     QCOMPARE(classifyConnectError(ConnectError::kLocationUnavailable, true, false, false), C::Unknown);
     QCOMPARE(classifyConnectError(ConnectError::kAccountBlocked, true, false, false), C::Unknown);
-    QCOMPARE(classifyConnectError(ConnectError::kCustomConfigInvalid, true, false, false), C::Unknown);
+    // A daemon-rejected custom config stops immediately in both modes. The dialog shows the fatal line.
+    QCOMPARE(classifyConnectError(ConnectError::kCustomConfigInvalid, true, false, false), C::ErrorImmediately);
+    QCOMPARE(classifyConnectError(ConnectError::kCustomConfigInvalid, false, false, true), C::ErrorImmediately);
     QCOMPARE(classifyConnectError(ConnectError::kLocalConfigGenerationFailure, true, false, false), C::Unknown);
     QCOMPARE(classifyConnectError(ConnectError::kDnsServiceStartFailure, true, false, false), C::Unknown);
     QCOMPARE(classifyConnectError(ConnectError::kBlockedByOsPolicy, true, false, false), C::Unknown);
@@ -3354,8 +3380,9 @@ void TestConnectionManager::testUnknownClassificationIsInert()
     QSignalSpy reconnectingSpy(cm_, &ConnectionManager::reconnecting);
     QSignalSpy errorSpy(cm_, &ConnectionManager::errorDuringConnection);
     // A prepare-phase code misrouted through the runtime error signal has no classification and must
-    // not hijack the live attempt.
-    conn->driveError(ConnectError::kCustomConfigInvalid);
+    // not hijack the live attempt. kCustomConfigInvalid is classified: the OpenVPN connector emits
+    // it at runtime when the daemon rejects a custom config.
+    conn->driveError(ConnectError::kConfigFetchFailure);
 
     QTest::qWait(10);
     QCOMPARE(cm_->state_, ConnectionManager::State::kConnecting);

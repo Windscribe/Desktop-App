@@ -32,6 +32,25 @@ bool isRouteAlreadyAbsent(const std::string &output)
         || output.find("Cannot find") != std::string::npos;
 }
 
+// Remove one exact pin that is not in activeRoutes_ (helper restarted, or a proto-boot pin from
+// before pins were tagged). `proto` keeps the delete off a kernel connected route for the same dst.
+void deleteExactPin(const types::IpAddressRange &dst, const std::string &dev, const std::string &protocol)
+{
+    const std::string dstStr = dst.toString();
+    const std::string desc = "ip route del " + dstStr + " dev " + dev + " proto " + protocol;
+    spdlog::info("cmd: {}", desc);
+    std::string output;
+    const int rc = runIpCmd({"route", "del", dstStr, "dev", dev, "proto", protocol}, &output);
+    if (rc == 0) {
+        return;
+    }
+    if (isRouteAlreadyAbsent(output)) {
+        spdlog::debug("{} skipped: route already absent ({})", desc, output);
+        return;
+    }
+    spdlog::error("{} failed (rc={}): {}", desc, rc, output);
+}
+
 // Build the argv + human-readable description for `ip route {add,del} …`.
 //
 // The kernel rejects v6 routes whose nexthop has different scope (link-local v6
@@ -86,6 +105,7 @@ void IpRoutes::setIps(const types::IpAddress &gatewayV4,
                       const types::IpAddress &adapterIpV6,
                       const std::string &adapterName,
                       const std::string &adapterNameV6,
+                      const std::vector<std::string> &tunnelDevs,
                       const std::vector<types::IpAddressRange> &ips)
 {
     std::lock_guard<std::recursive_mutex> guard(mutex_);
@@ -94,6 +114,13 @@ void IpRoutes::setIps(const types::IpAddress &gatewayV4,
     // the v4 default on a multi-homed host; an empty adapterNameV6 means "same as v4".
     const std::string &ifaceV4 = adapterName;
     const std::string &ifaceV6 = adapterNameV6.empty() ? adapterName : adapterNameV6;
+    std::vector<std::string> pinDevs;
+    if (!ifaceV4.empty()) {
+        pinDevs.push_back(ifaceV4);
+    }
+    if (!ifaceV6.empty() && ifaceV6 != ifaceV4) {
+        pinDevs.push_back(ifaceV6);
+    }
 
     // Deduplicate input and drop any invalid entries up front.
     std::set<types::IpAddressRange> ipsSet;
@@ -103,7 +130,54 @@ void IpRoutes::setIps(const types::IpAddress &gatewayV4,
         }
     }
 
-    // Drop negative-cache entries for destinations no longer requested so the cache
+    // Exclude mode: leave out the destinations the main table already routes around the tunnel
+    // (see MainRouteTable); from here on ipsSet holds only the destinations to pin, so the pin of one
+    // that became covered is removed below. If a family's table can't be read, its destinations are
+    // all pinned as before rather than guessed about.
+    std::set<types::IpAddressRange> covered;
+    if (!tunnelDevs.empty()) {
+        MainRouteTable mainTable;
+        mainTable.load();
+        const std::string ownProtocol = std::to_string(kRouteProtocol);
+        for (auto it = ipsSet.begin(); it != ipsSet.end();) {
+            if (mainTable.isLoaded(it->family()) && mainTable.hasSpecificRoute(*it, tunnelDevs, ownProtocol, pinDevs)) {
+                if (coveredDestinations_.find(*it) == coveredDestinations_.end()) {
+                    spdlog::info("IpRoutes::setIps(), {} is covered by a specific route in the main table, not pinning it",
+                                 it->toString());
+                }
+                // Tracked pins are deleted by the loop below. One that survived a helper restart is
+                // not tracked; proto boot (the old pin) is not proto kRouteProtocol either. Left in
+                // the kernel it is more specific than the system route and keeps misrouting.
+                if (activeRoutes_.find(*it) == activeRoutes_.end()) {
+                    for (const auto &pin : mainTable.exactPins(*it, pinDevs, ownProtocol)) {
+                        spdlog::info("IpRoutes::setIps(), removing stale pin for {} dev {} proto {}",
+                                     it->toString(), pin.dev, pin.protocol);
+                        deleteExactPin(*it, pin.dev, pin.protocol);
+                    }
+                }
+                covered.insert(*it);
+                it = ipsSet.erase(it);
+            } else {
+                ++it;
+            }
+        }
+
+        // The kernel removes a device's routes when it goes down, our pins included; forget such
+        // pins so the add loop below reinstalls them instead of trusting stale tracking.
+        for (auto it = activeRoutes_.begin(); it != activeRoutes_.end();) {
+            if (mainTable.isLoaded(it->first.family()) && ipsSet.find(it->first) != ipsSet.end()
+                && !mainTable.hasOwnRoute(it->first, ownProtocol)) {
+                spdlog::info("IpRoutes::setIps(), pin for {} is gone from the main table, reinstalling",
+                             it->first.toString());
+                it = activeRoutes_.erase(it);
+            } else {
+                ++it;
+            }
+        }
+    }
+    coveredDestinations_ = std::move(covered);
+
+    // Drop negative-cache entries for destinations no longer requested (or now covered) so the cache
     // doesn't accumulate across DNS changes; a re-requested destination will be retried.
     for (auto it = failedRoutes_.begin(); it != failedRoutes_.end();) {
         if (ipsSet.find(it->first) == ipsSet.end()) {
@@ -216,6 +290,7 @@ void IpRoutes::clear()
     std::lock_guard<std::recursive_mutex> guard(mutex_);
     // The negative cache only tracks add attempts; nothing to tear down for it.
     failedRoutes_.clear();
+    coveredDestinations_.clear();
     // Keep entries whose `del` failed (transient: iface already torn down, route mutated
     // by NetworkManager, …) so the next clear()/setIps() retries them instead of leaving
     // a live but untracked kernel route behind.
@@ -228,6 +303,12 @@ void IpRoutes::clear()
     }
 }
 
+void IpRoutes::retryFailed()
+{
+    std::lock_guard<std::recursive_mutex> guard(mutex_);
+    failedRoutes_.clear();
+}
+
 bool IpRoutes::addRoute(const RouteDescr &rd)
 {
     // `ip route replace` autodetects family from the destination literal, so the same
@@ -238,6 +319,11 @@ bool IpRoutes::addRoute(const RouteDescr &rd)
     const std::string dst = rd.ip.toString();
     const std::string via = rd.defaultRouteIp.toString();
     auto cmd = buildRouteArgs("replace", dst, via, rd.interfaceName, rd.gatewayIsLocal);
+    // Tag the pin so MainRouteTable can tell it from the system's routes. `del` matches without it.
+    const std::string protocol = std::to_string(kRouteProtocol);
+    cmd.first.push_back("proto");
+    cmd.first.push_back(protocol);
+    cmd.second += " proto " + protocol;
     spdlog::info("cmd: {}", cmd.second);
     std::string output;
     int rc = runIpCmd(cmd.first, &output);

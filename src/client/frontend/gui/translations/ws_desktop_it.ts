@@ -586,6 +586,10 @@ Se perdi l&apos;hash dell&apos;account, è sparito per sempre e il supporto non 
 <context>
     <name>MainWindow</name>
     <message>
+        <source>Windscribe could not update your hosts file, which IKEv2 requires. Another program, such as antivirus or endpoint security software, may be blocking changes to it. Please try again, or use a different connection mode.</source>
+        <translation>Windscribe non è riuscito ad aggiornare il file hosts, necessario per IKEv2. Un altro programma, come un antivirus o un software di sicurezza degli endpoint, potrebbe bloccarne le modifiche. Riprova oppure utilizza una modalità di connessione diversa.</translation>
+    </message>
+    <message>
         <source>Split Tunneling Stopped</source>
         <translation>Split tunneling arrestato</translation>
     </message>
@@ -808,14 +812,6 @@ Recupero...</translation>
     <message>
         <source>Select an application</source>
         <translation>Seleziona un&apos;applicazione</translation>
-    </message>
-    <message>
-        <source>Read-Only File</source>
-        <translation>File di sola lettura</translation>
-    </message>
-    <message>
-        <source>Your hosts file is read-only. IKEv2 connectivity requires for it to be writable. Fix the issue automatically?</source>
-        <translation>Il file hosts è di sola lettura. La connettività IKEv2 richiede che sia scrivibile. Risolvi il problema automaticamente?</translation>
     </message>
     <message>
         <source>The custom configuration could not be loaded.  Please check that it’s correct or contact support.</source>
@@ -2821,6 +2817,10 @@ Se la reinstallazione non risolve il problema, contattare il supporto Windscribe
     <message>
         <source>Alternate</source>
         <translation>Alternativa</translation>
+    </message>
+    <message>
+        <source>Windscribe is already running in another user session on this computer. Quit Windscribe in that session, then try again.</source>
+        <translation>Windscribe è già in esecuzione nella sessione di un altro utente su questo computer. Esci da Windscribe in quella sessione, quindi riprova.</translation>
     </message>
 </context>
 <context>

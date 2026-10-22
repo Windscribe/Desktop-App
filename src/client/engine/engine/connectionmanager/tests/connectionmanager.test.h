@@ -43,6 +43,7 @@ private slots:
     void testErrorClassificationAuthErrorFatalWhenEmit();
     void testProcessNotRespondingSettlesViaForcedDisconnect();
     void testErrorClassificationImmediateStop();
+    void testErrorDetailReachesErrorDuringConnection();
     void testAuthErrorRetryableWhenNotEmit();
     void testManualModeWireGuardErrorIsFatal();
     void testAutomaticModeWireGuardErrorIsRetryable();

@@ -179,6 +179,10 @@
         <translation>Памылка: не ўдалося запусьціць уласную службу DNS</translation>
     </message>
     <message>
+        <source>Error: Could not update the hosts file required by IKEv2</source>
+        <translation>Памылка: не ўдалося абнавіць файл hosts, патрэбны для IKEv2</translation>
+    </message>
+    <message>
         <source>Error: Could not retrieve WireGuard configuration</source>
         <translation>Памылка: не ўдалося атрымаць канфіґурацыю WireGuard</translation>
     </message>
@@ -189,6 +193,10 @@
     <message>
         <source>Error: Local DNS server is not available. Connected DNS has been set back to Auto</source>
         <translation>Памылка: лякальны DNS-сэрвэр недасяжны. Падлучаны DNS-сэрвэр быў зноў усталяваны ў рэжым &quot;Аўта&quot;</translation>
+    </message>
+    <message>
+        <source>Error: The custom configuration could not be loaded</source>
+        <translation>Памылка: не ўдалося загрузіць уласную канфіґурацыю</translation>
     </message>
     <message>
         <source>Unknown state</source>
@@ -369,6 +377,10 @@
     <message>
         <source>Invalid IP address</source>
         <translation>Некарэктны IP-адрас</translation>
+    </message>
+    <message>
+        <source>Windscribe is already running in another user session on this computer. Quit Windscribe in that session, then try again.</source>
+        <translation>Windscribe ужо працуе ў сесіі іншага карыстальніка на гэтым камп’ютары. Выйдзіце з Windscribe у той сесіі і паспрабуйце яшчэ раз.</translation>
     </message>
 </context>
 </TS>

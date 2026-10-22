@@ -20,5 +20,5 @@ public:
     virtual const LocationID& locationId() = 0;
 
 signals:
-    void stateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, ConnectError err, const LocationID &location);
+    void stateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, ConnectError err, const QString &errorDetail, const LocationID &location);
 };

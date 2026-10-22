@@ -6,6 +6,7 @@
 
 #include "dns_resolver.h"
 #include "ip_routes.h"
+#include "route_change_monitor.h"
 #include "types/ipaddress.h"
 
 class HostnamesManager
@@ -31,12 +32,16 @@ public:
     // different NIC than the v4 default (multi-homed host). Empty means "same as
     // adapterName"; IpRoutes falls back accordingly so single-homed/VPN cases are
     // unchanged.
+    //
+    // tunnelDevs — exclude mode: the VPN interface(s), see IpRoutes::setIps(). While set, the pins
+    // are re-evaluated whenever the main table changes. Empty in inclusive mode.
     void enable(const types::IpAddress &gatewayIp,
                 const types::IpAddress &gatewayIpV6,
                 const types::IpAddress &adapterIp,
                 const types::IpAddress &adapterIpV6,
                 const std::string &adapterName,
-                const std::string &adapterNameV6);
+                const std::string &adapterNameV6,
+                const std::vector<std::string> &tunnelDevs);
     void disable();
 
     // Dual-stack: ips holds IPv4 and/or IPv6 ranges; family is dispatched by isV4()/isV6().
@@ -60,6 +65,15 @@ private:
     types::IpAddress adapterIpV6_;
     std::string adapterName_;
     std::string adapterNameV6_;
+    std::vector<std::string> tunnelDevs_;
+
+    // The full destination list last handed to IpRoutes (configured ranges plus resolved
+    // hostnames), re-applied when the main table changes.
+    std::vector<types::IpAddressRange> currentIps_;
+
+    // Declared last so it is destroyed (and its thread joined) before the state its callback uses.
+    RouteChangeMonitor routeChangeMonitor_;
 
     void dnsResolverCallback(std::map<std::string, DnsResolver::HostInfo> hostInfos);
+    void onRoutesChanged();
 };

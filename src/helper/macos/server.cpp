@@ -163,6 +163,12 @@ void Server::run()
                      "from a non-root user", vendorParent);
     }
 
+    // Every user's app locks this file while it runs, so a second user's app quits instead of taking
+    // over the helper. Writable by all because every user's app must be able to take the lock.
+    if (!IO::ensureRootOwnedFile(WS_MAC_APP_LOCK_FILE, 0666)) {
+        spdlog::error("Failed to create " WS_MAC_APP_LOCK_FILE ": {}", IO::strerror(errno));
+    }
+
     std::error_code ec;
     {
         Utils::UmaskGuard guard(022);

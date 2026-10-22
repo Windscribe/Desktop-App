@@ -24,7 +24,7 @@ set(SOURCES
     ../../../client/client-common/utils/servicecontrolmanager.cpp
 )
 
-if(CI_MODE)
+if(BUILD_SYMBOLS)
     add_compile_options("$<$<CONFIG:Release>:/Zi>")
     add_link_options("$<$<CONFIG:Release>:/DEBUG>" "$<$<CONFIG:Release>:/OPT:REF>" "$<$<CONFIG:Release>:/OPT:ICF>")
 endif()

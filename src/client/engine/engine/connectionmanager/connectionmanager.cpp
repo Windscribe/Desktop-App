@@ -317,7 +317,7 @@ void ConnectionManager::onConnectionDisconnected()
         case State::kStopping:
             disconnect();
             if (pendingOutcome_.type == PendingOutcome::Type::Error) {
-                emit errorDuringConnection(pendingOutcome_.error, currentConnectionDescr_);
+                emit errorDuringConnection(pendingOutcome_.error, currentConnectionDescr_, pendingOutcome_.errorDetail);
             } else {
                 if (pendingOutcome_.isUserInitiated) {
                     attemptStrategy_->reset();
@@ -458,13 +458,16 @@ void ConnectionManager::onConnectionError(ConnectError err)
 
     qCInfo(LOG_CONNECTION) << "ConnectionManager::onConnectionError(), state_ =" << state_ << ", error =" << (int)err;
 
+    // Take it before any path that retires the connector. Empty for errors with no daemon text.
+    const QString errorDetail = connector_ ? connector_->takeConnectErrorDetail() : QString();
+
     clearCachedConfigIfExhausted(err == ConnectError::kTunnelEstablishmentFailure);
 
     switch (classifyConnectError(err, attemptStrategy_->isAutomaticMode(), lastRequest_.bEmitAuthError,
                                  attemptStrategy_->shouldRetryOnAttemptFailure())) {
         case ConnectErrorClassification::ErrorAfterDisconnect:
             // emit error in disconnected event
-            stopWithError(err);
+            stopWithError(err, errorDetail);
             // for ConnectError::kAuthFailure signal disconnected will be emitted automatically; other
             // emitters can be settled already and never emit it, wedging kStopping — force the teardown
             // (startDisconnect() on a settled connector emits disconnected() immediately).
@@ -475,7 +478,7 @@ void ConnectionManager::onConnectionError(ConnectError err)
         case ConnectErrorClassification::ErrorImmediately:
             // immediately stop trying to connect
             disconnect();
-            emit errorDuringConnection(err, currentConnectionDescr_);
+            emit errorDuringConnection(err, currentConnectionDescr_, errorDetail);
             break;
         case ConnectErrorClassification::Retry:
             // bIgnoreConnectionErrors_ prevents handling multiple error messages from the connector
@@ -864,9 +867,10 @@ void ConnectionManager::onConnectionPrepared()
     const QString tunnelDns = connector_->tunnelDefaultDns();
     if (!tunnelDns.isNull()) {
         emit connectingToHostname(connector_->effectiveHostname(), connector_->effectiveIp(),
-                                  dnsConfigurator_->tunnelDnsServers(tunnelDns));
+                                  dnsConfigurator_->tunnelDnsServers(tunnelDns), currentConnectionDescr_.nodeId);
     } else {
-        emit connectingToHostname(connector_->effectiveHostname(), connector_->effectiveIp(), QStringList());
+        emit connectingToHostname(connector_->effectiveHostname(), connector_->effectiveIp(), QStringList(),
+                                  currentConnectionDescr_.nodeId);
     }
 
     connector_->startConnect();
@@ -1216,10 +1220,11 @@ void ConnectionManager::stopWithDisconnect(DISCONNECT_REASON reason, bool isUser
     enterStopping();
 }
 
-void ConnectionManager::stopWithError(ConnectError err)
+void ConnectionManager::stopWithError(ConnectError err, const QString &errorDetail)
 {
     pendingOutcome_.type = PendingOutcome::Type::Error;
     pendingOutcome_.error = err;
+    pendingOutcome_.errorDetail = errorDetail;
     pendingOutcome_.isUserInitiated = false;
     enterStopping();
 }
@@ -1231,7 +1236,7 @@ void ConnectionManager::failWithError(ConnectError err)
         SAFE_DELETE_LATER(connector_);
     }
     disconnect();
-    emit errorDuringConnection(err, currentConnectionDescr_);
+    emit errorDuringConnection(err, currentConnectionDescr_, QString());
 }
 
 void ConnectionManager::disconnect()

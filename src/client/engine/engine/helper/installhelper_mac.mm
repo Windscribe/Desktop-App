@@ -1,8 +1,10 @@
 #include "installhelper_mac.h"
 
 #import <Foundation/Foundation.h>
-#import <ServiceManagement/ServiceManagement.h>
 #import <Security/Authorization.h>
+#import <ServiceManagement/ServiceManagement.h>
+
+#include "version/ws_version.h"
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"

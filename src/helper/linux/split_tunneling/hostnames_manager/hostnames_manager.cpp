@@ -4,12 +4,14 @@
 #include "../../firewallcontroller.h"
 
 HostnamesManager::HostnamesManager(): isEnabled_(false),
-    dnsResolver_(std::bind(&HostnamesManager::dnsResolverCallback, this, std::placeholders::_1))
+    dnsResolver_(std::bind(&HostnamesManager::dnsResolverCallback, this, std::placeholders::_1)),
+    routeChangeMonitor_(std::bind(&HostnamesManager::onRoutesChanged, this), IpRoutes::kRouteProtocol)
 {
 }
 
 HostnamesManager::~HostnamesManager()
 {
+    routeChangeMonitor_.stop();
 }
 
 void HostnamesManager::enable(const types::IpAddress &gatewayIp,
@@ -17,7 +19,8 @@ void HostnamesManager::enable(const types::IpAddress &gatewayIp,
                               const types::IpAddress &adapterIp,
                               const types::IpAddress &adapterIpV6,
                               const std::string &adapterName,
-                              const std::string &adapterNameV6)
+                              const std::string &adapterNameV6,
+                              const std::vector<std::string> &tunnelDevs)
 {
     {
         std::lock_guard<std::recursive_mutex> guard(mutex_);
@@ -28,12 +31,23 @@ void HostnamesManager::enable(const types::IpAddress &gatewayIp,
         adapterIpV6_ = adapterIpV6;
         adapterName_ = adapterName;
         adapterNameV6_ = adapterNameV6;
+        tunnelDevs_ = tunnelDevs;
+        currentIps_ = ipsLatest_;
         ipRoutes_.clear();
-        ipRoutes_.setIps(gatewayIp_, gatewayIpV6_, adapterIp_, adapterIpV6_, adapterName_, adapterNameV6_, ipsLatest_);
+        ipRoutes_.setIps(gatewayIp_, gatewayIpV6_, adapterIp_, adapterIpV6_, adapterName_, adapterNameV6_,
+                         tunnelDevs_, currentIps_);
         // Connect path: setSplitTunnelingEnabled() (and the resolveDomains callback below) apply right
         // after, so defer to avoid a wasted intermediate transaction.
         FirewallController::instance().setSplitTunnelIpExceptions(ipsLatest_, /*applyNow=*/false);
         isEnabled_ = true;
+    }
+
+    // Outside the lock: stop() joins the monitor thread, whose callback takes it. Only exclude mode
+    // depends on the main table; inclusive pins go into the tunnel whatever it says.
+    if (!tunnelDevs.empty()) {
+        routeChangeMonitor_.start();
+    } else {
+        routeChangeMonitor_.stop();
     }
 
     dnsResolver_.cancelAll();
@@ -51,6 +65,7 @@ void HostnamesManager::disable()
         ipRoutes_.clear();
         isEnabled_ = false;
     }
+    routeChangeMonitor_.stop();
     dnsResolver_.cancelAll();
     // Connect path: setSplitTunnelingEnabled() applies right after in setConnectParams, so defer.
     FirewallController::instance().setSplitTunnelIpExceptions(std::vector<types::IpAddressRange>(), /*applyNow=*/false);
@@ -95,8 +110,23 @@ void HostnamesManager::dnsResolverCallback(std::map<std::string, DnsResolver::Ho
     hostsIps.insert(hostsIps.end(), ipsLatest_.begin(), ipsLatest_.end());
 
     if (isEnabled_) {
-        ipRoutes_.setIps(gatewayIp_, gatewayIpV6_, adapterIp_, adapterIpV6_, adapterName_, adapterNameV6_, hostsIps);
+        currentIps_ = hostsIps;
+        ipRoutes_.setIps(gatewayIp_, gatewayIpV6_, adapterIp_, adapterIpV6_, adapterName_, adapterNameV6_,
+                         tunnelDevs_, currentIps_);
         // Async path (not followed by setSplitTunnelingEnabled), so apply now (the default).
         FirewallController::instance().setSplitTunnelIpExceptions(hostsIps);
+    }
+}
+
+void HostnamesManager::onRoutesChanged()
+{
+    std::lock_guard<std::recursive_mutex> guard(mutex_);
+    // A secondary interface coming up, losing its address or gaining a route changes which excluded
+    // destinations the main table already covers, and lets a pin refused earlier (its gateway was
+    // unreachable) go in now. The destination set is unchanged, so the firewall exceptions are too.
+    if (isEnabled_ && !tunnelDevs_.empty()) {
+        ipRoutes_.retryFailed();
+        ipRoutes_.setIps(gatewayIp_, gatewayIpV6_, adapterIp_, adapterIpV6_, adapterName_, adapterNameV6_,
+                         tunnelDevs_, currentIps_);
     }
 }

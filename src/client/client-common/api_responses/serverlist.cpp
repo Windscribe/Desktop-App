@@ -12,6 +12,14 @@ ServerList::ServerList(std::shared_ptr<wsnet::WSNetServerLocations> serverLocati
         Location location;
         location.initFromWsnet(loc);
         locations_ << location;
+
+        for (const auto &group : loc.groups) {
+            for (const auto &node : group.nodes) {
+                if (node.forceDisconnect) {
+                    forceDisconnectNodeIds_ << node.id;
+                }
+            }
+        }
     }
 }
 

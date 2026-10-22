@@ -10,6 +10,9 @@ struct ConnectState
     CONNECT_STATE connectState = CONNECT_STATE_DISCONNECTED;
     DISCONNECT_REASON disconnectReason = DISCONNECTED_BY_USER;
     ConnectError connectError = ConnectError::kNoError;
+    // Daemon fatal text for connectError. Empty for every other error. Not a persisted field: it
+    // rides the in-process state signal and the CLI IPC state, both written and read by one install.
+    QString connectErrorDetail;
     LocationID location;
 
     bool operator==(const ConnectState &other) const
@@ -17,7 +20,8 @@ struct ConnectState
         return other.connectState == connectState &&
                other.disconnectReason == disconnectReason &&
                other.connectError == connectError &&
-               other.location == location;
+               other.location == location &&
+               other.connectErrorDetail == connectErrorDetail;
     }
 
     bool operator!=(const ConnectState &other) const
@@ -28,7 +32,7 @@ struct ConnectState
     friend QDataStream& operator <<(QDataStream &stream, const ConnectState &o)
     {
         stream << versionForSerialization_;
-        stream << o.connectState << o.disconnectReason << o.connectError << o.location;
+        stream << o.connectState << o.disconnectReason << o.connectError << o.location << o.connectErrorDetail;
         return stream;
     }
 
@@ -41,7 +45,7 @@ struct ConnectState
             stream.setStatus(QDataStream::ReadCorruptData);
             return stream;
         }
-        stream >> o.connectState >> o.disconnectReason >> o.connectError >> o.location;
+        stream >> o.connectState >> o.disconnectReason >> o.connectError >> o.location >> o.connectErrorDetail;
         return stream;
     }
 

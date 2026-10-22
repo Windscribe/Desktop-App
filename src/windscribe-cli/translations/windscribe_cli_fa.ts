@@ -179,6 +179,10 @@
         <translation>خطا: قادر به اغاز خدمت DNS سفارشی نیست</translation>
     </message>
     <message>
+        <source>Error: Could not update the hosts file required by IKEv2</source>
+        <translation>خطا: به‌روزرسانی فایل hosts که برای IKEv2 لازم است ممکن نشد</translation>
+    </message>
+    <message>
         <source>Error: Could not retrieve WireGuard configuration</source>
         <translation>خطا: نتوانست پیکربندی WireGuard را بازیابی کند</translation>
     </message>
@@ -189,6 +193,10 @@
     <message>
         <source>Error: Local DNS server is not available. Connected DNS has been set back to Auto</source>
         <translation>خطا: سرور DNS محلی در دسترس نیست. DNS متصل به حالت خودکار بازگردانده شده است</translation>
+    </message>
+    <message>
+        <source>Error: The custom configuration could not be loaded</source>
+        <translation>خطا: پیکربندی سفارشی بارگذاری نشد</translation>
     </message>
     <message>
         <source>Unknown state</source>
@@ -369,6 +377,10 @@
     <message>
         <source>Invalid IP address</source>
         <translation>آدرس IP نامعتبر</translation>
+    </message>
+    <message>
+        <source>Windscribe is already running in another user session on this computer. Quit Windscribe in that session, then try again.</source>
+        <translation>Windscribe در حال حاضر در جلسه کاربر دیگری روی این رایانه در حال اجرا است. لطفاً در آن جلسه از Windscribe خارج شوید و سپس دوباره تلاش کنید.</translation>
     </message>
 </context>
 </TS>

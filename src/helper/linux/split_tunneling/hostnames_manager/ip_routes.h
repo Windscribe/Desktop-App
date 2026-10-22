@@ -2,9 +2,11 @@
 
 #include <map>
 #include <mutex>
+#include <set>
 #include <string>
 #include <vector>
 
+#include "main_route_table.h"
 #include "types/ipaddress.h"
 
 // Manages a set of `ip route add` / `ip route del` entries used for split-tunnel
@@ -23,22 +25,44 @@
 //      kernel ("Gateway can not be a local address."), even with `dev`. We detect
 //      this via `gateway == adapterIp` and emit `dev <iface>` only — WG owns the
 //      relevant AllowedIPs and routes the destination through the tunnel.
+//
+// Exclude mode pins only the destinations that need it: one already covered by a specific
+// non-VPN route in `main` (a secondary LAN, a static route, the primary's own subnet) already
+// leaves the way it would without the VPN, and pinning it to the default gateway would misroute
+// it — see MainRouteTable. Every pin is installed with protocol kRouteProtocol so the main-table
+// lookup can tell our pins from the system's routes.
 class IpRoutes
 {
 public:
+    // Route protocol (`ip route … proto <n>`) of every pin we install. Unassigned in the kernel's
+    // RTPROT_* list, but a local rt_protos may still name it, so the main-table dump is read with
+    // `ip -N` and this value is always compared as its decimal form.
+    static constexpr int kRouteProtocol = 87;
+
     // adapterName / adapterNameV6 — interface used for `dev <iface>`, chosen per
     // destination family. On a multi-homed host the v6 default route may live on a
     // different NIC than the v4 default, so a v6 route built with the v4 `dev` (and a
     // link-local nexthop learned on the other NIC) is rejected by the kernel. Pass an
     // empty adapterNameV6 to reuse adapterName (single-homed and VPN-adapter cases).
+    //
+    // tunnelDevs — exclude mode only: the VPN interface(s). A destination whose winning route in
+    // the main table already sends it around the tunnel (not via one of tunnelDevs) is left
+    // unpinned, and a pin installed earlier for it is removed, including one left untracked by a
+    // helper restart. Empty (inclusive mode) pins every destination.
     void setIps(const types::IpAddress &gatewayV4,
                 const types::IpAddress &gatewayV6,
                 const types::IpAddress &adapterIpV4,
                 const types::IpAddress &adapterIpV6,
                 const std::string &adapterName,
                 const std::string &adapterNameV6,
+                const std::vector<std::string> &tunnelDevs,
                 const std::vector<types::IpAddressRange> &ips);
     void clear();
+
+    // Forgets the adds the kernel refused, so the next setIps() tries them again. For when the
+    // system's routes changed: an add refused while a link was down (its gateway unreachable)
+    // succeeds once it is back, with unchanged parameters.
+    void retryFailed();
 
 private:
     std::recursive_mutex mutex_;
@@ -72,6 +96,10 @@ private:
     // parameters are unchanged — it is dropped when the parameters change (so the retry
     // happens) or when the destination is no longer requested.
     std::map<types::IpAddressRange, RouteDescr> failedRoutes_;
+
+    // Destinations last left unpinned because the main table covers them; only used to log
+    // each such decision once rather than on every refresh.
+    std::set<types::IpAddressRange> coveredDestinations_;
 
     // True when two route descriptors install the same kernel route (same gateway,
     // interface and local-gateway form). The destination is the map key, so it is not

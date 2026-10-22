@@ -13,7 +13,7 @@ public:
     explicit ConnectStateController(QObject *parent);
 
     void setConnectedState(const LocationID &location);
-    void setDisconnectedState(DISCONNECT_REASON reason, ConnectError err);
+    void setDisconnectedState(DISCONNECT_REASON reason, ConnectError err, const QString &errorDetail = QString());
     void setConnectingState(const LocationID &location);
     void setDisconnectingState();
 
@@ -29,6 +29,7 @@ private:
     CONNECT_STATE prevState_;
     DISCONNECT_REASON disconnectReason_;
     ConnectError err_;
+    QString errDetail_;
     LocationID location_;
     QRecursiveMutex mutex_;
 };

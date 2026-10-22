@@ -29,8 +29,10 @@ public:
     void changeMtu(const QString &adapter, int mtu);
     // On POSIX the management interface is a root-owned unix domain socket (fixed path), so unlike
     // Windows there is no port to choose or return.
+    // outDetail receives the daemon's fatal text when OpenVPN exits before binding its management
+    // socket. It is empty for every other failure.
     bool executeOpenVPN(const QString &config, const QString &httpProxy, unsigned int httpPort,
-                        const QString &socksProxy, unsigned int socksPort);
+                        const QString &socksProxy, unsigned int socksPort, QString &outDetail);
 
     bool executeTaskKill(CmdKillTarget target);
 

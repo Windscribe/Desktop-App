@@ -5,18 +5,22 @@
 #include <QEventLoop>
 #include <QMessageBox>
 #include <QScreen>
+#include <QSettings>
 #include <QSocketNotifier>
 #include <QTimer>
 #include <QWindow>
 
+#include "application/singleappinstance.h"
+#include "application/windscribeapplication.h"
 #include "dpiscalemanager.h"
+#include "languagecontroller.h"
+#include "utils/extraconfig.h"
 #include "utils/log/logger.h"
 #include "utils/log/paths.h"
+#include "utils/systemwideapplock.h"
 #include "utils/utils.h"
-#include "utils/extraconfig.h"
 #include "version/appversion.h"
-#include "application/windscribeapplication.h"
-#include "application/singleappinstance.h"
+#include "version/ws_version.h"
 
 #ifdef Q_OS_WIN
     #include "types/global_consts.h"
@@ -29,12 +33,12 @@
     #include "utils/macutils.h"
 #elif defined (Q_OS_LINUX)
     #include <libgen.h>         // dirname
-    #include <unistd.h>         // readlink
     #include <linux/limits.h>   // PATH_MAX
     #include <signal.h>
     #include <sys/socket.h>
-    #include "utils/linuxutils.h"
+    #include <unistd.h>         // readlink
     #include "utils/helperconnector_linux.h"
+    #include "utils/linuxutils.h"
 #endif
 
 void applyScalingFactor(qreal ldpi, MainWindow &mw);
@@ -282,6 +286,19 @@ int main(int argc, char *argv[])
     qCInfo(LOG_BASIC) << "UI languages:" << QLocale::system().uiLanguages();
 
     ExtraConfig::instance().logExtraConfig();
+
+    // Held until exit: another user's app would take over the helper and tear down that user's VPN. Taken
+    // after the same-user check, and loads this user's language first so the message is in it.
+    SystemWideAppLock systemWideAppLock;
+    const SystemWideAppLock::Holder appLockHolder = systemWideAppLock.acquire();
+    if (appLockHolder == SystemWideAppLock::Holder::kThisUser || appLockHolder == SystemWideAppLock::Holder::kOtherUser) {
+        qCInfo(LOG_BASIC) << "Windscribe is already running in another user session; exiting.";
+        LanguageController::instance().setLanguage(QSettings().value("language").toString());
+        QMessageBox::critical(nullptr, WS_PRODUCT_NAME,
+                              QObject::tr("Windscribe is already running in another user session on this computer. "
+                                          "Quit Windscribe in that session, then try again."));
+        return 0;
+    }
 
 #ifdef Q_OS_WIN
     InstalledAntiviruses_win::outToLog();

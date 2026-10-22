@@ -3,21 +3,23 @@
 #include "application/singleappinstance.h"
 #include "application/windscribeapplication.h"
 #include "mainservice.h"
+#include "utils/extraconfig.h"
+#include "utils/log/categories.h"
 #include "utils/log/logger.h"
 #include "utils/log/paths.h"
-#include "utils/log/categories.h"
+#include "utils/systemwideapplock.h"
 #include "utils/utils.h"
-#include "utils/extraconfig.h"
 #include "version/appversion.h"
+#include "version/ws_version.h"
 
 #if defined (Q_OS_LINUX)
     #include <libgen.h>         // dirname
-    #include <unistd.h>         // readlink
     #include <linux/limits.h>   // PATH_MAX
     #include <signal.h>
     #include <sys/socket.h>
-    #include "utils/linuxutils.h"
+    #include <unistd.h>         // readlink
     #include "utils/helperconnector_linux.h"
+    #include "utils/linuxutils.h"
 #endif
 
 static int fds[2];
@@ -103,6 +105,15 @@ int main(int argc, char *argv[])
     qCInfo(LOG_BASIC) << "UI languages:" << QLocale::system().uiLanguages();
 
     ExtraConfig::instance().logExtraConfig();
+
+    // Held until exit: another user's app would take over the helper and tear down that user's VPN.
+    // windscribe-cli tells the user; this process only runs in the background.
+    SystemWideAppLock systemWideAppLock;
+    const SystemWideAppLock::Holder appLockHolder = systemWideAppLock.acquire();
+    if (appLockHolder == SystemWideAppLock::Holder::kThisUser || appLockHolder == SystemWideAppLock::Holder::kOtherUser) {
+        qCInfo(LOG_BASIC) << "Windscribe is already running in another user session; exiting.";
+        return 1;
+    }
 
 #if defined (Q_OS_LINUX)
     // Open the helper connection while we still hold the 'windscribe' group (from the binary's setgid

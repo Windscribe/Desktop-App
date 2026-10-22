@@ -249,6 +249,23 @@ bool createRestrictedFileForUser(const std::wstring &path, PSID userSid)
     return true;
 }
 
+std::wstring getClientLogFolder(HANDLE userToken)
+{
+    // Qt's AppLocalDataLocation is FOLDERID_LocalAppData plus organization and application name.
+    // Passing the pipe client's token keeps a SYSTEM helper from resolving its own profile.
+    PWSTR localAppData = nullptr;
+    const HRESULT hr = ::SHGetKnownFolderPath(FOLDERID_LocalAppData, KF_FLAG_DEFAULT, userToken, &localAppData);
+    if (FAILED(hr) || localAppData == nullptr) {
+        ::CoTaskMemFree(localAppData);
+        spdlog::error("getClientLogFolder - SHGetKnownFolderPath failed: {}", hr);
+        return L"";
+    }
+    std::wstring folder = localAppData;
+    ::CoTaskMemFree(localAppData);
+    folder += L"\\" WS_SETTINGS_ORG_W L"\\" WS_SETTINGS_APP_W;
+    return folder;
+}
+
 bool getPipeClientPrimaryToken(HANDLE hPipe, HANDLE *outToken)
 {
     if (outToken == nullptr) {
@@ -294,14 +311,6 @@ bool getPipeClientPrimaryToken(HANDLE hPipe, HANDLE *outToken)
 
     *outToken = primary;
     return true;
-}
-
-bool hasWhitespaceInString(const std::wstring &str)
-{
-    // Also reject an embedded NUL: it isn't whitespace, but OpenVPN's C-string config parser would
-    // stop at it, truncating the proxy directive line this guards. Callers use this to keep a
-    // client-supplied value from corrupting the config line the service writes.
-    return str.find_first_of(L" \n\r\t") != std::wstring::npos || str.find(L'\0') != std::wstring::npos;
 }
 
 bool iequals(const std::wstring &a, const std::wstring &b)

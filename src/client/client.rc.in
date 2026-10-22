@@ -1,5 +1,7 @@
 #include <windows.h>
 
+#include "version/ws_version.h"
+
 IDI_ICON1 ICON DISCARDABLE "@WS_WIN_APP_ICON@"
 
 VS_VERSION_INFO VERSIONINFO

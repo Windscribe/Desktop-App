@@ -1,16 +1,12 @@
 #include "backendcommander.h"
 
+#include <QProcess>
+#include <QTimer>
 #include <chrono>
 #include <filesystem>
 #include <iostream>
 #include <memory>
-#include <QTimer>
 #include <thread>
-#ifdef CLI_ONLY
-#include <unistd.h>
-#endif
-
-#include <QProcess>
 
 #include "ipc/clicommands.h"
 #include "ipc/connection.h"
@@ -19,7 +15,12 @@
 #include "utils.h"
 #include "utils/log/categories.h"
 #include "utils/networkingvalidation.h"
+#include "utils/systemwideapplock.h"
 #include "utils/utils.h"
+
+#ifdef CLI_ONLY
+#include <unistd.h>
+#endif
 
 
 BackendCommander::BackendCommander(const CliArguments &cliArgs) : QObject(), cliArgs_(cliArgs)
@@ -118,7 +119,9 @@ void BackendCommander::onConnectionStateChanged(int state, IPC::Connection * /*c
         if (ipcState_ == IPC_CONNECTING) {
             if (connectingTimer_.isValid() && connectingTimer_.elapsed() > MAX_WAIT_TIME_MS) {
                 connectingTimer_.invalidate();
-                emit finished(1, QObject::tr("Aborting: app did not start in time"));
+                // Another user's app may have started after main() checked, and made ours quit.
+                const bool otherUser = SystemWideAppLock::holder() == SystemWideAppLock::Holder::kOtherUser;
+                emit finished(1, otherUser ? appRunningInAnotherSessionString() : QObject::tr("Aborting: app did not start in time"));
             }
             else {
                 // Try connect again. Delay is necessary so that Engine process will actually start

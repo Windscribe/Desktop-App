@@ -586,6 +586,10 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
 <context>
     <name>MainWindow</name>
     <message>
+        <source>Windscribe could not update your hosts file, which IKEv2 requires. Another program, such as antivirus or endpoint security software, may be blocking changes to it. Please try again, or use a different connection mode.</source>
+        <translation>Windscribe не ўдалося абнавіць файл hosts, патрэбны для IKEv2. Магчыма, яго змяненне блакуе іншая праграма, напрыклад антывірусная праграма або праграма абароны канчатковых прылад. Паспрабуйце яшчэ раз або выкарыстайце іншы рэжым падключэння.</translation>
+    </message>
+    <message>
         <source>Split Tunneling Stopped</source>
         <translation>Падзел тунэля спынены</translation>
     </message>
@@ -808,14 +812,6 @@ Recovering...</source>
     <message>
         <source>Select an application</source>
         <translation>Абярыце праґраму</translation>
-    </message>
-    <message>
-        <source>Read-Only File</source>
-        <translation>Файл толькі для чытаньня</translation>
-    </message>
-    <message>
-        <source>Your hosts file is read-only. IKEv2 connectivity requires for it to be writable. Fix the issue automatically?</source>
-        <translation>Ваш файл hosts даступны толькі для чытаньня. Для падлучэньня IKEv2 патрабуецца магчымасьць запісу ў гэты файл. Выправіць праблему аўтаматычна?</translation>
     </message>
     <message>
         <source>The custom configuration could not be loaded.  Please check that it’s correct or contact support.</source>
@@ -2821,6 +2817,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Your application version is no longer supported. Please update to continue using %1.</source>
         <translation>Вашая вэрсія праґрамы больш не падтрымліваецца. Абнавіце яе, каб працягваць карыстацца %1.</translation>
+    </message>
+    <message>
+        <source>Windscribe is already running in another user session on this computer. Quit Windscribe in that session, then try again.</source>
+        <translation>Windscribe ужо працуе ў сесіі іншага карыстальніка на гэтым камп’ютары. Выйдзіце з Windscribe у той сесіі і паспрабуйце яшчэ раз.</translation>
     </message>
 </context>
 <context>

@@ -55,12 +55,30 @@ def get_cmake_configure_args():
     if CURRENT_OS == "win32":
         args.append(f"-DBUILD_BOOTSTRAP={'ON' if arghelper.build_bootstrap() else 'OFF'}")
         args.append(f"-DBUILD_ARM64={'ON' if arghelper.target_arm64_arch() else 'OFF'}")
+        # Host tools follow the machine. Cross-compilation (--arm64 on x64) keeps x64 host tools.
+        args.append(f"-DBUILD_NATIVE_ARM64={'ON' if arghelper.native_arm64_host() else 'OFF'}")
     elif CURRENT_OS == "linux":
         args.append(f"-DBUILD_DEB={'ON' if arghelper.build_deb() else 'OFF'}")
         args.append(f"-DBUILD_RPM={'ON' if arghelper.build_rpm('fedora') else 'OFF'}")
         args.append(f"-DBUILD_RPM_OPENSUSE={'ON' if arghelper.build_rpm('opensuse') else 'OFF'}")
 
+    ccache = get_ccache_path()
+    if ccache:
+        languages = ["C", "CXX", "OBJC", "OBJCXX"] if CURRENT_OS == "macos" else ["C", "CXX"]
+        for language in languages:
+            args.append(f"-DCMAKE_{language}_COMPILER_LAUNCHER={ccache}")
+
     return args
+
+
+def get_ccache_path():
+    """Path of the ccache executable to compile through, or None."""
+    # Symbol builds bypass the cache: MSVC writes each object's absolute source path into the PDB, and a cached
+    # object would carry the path of whichever job first compiled it.
+    if not arghelper.ci_mode() or arghelper.build_symbols():
+        return None
+    ccache = shutil.which("ccache")
+    return ccache.replace("\\", "/") if ccache else None
 
 
 def get_build_environment():
@@ -69,8 +87,8 @@ def get_build_environment():
     vcpkg_root = os.getenv('VCPKG_ROOT')
     if CURRENT_OS == "win32":
         buildenv.update({"MAKEFLAGS": "S"})
-        buildenv.update(iutl.GetVisualStudioEnvironment(arghelper.target_arm64_arch()))
-        buildenv.update({"CL": "/MP"})
+        buildenv.update(iutl.GetVisualStudioEnvironment(
+            arghelper.target_arm64_arch(), arghelper.native_arm64_host()))
         if vcpkg_root:
             buildenv["VCPKG_ROOT"] = vcpkg_root
     return buildenv
@@ -135,8 +153,18 @@ def build_all():
     # Configure CMake
     run_cmake_configure(build_dir)
 
+    # Statistics are zeroed first so the summary covers only this build, even where the local cache persists.
+    ccache = get_ccache_path()
+    if ccache:
+        iutl.RunCommand([ccache, "--zero-stats"])
+    elif arghelper.ci_mode() and not arghelper.build_symbols():
+        msg.Warn("ccache was not found on PATH; building without the compiler cache.")
+
     # Build with CMake
     run_cmake_build(build_dir)
+
+    if ccache:
+        iutl.RunCommand([ccache, "--show-stats"])
 
     # Clean up secrets if in CI mode
     if arghelper.ci_mode():

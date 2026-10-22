@@ -20,9 +20,15 @@ void Group::initFromWsnet(const wsnet::ServerGroup &src)
     d->p2p_         = src.p2p;
     d->dnsHostName_ = QString::fromStdString(src.dnsHostName);
 
-    // wsnet already filtered out force_disconnect nodes; all remaining nodes are regular
+    // A node the server list marks force-disconnect (fd=1) is being drained, so it is left out of
+    // nodes_ entirely: nothing downstream can pick it for a connection, and a group left with none
+    // of them reads as disabled, the same as a group that arrived without hosts. ServerList names
+    // those nodes separately, for evacuating a connection that is already on one of them.
     if (d->status_ == 1) {
         for (const auto &n : src.nodes) {
+            if (n.forceDisconnect) {
+                continue;
+            }
             Node node;
             node.initFromWsnet(n);
             d->nodes_ << node;

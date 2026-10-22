@@ -179,6 +179,10 @@
         <translation>오류: 사용자 지정 DNS 서비스를 시작할 수 없습니다.</translation>
     </message>
     <message>
+        <source>Error: Could not update the hosts file required by IKEv2</source>
+        <translation>오류: IKEv2에 필요한 hosts 파일을 업데이트할 수 없습니다.</translation>
+    </message>
+    <message>
         <source>Error: Could not retrieve WireGuard configuration</source>
         <translation>오류: WireGuard 구성을 가져올 수 없습니다.</translation>
     </message>
@@ -189,6 +193,10 @@
     <message>
         <source>Error: Local DNS server is not available. Connected DNS has been set back to Auto</source>
         <translation>오류: 로컬 DNS 서버가 사용 불가입니다. 연결된 DNS가 다시 자동 모드로 설정되었습니다</translation>
+    </message>
+    <message>
+        <source>Error: The custom configuration could not be loaded</source>
+        <translation>오류: 사용자 지정 구성을 불러올 수 없습니다</translation>
     </message>
     <message>
         <source>Unknown state</source>
@@ -369,6 +377,10 @@
     <message>
         <source>Invalid IP address</source>
         <translation>잘못된 IP 주소</translation>
+    </message>
+    <message>
+        <source>Windscribe is already running in another user session on this computer. Quit Windscribe in that session, then try again.</source>
+        <translation>이 컴퓨터의 다른 사용자 세션에서 Windscribe가 이미 실행 중입니다. 해당 세션에서 Windscribe를 종료한 후 다시 시도해 주세요.</translation>
     </message>
 </context>
 </TS>

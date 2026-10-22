@@ -3,6 +3,7 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <string.h>
+#include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
 
@@ -40,6 +41,20 @@ bool writeFile(const std::string &path, const std::string &content, int mode)
     }
     close(fd);
     return true;
+}
+
+bool ensureRootOwnedFile(const std::string &path, int mode)
+{
+    // O_CLOEXEC: the helper forks children concurrently, and the fd must not leak into them.
+    int fd = open(path.c_str(), O_CREAT | O_RDWR | O_NOFOLLOW | O_CLOEXEC, mode);
+    if (fd < 0) {
+        return false;
+    }
+    struct stat st;
+    // Ownership before mode, so a pre-existing file with a wrong owner never gets the new mode.
+    const bool ok = fstat(fd, &st) == 0 && S_ISREG(st.st_mode) && fchown(fd, 0, 0) == 0 && fchmod(fd, mode) == 0;
+    close(fd);
+    return ok;
 }
 
 namespace {

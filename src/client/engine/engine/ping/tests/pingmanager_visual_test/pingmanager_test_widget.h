@@ -34,7 +34,7 @@ public:
             qDebug() << "Connect state changed: " << state;
             prevState_ = state_;
             state_ = state;
-            emit stateChanged(state_, DISCONNECTED_ITSELF, ConnectError::kNoError, lid_);
+            emit stateChanged(state_, DISCONNECTED_ITSELF, ConnectError::kNoError, QString(), lid_);
         }
     }
 

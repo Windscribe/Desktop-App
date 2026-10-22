@@ -8,7 +8,7 @@ cmake_minimum_required(VERSION 3.23)
 set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)  # option() honors normal variables
 
 # Set macOS deployment target and architecture before project()
-set(CMAKE_OSX_DEPLOYMENT_TARGET "13" CACHE STRING "Minimum OS X deployment version")
+set(CMAKE_OSX_DEPLOYMENT_TARGET "14.4" CACHE STRING "Minimum OS X deployment version")
 
 # Set the macOS architecture(s) BEFORE project() so the value is in effect when wsnet's targets are
 # created during the FetchContent fetch below.  wsnet is a SHARED lib (libwsnet.dylib) on macOS, and a
@@ -84,6 +84,8 @@ option(UPDATE_TRANSLATIONS "Run lupdate to regenerate .ts translation files" OFF
 if(WIN32)
     option(BUILD_BOOTSTRAP "Build the bootstrap (Windows only)" ON)
     option(BUILD_ARM64 "Build for ARM64 architecture" OFF)
+    # Native ARM64 host tools. Off for an x64 cross-compile (--arm64 on x64 hardware).
+    option(BUILD_NATIVE_ARM64 "Use native ARM64 host tools (Windows on Arm)" OFF)
 elseif(UNIX AND NOT APPLE)
     # Linux package type options (default to DEB)
     option(BUILD_DEB "Build Debian package" ON)
@@ -130,7 +132,7 @@ project(WS LANGUAGES CXX C)
 
 # Install the vcpkg dependencies right after project(), BEFORE the wsnet fetch below.  wsnet's
 # CMakeLists runs find_package(c-ares/CURL/OpenSSL/...) at configure time, which only resolves once
-# these packages exist in ${VCPKG_ROOT}/installed.  On a clean CI machine that directory is empty
+# these packages exist in ${VCPKG_INSTALLED_DIR}.  On a clean CI machine that directory is empty
 # until this macro runs; locally it is already populated from prior builds, which is why fetching
 # wsnet ahead of the install only fails on CI.  The macro depends solely on state established before
 # project() (VCPKG_ROOT, VCPKG_TARGET_TRIPLET, CMAKE_BUILD_TYPE, the manifest root), so hoisting it
@@ -214,7 +216,6 @@ endif()
 # silently getting "".
 if(BUILD_APP)
     ws_resolve_openvpn_version(WS_OPENVPN_VERSION)
-    add_compile_definitions(WS_OPENVPN_VERSION="${WS_OPENVPN_VERSION}")
 
     # Resolved here rather than next to ws_resolve_shared_libs() below, because the names are needed
     # by the branding definitions that follow and by the subdirectories those definitions reach.
@@ -237,12 +238,14 @@ add_compile_definitions(
     WS_APP_IDENTIFIER="${WS_APP_IDENTIFIER}"
     WS_COPYRIGHT="${WS_COPYRIGHT}"
     WS_EXTRA_CONFIG_NAME="${WS_EXTRA_CONFIG_NAME}"
+    WS_LINUX_APP_LOCK_FILE="${WS_LINUX_RUN_DIR}/app.lock"
     WS_LINUX_INSTALL_DIR="${WS_LINUX_INSTALL_DIR}"
     WS_LINUX_LOG_DIR="${WS_LINUX_LOG_DIR}"
     WS_LINUX_RUN_DIR="${WS_LINUX_RUN_DIR}"
     WS_LINUX_HELPER_SOCKET="${WS_LINUX_RUN_DIR}/helper.sock"
     WS_LINUX_TMP_DIR="${WS_LINUX_TMP_DIR}"
     WS_MAC_APP_DIR="${WS_MAC_APP_DIR}"
+    WS_MAC_APP_LOCK_FILE="${WS_MAC_VENDOR_DIR}/app.lock"
     WS_MAC_GID="${WS_MAC_GID}"
     WS_MAC_GUI_BUNDLE_ID="${WS_MAC_GUI_BUNDLE_ID}"
     WS_MAC_HELPER_BIN_DIR="${WS_MAC_HELPER_BIN_DIR}"
@@ -266,11 +269,6 @@ add_compile_definitions(
     WS_PRODUCT_NAME_UPPER="${WS_PRODUCT_NAME_UPPER}"
     WS_SETTINGS_APP="${WS_SETTINGS_APP}"
     WS_SETTINGS_ORG="${WS_SETTINGS_ORG}"
-    WS_VERSION="${WS_VERSION_MAJOR}.${WS_VERSION_MINOR}.${WS_VERSION_BUILD}"
-    WS_VERSION_BUILD=${WS_VERSION_BUILD}
-    WS_VERSION_MAJOR=${WS_VERSION_MAJOR}
-    WS_VERSION_MAJOR_MINOR="${WS_VERSION_MAJOR}.${WS_VERSION_MINOR}"
-    WS_VERSION_MINOR=${WS_VERSION_MINOR}
     WS_WIN_CONFIG_SUBDIR="${WS_WIN_CONFIG_SUBDIR}"
     WS_WIN_IKEV2_CONNECTION_NAME="${WS_WIN_IKEV2_CONNECTION_NAME}"
 )
@@ -278,10 +276,12 @@ if(DEFINED WS_COMPILE_DEFINITIONS)
     add_compile_definitions(${WS_COMPILE_DEFINITIONS})
 endif()
 if(WS_BUILD_TYPE STREQUAL "guinea_pig")
-    add_compile_definitions(WINDSCRIBE_IS_GUINEA_PIG)
+    set(WINDSCRIBE_IS_GUINEA_PIG ON)
 elseif(WS_BUILD_TYPE STREQUAL "beta")
-    add_compile_definitions(WINDSCRIBE_IS_BETA)
+    set(WINDSCRIBE_IS_BETA ON)
 endif()
+configure_file(src/client/client-common/version/ws_version.h.in "${CMAKE_BINARY_DIR}/generated/version/ws_version.h" @ONLY)
+include_directories("${CMAKE_BINARY_DIR}/generated")
 if(DEV_MODE)
     add_compile_definitions(WINDSCRIBE_DEV_MODE)
 else()

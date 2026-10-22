@@ -68,6 +68,10 @@ endif()
 
 message(STATUS "vcpkg triplet: ${VCPKG_TARGET_TRIPLET}")
 
+# One install folder per triplet: an install removes every package the current triplet does not need,
+# so x64 and arm64 builds sharing one folder on a machine would wipe each other's packages.
+set(VCPKG_INSTALLED_DIR "${VCPKG_ROOT}/installed-${VCPKG_TARGET_TRIPLET}")
+
 # ------------------------------------------------------------------------------
 # Macro to install vcpkg dependencies
 # Call this after project() to install dependencies
@@ -78,16 +82,22 @@ macro(install_vcpkg_dependencies)
 
     set(VCPKG_INSTALL_CMD
         "${VCPKG_ROOT}/vcpkg" install
-        "--x-install-root=${VCPKG_ROOT}/installed"
+        "--x-install-root=${VCPKG_INSTALLED_DIR}"
         "--x-manifest-root=${CMAKE_CURRENT_SOURCE_DIR}/tools/vcpkg"
         "--triplet=${VCPKG_TARGET_TRIPLET}"
         "--clean-buildtrees-after-build"
         "--clean-packages-after-build"
     )
 
-    # Add host triplet for Windows and Linux
+    # Add host triplet for Windows and Linux.
+    # On Windows on Arm the host tools must be ARM64. An x64 cross-compile (BUILD_ARM64 without
+    # BUILD_NATIVE_ARM64) keeps the x64 host triplet so the x64 compiler can run the generators.
+    # The native host triplet matches the ARM64 target triplet, which is release-only for all
+    # build types, so vcpkg does not build the host dependencies a second time.
     if(WIN32)
-        if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+        if(BUILD_NATIVE_ARM64)
+            list(APPEND VCPKG_INSTALL_CMD "--host-triplet=${VCPKG_TARGET_TRIPLET}")
+        elseif(CMAKE_BUILD_TYPE STREQUAL "Debug")
             list(APPEND VCPKG_INSTALL_CMD "--host-triplet=x64-windows-static")
         else()
             list(APPEND VCPKG_INSTALL_CMD "--host-triplet=ws-x64-windows-static-release")

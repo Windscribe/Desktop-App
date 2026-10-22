@@ -11,6 +11,7 @@
 #include <spdlog/spdlog.h>
 
 #include "io_posix.h"
+#include "ovpn_early_exit_log.h"
 #include "validation_posix.h"
 
 namespace Utils {
@@ -22,8 +23,9 @@ std::vector<std::string> getOpenVpnExeNames();
 
 namespace OvpnMgmt {
 
-bool waitAndRelaxPerms(uid_t clientUid, pid_t ovpnPid)
+bool waitAndRelaxPerms(uid_t clientUid, pid_t ovpnPid, const std::string &logPath, std::string &outDetail)
 {
+    outDetail.clear();
     // ~10s window: the socket binds in milliseconds, but on a slow/busy machine the OpenVPN process
     // can take seconds just to start. The engine blocks on this IPC reply with no timeout, so a
     // longer wait is safe and is far better than failing a connect that would otherwise succeed.
@@ -47,6 +49,10 @@ bool waitAndRelaxPerms(uid_t clientUid, pid_t ovpnPid)
         // regardless of the daemon being reparented to init/launchd.
         if (ovpnPid > 0 && kill(ovpnPid, 0) != 0 && errno == ESRCH) {
             spdlog::error("OpenVPN (pid {}) exited before binding its management socket", ovpnPid);
+            outDetail = OvpnEarlyExitLog::readFile(logPath);
+            if (!outDetail.empty()) {
+                spdlog::error("OpenVPN early-exit log: {}", outDetail);
+            }
             return false;
         }
         usleep(50 * 1000);

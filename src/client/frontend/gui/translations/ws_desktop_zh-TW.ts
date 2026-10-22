@@ -586,6 +586,10 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
 <context>
     <name>MainWindow</name>
     <message>
+        <source>Windscribe could not update your hosts file, which IKEv2 requires. Another program, such as antivirus or endpoint security software, may be blocking changes to it. Please try again, or use a different connection mode.</source>
+        <translation>Windscribe 無法更新 IKEv2 所需的 hosts 檔案。其他程式（例如防毒軟體或端點安全軟體）可能正在阻止對其進行變更。請再試一次，或使用其他連線模式。</translation>
+    </message>
+    <message>
         <source>Split Tunneling Stopped</source>
         <translation>拆分隧道已停止</translation>
     </message>
@@ -808,14 +812,6 @@ Recovering...</source>
     <message>
         <source>Select an application</source>
         <translation>選擇一個應用程式</translation>
-    </message>
-    <message>
-        <source>Read-Only File</source>
-        <translation>唯讀檔</translation>
-    </message>
-    <message>
-        <source>Your hosts file is read-only. IKEv2 connectivity requires for it to be writable. Fix the issue automatically?</source>
-        <translation>主機檔是唯讀的。IKEv2 連接要求它是可寫的。自動修復問題？</translation>
     </message>
     <message>
         <source>The custom configuration could not be loaded.  Please check that it’s correct or contact support.</source>
@@ -2821,6 +2817,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Alternate</source>
         <translation>替代</translation>
+    </message>
+    <message>
+        <source>Windscribe is already running in another user session on this computer. Quit Windscribe in that session, then try again.</source>
+        <translation>Windscribe 已在這台電腦上另一位使用者的工作階段中執行。請在該工作階段中結束 Windscribe，然後再試一次。</translation>
     </message>
 </context>
 <context>

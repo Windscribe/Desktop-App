@@ -13,6 +13,7 @@
 #include "utils/networkingvalidation.h"
 #include "utils/utils.h"
 #include "utils/ws_assert.h"
+#include "version/ws_version.h"
 
 #ifdef Q_OS_WIN
     #include "engine/adapterutils_win.h"
@@ -258,9 +259,26 @@ void OpenVPNConnection::setCurrentStateAndEmitError(OpenVPNConnection::CONNECTIO
     emit error(err);
 }
 
+QString OpenVPNConnection::takeConnectErrorDetail()
+{
+    QString detail;
+    detail.swap(connectErrorDetail_);
+    return detail;
+}
+
 OpenVPNConnection::CONNECTION_STATUS OpenVPNConnection::getCurrentState() const
 {
     return currentState_.load();
+}
+
+ConnectError OpenVPNConnection::launchFailureError() const
+{
+    // A custom config the daemon rejected carries the fatal line. An official config keeps the
+    // launch-failure code: the custom-config dialog switches the selected location.
+    if (isCustomConfig_ && !connectErrorDetail_.isEmpty()) {
+        return ConnectError::kCustomConfigInvalid;
+    }
+    return ConnectError::kLocalProcessLaunchFailure;
 }
 
 bool OpenVPNConnection::runOpenVPN()
@@ -290,7 +308,7 @@ bool OpenVPNConnection::runOpenVPN()
     // PID so we can verify the management peer once connected.
     unsigned int port = 0;
     unsigned long pid = 0;
-    const bool ok = helper_->executeOpenVPN(config_, httpProxy, httpPort, socksProxy, socksPort, port, pid);
+    const bool ok = helper_->executeOpenVPN(config_, httpProxy, httpPort, socksProxy, socksPort, port, pid, connectErrorDetail_);
     if (ok) {
         stateVariables_.openVpnPort = port;
         stateVariables_.openVpnPid = pid;
@@ -298,7 +316,7 @@ bool OpenVPNConnection::runOpenVPN()
     return ok;
 #else
     // On POSIX the management interface is a root-owned unix domain socket (fixed path); no port.
-    return helper_->executeOpenVPN(config_, httpProxy, httpPort, socksProxy, socksPort);
+    return helper_->executeOpenVPN(config_, httpProxy, httpPort, socksProxy, socksPort, connectErrorDetail_);
 #endif
 }
 
@@ -363,19 +381,26 @@ void OpenVPNConnection::funcRunOpenVPN()
 
     // run openvpn process. On Windows this also populates stateVariables_.openVpnPort/openVpnPid
     // (OpenVPN picks its own management port and the helper reports it back).
-    while(!runOpenVPN())
-    {
+    while(!runOpenVPN()) {
         qCDebug(LOG_CONNECTION) << "Can't run OpenVPN";
 
-        if (retries >= 2)
-        {
-            qCCritical(LOG_CONNECTION) << "Can't run openvpn process";
-            setCurrentStateAndEmitError(STATUS_DISCONNECTED, ConnectError::kLocalProcessLaunchFailure);
+        if (bStopThread_) {
+            setCurrentStateAndEmitDisconnected(STATUS_DISCONNECTED);
             return;
         }
-        if (bStopThread_)
-        {
-            setCurrentStateAndEmitDisconnected(STATUS_DISCONNECTED);
+
+        // The helper sets the detail only when OpenVPN exited before binding its management
+        // socket and the log has a fatal line (rejected directive, Options error). The same
+        // config fails the same way, so skip the remaining attempts. An empty detail is a
+        // launch failure that may be transient, and keeps the retries below.
+        if (!connectErrorDetail_.isEmpty()) {
+            qCCritical(LOG_CONNECTION) << "OpenVPN failed to start due to a rejected directive or options error";
+            setCurrentStateAndEmitError(STATUS_DISCONNECTED, launchFailureError());
+            return;
+        }
+        if (retries >= 2) {
+            qCCritical(LOG_CONNECTION) << "Can't run openvpn process";
+            setCurrentStateAndEmitError(STATUS_DISCONNECTED, launchFailureError());
             return;
         }
         retries++;

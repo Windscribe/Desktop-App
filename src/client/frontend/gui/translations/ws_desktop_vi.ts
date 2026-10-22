@@ -586,6 +586,10 @@ Nếu bạn mất hàm băm tài khoản của mình, nó sẽ biến mất vĩn
 <context>
     <name>MainWindow</name>
     <message>
+        <source>Windscribe could not update your hosts file, which IKEv2 requires. Another program, such as antivirus or endpoint security software, may be blocking changes to it. Please try again, or use a different connection mode.</source>
+        <translation>Windscribe không thể cập nhật tệp hosts của bạn, tệp mà IKEv2 yêu cầu. Một chương trình khác, chẳng hạn như phần mềm chống vi-rút hoặc phần mềm bảo mật điểm cuối, có thể đang chặn các thay đổi đối với tệp này. Vui lòng thử lại hoặc sử dụng chế độ kết nối khác.</translation>
+    </message>
+    <message>
         <source>Split Tunneling Stopped</source>
         <translation>Đường hầm phân chia đã dừng</translation>
     </message>
@@ -808,14 +812,6 @@ Phục hồi...</translation>
     <message>
         <source>Select an application</source>
         <translation>Chọn một ứng dụng</translation>
-    </message>
-    <message>
-        <source>Read-Only File</source>
-        <translation>Tệp chỉ đọc</translation>
-    </message>
-    <message>
-        <source>Your hosts file is read-only. IKEv2 connectivity requires for it to be writable. Fix the issue automatically?</source>
-        <translation>Tệp máy chủ lưu trữ của bạn ở chế độ chỉ đọc. Kết nối IKEv2 yêu cầu nó phải có thể ghi được. Tự động khắc phục sự cố?</translation>
     </message>
     <message>
         <source>The custom configuration could not be loaded.  Please check that it’s correct or contact support.</source>
@@ -2821,6 +2817,10 @@ Nếu việc cài đặt lại không hiệu quả, vui lòng liên hệ với b
     <message>
         <source>Alternate</source>
         <translation>Thay thế</translation>
+    </message>
+    <message>
+        <source>Windscribe is already running in another user session on this computer. Quit Windscribe in that session, then try again.</source>
+        <translation>Windscribe đang chạy trong phiên của người dùng khác trên máy tính này. Vui lòng thoát Windscribe trong phiên đó rồi thử lại.</translation>
     </message>
 </context>
 <context>

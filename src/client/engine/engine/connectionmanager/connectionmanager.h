@@ -45,6 +45,12 @@ public:
     void reconnect();
     void blockingDisconnect(bool isSleepEvent);
     bool isDisconnected();
+    // The connector was asked to go down and its disconnected() has not arrived yet -- a window in
+    // which isDisconnected() is false. Error stops are excluded: they end in errorDuringConnection,
+    // not in the disconnect handler.
+    bool isDisconnectInFlight() const {
+        return state_ == State::kStopping && pendingOutcome_.type == PendingOutcome::Type::Disconnect;
+    }
 
     QString getLastConnectedIp();
     const AdapterGatewayInfo &getDefaultAdapterInfo() const;
@@ -82,9 +88,9 @@ public:
 
 signals:
     void connected();
-    void connectingToHostname(const QString &hostname, const QString &ip, const QStringList &dnsServers);
+    void connectingToHostname(const QString &hostname, const QString &ip, const QStringList &dnsServers, int nodeId);
     void disconnected(DISCONNECT_REASON reason);
-    void errorDuringConnection(ConnectError errorCode, const CurrentConnectionDescr &descr);
+    void errorDuringConnection(ConnectError errorCode, const CurrentConnectionDescr &descr, const QString &errorDetail);
     void reconnecting();
     void statisticsUpdated(quint64 bytesIn, quint64 bytesOut, bool isTotalBytes);
     void interfaceUpdated(const QString &interfaceName);  // WireGuard-specific.
@@ -154,6 +160,8 @@ private:
         Type type = Type::Disconnect;
         DISCONNECT_REASON reason = DISCONNECTED_ITSELF;
         ConnectError error = ConnectError::kNoError;
+        // Daemon fatal text for this error. Empty for every other outcome.
+        QString errorDetail;
         // A user-initiated stop resets the strategy walk on completion and wins over a repeat click.
         bool isUserInitiated = false;
     };
@@ -222,7 +230,7 @@ private:
     void setState(State state, ReconnectCause cause = ReconnectCause::Regular);
     void enterStopping();
     void stopWithDisconnect(DISCONNECT_REASON reason, bool isUserInitiated);
-    void stopWithError(ConnectError err);
+    void stopWithError(ConnectError err, const QString &errorDetail = QString());
 
     void startAttempt();
     void handleAttemptFailed(bool bDisconnectConnector);

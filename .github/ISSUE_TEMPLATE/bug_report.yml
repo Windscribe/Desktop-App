@@ -45,7 +45,6 @@ body:
         - Windows Server 2022
         - macOS 15 (Sequoia)
         - macOS 14 (Sonoma)
-        - macOS 13 (Ventura)
         - Ubuntu
         - Fedora
         - openSUSE

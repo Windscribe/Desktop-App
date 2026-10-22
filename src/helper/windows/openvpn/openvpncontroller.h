@@ -25,15 +25,18 @@ public:
     // process, and the returned ExecuteCmdResult::processId carries the OpenVPN PID. The engine
     // uses these to verify it connects to the genuine, helper-spawned OpenVPN.
     // clientPipe is the helper IPC pipe (to derive the logged-in user's token). Must be valid.
+    // On failure, outDetail carries the daemon's fatal text when OpenVPN exited before binding its
+    // management port. It is empty for every other failure.
     ExecuteCmdResult runOpenvpn(std::wstring &config, const std::wstring &httpProxy, unsigned int httpPort,
                                 const std::wstring &socksProxy, unsigned int socksPort, HANDLE clientPipe,
-                                unsigned int &outPort);
+                                unsigned int &outPort, std::string &outDetail);
 
 private:
     explicit OpenVPNController();
 
     bool useDCODriver_ = false;
     bool adapterCreated_ = false;
+    std::wstring logPath_;
 
     // Kept open for the lifetime of the OpenVPN process so its PID cannot be reused while it runs.
     wsl::Win32Handle openVpnProcess_;
@@ -43,8 +46,9 @@ private:
 
     bool writeOVPNFile(std::wstring &config, const std::wstring &httpProxy, unsigned int httpPort,
                        const std::wstring &socksProxy, unsigned int socksPort, HANDLE userToken,
-                       std::wstring &filename);
+                       std::wstring &filename, std::wstring &extraArgs);
 
     // Polls the TCP table for the loopback management socket OpenVPN (pid) is listening on.
-    bool resolveManagementPort(unsigned long pid, unsigned int &outPort);
+    // outDetail receives the daemon's fatal text when the process exits before binding.
+    bool resolveManagementPort(unsigned long pid, unsigned int &outPort, std::string &outDetail);
 };

@@ -179,6 +179,10 @@
         <translation>Errore: Impossibile avviare il servizio DNS personalizzato</translation>
     </message>
     <message>
+        <source>Error: Could not update the hosts file required by IKEv2</source>
+        <translation>Errore: Impossibile aggiornare il file hosts necessario per IKEv2</translation>
+    </message>
+    <message>
         <source>Error: Could not retrieve WireGuard configuration</source>
         <translation>Errore: Impossibile recuperare la configurazione di WireGuard</translation>
     </message>
@@ -189,6 +193,10 @@
     <message>
         <source>Error: Local DNS server is not available. Connected DNS has been set back to Auto</source>
         <translation>Errore: il server DNS locale non è disponibile. Il DNS connesso è stato riimpostato su Auto</translation>
+    </message>
+    <message>
+        <source>Error: The custom configuration could not be loaded</source>
+        <translation>Errore: Impossibile caricare la configurazione personalizzata</translation>
     </message>
     <message>
         <source>Unknown state</source>
@@ -369,6 +377,10 @@
     <message>
         <source>Invalid IP address</source>
         <translation>Indirizzo IP non valido</translation>
+    </message>
+    <message>
+        <source>Windscribe is already running in another user session on this computer. Quit Windscribe in that session, then try again.</source>
+        <translation>Windscribe è già in esecuzione nella sessione di un altro utente su questo computer. Esci da Windscribe in quella sessione, quindi riprova.</translation>
     </message>
 </context>
 </TS>

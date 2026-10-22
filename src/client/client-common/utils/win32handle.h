@@ -15,6 +15,19 @@ public:
         closeHandle();
     }
 
+    // Move-only: a copy would close the same handle twice.
+    Win32Handle(const Win32Handle &) = delete;
+    Win32Handle &operator=(const Win32Handle &) = delete;
+
+    Win32Handle(Win32Handle &&other) noexcept : win32Handle_(other.release()) {}
+
+    Win32Handle &operator=(Win32Handle &&other) noexcept {
+        if (this != &other) {
+            setHandle(other.release());
+        }
+        return *this;
+    }
+
     bool isValid() const {
         return ((win32Handle_ != nullptr) && (win32Handle_ != INVALID_HANDLE_VALUE));
     }

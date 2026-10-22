@@ -1,5 +1,6 @@
 #pragma once
 
+#include <QByteArray>
 #include <QDebug>
 #include <QString>
 #include "types/enums.h"
@@ -75,11 +76,16 @@ struct IfTable2Row
     bool valid;
     unsigned long interfaceType;
     bool mediaConnected;
+    QByteArray permanentAddress;
+    bool sharesAddressWithConnectorAdapter;
 
-    IfTable2Row(): index(0), interfaceGuid(""), description(""), alias(""), op_status(0), connectorPresent(false), endPointInterface(false), valid(false), interfaceType(0), mediaConnected(false) {}
-    IfTable2Row(unsigned long index, QString guid, QString description, QString alias, int op_status, bool connectorPresent, bool endPointInterface, unsigned long interfaceType, bool mediaConnected) :
+    IfTable2Row() : index(0), interfaceGuid(""), description(""), alias(""), op_status(0), connectorPresent(false),
+        endPointInterface(false), valid(false), interfaceType(0), mediaConnected(false), sharesAddressWithConnectorAdapter(false) {}
+    IfTable2Row(unsigned long index, QString guid, QString description, QString alias, int op_status, bool connectorPresent,
+                bool endPointInterface, unsigned long interfaceType, bool mediaConnected, const QByteArray &permanentAddress) :
         index(index), interfaceGuid(guid), description(description), alias(alias), op_status(op_status), connectorPresent(connectorPresent),
-        endPointInterface(endPointInterface), valid(true), interfaceType(interfaceType), mediaConnected(mediaConnected) {}
+        endPointInterface(endPointInterface), valid(true), interfaceType(interfaceType), mediaConnected(mediaConnected),
+        permanentAddress(permanentAddress), sharesAddressWithConnectorAdapter(false) {}
 
     bool isAppVpnAdapter() const
     {

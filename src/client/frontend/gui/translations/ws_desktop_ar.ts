@@ -586,6 +586,10 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
 <context>
     <name>MainWindow</name>
     <message>
+        <source>Windscribe could not update your hosts file, which IKEv2 requires. Another program, such as antivirus or endpoint security software, may be blocking changes to it. Please try again, or use a different connection mode.</source>
+        <translation>تعذّر على Windscribe تحديث ملف hosts الخاص بك، وهو مطلوب لـ IKEv2. قد يكون برنامج آخر، مثل برنامج مكافحة الفيروسات أو برنامج أمان نقاط النهاية، يمنع إجراء تغييرات عليه. يرجى المحاولة مرة أخرى، أو استخدام وضع اتصال مختلف.</translation>
+    </message>
+    <message>
         <source>Split Tunneling Stopped</source>
         <translation>توقف الانقسام النفقي</translation>
     </message>
@@ -640,10 +644,6 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
     <message>
         <source>Could not run updater (Error %1).  Please contact support</source>
         <translation>تعذر تشغيل المحدث (خطأ %1).  يرجى الاتصال بالدعم</translation>
-    </message>
-    <message>
-        <source>Read-Only File</source>
-        <translation>ملف للقراءة فقط</translation>
     </message>
     <message>
         <source>The custom configuration could not be loaded.  Please check that it’s correct or contact support.</source>
@@ -832,10 +832,6 @@ Recovering...</source>
     <message>
         <source>Select an application</source>
         <translation>حدد تطبيقا</translation>
-    </message>
-    <message>
-        <source>Your hosts file is read-only. IKEv2 connectivity requires for it to be writable. Fix the issue automatically?</source>
-        <translation>ملف المضيفين الخاص بك للقراءة فقط. يتطلب اتصال IKEv2 أن يكون قابلا للكتابة. حل المشكلة تلقائيا؟</translation>
     </message>
     <message>
         <source>WireGuard adapter setup failed. Please wait one minute and try the connection again. If adapter setup fails again, please try restarting your computer.
@@ -2821,6 +2817,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Alternate</source>
         <translation>بديل</translation>
+    </message>
+    <message>
+        <source>Windscribe is already running in another user session on this computer. Quit Windscribe in that session, then try again.</source>
+        <translation>يعمل Windscribe بالفعل في جلسة مستخدم آخر على هذا الكمبيوتر. يرجى إنهاء Windscribe في تلك الجلسة، ثم المحاولة مرة أخرى.</translation>
     </message>
 </context>
 <context>

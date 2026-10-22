@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.23)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(CMAKE_OSX_DEPLOYMENT_TARGET "13" CACHE STRING "Minimum OS X deployment version")
+set(CMAKE_OSX_DEPLOYMENT_TARGET "14.4" CACHE STRING "Minimum OS X deployment version")
 
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
@@ -43,8 +43,10 @@ set(SOURCES
     ../client/client-common/utils/log/logger.cpp
     ../client/client-common/utils/log/paths.cpp
     ../client/client-common/utils/utils.cpp
+    ../client/client-common/utils/ws_assert.cpp
     ../client/client-common/utils/hardcodedsettings.cpp
     ../client/client-common/utils/simplecrypt.cpp
+    ../client/client-common/utils/systemwideapplock.cpp
     ../client/client-common/version/appversion.cpp
     ../client/client-common/utils/executable_signature/executable_signature.cpp
 )
@@ -61,7 +63,7 @@ if(WIN32)
          ../client/client-common/utils/servicecontrolmanager.cpp
          ../client/client-common/utils/winutils.cpp
          cli.rc)
-    if(CI_MODE)
+    if(BUILD_SYMBOLS)
         add_compile_options("$<$<CONFIG:Release>:/Zi>")
         add_link_options("$<$<CONFIG:Release>:/DEBUG>" "$<$<CONFIG:Release>:/OPT:REF>" "$<$<CONFIG:Release>:/OPT:ICF>")
     endif()

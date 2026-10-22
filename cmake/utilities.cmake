@@ -40,7 +40,7 @@ function(ws_resolve_openvpn_version OUT_VAR)
     # --x-install-root must match the one install_vcpkg_dependencies() installs into.
     execute_process(
         COMMAND "${VCPKG_ROOT}/vcpkg" list openvpn --x-json
-                "--x-install-root=${VCPKG_ROOT}/installed"
+                "--x-install-root=${VCPKG_INSTALLED_DIR}"
         WORKING_DIRECTORY "${VCPKG_ROOT}"
         OUTPUT_VARIABLE _json
         ERROR_VARIABLE _listError
@@ -70,7 +70,7 @@ endfunction()
 # Populates WS_BUNDLED_HELPERS as a list of "source_path|dest_name" pairs used by packaging.
 # Must be called after VCPKG_ROOT and WINDSCRIBE_BUILD_LIBS_PATH are set.
 function(ws_resolve_bundled_helpers)
-    set(_vcpkg_tools "${VCPKG_ROOT}/installed/${VCPKG_TARGET_TRIPLET}/tools")
+    set(_vcpkg_tools "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/tools")
     set(_build_libs  "${WINDSCRIBE_BUILD_LIBS_PATH}")
     set(_p           "${WS_PRODUCT_NAME_LOWER}")
 
@@ -113,7 +113,7 @@ endfunction()
 # installed artifact is matched rather than the name rebuilt from the port version, because the SONAME
 # does not track it: openssl 1.1.1 shipped SONAME 1.1, the pinned 4.0.1 ships 4.
 function(ws_resolve_openssl_libs)
-    set(_vcpkg_lib "${VCPKG_ROOT}/installed/${VCPKG_TARGET_TRIPLET}/lib")
+    set(_vcpkg_lib "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib")
     foreach(_stem ssl crypto)
         if(APPLE)
             # Two literal dots, so the unversioned lib<stem>.dylib symlink is not a candidate.
@@ -147,7 +147,7 @@ endfunction()
 # Populates WS_SHARED_LIBS as a list of "source_path|dest_name" pairs.
 # Must be called after VCPKG_ROOT and ws_resolve_openssl_libs() are set.
 function(ws_resolve_shared_libs)
-    set(_vcpkg_lib "${VCPKG_ROOT}/installed/${VCPKG_TARGET_TRIPLET}/lib")
+    set(_vcpkg_lib "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib")
     set(_libs "")
 
     foreach(_lib ${WS_SHARED_LIB_NAMES})

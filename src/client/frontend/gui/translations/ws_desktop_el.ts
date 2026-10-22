@@ -586,6 +586,10 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
 <context>
     <name>MainWindow</name>
     <message>
+        <source>Windscribe could not update your hosts file, which IKEv2 requires. Another program, such as antivirus or endpoint security software, may be blocking changes to it. Please try again, or use a different connection mode.</source>
+        <translation>Το Windscribe δεν μπόρεσε να ενημερώσει το αρχείο hosts, το οποίο απαιτείται για το IKEv2. Ένα άλλο πρόγραμμα, όπως λογισμικό προστασίας από ιούς ή λογισμικό ασφάλειας τελικών σημείων, ενδέχεται να εμποδίζει τις αλλαγές σε αυτό. Δοκιμάστε ξανά ή χρησιμοποιήστε διαφορετική λειτουργία σύνδεσης.</translation>
+    </message>
+    <message>
         <source>Split Tunneling Stopped</source>
         <translation>Η διαίρεση διοχέτευσης διακόπηκε</translation>
     </message>
@@ -924,14 +928,6 @@ Recovering...</source>
     <message>
         <source>Select an application</source>
         <translation>Επιλέξτε μια εφαρμογή</translation>
-    </message>
-    <message>
-        <source>Read-Only File</source>
-        <translation>Αρχείο μόνο για ανάγνωση</translation>
-    </message>
-    <message>
-        <source>Your hosts file is read-only. IKEv2 connectivity requires for it to be writable. Fix the issue automatically?</source>
-        <translation>Το αρχείο hosts είναι μόνο για ανάγνωση. Η συνδεσιμότητα IKEv2 απαιτεί να είναι εγγράψιμη. Αυτόματη επίλυση του προβλήματος;</translation>
     </message>
     <message>
         <source>IKEv2 connectivity is not available in MacOS Lockdown Mode. Please disable Lockdown Mode in System Settings or change your connection settings.</source>
@@ -2821,6 +2817,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Alternate</source>
         <translation>Αναπληρωματικό</translation>
+    </message>
+    <message>
+        <source>Windscribe is already running in another user session on this computer. Quit Windscribe in that session, then try again.</source>
+        <translation>Το Windscribe εκτελείται ήδη στην περίοδο λειτουργίας άλλου χρήστη σε αυτόν τον υπολογιστή. Πραγματοποιήστε έξοδο από το Windscribe σε εκείνη την περίοδο λειτουργίας και δοκιμάστε ξανά.</translation>
     </message>
 </context>
 <context>

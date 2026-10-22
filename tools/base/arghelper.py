@@ -7,6 +7,8 @@
 
 import os
 
+import base.utils as utl
+
 ROOT_DIR = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 
 
@@ -71,8 +73,8 @@ class ArgHelper:
     options.append(("\nIntegration selection", ""))
     options.append(("--integration=<type>", "Integration to build (default: gui). Must match a file in cmake/integrations/"))
     options.append(("\nTarget Architecture", ""))
-    options.append((OPTION_TARGET_X86_64, "Build for the Intel/AMD 64-bit x86 CPU architecture (default) (Windows only)"))
-    options.append((OPTION_TARGET_ARM64, "Build for the ARM 64-bit CPU architecture (Windows only)"))
+    options.append((OPTION_TARGET_X86_64, "Build for the Intel/AMD 64-bit x86 CPU architecture (default on x64 Windows) (Windows only)"))
+    options.append((OPTION_TARGET_ARM64, "Cross-compile for ARM64 from x64 Windows. Not needed on ARM64 hardware, which builds natively by default."))
 
     def __init__(self, program_arg_list):
         self.args_only = program_arg_list[1:]
@@ -123,10 +125,17 @@ class ArgHelper:
             if arg.startswith("--integration="):
                 self.integration_value = arg.split("=", 1)[1]
 
-        # target architecture
-        no_arch_selected = ArgHelper.OPTION_TARGET_X86_64 not in program_arg_list and ArgHelper.OPTION_TARGET_ARM64 not in program_arg_list
-        self.target_x86_64 = no_arch_selected or ArgHelper.OPTION_TARGET_X86_64 in program_arg_list
-        self.target_arm64 = ArgHelper.OPTION_TARGET_ARM64 in program_arg_list
+        # target architecture. On Windows on Arm the host is the target unless --x86_64 is
+        # requested. --arm64 is the cross-compile switch and only applies on x64 hardware.
+        requested_x86_64 = ArgHelper.OPTION_TARGET_X86_64 in program_arg_list
+        requested_arm64 = ArgHelper.OPTION_TARGET_ARM64 in program_arg_list
+        self.host_is_arm64 = utl.IsWindowsArm64Host()
+        if self.host_is_arm64 and not requested_x86_64:
+            self.target_arm64 = True
+            self.target_x86_64 = False
+        else:
+            self.target_arm64 = requested_arm64
+            self.target_x86_64 = not requested_arm64
 
     def ci_mode(self):
         return self.mode_ci
@@ -198,6 +207,9 @@ class ArgHelper:
 
     def target_arm64_arch(self):
         return self.target_arm64
+
+    def native_arm64_host(self):
+        return self.host_is_arm64 and self.target_arm64
 
     def invalid_mode(self):
         if self.mode_help:

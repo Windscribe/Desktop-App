@@ -586,6 +586,10 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
 <context>
     <name>MainWindow</name>
     <message>
+        <source>Windscribe could not update your hosts file, which IKEv2 requires. Another program, such as antivirus or endpoint security software, may be blocking changes to it. Please try again, or use a different connection mode.</source>
+        <translation>Windscribe не вдалося оновити файл hosts, потрібний для IKEv2. Можливо, інша програма, наприклад антивірус або засіб захисту кінцевих точок, блокує його зміну. Спробуйте ще раз або скористайтеся іншим режимом підключення.</translation>
+    </message>
+    <message>
         <source>Split Tunneling Stopped</source>
         <translation>Роздільне тунелювання зупинено</translation>
     </message>
@@ -808,14 +812,6 @@ Recovering...</source>
     <message>
         <source>Select an application</source>
         <translation>Оберіть програму</translation>
-    </message>
-    <message>
-        <source>Read-Only File</source>
-        <translation>Файл лише для читання</translation>
-    </message>
-    <message>
-        <source>Your hosts file is read-only. IKEv2 connectivity requires for it to be writable. Fix the issue automatically?</source>
-        <translation>Ваш файл hosts доступний лише для читання. Підключення IKEv2 вимагає, щоб він був доступним для запису. Виправити проблему автоматично?</translation>
     </message>
     <message>
         <source>The custom configuration could not be loaded.  Please check that it’s correct or contact support.</source>
@@ -2821,6 +2817,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Alternate</source>
         <translation>Альтернативний</translation>
+    </message>
+    <message>
+        <source>Windscribe is already running in another user session on this computer. Quit Windscribe in that session, then try again.</source>
+        <translation>Windscribe вже запущено в сеансі іншого користувача на цьому комп&apos;ютері. Вийдіть з Windscribe у тому сеансі, а потім спробуйте ще раз.</translation>
     </message>
 </context>
 <context>

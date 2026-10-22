@@ -202,6 +202,33 @@ void TestOpenVPNConnection::testPrepareCustomConfigInjectsDnsAndClearsCredential
     QVERIFY(conn.password_.isEmpty());
 }
 
+void TestOpenVPNConnection::testRunOpenVpnCustomConfigDetailEmitsCustomConfigInvalid()
+{
+    OpenVPNConnection conn(nullptr, helper_, types::Protocol::OPENVPN_UDP, makeSessionParams());
+    conn.isCustomConfig_ = true;
+    conn.connectErrorDetail_ = "Windscribe: directive not permitted in config: up (config.ovpn:12)";
+
+    QCOMPARE(conn.launchFailureError(), ConnectError::kCustomConfigInvalid);
+    QCOMPARE(conn.takeConnectErrorDetail(), QString("Windscribe: directive not permitted in config: up (config.ovpn:12)"));
+    // Consumed once, so a later error cannot reuse the line.
+    QVERIFY(conn.takeConnectErrorDetail().isEmpty());
+    // The detail is gone, so a repeat of the same failure is a plain launch failure.
+    QCOMPARE(conn.launchFailureError(), ConnectError::kLocalProcessLaunchFailure);
+}
+
+void TestOpenVPNConnection::testRunOpenVpnEmptyDetailEmitsLaunchFailure()
+{
+    OpenVPNConnection conn(nullptr, helper_, types::Protocol::OPENVPN_UDP, makeSessionParams());
+    conn.isCustomConfig_ = true;
+    QCOMPARE(conn.launchFailureError(), ConnectError::kLocalProcessLaunchFailure);
+
+    // An official config keeps the launch-failure code even when the daemon left a fatal line.
+    // The custom-config dialog switches the selected location, which must not happen here.
+    conn.isCustomConfig_ = false;
+    conn.connectErrorDetail_ = "Windscribe: directive not permitted in config: up (config.ovpn:12)";
+    QCOMPARE(conn.launchFailureError(), ConnectError::kLocalProcessLaunchFailure);
+}
+
 void TestOpenVPNConnection::testPrepareInvalidNodeIpFails()
 {
     OpenVPNConnection conn(nullptr, helper_, types::Protocol::OPENVPN_UDP, makeSessionParams());

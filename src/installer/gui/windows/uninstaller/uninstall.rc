@@ -1,4 +1,5 @@
 #include "resource.h"
+#include "version/ws_version.h"
 
 #include "winres.h"
 

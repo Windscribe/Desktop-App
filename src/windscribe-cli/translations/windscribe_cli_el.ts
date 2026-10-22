@@ -291,6 +291,10 @@
         <translation>Σφάλμα: Δεν είναι δυνατή η εκκίνηση προσαρμοσμένης υπηρεσίας DNS</translation>
     </message>
     <message>
+        <source>Error: Could not update the hosts file required by IKEv2</source>
+        <translation>Σφάλμα: Δεν ήταν δυνατή η ενημέρωση του αρχείου hosts που απαιτείται για το IKEv2</translation>
+    </message>
+    <message>
         <source>Error: WireGuard adapter setup failed</source>
         <translation>Σφάλμα: Η ρύθμιση του προσαρμογέα WireGuard απέτυχε</translation>
     </message>
@@ -309,6 +313,10 @@
     <message>
         <source>Error: Local DNS server is not available. Connected DNS has been set back to Auto</source>
         <translation>Σφάλμα: Ο τοπικός διακομιστής DNS δεν είναι διαθέσιμος. Το συνδεδεμένο DNS έχει επανέλθει σε Αυτόματο</translation>
+    </message>
+    <message>
+        <source>Error: The custom configuration could not be loaded</source>
+        <translation>Σφάλμα: Δεν ήταν δυνατή η φόρτωση της προσαρμοσμένης διαμόρφωσης</translation>
     </message>
     <message>
         <source>Unknown state</source>
@@ -369,6 +377,10 @@
     <message>
         <source> (10 Gbps)</source>
         <translation> (10 Gbps)</translation>
+    </message>
+    <message>
+        <source>Windscribe is already running in another user session on this computer. Quit Windscribe in that session, then try again.</source>
+        <translation>Το Windscribe εκτελείται ήδη στην περίοδο λειτουργίας άλλου χρήστη σε αυτόν τον υπολογιστή. Πραγματοποιήστε έξοδο από το Windscribe σε εκείνη την περίοδο λειτουργίας και δοκιμάστε ξανά.</translation>
     </message>
 </context>
 </TS>

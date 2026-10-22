@@ -179,6 +179,10 @@
         <translation>त्रुटि: कस्टम DNS सेवा प्रारंभ करने में असमर्थ</translation>
     </message>
     <message>
+        <source>Error: Could not update the hosts file required by IKEv2</source>
+        <translation>त्रुटि: IKEv2 के लिए आवश्यक hosts फ़ाइल अद्यतन नहीं की जा सकी</translation>
+    </message>
+    <message>
         <source>Error: Could not retrieve WireGuard configuration</source>
         <translation>त्रुटि: WireGuard कॉन्फ़िगरेशन पुनर्प्राप्त नहीं कर सका</translation>
     </message>
@@ -189,6 +193,10 @@
     <message>
         <source>Error: Local DNS server is not available. Connected DNS has been set back to Auto</source>
         <translation>त्रुटि: स्थानीय DNS सर्वर उपलब्ध नहीं है। कनेक्टेड DNS को ऑटो पर वापस सेट किया गया है</translation>
+    </message>
+    <message>
+        <source>Error: The custom configuration could not be loaded</source>
+        <translation>त्रुटि: कस्टम कॉन्फ़िगरेशन लोड नहीं हो सका</translation>
     </message>
     <message>
         <source>Unknown state</source>
@@ -369,6 +377,10 @@
     <message>
         <source>Invalid IP address</source>
         <translation>अमान्य आईपी पता</translation>
+    </message>
+    <message>
+        <source>Windscribe is already running in another user session on this computer. Quit Windscribe in that session, then try again.</source>
+        <translation>Windscribe इस कंप्यूटर पर किसी अन्य उपयोगकर्ता के सत्र में पहले से चल रहा है। कृपया उस सत्र में Windscribe से बाहर निकलें, फिर पुनः प्रयास करें।</translation>
     </message>
 </context>
 </TS>

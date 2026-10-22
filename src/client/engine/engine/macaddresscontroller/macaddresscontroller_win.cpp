@@ -78,7 +78,8 @@ void MacAddressController_win::setMacAddrSpoofing(const types::MacAddrSpoofing &
     }
 
     // Check if we need to apply a manual spoof.
-    if (macAddrSpoofing.isEnabled && !spoofIndex.has_value() && selectedInterface.interfaceIndex == currentAdapter.interfaceIndex) {
+    if (macAddrSpoofing.isEnabled && !spoofIndex.has_value() && selectedInterface.interfaceIndex == currentAdapter.interfaceIndex
+        && NetworkUtils_win::hasPhysicalConnector(currentAdapter.interfaceIndex)) {
         // User changed enabled state, mac address or interface
         if (!macAddrSpoofing_.isEnabled || macAddrSpoofing.macAddress != macAddrSpoofing_.macAddress ||
             selectedInterface.interfaceIndex != macAddrSpoofing_.selectedNetworkInterface.interfaceIndex)
@@ -141,10 +142,11 @@ void MacAddressController_win::onNetworkChange(types::NetworkInterface /*network
         types::MacAddrSpoofing updatedMacAddrSpoofing = macAddrSpoofing_;
         bool setSpoofing = false;
 
-        if (networkInterfaces != updatedMacAddrSpoofing.networkInterfaces) {
+        const QVector<types::NetworkInterface> spoofable = NetworkUtils_win::spoofableNetworkInterfaces(networkInterfaces);
+        if (spoofable != updatedMacAddrSpoofing.networkInterfaces) {
             // An adapter has been added/removed/disabled/enabled, or the settings of an existing adapter have changed (e.g. changed wi-fi networks).
-            qCInfo(LOG_BASIC) << "Current active adapters: " << NetworkUtils::networkInterfacesToString(networkInterfaces, true);
-            updatedMacAddrSpoofing.networkInterfaces = networkInterfaces;
+            qCInfo(LOG_BASIC) << "Current active adapters: " << NetworkUtils::networkInterfacesToString(spoofable, true);
+            updatedMacAddrSpoofing.networkInterfaces = spoofable;
             setSpoofing = true;
         }
 

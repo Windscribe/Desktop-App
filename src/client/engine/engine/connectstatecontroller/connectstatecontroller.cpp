@@ -16,13 +16,14 @@ void ConnectStateController::setConnectedState(const LocationID &location)
         prevState_ = state_;
         state_ = CONNECT_STATE_CONNECTED;
         err_ = ConnectError::kNoError;
+        errDetail_.clear();
         disconnectReason_ = DISCONNECTED_ITSELF;
         location_ = location;
-        emit stateChanged(state_, disconnectReason_, err_, location_);
+        emit stateChanged(state_, disconnectReason_, err_, errDetail_, location_);
     }
 }
 
-void ConnectStateController::setDisconnectedState(DISCONNECT_REASON reason, ConnectError err)
+void ConnectStateController::setDisconnectedState(DISCONNECT_REASON reason, ConnectError err, const QString &errorDetail)
 {
     QMutexLocker locker(&mutex_);
     if (state_ != CONNECT_STATE_DISCONNECTED || reason == DISCONNECTED_WITH_ERROR)
@@ -31,8 +32,9 @@ void ConnectStateController::setDisconnectedState(DISCONNECT_REASON reason, Conn
         state_ = CONNECT_STATE_DISCONNECTED;
         disconnectReason_ = reason;
         err_ = err;
+        errDetail_ = errorDetail;
         location_ = LocationID();   //reset
-        emit stateChanged(state_, disconnectReason_, err_, location_);
+        emit stateChanged(state_, disconnectReason_, err_, errDetail_, location_);
     }
 }
 
@@ -44,9 +46,10 @@ void ConnectStateController::setConnectingState(const LocationID &location)
         prevState_ = state_;
         state_ = CONNECT_STATE_CONNECTING;
         err_ = ConnectError::kNoError;
+        errDetail_.clear();
         disconnectReason_ = DISCONNECTED_ITSELF;
         location_ = location;
-        emit stateChanged(state_, disconnectReason_, err_, location_);
+        emit stateChanged(state_, disconnectReason_, err_, errDetail_, location_);
     }
 }
 
@@ -58,9 +61,10 @@ void ConnectStateController::setDisconnectingState()
         prevState_ = state_;
         state_ = CONNECT_STATE_DISCONNECTING;
         err_ = ConnectError::kNoError;
+        errDetail_.clear();
         disconnectReason_ = DISCONNECTED_ITSELF;
         location_ = LocationID();   //reset
-        emit stateChanged(state_, disconnectReason_, err_, location_);
+        emit stateChanged(state_, disconnectReason_, err_, errDetail_, location_);
     }
 }
 

@@ -10,6 +10,10 @@
 namespace NetworkUtils_win
 {
     bool isInterfaceSpoofed(int interfaceIndex);
+    // False for virtual adapters, including those accepted as the current network because they front a physical adapter.
+    bool hasPhysicalConnector(int interfaceIndex);
+    // Virtual adapters, such as the host adapter of a Hyper-V switch, are never offered for MAC spoofing.
+    QVector<types::NetworkInterface> spoofableNetworkInterfaces(const QVector<types::NetworkInterface> &networkInterfaces);
     bool pingWithMtu(const QString &url, int mtu);
     QString getLocalIP();
     QString getRoutingTable();

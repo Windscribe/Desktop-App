@@ -65,6 +65,7 @@ private:
     QString password_;
     QString privKeyPassword_;
     bool isCustomConfig_;
+    QString connectErrorDetail_;
     // Set once startConnect() runs; teardown() must not issue the mac route delete for a connector
     // that never dialed (the helper would be hit with another session's ip).
     bool isDialed_ = false;
@@ -77,6 +78,8 @@ private:
     void setCurrentStateAndEmitError(CONNECTION_STATUS state, ConnectError err);
     CONNECTION_STATUS getCurrentState() const;
     bool runOpenVPN();
+    ConnectError launchFailureError() const;
+    QString takeConnectErrorDetail() override;
 
 #ifdef Q_OS_WIN
     using ManagementSocket = boost::asio::ip::tcp::socket;

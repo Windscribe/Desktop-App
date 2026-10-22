@@ -94,6 +94,8 @@ QString connectStateString(types::ConnectState state, LocationID location, TUNNE
             return msg.arg(QObject::tr("Error: You are out of data, or your account has been disabled. Upgrade to Pro to continue using Windscribe"));
         case ConnectError::kDnsServiceStartFailure:
             return msg.arg(QObject::tr("Error: Unable to start custom DNS service"));
+        case ConnectError::kHostsFileNotWritable:
+            return msg.arg(QObject::tr("Error: Could not update the hosts file required by IKEv2"));
         case ConnectError::kAdapterSetupFailure:
             return msg.arg(QObject::tr("Error: WireGuard adapter setup failed"));
         case ConnectError::kAdapterNotInstalled:
@@ -104,7 +106,16 @@ QString connectStateString(types::ConnectState state, LocationID location, TUNNE
             return msg.arg(QObject::tr("Error: Could not generate connection configuration"));
         case ConnectError::kLocalDnsServerNotAvailable:
             return msg.arg(QObject::tr("Error: Local DNS server is not available. Connected DNS has been set back to Auto"));
+        case ConnectError::kCustomConfigInvalid:
+            if (!state.connectErrorDetail.isEmpty()) {
+                return msg.arg(QObject::tr("Error: The custom configuration could not be loaded") + QString(". ") + state.connectErrorDetail);
+            }
+            return msg.arg(QObject::tr("Error: The custom configuration could not be loaded"));
         default:
+            if (!state.connectErrorDetail.isEmpty()) {
+                return msg.arg(QObject::tr("Error: %1").arg(static_cast<int>(state.connectError))
+                               + QString(". ") + state.connectErrorDetail);
+            }
             return msg.arg(QObject::tr("Error: %1").arg(static_cast<int>(state.connectError)));
         }
     default:
@@ -205,4 +216,10 @@ QString locationsString(const QList<IPC::CliCommands::IpcLocation> &locations)
     }
 
     return msg.trimmed();
+}
+
+QString appRunningInAnotherSessionString()
+{
+    return QObject::tr("Windscribe is already running in another user session on this computer. "
+                       "Quit Windscribe in that session, then try again.");
 }

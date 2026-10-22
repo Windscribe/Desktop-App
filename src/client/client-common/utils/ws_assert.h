@@ -2,13 +2,12 @@
 
 #include "log/categories.h"
 
-#if defined(WINDSCRIBE_IS_BETA) || defined(WINDSCRIBE_IS_GUINEA_PIG)
+// The macro is identical in every build type so that switching build types does not recompile its users;
+// whether a failure is logged is decided in ws_assert.cpp.
 #define WS_ASSERT(b) { \
   if (!(b)) { \
-      qCritical(LOG_ASSERT) << "Assertion failed! (" << __FILE__ << ":" << __LINE__ << ")"; \
+      ws_assert_failed(#b, __FILE__, __LINE__); \
   } \
-  Q_ASSERT(b); \
 }
-#else
-#define WS_ASSERT(b)
-#endif
+
+void ws_assert_failed(const char *expression, const char *file, int line);

@@ -43,6 +43,8 @@ private slots:
     void testMakeOvpnFileStunnelNoGatewayNoRoute();
     void testPrepareCustomConfigEmptyDnsNoInjection();
     void testOpenVpnCapabilities();
+    void testRunOpenVpnCustomConfigDetailEmitsCustomConfigInvalid();
+    void testRunOpenVpnEmptyDetailEmitsLaunchFailure();
 private:
     Helper *helper_ = nullptr;
 

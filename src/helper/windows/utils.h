@@ -28,7 +28,10 @@ namespace Utils
     // Same as createRestrictedFile, plus FILE_GENERIC_READ for userSid (the helper's pipe client).
     // userSid must be a valid SID; it is converted to SDDL and must not be a Users/Everyone group.
     bool createRestrictedFileForUser(const std::wstring &path, PSID userSid);
-    bool hasWhitespaceInString(const std::wstring &str);
+    // Folder the client writes its log to: %LOCALAPPDATA%\<WS_SETTINGS_ORG>\<WS_SETTINGS_APP>
+    // for the user that owns userToken. The helper runs as SYSTEM, so the token is required.
+    // Empty on failure.
+    std::wstring getClientLogFolder(HANDLE userToken);
     bool verifyAppProcessPath(HANDLE hPipe);
     // Primary token of the process connected to hPipe (the GUI/engine). Fails for Session 0.
     // On success, outToken receives a TokenPrimary handle the caller must CloseHandle.

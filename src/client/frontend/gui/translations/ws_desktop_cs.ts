@@ -586,6 +586,10 @@ Pokud ztratíte hash účtu, je navždy pryč a podpora vám nemůže pomoci ho 
 <context>
     <name>MainWindow</name>
     <message>
+        <source>Windscribe could not update your hosts file, which IKEv2 requires. Another program, such as antivirus or endpoint security software, may be blocking changes to it. Please try again, or use a different connection mode.</source>
+        <translation>Windscribe nemohl aktualizovat váš soubor hosts, který IKEv2 vyžaduje. Změnám v něm může bránit jiný program, například antivirus nebo software pro zabezpečení koncových bodů. Zkuste to prosím znovu nebo použijte jiný režim připojení.</translation>
+    </message>
+    <message>
         <source>Split Tunneling Stopped</source>
         <translation>Rozdělené tunelové propojení zastaveno</translation>
     </message>
@@ -808,14 +812,6 @@ Uzdravování...</translation>
     <message>
         <source>Select an application</source>
         <translation>Vyberte aplikaci</translation>
-    </message>
-    <message>
-        <source>Read-Only File</source>
-        <translation>Soubor jen pro čtení</translation>
-    </message>
-    <message>
-        <source>Your hosts file is read-only. IKEv2 connectivity requires for it to be writable. Fix the issue automatically?</source>
-        <translation>Soubor hosts je jen pro čtení. Připojení IKEv2 vyžaduje, aby bylo možné zapisovat. Opravit problém automaticky?</translation>
     </message>
     <message>
         <source>The custom configuration could not be loaded.  Please check that it’s correct or contact support.</source>
@@ -2821,6 +2817,10 @@ Pokud přeinstalace nepomůže, obraťte se na podporu Windscribe a požádejte 
     <message>
         <source>Alternate</source>
         <translation>Alternativní</translation>
+    </message>
+    <message>
+        <source>Windscribe is already running in another user session on this computer. Quit Windscribe in that session, then try again.</source>
+        <translation>Aplikace Windscribe již běží v relaci jiného uživatele na tomto počítači. Ukončete aplikaci Windscribe v dané relaci a zkuste to prosím znovu.</translation>
     </message>
 </context>
 <context>

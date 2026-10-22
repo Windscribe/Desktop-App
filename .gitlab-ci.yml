@@ -30,9 +30,16 @@ variables:
   ARCH_LINUX_BUILD_PATH: '/home/build/windscribe'
   RHEL_CMAKE_BUILD_PATH: '/home/build/windscribe'
   BUILD_LIBS_FOLDER: 'build-libs/windscribe'
-  BUILD_LIBS_FOLDER_X64: 'build-libs/windscribe'
   BUILD_LIBS_FOLDER_ARM64: 'build-libs-arm64/windscribe'
   VCPKG_ROOT_WINDOWS: 'c:\vcpkg'
+  # Compiler cache shared by all build jobs through Nexus; build_all enables it in CI mode.
+  CCACHE_BASEDIR: '$CI_PROJECT_DIR'
+  CCACHE_COMPILERCHECK: 'content'
+  CCACHE_MAXSIZE: '10G'
+  CCACHE_NOHASHDIR: '1'
+  CCACHE_REMOTE_STORAGE: 'https://${NEXUS_USERNAME}:${NEXUS_PASSWORD}@nexus.int.windscribe.com/repository/client-desktop/client-desktop/ccache'
+  # Qt's resource compiler otherwise embeds each file's modification time, which differs on every fresh clone.
+  QT_RCC_SOURCE_DATE_OVERRIDE: '1'
 
 .check_translations:
   script:
@@ -49,9 +56,10 @@ variables:
   tags: [win10qty6]
   before_script:
     - $env:VCPKG_ROOT = $env:VCPKG_ROOT_WINDOWS
-    - $env:VCPKG_CA_BUNDLE = "$(Get-Location)\tools\cacert.pem"
     - $env:VCPKG_BINARY_SOURCES = "clear;http,https://${env:NEXUS_USERNAME}:${env:NEXUS_PASSWORD}@nexus.int.windscribe.com/repository/client-desktop/client-desktop/vcpkg_cache/current/binary_cache/{sha}.zip,readwrite"
     - $env:VCPKG_INSTALL_OPTIONS = "--clean-after-build"
+    - $env:CCACHE_DIR = "C:\ccache\cache"
+    - $env:PATH = "C:\ccache;$env:PATH"
     - if (Test-Path ws-vcpkg-registry) { Remove-Item -Recurse -Force ws-vcpkg-registry }
     - git clone https://github.com/Windscribe/ws-vcpkg-registry.git
     - .\ws-vcpkg-registry\install-vcpkg\vcpkg_install.bat $env:VCPKG_ROOT_WINDOWS --configure-git
@@ -86,7 +94,6 @@ variables:
     - brew install pkg-config
     - export VCPKG_ROOT="${HOME}/vcpkg"
     - export VCPKG_INSTALL_OPTIONS="--clean-after-build"
-    - export VCPKG_CA_BUNDLE="$(pwd)/tools/cacert.pem"
     - export VCPKG_BINARY_SOURCES="clear;http,https://${NEXUS_USERNAME}:${NEXUS_PASSWORD}@nexus.int.windscribe.com/repository/client-desktop/client-desktop/vcpkg_cache/current/binary_cache/{sha}.zip,readwrite"
     - rm -rf ws-vcpkg-registry
     - git clone https://github.com/Windscribe/ws-vcpkg-registry.git
@@ -109,7 +116,8 @@ variables:
     # vcpkg settings
     - export VCPKG_ROOT="${HOME}/vcpkg"
     - export VCPKG_FORCE_SYSTEM_BINARIES=1
-    - export VCPKG_CA_BUNDLE="$(pwd)/tools/cacert.pem"
+    # Containers start empty, so a local ccache directory would only add work.
+    - export CCACHE_REMOTE_ONLY=true
     - export VCPKG_BINARY_SOURCES="clear;http,https://${NEXUS_USERNAME}:${NEXUS_PASSWORD}@nexus.int.windscribe.com/repository/client-desktop/client-desktop/vcpkg_cache/current/binary_cache/{sha}.zip,readwrite"
     - wget -q https://github.com/NixOS/patchelf/releases/download/0.18.0/patchelf-0.18.0-aarch64.tar.gz && mkdir -p tools/patchelf && tar -C tools/patchelf -xzf patchelf-0.18.0-aarch64.tar.gz
     - export PATH=${RHEL_CMAKE_BUILD_PATH}/bin:`pwd`/tools/patchelf/bin:$PATH
@@ -131,7 +139,8 @@ variables:
     # vcpkg settings
     - export VCPKG_ROOT="${HOME}/vcpkg"
     - export PATH=${RHEL_CMAKE_BUILD_PATH}/bin:$PATH
-    - export VCPKG_CA_BUNDLE="$(pwd)/tools/cacert.pem"
+    # Containers start empty, so a local ccache directory would only add work.
+    - export CCACHE_REMOTE_ONLY=true
     - export VCPKG_BINARY_SOURCES="clear;http,https://${NEXUS_USERNAME}:${NEXUS_PASSWORD}@nexus.int.windscribe.com/repository/client-desktop/client-desktop/vcpkg_cache/current/binary_cache/{sha}.zip,readwrite"
     - python3 -m pip install -r tools/requirements.txt
   interruptible: true
@@ -158,7 +167,6 @@ variables:
 
 .download_dependencies_win:
   script:
-    - Set-Variable -name SKIP_DOWNLOAD -value "0"
     - !reference [.download_dependency_openvpn_dco, script]
     - !reference [.download_dependency_wintun, script]
     - !reference [.download_dependency_wireguard, script]
@@ -181,25 +189,29 @@ variables:
     GIT_STRATEGY: clone
     VCPKG_ROOT: '%VCPKG_ROOT_WINDOWS%'
   script:
-    # Backup OS identifier/build libs values.  Set flags to get the x86 Qt libs if on arm64.
-    - Set-Variable -name OS_IDENTIFIER_BAK -value "${OS_IDENTIFIER}"
-    - Set-Variable -name BUILD_LIBS_FOLDER_BAK -value "${BUILD_LIBS_FOLDER}"
-    - if ("${ARCH_FLAG}" -eq "--arm64") { Set-Variable -name OS_IDENTIFIER -value "windows"; Set-Variable -name BUILD_LIBS_FOLDER -value "${BUILD_LIBS_FOLDER_X64}" }
-    - if ("${ARCH_FLAG}" -ne "--arm64") { Set-Variable -name SKIP_DOWNLOAD -value "1" }
-    - IF(Test-Path .\$BUILD_LIBS_FOLDER\) {Get-ChildItem .\$BUILD_LIBS_FOLDER\*.zip | Foreach {& "$env:SystemRoot\System32\tar.exe" -xf $_.FullName -C "$BUILD_LIBS_FOLDER"}}
-    # Reset to original values
-    - Set-Variable -name OS_IDENTIFIER -value "${OS_IDENTIFIER_BAK}"
-    - Set-Variable -name BUILD_LIBS_FOLDER -value "${BUILD_LIBS_FOLDER_BAK}"
     - !reference [.download_dependencies_win, script]
     - 'IF(Test-Path .\$BUILD_LIBS_FOLDER\) {Get-ChildItem .\$BUILD_LIBS_FOLDER\*.zip | Foreach {& "$env:SystemRoot\System32\tar.exe" -xf $_.FullName -C "$BUILD_LIBS_FOLDER"}}'
     - $env:VCPKG_ROOT = $env:VCPKG_ROOT_WINDOWS
     - $buildSymbolsFlag = if ($CI_COMMIT_TAG) { "--build-symbols" } else { "" }
-    - tools/build_all ${BUILD_FLAG} ${ARCH_FLAG} --ci-mode $buildSymbolsFlag
+    - tools/build_all --build-app ${ARCH_FLAG} --ci-mode $buildSymbolsFlag
     - !reference [.check_translations, script]
   artifacts:
     paths:
       - build/temp/
     expire_in: 1 day
+
+# The installer packages the signed app from the previous job, so it needs none of the app's downloaded dependencies.
+.template_win_build_installer: &template_win_build_installer
+  <<: *template_win10_build
+  stage: Build
+  variables:
+    GIT_STRATEGY: clone
+    VCPKG_ROOT: '%VCPKG_ROOT_WINDOWS%'
+  script:
+    - $env:VCPKG_ROOT = $env:VCPKG_ROOT_WINDOWS
+    - $buildSymbolsFlag = if ($CI_COMMIT_TAG) { "--build-symbols" } else { "" }
+    - tools/build_all --build-installer ${ARCH_FLAG} --ci-mode $buildSymbolsFlag
+    - !reference [.check_translations, script]
 
 .template_win_build_bootstrap: &template_win_build_bootstrap
   <<: *template_win10_build
@@ -221,7 +233,6 @@ build:win:x64:app:
   variables:
     OS_IDENTIFIER: "windows"
     ARCH_FLAG: ""
-    BUILD_FLAG: "--build-app"
   rules:
     - if: $BUILD_WIN == "y" && ($CI_COMMIT_TAG != null || $CI_COMMIT_BRANCH != null) && $NIGHTLY_TEST_BUILD != "y"
 
@@ -269,11 +280,9 @@ sign:win:arm64:app:
     - if: $BUILD_WIN_ARM64 == "y" && ($CI_COMMIT_TAG != null || $CI_COMMIT_BRANCH != null) && $NIGHTLY_TEST_BUILD != "y"
 
 build:win:x64:installer:
-  <<: *template_win_build_app
+  <<: *template_win_build_installer
   variables:
-    OS_IDENTIFIER: "windows"
     ARCH_FLAG: ""
-    BUILD_FLAG: "--build-installer"
   artifacts:
     paths:
       - build/temp/
@@ -428,7 +437,6 @@ build:win:arm64:app:
     OS_IDENTIFIER: "windows-arm64"
     BUILD_LIBS_FOLDER: "$BUILD_LIBS_FOLDER_ARM64"
     ARCH_FLAG: "--arm64"
-    BUILD_FLAG: "--build-app"
   rules:
     - if: $BUILD_WIN_ARM64 == "y" && ($CI_COMMIT_TAG != null || $CI_COMMIT_BRANCH != null) && $NIGHTLY_TEST_BUILD != "y"
 
@@ -439,10 +447,6 @@ build:win:arm64:mr:
     GIT_STRATEGY: clone
     VCPKG_ROOT: '%VCPKG_ROOT_WINDOWS%'
   script:
-    # Need the x64 Qt package so we can reference it as the QT_HOST_PATH in build_all.
-    - Set-Variable -name OS_IDENTIFIER -value "windows"
-    - Set-Variable -name BUILD_LIBS_FOLDER -value "${BUILD_LIBS_FOLDER_X64}"
-    - 'IF(Test-Path .\$BUILD_LIBS_FOLDER\) {Get-ChildItem .\$BUILD_LIBS_FOLDER\*.zip | Foreach {& "$env:SystemRoot\System32\tar.exe" -xf $_.FullName -C "$BUILD_LIBS_FOLDER"}}'
     - Set-Variable -name OS_IDENTIFIER -value "windows-arm64"
     - Set-Variable -name BUILD_LIBS_FOLDER -value "${BUILD_LIBS_FOLDER_ARM64}"
     - !reference [.download_dependencies_win, script]
@@ -453,12 +457,9 @@ build:win:arm64:mr:
     - if: $BUILD_WIN_ARM64 == "y" && $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH == null && $NIGHTLY_TEST_BUILD != "y"
 
 build:win:arm64:installer:
-  <<: *template_win_build_app
+  <<: *template_win_build_installer
   variables:
-    OS_IDENTIFIER: "windows-arm64"
-    BUILD_LIBS_FOLDER: "$BUILD_LIBS_FOLDER_ARM64"
     ARCH_FLAG: "--arm64"
-    BUILD_FLAG: "--build-installer"
   artifacts:
     paths:
       - build/temp/
@@ -1076,7 +1077,8 @@ build:artifact:links:tagged:
     - if: $CI_COMMIT_TAG != null && $NIGHTLY_TEST_BUILD != "y"
 
 test:signature_check:win:
-  <<: *template_win10_build
+  tags: [win10qty6]
+  interruptible: true
   stage: Test
   variables:
     GIT_STRATEGY: none
@@ -1098,7 +1100,10 @@ test:signature_check:win:
     - if: $BUILD_WIN == "y" && ($CI_COMMIT_BRANCH != null || $NIGHTLY_TEST_BUILD == "y")
 
 test:signature_check:mac:
-  <<: *template_mac_build
+  tags: [macos-arm64-qt6]
+  before_script:
+    - export DEVELOPER_DIR=/Applications/Xcode15.4.app/Contents/Developer
+  interruptible: true
   stage: Test
   variables:
     GIT_STRATEGY: none
@@ -1177,7 +1182,8 @@ test:signature_check:mac:
     - if: $BUILD_MAC == "y" && ($CI_COMMIT_BRANCH != null || $NIGHTLY_TEST_BUILD == "y")
 
 lint:flake8:
-  <<: *template_win10_build
+  tags: [win10qty6]
+  interruptible: true
   stage: Test
   variables:
     GIT_STRATEGY: clone
@@ -1189,7 +1195,8 @@ lint:flake8:
     - if: $BUILD_WIN == "y"
 
 test:translations:
-  <<: *template_win10_build
+  tags: [win10qty6]
+  interruptible: true
   stage: Test
   variables:
     GIT_STRATEGY: clone
@@ -1203,7 +1210,8 @@ test:translations:
     - if: $BUILD_WIN == "y"
 
 test:version:mac:
-  <<: *template_mac_build
+  tags: [macos-arm64-qt6]
+  interruptible: true
   stage: Test
   variables:
     GIT_STRATEGY: clone

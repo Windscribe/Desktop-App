@@ -1,0 +1,17 @@
+#ifndef WS_VERSION_H
+#define WS_VERSION_H
+
+// Kept out of the global compile definitions so that a version or build type change only recompiles the
+// files that include this header. Also included by .rc files, so it must stay plain preprocessor code.
+#define WS_VERSION "@WS_VERSION_MAJOR@.@WS_VERSION_MINOR@.@WS_VERSION_BUILD@"
+#define WS_VERSION_MAJOR @WS_VERSION_MAJOR@
+#define WS_VERSION_MAJOR_MINOR "@WS_VERSION_MAJOR@.@WS_VERSION_MINOR@"
+#define WS_VERSION_MINOR @WS_VERSION_MINOR@
+#define WS_VERSION_BUILD @WS_VERSION_BUILD@
+
+#cmakedefine WINDSCRIBE_IS_GUINEA_PIG
+#cmakedefine WINDSCRIBE_IS_BETA
+
+#cmakedefine WS_OPENVPN_VERSION "@WS_OPENVPN_VERSION@"
+
+#endif // WS_VERSION_H

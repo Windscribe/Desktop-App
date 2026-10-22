@@ -102,6 +102,10 @@ public:
 
     virtual void continueWithUserInput(const UserInputResponse & /*response*/) {}
 
+    // Text the connector wants shown with the next error() it emits. Empty for errors that have no
+    // daemon text. Consumed once, so a later error cannot reuse a stale line.
+    virtual QString takeConnectErrorDetail() { return QString(); }
+
 signals:
     void prepared();
     void prepareFailed(ConnectError err);

@@ -586,6 +586,10 @@ Si pierde el hash de su cuenta, desaparece para siempre y el soporte no puede ay
 <context>
     <name>MainWindow</name>
     <message>
+        <source>Windscribe could not update your hosts file, which IKEv2 requires. Another program, such as antivirus or endpoint security software, may be blocking changes to it. Please try again, or use a different connection mode.</source>
+        <translation>Windscribe no pudo actualizar tu archivo hosts, que IKEv2 necesita. Es posible que otro programa, como un antivirus o un software de seguridad para puntos de conexión, esté bloqueando los cambios. Inténtalo de nuevo o usa un modo de conexión diferente.</translation>
+    </message>
+    <message>
         <source>Split Tunneling Stopped</source>
         <translation>Túnel dividido detenido</translation>
     </message>
@@ -640,10 +644,6 @@ Si pierde el hash de su cuenta, desaparece para siempre y el soporte no puede ay
     <message>
         <source>Could not run updater (Error %1).  Please contact support</source>
         <translation>No se pudo ejecutar el actualizador (error %1).  Póngase en contacto con el servicio de asistencia</translation>
-    </message>
-    <message>
-        <source>Read-Only File</source>
-        <translation>Archivo de sólo lectura</translation>
     </message>
     <message>
         <source>The custom configuration could not be loaded.  Please check that it’s correct or contact support.</source>
@@ -832,10 +832,6 @@ Recuperando...</translation>
     <message>
         <source>Select an application</source>
         <translation>Seleccione una aplicación</translation>
-    </message>
-    <message>
-        <source>Your hosts file is read-only. IKEv2 connectivity requires for it to be writable. Fix the issue automatically?</source>
-        <translation>El archivo hosts es de sólo lectura. La conectividad IKEv2 requiere que sea de escritura. ¿Solucionar el problema automáticamente?</translation>
     </message>
     <message>
         <source>WireGuard adapter setup failed. Please wait one minute and try the connection again. If adapter setup fails again, please try restarting your computer.
@@ -2821,6 +2817,10 @@ Si la reinstalación no ayuda, póngase en contacto con el soporte de Windscribe
     <message>
         <source>Alternate</source>
         <translation>Alternativa</translation>
+    </message>
+    <message>
+        <source>Windscribe is already running in another user session on this computer. Quit Windscribe in that session, then try again.</source>
+        <translation>Windscribe ya se está ejecutando en la sesión de otro usuario en este equipo. Sal de Windscribe en esa sesión y vuelve a intentarlo.</translation>
     </message>
 </context>
 <context>

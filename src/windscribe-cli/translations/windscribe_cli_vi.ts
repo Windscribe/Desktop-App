@@ -179,6 +179,10 @@
         <translation>Lỗi: Không thể khởi động dịch vụ DNS tùy chỉnh</translation>
     </message>
     <message>
+        <source>Error: Could not update the hosts file required by IKEv2</source>
+        <translation>Lỗi: Không thể cập nhật tệp hosts mà IKEv2 yêu cầu</translation>
+    </message>
+    <message>
         <source>Error: Could not retrieve WireGuard configuration</source>
         <translation>Lỗi: Không thể truy xuất cấu hình WireGuard</translation>
     </message>
@@ -189,6 +193,10 @@
     <message>
         <source>Error: Local DNS server is not available. Connected DNS has been set back to Auto</source>
         <translation>Lỗi: Máy chủ DNS cục bộ không khả dụng. DNS được kết nối đã được đặt trở lại Tự động</translation>
+    </message>
+    <message>
+        <source>Error: The custom configuration could not be loaded</source>
+        <translation>Lỗi: Không thể tải cấu hình tùy chỉnh</translation>
     </message>
     <message>
         <source>Unknown state</source>
@@ -369,6 +377,10 @@
     <message>
         <source>Invalid IP address</source>
         <translation>Địa chỉ IP không hợp lệ</translation>
+    </message>
+    <message>
+        <source>Windscribe is already running in another user session on this computer. Quit Windscribe in that session, then try again.</source>
+        <translation>Windscribe đang chạy trong phiên của người dùng khác trên máy tính này. Vui lòng thoát Windscribe trong phiên đó rồi thử lại.</translation>
     </message>
 </context>
 </TS>

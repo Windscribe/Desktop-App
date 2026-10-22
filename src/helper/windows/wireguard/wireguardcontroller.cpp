@@ -9,27 +9,42 @@
 #include <SetupAPI.h>
 
 #include <algorithm>
+#include <charconv>
 #include <codecvt>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
-#include <sstream>
 #include <spdlog/spdlog.h>
+#include <sstream>
 
+#include "../../common/helper_commands.h"
+#include "../executecmd.h"
+#include "../utils.h"
 #include "phantom_wireguard_devices.h"
 #include "types/global_consts.h"
 #include "utils/servicecontrolmanager.h"
 #include "utils/win32handle.h"
 #include "utils/wsscopeguard.h"
-#include "../../common/helper_commands.h"
-#include "../executecmd.h"
-#include "../utils.h"
 
 #if defined(USE_SIGNATURE_CHECK)
 #include "utils/executable_signature/executable_signature.h"
 #endif
 
 static const DEVPROPKEY WG_DEVP_KEYNAME = DEVPKEY_WG_NAME;
+
+// Throws std::system_error on a bad value so getStatus() reports it as an error.
+template <typename T>
+static T parseUapiNumber(const std::string &value)
+{
+    T result = 0;
+    const char *end = value.data() + value.size();
+    const auto [ptr, ec] = std::from_chars(value.data(), end, result);
+    if (ec != std::errc() || ptr != end) {
+        throw std::system_error(ERROR_INVALID_DATA, std::generic_category(),
+                                "WireGuardController::getAmneziaWGStatus - UAPI returned an invalid value: " + value);
+    }
+    return result;
+}
 
 
 WireGuardController::WireGuardController()
@@ -370,30 +385,21 @@ void WireGuardController::getAmneziaWGStatus(ULONG64& lastHandshake, ULONG64& tx
             "WireGuardController::getAmneziaWGStatus - WriteFile failed");
     }
 
-    const DWORD bufferSize = 4096;
-    char buffer[bufferSize];
-    DWORD bytesRead = 0;
+    char buffer[4096];
     std::string response;
 
-    while (true) {
+    // The pipe is byte-mode, so a large reply (e.g. big I1-I5 packets) arrives over several reads. The reply is only
+    // complete once its terminating blank line arrives; the pipe closing before then fails the read below.
+    size_t terminator = std::string::npos;
+    while (terminator == std::string::npos) {
         // TODO: JDRM need to ruminate on if the thread could block here and prevent us from stopping the service.
-        BOOL result = ::ReadFile(hPipe.getHandle(), buffer, bufferSize - 1, &bytesRead, NULL);
-        if (!result) {
-            DWORD error = ::GetLastError();
-            if (error == ERROR_MORE_DATA) {
-                // More data available, continue reading
-                buffer[bytesRead] = '\0';
-                response += buffer;
-                continue;
-            }
-            throw std::system_error(error, std::generic_category(), "WireGuardController::getAmneziaWGStatus - ReadFile failed");
+        DWORD bytesRead = 0;
+        if (!::ReadFile(hPipe.getHandle(), buffer, sizeof(buffer), &bytesRead, NULL)) {
+            throw std::system_error(::GetLastError(), std::generic_category(), "WireGuardController::getAmneziaWGStatus - ReadFile failed");
         }
-
-        if (bytesRead > 0) {
-            buffer[bytesRead] = '\0';
-            response += buffer;
-        }
-        break;
+        const size_t searchFrom = response.empty() ? 0 : response.size() - 1;
+        response.append(buffer, bytesRead);
+        terminator = response.find("\n\n", searchFrom);
     }
 
     // Parse the response for key=value pairs
@@ -417,19 +423,19 @@ void WireGuardController::getAmneziaWGStatus(ULONG64& lastHandshake, ULONG64& tx
             value.erase(std::remove(value.begin(), value.end(), '\n'), value.end());
 
             if (key == "rx_bytes") {
-                rxBytes = std::stoull(value);
+                rxBytes = parseUapiNumber<ULONG64>(value);
             } else if (key == "tx_bytes") {
-                txBytes = std::stoull(value);
+                txBytes = parseUapiNumber<ULONG64>(value);
             } else if (key == "last_handshake_time_sec") {
                 // Convert Unix timestamp (seconds since 1970) to Windows FILETIME
                 // (100-nanosecond intervals since 1601)
-                ULONG64 unixTimestamp = std::stoull(value);
+                ULONG64 unixTimestamp = parseUapiNumber<ULONG64>(value);
                 if (unixTimestamp > 0) {
                     // Unix epoch (1970-01-01) to Windows epoch (1601-01-01) is 11644473600 seconds
                     lastHandshake = (unixTimestamp + 11644473600ULL) * 10000000ULL;
                 }
             } else if (key == "errno") {
-                int errorCode = std::stoi(value);
+                int errorCode = parseUapiNumber<int>(value);
                 if (errorCode != 0) {
                     throw std::system_error(errorCode, std::generic_category(),
                         "WireGuardController::getAmneziaWGStatus - UAPI returned error");

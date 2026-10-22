@@ -179,6 +179,10 @@
         <translation>Помилка: не вдається запустити спеціальну службу DNS</translation>
     </message>
     <message>
+        <source>Error: Could not update the hosts file required by IKEv2</source>
+        <translation>Помилка: не вдалося оновити файл hosts, потрібний для IKEv2</translation>
+    </message>
+    <message>
         <source>Error: Could not retrieve WireGuard configuration</source>
         <translation>Помилка: не вдалося відновити конфігурацію WireGuard</translation>
     </message>
@@ -189,6 +193,10 @@
     <message>
         <source>Error: Local DNS server is not available. Connected DNS has been set back to Auto</source>
         <translation>Помилка: Локальний DNS-сервер недоступний. Підключений DNS повернули до автоматичного режиму</translation>
+    </message>
+    <message>
+        <source>Error: The custom configuration could not be loaded</source>
+        <translation>Помилка: не вдалося завантажити користувацьку конфігурацію</translation>
     </message>
     <message>
         <source>Unknown state</source>
@@ -369,6 +377,10 @@
     <message>
         <source>Invalid IP address</source>
         <translation>Невірна IP-адреса</translation>
+    </message>
+    <message>
+        <source>Windscribe is already running in another user session on this computer. Quit Windscribe in that session, then try again.</source>
+        <translation>Windscribe вже запущено в сеансі іншого користувача на цьому комп&apos;ютері. Вийдіть з Windscribe у тому сеансі, а потім спробуйте ще раз.</translation>
     </message>
 </context>
 </TS>

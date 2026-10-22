@@ -2,6 +2,7 @@
 
 #include "path.h"
 #include "utils.h"
+#include "version/ws_version.h"
 
 namespace ApplicationInfo {
 

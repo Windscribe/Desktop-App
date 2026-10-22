@@ -153,7 +153,17 @@ public:
         emit disconnected();
     }
     void driveReconnecting() { emit reconnecting(); }
-    void driveError(ConnectError err) { emit error(err); }
+    void driveError(ConnectError err, const QString &detail = QString())
+    {
+        connectErrorDetail_ = detail;
+        emit error(err);
+    }
+    QString takeConnectErrorDetail() override
+    {
+        QString detail;
+        detail.swap(connectErrorDetail_);
+        return detail;
+    }
     void driveStatisticsUpdated(quint64 bytesIn, quint64 bytesOut, bool isTotalBytes)
     {
         emit statisticsUpdated(bytesIn, bytesOut, isTotalBytes);
@@ -192,6 +202,7 @@ private:
     int prepareCount_ = 0;
     int teardownCount_ = 0;
     int continueWithUserInputCount_ = 0;
+    QString connectErrorDetail_;
 };
 
 class FakeConnectionFactory : public IConnectionFactory

@@ -179,6 +179,10 @@
         <translation>Hata: Özel DNS hizmeti başlatılamıyor</translation>
     </message>
     <message>
+        <source>Error: Could not update the hosts file required by IKEv2</source>
+        <translation>Hata: IKEv2 için gereken hosts dosyası güncellenemedi</translation>
+    </message>
+    <message>
         <source>Error: Could not retrieve WireGuard configuration</source>
         <translation>Hata: WireGuard yapılandırması alınamadı</translation>
     </message>
@@ -189,6 +193,10 @@
     <message>
         <source>Error: Local DNS server is not available. Connected DNS has been set back to Auto</source>
         <translation>Hata: Yerel DNS sunucusu kullanılamıyor. Bağlı DNS tekrar Otomatik olarak ayarlandı</translation>
+    </message>
+    <message>
+        <source>Error: The custom configuration could not be loaded</source>
+        <translation>Hata: Özel yapılandırma yüklenemedi</translation>
     </message>
     <message>
         <source>Unknown state</source>
@@ -369,6 +377,10 @@
     <message>
         <source>Invalid IP address</source>
         <translation>Geçersiz IP adresi</translation>
+    </message>
+    <message>
+        <source>Windscribe is already running in another user session on this computer. Quit Windscribe in that session, then try again.</source>
+        <translation>Windscribe bu bilgisayarda başka bir kullanıcının oturumunda zaten çalışıyor. Lütfen o oturumda Windscribe&apos;dan çıkın ve tekrar deneyin.</translation>
     </message>
 </context>
 </TS>

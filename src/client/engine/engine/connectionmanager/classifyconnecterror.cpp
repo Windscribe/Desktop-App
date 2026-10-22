@@ -14,6 +14,10 @@ ConnectErrorClassification classifyConnectError(ConnectError err, bool isAutomat
             return retryOnAttemptFailure ? ConnectErrorClassification::Retry : ConnectErrorClassification::ErrorAfterDisconnect;
         case ConnectError::kLocalProcessLaunchFailure:
             return retryOnAttemptFailure ? ConnectErrorClassification::Retry : ConnectErrorClassification::ErrorImmediately;
+        // A custom config the OpenVPN daemon rejected before binding its management socket. There is
+        // no next endpoint to try, and the dialog shows the daemon's fatal line.
+        case ConnectError::kCustomConfigInvalid:
+            return ConnectErrorClassification::ErrorImmediately;
         case ConnectError::kAdapterSetupFailure:
             if (retryOnAttemptFailure) {
                 return ConnectErrorClassification::Retry;
@@ -34,7 +38,6 @@ ConnectErrorClassification classifyConnectError(ConnectError err, bool isAutomat
         case ConnectError::kNoError:
         case ConnectError::kLocationUnavailable:
         case ConnectError::kAccountBlocked:
-        case ConnectError::kCustomConfigInvalid:
         case ConnectError::kConfigFetchFailure:
         case ConnectError::kLocalConfigGenerationFailure:
         case ConnectError::kDnsServiceStartFailure:

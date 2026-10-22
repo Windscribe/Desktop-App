@@ -15,3 +15,4 @@ QString updateString(const QString &updateAvailable);
 QString updateErrorString(UPDATE_VERSION_ERROR error);
 QString deviceNameString(const QString &deviceName);
 QString locationsString(const QList<IPC::CliCommands::IpcLocation> &locations);
+QString appRunningInAnotherSessionString();
