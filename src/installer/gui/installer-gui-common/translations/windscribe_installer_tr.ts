@@ -12,61 +12,61 @@
     <name>InitialWindow</name>
     <message>
         <source>Read EULA</source>
-        <translation>EULA&apos;yı okuyun</translation>
+        <translation>EULA&apos;yı Oku</translation>
     </message>
 </context>
 <context>
     <name>InstallButton</name>
     <message>
         <source>Install</source>
-        <translation>Yüklemek</translation>
+        <translation>Kur</translation>
     </message>
 </context>
 <context>
     <name>MainWindow</name>
     <message>
         <source>Installation failed</source>
-        <translation>Yükleme başarısız oldu</translation>
+        <translation>Kurulum başarısız oldu</translation>
     </message>
     <message>
         <source>The installation was cancelled. Administrator privileges are required to install the application.</source>
-        <translation>Yükleme iptal edildi. Uygulamayı yüklemek için yönetici ayrıcalıkları gereklidir.</translation>
+        <translation>Kurulum iptal edildi. Uygulamayı kurmak için yönetici ayrıcalıkları gerekir.</translation>
     </message>
     <message>
         <source>Windscribe is running and could not be closed. Please close the application manually and try again.</source>
-        <translation>Windscribe çalışıyor ve kapatılamadı. Lütfen uygulamayı manuel olarak kapatın ve tekrar deneyin.</translation>
+        <translation>Windscribe çalışıyor ve kapatılamadı. Lütfen uygulamayı elle kapatıp tekrar deneyin.</translation>
     </message>
     <message>
         <source>The installer could not connect to the privileged helper tool. Please try again.</source>
-        <translation>Yükleyici ayrıcalıklı yardımcı araca bağlanamadı. Lütfen tekrar deneyin.</translation>
+        <translation>Kurulum programı ayrıcalıklı yardımcı araca bağlanamadı. Lütfen tekrar deneyin.</translation>
     </message>
     <message>
         <source>An existing installation of Windscribe could not be removed. Please uninstall the application manually and try again.</source>
-        <translation>Mevcut bir Windscribe yüklemesi kaldırılamadı. Lütfen uygulamayı manuel olarak kaldırın ve tekrar deneyin.</translation>
+        <translation>Mevcut Windscribe kurulumu kaldırılamadı. Lütfen uygulamayı elle kaldırıp tekrar deneyin.</translation>
     </message>
     <message>
         <source>The Windows Base Filtering Engine service is not running and could not be started. This core Windows service must be running to install Windscribe. Third-party security/firewall software is most often the cause of this issue.</source>
-        <translation>Windows Temel Filtreleme Motoru hizmeti çalışmıyor ve başlatılamadı. Windscribe&apos;ı kurmak için bu temel Windows servisi çalışıyor olmalı. Bu sorunun en çok nedeni üçüncü parti güvenlik/güvenlik duvarı yazılımıdır.</translation>
+        <translation>Windows Base Filtering Engine (Temel Filtreleme Altyapısı) hizmeti çalışmıyor ve başlatılamadı. Windscribe&apos;ı kurmak için bu temel Windows hizmetinin çalışıyor olması gerekir. Bu soruna çoğunlukla üçüncü taraf güvenlik/güvenlik duvarı yazılımları yol açar.</translation>
     </message>
     <message>
         <source>Windscribe is unable to connect to the Windows Base Filtering Engine service. Connecting to this core Windows service is required to install Windscribe. Third-party security/firewall software is most often the cause of this issue.</source>
-        <translation>Windscribe, Windows Base Filtering Engine hizmetine bağlanamıyor. Windscribe&apos;ı kurmak için bu temel Windows hizmetine bağlanmak gereklidir. Bu sorunun en çok nedeni üçüncü parti güvenlik/güvenlik duvarı yazılımıdır.</translation>
+        <translation>Windscribe, Windows Base Filtering Engine hizmetine bağlanamıyor. Windscribe&apos;ı kurmak için bu temel Windows hizmetine bağlanılması gerekir. Bu soruna çoğunlukla üçüncü taraf güvenlik/güvenlik duvarı yazılımları yol açar.</translation>
     </message>
     <message>
         <source>Windscribe is unable to install its helper service. Please manually uninstall Windscribe and try again. If this issue persists, please contact our Technical Support.</source>
-        <translation>Windscribe yardımcı hizmetini kuramıyor. Lütfen Windscribe&apos;ı manuel olarak kaldırın ve tekrar deneyin. Bu sorun devam ederse, lütfen Teknik Destek ekibimizle iletişime geçin.</translation>
+        <translation>Windscribe yardımcı hizmetini kuramıyor. Lütfen Windscribe&apos;ı elle kaldırıp tekrar deneyin. Sorun devam ederse lütfen Teknik Destek ekibimizle iletişime geçin.</translation>
     </message>
     <message>
         <source>Windscribe is unable to start its helper service. Third-party security/firewall software may be the cause. If this is not the case, please contact our Technical Support.</source>
-        <translation>Windscribe yardımcı hizmetini başlatamıyor. Üçüncü parti güvenlik/güvenlik duvarı yazılımları bunun nedeni olabilir. Eğer durum böyle değilse, lütfen Teknik Destek ekibimizle iletişime geçin.</translation>
+        <translation>Windscribe yardımcı hizmetini başlatamıyor. Buna üçüncü taraf güvenlik/güvenlik duvarı yazılımları yol açıyor olabilir. Durum bu değilse lütfen Teknik Destek ekibimizle iletişime geçin.</translation>
     </message>
     <message>
         <source>The application files could not be extracted to the installation folder. A file may be locked by another program, the disk may be full, or the downloaded installer may be damaged. If this issue persists, download the installer again and retry.</source>
-        <translation>Uygulama dosyaları kurulum klasörüne açılamıyordu. Bir dosya başka bir program tarafından kilitlenebilir, disk dolu olabilir veya indirilen kurulumcu zarar görebilir. Bu sorun devam ederse, kurulumcunu tekrar indirip tekrar deneyin.</translation>
+        <translation>Uygulama dosyaları kurulum klasörüne çıkarılamadı. Bir dosya başka bir program tarafından kilitlenmiş, disk dolmuş veya indirilen kurulum programı bozuk olabilir. Sorun devam ederse kurulum programını yeniden indirip tekrar deneyin.</translation>
     </message>
     <message>
         <source>The installation could not be completed successfully. Please contact our Technical Support.</source>
-        <translation>Yükleme başarıyla tamamlanamadı. Lütfen Teknik Desteğimizle iletişime geçin.</translation>
+        <translation>Kurulum başarıyla tamamlanamadı. Lütfen Teknik Destek ekibimizle iletişime geçin.</translation>
     </message>
     <message>
         <source>Error code: %1</source>
@@ -78,19 +78,19 @@
     </message>
     <message>
         <source>Select a folder in the list below and click OK.</source>
-        <translation>Aşağıdaki listeden bir klasör seçin ve Tamam&apos;ı tıklatın.</translation>
+        <translation>Aşağıdaki listeden bir klasör seçip Tamam&apos;a tıklayın.</translation>
     </message>
     <message>
         <source>OK</source>
-        <translation>TAMAM</translation>
+        <translation>Tamam</translation>
     </message>
     <message>
         <source>Quit Windscribe Installer?</source>
-        <translation>Windscribe Installer&apos;dan çıkmak ister misiniz?</translation>
+        <translation>Windscribe kurulumundan çıkılsın mı?</translation>
     </message>
     <message>
         <source>Quit</source>
-        <translation>İstifa etmek</translation>
+        <translation>Çık</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -102,15 +102,15 @@
     </message>
     <message>
         <source>The specified installation path is not on the system drive. To ensure the security of the application, and your system, it must be installed on the same drive as Windows. The installation folder has been reset to the default.</source>
-        <translation>Belirtilen yükleme yolu sistem sürücüsünde değil. Uygulamanın ve sisteminizin güvenliğini sağlamak için, Windows ile aynı sürücüye yüklenmesi gerekir. Yükleme klasörü varsayılana sıfırlandı.</translation>
+        <translation>Belirtilen kurulum yolu sistem sürücüsünde değil. Uygulamanın ve sisteminizin güvenliği için Windows ile aynı sürücüye kurulması gerekir. Kurulum klasörü varsayılana sıfırlandı.</translation>
     </message>
     <message>
         <source>You don&apos;t have sufficient permissions to run this application. Administrative privileges are required to install Windscribe.</source>
-        <translation>Bu uygulamayı çalıştırmak için yeterli izinlere sahip değilsiniz. Windscribe&apos;ı yüklemek için yönetici ayrıcalıkları gereklidir.</translation>
+        <translation>Bu uygulamayı çalıştırmak için yeterli izniniz yok. Windscribe&apos;ı kurmak için yönetici ayrıcalıkları gerekir.</translation>
     </message>
     <message>
         <source>The uninstaller for the existing installation of Windscribe could not be found. Please uninstall the application manually and try again.</source>
-        <translation>Windscribe&apos;ın mevcut kurulumu için kaldırıcı bulunamadı. Lütfen uygulamayı manuel olarak kaldırın ve tekrar deneyin.</translation>
+        <translation>Mevcut Windscribe kurulumunun kaldırma programı bulunamadı. Lütfen uygulamayı elle kaldırıp tekrar deneyin.</translation>
     </message>
     <message>
         <source>Security Warning</source>
@@ -118,41 +118,41 @@
     </message>
     <message>
         <source>Installation to a custom folder may allow an attacker to tamper with the Windscribe application. To ensure the security of the application, and your system, we strongly recommend you install to the default location in the &apos;Program Files&apos; folder. Click OK to continue with the custom folder or Cancel to use the default location.</source>
-        <translation>Özel bir klasöre yükleme, bir saldırganın Windscribe uygulamasını kurcalamasına izin verebilir. Uygulamanın ve sisteminizin güvenliğini sağlamak için, &apos;Program Files&apos; klasöründeki varsayılan konuma yüklemenizi şiddetle tavsiye ederiz. Özel klasörle devam etmek için Tamam&apos;ı veya varsayılan konumu kullanmak için İptal&apos;i tıklatın.</translation>
+        <translation>Özel bir klasöre kurmak, bir saldırganın Windscribe uygulamasını kurcalamasına olanak tanıyabilir. Uygulamanın ve sisteminizin güvenliği için &apos;Program Files&apos; klasöründeki varsayılan konuma kurmanızı önemle tavsiye ederiz. Özel klasörle devam etmek için Tamam&apos;a, varsayılan konumu kullanmak için İptal&apos;e tıklayın.</translation>
     </message>
     <message>
         <source>Your current username is &apos;windscribe&apos;, which is needed by the Windscribe app. Windscribe can&apos;t be installed.</source>
-        <translation>Mevcut kullanıcı adınız, Windscribe uygulaması için gerekli olan &apos;windscribe&apos;dır. Windscribe yüklenemiyor.</translation>
+        <translation>Mevcut kullanıcı adınız &apos;windscribe&apos;; bu ad Windscribe uygulaması tarafından kullanılıyor. Windscribe kurulamıyor.</translation>
     </message>
     <message>
         <source>Installation to your custom folder was unsuccessful. Please uninstall the application manually, ensure no applications are accessing the custom folder, and try again.</source>
-        <translation>Özel klasörünüze yükleme başarısız oldu. Lütfen uygulamayı manuel olarak kaldırın, hiçbir uygulamanın özel klasöre erişmediğinden emin olun ve tekrar deneyin.</translation>
+        <translation>Özel klasörünüze kurulum başarısız oldu. Lütfen uygulamayı elle kaldırın, özel klasöre hiçbir uygulamanın erişmediğinden emin olun ve tekrar deneyin.</translation>
     </message>
     <message>
         <source>The custom installation folder could not be deleted. Please uninstall the application manually, ensure no applications are accessing the custom folder, and try again.</source>
-        <translation>Özel yükleme klasörü silinemedi. Lütfen uygulamayı manuel olarak kaldırın, hiçbir uygulamanın özel klasöre erişmediğinden emin olun ve tekrar deneyin.</translation>
+        <translation>Özel kurulum klasörü silinemedi. Lütfen uygulamayı elle kaldırın, özel klasöre hiçbir uygulamanın erişmediğinden emin olun ve tekrar deneyin.</translation>
     </message>
     <message>
         <source>The custom installation folder is not empty. As a security precaution, Windscribe can only be installed to an empty folder. Please delete all files from the folder and try again.</source>
-        <translation>Özel yükleme klasörü boş değil. Bir güvenlik önlemi olarak, Windscribe yalnızca boş bir klasöre kurulabilir. Lütfen klasördeki tüm dosyaları silin ve tekrar deneyin.</translation>
+        <translation>Özel kurulum klasörü boş değil. Güvenlik önlemi olarak Windscribe yalnızca boş bir klasöre kurulabilir. Lütfen klasördeki tüm dosyaları silip tekrar deneyin.</translation>
     </message>
 </context>
 <context>
     <name>ProgressDisplay</name>
     <message>
         <source>%1%</source>
-        <translation>%1%</translation>
+        <translation>%%1</translation>
     </message>
 </context>
 <context>
     <name>QObject</name>
     <message>
         <source>Windscribe Installer</source>
-        <translation>Windscribe Yükleyici</translation>
+        <translation>Windscribe Kurulum Programı</translation>
     </message>
     <message>
         <source>This version of the Windscribe app will not operate correctly on your PC.  Please download the &apos;ARM64&apos; version from the Windscribe website to ensure optimal compatibility and performance.</source>
-        <translation>Windscribe uygulamasının bu sürümü PC&apos;nizde düzgün çalışmayacaktır.  Optimum uyumluluk ve performans sağlamak için lütfen Windscribe web sitesinden &apos;ARM64&apos; sürümünü indirin.</translation>
+        <translation>Windscribe uygulamasının bu sürümü bilgisayarınızda düzgün çalışmayacak. En iyi uyumluluk ve performans için lütfen Windscribe web sitesinden &apos;ARM64&apos; sürümünü indirin.</translation>
     </message>
     <message>
         <source>Windscribe Install Options</source>
@@ -160,63 +160,63 @@
     </message>
     <message>
         <source>The Windscribe installer accepts the following optional commmand-line parameters: </source>
-        <translation>Windscribe yükleyicisi aşağıdaki isteğe bağlı iletişim hattı parametrelerini kabul eder: </translation>
+        <translation>Windscribe kurulum programı aşağıdaki isteğe bağlı komut satırı parametrelerini kabul eder: </translation>
     </message>
     <message>
         <source>Show this information.</source>
-        <translation>Bu bilgileri göster.</translation>
+        <translation>Bu bilgiyi gösterir.</translation>
     </message>
     <message>
         <source>Do not launch the application after installation.</source>
-        <translation>Kurulumdan sonra uygulamayı başlatmayın.</translation>
+        <translation>Kurulumdan sonra uygulamayı başlatmaz.</translation>
     </message>
     <message>
         <source>Delete existing preferences, logs, and other data, if they exist.</source>
-        <translation>Varsa mevcut tercihleri, günlükleri ve diğer verileri silin.</translation>
+        <translation>Varsa mevcut tercihleri, günlükleri ve diğer verileri siler.</translation>
     </message>
     <message>
         <source>Overrides the default installation directory. Installation directory must be on the system drive.</source>
-        <translation>Varsayılan yükleme dizinini geçersiz kılar. Kurulum dizini sistem sürücüsünde olmalıdır.</translation>
+        <translation>Varsayılan kurulum dizinini değiştirir. Kurulum dizini sistem sürücüsünde olmalıdır.</translation>
     </message>
     <message>
         <source>Sets the username the application will use to automatically log in when first launched.</source>
-        <translation>Uygulamanın ilk başlatıldığında otomatik olarak oturum açmak için kullanacağı kullanıcı adını ayarlar.</translation>
+        <translation>Uygulamanın ilk açılışta otomatik giriş için kullanacağı kullanıcı adını belirler.</translation>
     </message>
     <message>
         <source>Sets the password the application will use to automatically log in when first launched.</source>
-        <translation>Uygulamanın ilk başlatıldığında otomatik olarak oturum açmak için kullanacağı parolayı ayarlar.</translation>
+        <translation>Uygulamanın ilk açılışta otomatik giriş için kullanacağı şifreyi belirler.</translation>
     </message>
     <message>
         <source>Windscribe Install Error</source>
-        <translation>Windscribe Yükleme Hatası</translation>
+        <translation>Windscribe Kurulum Hatası</translation>
     </message>
     <message>
         <source>The -dir parameter was specified but the directory path was not.</source>
-        <translation>-dir parametresi belirtildi, ancak dizin yolu belirtilmedi.</translation>
+        <translation>-dir parametresi verildi ancak dizin yolu belirtilmedi.</translation>
     </message>
     <message>
         <source>The -username parameter was specified but the username was not.</source>
-        <translation>-username parametresi belirtildi, ancak kullanıcı adı belirtilmedi.</translation>
+        <translation>-username parametresi verildi ancak kullanıcı adı belirtilmedi.</translation>
     </message>
     <message>
         <source>The -password parameter was specified but the password was not.</source>
-        <translation>-password parametresi belirtildi, ancak parola belirtilmedi.</translation>
+        <translation>-password parametresi verildi ancak şifre belirtilmedi.</translation>
     </message>
     <message>
         <source>Incorrect number of arguments passed to installer.</source>
-        <translation>Yükleyiciye yanlış sayıda bağımsız değişken iletildi.</translation>
+        <translation>Kurulum programına yanlış sayıda argüman verildi.</translation>
     </message>
     <message>
         <source>Use the -help argument to see available arguments and their format.</source>
-        <translation>Kullanılabilir bağımsız değişkenleri ve biçimlerini görmek için -help bağımsız değişkenini kullanın.</translation>
+        <translation>Kullanılabilir argümanları ve biçimlerini görmek için -help argümanını kullanın.</translation>
     </message>
     <message>
         <source>The specified installation path is not on the system drive.  To ensure the security of the application, and your system, it must be installed on the same drive as Windows.</source>
-        <translation>Belirtilen yükleme yolu sistem sürücüsünde değil.  Uygulamanın ve sisteminizin güvenliğini sağlamak için, Windows ile aynı sürücüye yüklenmesi gerekir.</translation>
+        <translation>Belirtilen kurulum yolu sistem sürücüsünde değil. Uygulamanın ve sisteminizin güvenliği için Windows ile aynı sürücüye kurulması gerekir.</translation>
     </message>
     <message>
         <source>A username was specified but its corresponding password was not provided.</source>
-        <translation>Bir kullanıcı adı belirtildi, ancak ilgili şifre sağlanmadı.</translation>
+        <translation>Kullanıcı adı belirtildi ancak şifresi verilmedi.</translation>
     </message>
     <message>
         <source>Your username should not be an email address. Please try again.</source>
@@ -224,34 +224,34 @@
     </message>
     <message>
         <source>A password was specified but its corresponding username was not provided.</source>
-        <translation>Bir parola belirtildi, ancak karşılık gelen kullanıcı adı sağlanmadı.</translation>
+        <translation>Şifre belirtildi ancak kullanıcı adı verilmedi.</translation>
     </message>
     <message>
         <source>The installer was unable to determine if it is running with administrator rights.  Please report this failure to Windscribe support.</source>
-        <translation>Yükleyici, yönetici haklarıyla çalışıp çalışmadığını belirleyemedi.  Lütfen bu hatayı Windscribe desteğine bildirin.</translation>
+        <translation>Kurulum programı yönetici haklarıyla çalışıp çalışmadığını belirleyemedi. Lütfen bu hatayı Windscribe destek ekibine bildirin.</translation>
     </message>
     <message>
         <source>Instructs the installer to hide its user interface.</source>
-        <translation>Yükleyiciye kullanıcı arabirimini gizlemesini söyler.</translation>
+        <translation>Kurulum programının arayüzünü gizler.</translation>
     </message>
     <message>
         <source>You don&apos;t have sufficient permissions to run this application. Administrative privileges are required to install Windscribe.</source>
-        <translation>Bu uygulamayı çalıştırmak için yeterli izinlere sahip değilsiniz. Windscribe&apos;ı yüklemek için yönetici ayrıcalıkları gereklidir.</translation>
+        <translation>Bu uygulamayı çalıştırmak için yeterli izniniz yok. Windscribe&apos;ı kurmak için yönetici ayrıcalıkları gerekir.</translation>
     </message>
 </context>
 <context>
     <name>SettingsWindow</name>
     <message>
         <source>Install Settings</source>
-        <translation>Ayarları Yükle</translation>
+        <translation>Kurulum Ayarları</translation>
     </message>
     <message>
         <source>OK</source>
-        <translation>TAMAM</translation>
+        <translation>Tamam</translation>
     </message>
     <message>
         <source>Factory Reset</source>
-        <translation>Fabrika ayarları</translation>
+        <translation>Fabrika Ayarlarına Sıfırla</translation>
     </message>
     <message>
         <source>Create shortcut</source>
