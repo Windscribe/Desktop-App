@@ -13,7 +13,7 @@
     </message>
     <message>
         <source>Clear</source>
-        <translation>Berrak</translation>
+        <translation>Temizle</translation>
     </message>
     <message>
         <source>Ok</source>
@@ -39,27 +39,27 @@
     </message>
     <message>
         <source> transferred in </source>
-        <translation> transfer edildi </translation>
+        <translation> aktarıldı, süre: </translation>
     </message>
     <message>
         <source>Connected for </source>
-        <translation>Şunun için bağlandı: </translation>
+        <translation>Bağlantı süresi: </translation>
     </message>
     <message>
         <source> transferred</source>
-        <translation> Transfer</translation>
+        <translation> aktarıldı</translation>
     </message>
     <message>
         <source>Firewall</source>
-        <translation>Güvenlik duvarı</translation>
+        <translation>Güvenlik Duvarı</translation>
     </message>
     <message>
         <source>Blocks all connectivity in the event of a sudden disconnect</source>
-        <translation>Ani bir bağlantı kesilmesi durumunda tüm bağlantıyı engeller</translation>
+        <translation>Bağlantı aniden koparsa tüm internet trafiğini engeller</translation>
     </message>
     <message>
         <source>Keeping the firewall on while disconnected may break internet connectivity</source>
-        <translation>Bağlantı kesildiğinde güvenlik duvarını açık tutmak internet bağlantısını bozabilir</translation>
+        <translation>Bağlantı kesikken güvenlik duvarını açık tutmak internet erişiminizi engelleyebilir</translation>
     </message>
     <message>
         <source>Favourite IP</source>
@@ -67,7 +67,7 @@
     </message>
     <message>
         <source>Rotate IP</source>
-        <translation>IP&apos;yi döndür</translation>
+        <translation>IP&apos;yi Değiştir</translation>
     </message>
     <message>
         <source>FIREWALL</source>
@@ -85,7 +85,7 @@
     <name>ConnectWindow::LocationsMenu</name>
     <message>
         <source>All</source>
-        <translation>Tüm</translation>
+        <translation>Tümü</translation>
     </message>
     <message>
         <source>Static IPs</source>
@@ -93,7 +93,7 @@
     </message>
     <message>
         <source>Search</source>
-        <translation>Aramak</translation>
+        <translation>Ara</translation>
     </message>
     <message>
         <source>Custom configs</source>
@@ -108,7 +108,7 @@
     <name>CustomMenuWidget</name>
     <message>
         <source>Undo</source>
-        <translation>Geri almak</translation>
+        <translation>Geri Al</translation>
     </message>
     <message>
         <source>Redo</source>
@@ -116,19 +116,19 @@
     </message>
     <message>
         <source>Cut</source>
-        <translation>Kesmek</translation>
+        <translation>Kes</translation>
     </message>
     <message>
         <source>Copy</source>
-        <translation>Kopya etmek</translation>
+        <translation>Kopyala</translation>
     </message>
     <message>
         <source>Paste</source>
-        <translation>Yapıştırmak</translation>
+        <translation>Yapıştır</translation>
     </message>
     <message>
         <source>Delete</source>
-        <translation>Silmek</translation>
+        <translation>Sil</translation>
     </message>
     <message>
         <source>Select All</source>
@@ -143,27 +143,27 @@
     </message>
     <message>
         <source>Emergency connection failure. Try again?</source>
-        <translation>Acil durum bağlantı hatası. Yeniden Deneyin?</translation>
+        <translation>Acil durum bağlantısı başarısız oldu. Tekrar denensin mi?</translation>
     </message>
     <message>
         <source>Can&apos;t access Windscribe.com or login into the app on your restrictive network? Connect to the emergency server that unblocks all of Windscribe.</source>
-        <translation>Kısıtlayıcı ağınızdaki Windscribe.com erişemiyor veya uygulamaya giriş yapamıyor musunuz? Tüm Windscribe&apos;ın engellemesini kaldıran acil durum sunucusuna bağlanın.</translation>
+        <translation>Kısıtlayıcı bir ağda Windscribe.com&apos;a erişemiyor veya uygulamaya giriş yapamıyor musunuz? Windscribe&apos;ın tüm engellerini kaldıran acil durum sunucusuna bağlanın.</translation>
     </message>
     <message>
         <source>Connecting...</source>
-        <translation>Bağlanma...</translation>
+        <translation>Bağlanıyor...</translation>
     </message>
     <message>
         <source>Disconnecting...</source>
-        <translation>Bağlantıyı kesme...</translation>
+        <translation>Bağlantı kesiliyor...</translation>
     </message>
     <message>
         <source>Connect</source>
-        <translation>Bağlamak</translation>
+        <translation>Bağlan</translation>
     </message>
     <message>
         <source>Disconnect</source>
-        <translation>Ayırmak</translation>
+        <translation>Bağlantıyı Kes</translation>
     </message>
 </context>
 <context>
@@ -192,7 +192,7 @@
     <name>FreeTrafficNotificationController</name>
     <message>
         <source>You reached %1% of your free bandwidth allowance</source>
-        <translation>Ücretsiz bant genişliği ödeneğinizin %1&apos;ine ulaştınız</translation>
+        <translation>Ücretsiz veri kotanızın %%1 kadarını kullandınız</translation>
     </message>
 </context>
 <context>
@@ -222,7 +222,7 @@
     </message>
     <message>
         <source>Learn More</source>
-        <translation>Daha fazla bilgi edinin</translation>
+        <translation>Daha Fazla Bilgi</translation>
     </message>
     <message>
         <source>Username</source>
@@ -230,11 +230,11 @@
     </message>
     <message>
         <source>Password</source>
-        <translation>Parola</translation>
+        <translation>Şifre</translation>
     </message>
     <message>
         <source>Remember</source>
-        <translation>Hatırlamak</translation>
+        <translation>Hatırla</translation>
     </message>
 </context>
 <context>
@@ -245,7 +245,7 @@
     </message>
     <message>
         <source>Choose</source>
-        <translation>Seçmek</translation>
+        <translation>Seç</translation>
     </message>
     <message>
         <source>The selected directory contains no custom configs</source>
@@ -257,7 +257,7 @@
     </message>
     <message>
         <source>Nothing to see here...</source>
-        <translation>Burada görülecek bir şey yok. . .</translation>
+        <translation>Burada görülecek bir şey yok...</translation>
     </message>
     <message>
         <source>You don&apos;t have any Static IPs</source>
@@ -273,30 +273,30 @@
     </message>
     <message>
         <source>FAVOURITES</source>
-        <translation>FAVORILER</translation>
+        <translation>FAVORİLER</translation>
     </message>
     <message>
         <source>STATIC IPs</source>
-        <translation>STATIC IP&apos;ler</translation>
+        <translation>STATİK IP&apos;LER</translation>
     </message>
     <message>
         <source>CUSTOM CONFIGs</source>
-        <translation>ÖZEL YAPIRILIKLAR</translation>
+        <translation>ÖZEL YAPILANDIRMALAR</translation>
     </message>
     <message>
         <source>SEARCH</source>
-        <translation>ARAMAK</translation>
+        <translation>ARA</translation>
     </message>
     <message>
         <source>Add</source>
-        <translation>Eklemek</translation>
+        <translation>Ekle</translation>
     </message>
 </context>
 <context>
     <name>GuiLocations::StaticIPDeviceInfo</name>
     <message>
         <source>Add</source>
-        <translation>Eklemek</translation>
+        <translation>Ekle</translation>
     </message>
 </context>
 <context>
@@ -323,11 +323,11 @@
     </message>
     <message>
         <source>Export log</source>
-        <translation>Dışa aktarma günlüğü</translation>
+        <translation>Günlüğü dışa aktar</translation>
     </message>
     <message>
         <source>Failed to export log.  Make sure you have the correct permissions.</source>
-        <translation>Günlük dışa aktarılamadı.  Doğru izinlere sahip olduğunuzdan emin olun.</translation>
+        <translation>Günlük dışa aktarılamadı. Gerekli izinlere sahip olduğunuzdan emin olun.</translation>
     </message>
 </context>
 <context>
@@ -341,11 +341,11 @@
     <name>LoginWindow::LoggingInWindowItem</name>
     <message>
         <source>Login</source>
-        <translation>Oturum açma</translation>
+        <translation>Giriş</translation>
     </message>
     <message>
         <source>Complete Puzzle to continue</source>
-        <translation>Devam etmek için Bulmacayı tamamlayın</translation>
+        <translation>Devam etmek için yapbozu tamamlayın</translation>
     </message>
 </context>
 <context>
@@ -356,11 +356,11 @@
     </message>
     <message>
         <source>Login</source>
-        <translation>Giriş</translation>
+        <translation>Giriş Yap</translation>
     </message>
     <message>
         <source>Emergency Connect is ON</source>
-        <translation>Emergency Connect AÇIK</translation>
+        <translation>Acil Durum Bağlantısı AÇIK</translation>
     </message>
     <message>
         <source>2FA Code</source>
@@ -368,7 +368,7 @@
     </message>
     <message>
         <source>Forgot password?</source>
-        <translation>Şifreyi unuttun mu?</translation>
+        <translation>Şifrenizi mi unuttunuz?</translation>
     </message>
     <message>
         <source>Standard</source>
@@ -376,7 +376,7 @@
     </message>
     <message>
         <source>Hashed</source>
-        <translation>Hashed</translation>
+        <translation>Hash</translation>
     </message>
     <message>
         <source>Username</source>
@@ -384,7 +384,7 @@
     </message>
     <message>
         <source>Enter username</source>
-        <translation>Kullanıcı adı girin</translation>
+        <translation>Kullanıcı adını girin</translation>
     </message>
     <message>
         <source>Password</source>
@@ -392,7 +392,7 @@
     </message>
     <message>
         <source>Enter password</source>
-        <translation>Şifreyi gir</translation>
+        <translation>Şifreyi girin</translation>
     </message>
     <message>
         <source>Hash</source>
@@ -400,11 +400,11 @@
     </message>
     <message>
         <source>Account Hash or upload file</source>
-        <translation>Hesap Hash veya yükleme dosyası</translation>
+        <translation>Hesap hash&apos;i veya dosya yükleyin</translation>
     </message>
     <message>
         <source>Select file for hash</source>
-        <translation>Hash için dosyayı seç</translation>
+        <translation>Hash dosyasını seçin</translation>
     </message>
     <message>
         <source>All Files (*.*)</source>
@@ -420,7 +420,7 @@
     </message>
     <message>
         <source>Proxy requires authentication</source>
-        <translation>Proxy doğrulama gerektirir</translation>
+        <translation>Proxy kimlik doğrulaması gerektiriyor</translation>
     </message>
     <message>
         <source>Invalid API response, check your network</source>
@@ -432,34 +432,34 @@
     </message>
     <message>
         <source>...hmm are you sure this is correct?</source>
-        <translation>... Hmm, emin misin bu doğru?</translation>
+        <translation>...hmm, bunun doğru olduğundan emin misiniz?</translation>
     </message>
     <message>
         <source>...Sorry, seems like it&apos;s wrong again</source>
-        <translation>... Üzgünüm, yine yanlış gibi görünüyor</translation>
+        <translation>...Üzgünüz, yine yanlış görünüyor</translation>
     </message>
     <message>
         <source>...hmm, try resetting your password!</source>
-        <translation>... Hmm, şifrenizi sıfırlamayı dene!</translation>
+        <translation>...hmm, şifrenizi sıfırlamayı deneyin!</translation>
     </message>
     <message>
         <source>Rate limited. Please wait before trying to login again.</source>
-        <translation>Oran sınırlı. Lütfen tekrar giriş yapmaya çalışmadan önce bekleyin.</translation>
+        <translation>Çok fazla deneme yapıldı. Tekrar giriş yapmadan önce lütfen biraz bekleyin.</translation>
     </message>
     <message>
         <source>Session is expired. Please login again</source>
-        <translation>Oturum süresi doldu. Lütfen tekrar giriş yapın</translation>
+        <translation>Oturumun süresi doldu. Lütfen tekrar giriş yapın</translation>
     </message>
     <message>
         <source>Your username should not be an email address. Please try again.</source>
-        <translation>Kullanıcı adınız e-posta adresi olmamalıdır. Lütfen tekrar dene.</translation>
+        <translation>Kullanıcı adınız bir e-posta adresi olmamalıdır. Lütfen tekrar deneyin.</translation>
     </message>
 </context>
 <context>
     <name>LoginWindow::SignupWindowItem</name>
     <message>
         <source>Sign Up</source>
-        <translation>Kayıt Olun</translation>
+        <translation>Kayıt Ol</translation>
     </message>
     <message>
         <source>Standard</source>
@@ -467,7 +467,7 @@
     </message>
     <message>
         <source>Hashed</source>
-        <translation>Hashed</translation>
+        <translation>Hash</translation>
     </message>
     <message>
         <source>Username</source>
@@ -475,7 +475,7 @@
     </message>
     <message>
         <source>Enter username</source>
-        <translation>Kullanıcı adı girin</translation>
+        <translation>Kullanıcı adını girin</translation>
     </message>
     <message>
         <source>Password</source>
@@ -483,11 +483,11 @@
     </message>
     <message>
         <source>Enter password</source>
-        <translation>Şifreyi gir</translation>
+        <translation>Şifreyi girin</translation>
     </message>
     <message>
         <source>8 or more characters with at least one uppercase and lowercase(ie. &quot;Hello1234&quot;, &quot;Solyanka&quot;).</source>
-        <translation>8 veya daha fazla karakter en az bir büyük ve küçük harf (örneğin, &quot;Hello1234&quot;, &quot;Solyanka&quot;).</translation>
+        <translation>En az bir büyük ve bir küçük harf içeren 8 veya daha fazla karakter (örn. &quot;Hello1234&quot;, &quot;Solyanka&quot;).</translation>
     </message>
     <message>
         <source>Email (Optional)</source>
@@ -495,7 +495,7 @@
     </message>
     <message>
         <source>Enter email</source>
-        <translation>E-posta girin</translation>
+        <translation>E-posta adresini girin</translation>
     </message>
     <message>
         <source>Voucher Code?</source>
@@ -507,11 +507,11 @@
     </message>
     <message>
         <source>Referred By Someone?</source>
-        <translation>Biri tarafından mı tavsiye edildi?</translation>
+        <translation>Sizi biri mi davet etti?</translation>
     </message>
     <message>
         <source>Referring username (optional)</source>
-        <translation>Referans kullanıcı adı (isteğe bağlı)</translation>
+        <translation>Davet eden kullanıcı adı (isteğe bağlı)</translation>
     </message>
     <message>
         <source>Continue</source>
@@ -523,17 +523,17 @@
     </message>
     <message>
         <source>Generate or browse file</source>
-        <translation>Dosya oluşturun veya gezin</translation>
+        <translation>Dosya oluşturun veya seçin</translation>
     </message>
     <message>
         <source>No personal info required. Account recovery is impossible.
 If you lose your account hash, it&apos;s gone forever and support cannot help you recover it.</source>
-        <translation>Kişisel bilgi gerekmiyor. Hesap kurtarma imkansızdır.
-Hesabınızı kaybederseniz, sonsuza dek kaybolur ve destek size onu kurtarmaya yardımcı olamaz.</translation>
+        <translation>Kişisel bilgi gerekmez. Hesap kurtarma mümkün değildir.
+Hesap hash&apos;inizi kaybederseniz sonsuza dek kaybolur ve destek ekibi onu kurtarmanıza yardım edemez.</translation>
     </message>
     <message>
         <source>Select file for hash</source>
-        <translation>Hash için dosyayı seç</translation>
+        <translation>Hash dosyasını seçin</translation>
     </message>
     <message>
         <source>All Files (*.*)</source>
@@ -541,11 +541,11 @@ Hesabınızı kaybederseniz, sonsuza dek kaybolur ve destek size onu kurtarmaya 
     </message>
     <message>
         <source>Username must be at least 3 characters</source>
-        <translation>Kullanıcı adı en az 3 karakter olmalı</translation>
+        <translation>Kullanıcı adı en az 3 karakter olmalıdır</translation>
     </message>
     <message>
         <source>Your username should not be an email address.</source>
-        <translation>Kullanıcı adınız e-posta adresi olmamalıdır.</translation>
+        <translation>Kullanıcı adınız bir e-posta adresi olmamalıdır.</translation>
     </message>
     <message>
         <source>Invalid email</source>
@@ -576,22 +576,22 @@ Hesabınızı kaybederseniz, sonsuza dek kaybolur ve destek size onu kurtarmaya 
     </message>
     <message>
         <source>Login</source>
-        <translation>Oturum açma</translation>
+        <translation>Giriş Yap</translation>
     </message>
     <message>
         <source>Get Started</source>
-        <translation>Başlayın</translation>
+        <translation>Başla</translation>
     </message>
 </context>
 <context>
     <name>MainWindow</name>
     <message>
         <source>Split Tunneling Stopped</source>
-        <translation>Ayrık tünelleme durduruldu</translation>
+        <translation>Bölünmüş Tünel Durdu</translation>
     </message>
     <message>
         <source>The split tunneling session ended unexpectedly. Please reconnect to retry. If this persists, please contact support.</source>
-        <translation>Ayrık tünelleme oturumu beklenmedik şekilde sona erdi. Tekrar denemek için lütfen yeniden bağlanın. Sorun devam ederse lütfen destek ile iletişime geçin.</translation>
+        <translation>Bölünmüş tünel oturumu beklenmedik şekilde sona erdi. Tekrar denemek için lütfen yeniden bağlanın. Sorun devam ederse destek ekibiyle iletişime geçin.</translation>
     </message>
     <message>
         <source>Logging you in...</source>
@@ -603,7 +603,7 @@ Hesabınızı kaybederseniz, sonsuza dek kaybolur ve destek size onu kurtarmaya 
     </message>
     <message>
         <source>Rotating your MAC address will result in a disconnect event from the current network. Are you sure?</source>
-        <translation>MAC adresinizi döndürmek, mevcut ağdan bir bağlantı kesme olayına neden olur. Emin misiniz?</translation>
+        <translation>MAC adresinizi değiştirmek mevcut ağ ile bağlantınızın kesilmesine yol açar. Emin misiniz?</translation>
     </message>
     <message>
         <source>Cannot detect appropriate packet size while connected. Please disconnect first.</source>
@@ -619,7 +619,7 @@ Hesabınızı kaybederseniz, sonsuza dek kaybolur ve destek size onu kurtarmaya 
     </message>
     <message>
         <source>Select Custom Config Folder</source>
-        <translation>Özel Yapılandırma Klasörü&apos;nü seçin</translation>
+        <translation>Özel Yapılandırma Klasörünü Seçin</translation>
     </message>
     <message>
         <source>Security Risk</source>
@@ -631,7 +631,7 @@ Hesabınızı kaybederseniz, sonsuza dek kaybolur ve destek size onu kurtarmaya 
     </message>
     <message>
         <source>Enable &quot;Base Filtering Engine&quot; service? This is required for Windscribe to function.</source>
-        <translation>&quot;Temel Filtreleme Motoru&quot; hizmeti etkinleştirilsin mi? Bu, Windscribe&apos;ın çalışması için gereklidir.</translation>
+        <translation>&quot;Base Filtering Engine&quot; (Temel Filtreleme Altyapısı) hizmeti etkinleştirilsin mi? Windscribe&apos;ın çalışması için bu hizmet gereklidir.</translation>
     </message>
     <message>
         <source>Failed to Enable Service</source>
@@ -639,7 +639,7 @@ Hesabınızı kaybederseniz, sonsuza dek kaybolur ve destek size onu kurtarmaya 
     </message>
     <message>
         <source>Could not start &apos;Base Filtering Engine&apos; service.  Please enable this service manually in Windows Services.</source>
-        <translation>&apos;Temel Filtreleme Motoru&apos; hizmeti başlatılamadı.  Lütfen bu hizmeti Windows Hizmetleri&apos;nde manuel olarak etkinleştirin.</translation>
+        <translation>&quot;Base Filtering Engine&quot; hizmeti başlatılamadı. Lütfen bu hizmeti Windows Hizmetler penceresinden elle etkinleştirin.</translation>
     </message>
     <message>
         <source>Failed to Start</source>
@@ -651,7 +651,7 @@ Hesabınızı kaybederseniz, sonsuza dek kaybolur ve destek size onu kurtarmaya 
     </message>
     <message>
         <source>Disconnected</source>
-        <translation>Bağlantısı kesilmiş</translation>
+        <translation>Bağlantı kesildi</translation>
     </message>
     <message>
         <source>The selected directory is writeable for other users. Custom configs in this directory may pose a potential security risk.</source>
@@ -659,19 +659,19 @@ Hesabınızı kaybederseniz, sonsuza dek kaybolur ve destek size onu kurtarmaya 
     </message>
     <message>
         <source>Installation Incomplete</source>
-        <translation>Kurulum Tamamlanmamış</translation>
+        <translation>Kurulum Eksik</translation>
     </message>
     <message>
         <source>Part of the Windscribe installation is missing.  Please download Windscribe and install it again.</source>
-        <translation>Windscribe kurulumunun bir kısmı eksik.  Lütfen Windscribe&apos;ı indirin ve tekrar yükleyin.</translation>
+        <translation>Windscribe kurulumunun bir kısmı eksik. Lütfen Windscribe&apos;ı indirip yeniden kurun.</translation>
     </message>
     <message>
         <source>Proxy Gateway is unauthenticated</source>
-        <translation>Proxy Gateway doğrulanmamıştır</translation>
+        <translation>Proxy Gateway kimlik doğrulamasız çalışıyor</translation>
     </message>
     <message>
         <source>Your Proxy Gateway is enabled without authentication. Anyone on your local network, including untrusted networks like coffee-shop Wi-Fi, can route their traffic through your VPN. We strongly recommend setting credentials.</source>
-        <translation>Proxy Gateway&apos;iniz kimlik doğrulama olmadan etkinleştirilmiştir. Yerel ağınızdaki, kahve dükkanı Wi-Fi gibi güvenilmez ağlar da dahil, trafiğini VPN üzerinden yönlendirebilir. Kimlik bilgilerini belirlemenizi şiddetle tavsiye ederiz.</translation>
+        <translation>Proxy Gateway&apos;iniz kimlik doğrulaması olmadan etkin. Kafe Wi-Fi&apos;ı gibi güvenilmeyen ağlar dahil, yerel ağınızdaki herkes kendi trafiğini VPN&apos;iniz üzerinden geçirebilir. Kimlik bilgileri belirlemenizi önemle tavsiye ederiz.</translation>
     </message>
     <message>
         <source>Go to Preferences</source>
@@ -683,33 +683,33 @@ Hesabınızı kaybederseniz, sonsuza dek kaybolur ve destek size onu kurtarmaya 
     </message>
     <message>
         <source>Trying Backup Endpoints...</source>
-        <translation>Yedek uç noktaları deniyorum...</translation>
+        <translation>Yedek uç noktalar deneniyor...</translation>
     </message>
     <message>
         <source>SSL requests may be intercepted on your network. Ignoring SSL errors disables TLS certificate validation for this session: anyone able to intercept your traffic can then impersonate Windscribe and read or alter your data, and we can&apos;t guarantee your security while it&apos;s on. Ignore SSL errors?</source>
-        <translation>SSL talepleri ağınızda ele geçirilebilir. SSL hatalarını görmezden gelmek bu oturum için TLS sertifikası doğrulamasını devre dışı bırakır: trafiğinizi yakalayabilecek herkes Windscribe kimliğine girip verilerinizi okuyabilir veya değiştirebilir ve bu işlem açıkken güvenliğinizi garanti edemeyiz. SSL hatalarını görmezden gelmek mi?</translation>
+        <translation>SSL istekleriniz ağınızda araya girilerek ele geçiriliyor olabilir. SSL hatalarını yok saymak bu oturum için TLS sertifika doğrulamasını kapatır: trafiğinize erişebilen herkes Windscribe kılığına girip verilerinizi okuyabilir veya değiştirebilir ve bu seçenek açıkken güvenliğinizi garanti edemeyiz. SSL hataları yok sayılsın mı?</translation>
     </message>
     <message>
         <source>Connected to </source>
-        <translation>Bağlı </translation>
+        <translation>Bağlanıldı: </translation>
     </message>
     <message>
         <source>You are now connected to Windscribe (%1).</source>
-        <translation>Artık Windscribe&apos;a (%1) bağlısınız.</translation>
+        <translation>Artık Windscribe&apos;a bağlısınız (%1).</translation>
     </message>
     <message>
         <source>Connection to Windscribe has been terminated.
 %1 transferred in %2</source>
         <translation>Windscribe bağlantısı sonlandırıldı.
-%1 %2&apos;de transfer edildi</translation>
+%1 aktarıldı, süre: %2</translation>
     </message>
     <message>
         <source>Could not start Proxy Gateway</source>
-        <translation>Proxy Gateway başlatamadım</translation>
+        <translation>Proxy Gateway başlatılamadı</translation>
     </message>
     <message>
         <source>The configured port is in use. Please try a different port.</source>
-        <translation>Yapılandırılmış port kullanılıyor. Lütfen farklı bir port deneyin.</translation>
+        <translation>Yapılandırılan port kullanımda. Lütfen farklı bir port deneyin.</translation>
     </message>
     <message>
         <source>An unknown error occurred.</source>
@@ -717,11 +717,11 @@ Hesabınızı kaybederseniz, sonsuza dek kaybolur ve destek size onu kurtarmaya 
     </message>
     <message>
         <source>Network Settings Interference</source>
-        <translation>Ağ Ayarları Girişimi</translation>
+        <translation>Ağ Ayarı Çakışması</translation>
     </message>
     <message>
         <source>We&apos;ve detected that your network settings may interfere with Windscribe.  Please send us a debug log to troubleshoot.</source>
-        <translation>Ağ ayarlarınızın Windscribe&apos;ı etkileyebileceğini tespit ettik.  Sorun gidermek için lütfen bize bir hata ayıklama günlüğü gönderin.</translation>
+        <translation>Ağ ayarlarınızın Windscribe ile çakışabileceğini tespit ettik. Sorunu gidermek için lütfen bize hata ayıklama günlüğü gönderin.</translation>
     </message>
     <message>
         <source>Send Debug Log</source>
@@ -733,7 +733,7 @@ Hesabınızı kaybederseniz, sonsuza dek kaybolur ve destek size onu kurtarmaya 
     </message>
     <message>
         <source>Windscribe will always use this protocol to connect on this network in the future to avoid any interruptions.</source>
-        <translation>Windscribe, herhangi bir kesintiyi önlemek için gelecekte bu ağa bağlanmak için her zaman bu protokolü kullanacaktır.</translation>
+        <translation>Kesinti yaşamamanız için Windscribe bu ağda bundan sonra her zaman bu protokolle bağlanacak.</translation>
     </message>
     <message>
         <source>Set as Preferred</source>
@@ -745,7 +745,7 @@ Hesabınızı kaybederseniz, sonsuza dek kaybolur ve destek size onu kurtarmaya 
     </message>
     <message>
         <source>Windscribe has detected that %1 is using a high amount of CPU due to a potential conflict with the VPN connection. Do you want to disable the Windscribe TCP socket termination feature that may be causing this issue?</source>
-        <translation>Windscribe, VPN bağlantısıyla olası bir çakışma nedeniyle %1&apos;in yüksek miktarda CPU kullandığını algıladı. Bu soruna neden olabilecek Windscribe TCP soket sonlandırma özelliğini devre dışı bırakmak istiyor musunuz?</translation>
+        <translation>Windscribe, VPN bağlantısıyla olası bir çakışma nedeniyle %1 işleminin yüksek CPU kullandığını tespit etti. Bu soruna yol açıyor olabilecek Windscribe TCP soket sonlandırma özelliğini kapatmak ister misiniz?</translation>
     </message>
     <message>
         <source>High CPU Usage</source>
@@ -753,15 +753,15 @@ Hesabınızı kaybederseniz, sonsuza dek kaybolur ve destek size onu kurtarmaya 
     </message>
     <message>
         <source>MAC Spoofing Failed</source>
-        <translation>MAC Sahtekarlığı Başarısız Oldu</translation>
+        <translation>MAC Adresi Değiştirilemedi</translation>
     </message>
     <message>
         <source>Your network adapter does not support MAC spoofing. Try a different adapter.</source>
-        <translation>Ağ bağdaştırıcınız MAC sahtekarlığını desteklemiyor. Farklı bir adaptör deneyin.</translation>
+        <translation>Ağ bağdaştırıcınız MAC adresi değiştirmeyi desteklemiyor. Farklı bir bağdaştırıcı deneyin.</translation>
     </message>
     <message>
         <source>Could not spoof MAC address.  Please try a different network interface or contact support.</source>
-        <translation>MAC adresi taklit edilemedi.  Lütfen farklı bir ağ arayüzü deneyin veya desteğe başvurun.</translation>
+        <translation>MAC adresi değiştirilemedi. Lütfen farklı bir ağ arayüzü deneyin veya destek ekibiyle iletişime geçin.</translation>
     </message>
     <message>
         <source>Detection Error</source>
@@ -781,7 +781,7 @@ Hesabınızı kaybederseniz, sonsuza dek kaybolur ve destek size onu kurtarmaya 
     </message>
     <message>
         <source>Your debug log has been received. Please contact support if you want assistance with this issue.</source>
-        <translation>Hata ayıklama günlüğünüz alındı. Bu sorunla ilgili yardım almak istiyorsanız lütfen desteğe başvurun.</translation>
+        <translation>Hata ayıklama günlüğünüz alındı. Bu sorunla ilgili yardım isterseniz lütfen destek ekibiyle iletişime geçin.</translation>
     </message>
     <message>
         <source>Contact Support</source>
@@ -793,17 +793,17 @@ Hesabınızı kaybederseniz, sonsuza dek kaybolur ve destek size onu kurtarmaya 
     </message>
     <message>
         <source>Could not download update.  Please try again or use a different network.</source>
-        <translation>Güncelleme indirilemedi.  Lütfen tekrar deneyin veya farklı bir ağ kullanın.</translation>
+        <translation>Güncelleme indirilemedi. Lütfen tekrar deneyin veya farklı bir ağ kullanın.</translation>
     </message>
     <message>
         <source>Could not run updater (Error %1).  Please contact support</source>
-        <translation>Güncelleştirici çalıştırılamadı (Hata %1).  Lütfen destek ile iletişime geçin</translation>
+        <translation>Güncelleyici çalıştırılamadı (Hata %1). Lütfen destek ekibiyle iletişime geçin</translation>
     </message>
     <message>
         <source>Lost connection to the backend process.
 Recovering...</source>
-        <translation>Arka uç işlemiyle bağlantı kesildi.
-Kurtarma...</translation>
+        <translation>Arka uç işlemiyle bağlantı koptu.
+Yeniden kuruluyor...</translation>
     </message>
     <message>
         <source>Select an application</source>
@@ -815,35 +815,35 @@ Kurtarma...</translation>
     </message>
     <message>
         <source>Your hosts file is read-only. IKEv2 connectivity requires for it to be writable. Fix the issue automatically?</source>
-        <translation>Hosts dosyanız salt okunurdur. IKEv2 bağlantısının yazılabilir olması gerekir. Sorun otomatik olarak çözülsün mü?</translation>
+        <translation>Hosts dosyanız salt okunur. IKEv2 bağlantısı için bu dosyanın yazılabilir olması gerekir. Sorun otomatik olarak düzeltilsin mi?</translation>
     </message>
     <message>
         <source>The custom configuration could not be loaded.  Please check that it’s correct or contact support.</source>
-        <translation>Özel yapılandırma yüklenemedi.  Lütfen doğru olup olmadığını kontrol edin veya destek ekibiyle iletişime geçin.</translation>
+        <translation>Özel yapılandırma yüklenemedi. Lütfen doğru olduğunu kontrol edin veya destek ekibiyle iletişime geçin.</translation>
     </message>
     <message>
         <source>WireGuard adapter setup failed. Please wait one minute and try the connection again. If adapter setup fails again, please try restarting your computer.
 
 If the problem persists after a restart, please send a debug log and open a support ticket, then switch to a different connection mode.</source>
-        <translation>WireGuard bağdaştırıcısı kurulumu başarısız oldu. Lütfen bir dakika bekleyin ve bağlantıyı tekrar deneyin. Adaptör kurulumu tekrar başarısız olursa, lütfen bilgisayarınızı yeniden başlatmayı deneyin.
+        <translation>WireGuard bağdaştırıcısı kurulamadı. Lütfen bir dakika bekleyip tekrar bağlanmayı deneyin. Bağdaştırıcı kurulumu yine başarısız olursa bilgisayarınızı yeniden başlatmayı deneyin.
 
-Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama günlüğü gönderin ve bir destek bileti açın, ardından farklı bir bağlantı moduna geçin.</translation>
+Yeniden başlattıktan sonra da sorun devam ederse lütfen bir hata ayıklama günlüğü gönderip destek talebi açın, ardından farklı bir bağlantı moduna geçin.</translation>
     </message>
     <message>
         <source>VPN adapter setup failed. Please wait one minute and try the connection again. If the problem persists, please send a debug log and open a support ticket, then switch to a different connection mode.</source>
-        <translation>VPN adaptör kurulumu başarısız oldu. Lütfen bir dakika bekleyin ve bağlantıyı tekrar deneyin. Sorun devam ederse, lütfen bir hata ayıklama logu gönderin ve destek bileti açın, sonra farklı bir bağlantı moduna geçin.</translation>
+        <translation>VPN bağdaştırıcısı kurulamadı. Lütfen bir dakika bekleyip tekrar bağlanmayı deneyin. Sorun devam ederse lütfen bir hata ayıklama günlüğü gönderip destek talebi açın, ardından farklı bir bağlantı moduna geçin.</translation>
     </message>
     <message>
         <source>Windscribe could not generate the connection configuration. If this error persists, please send a debug log and open a support ticket.</source>
-        <translation>Windscribe bağlantı yapılandırmasını oluşturamadı. Bu hata devam ederse, lütfen bir hata ayıklama kaydı gönderin ve destek bileti açın.</translation>
+        <translation>Windscribe bağlantı yapılandırmasını oluşturamadı. Bu hata devam ederse lütfen bir hata ayıklama günlüğü gönderip destek talebi açın.</translation>
     </message>
     <message>
         <source>The Remote Access Connection Manager (RasMan) service is not running and could not be started. This prevents IKEv2 from being used on this PC. Please try another connection mode or investigate why this core Windows service is unable to start.</source>
-        <translation>Remote Access Connection Manager (RasMan) servisi çalışmıyor ve başlatılamamaktadır. Bu, IKEv2&apos;nin bu PC&apos;de kullanılmasını engeller. Lütfen başka bir bağlantı modunu deneyin veya bu temel Windows servisinin neden başlayamadığını araştırın.</translation>
+        <translation>Remote Access Connection Manager (RasMan) hizmeti çalışmıyor ve başlatılamadı. Bu nedenle bu bilgisayarda IKEv2 kullanılamıyor. Lütfen başka bir bağlantı modu deneyin veya bu temel Windows hizmetinin neden başlatılamadığını araştırın.</translation>
     </message>
     <message>
         <source>An unexpected error occurred establishing the VPN connection (Error %1).  If this error persists, try using a different protocol or contact support.</source>
-        <translation>VPN bağlantısı kurulurken beklenmeyen bir hata oluştu (Hata %1).  Bu hata devam ederse, farklı bir protokol kullanmayı deneyin veya desteğe başvurun.</translation>
+        <translation>VPN bağlantısı kurulurken beklenmeyen bir hata oluştu (Hata %1). Bu hata devam ederse farklı bir protokol deneyin veya destek ekibiyle iletişime geçin.</translation>
     </message>
     <message>
         <source>Connection Error</source>
@@ -859,11 +859,11 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
     </message>
     <message>
         <source>The split tunneling feature could not be started, and has been disabled in Preferences.</source>
-        <translation>Bölünmüş tünelleme özelliği başlatılamadı ve Tercihler&apos;de devre dışı bırakıldı.</translation>
+        <translation>Bölünmüş tünel özelliği başlatılamadı ve Tercihler&apos;de kapatıldı.</translation>
     </message>
     <message>
         <source>Unable to start custom DNS service.  Please ensure you don&apos;t have any other local DNS services running, or contact support.</source>
-        <translation>Özel DNS hizmeti başlatılamıyor.  Lütfen çalışan başka bir yerel DNS hizmetiniz olmadığından emin olun veya desteğe başvurun.</translation>
+        <translation>Özel DNS hizmeti başlatılamadı. Lütfen başka bir yerel DNS hizmetinin çalışmadığından emin olun veya destek ekibiyle iletişime geçin.</translation>
     </message>
     <message>
         <source>JSON Files (*.json)</source>
@@ -871,15 +871,15 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
     </message>
     <message>
         <source>Unable to import preferences</source>
-        <translation>Tercihler içe aktarılamıyor</translation>
+        <translation>Tercihler içe aktarılamadı</translation>
     </message>
     <message>
         <source>Preferences can only be imported when the app is disconnected. Please disconnect and try again.</source>
-        <translation>Tercihler yalnızca uygulama bağlantısı kesildiğinde içe aktarılabilir. Lütfen bağlantıyı kesin ve tekrar deneyin.</translation>
+        <translation>Tercihler yalnızca VPN bağlantısı yokken içe aktarılabilir. Lütfen bağlantıyı kesip tekrar deneyin.</translation>
     </message>
     <message>
         <source>The selected file&apos;s format is incorrect.</source>
-        <translation>Seçilen dosyanın biçimi yanlış.</translation>
+        <translation>Seçilen dosyanın biçimi hatalı.</translation>
     </message>
     <message>
         <source>Export Preferences To</source>
@@ -895,11 +895,11 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
     </message>
     <message>
         <source>Unable to export preferences</source>
-        <translation>Tercihler dışa aktarılamıyor</translation>
+        <translation>Tercihler dışa aktarılamadı</translation>
     </message>
     <message>
         <source>Could not open file for writing.  Check your permissions and try again.</source>
-        <translation>Dosya yazmak için açılamadı.  İzinlerinizi kontrol edin ve tekrar deneyin.</translation>
+        <translation>Dosya yazmak için açılamadı. İzinlerinizi kontrol edip tekrar deneyin.</translation>
     </message>
     <message>
         <source>Enter Connection Credentials</source>
@@ -907,7 +907,7 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
     </message>
     <message>
         <source>Enter Private Key Password</source>
-        <translation>Özel Anahtar Parolasını Girin</translation>
+        <translation>Özel Anahtar Şifresini Girin</translation>
     </message>
     <message>
         <source>Windscribe could not retrieve server configuration. Please try another protocol.</source>
@@ -915,11 +915,11 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
     </message>
     <message>
         <source>IKEv2 connectivity is not available in MacOS Lockdown Mode. Please disable Lockdown Mode in System Settings or change your connection settings.</source>
-        <translation>IKEv2 bağlantısı, MacOS Kilitleme Modu&apos;nda kullanılamaz. Lütfen Sistem Ayarları&apos;nda Kilitleme Modu&apos;nu devre dışı bırakın veya bağlantı ayarlarınızı değiştirin.</translation>
+        <translation>IKEv2 bağlantısı macOS Kilitleme Modu&apos;nda kullanılamaz. Lütfen Sistem Ayarları&apos;ndan Kilitleme Modu&apos;nu kapatın veya bağlantı ayarlarınızı değiştirin.</translation>
     </message>
     <message>
         <source>Rotating MAC Address</source>
-        <translation>MAC Adresini Döndürme</translation>
+        <translation>MAC Adresi Değiştiriliyor</translation>
     </message>
     <message>
         <source>Wi-Fi is off</source>
@@ -935,7 +935,7 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
     </message>
     <message>
         <source>...hmm are you sure this is correct?</source>
-        <translation>... hmm bunun doğru olduğundan emin misin?</translation>
+        <translation>...hmm, bunun doğru olduğundan emin misiniz?</translation>
     </message>
     <message>
         <source>Windscribe has detected that Wi-Fi is currently turned off. To use Secure Hotspot, Wi-Fi must be turned on.</source>
@@ -943,23 +943,23 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
     </message>
     <message>
         <source>Location Services is disabled</source>
-        <translation>Konum Servisleri devre dışı bırakıldı</translation>
+        <translation>Konum Servisleri kapalı</translation>
     </message>
     <message>
         <source>Windscribe requires Location Services to determine your Wi-Fi SSID. If it is not enabled, per-network settings will apply to all Wi-Fi networks. Please enable Location Services and grant the permission to Windscribe in your System Settings.</source>
-        <translation>Windscribe, Wi-Fi SSID&apos;nizi belirlemek için Konum Servislerine ihtiyaç duyar. Etkinleştirilmezse, ağ başına ayarlar tüm Wi-Fi ağlarına uygulanır. Lütfen Konum Servisleri&apos;ni etkinleştirin ve Sistem Ayarlarınızda Windscribe&apos;a izin verin.</translation>
+        <translation>Windscribe, Wi-Fi SSID&apos;nizi belirlemek için Konum Servisleri&apos;ne ihtiyaç duyar. Bu özellik kapalıysa ağa özel ayarlar tüm Wi-Fi ağlarına uygulanır. Lütfen Sistem Ayarları&apos;ndan Konum Servisleri&apos;ni açın ve Windscribe&apos;a izin verin.</translation>
     </message>
     <message>
         <source>Windscribe requires Location Services to determine your Wi-Fi SSID. If it is not enabled, per-network settings will apply to all Wi-Fi networks. Please enable Location Services in your System Settings.</source>
-        <translation>Windscribe, Wi-Fi SSID&apos;nizi belirlemek için Konum Servislerine ihtiyaç duyar. Etkinleştirilmezse, ağ başına ayarlar tüm Wi-Fi ağlarına uygulanır. Lütfen Sistem Ayarlarınızda Konum Servislerini etkinleştirin.</translation>
+        <translation>Windscribe, Wi-Fi SSID&apos;nizi belirlemek için Konum Servisleri&apos;ne ihtiyaç duyar. Bu özellik kapalıysa ağa özel ayarlar tüm Wi-Fi ağlarına uygulanır. Lütfen Sistem Ayarları&apos;ndan Konum Servisleri&apos;ni açın.</translation>
     </message>
     <message>
         <source>  If you are on a restrictive network, please connect the VPN before trying the download again.</source>
-        <translation>  Kısıtlayıcı bir ağdaysanız, indirmeyi tekrar denemeden önce lütfen VPN&apos;i bağlayın.</translation>
+        <translation>  Kısıtlayıcı bir ağdaysanız indirmeyi tekrar denemeden önce lütfen VPN&apos;e bağlanın.</translation>
     </message>
     <message>
         <source>Your &quot;Connected DNS&quot; server is set to an OS default DNS server, which would result in a DNS leak.  It has been changed to Auto.</source>
-        <translation>&quot;Bağlı DNS&quot; sunucunuz, DNS sızıntısına neden olacak bir işletim sistemi varsayılan DNS sunucusuna ayarlanmıştır.  Otomatik olarak değiştirildi.</translation>
+        <translation>&quot;Bağlı DNS&quot; sunucunuz işletim sisteminin varsayılan DNS sunucusuna ayarlı; bu, DNS sızıntısına yol açar. Ayar Otomatik olarak değiştirildi.</translation>
     </message>
     <message>
         <source>Invalid DNS Settings</source>
@@ -967,35 +967,35 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
     </message>
     <message>
         <source>System notifications are disabled</source>
-        <translation>Sistem bildirimleri devre dışı bırakıldı</translation>
+        <translation>Sistem bildirimleri kapalı</translation>
     </message>
     <message>
         <source>You have chosen to show notifications, but system notifications are disabled. Please enable system notifications in your System Settings.</source>
-        <translation>Bildirimleri göstermeyi seçtiniz, ancak sistem bildirimleri devre dışı bırakıldı. Lütfen Sistem Ayarlarınızda sistem bildirimlerini etkinleştirin.</translation>
+        <translation>Bildirimleri göstermeyi seçtiniz ancak sistem bildirimleri kapalı. Lütfen Sistem Ayarları&apos;ndan sistem bildirimlerini açın.</translation>
     </message>
     <message>
         <source>Error Starting Split Tunneling</source>
-        <translation>Ayrık tünelleme başlatılırken hata oluştu</translation>
+        <translation>Bölünmüş Tünel Başlatılamadı</translation>
     </message>
     <message>
         <source>Export Location Names To</source>
-        <translation>Konum adlarını şuraya aktar:</translation>
+        <translation>Konum Adlarını Dışa Aktar</translation>
     </message>
     <message>
         <source>Unable to export location names</source>
-        <translation>Konum adları dışa aktarılamıyor</translation>
+        <translation>Konum adları dışa aktarılamadı</translation>
     </message>
     <message>
         <source>Import Location Names From</source>
-        <translation>Konum adlarını şuradan içe aktar:</translation>
+        <translation>Konum Adlarını İçe Aktar</translation>
     </message>
     <message>
         <source>Unable to import location names</source>
-        <translation>Konum adları içe aktarılamıyor</translation>
+        <translation>Konum adları içe aktarılamadı</translation>
     </message>
     <message>
         <source>The split tunneling feature has been disabled because the Windscribe split tunnel extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again.</source>
-        <translation>Windscribe bölünmüş tünel uzantısı Sistem Ayarları&apos;nda etkinleştirilmediği için bölünmüş tünel özelliği devre dışı bırakıldı.  Bu özelliği kullanmak için lütfen Sistem Ayarları&apos;nda uzantıyı etkinleştirin ve özelliği tekrar açın.</translation>
+        <translation>Windscribe bölünmüş tünel uzantısı Sistem Ayarları&apos;nda etkin olmadığı için bölünmüş tünel özelliği kapatıldı. Bu özelliği kullanmak için lütfen Sistem Ayarları&apos;ndan uzantıyı etkinleştirin ve özelliği yeniden açın.</translation>
     </message>
     <message>
         <source>Debug Log Sent!</source>
@@ -1003,11 +1003,11 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
     </message>
     <message>
         <source>Could not connect to the Windscribe service.  Windscribe will now exit.  Please contact support.</source>
-        <translation>Windscribe hizmetine bağlanılamadı.  Windscribe şimdi çıkacak.  Lütfen destek ile iletişime geçin.</translation>
+        <translation>Windscribe hizmetine bağlanılamadı. Windscribe kapanacak. Lütfen destek ekibiyle iletişime geçin.</translation>
     </message>
     <message>
         <source>Lost connection to the Windscribe service.  Windscribe will now exit.  Send us a debug log so we can improve this.</source>
-        <translation>Windscribe hizmetiyle bağlantı kesildi.  Windscribe şimdi çıkacak.  Bunu iyileştirebilmemiz için bize bir hata ayıklama günlüğü gönderin.</translation>
+        <translation>Windscribe hizmetiyle bağlantı koptu. Windscribe kapanacak. Bu sorunu düzeltebilmemiz için bize bir hata ayıklama günlüğü gönderin.</translation>
     </message>
     <message>
         <source>Local DNS server is not available</source>
@@ -1015,7 +1015,7 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
     </message>
     <message>
         <source>The local DNS server is not available.  Connected DNS has been set back to Auto.</source>
-        <translation>Yerel DNS sunucusu kullanılamıyor.  Bağlı DNS tekrar Otomatik olarak ayarlandı.</translation>
+        <translation>Yerel DNS sunucusu kullanılamıyor. Bağlı DNS yeniden Otomatik olarak ayarlandı.</translation>
     </message>
     <message>
         <source>DNS Server Conflict</source>
@@ -1023,7 +1023,7 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
     </message>
     <message>
         <source>Unable to start custom DNS service - port 53 is already in use.  Would you like to change your Connected DNS to the local server?</source>
-        <translation>Özel DNS hizmeti başlatılamıyor - 53 numaralı bağlantı noktası zaten kullanımda.  Bağlı DNS&apos;nizi yerel sunucuya değiştirmek ister misiniz?</translation>
+        <translation>Özel DNS hizmeti başlatılamadı: 53 numaralı port zaten kullanımda. Bağlı DNS&apos;i yerel sunucu olarak değiştirmek ister misiniz?</translation>
     </message>
     <message>
         <source>Could not pin IP</source>
@@ -1031,19 +1031,19 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
     </message>
     <message>
         <source>We could not set your favourite IP for this location.  Try again later.</source>
-        <translation>Bu konum için favori IP&apos;nizi ayarlayamadık.  Daha sonra tekrar deneyin.</translation>
+        <translation>Bu konum için favori IP&apos;nizi ayarlayamadık. Daha sonra tekrar deneyin.</translation>
     </message>
     <message>
         <source>Could not rotate IP</source>
-        <translation>IP döndürülemedi</translation>
+        <translation>IP değiştirilemedi</translation>
     </message>
     <message>
         <source>Try again later or go to our Status page for more info.</source>
-        <translation>Daha sonra tekrar deneyin veya daha fazla bilgi için Durum sayfamıza gidin.</translation>
+        <translation>Daha sonra tekrar deneyin veya ayrıntılı bilgi için Durum sayfamıza göz atın.</translation>
     </message>
     <message>
         <source>Check Location Status</source>
-        <translation>Konum Durumunu Kontrol Edin</translation>
+        <translation>Konum Durumunu Kontrol Et</translation>
     </message>
     <message>
         <source>Back</source>
@@ -1055,26 +1055,26 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
     </message>
     <message>
         <source>We couldn’t connect you on this network. Automatic connection mode recommended for best results. Switch connection mode to Auto?</source>
-        <translation>Seni bu ağa bağlayamadık. En iyi sonuçlar için otomatik bağlantı modu önerilir. Bağlantı modunu Otomatik olarak mı değiştireyim?</translation>
+        <translation>Sizi bu ağa bağlayamadık. En iyi sonuç için otomatik bağlantı modu önerilir. Bağlantı modu Otomatik olarak değiştirilsin mi?</translation>
     </message>
     <message>
         <source>Switch to Auto</source>
-        <translation>Otomatik Sisteme Geçiş</translation>
+        <translation>Otomatiğe Geç</translation>
     </message>
     <message>
         <source>Creating your account...</source>
-        <translation>Hesabınızı oluşturuyorum...</translation>
+        <translation>Hesabınız oluşturuluyor...</translation>
     </message>
     <message>
         <source>Cannot rotate MAC address while connected to VPN. Please disconnect first.</source>
-        <translation>VPN&apos;ye bağlıyken MAC adresi döndüremiyor. Lütfen önce bağlantıyı kesin.</translation>
+        <translation>VPN&apos;e bağlıyken MAC adresi değiştirilemez. Lütfen önce bağlantıyı kesin.</translation>
     </message>
 </context>
 <context>
     <name>MainWindowController</name>
     <message>
         <source>Quit Windscribe?</source>
-        <translation>Windscribe&apos;dan çıkmak mı?</translation>
+        <translation>Windscribe&apos;dan çıkılsın mı?</translation>
     </message>
     <message>
         <source>Log Out of Windscribe?</source>
@@ -1082,7 +1082,7 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
     </message>
     <message>
         <source>Quit</source>
-        <translation>İstifa etmek</translation>
+        <translation>Çık</translation>
     </message>
     <message>
         <source>Log Out</source>
@@ -1097,18 +1097,18 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
     <name>NewsFeedWindow::NewsFeedWindowItem</name>
     <message>
         <source>News Feed</source>
-        <translation>Haber Kaynağı</translation>
+        <translation>Haberler</translation>
     </message>
 </context>
 <context>
     <name>NotificationsController</name>
     <message>
         <source>WELCOME TO WINDSCRIBE</source>
-        <translation>WINDSCRIBE&apos;A HOŞGELDİNİZ</translation>
+        <translation>WINDSCRIBE&apos;A HOŞ GELDİNİZ</translation>
     </message>
     <message>
         <source>&lt;p&gt;You will find announcements and general Windscribe related news here. Perhaps even delicious cake, everyone loves cake!&lt;/p&gt;</source>
-        <translation>&lt;p&gt;Duyuruları ve Windscribe ile ilgili genel haberleri burada bulabilirsiniz. Belki de lezzetli pasta, herkes pastayı sever!&lt;/p&gt;</translation>
+        <translation>&lt;p&gt;Duyuruları ve Windscribe ile ilgili genel haberleri burada bulabilirsiniz. Belki lezzetli bir pasta bile, pastayı herkes sever!&lt;/p&gt;</translation>
     </message>
 </context>
 <context>
@@ -1119,11 +1119,11 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
     </message>
     <message>
         <source>&apos;Connected DNS&apos; was not configured with a valid Upstream 1 (IP/DNS-over-HTTPS/TLS). DNS was reverted to ROBERT (default).</source>
-        <translation>&apos;Bağlı DNS&apos; geçerli bir Yukarı Akış 1 (HTTPS üzerinden IP/DNS) (HTTPS/TLS üzerinden IP/DNS) ile yapılandırılmadı. DNS, ROBERT&apos;a (varsayılan) geri döndürüldü.</translation>
+        <translation>&apos;Bağlı DNS&apos; için geçerli bir Upstream 1 (IP/DNS-over-HTTPS/TLS) ayarlanmamış. DNS, ROBERT (varsayılan) olarak geri alındı.</translation>
     </message>
     <message>
         <source>&apos;Connected DNS&apos; was not configured with a valid Upstream 2 (IP/DNS-over-HTTPS/TLS). DNS was reverted to ROBERT (default).</source>
-        <translation>&apos;Bağlı DNS&apos; geçerli bir Yukarı Akış 2 (HTTPS üzerinden IP/DNS) (IP/DNS-over-HTTPS/TLS) ile yapılandırılmadı. DNS, ROBERT&apos;a (varsayılan) geri döndürüldü.</translation>
+        <translation>&apos;Bağlı DNS&apos; için geçerli bir Upstream 2 (IP/DNS-over-HTTPS/TLS) ayarlanmamış. DNS, ROBERT (varsayılan) olarak geri alındı.</translation>
     </message>
 </context>
 <context>
@@ -1146,15 +1146,15 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
     </message>
     <message>
         <source>Terms</source>
-        <translation>Terim</translation>
+        <translation>Koşullar</translation>
     </message>
     <message>
         <source>Blog</source>
-        <translation>Bloglar</translation>
+        <translation>Blog</translation>
     </message>
     <message>
         <source>Jobs</source>
-        <translation>Işleri</translation>
+        <translation>Kariyer</translation>
     </message>
     <message>
         <source>Software Licenses</source>
@@ -1162,7 +1162,7 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
     </message>
     <message>
         <source>Changelog</source>
-        <translation>Değişiklik</translation>
+        <translation>Sürüm Notları</translation>
     </message>
 </context>
 <context>
@@ -1173,7 +1173,7 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
     </message>
     <message>
         <source>Login</source>
-        <translation>Oturum açma</translation>
+        <translation>Giriş Yap</translation>
     </message>
     <message>
         <source>Account</source>
@@ -1185,7 +1185,7 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
     </message>
     <message>
         <source>Reset Date</source>
-        <translation>Tarihi Sıfırla</translation>
+        <translation>Sıfırlanma Tarihi</translation>
     </message>
     <message>
         <source>Data Left</source>
@@ -1197,7 +1197,7 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
     </message>
     <message>
         <source>Expiry Date</source>
-        <translation>Son kullanma tarihi</translation>
+        <translation>Bitiş Tarihi</translation>
     </message>
     <message>
         <source>ACCOUNT INFO</source>
@@ -1209,7 +1209,7 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
     </message>
     <message>
         <source>UPGRADE &gt;</source>
-        <translation>YÜKSELTME &gt;</translation>
+        <translation>YÜKSELT &gt;</translation>
     </message>
 </context>
 <context>
@@ -1228,7 +1228,7 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
     </message>
     <message>
         <source>Prevents connections from dying (by time-out) by periodically pinging the server.</source>
-        <translation>Sunucuya düzenli olarak ping yaparak bağlantılarının ölmesini (zaman aşımına uğramasını) önler.</translation>
+        <translation>Sunucuya düzenli aralıklarla ping atarak bağlantının zaman aşımıyla kopmasını önler.</translation>
     </message>
     <message>
         <source>Client-Side Keepalive</source>
@@ -1240,15 +1240,15 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
     </message>
     <message>
         <source>Warning: Using &quot;OS Default&quot; may sometimes cause DNS leaks during reconnects.</source>
-        <translation>Uyarı: &quot;İşletim Sistemi Varsayılanı&quot;nın kullanılması bazen yeniden bağlanmalar sırasında DNS sızıntılarına neden olabilir.</translation>
+        <translation>Uyarı: &quot;İşletim sistemi varsayılanı&quot; seçeneği yeniden bağlanırken bazen DNS sızıntısına yol açabilir.</translation>
     </message>
     <message>
         <source>App Internal DNS</source>
-        <translation>Uygulama Dahili DNS&apos;si</translation>
+        <translation>Uygulama İçi DNS</translation>
     </message>
     <message>
         <source>Select the DNS system service Windscribe enforces. Experienced users only.</source>
-        <translation>Windscribe&apos;ın uyguladığı DNS sistem hizmetini seçin. Yalnızca deneyimli kullanıcılar.</translation>
+        <translation>Windscribe&apos;ın kullanacağı sistem DNS hizmetini seçin. Yalnızca deneyimli kullanıcılar için.</translation>
     </message>
     <message>
         <source>DNS Manager</source>
@@ -1260,30 +1260,30 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
     </message>
     <message>
         <source>Export</source>
-        <translation>Ihracat</translation>
+        <translation>Dışa Aktar</translation>
     </message>
     <message>
         <source>Import</source>
-        <translation>Ithalat</translation>
+        <translation>İçe Aktar</translation>
     </message>
 </context>
 <context>
     <name>PreferencesWindow::AntiCensorshipWindowItem</name>
     <message>
         <source>Anti-Censorship</source>
-        <translation>Sansür karşıtı</translation>
+        <translation>Sansür Aşma</translation>
     </message>
     <message>
         <source>These degrade performance, enable only if Windscribe doesn&apos;t connect normally.</source>
-        <translation>Bunlar performansı düşürür, ancak Windscribe normal bağlanmazsa etkinleştirilir.</translation>
+        <translation>Bunlar performansı düşürür; yalnızca Windscribe normal şekilde bağlanamıyorsa açın.</translation>
     </message>
     <message>
         <source>Protocol-level changes made to WireGuard, OpenVPN, and Stealth protocols.</source>
-        <translation>WireGuard, OpenVPN ve Stealth protokollerinde protokol düzeyinde değişiklikler yapıldı.</translation>
+        <translation>WireGuard, OpenVPN ve Stealth protokollerinde protokol düzeyinde değişiklikler yapar.</translation>
     </message>
     <message>
         <source>Increases latency, but improves chances of being able to connect.</source>
-        <translation>Gecikmeyi artırır ama bağlantı şansını artırır.</translation>
+        <translation>Gecikmeyi artırır ancak bağlanabilme şansını yükseltir.</translation>
     </message>
     <message>
         <source>Server Routing</source>
@@ -1295,7 +1295,7 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
     </message>
     <message>
         <source>Artificially enlarge TLS packets, helps to circumvent censorship in some cases. Adds extra TLS padding to all API requests.</source>
-        <translation>TLS paketlerini yapay olarak büyütmek, bazı durumlarda sansürü aşmaya yardımcı olur. Tüm API isteklerine ekstra TLS dolgusu ekliyor.</translation>
+        <translation>TLS paketlerini yapay olarak büyütür; bazı durumlarda sansürü aşmaya yardımcı olur. Tüm API isteklerine ek TLS dolgusu ekler.</translation>
     </message>
     <message>
         <source>Custom SNI Domain</source>
@@ -1322,19 +1322,19 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
     </message>
     <message>
         <source>Flags</source>
-        <translation>Bayrak</translation>
+        <translation>Bayraklar</translation>
     </message>
     <message>
         <source>Bundled</source>
-        <translation>Birlikte</translation>
+        <translation>Yerleşik</translation>
     </message>
     <message>
         <source>None</source>
-        <translation>Hiç kimse</translation>
+        <translation>Yok</translation>
     </message>
     <message>
         <source>Custom</source>
-        <translation>Töre</translation>
+        <translation>Özel</translation>
     </message>
     <message>
         <source>When Connected</source>
@@ -1350,11 +1350,11 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
     </message>
     <message>
         <source>Palm</source>
-        <translation>Aya</translation>
+        <translation>Palmiye</translation>
     </message>
     <message>
         <source>Drip</source>
-        <translation>Damlamak</translation>
+        <translation>Damla</translation>
     </message>
     <message>
         <source>Snow</source>
@@ -1373,23 +1373,23 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
     </message>
     <message>
         <source>Upstream 1</source>
-        <translation>Yukarı Akış 1</translation>
+        <translation>Upstream 1</translation>
     </message>
     <message>
         <source>IP/DNS-over-HTTPS/TLS</source>
-        <translation>HTTPS/TLS üzerinden IP/DNS</translation>
+        <translation>IP/DNS-over-HTTPS/TLS</translation>
     </message>
     <message>
         <source>Upstream 2</source>
-        <translation>Yukarı Akış 2</translation>
+        <translation>Upstream 2</translation>
     </message>
     <message>
         <source>Split DNS</source>
-        <translation>DNS&apos;yi böl</translation>
+        <translation>Bölünmüş DNS</translation>
     </message>
     <message>
         <source>Domains</source>
-        <translation>Etki alanları</translation>
+        <translation>Alan Adları</translation>
     </message>
     <message>
         <source>DNS leak detected</source>
@@ -1397,7 +1397,7 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
     </message>
     <message>
         <source>Using a LAN or local IP address for connected DNS will result in a DNS leak.  We strongly recommend using ROBERT or a public DNS server.</source>
-        <translation>Bağlı DNS için bir LAN veya yerel IP adresi kullanmak, DNS sızıntısına neden olur.  ROBERT veya genel bir DNS sunucusu kullanmanızı şiddetle tavsiye ederiz.</translation>
+        <translation>Bağlı DNS için LAN veya yerel bir IP adresi kullanmak DNS sızıntısına yol açar. ROBERT veya herkese açık bir DNS sunucusu kullanmanızı önemle tavsiye ederiz.</translation>
     </message>
     <message>
         <source>API Key</source>
@@ -1409,7 +1409,7 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
     </message>
     <message>
         <source>Please provide a valid Control D API Key.</source>
-        <translation>Lütfen geçerli bir Control D API Anahtarı sağlayın.</translation>
+        <translation>Lütfen geçerli bir Control D API anahtarı girin.</translation>
     </message>
 </context>
 <context>
@@ -1428,11 +1428,11 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
     </message>
     <message>
         <source>Exclusive</source>
-        <translation>Seçkin</translation>
+        <translation>Hariç Tutma</translation>
     </message>
     <message>
         <source>Inclusive</source>
-        <translation>Inclusive</translation>
+        <translation>Dahil Etme</translation>
     </message>
     <message>
         <source>Off</source>
@@ -1444,7 +1444,7 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
     </message>
     <message>
         <source>Split Tunneling</source>
-        <translation>Bölünmüş Tünel Açma</translation>
+        <translation>Bölünmüş Tünel</translation>
     </message>
     <message>
         <source>Proxy Settings</source>
@@ -1452,7 +1452,7 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
     </message>
     <message>
         <source>Connects to last used location when the app launches or joins a network.</source>
-        <translation>Uygulama başlatıldığında veya bir ağa katıldığında son kullanılan konuma bağlanır.</translation>
+        <translation>Uygulama açıldığında veya bir ağa bağlanıldığında son kullanılan konuma bağlanır.</translation>
     </message>
     <message>
         <source>Auto-Connect</source>
@@ -1464,7 +1464,7 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
     </message>
     <message>
         <source>Automatically choose the VPN protocol, or select one manually. NOTE: &quot;Preferred Protocol&quot; will override this setting.</source>
-        <translation>VPN protokolünü otomatik olarak seçin veya manuel olarak seçin. NOT: &quot;Tercih Edilen Protokol&quot; bu ayarı geçersiz kılacaktır.</translation>
+        <translation>VPN protokolünü otomatik seçin veya elle belirleyin. NOT: &quot;Tercih edilen protokol&quot; bu ayarı geçersiz kılar.</translation>
     </message>
     <message>
         <source>IP Stack</source>
@@ -1480,15 +1480,15 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
     </message>
     <message>
         <source>Spoof your device&apos;s physical address (MAC address).</source>
-        <translation>Cihazınızın fiziksel adresini (MAC adresi) taklit edin.</translation>
+        <translation>Cihazınızın fiziksel adresini (MAC adresi) değiştirin.</translation>
     </message>
     <message>
         <source>MAC spoofing requires NetworkManager to be installed and running.</source>
-        <translation>MAC sahteliği için NetworkManager kurulup çalıştırılır.</translation>
+        <translation>MAC adresi değiştirme için NetworkManager&apos;ın kurulu ve çalışıyor olması gerekir.</translation>
     </message>
     <message>
         <source>Close all active TCP sockets when the VPN tunnel is established.</source>
-        <translation>VPN tüneli kurulduğunda tüm etkin TCP yuvalarını kapatın.</translation>
+        <translation>VPN tüneli kurulduğunda tüm etkin TCP soketlerini kapatır.</translation>
     </message>
     <message>
         <source>Configure your TV, gaming console, or other devices that support proxy servers.</source>
@@ -1496,31 +1496,31 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
     </message>
     <message>
         <source>The firewall is in an Always On mode. Allowing LAN traffic can leak your DNS and other traffic to your local network while you are disconnected. Are you sure you want to enable it?</source>
-        <translation>Güvenlik duvarı her zaman açık modda. LAN trafiğine izin vermek, bağlantı kesilirken DNS ve diğer trafiği yerel ağınıza sızdırabilir. Bunu etkinleştirmek istediğinizden emin misiniz?</translation>
+        <translation>Güvenlik duvarı Her Zaman Açık modunda. LAN trafiğine izin vermek, bağlantınız kesikken DNS ve diğer trafiğinizin yerel ağa sızmasına yol açabilir. Etkinleştirmek istediğinizden emin misiniz?</translation>
     </message>
     <message>
         <source>Settings Conflict</source>
-        <translation>Ayarlar Çakışması</translation>
+        <translation>Ayar Çakışması</translation>
     </message>
     <message>
         <source>Disabling Allow LAN Traffic will cause your proxy gateway to stop working.  Do you want to disable the proxy?</source>
-        <translation>LAN Trafiğine İzin Ver&apos;i devre dışı bırakmak, proxy ağ geçidinizin çalışmayı durdurmasına neden olur.  Proxy&apos;yi devre dışı bırakmak istiyor musunuz?</translation>
+        <translation>LAN Trafiğine İzin Ver&apos;i kapatmak Proxy Gateway&apos;in çalışmamasına yol açar. Proxy kapatılsın mı?</translation>
     </message>
     <message>
         <source>LAN traffic is currently blocked by the Windscribe firewall.  Do you want to allow LAN traffic to bypass the firewall in order for this feature to work?</source>
-        <translation>LAN trafiği şu anda Windscribe güvenlik duvarı tarafından engelleniyor.  Bu özelliğin çalışması için LAN trafiğinin güvenlik duvarını atlamasına izin vermek istiyor musunuz?</translation>
+        <translation>LAN trafiği şu anda Windscribe güvenlik duvarı tarafından engelleniyor. Bu özelliğin çalışması için LAN trafiğinin güvenlik duvarını atlamasına izin verilsin mi?</translation>
     </message>
     <message>
         <source>Disabling Allow LAN Traffic will cause your secure hotspot to stop working.  Do you want to disable the hotspot?</source>
-        <translation>LAN Trafiğine İzin Ver&apos;i devre dışı bırakmak, güvenli erişim noktanızın çalışmayı durdurmasına neden olur.  Hotspot&apos;u devre dışı bırakmak istiyor musunuz?</translation>
+        <translation>LAN Trafiğine İzin Ver&apos;i kapatmak Secure Hotspot&apos;un çalışmamasına yol açar. Hotspot kapatılsın mı?</translation>
     </message>
     <message>
         <source>MAC spoofing is not supported on your version of MacOS.</source>
-        <translation>MAC sahtekarlığı, MacOS sürümünüzde desteklenmiyor.</translation>
+        <translation>MAC adresi değiştirme, macOS sürümünüzde desteklenmiyor.</translation>
     </message>
     <message>
         <source>Automatically determine the MTU for your connection, or manually override.  This has no effect on TCP-based protocols.</source>
-        <translation>Bağlantınız için MTU&apos;yu otomatik olarak belirleyin veya manuel olarak geçersiz kılın.  Bunun TCP tabanlı protokoller üzerinde hiçbir etkisi yoktur.</translation>
+        <translation>Bağlantınızın MTU değerini otomatik belirleyin veya elle ayarlayın. Bunun TCP tabanlı protokollere etkisi yoktur.</translation>
     </message>
     <message>
         <source>Caution</source>
@@ -1528,15 +1528,15 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
     </message>
     <message>
         <source>In this firewall mode, the Windscribe API will not be available while disconnected, this could have unintended consequences. Use at own risk.</source>
-        <translation>Bu güvenlik duvarı modunda, bağlantı kesildiğinde Windscribe API&apos;si kullanılamaz, bunun istenmeyen sonuçları olabilir. Kendi sorumluluğunuzdadır kullanın.</translation>
+        <translation>Bu güvenlik duvarı modunda bağlantı kesikken Windscribe API&apos;sine erişilemez; bu beklenmedik sonuçlara yol açabilir. Sorumluluk size aittir.</translation>
     </message>
     <message>
         <source>Control the mode of behaviour of the Windscribe firewall. Always On modes disable Allow LAN Traffic to prevent DNS leaks.</source>
-        <translation>Windscribe güvenlik duvarının davranış biçimini kontrol edin. Her Zaman Açık modları, DNS sızıntılarını önlemek için LAN Trafiğine İzin Ver&apos;i devre dışı bırakır.</translation>
+        <translation>Windscribe güvenlik duvarının nasıl davranacağını belirleyin. Her Zaman Açık modları, DNS sızıntısını önlemek için LAN Trafiğine İzin Ver&apos;i kapatır.</translation>
     </message>
     <message>
         <source>Configure egress IP stack for VPN connections (WireGuard only).</source>
-        <translation>VPN bağlantıları için çıkış IP yığınını yapılandırın (sadece WireGuard).</translation>
+        <translation>VPN bağlantıları için çıkış IP yığınını yapılandırın (yalnızca WireGuard).</translation>
     </message>
     <message>
         <source>Clear Wi-Fi History</source>
@@ -1548,33 +1548,33 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
     </message>
     <message>
         <source>Are you sure you want to clear all your Wi-Fi history? This will also clear all Wi-Fi passwords except for the one you&apos;re currently connected to. This may also temporarily disable your Wi-Fi.</source>
-        <translation>Tüm Wi-Fi geçmişinizi temizlemek istediğinizden emin misiniz? Bu ayrıca şu anda bağlı olduğunuz parola dışındaki tüm Wi-Fi şifrelerini temizler. Bu durum Wi-Fi&apos;nizi geçici olarak devre dışı bırakabilir.</translation>
+        <translation>Tüm Wi-Fi geçmişinizi temizlemek istediğinizden emin misiniz? Bu işlem, şu anda bağlı olduğunuz ağ dışındaki tüm Wi-Fi şifrelerini de siler. Wi-Fi bağlantınız geçici olarak kesilebilir.</translation>
     </message>
     <message>
         <source>Remove Wi-Fi SSID and MAC information from your operating system to prevent location history tracking.</source>
-        <translation>Konum geçmişi takimini önlemek için işletim sisteminizden Wi-Fi SSID ve MAC bilgilerini kaldırın.</translation>
+        <translation>Konum geçmişinizin izlenmesini önlemek için Wi-Fi SSID ve MAC bilgilerini işletim sisteminizden silin.</translation>
     </message>
     <message>
         <source>Anti-Censorship Settings</source>
-        <translation>Sansür karşıtı Ayarlar</translation>
+        <translation>Sansür Aşma Ayarları</translation>
     </message>
 </context>
 <context>
     <name>PreferencesWindow::CopyableTextItem</name>
     <message>
         <source>Copied</source>
-        <translation>Kopya -lanan</translation>
+        <translation>Kopyalandı</translation>
     </message>
 </context>
 <context>
     <name>PreferencesWindow::DecoyTrafficGroup</name>
     <message>
         <source>Decoy Traffic</source>
-        <translation>Tuzak Trafik</translation>
+        <translation>Yanıltıcı Trafik</translation>
     </message>
     <message>
         <source>This is an experimental feature that attempts to combat traffic correlation attacks on adversarial networks.When enabled, the app will generate random activity over the tunnel, and upload and download random data at chosen intervals.</source>
-        <translation>Bu, düşman ağlara yönelik trafik korelasyon saldırılarıyla mücadele etmeye çalışan deneysel bir özelliktir. Etkinleştirildiğinde, uygulama tünel üzerinden rastgele etkinlik oluşturur ve seçilen aralıklarla rastgele verileri karşıya yükler ve indirir.</translation>
+        <translation>Bu, düşmanca ağlarda trafik korelasyonu saldırılarına karşı koymayı amaçlayan deneysel bir özelliktir. Etkinleştirildiğinde uygulama tünel üzerinden rastgele etkinlik üretir ve seçilen aralıklarla rastgele veri yükleyip indirir.</translation>
     </message>
     <message>
         <source>Fake Traffic Volume</source>
@@ -1582,7 +1582,7 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
     </message>
     <message>
         <source>Low</source>
-        <translation>Alçak</translation>
+        <translation>Düşük</translation>
     </message>
     <message>
         <source>Medium</source>
@@ -1605,33 +1605,33 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
     <name>PreferencesWindow::DnsDomainsGroup</name>
     <message>
         <source>Domain already exists. Please enter a new domain.</source>
-        <translation>Etki alanı zaten var. Lütfen yeni bir alan adı girin.</translation>
+        <translation>Bu alan adı zaten ekli. Lütfen yeni bir alan adı girin.</translation>
     </message>
     <message>
         <source>Incorrect domain name. Please enter a valid domain.</source>
-        <translation>Yanlış alan adı. Lütfen geçerli bir alan adı girin.</translation>
+        <translation>Hatalı alan adı. Lütfen geçerli bir alan adı girin.</translation>
     </message>
 </context>
 <context>
     <name>PreferencesWindow::DnsDomainsWindowItem</name>
     <message>
         <source>List of domains</source>
-        <translation>Etki alanlarının listesi</translation>
+        <translation>Alan adı listesi</translation>
     </message>
     <message>
         <source>Enter the IP and/or wildcards you wish to use for DNS split feature.</source>
-        <translation>DNS bölme özelliği için kullanmak istediğiniz IP&apos;yi ve/veya joker karakterleri girin.</translation>
+        <translation>Bölünmüş DNS özelliği için kullanmak istediğiniz IP&apos;leri ve/veya joker karakterleri girin.</translation>
     </message>
     <message>
         <source>Please log in to modify domains.</source>
-        <translation>Alan adlarını değiştirmek için lütfen oturum açın.</translation>
+        <translation>Alan adlarını değiştirmek için lütfen giriş yapın.</translation>
     </message>
 </context>
 <context>
     <name>PreferencesWindow::EmailItem</name>
     <message>
         <source>Sent!</source>
-        <translation>Gönderilen!</translation>
+        <translation>Gönderildi!</translation>
     </message>
     <message>
         <source>Resend</source>
@@ -1639,7 +1639,7 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
     </message>
     <message>
         <source>Sending</source>
-        <translation>Gönderme</translation>
+        <translation>Gönderiliyor</translation>
     </message>
     <message>
         <source>Failed</source>
@@ -1647,11 +1647,11 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
     </message>
     <message>
         <source>Get 10GB/Month of data and gain the ability to reset your password.</source>
-        <translation>10 GB/Ay veri alın ve şifrenizi sıfırlama yeteneği kazanın.</translation>
+        <translation>Ayda 10 GB veri alın ve şifrenizi sıfırlayabilme imkânı kazanın.</translation>
     </message>
     <message>
         <source>Please confirm your email</source>
-        <translation>Lütfen e-postanızı onaylayın</translation>
+        <translation>Lütfen e-posta adresinizi onaylayın</translation>
     </message>
     <message>
         <source>Email</source>
@@ -1681,39 +1681,39 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
     </message>
     <message>
         <source>Run Windscribe when your device starts.</source>
-        <translation>Cihazınız başladığında Windscribe&apos;ı çalıştırın.</translation>
+        <translation>Cihazınız açıldığında Windscribe&apos;ı çalıştırır.</translation>
     </message>
     <message>
         <source>Launch on Startup</source>
-        <translation>Başlangıçta Başlat</translation>
+        <translation>Başlangıçta Çalıştır</translation>
     </message>
     <message>
         <source>Launch Windscribe in a minimized state.</source>
-        <translation>Windscribe&apos;ı simge durumuna küçültülmüş durumda başlatın.</translation>
+        <translation>Windscribe&apos;ı simge durumunda başlatır.</translation>
     </message>
     <message>
         <source>Start Minimized</source>
-        <translation>Simge Durumuna Küçültülmüş Başlat</translation>
+        <translation>Simge Durumunda Başlat</translation>
     </message>
     <message>
         <source>Windscribe minimizes to system tray and no longer appears in the task bar.</source>
-        <translation>Windscribe, sistem tepsisine küçültülür ve artık görev çubuğunda görünmez.</translation>
+        <translation>Windscribe sistem tepsisine küçülür ve görev çubuğunda görünmez.</translation>
     </message>
     <message>
         <source>Windscribe minimizes to menubar and no longer appears in the dock.</source>
-        <translation>Windscribe menü çubuğuna küçültülür ve artık dock&apos;ta görünmez.</translation>
+        <translation>Windscribe menü çubuğuna küçülür ve Dock&apos;ta görünmez.</translation>
     </message>
     <message>
         <source>Close to Tray</source>
-        <translation>Tepsiye Yakın</translation>
+        <translation>Tepsiye Küçült</translation>
     </message>
     <message>
         <source>Don&apos;t show the Windscribe icon in dock.</source>
-        <translation>Dock&apos;ta Windscribe simgesini göstermeyin.</translation>
+        <translation>Windscribe simgesini Dock&apos;ta gösterme.</translation>
     </message>
     <message>
         <source>Hide from Dock</source>
-        <translation>Dock&apos;tan gizleme</translation>
+        <translation>Dock&apos;ta Gizle</translation>
     </message>
     <message>
         <source>Pin Windscribe near the system tray or menu bar.</source>
@@ -1721,11 +1721,11 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
     </message>
     <message>
         <source>Docked</source>
-        <translation>Yerleşik</translation>
+        <translation>Sabitlenmiş</translation>
     </message>
     <message>
         <source>Display system-level notifications when connection events occur.</source>
-        <translation>Bağlantı olayları gerçekleştiğinde sistem düzeyinde bildirimler görüntüleyin.</translation>
+        <translation>Bağlantı olaylarında sistem bildirimleri gösterir.</translation>
     </message>
     <message>
         <source>Show Notifications</source>
@@ -1733,7 +1733,7 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
     </message>
     <message>
         <source>Display a location&apos;s load. Shorter bars mean lesser load (usage).</source>
-        <translation>Bir konumun yükünü görüntüleyin. Daha kısa çubuklar daha az yük (kullanım) anlamına gelir.</translation>
+        <translation>Konumların yükünü gösterir. Kısa çubuk daha az yük (kullanım) demektir.</translation>
     </message>
     <message>
         <source>Show Location Load</source>
@@ -1741,7 +1741,7 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
     </message>
     <message>
         <source>Arrange locations alphabetically, geographically, or by latency.</source>
-        <translation>Konumları alfabetik, coğrafi veya gecikme süresine göre düzenleyin.</translation>
+        <translation>Konumları alfabetik, coğrafi veya gecikmeye göre sıralayın.</translation>
     </message>
     <message>
         <source>Location Order</source>
@@ -1749,7 +1749,7 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
     </message>
     <message>
         <source>Localize Windscribe to supported languages.</source>
-        <translation>Windscribe&apos;ı desteklenen dillere yerelleştirin.</translation>
+        <translation>Windscribe&apos;ın arayüz dilini seçin.</translation>
     </message>
     <message>
         <source>Language</source>
@@ -1757,11 +1757,11 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
     </message>
     <message>
         <source>Choose to receive stable, beta, or experimental builds.</source>
-        <translation>Kararlı, beta veya deneysel derlemeleri almayı seçin.</translation>
+        <translation>Kararlı, beta veya deneysel sürümleri almayı seçin.</translation>
     </message>
     <message>
         <source>Update Channel</source>
-        <translation>Kanalı Güncelle</translation>
+        <translation>Güncelleme Kanalı</translation>
     </message>
     <message>
         <source>Version</source>
@@ -1773,7 +1773,7 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
     </message>
     <message>
         <source>Select behaviour when window is activated with multiple desktops.</source>
-        <translation>Pencere birden çok masaüstü ile etkinleştirildiğinde davranışı seçin.</translation>
+        <translation>Birden fazla masaüstü varken pencere etkinleştirildiğinde ne olacağını seçin.</translation>
     </message>
 </context>
 <context>
@@ -1788,7 +1788,7 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
     </message>
     <message>
         <source>Knowledge Base</source>
-        <translation>Bilgi bankası</translation>
+        <translation>Bilgi Bankası</translation>
     </message>
     <message>
         <source>Talk to Garry</source>
@@ -1796,7 +1796,7 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
     </message>
     <message>
         <source>Best places to help and get help from other users.</source>
-        <translation>Yardım etmek ve diğer kullanıcılardan yardım almak için en iyi yerler.</translation>
+        <translation>Yardım almak ve diğer kullanıcılara yardım etmek için en iyi yerler.</translation>
     </message>
     <message>
         <source>Community Support</source>
@@ -1824,22 +1824,22 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
     </message>
     <message>
         <source>Need help? Garry can help you with most issues, go talk to him.</source>
-        <translation>Yardıma mı ihtiyacınız var? Garry çoğu konuda sana yardımcı olabilir, git onunla konuş.</translation>
+        <translation>Yardıma mı ihtiyacınız var? Garry çoğu sorunda yardımcı olabilir, onunla konuşun.</translation>
     </message>
 </context>
 <context>
     <name>PreferencesWindow::LookAndFeelWindowItem</name>
     <message>
         <source>Look &amp; Feel</source>
-        <translation>Bak ve Hisset</translation>
+        <translation>Görünüm</translation>
     </message>
     <message>
         <source>Choose between the classic GUI or the &quot;earless&quot; alternative GUI.</source>
-        <translation>Klasik GUI veya &quot;kulaksız&quot; alternatif GUI arasında seçim yapın.</translation>
+        <translation>Klasik arayüz ile &quot;kulaksız&quot; alternatif arayüz arasında seçim yapın.</translation>
     </message>
     <message>
         <source>App Skin</source>
-        <translation>Uygulama Dış Görünümü</translation>
+        <translation>Uygulama Teması</translation>
     </message>
     <message>
         <source>Customize the background of the main app screen.</source>
@@ -1847,31 +1847,31 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
     </message>
     <message>
         <source>Choose sounds to play when connection events occur.</source>
-        <translation>Bağlantı olayları gerçekleştiğinde çalınacak sesleri seçin.</translation>
+        <translation>Bağlantı olaylarında çalınacak sesleri seçin.</translation>
     </message>
     <message>
         <source>Change location names to your liking.</source>
-        <translation>Konum adlarını beğeninize göre değiştirin.</translation>
+        <translation>Konum adlarını dilediğiniz gibi değiştirin.</translation>
     </message>
     <message>
         <source>Rename Locations</source>
-        <translation>Konumları Yeniden Adlandırma</translation>
+        <translation>Konumları Yeniden Adlandır</translation>
     </message>
     <message>
         <source>Export</source>
-        <translation>Ihracat</translation>
+        <translation>Dışa Aktar</translation>
     </message>
     <message>
         <source>Import</source>
-        <translation>Ithalat</translation>
+        <translation>İçe Aktar</translation>
     </message>
     <message>
         <source>Reset</source>
-        <translation>Sıfırlama</translation>
+        <translation>Sıfırla</translation>
     </message>
     <message>
         <source>Choose between white and black tray icon.</source>
-        <translation>Beyaz ve siyah tepsi simgesi arasında seçim yapın.</translation>
+        <translation>Beyaz veya siyah tepsi simgesi arasında seçim yapın.</translation>
     </message>
     <message>
         <source>Tray Icon Colour</source>
@@ -1882,19 +1882,19 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
     <name>PreferencesWindow::MacSpoofingGroup</name>
     <message>
         <source>Cannot spoof on &apos;No Interface&apos;</source>
-        <translation>&apos;Arayüz Yok&apos; üzerinde sahtekarlık yapılamıyor</translation>
+        <translation>&apos;Arayüz Yok&apos; seçiliyken MAC adresi değiştirilemez</translation>
     </message>
     <message>
         <source>You can only spoof an existing adapter.</source>
-        <translation>Yalnızca mevcut bir bağdaştırıcıyı taklit edebilirsiniz.</translation>
+        <translation>Yalnızca mevcut bir bağdaştırıcının MAC adresi değiştirilebilir.</translation>
     </message>
     <message>
         <source>Cannot spoof the current interface</source>
-        <translation>Geçerli arabirim yanıltılamıyor</translation>
+        <translation>Geçerli arayüzün MAC adresi değiştirilemiyor</translation>
     </message>
     <message>
         <source>The current primary interface must match the selected interface to spoof.</source>
-        <translation>Geçerli birincil arabirim, kimlik sahtekarlığı için seçilen arabirimle eşleşmelidir.</translation>
+        <translation>MAC adresini değiştirmek için geçerli birincil arayüz, seçilen arayüzle aynı olmalıdır.</translation>
     </message>
     <message>
         <source>No Interface</source>
@@ -1902,7 +1902,7 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
     </message>
     <message>
         <source>MAC Spoofing</source>
-        <translation>MAC Sahtekarlığı</translation>
+        <translation>MAC Adresi Değiştirme</translation>
     </message>
     <message>
         <source>MAC Address</source>
@@ -1914,18 +1914,18 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
     </message>
     <message>
         <source>Auto-Rotate MAC</source>
-        <translation>MAC&apos;i Otomatik Döndür</translation>
+        <translation>MAC&apos;i Otomatik Değiştir</translation>
     </message>
 </context>
 <context>
     <name>PreferencesWindow::NetworkOptionsNetworkWindowItem</name>
     <message>
         <source>Windscribe auto-connects if the device connects to this network.</source>
-        <translation>Cihaz bu ağa bağlanırsa Windscribe otomatik olarak bağlanır.</translation>
+        <translation>Cihaz bu ağa bağlandığında Windscribe otomatik olarak bağlanır.</translation>
     </message>
     <message>
         <source>Auto-Secure</source>
-        <translation>Otomatik Güvenli</translation>
+        <translation>Otomatik Koruma</translation>
     </message>
     <message>
         <source>Preferred Protocol</source>
@@ -1933,7 +1933,7 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
     </message>
     <message>
         <source>Choose whether to connect using the recommended tunneling protocol, or to specify a protocol of your choice.</source>
-        <translation>Önerilen tünel protokolünü kullanarak mı bağlanacağınızı yoksa tercih ettiğiniz bir protokolü mi belirteceğinizi seçin.</translation>
+        <translation>Önerilen tünel protokolüyle mi bağlanılacağını yoksa kendi seçtiğiniz protokolü mü kullanacağınızı belirleyin.</translation>
     </message>
     <message>
         <source>Forget Network</source>
@@ -1948,11 +1948,11 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
     </message>
     <message>
         <source>Mark all newly encountered networks as Secured.</source>
-        <translation>Yeni karşılaşılan tüm ağları Güvenli olarak işaretleyin.</translation>
+        <translation>Yeni karşılaşılan tüm ağları Güvenli olarak işaretler.</translation>
     </message>
     <message>
         <source>Auto-Secure Networks</source>
-        <translation>Otomatik Güvenli Ağlar</translation>
+        <translation>Ağları Otomatik Koru</translation>
     </message>
     <message>
         <source>No Network Detected</source>
@@ -1972,24 +1972,24 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
     </message>
     <message>
         <source>Unsecured</source>
-        <translation>Güvenli olmayan</translation>
+        <translation>Güvenli Değil</translation>
     </message>
     <message>
         <source>No Networks Detected.
 Connect to a network first</source>
-        <translation>Ağ Algılanmadı.
+        <translation>Ağ algılanmadı.
 Önce bir ağa bağlanın</translation>
     </message>
     <message>
         <source>New networks are automatically &quot;Secured&quot;. If you tag a network as &quot;Unsecured&quot;, Windscribe will disconnect when the device joins it. Setting a network as &quot;Unsecured&quot; is NOT recommended.</source>
-        <translation>Yeni ağlar otomatik olarak &quot;Güvenli&quot; hale getirilir. Bir ağı &quot;Güvensiz&quot; olarak etiketlerseniz, cihaz katıldığında Windscribe bağlantıyı kesecektir. Bir ağın &quot;Güvensiz&quot; olarak ayarlanması ÖNERİLmez.</translation>
+        <translation>Yeni ağlar otomatik olarak &quot;Güvenli&quot; olarak işaretlenir. Bir ağı &quot;Güvenli Değil&quot; olarak işaretlerseniz cihaz o ağa bağlandığında Windscribe bağlantıyı keser. Bir ağı &quot;Güvenli Değil&quot; olarak işaretlemek ÖNERİLMEZ.</translation>
     </message>
 </context>
 <context>
     <name>PreferencesWindow::NewAddressItem</name>
     <message>
         <source>Enter IP or Hostname</source>
-        <translation>IP veya Ana Bilgisayar Adını Girin</translation>
+        <translation>IP veya Ana Makine Adı Girin</translation>
     </message>
 </context>
 <context>
@@ -2008,7 +2008,7 @@ Connect to a network first</source>
     </message>
     <message>
         <source>Manual</source>
-        <translation>El ile</translation>
+        <translation>Manuel</translation>
     </message>
     <message>
         <source>MTU</source>
@@ -2019,7 +2019,7 @@ Connect to a network first</source>
     <name>PreferencesWindow::PlanItem</name>
     <message>
         <source>Free</source>
-        <translation>Serbest</translation>
+        <translation>Ücretsiz</translation>
     </message>
     <message>
         <source>Plan Type</source>
@@ -2031,7 +2031,7 @@ Connect to a network first</source>
     </message>
     <message>
         <source>Custom</source>
-        <translation>Töre</translation>
+        <translation>Özel</translation>
     </message>
 </context>
 <context>
@@ -2066,7 +2066,7 @@ Connect to a network first</source>
     </message>
     <message>
         <source>Login</source>
-        <translation>Oturum açma</translation>
+        <translation>Giriş Yap</translation>
     </message>
     <message>
         <source>Log Out</source>
@@ -2074,11 +2074,11 @@ Connect to a network first</source>
     </message>
     <message>
         <source>Quit</source>
-        <translation>İstifa etmek</translation>
+        <translation>Çık</translation>
     </message>
     <message>
         <source>Look &amp; Feel</source>
-        <translation>Bak ve Hisset</translation>
+        <translation>Görünüm</translation>
     </message>
 </context>
 <context>
@@ -2089,15 +2089,15 @@ Connect to a network first</source>
     </message>
     <message>
         <source>Discard</source>
-        <translation>Atma</translation>
+        <translation>Vazgeç</translation>
     </message>
     <message>
         <source>You have unsaved changes in edit fields. Do you want to save them?</source>
-        <translation>Düzenleme alanlarında kaydedilmemiş değişiklikler var. Onları kurtarmak mı istiyorsun?</translation>
+        <translation>Düzenleme alanlarında kaydedilmemiş değişiklikler var. Kaydetmek ister misiniz?</translation>
     </message>
     <message>
         <source>Save</source>
-        <translation>Kayd et</translation>
+        <translation>Kaydet</translation>
     </message>
 </context>
 <context>
@@ -2108,7 +2108,7 @@ Connect to a network first</source>
     </message>
     <message>
         <source>Manual</source>
-        <translation>El ile</translation>
+        <translation>Manuel</translation>
     </message>
     <message>
         <source>Protocol</source>
@@ -2116,25 +2116,25 @@ Connect to a network first</source>
     </message>
     <message>
         <source>Port</source>
-        <translation>Liman</translation>
+        <translation>Port</translation>
     </message>
 </context>
 <context>
     <name>PreferencesWindow::ProtocolTweaksGroup</name>
     <message>
         <source>Protocol Tweaks</source>
-        <translation>Protokol Değişiklikleri</translation>
+        <translation>Protokol İnce Ayarları</translation>
     </message>
     <message>
         <source>Amnezia Config</source>
-        <translation>Amnezia Config</translation>
+        <translation>Amnezia Yapılandırması</translation>
     </message>
 </context>
 <context>
     <name>PreferencesWindow::ProxyGatewayGroup</name>
     <message>
         <source>Proxy Gateway</source>
-        <translation>Proxy Ağ Geçidi</translation>
+        <translation>Proxy Gateway</translation>
     </message>
     <message>
         <source>Proxy Type</source>
@@ -2142,15 +2142,15 @@ Connect to a network first</source>
     </message>
     <message>
         <source>Port</source>
-        <translation>Liman</translation>
+        <translation>Port</translation>
     </message>
     <message>
         <source>Require Authentication</source>
-        <translation>Kimlik Doğrulama Gerekli</translation>
+        <translation>Kimlik Doğrulama İste</translation>
     </message>
     <message>
         <source>Without authentication, anyone on your network (e.g. coffee shop Wi-Fi) can use this proxy. Leave this on unless you know what you&apos;re doing.</source>
-        <translation>Kimlik doğrulama olmadan, ağınızdaki herkes (örneğin kafe Wi-Fi) bu proxy&apos;yi kullanabilir. Ne yaptığını bilmiyorsan bunu açık bırak.</translation>
+        <translation>Kimlik doğrulama olmadan ağınızdaki herkes (örn. kafe Wi-Fi&apos;ı) bu proxy&apos;yi kullanabilir. Ne yaptığınızı bilmiyorsanız bu ayarı açık bırakın.</translation>
     </message>
     <message>
         <source>IP</source>
@@ -2170,7 +2170,7 @@ Connect to a network first</source>
     </message>
     <message>
         <source>Unavailable</source>
-        <translation>Mevcut değil</translation>
+        <translation>Kullanılamıyor</translation>
     </message>
     <message>
         <source>Only when VPN is connected</source>
@@ -2189,7 +2189,7 @@ Connect to a network first</source>
     </message>
     <message>
         <source>Port</source>
-        <translation>Liman</translation>
+        <translation>Port</translation>
     </message>
     <message>
         <source>Username</source>
@@ -2197,7 +2197,7 @@ Connect to a network first</source>
     </message>
     <message>
         <source>Password</source>
-        <translation>Parola</translation>
+        <translation>Şifre</translation>
     </message>
     <message>
         <source>Invalid proxy address</source>
@@ -2205,11 +2205,11 @@ Connect to a network first</source>
     </message>
     <message>
         <source>Invalid proxy port</source>
-        <translation>Geçersiz proxy bağlantı noktası</translation>
+        <translation>Geçersiz proxy portu</translation>
     </message>
     <message>
         <source>Proxy port is invalid. Please enter a valid port in the range 1-65535.</source>
-        <translation>Proxy bağlantı noktası geçersiz. Lütfen 1-65535 aralığında geçerli bir bağlantı noktası girin.</translation>
+        <translation>Proxy portu geçersiz. Lütfen 1-65535 aralığında geçerli bir port girin.</translation>
     </message>
     <message>
         <source>Proxy address is invalid. Please enter a valid IP address.</source>
@@ -2224,7 +2224,7 @@ Connect to a network first</source>
     </message>
     <message>
         <source>If your network has a LAN proxy, configure it here. Please note these proxy settings are only utilized when connecting with the TCP protocol.</source>
-        <translation>Ağınızda bir LAN proxy&apos;si varsa, buradan yapılandırın. Lütfen bu proxy ayarlarının yalnızca TCP protokolüne bağlanırken kullanıldığını unutmayın.</translation>
+        <translation>Ağınızda bir LAN proxy&apos;si varsa buradan yapılandırın. Bu proxy ayarları yalnızca TCP protokolüyle bağlanırken kullanılır.</translation>
     </message>
 </context>
 <context>
@@ -2235,7 +2235,7 @@ Connect to a network first</source>
     </message>
     <message>
         <source>Allowing</source>
-        <translation>Izin</translation>
+        <translation>İzin veriliyor</translation>
     </message>
 </context>
 <context>
@@ -2246,7 +2246,7 @@ Connect to a network first</source>
     </message>
     <message>
         <source>R.O.B.E.R.T. is a customizable server-side domain and IP blocking tool. Select the block lists you wish to apply on all your devices by toggling the switch.</source>
-        <translation>R.O.B.E.R.T. özelleştirilebilir bir sunucu tarafı etki alanı ve IP engelleme aracıdır. Anahtarı değiştirerek tüm cihazlarınıza uygulamak istediğiniz engelleme listelerini seçin.</translation>
+        <translation>R.O.B.E.R.T., sunucu tarafında çalışan, özelleştirilebilir bir alan adı ve IP engelleme aracıdır. Tüm cihazlarınızda uygulamak istediğiniz engelleme listelerini anahtarlarla seçin.</translation>
     </message>
     <message>
         <source>Could not retrieve R.O.B.E.R.T. preferences from server. Try again later.</source>
@@ -2254,37 +2254,37 @@ Connect to a network first</source>
     </message>
     <message>
         <source>Login to view or change R.O.B.E.R.T preferences</source>
-        <translation>R.O.B.E.R.T tercihlerini görüntülemek veya değiştirmek için oturum açın</translation>
+        <translation>R.O.B.E.R.T tercihlerini görüntülemek veya değiştirmek için giriş yapın</translation>
     </message>
     <message>
         <source>Login</source>
-        <translation>Oturum açma</translation>
+        <translation>Giriş Yap</translation>
     </message>
     <message>
         <source>Manage Custom Rules</source>
-        <translation>Özel Kuralları Yönetme</translation>
+        <translation>Özel Kuralları Yönet</translation>
     </message>
 </context>
 <context>
     <name>PreferencesWindow::SearchLineEditItem</name>
     <message>
         <source>Search</source>
-        <translation>Aramak</translation>
+        <translation>Ara</translation>
     </message>
 </context>
 <context>
     <name>PreferencesWindow::SecureHotspotGroup</name>
     <message>
         <source>Secure Hotspot</source>
-        <translation>Güvenli Bağlantı Noktası</translation>
+        <translation>Secure Hotspot</translation>
     </message>
     <message>
         <source>Secure hotspot is not supported by your network adapter.</source>
-        <translation>Güvenli etkin nokta, ağ bağdaştırıcınız tarafından desteklenmiyor.</translation>
+        <translation>Secure Hotspot ağ bağdaştırıcınız tarafından desteklenmiyor.</translation>
     </message>
     <message>
         <source>Secure hotspot is not supported for IKEv2 protocol.</source>
-        <translation>Güvenli erişim noktası, IKEv2 protokolü için desteklenmez.</translation>
+        <translation>Secure Hotspot, IKEv2 protokolünde desteklenmiyor.</translation>
     </message>
     <message>
         <source>Share your secure Windscribe connection wirelessly.</source>
@@ -2292,11 +2292,11 @@ Connect to a network first</source>
     </message>
     <message>
         <source>Enter SSID</source>
-        <translation>SSID&apos;yi girin</translation>
+        <translation>SSID Girin</translation>
     </message>
     <message>
         <source>Password</source>
-        <translation>Parola</translation>
+        <translation>Şifre</translation>
     </message>
     <message>
         <source>At least 8 characters</source>
@@ -2304,7 +2304,7 @@ Connect to a network first</source>
     </message>
     <message>
         <source>To turn on Secure Hotspot, please turn off split tunneling or use exclusive mode.</source>
-        <translation>Secure Hotspot&apos;u açmak için lütfen ayrık tünellemeyi kapatın veya özel modu kullanın.</translation>
+        <translation>Secure Hotspot&apos;u açmak için lütfen bölünmüş tüneli kapatın veya Hariç Tutma modunu kullanın.</translation>
     </message>
 </context>
 <context>
@@ -2322,7 +2322,7 @@ Connect to a network first</source>
     </message>
     <message>
         <source>None</source>
-        <translation>Hiç kimse</translation>
+        <translation>Yok</translation>
     </message>
     <message>
         <source>When Disconnected</source>
@@ -2330,11 +2330,11 @@ Connect to a network first</source>
     </message>
     <message>
         <source>Bundled</source>
-        <translation>Birlikte</translation>
+        <translation>Yerleşik</translation>
     </message>
     <message>
         <source>Custom</source>
-        <translation>Töre</translation>
+        <translation>Özel</translation>
     </message>
     <message>
         <source>Select a sound</source>
@@ -2349,15 +2349,15 @@ Connect to a network first</source>
     <name>PreferencesWindow::SplitTunnelingAddressesGroup</name>
     <message>
         <source>There are too many IPs/CIDR ranges in the list. Please remove some before adding more.</source>
-        <translation>Listede çok fazla IP/CIDR aralığı var. Lütfen daha fazlasını eklemeden önce bazılarını çıkarın.</translation>
+        <translation>Listede çok fazla IP/CIDR aralığı var. Daha fazla eklemeden önce lütfen bazılarını kaldırın.</translation>
     </message>
     <message>
         <source>IP or hostname already exists. Please enter a new IP or hostname.</source>
-        <translation>IP veya ana bilgisayar adı zaten var. Lütfen yeni bir IP veya ana bilgisayar adı girin.</translation>
+        <translation>Bu IP veya ana makine adı zaten ekli. Lütfen yeni bir IP veya ana makine adı girin.</translation>
     </message>
     <message>
         <source>Incorrect IP address/mask combination. Please enter a valid hostname or IP address in plain or CIDR notation.</source>
-        <translation>Yanlış IP adresi/maske kombinasyonu. Lütfen düz veya CIDR gösteriminde geçerli bir ana bilgisayar adı veya IP adresi girin.</translation>
+        <translation>Hatalı IP adresi/maske birleşimi. Lütfen geçerli bir ana makine adı ya da düz veya CIDR gösteriminde bir IP adresi girin.</translation>
     </message>
     <message>
         <source>This IP address or range is reserved by Windscribe and can not be changed.</source>
@@ -2365,70 +2365,70 @@ Connect to a network first</source>
     </message>
     <message>
         <source>There are too many hostnames in the list. Please remove some before adding more.</source>
-        <translation>Listede çok fazla ana bilgisayar adı var. Lütfen daha fazlasını eklemeden önce bazılarını kaldırın.</translation>
+        <translation>Listede çok fazla ana makine adı var. Daha fazla eklemeden önce lütfen bazılarını kaldırın.</translation>
     </message>
 </context>
 <context>
     <name>PreferencesWindow::SplitTunnelingAddressesWindowItem</name>
     <message>
         <source>IPs &amp; Hostnames</source>
-        <translation>IP&apos;ler ve Ana Bilgisayar Adları</translation>
+        <translation>IP&apos;ler ve Ana Makine Adları</translation>
     </message>
     <message>
         <source>Enter the IP and/or hostnames you wish to include in or exclude from the VPN tunnel below.</source>
-        <translation>VPN tüneline dahil etmek veya hariç tutmak istediğiniz IP&apos;yi ve/veya ana bilgisayar adlarını aşağıya girin.</translation>
+        <translation>VPN tüneline dahil etmek veya tünelin dışında tutmak istediğiniz IP&apos;leri ve/veya ana makine adlarını aşağıya girin.</translation>
     </message>
     <message>
         <source>Please log in to modify split tunneling rules.</source>
-        <translation>Bölünmüş tünelleme kurallarını değiştirmek için lütfen oturum açın.</translation>
+        <translation>Bölünmüş tünel kurallarını değiştirmek için lütfen giriş yapın.</translation>
     </message>
 </context>
 <context>
     <name>PreferencesWindow::SplitTunnelingAppsGroup</name>
     <message>
         <source>There are too many apps in the list. Please remove some before adding more.</source>
-        <translation>Listede çok fazla uygulama var. Lütfen daha fazlasını eklemeden önce bazılarını kaldırın.</translation>
+        <translation>Listede çok fazla uygulama var. Daha fazla eklemeden önce lütfen bazılarını kaldırın.</translation>
     </message>
 </context>
 <context>
     <name>PreferencesWindow::SplitTunnelingAppsItem</name>
     <message>
         <source>Search/Add Apps</source>
-        <translation>Uygulama Arama/Ekleme</translation>
+        <translation>Uygulama Ara/Ekle</translation>
     </message>
 </context>
 <context>
     <name>PreferencesWindow::SplitTunnelingAppsWindowItem</name>
     <message>
         <source>Apps</source>
-        <translation>Apps</translation>
+        <translation>Uygulamalar</translation>
     </message>
     <message>
         <source>Add the apps you wish to include in or exclude from the VPN tunnel below.</source>
-        <translation>Aşağıdaki VPN tüneline dahil etmek veya hariç tutmak istediğiniz uygulamaları ekleyin.</translation>
+        <translation>VPN tüneline dahil etmek veya tünelin dışında tutmak istediğiniz uygulamaları aşağıya ekleyin.</translation>
     </message>
     <message>
         <source>Please log in to modify split tunneling rules.</source>
-        <translation>Bölünmüş tünelleme kurallarını değiştirmek için lütfen oturum açın.</translation>
+        <translation>Bölünmüş tünel kurallarını değiştirmek için lütfen giriş yapın.</translation>
     </message>
 </context>
 <context>
     <name>PreferencesWindow::SplitTunnelingGroup</name>
     <message>
         <source>Service Not Installed</source>
-        <translation>Hizmet Yüklenmedi</translation>
+        <translation>Hizmet Yüklü Değil</translation>
     </message>
     <message>
         <source>The split tunneling driver is not installed.  To enable this feature, try reinstalling the Windscribe application.
 
 If the reinstall does not help, please contact Windscribe support for assistance.</source>
-        <translation>Bölünmüş tünel sürücüsü yüklü değil.  Bu özelliği etkinleştirmek için Windscribe uygulamasını yeniden yüklemeyi deneyin.
+        <translation>Bölünmüş tünel sürücüsü yüklü değil. Bu özelliği etkinleştirmek için Windscribe uygulamasını yeniden kurmayı deneyin.
 
-Yeniden yükleme yardımcı olmazsa, lütfen yardım için Windscribe desteği ile iletişime geçin.</translation>
+Yeniden kurmak işe yaramazsa lütfen yardım için Windscribe destek ekibiyle iletişime geçin.</translation>
     </message>
     <message>
         <source>Split Tunneling</source>
-        <translation>Bölünmüş Tünel Açma</translation>
+        <translation>Bölünmüş Tünel</translation>
     </message>
     <message>
         <source>Mode</source>
@@ -2436,49 +2436,49 @@ Yeniden yükleme yardımcı olmazsa, lütfen yardım için Windscribe desteği i
     </message>
     <message>
         <source>Exclusive</source>
-        <translation>Seçkin</translation>
+        <translation>Hariç Tutma</translation>
     </message>
     <message>
         <source>Inclusive</source>
-        <translation>Inclusive</translation>
+        <translation>Dahil Etme</translation>
     </message>
     <message>
         <source>Apps</source>
-        <translation>Apps</translation>
+        <translation>Uygulamalar</translation>
     </message>
     <message>
         <source>IPs &amp; Hostnames</source>
-        <translation>IP&apos;ler ve Ana Bilgisayar Adları</translation>
+        <translation>IP&apos;ler ve Ana Makine Adları</translation>
     </message>
     <message>
         <source>When enabled, selected apps, IPs, and hostnames will not go through Windscribe when connected.</source>
-        <translation>Etkinleştirildiğinde, seçilen uygulamalar, IP&apos;ler ve ana bilgisayar adları bağlanıldığında Windscribe&apos;dan geçmez.</translation>
+        <translation>Etkinleştirildiğinde, bağlıyken seçilen uygulamalar, IP&apos;ler ve ana makine adları Windscribe üzerinden geçmez.</translation>
     </message>
     <message>
         <source>When enabled, only selected apps, IPs, and hostnames will go through Windscribe when connected.</source>
-        <translation>Etkinleştirildiğinde, yalnızca seçilen uygulamalar, IP&apos;ler ve ana bilgisayar adları bağlandığında Windscribe&apos;dan geçer.</translation>
+        <translation>Etkinleştirildiğinde, bağlıyken yalnızca seçilen uygulamalar, IP&apos;ler ve ana makine adları Windscribe üzerinden geçer.</translation>
     </message>
 </context>
 <context>
     <name>PreferencesWindow::SplitTunnelingWindowItem</name>
     <message>
         <source>Split Tunneling</source>
-        <translation>Bölünmüş Tünel Açma</translation>
+        <translation>Bölünmüş Tünel</translation>
     </message>
     <message>
         <source>Include or exclude apps and hostnames from the VPN tunnel.</source>
-        <translation>Uygulamaları ve ana bilgisayar adlarını VPN tüneline dahil edin veya hariç tutun.</translation>
+        <translation>Uygulamaları ve ana makine adlarını VPN tüneline dahil edin veya dışında tutun.</translation>
     </message>
     <message>
         <source>The Windscribe split tunneling system extension must be enabled for this feature to function. Please enable it in System Settings.</source>
-        <translation>Bu özelliğin çalışabilmesi için Windscribe bölünmüş tünel sistemi uzantısı etkinleştirilmelidir. Lütfen Sistem Ayarlarından etkinleştirin.</translation>
+        <translation>Bu özelliğin çalışması için Windscribe bölünmüş tünel sistem uzantısının etkin olması gerekir. Lütfen Sistem Ayarları&apos;ndan etkinleştirin.</translation>
     </message>
 </context>
 <context>
     <name>ProtocolWindow::ProtocolLineItem</name>
     <message>
         <source>NEXT UP IN %1s</source>
-        <translation>%1&apos;LERDE SIRADAKİ</translation>
+        <translation>%1 SN SONRA SIRADAKİ</translation>
     </message>
     <message>
         <source>Connected to</source>
@@ -2509,11 +2509,11 @@ Yeniden yükleme yardımcı olmazsa, lütfen yardım için Windscribe desteği i
     </message>
     <message>
         <source>Disguises traffic as HTTPS with TLS.</source>
-        <translation>TLS ile trafiği HTTPS olarak gizler.</translation>
+        <translation>Trafiği TLS ile HTTPS gibi gösterir.</translation>
     </message>
     <message>
         <source>Wraps traffic with web sockets.</source>
-        <translation>Trafiği web yuvalarıyla sarar.</translation>
+        <translation>Trafiği WebSocket ile sarmalar.</translation>
     </message>
     <message>
         <source>Change Protocol</source>
@@ -2521,11 +2521,11 @@ Yeniden yükleme yardımcı olmazsa, lütfen yardım için Windscribe desteği i
     </message>
     <message>
         <source>Quickly re-connect using a different protocol.</source>
-        <translation>Farklı bir protokol kullanarak hızlı bir şekilde yeniden bağlanın.</translation>
+        <translation>Farklı bir protokolle hızla yeniden bağlanın.</translation>
     </message>
     <message>
         <source>Connection Failure!</source>
-        <translation>Bağlantı Hatası!</translation>
+        <translation>Bağlantı Başarısız!</translation>
     </message>
     <message>
         <source>The protocol you’ve chosen has failed to connect. Windscribe will attempt to reconnect using the first protocol below.</source>
@@ -2540,11 +2540,11 @@ Yeniden yükleme yardımcı olmazsa, lütfen yardım için Windscribe desteği i
     <name>QObject</name>
     <message>
         <source>Custom</source>
-        <translation>Töre</translation>
+        <translation>Özel</translation>
     </message>
     <message>
         <source>OS Default</source>
-        <translation>İşletim Sistemi Varsayılanı</translation>
+        <translation>İşletim sistemi varsayılanı</translation>
     </message>
     <message>
         <source>UNKNOWN</source>
@@ -2552,11 +2552,11 @@ Yeniden yükleme yardımcı olmazsa, lütfen yardım için Windscribe desteği i
     </message>
     <message>
         <source>Geography</source>
-        <translation>Coğrafya</translation>
+        <translation>Coğrafi</translation>
     </message>
     <message>
         <source>Alphabet</source>
-        <translation>Alfabe</translation>
+        <translation>Alfabetik</translation>
     </message>
     <message>
         <source>Latency</source>
@@ -2564,7 +2564,7 @@ Yeniden yükleme yardımcı olmazsa, lütfen yardım için Windscribe desteği i
     </message>
     <message>
         <source>Manual</source>
-        <translation>El ile</translation>
+        <translation>Manuel</translation>
     </message>
     <message>
         <source>Auto</source>
@@ -2584,7 +2584,7 @@ Yeniden yükleme yardımcı olmazsa, lütfen yardım için Windscribe desteği i
     </message>
     <message>
         <source>None</source>
-        <translation>Hiç kimse</translation>
+        <translation>Yok</translation>
     </message>
     <message>
         <source>Auto-detect</source>
@@ -2592,7 +2592,7 @@ Yeniden yükleme yardımcı olmazsa, lütfen yardım için Windscribe desteği i
     </message>
     <message>
         <source>Release</source>
-        <translation>Serbest bırakma</translation>
+        <translation>Kararlı</translation>
     </message>
     <message>
         <source>Beta</source>
@@ -2608,11 +2608,11 @@ Yeniden yükleme yardımcı olmazsa, lütfen yardım için Windscribe desteği i
     </message>
     <message>
         <source>Exclude</source>
-        <translation>Dışlamak</translation>
+        <translation>Hariç Tut</translation>
     </message>
     <message>
         <source>Include</source>
-        <translation>Kapsamak</translation>
+        <translation>Dahil Et</translation>
     </message>
     <message>
         <source>Alpha</source>
@@ -2628,11 +2628,11 @@ Yeniden yükleme yardımcı olmazsa, lütfen yardım için Windscribe desteği i
     </message>
     <message>
         <source>Enabled</source>
-        <translation>Etkinleştirildi</translation>
+        <translation>Etkin</translation>
     </message>
     <message>
         <source>Disabled</source>
-        <translation>Engelli</translation>
+        <translation>Devre Dışı</translation>
     </message>
     <message>
         <source>Config file too large</source>
@@ -2648,23 +2648,23 @@ Yeniden yükleme yardımcı olmazsa, lütfen yardım için Windscribe desteği i
     </message>
     <message>
         <source>Missing &quot;Interface&quot; section</source>
-        <translation>Eksik &quot;Arayüz&quot; bölümü</translation>
+        <translation>&quot;Interface&quot; bölümü eksik</translation>
     </message>
     <message>
         <source>Missing &quot;Peer&quot; section</source>
-        <translation>Eksik &quot;Eş&quot; bölümü</translation>
+        <translation>&quot;Peer&quot; bölümü eksik</translation>
     </message>
     <message>
         <source>Missing &quot;PrivateKey&quot; in the &quot;Interface&quot; section</source>
-        <translation>&quot;Arayüz&quot; bölümünde &quot;PrivateKey&quot; eksik</translation>
+        <translation>&quot;Interface&quot; bölümünde &quot;PrivateKey&quot; eksik</translation>
     </message>
     <message>
         <source>Missing &quot;Address&quot; in the &quot;Interface&quot; section</source>
-        <translation>&quot;Arayüz&quot; bölümünde eksik &quot;Adres&quot;</translation>
+        <translation>&quot;Interface&quot; bölümünde &quot;Address&quot; eksik</translation>
     </message>
     <message>
         <source>Missing &quot;DNS&quot; in the &quot;Interface&quot; section</source>
-        <translation>&quot;Arayüz&quot; bölümünde eksik &quot;DNS&quot;</translation>
+        <translation>&quot;Interface&quot; bölümünde &quot;DNS&quot; eksik</translation>
     </message>
     <message>
         <source>Missing &quot;PublicKey&quot; in the &quot;Peer&quot; section</source>
@@ -2672,7 +2672,7 @@ Yeniden yükleme yardımcı olmazsa, lütfen yardım için Windscribe desteği i
     </message>
     <message>
         <source>Missing &quot;Endpoint&quot; in the &quot;Peer&quot; section</source>
-        <translation>&quot;Eş&quot; bölümünde &quot;Uç Nokta&quot; eksik</translation>
+        <translation>&quot;Peer&quot; bölümünde &quot;Endpoint&quot; eksik</translation>
     </message>
     <message>
         <source>Invalid &quot;PrivateKey&quot; format</source>
@@ -2688,7 +2688,7 @@ Yeniden yükleme yardımcı olmazsa, lütfen yardım için Windscribe desteği i
     </message>
     <message>
         <source>Invalid &quot;Address&quot; value: %1</source>
-        <translation>Geçersiz &quot;Adres&quot; değeri: %1</translation>
+        <translation>Geçersiz &quot;Address&quot; değeri: %1</translation>
     </message>
     <message>
         <source>Invalid &quot;AllowedIPs&quot; value: %1</source>
@@ -2704,7 +2704,7 @@ Yeniden yükleme yardımcı olmazsa, lütfen yardım için Windscribe desteği i
     </message>
     <message>
         <source>Invalid AmneziaWG header parameter</source>
-        <translation>Invalid AmneziaWG header parameter</translation>
+        <translation>Geçersiz AmneziaWG başlık parametresi</translation>
     </message>
     <message>
         <source>AmneziaWG init parameter too large</source>
@@ -2712,7 +2712,7 @@ Yeniden yükleme yardımcı olmazsa, lütfen yardım için Windscribe desteği i
     </message>
     <message>
         <source>AmneziaWG init parameter contains invalid characters</source>
-        <translation>AmneziaWG init parametresi geçersiz karakterler içerir</translation>
+        <translation>AmneziaWG init parametresi geçersiz karakterler içeriyor</translation>
     </message>
     <message>
         <source>Invalid AmneziaWG parameter: %1</source>
@@ -2728,7 +2728,7 @@ Yeniden yükleme yardımcı olmazsa, lütfen yardım için Windscribe desteği i
     </message>
     <message>
         <source>Your original account %1 has expired. Creating multiple accounts to bypass free tier limitations is prohibited. Please login into the original account and wait until the bandwidth is reset. You can also upgrade to Pro.</source>
-        <translation>Orijinal hesabınızın %1 süresi doldu. Ücretsiz kullanım sınırlamalarını aşmak için birden fazla hesap oluşturmak yasaktır. Lütfen orijinal hesaba giriş yapın ve bant genişliği sıfırlanana kadar bekleyin. Ayrıca Pro&apos;ya yükseltebilirsiniz.</translation>
+        <translation>Asıl hesabınızın (%1) süresi doldu. Ücretsiz plan sınırlarını aşmak için birden fazla hesap açmak yasaktır. Lütfen asıl hesabınıza giriş yapın ve veri hakkınız sıfırlanana kadar bekleyin. Pro&apos;ya da geçebilirsiniz.</translation>
     </message>
     <message>
         <source>Your account is disabled for abuse.</source>
@@ -2748,11 +2748,11 @@ Yeniden yükleme yardımcı olmazsa, lütfen yardım için Windscribe desteği i
     </message>
     <message>
         <source>You may need to kill the non-responding Windscribe app or reboot your computer to fix the issue.</source>
-        <translation>Sorunu çözmek için yanıt vermeyen Windscribe uygulamasını kapatmanız veya bilgisayarınızı yeniden başlatmanız gerekebilir.</translation>
+        <translation>Sorunu çözmek için yanıt vermeyen Windscribe uygulamasını sonlandırmanız veya bilgisayarınızı yeniden başlatmanız gerekebilir.</translation>
     </message>
     <message>
         <source>One or more files in the Windscribe application bundle have been suspiciously modified. Please re-install Windscribe.</source>
-        <translation>Windscribe uygulama paketindeki bir veya daha fazla dosya şüpheli bir şekilde değiştirilmiştir. Lütfen Windscribe&apos;ı yeniden yükleyin.</translation>
+        <translation>Windscribe uygulama paketindeki bir veya daha fazla dosya şüpheli şekilde değiştirilmiş. Lütfen Windscribe&apos;ı yeniden kurun.</translation>
     </message>
     <message>
         <source>White</source>
@@ -2764,11 +2764,11 @@ Yeniden yükleme yardımcı olmazsa, lütfen yardım için Windscribe desteği i
     </message>
     <message>
         <source>Forced</source>
-        <translation>Zorla</translation>
+        <translation>Zorunlu</translation>
     </message>
     <message>
         <source>Move spaces</source>
-        <translation>Boşlukları taşıma</translation>
+        <translation>Masaüstüne geç</translation>
     </message>
     <message>
         <source>Move window</source>
@@ -2776,7 +2776,7 @@ Yeniden yükleme yardımcı olmazsa, lütfen yardım için Windscribe desteği i
     </message>
     <message>
         <source>Duplicate</source>
-        <translation>Yinelenen</translation>
+        <translation>Çoğalt</translation>
     </message>
     <message>
         <source>Local DNS</source>
@@ -2784,15 +2784,15 @@ Yeniden yükleme yardımcı olmazsa, lütfen yardım için Windscribe desteği i
     </message>
     <message>
         <source>Stretch</source>
-        <translation>Uzatmak</translation>
+        <translation>Uzat</translation>
     </message>
     <message>
         <source>Fill</source>
-        <translation>Doldurmak</translation>
+        <translation>Doldur</translation>
     </message>
     <message>
         <source>Tile</source>
-        <translation>Kiremit</translation>
+        <translation>Döşe</translation>
     </message>
     <message>
         <source>Always On+</source>
@@ -2808,15 +2808,15 @@ Yeniden yükleme yardımcı olmazsa, lütfen yardım için Windscribe desteği i
     </message>
     <message>
         <source>Your application version is no longer supported. Please update to continue using %1.</source>
-        <translation>Uygulama sürümünüz artık desteklenmiyor. %1 kullanmaya devam etmek için lütfen güncelleme yapın.</translation>
+        <translation>Uygulama sürümünüz artık desteklenmiyor. %1 kullanmaya devam etmek için lütfen güncelleyin.</translation>
     </message>
     <message>
         <source>Please upgrade to a Pro account to continue using %1.</source>
-        <translation>%1 kullanmaya devam etmek için lütfen Pro hesabına yükseltin.</translation>
+        <translation>%1 kullanmaya devam etmek için lütfen Pro hesaba geçin.</translation>
     </message>
     <message>
         <source>Regular</source>
-        <translation>Düzenli</translation>
+        <translation>Normal</translation>
     </message>
     <message>
         <source>Alternate</source>
@@ -2838,22 +2838,22 @@ Yeniden yükleme yardımcı olmazsa, lütfen yardım için Windscribe desteği i
     </message>
     <message>
         <source>Proxy Gateway</source>
-        <translation>Proxy Ağ Geçidi</translation>
+        <translation>Proxy Gateway</translation>
     </message>
     <message>
         <source>Secure Hotspot</source>
-        <translation>Güvenli Bağlantı Noktası</translation>
+        <translation>Secure Hotspot</translation>
     </message>
 </context>
 <context>
     <name>TrayIcon</name>
     <message>
         <source>Connect</source>
-        <translation>Bağlamak</translation>
+        <translation>Bağlan</translation>
     </message>
     <message>
         <source>Disconnect</source>
-        <translation>Ayırmak</translation>
+        <translation>Bağlantıyı Kes</translation>
     </message>
     <message>
         <source>Locations</source>
@@ -2877,7 +2877,7 @@ Yeniden yükleme yardımcı olmazsa, lütfen yardım için Windscribe desteği i
     </message>
     <message>
         <source>Quit Windscribe</source>
-        <translation>Windscribe&apos;dan Ayrıl</translation>
+        <translation>Windscribe&apos;dan Çık</translation>
     </message>
     <message>
         <source>Favourites</source>
@@ -2885,18 +2885,18 @@ Yeniden yükleme yardımcı olmazsa, lütfen yardım için Windscribe desteği i
     </message>
     <message>
         <source>Show app</source>
-        <translation>Gösteri uygulaması</translation>
+        <translation>Uygulamayı göster</translation>
     </message>
 </context>
 <context>
     <name>TwoFactorAuthWindow::TwoFactorAuthOkButton</name>
     <message>
         <source>Add</source>
-        <translation>Eklemek</translation>
+        <translation>Ekle</translation>
     </message>
     <message>
         <source>Login</source>
-        <translation>Oturum açma</translation>
+        <translation>Giriş Yap</translation>
     </message>
 </context>
 <context>
@@ -2907,7 +2907,7 @@ Yeniden yükleme yardımcı olmazsa, lütfen yardım için Windscribe desteği i
     </message>
     <message>
         <source>Use your app to get an authentication code, and enter it below</source>
-        <translation>Kimlik doğrulama kodu almak için uygulamanızı kullanın ve aşağıya girin</translation>
+        <translation>Kimlik doğrulama uygulamanızdan bir kod alın ve aşağıya girin</translation>
     </message>
     <message>
         <source>Please provide a 2FA code</source>
@@ -2926,18 +2926,18 @@ Yeniden yükleme yardımcı olmazsa, lütfen yardım için Windscribe desteği i
     </message>
     <message>
         <source>Update</source>
-        <translation>Güncelleştirmek</translation>
+        <translation>Güncelle</translation>
     </message>
 </context>
 <context>
     <name>UpdateWindowItem</name>
     <message>
         <source>Updating </source>
-        <translation>Güncelleştirme </translation>
+        <translation>Güncelleniyor </translation>
     </message>
     <message>
         <source>Your update is in progress, hang in there...</source>
-        <translation>Güncellemeniz devam ediyor, bekleyin...</translation>
+        <translation>Güncellemeniz sürüyor, biraz bekleyin...</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -2949,22 +2949,22 @@ Yeniden yükleme yardımcı olmazsa, lütfen yardım için Windscribe desteği i
     </message>
     <message>
         <source>Update</source>
-        <translation>Güncelleştirmek</translation>
+        <translation>Güncelle</translation>
     </message>
     <message>
         <source>Windscribe will download the update, then terminate active connections and restart automatically.</source>
-        <translation>Windscribe güncellemeyi indirecek, ardından aktif bağlantıları sonlandıracak ve otomatik olarak yeniden başlatacaktır.</translation>
+        <translation>Windscribe güncellemeyi indirecek, ardından etkin bağlantıları sonlandırıp otomatik olarak yeniden başlayacak.</translation>
     </message>
     <message>
         <source>Windscribe will download and install the update, which may take several minutes. Your computer will restart after the update.</source>
-        <translation>Windscribe, birkaç dakika sürebilen güncellemeyi indirip yükleyecektir. Güncellemeden sonra bilgisayarınız yeniden başlatılacaktır.</translation>
+        <translation>Windscribe güncellemeyi indirip kuracak; bu birkaç dakika sürebilir. Güncellemeden sonra bilgisayarınız yeniden başlatılacak.</translation>
     </message>
 </context>
 <context>
     <name>UpgradeBanner</name>
     <message>
         <source>Unlock full access to Windscribe</source>
-        <translation>Windscribe&apos;a tam erişimin kilidini açın</translation>
+        <translation>Windscribe&apos;ın tüm özelliklerini açın</translation>
     </message>
     <message>
         <source>Go Pro for unlimited everything</source>
@@ -3011,22 +3011,22 @@ Yeniden yükleme yardımcı olmazsa, lütfen yardım için Windscribe desteği i
     </message>
     <message>
         <source>Login</source>
-        <translation>Oturum açma</translation>
+        <translation>Giriş Yap</translation>
     </message>
     <message>
         <source>Renew</source>
-        <translation>Yenilemek</translation>
+        <translation>Yenile</translation>
     </message>
 </context>
 <context>
     <name>UpgradeWindow::UpgradeWindowItem</name>
     <message>
         <source>You&apos;re out of data!</source>
-        <translation>Verileriniz bitti!</translation>
+        <translation>Veriniz bitti!</translation>
     </message>
     <message>
         <source>Don&apos;t leave your front door open. Upgrade or wait until next month to get your monthly data allowance back.</source>
-        <translation>Ön kapınızı açık bırakmayın. Aylık veri hakkınızı geri almak için yükseltin veya bir sonraki aya kadar bekleyin.</translation>
+        <translation>Kapınızı açık bırakmayın. Aylık veri hakkınızı geri almak için yükseltin veya gelecek ayı bekleyin.</translation>
     </message>
     <message>
         <source>Get more data</source>
