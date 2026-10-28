@@ -1511,10 +1511,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>غیرفعال کردن Allow LAN Traffic باعث می شود که کانون امن شما کار خود را متوقف کند.  ایا می خواهید کانون را غیرفعال کنید؟</translation>
     </message>
     <message>
-        <source>MAC spoofing is not supported on your version of MacOS.</source>
-        <translation>MAC spoofing در نسخه MacOS شما پشتیبانی نمی شود.</translation>
-    </message>
-    <message>
         <source>Automatically determine the MTU for your connection, or manually override.  This has no effect on TCP-based protocols.</source>
         <translation>MTU را به طور خودکار برای اتصال خود تعیین کنید یا به صورت دستی لغو کنید.  این هیچ تاثیری بر پروتکل های مبتنی بر TCP ندارد.</translation>
     </message>
@@ -2381,6 +2377,10 @@ Connect to a network first</source>
 </context>
 <context>
     <name>PreferencesWindow::SplitTunnelingAppsGroup</name>
+    <message>
+        <source>This app is already in the list.</source>
+        <translation>این برنامه از قبل در لیست وجود دارد.</translation>
+    </message>
     <message>
         <source>There are too many apps in the list. Please remove some before adding more.</source>
         <translation>برنامه های زیادی در لیست وجود دارد. لطفا قبل از اضافه کردن بیشتر، برخی از انها را حذف کنید.</translation>

@@ -4,19 +4,16 @@
 #include <QGraphicsView>
 #include <QPainter>
 
-#include "dpiscalemanager.h"
-#include "utils/hardcodedsettings.h"
 #include "commongraphics/baseitem.h"
+#include "dpiscalemanager.h"
+#include "generalmessagecontroller.h"
 #include "graphicresources/imageresourcessvg.h"
 #include "graphicresources/independentpixmap.h"
 #include "languagecontroller.h"
-#include "generalmessagecontroller.h"
 #include "tooltips/tooltipcontroller.h"
+#include "utils/hardcodedsettings.h"
 #ifdef Q_OS_LINUX
 #include "utils/linuxutils.h"
-#endif
-#ifdef Q_OS_MACOS
-#include "utils/macutils.h"
 #endif
 
 extern QWidget *g_mainWindow;
@@ -125,9 +122,7 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
     macSpoofingGroup_->setMacSpoofingSettings(preferences->macAddrSpoofing());
     addItem(macSpoofingGroup_);
 #ifdef Q_OS_MACOS
-    if (MacUtils::isOsVersionAtLeast(14, 4)) {
-        macSpoofingGroup_->setEnabled(false);
-    }
+    macSpoofingGroup_->setVisible(false);
 #elif defined(Q_OS_LINUX)
     // Spoofing is applied through live nmcli calls, so it needs NetworkManager actually running, not just
     // installed/enabled. Decide once here; onLanguageChanged() reuses this so it only swaps the string.
@@ -429,11 +424,7 @@ void ConnectionWindowItem::updateMacSpoofingDescription()
 {
     const QString url = QString("https://%1/features/mac-spoofing").arg(HardcodedSettings::instance().windscribeServerUrl());
     QString description = tr("Spoof your device's physical address (MAC address).");
-#ifdef Q_OS_MACOS
-    if (MacUtils::isOsVersionAtLeast(14, 4)) {
-        description = tr("MAC spoofing is not supported on your version of MacOS.");
-    }
-#elif defined(Q_OS_LINUX)
+#ifdef Q_OS_LINUX
     if (!isMacSpoofingSupported_) {
         description = tr("MAC spoofing requires NetworkManager to be installed and running.");
     }

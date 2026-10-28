@@ -25,7 +25,8 @@ public:
     const QString downloadInstallerPathWithoutExtension();
 
     void get(QMap<QString, QString> downloads);
-    void stop();
+    // Returns false when there was no download to stop.
+    bool stop();
 
 signals:
     void finished(DownloadHelper::DownloadState state);
@@ -50,7 +51,8 @@ private:
     uint progressPercent_;
     DownloadState state_;
 
-    void getInner(const QString url, const QString targetFilenamePath);
+    // Returns false when the download could not be started.
+    bool getInner(const QString url, const QString targetFilenamePath);
     void removeAutoUpdateInstallerFiles();
     bool allRepliesDone();
     void deleteAllCurrentReplies();

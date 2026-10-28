@@ -29,7 +29,6 @@ private slots:
     void onBackendUpdateVersionChanged(uint progressPercent, UPDATE_VERSION_STATE state, UPDATE_VERSION_ERROR error);
     void onBackendWireGuardAtKeyLimit();
     void onBackendConnectStateChanged(const types::ConnectState &connectState);
-    void onBackendMyIpChanged(const QString &ip, bool isFromDisconnectedState);
     void onBackendSessionDeleted();
 
     void onPreferencesAutoConnectChanged(bool on);
@@ -41,13 +40,9 @@ private slots:
 
     // From CLI commands
     void onConnectToLocation(const LocationID &id, const types::Protocol &protocol, uint port);
-    void onConnectToStaticIpLocation(const QString &location, const types::Protocol &protocol, uint port);
     void onLogin(const QString &username, const QString &password, const QString &code2fa);
-    void onShowLocations(IPC::CliCommands::LocationType type);
     void onSetKeyLimitBehavior(bool deleteKey);
     void onSetIgnoreSslErrors(bool ignore);
-    void onPinIp();
-    void onUnpinIp(const QString &ip);
 
 private:
     Backend *backend_;
@@ -60,6 +55,4 @@ private:
     bool keyLimitDelete_;
 
     void setInitialFirewallState();
-
-    QString connectedIp_;
 };

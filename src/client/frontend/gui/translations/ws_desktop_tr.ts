@@ -1511,10 +1511,6 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
         <translation>LAN Trafiğine İzin Ver&apos;i devre dışı bırakmak, güvenli erişim noktanızın çalışmayı durdurmasına neden olur.  Hotspot&apos;u devre dışı bırakmak istiyor musunuz?</translation>
     </message>
     <message>
-        <source>MAC spoofing is not supported on your version of MacOS.</source>
-        <translation>MAC sahtekarlığı, MacOS sürümünüzde desteklenmiyor.</translation>
-    </message>
-    <message>
         <source>Automatically determine the MTU for your connection, or manually override.  This has no effect on TCP-based protocols.</source>
         <translation>Bağlantınız için MTU&apos;yu otomatik olarak belirleyin veya manuel olarak geçersiz kılın.  Bunun TCP tabanlı protokoller üzerinde hiçbir etkisi yoktur.</translation>
     </message>
@@ -2381,6 +2377,10 @@ Connect to a network first</source>
 </context>
 <context>
     <name>PreferencesWindow::SplitTunnelingAppsGroup</name>
+    <message>
+        <source>This app is already in the list.</source>
+        <translation>Bu uygulama zaten listede.</translation>
+    </message>
     <message>
         <source>There are too many apps in the list. Please remove some before adding more.</source>
         <translation>Listede çok fazla uygulama var. Lütfen daha fazlasını eklemeden önce bazılarını kaldırın.</translation>

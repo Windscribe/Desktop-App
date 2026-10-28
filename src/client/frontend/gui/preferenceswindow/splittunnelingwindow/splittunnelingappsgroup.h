@@ -28,7 +28,6 @@ public:
                                      const QString &descUrl = "");
     ~SplitTunnelingAppsGroup() override;
 
-    QList<types::SplitTunnelingApp> apps();
     void setApps(QList<types::SplitTunnelingApp> apps);
     void addApp(types::SplitTunnelingApp &app);
     void ensureSearchAppsPopulated();
@@ -56,11 +55,11 @@ private slots:
 private:
     void onAppsEnumerated(std::shared_ptr<EnumerationResult> result);
     void requestIcons(const QStringList &appPaths);
-    bool addAppInternal(types::SplitTunnelingApp &app);
+    AppIncludedItem *addAppInternal(types::SplitTunnelingApp &app);
     void addSearchApp(types::SplitTunnelingApp &app);
     void showFilteredSearchItems(QString filter);
     void toggleAppItemActive(AppSearchItem *item);
-    AppIncludedItem *appByName(QString name);
+    AppIncludedItem *appByFullName(const QString &fullName);
 
     enum OP_MODE {
         DEFAULT = 0,

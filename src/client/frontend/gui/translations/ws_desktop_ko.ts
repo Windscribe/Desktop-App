@@ -1511,10 +1511,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>LAN 트래픽 허용을 비활성화하면 보안 핫스팟이 작동을 멈춥니다.  핫스팟을 비활성화하시겠습니까?</translation>
     </message>
     <message>
-        <source>MAC spoofing is not supported on your version of MacOS.</source>
-        <translation>MAC 스푸핑은 사용 중인 MacOS 버전에서 지원되지 않습니다.</translation>
-    </message>
-    <message>
         <source>Automatically determine the MTU for your connection, or manually override.  This has no effect on TCP-based protocols.</source>
         <translation>연결에 대한 MTU를 자동으로 결정하거나 수동으로 재정의합니다.  이는 TCP 기반 프로토콜에는 영향을 주지 않습니다.</translation>
     </message>
@@ -2381,6 +2377,10 @@ Connect to a network first</source>
 </context>
 <context>
     <name>PreferencesWindow::SplitTunnelingAppsGroup</name>
+    <message>
+        <source>This app is already in the list.</source>
+        <translation>이 앱은 이미 목록에 있습니다.</translation>
+    </message>
     <message>
         <source>There are too many apps in the list. Please remove some before adding more.</source>
         <translation>목록에 앱이 너무 많습니다. 더 추가하기 전에 일부를 제거하십시오.</translation>

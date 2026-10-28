@@ -42,6 +42,8 @@ private:
     bool bCommandSent_ = false;
     bool bLoggingInMessageShown_ = false;
     QString connectId_ = "";
+    bool isConnectRequestCountKnown_ = false;
+    uint connectRequestCount_ = 0;
     QString code2fa_ = "";
     QString captchaSolution_;
 

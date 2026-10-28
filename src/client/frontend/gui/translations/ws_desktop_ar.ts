@@ -1511,10 +1511,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>سيؤدي تعطيل السماح بحركة مرور الشبكة المحلية إلى توقف نقطة الاتصال الآمنة عن العمل.  هل تريد تعطيل نقطة الاتصال؟</translation>
     </message>
     <message>
-        <source>MAC spoofing is not supported on your version of MacOS.</source>
-        <translation>انتحال MAC غير مدعوم على إصدار MacOS الخاص بك.</translation>
-    </message>
-    <message>
         <source>Automatically determine the MTU for your connection, or manually override.  This has no effect on TCP-based protocols.</source>
         <translation>تحديد وحدة الإرسال الكبرى تلقائيا لاتصالك، أو تجاوزها يدويا. هذا ليس له أي تأثير على البروتوكولات المستندة إلى TCP.</translation>
     </message>
@@ -2381,6 +2377,10 @@ Connect to a network first</source>
 </context>
 <context>
     <name>PreferencesWindow::SplitTunnelingAppsGroup</name>
+    <message>
+        <source>This app is already in the list.</source>
+        <translation>هذا التطبيق موجود بالفعل في القائمة.</translation>
+    </message>
     <message>
         <source>There are too many apps in the list. Please remove some before adding more.</source>
         <translation>هناك الكثير من التطبيقات في القائمة. يرجى إزالة بعضها قبل إضافة المزيد.</translation>

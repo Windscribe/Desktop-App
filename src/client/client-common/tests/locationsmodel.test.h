@@ -3,6 +3,7 @@
 #include <QObject>
 #include <QTest>
 #include <QAbstractItemModelTester>
+#include "locations/locationsmodel_manager.h"
 #include "locations/model/locationsmodel.h"
 #include "locations/model/proxymodels/cities_proxymodel.h"
 
@@ -29,6 +30,10 @@ private slots:
     void testFreeSessionStatusChange();
     void testDisplayNicknameDoesNotLeakToTopLevelRows();
     void testRenamedLocationsStoragePoisonMigration();
+    void testManagerPinIp();
+    void testManagerUnpinIp();
+    void testManagerFindStaticIpLocation();
+    void testUnfavouriteReportsPinChange();
 
 private:
     QVector<types::Location> testOriginal_;

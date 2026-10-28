@@ -1511,10 +1511,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>लैन ट्रैफ़िक को अक्षम करने से आपका सुरक्षित हॉटस्पॉट काम करना बंद कर देगा।  क्या आप हॉटस्पॉट को अक्षम करना चाहते हैं?</translation>
     </message>
     <message>
-        <source>MAC spoofing is not supported on your version of MacOS.</source>
-        <translation>MAC स्पूफ़िंग macOS के आपके संस्करण पर समर्थित नहीं है।</translation>
-    </message>
-    <message>
         <source>Automatically determine the MTU for your connection, or manually override.  This has no effect on TCP-based protocols.</source>
         <translation>स्वचालित रूप से अपने कनेक्शन के लिए MTU निर्धारित करें, या मैन्युअल रूप से ओवरराइड करें।  TCP-आधारित प्रोटोकॉल पर इसका कोई प्रभाव नहीं है।</translation>
     </message>
@@ -2381,6 +2377,10 @@ Connect to a network first</source>
 </context>
 <context>
     <name>PreferencesWindow::SplitTunnelingAppsGroup</name>
+    <message>
+        <source>This app is already in the list.</source>
+        <translation>यह ऐप पहले से सूची में है।</translation>
+    </message>
     <message>
         <source>There are too many apps in the list. Please remove some before adding more.</source>
         <translation>सूची में बहुत सारे ऐप्स हैं। कृपया अधिक जोड़ने से पहले कुछ हटा दें।</translation>

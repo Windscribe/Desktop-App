@@ -169,6 +169,8 @@ QString updateErrorString(UPDATE_VERSION_ERROR error)
 {
     if (error == UPDATE_VERSION_ERROR_DL_FAIL) {
         return QObject::tr("Update error: download failed. Please try again or try a different network.");
+    } else if (error == UPDATE_VERSION_ERROR_CANCELLED) {
+        return QObject::tr("Update cancelled.");
     } else if (error != UPDATE_VERSION_ERROR_NO_ERROR) {
         return QObject::tr("Update error: %1").arg(error);
     } else {

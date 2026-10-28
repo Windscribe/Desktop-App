@@ -13,7 +13,9 @@ namespace CrossPlatformObjectFactory
     Helper *createHelper(QObject *parent);
     INetworkDetectionManager *createNetworkDetectionManager(QObject *parent, Helper *helper, ISleepEvents *sleepEvents);
     FirewallController *createFirewallController(QObject *parent, Helper *helper);
+#ifndef Q_OS_MACOS
     IMacAddressController *createMacAddressController(QObject *parent, INetworkDetectionManager *ndManager, Helper *helper);
+#endif
     ICtrldManager *createCtrldManager(QObject *parent, Helper *helper, bool isCreateLog);
     ISleepEvents *createSleepEvents(QObject *parent);
     IConnectivityDiagnosticCollector *createConnectivityDiagnosticCollector(QObject *parent, FirewallController *firewallController);

@@ -21,22 +21,15 @@ void WidgetUtils_mac::allowMinimizeForFramelessWindow(QWidget *window)
     NSWindow* nsWindow = [(__bridge NSView*)reinterpret_cast<void*>(window->winId()) window];
     [nsWindow setCollectionBehavior:NSWindowCollectionBehaviorCanJoinAllSpaces | NSWindowCollectionBehaviorTransient];
 
-#if defined __APPLE__ && __MAC_OS_X_VERSION_MAX_ALLOWED >= 101300
-    if(@available(macOS 10.13, *))
-    {
-        [nsWindow setStyleMask:(/*NSWindowStyleMaskResizable |*/ NSWindowStyleMaskBorderless | NSWindowStyleMaskFullSizeContentView | NSWindowStyleMaskMiniaturizable)];
-        [nsWindow setTitlebarAppearsTransparent:YES];       // 10.10+
-        [nsWindow setTitleVisibility:NSWindowTitleHidden];  // 10.10+
-        [nsWindow setShowsToolbarButton:NO];
-        [nsWindow setBackgroundColor:[NSColor clearColor]];
+    [nsWindow setStyleMask:(/*NSWindowStyleMaskResizable |*/ NSWindowStyleMaskBorderless | NSWindowStyleMaskFullSizeContentView | NSWindowStyleMaskMiniaturizable)];
+    [nsWindow setTitlebarAppearsTransparent:YES];       // 10.10+
+    [nsWindow setTitleVisibility:NSWindowTitleHidden];  // 10.10+
+    [nsWindow setShowsToolbarButton:NO];
+    [nsWindow setBackgroundColor:[NSColor clearColor]];
 
-        [[nsWindow standardWindowButton:NSWindowMiniaturizeButton] setHidden:YES];
-        [[nsWindow standardWindowButton:NSWindowCloseButton] setHidden:YES];
-        [[nsWindow standardWindowButton:NSWindowZoomButton] setHidden:YES];
-    }
-#else
-    Q_UNUSED(window);
-#endif
+    [[nsWindow standardWindowButton:NSWindowMiniaturizeButton] setHidden:YES];
+    [[nsWindow standardWindowButton:NSWindowCloseButton] setHidden:YES];
+    [[nsWindow standardWindowButton:NSWindowZoomButton] setHidden:YES];
 }
 
 void WidgetUtils_mac::allowMoveBetweenSpacesForWindow(QWidget *window, bool docked, bool moveWindow)

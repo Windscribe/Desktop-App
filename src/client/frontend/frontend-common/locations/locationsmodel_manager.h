@@ -34,6 +34,13 @@ public:
     // Could be region name, country code, server name
     // for example "Toronto", "The Six", "CA", "Canada East" would all be valid
     LocationID findLocationByFilter(const QString &strFilter) const;
+    // Matches a static IP by name or nickname, picking one at random when several match.
+    LocationID findStaticIpLocation(const QString &nameOrNick) const;
+
+    // Pins the IP reached on the location's server. Static IP and custom config locations have no pinnable server.
+    bool pinIp(LocationID locationId, const QString &hostname, const QString &ip);
+    // Removes the first favourite whose pin has this IP.
+    bool unpinIp(const QString &ip);
 
     LocationID getBestLocationId() const;
     LocationID getFirstValidCustomConfigLocationId() const;

@@ -1511,10 +1511,6 @@ Se il problema persiste dopo un riavvio, inviare un registro di debug e aprire u
         <translation>La disabilitazione di Consenti traffico LAN causerà l&apos;interruzione del funzionamento dell&apos;hotspot sicuro.  Vuoi disattivare l&apos;hotspot?</translation>
     </message>
     <message>
-        <source>MAC spoofing is not supported on your version of MacOS.</source>
-        <translation>Lo spoofing MAC non è supportato nella versione di MacOS in uso.</translation>
-    </message>
-    <message>
         <source>Automatically determine the MTU for your connection, or manually override.  This has no effect on TCP-based protocols.</source>
         <translation>Determina automaticamente l&apos;MTU per la tua connessione o esegui manualmente l&apos;override.  Ciò non ha alcun effetto sui protocolli basati su TCP.</translation>
     </message>
@@ -2381,6 +2377,10 @@ Connettersi prima a una rete</translation>
 </context>
 <context>
     <name>PreferencesWindow::SplitTunnelingAppsGroup</name>
+    <message>
+        <source>This app is already in the list.</source>
+        <translation>Questa app è già nell&apos;elenco.</translation>
+    </message>
     <message>
         <source>There are too many apps in the list. Please remove some before adding more.</source>
         <translation>Ci sono troppe app nell&apos;elenco. Si prega di rimuoverne alcuni prima di aggiungerne altri.</translation>

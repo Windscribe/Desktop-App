@@ -20,8 +20,16 @@
         <translation>Tidak ada port yang tersedia untuk protokol yang ditentukan.</translation>
     </message>
     <message>
+        <source>Could not send logs.</source>
+        <translation>Tidak dapat mengirim log.</translation>
+    </message>
+    <message>
         <source>Could not rotate IP.  Please check that you have Windscribe Pro or have this location in your plan, or try again later.</source>
         <translation>Tidak dapat memutar IP.  Periksa apakah Anda memiliki Windscribe Pro atau memiliki lokasi ini dalam paket Anda, atau coba lagi nanti.</translation>
+    </message>
+    <message>
+        <source>The IP is still being rotated.  Try again in a moment.</source>
+        <translation>Rotasi IP masih berlangsung.  Coba lagi sebentar lagi.</translation>
     </message>
     <message>
         <source>Could not favourite IP.  Please check that you have Windscribe Pro or have this location in your plan, or try again later.</source>
@@ -235,6 +243,10 @@
         <translation>Kesalahan pembaruan: unduhan gagal. Coba lagi atau coba jaringan lain.</translation>
     </message>
     <message>
+        <source>Update cancelled.</source>
+        <translation>Pembaruan dibatalkan.</translation>
+    </message>
+    <message>
         <source>Update error: %1</source>
         <translation>Kesalahan pembaruan: %1</translation>
     </message>
@@ -265,6 +277,10 @@
     <message>
         <source>Password too short</source>
         <translation>Kata sandi terlalu pendek</translation>
+    </message>
+    <message>
+        <source>The update installer has started.</source>
+        <translation>Penginstal pembaruan telah dimulai.</translation>
     </message>
     <message>
         <source>Connection is in progress.  Use &apos;windscribe-cli status&apos; to check for connection status.</source>

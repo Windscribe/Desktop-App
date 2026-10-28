@@ -702,7 +702,7 @@ void TestSettingsValidation::testSplitTunneling_dropEmptyFullNameApp()
     st.apps << good << empty;
     st.validate();
     QCOMPARE(st.apps.size(), 1);
-    QCOMPARE(st.apps[0].fullName, QString("/Applications/Foo.app"));
+    QCOMPARE(st.apps[0].name, QString("Foo"));
 }
 
 void TestSettingsValidation::testSplitTunneling_rederivesRouteType()

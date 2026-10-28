@@ -29,6 +29,9 @@ namespace Utils {
 
     // Returns an alphanumeric string of `length` chars.
     QString generateSecureCredential(int length);
+    // Short values are masked whole so the log never shows a credential in full; an empty value stays empty
+    // so a missing credential is still visible.
+    QString redactCredential(const QString &value);
 
     template<typename T>
     T randomizeList(const T &list)

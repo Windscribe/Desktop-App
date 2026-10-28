@@ -1491,10 +1491,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Πλαστογραφήστε τη φυσική διεύθυνση της συσκευής σας (διεύθυνση MAC).</translation>
     </message>
     <message>
-        <source>MAC spoofing is not supported on your version of MacOS.</source>
-        <translation>Η πλαστογράφηση MAC δεν υποστηρίζεται στην έκδοση του MacOS που διαθέτετε.</translation>
-    </message>
-    <message>
         <source>MAC spoofing requires NetworkManager to be installed and running.</source>
         <translation>Η πλαστογράφηση MAC απαιτεί την εγκατάσταση και εκτέλεση του NetworkManager.</translation>
     </message>
@@ -2381,6 +2377,10 @@ Connect to a network first</source>
 </context>
 <context>
     <name>PreferencesWindow::SplitTunnelingAppsGroup</name>
+    <message>
+        <source>This app is already in the list.</source>
+        <translation>Αυτή η εφαρμογή υπάρχει ήδη στη λίστα.</translation>
+    </message>
     <message>
         <source>There are too many apps in the list. Please remove some before adding more.</source>
         <translation>Υπάρχουν πάρα πολλές εφαρμογές στη λίστα. Παρακαλώ αφαιρέστε μερικά πριν προσθέσετε περισσότερα.</translation>

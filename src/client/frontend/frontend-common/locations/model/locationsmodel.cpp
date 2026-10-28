@@ -353,7 +353,8 @@ bool LocationsModel::setData(const QModelIndex &index, const QVariant &value, in
             {
                 favoriteLocationsStorage_.removeFromFavorites(lid);
             }
-            emit dataChanged(index, index, QList<int>() << kIsFavorite);
+            // Removing a favourite also drops its pin.
+            emit dataChanged(index, index, QList<int>() << kIsFavorite << kPinnedIp);
             return true;
         }
     } else if (role == kPinnedIp) {

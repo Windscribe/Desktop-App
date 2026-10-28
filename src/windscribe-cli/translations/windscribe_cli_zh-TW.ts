@@ -20,8 +20,16 @@
         <translation>指定協定沒有可用的埠口。</translation>
     </message>
     <message>
+        <source>Could not send logs.</source>
+        <translation>無法傳送記錄。</translation>
+    </message>
+    <message>
         <source>Could not rotate IP.  Please check that you have Windscribe Pro or have this location in your plan, or try again later.</source>
         <translation>無法輪換IP。 請檢查您是否擁有 Windscribe Pro 或您的計劃中是否有此位置，或稍後重試。</translation>
+    </message>
+    <message>
+        <source>The IP is still being rotated.  Try again in a moment.</source>
+        <translation>IP 仍在輪換中。請稍後再試。</translation>
     </message>
     <message>
         <source>Could not favourite IP.  Please check that you have Windscribe Pro or have this location in your plan, or try again later.</source>
@@ -235,6 +243,10 @@
         <translation>更新錯誤：下載失敗。請重試或嘗試其他網路。</translation>
     </message>
     <message>
+        <source>Update cancelled.</source>
+        <translation>已取消更新。</translation>
+    </message>
+    <message>
         <source>Update error: %1</source>
         <translation>更新錯誤： %1</translation>
     </message>
@@ -265,6 +277,10 @@
     <message>
         <source>Password too short</source>
         <translation>密碼太短</translation>
+    </message>
+    <message>
+        <source>The update installer has started.</source>
+        <translation>更新安裝程式已啟動。</translation>
     </message>
     <message>
         <source>Connection is in progress.  Use &apos;windscribe-cli status&apos; to check for connection status.</source>

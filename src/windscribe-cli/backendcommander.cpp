@@ -18,10 +18,6 @@
 #include "utils/systemwideapplock.h"
 #include "utils/utils.h"
 
-#ifdef CLI_ONLY
-#include <unistd.h>
-#endif
-
 
 BackendCommander::BackendCommander(const CliArguments &cliArgs) : QObject(), cliArgs_(cliArgs)
 {
@@ -170,6 +166,7 @@ void BackendCommander::sendCommand(IPC::CliCommands::State *state)
         }
         if (state->connectState_.connectState == CONNECT_STATE_DISCONNECTED) {
             emit finished(0, QObject::tr("Already disconnected"));
+            return;
         }
         IPC::CliCommands::Disconnect cmd;
         connection_->sendCommand(cmd);
@@ -400,13 +397,15 @@ void BackendCommander::onStateResponse(IPC::Command *command)
 
 void BackendCommander::onUpdateStateResponse(IPC::Command *command)
 {
-#ifdef CLI_ONLY
     static int printedLength = 0;
 
     IPC::CliCommands::State *cmd = static_cast<IPC::CliCommands::State *>(command);
 
     // If an error has occurred, print it and quit
     if (cmd->updateError_ != UPDATE_VERSION_ERROR_NO_ERROR) {
+        if (printedLength > 0) {
+            std::cout << std::endl;
+        }
         emit finished(1, updateErrorString(cmd->updateError_));
         return;
     }
@@ -426,6 +425,7 @@ void BackendCommander::onUpdateStateResponse(IPC::Command *command)
     // the length is in bytes, not characters, because we need to 'backspace' this many times.
     printedLength = str.toUtf8().size();
 
+#ifdef CLI_ONLY
     if (cmd->updateState_ == UPDATE_VERSION_STATE_RUNNING) {
         std::cout << std::endl;
 
@@ -437,22 +437,22 @@ void BackendCommander::onUpdateStateResponse(IPC::Command *command)
         emit finished(ret, "");
         return;
     }
+#else
+    // The app runs the installer itself once the download is done, and reports when it has started it.
+    if (cmd->updateState_ == UPDATE_VERSION_STATE_DONE) {
+        std::cout << std::endl;
+        emit finished(0, QObject::tr("The update installer has started."));
+        return;
+    }
+#endif
 
     // If still in progress, wait 1 second and then request state again.
-    sleep(1);
+    std::this_thread::sleep_for(std::chrono::seconds(1));
     sendStateCommand();
-#endif
 }
 
 void BackendCommander::onAcknowledge(IPC::CliCommands::Acknowledge *ackCmd)
 {
-    //  This only occurs on CLI with GUI backend; it just changes the appropriate window/tab.  Do not wait for this operation.
-    if (cliArgs_.cliCommand() == CLI_COMMAND_LOCATIONS || cliArgs_.cliCommand() == CLI_COMMAND_LOCATIONS_STATIC || cliArgs_.cliCommand() == CLI_COMMAND_LOCATIONS_FAV
-        || cliArgs_.cliCommand() == CLI_COMMAND_PORTS) {
-        emit(finished(0, ""));
-        return;
-    }
-
     if (!cliArgs_.nonBlocking()) {
         sendStateCommand();
         return;
@@ -475,7 +475,11 @@ void BackendCommander::onAcknowledge(IPC::CliCommands::Acknowledge *ackCmd)
         emit(finished(0, QObject::tr("Key limit behaviour is set.")));
     }
     else if (cliArgs_.cliCommand() == CLI_COMMAND_SEND_LOGS) {
-        emit(finished(0, QObject::tr("Logs sent.")));
+        if (ackCmd->code_ != 0) {
+            emit(finished(ackCmd->code_, tr("Could not send logs.")));
+        } else {
+            emit(finished(0, QObject::tr("Logs sent.")));
+        }
     }
     else if (cliArgs_.cliCommand() == CLI_COMMAND_SET_IGNORE_SSL_ERRORS) {
         if (ackCmd->code_ != 0) {
@@ -496,7 +500,9 @@ void BackendCommander::onAcknowledge(IPC::CliCommands::Acknowledge *ackCmd)
         }
     }
     else if (cliArgs_.cliCommand() == CLI_COMMAND_IP_FAV) {
-        if (ackCmd->code_ != 0) {
+        if (ackCmd->code_ == 2) {
+            emit(finished(ackCmd->code_, tr("The IP is still being rotated.  Try again in a moment.")));
+        } else if (ackCmd->code_ != 0) {
             emit(finished(ackCmd->code_, tr("Could not favourite IP.  Please check that you have Windscribe Pro or have this location in your plan, or try again later.")));
         } else {
             emit(finished(0, QObject::tr("IP favorited.")));
@@ -526,6 +532,11 @@ void BackendCommander::onStateUpdated(IPC::Command *command)
         if (connectId_.isEmpty() && cmd->connectState_.connectState == CONNECT_STATE_CONNECTING) {
             connectId_ = cmd->connectId_;
         }
+        // Our own connect request was counted before the acknowledgement, so this first state is the baseline.
+        if (!isConnectRequestCountKnown_) {
+            isConnectRequestCountKnown_ = true;
+            connectRequestCount_ = cmd->connectRequestCount_;
+        }
 
         if (cmd->connectState_.connectState == CONNECT_STATE_DISCONNECTED && cmd->connectState_.connectError != ConnectError::kNoError ||
             cmd->connectState_.connectState == CONNECT_STATE_DISCONNECTED && cmd->connectState_.disconnectReason == DISCONNECTED_BY_KEY_LIMIT ||
@@ -533,12 +544,13 @@ void BackendCommander::onStateUpdated(IPC::Command *command)
         {
             // Disconnected with error
             emit(finished(1, connectStateString(cmd->connectState_, cmd->location_, cmd->tunnelTestState_, false)));
+        } else if (cmd->connectRequestCount_ != connectRequestCount_) {
+            emit(finished(1, QObject::tr("Connection has been overridden by another command.")));
         } else if (cmd->connectState_.connectState == CONNECT_STATE_CONNECTED && cmd->tunnelTestState_ != TUNNEL_TEST_STATE_UNKNOWN) {
             // connected with a known tunnel test state
             emit(finished(0, connectStateString(cmd->connectState_, cmd->location_, cmd->tunnelTestState_, false)));
-        } else if (cmd->connectId_ != connectId_ && connectId_.isEmpty() && !cmd->connectId_.isEmpty() &&
-            cmd->connectState_.connectState == CONNECT_STATE_CONNECTING || cmd->connectState_.connectState == CONNECT_STATE_DISCONNECTED)
-        {
+        } else if (cmd->connectState_.connectState == CONNECT_STATE_DISCONNECTED) {
+            // Disconnected without an error, e.g. by the user, before this connection completed.
             emit(finished(1, QObject::tr("Connection has been overridden by another command.")));
         } else {
             str = connectStateString(cmd->connectState_, cmd->location_, cmd->tunnelTestState_, false).toStdString();

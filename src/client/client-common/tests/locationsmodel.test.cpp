@@ -1,3 +1,4 @@
+#include <QJsonArray>
 #include <QtTest>
 #include "locationsmodel.test.h"
 #include "types/locationid.h"
@@ -539,6 +540,92 @@ bool TestLocationsModel::isCitiesModelEqualTo(const QVector<types::Location> &lo
         }
     }
     return handledCount == cities.size();
+}
+
+void TestLocationsModel::testManagerPinIp()
+{
+    gui_locations::LocationsModelManager manager;
+    manager.updateLocations(bestLocation_, testOriginal_);
+    manager.updateCustomConfigLocation(customConfigLocation_);
+    manager.setFavoriteLocationsFromJson(QJsonArray());
+
+    const LocationID lima = LocationID::createApiLocationId(112, "Lima", "Amaru");
+    const QModelIndex limaIndex = manager.getIndexByLocationId(lima);
+    QVERIFY(limaIndex.isValid());
+
+    QVERIFY(manager.pinIp(lima, "pe-001.windscribe.com", "1.2.3.4"));
+    QCOMPARE(limaIndex.data(gui_locations::kPinnedIp).toList(), QVariantList() << "pe-001" << "1.2.3.4");
+    QVERIFY(limaIndex.data(gui_locations::kIsFavorite).toBool());
+
+    QVERIFY(manager.pinIp(lima.apiLocationToBestLocation(), "pe-002", "5.6.7.8"));
+    QCOMPARE(limaIndex.data(gui_locations::kPinnedIp).toList(), QVariantList() << "pe-002" << "5.6.7.8");
+
+    QVERIFY(!manager.pinIp(lima, "pe-003", QString()));
+    QVERIFY(!manager.pinIp(lima, QString(), "9.9.9.9"));
+    QVERIFY(!manager.pinIp(LocationID(), "pe-003", "9.9.9.9"));
+    QVERIFY(!manager.pinIp(LocationID::createApiLocationId(9999, "Nowhere", "Nobody"), "pe-003", "9.9.9.9"));
+    QCOMPARE(limaIndex.data(gui_locations::kPinnedIp).toList(), QVariantList() << "pe-002" << "5.6.7.8");
+
+    const LocationID staticIp = LocationID::createStaticIpsLocationId("Toronto", "206.223.183.201");
+    QVERIFY(!manager.pinIp(staticIp, "ca-001", "9.9.9.9"));
+    QVERIFY(manager.getIndexByLocationId(staticIp).data(gui_locations::kPinnedIp).toList().at(1).toString().isEmpty());
+    const LocationID customConfig = customConfigLocation_.cities.first().id;
+    QVERIFY(!manager.pinIp(customConfig, "ca-001", "9.9.9.9"));
+    QVERIFY(manager.getIndexByLocationId(customConfig).data(gui_locations::kPinnedIp).toList().at(1).toString().isEmpty());
+
+    QVERIFY(manager.locationsModel()->setData(limaIndex, false, gui_locations::kIsFavorite));
+}
+
+void TestLocationsModel::testManagerUnpinIp()
+{
+    gui_locations::LocationsModelManager manager;
+    manager.updateLocations(bestLocation_, testOriginal_);
+    manager.setFavoriteLocationsFromJson(QJsonArray());
+
+    const LocationID lima = LocationID::createApiLocationId(112, "Lima", "Amaru");
+    const QModelIndex limaIndex = manager.getIndexByLocationId(lima);
+    QVERIFY(limaIndex.isValid());
+
+    QVERIFY(!manager.unpinIp("1.2.3.4"));
+
+    QVERIFY(manager.pinIp(lima, "pe-001", "1.2.3.4"));
+    QVERIFY(!manager.unpinIp("9.9.9.9"));
+    QVERIFY(!manager.unpinIp(QString()));
+    QVERIFY(limaIndex.data(gui_locations::kIsFavorite).toBool());
+
+    QVERIFY(manager.unpinIp("1.2.3.4"));
+    QVERIFY(!limaIndex.data(gui_locations::kIsFavorite).toBool());
+    QVERIFY(limaIndex.data(gui_locations::kPinnedIp).toList().at(1).toString().isEmpty());
+}
+
+void TestLocationsModel::testManagerFindStaticIpLocation()
+{
+    gui_locations::LocationsModelManager manager;
+    manager.updateLocations(bestLocation_, testOriginal_);
+
+    QCOMPARE(manager.findStaticIpLocation("Toronto"), LocationID::createStaticIpsLocationId("Toronto", "206.223.183.201"));
+    QCOMPARE(manager.findStaticIpLocation("193.176.87.171"), LocationID::createStaticIpsLocationId("Frankfurt", "193.176.87.171"));
+    QVERIFY(!manager.findStaticIpLocation("Lima").isValid());
+    QVERIFY(!manager.findStaticIpLocation("toronto").isValid());
+    QVERIFY(!manager.findStaticIpLocation(QString()).isValid());
+}
+
+// Removing a favourite drops its pin, and whatever shows the pin only hears of it through this report.
+void TestLocationsModel::testUnfavouriteReportsPinChange()
+{
+    locationsModel_->setFavoriteLocationsFromJson(QJsonArray());
+    const QModelIndex lima = locationsModel_->getIndexByLocationId(LocationID::createApiLocationId(112, "Lima", "Amaru"));
+    QVERIFY(lima.isValid());
+    QVERIFY(locationsModel_->setData(lima, QVariantList() << "pe-001" << "1.2.3.4", gui_locations::kPinnedIp));
+
+    QSignalSpy spy(locationsModel_.get(), &QAbstractItemModel::dataChanged);
+    QVERIFY(locationsModel_->setData(lima, false, gui_locations::kIsFavorite));
+
+    QCOMPARE(spy.count(), 1);
+    const QList<int> roles = qvariant_cast<QList<int>>(spy[0][2]);
+    QVERIFY(roles.contains(gui_locations::kIsFavorite));
+    QVERIFY(roles.contains(gui_locations::kPinnedIp));
+    QVERIFY(lima.data(gui_locations::kPinnedIp).toList().at(1).toString().isEmpty());
 }
 
 QTEST_MAIN(TestLocationsModel)

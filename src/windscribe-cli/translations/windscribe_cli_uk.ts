@@ -20,8 +20,16 @@
         <translation>Портів для зазначеного протоколу немає.</translation>
     </message>
     <message>
+        <source>Could not send logs.</source>
+        <translation>Не вдалося надіслати журнали.</translation>
+    </message>
+    <message>
         <source>Could not rotate IP.  Please check that you have Windscribe Pro or have this location in your plan, or try again later.</source>
         <translation>Не вдалося змінити IP. Переконайтеся, що у вас є Windscribe Pro або що це місце входить у ваш план, або спробуйте пізніше.</translation>
+    </message>
+    <message>
+        <source>The IP is still being rotated.  Try again in a moment.</source>
+        <translation>Зміна IP ще триває.  Спробуйте ще раз за хвилину.</translation>
     </message>
     <message>
         <source>Could not favourite IP.  Please check that you have Windscribe Pro or have this location in your plan, or try again later.</source>
@@ -235,6 +243,10 @@
         <translation>Помилка оновлення: помилка завантаження. Будь ласка, спробуйте ще раз або спробуйте іншу мережу.</translation>
     </message>
     <message>
+        <source>Update cancelled.</source>
+        <translation>Оновлення скасовано.</translation>
+    </message>
+    <message>
         <source>Update error: %1</source>
         <translation>Помилка оновлення: %1</translation>
     </message>
@@ -265,6 +277,10 @@
     <message>
         <source>Password too short</source>
         <translation>Занадто короткий пароль</translation>
+    </message>
+    <message>
+        <source>The update installer has started.</source>
+        <translation>Інсталятор оновлення запущено.</translation>
     </message>
     <message>
         <source>Connection is in progress.  Use &apos;windscribe-cli status&apos; to check for connection status.</source>

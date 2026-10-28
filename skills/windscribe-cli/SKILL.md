@@ -7,7 +7,7 @@ description: "Controls Windscribe VPN via the windscribe-cli command-line tool. 
 
 Control Windscribe VPN entirely from the command line. Any AI agent with shell access can use it — no custom server or protocol needed.
 
-> **📝 GUI vs CLI behavior:** `windscribe-cli` communicates with the Windscribe app via IPC. When the **GUI desktop app** is running, `windscribe-cli locations` opens the location list in the GUI window and returns empty terminal output. If `locations` output is empty, tell the user to check the Windscribe app window. All other commands (connect, status, ports, etc.) return terminal output normally regardless of GUI/CLI mode. The **CLI-only build** (Linux headless) always outputs to terminal.
+> **📝 GUI vs CLI behavior:** `windscribe-cli` communicates with the Windscribe app via IPC. All commands print their output to the terminal, whether the **GUI desktop app** or the **CLI-only build** (Linux headless) is running.
 
 > **📦 Not installed?** See [references/install.md](references/install.md) for platform-specific download and installation instructions.
 
@@ -31,14 +31,16 @@ windscribe-cli connect best                  # Auto-select best server
 windscribe-cli connect "Toronto"             # By city, nickname, region, or ISO code
 windscribe-cli connect best wireguard        # Location + protocol
 windscribe-cli connect best udp:443          # Location + protocol:port
+windscribe-cli connect wireguard             # Last location (or best) + protocol
 windscribe-cli connect -n best               # Non-blocking (returns immediately)
-windscribe-cli connect static "Dallas"       # Static IP location (Pro)
+windscribe-cli connect static "Dallas"       # Static IP location, by city (Pro)
+windscribe-cli connect static "203.0.113.5"  # Static IP location, by IP (Pro)
 
 windscribe-cli disconnect                    # Disconnect
 windscribe-cli disconnect -n                 # Non-blocking disconnect
 ```
 
-Location matching is case-insensitive. Use city name, nickname, region name, or ISO country code.
+Location matching is case-insensitive. Use city name, nickname, region name, or ISO country code. Static IP locations are the exception: `connect static` needs the city or IP exactly as `windscribe-cli locations static` prints it, including case.
 
 The `-n` flag must come before the location argument. Without `-n`, the CLI blocks until the connection completes or fails.
 
@@ -67,7 +69,7 @@ Use `protocol:port` syntax to specify a port (e.g. `stealth:143`). Default is th
 windscribe-cli status
 ```
 
-Reports: Internet connectivity, login state, firewall state, connection state + city, protocol:port, data usage, update availability.
+Reports: Internet connectivity, login state, firewall state, connection state + city, protocol:port, public or VPN IP, data usage, and an available update (only when there is one).
 
 - `*` prefix on "Connected" = tunnel test pending
 - `[Network interference]` suffix = tunnel test detected issues
@@ -80,7 +82,13 @@ windscribe-cli locations fav          # Favourites (with pinned IPs)
 windscribe-cli locations static       # Static IPs (Pro)
 ```
 
-Format: `Region - City - Nickname`. Use nickname, city, region, or country code with `connect`.
+Format, one location per line:
+- Cities: `Region - City - Nickname`
+- Best location: `Region - Nickname`
+- Static IPs: `City - IP`, after a first line `(Device name: <name>)`
+- Favourites: `City - Nickname`, followed by ` [<pinned IP>]` when an IP is pinned
+
+Any line can end with ` (Pro)` (needs Pro), ` (Disabled)` (temporarily unavailable), or ` (10 Gbps)`. Prints `No locations.` (exit 1) when the list is empty. Use nickname, city, region, or country code with `connect`.
 
 ## Firewall
 
@@ -115,7 +123,7 @@ windscribe-cli logout on              # Disconnect + logout, keeps firewall on
 ## Maintenance
 
 ```bash
-windscribe-cli update                 # Check/install updates
+windscribe-cli update                 # Install the available update (see `status`); requires logged in
 windscribe-cli logs send              # Send debug logs to support
 windscribe-cli amneziawg              # List AmneziaWG censorship presets
 ```
@@ -126,10 +134,10 @@ These commands are only available in the Linux CLI-only build:
 
 ```bash
 windscribe-cli keylimit keep|delete   # WireGuard key limit behavior
-windscribe-cli preferences reload     # Reload config file
+windscribe-cli ignoresslerrors on|off # Ignore SSL errors for this session (only offered after a failed login; a security risk)
 ```
 
-Config file: `~/.config/Windscribe/windscribe_cli.conf` — see [references/config.md](references/config.md) for all options (split tunneling, LAN access, auto-connect, DNS, proxy sharing).
+Config file: `~/.config/Windscribe/windscribe_cli.conf`. Changes apply automatically as soon as the file is saved; `windscribe-cli preferences reload` is no longer needed and does nothing. See [references/config.md](references/config.md) for all options (split tunneling, LAN access, auto-connect, DNS, proxy sharing).
 
 ## Output Parsing
 
@@ -139,9 +147,10 @@ Config file: `~/.config/Windscribe/windscribe_cli.conf` — see [references/conf
 | Firewall | `Firewall state: <On\|Off\|Always On>` | `Firewall state: On` |
 | Protocol | `Protocol: <Name>:<port>` | `Protocol: WireGuard:443` |
 | Login | `Login state: Logged in` | |
-| Data | `Data usage: <used> / <total>` | `Data usage: 1.2 GiB / Unlimited` |
+| IP | `Public IP: <ip>` or `VPN IP: <ip>` | `VPN IP: 203.0.113.5` |
+| Data | `Data usage: <used> / <total>` | `Data usage: 1.20 GB / Unlimited` |
 
-Exit codes: 0 = success, 1 = error (error message on stdout, not stderr).
+Exit codes: 0 = success, non-zero = error (error message on stdout, not stderr). Exceptions: a failed `login` exits 0, so check that its output says `Logged in`; `ip rotate` and `ip fav` exit 2 while an IP rotation is still in progress.
 
 ## Account Dashboard (Web Only)
 

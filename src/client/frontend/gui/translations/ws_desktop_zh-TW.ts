@@ -1511,10 +1511,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>禁用允許 LAN 流量將導致您的安全熱點停止工作。 是否要禁用熱點？</translation>
     </message>
     <message>
-        <source>MAC spoofing is not supported on your version of MacOS.</source>
-        <translation>您的 MacOS 版本不支援 MAC 欺騙。</translation>
-    </message>
-    <message>
         <source>Automatically determine the MTU for your connection, or manually override.  This has no effect on TCP-based protocols.</source>
         <translation>自動確定連接的 MTU，或手動覆蓋。 這對基於 TCP 的協議沒有影響。</translation>
     </message>
@@ -2381,6 +2377,10 @@ Connect to a network first</source>
 </context>
 <context>
     <name>PreferencesWindow::SplitTunnelingAppsGroup</name>
+    <message>
+        <source>This app is already in the list.</source>
+        <translation>此應用程式已在清單中。</translation>
+    </message>
     <message>
         <source>There are too many apps in the list. Please remove some before adding more.</source>
         <translation>清單中的應用太多。在添加更多之前，請刪除一些。</translation>

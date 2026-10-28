@@ -4,6 +4,7 @@
 
 #include "backend/persistentstate.h"
 #include "ipc/server.h"
+#include "locations/locationsmodel_roles.h"
 #include "utils/log/categories.h"
 #include "utils/networkingvalidation.h"
 #include "utils/utils.h"
@@ -26,6 +27,7 @@ LocalIPCServer::LocalIPCServer(Backend *backend, QObject *parent) : QObject(pare
     connect(backend_, &Backend::connectionIdChanged, this, &LocalIPCServer::onBackendConnectionIdChanged);
     connect(backend_, &Backend::bridgeApiAvailabilityChanged, this, &LocalIPCServer::onBackendBridgeApiAvailabilityChanged);
     connect(backend_, &Backend::ipRotateResult, this, &LocalIPCServer::onBackendIpRotateResult);
+    connect(backend_, &Backend::debugLogResult, this, &LocalIPCServer::onBackendDebugLogResult);
     connect(backend_, &Backend::myIpChanged, this, &LocalIPCServer::onBackendMyIpChanged);
 
     myIp_ = PersistentState::instance().lastExternalIp();
@@ -67,6 +69,88 @@ void LocalIPCServer::sendLocations(const QList<IPC::CliCommands::IpcLocation> &l
     sendCommand(cmd);
 }
 
+QList<IPC::CliCommands::IpcLocation> LocalIPCServer::locationsList(IPC::CliCommands::LocationType type) const
+{
+    QList<IPC::CliCommands::IpcLocation> locations;
+
+    if (type == IPC::CliCommands::LocationType::kRegular) {
+
+        for (int i = 0; i < backend_->locationsModelManager()->sortedLocationsProxyModel()->rowCount(); i++) {
+            QModelIndex miCountry = backend_->locationsModelManager()->sortedLocationsProxyModel()->index(i, 0);
+            LocationID lid = qvariant_cast<LocationID>(miCountry.data(gui_locations::kLocationId));
+            QString countryName = miCountry.data(gui_locations::kName).toString();
+
+            if (lid.isBestLocation()) {
+                QString nickName = miCountry.data(gui_locations::kNick).toString();
+                IPC::CliCommands::IpcLocation location(countryName, "", nickName, 0);
+                if (miCountry.data(gui_locations::kIs10Gbps).toBool()) {
+                    location.flags |= (int)IPC::CliCommands::LocationFlags::k10Gbps;
+                }
+                locations << location;
+                continue;
+            }
+
+            for (int j = 0; j < miCountry.model()->rowCount(miCountry); j++) {
+                QModelIndex miCity = miCountry.model()->index(j, 0, miCountry);
+                QString cityName = miCity.data(gui_locations::kName).toString();
+                QString nickName = miCity.data(gui_locations::kNick).toString();
+
+                IPC::CliCommands::IpcLocation location(countryName, cityName, nickName, 0);
+                if (miCity.data(gui_locations::kIsDisabled).toBool()) {
+                    location.flags |= (int)IPC::CliCommands::LocationFlags::kDisabled;
+                }
+                if (miCity.data(gui_locations::kIsShowAsPremium).toBool()) {
+                    location.flags |= (int)IPC::CliCommands::LocationFlags::kPremium;
+                }
+                if (miCity.data(gui_locations::kIs10Gbps).toBool()) {
+                    location.flags |= (int)IPC::CliCommands::LocationFlags::k10Gbps;
+                }
+
+                locations << location;
+            }
+        }
+    } else if (type == IPC::CliCommands::LocationType::kStaticIp) {
+        for (int i = 0; i < backend_->locationsModelManager()->staticIpsProxyModel()->rowCount(); i++) {
+            QModelIndex miStatic = backend_->locationsModelManager()->staticIpsProxyModel()->index(i, 0);
+            locations << IPC::CliCommands::IpcLocation(miStatic.data(gui_locations::kName).toString(),
+                                                       "",
+                                                       miStatic.data(gui_locations::kNick).toString(),
+                                                       "",
+                                                       0);
+        }
+    } else if (type == IPC::CliCommands::LocationType::kFavourite) {
+        for (int i = 0; i < backend_->locationsModelManager()->favoriteCitiesProxyModel()->rowCount(); i++) {
+            QModelIndex miFavorite = backend_->locationsModelManager()->favoriteCitiesProxyModel()->index(i, 0);
+            QString cityName = miFavorite.data(gui_locations::kName).toString();
+            QString nickName = miFavorite.data(gui_locations::kNick).toString();
+
+            // Get pinned IP if available
+            QString pinnedIp;
+            QVariantList pinnedData = miFavorite.data(gui_locations::kPinnedIp).toList();
+            if (pinnedData.size() == 2) {
+                pinnedIp = pinnedData[1].toString();  // IP is the second element
+            }
+
+            int flags = 0;
+            if (miFavorite.data(gui_locations::kIsDisabled).toBool()) {
+                flags |= (int)IPC::CliCommands::LocationFlags::kDisabled;
+            }
+            if (miFavorite.data(gui_locations::kIsShowAsPremium).toBool()) {
+                flags |= (int)IPC::CliCommands::LocationFlags::kPremium;
+            }
+            if (miFavorite.data(gui_locations::kIs10Gbps).toBool()) {
+                flags |= (int)IPC::CliCommands::LocationFlags::k10Gbps;
+            }
+
+            locations << IPC::CliCommands::IpcLocation("", cityName, nickName, pinnedIp, flags);
+        }
+    } else {
+        WS_ASSERT(false);
+    }
+
+    return locations;
+}
+
 void LocalIPCServer::onServerCallbackAcceptFunction(IPC::Connection *connection)
 {
     qCDebug(LOG_IPC) << "Client connected:" << connection;
@@ -83,12 +167,8 @@ void LocalIPCServer::onConnectionCommandCallback(IPC::Command *command, IPC::Con
 
     if (command->getStringId() ==IPC::CliCommands::ShowLocations::getCommandStringId()) {
         IPC::CliCommands::ShowLocations *cmd = static_cast<IPC::CliCommands::ShowLocations *>(command);
-        emit showLocations(cmd->locationType_);
-#ifdef CLI_ONLY
-        // For a headless client, do not return Acknowledge here; we need the MainService to provide us
-        // the list of locations to return via sendLocations().
+        sendLocations(locationsList(cmd->locationType_), cmd->locationType_);
         return;
-#endif
     } else if (command->getStringId() == IPC::CliCommands::GetState::getCommandStringId()) {
         sendState();
         return;
@@ -101,28 +181,26 @@ void LocalIPCServer::onConnectionCommandCallback(IPC::Command *command, IPC::Con
         LocationID lid;
 
         if (type == IPC::CliCommands::LocationType::kStaticIp) {
-            emit connectToStaticIpLocation(locationStr, protocol, port);
-        } else {
-            if (locationStr.isEmpty()) {
-                lid = PersistentState::instance().lastLocation();
-                if (!lid.isValid()) {
-                    lid = backend_->locationsModelManager()->getBestLocationId();
-                }
-            } else if (locationStr == "best") {
+            lid = backend_->locationsModelManager()->findStaticIpLocation(locationStr);
+        } else if (locationStr.isEmpty()) {
+            lid = PersistentState::instance().lastLocation();
+            if (!lid.isValid()) {
                 lid = backend_->locationsModelManager()->getBestLocationId();
-            } else {
-                lid = backend_->locationsModelManager()->findLocationByFilter(locationStr);
             }
+        } else if (locationStr == "best") {
+            lid = backend_->locationsModelManager()->getBestLocationId();
+        } else {
+            lid = backend_->locationsModelManager()->findLocationByFilter(locationStr);
+        }
 
-            if (lid.isValid()) {
-                emit connectToLocation(lid, protocol, port);
-            } else if (backend_->isDisconnected()) {
-                // Already disconnected, just set the connect error
-                connectState_.connectError = ConnectError::kLocationUnavailable;
-            } else {
-                invalidLocation_ = true;
-                backend_->sendDisconnect();
-            }
+        if (lid.isValid()) {
+            emit connectToLocation(lid, protocol, port);
+        } else if (backend_->isDisconnected()) {
+            // Already disconnected, just set the connect error
+            connectState_.connectError = ConnectError::kLocationUnavailable;
+        } else {
+            invalidLocation_ = true;
+            backend_->sendDisconnect();
         }
     } else if (command->getStringId() == IPC::CliCommands::Disconnect::getCommandStringId()) {
         if (!backend_->isDisconnected()) {
@@ -160,9 +238,22 @@ void LocalIPCServer::onConnectionCommandCallback(IPC::Command *command, IPC::Con
             backend_->logout(cmd->isKeepFirewallOn_);
         }
     } else if (command->getStringId() == IPC::CliCommands::SendLogs::getCommandStringId()) {
+        awaitingDebugLogResult_ = true;
         backend_->sendDebugLog();
+        return;
     } else if (command->getStringId() == IPC::CliCommands::Update::getCommandStringId()) {
-        if (!updateAvailable_.isEmpty()) {
+#ifdef CLI_ONLY
+        const bool isInstallerStarted = false;
+#else
+        // The app runs the installer itself; asking again once it has would start a second download and installer.
+        const bool isInstallerStarted = updateState_ == UPDATE_VERSION_STATE_RUNNING
+            || (updateState_ == UPDATE_VERSION_STATE_DONE && updateError_ == UPDATE_VERSION_ERROR_NO_ERROR);
+#endif
+        if (!updateAvailable_.isEmpty() && !isInstallerStarted) {
+            // The outcome of an earlier attempt must not be read as this one's.
+            updateState_ = UPDATE_VERSION_STATE_INIT;
+            updateError_ = UPDATE_VERSION_ERROR_NO_ERROR;
+            updateProgress_ = 0;
 #ifdef CLI_ONLY
             backend_->sendUpdateVersion(0);
 #else
@@ -173,51 +264,56 @@ void LocalIPCServer::onConnectionCommandCallback(IPC::Command *command, IPC::Con
         IPC::CliCommands::SetKeyLimitBehavior *cmd = static_cast<IPC::CliCommands::SetKeyLimitBehavior *>(command);
         emit setKeyLimitBehavior(cmd->keyLimitDelete_);
     } else if (command->getStringId() == IPC::CliCommands::RotateIp::getCommandStringId()) {
-        if (awaitingIpRotateResult_) {
-            IPC::CliCommands::Acknowledge cmd;
+        IPC::CliCommands::Acknowledge cmd;
+        if (awaitingIpRotateResult_ || backend_->isIpRotateInFlight()) {
             cmd.code_ = 2;
             cmd.message_ = "IP rotate already in progress";
-            sendCommand(cmd);
-            return;
-        }
-        awaitingIpRotateResult_ = true;
-
-        qint64 msSinceLastResult = 0;
-        if (lastIpRotateResultTime_.isValid()) {
-            msSinceLastResult = lastIpRotateResultTime_.msecsTo(QDateTime::currentDateTime());
-        }
-
-        int delayMs = qMax(0LL, 2000 - msSinceLastResult);
-        QTimer::singleShot(delayMs, this, [this]() {
-            if (!isBridgeApiAvailable_) {
-                IPC::CliCommands::Acknowledge cmd;
-                cmd.code_ = 1;
-                cmd.message_ = "Bridge API not available";
-                sendCommand(cmd);
-                return;
-            }
-            backend_->rotateIp();
-        });
-        return;
-    } else if (command->getStringId() == IPC::CliCommands::FavIp::getCommandStringId()) {
-        if (!isBridgeApiAvailable_) {
-            IPC::CliCommands::Acknowledge cmd;
+        } else if (!isBridgeApiAvailable_) {
             cmd.code_ = 1;
             cmd.message_ = "Bridge API not available";
-            sendCommand(cmd);
+        } else if (!backend_->rotateIp()) {
+            cmd.code_ = 1;
+            cmd.message_ = "Could not rotate IP.";
+        } else {
+            // Only one rotation can be in flight, so the next result is this one's.
+            awaitingIpRotateResult_ = true;
             return;
         }
-        emit pinIp();
+        sendCommand(cmd);
+        return;
+    } else if (command->getStringId() == IPC::CliCommands::FavIp::getCommandStringId()) {
+        IPC::CliCommands::Acknowledge ack;
+        if (!isBridgeApiAvailable_) {
+            ack.code_ = 1;
+            ack.message_ = "Bridge API not available";
+        } else if (backend_->isAwaitingRotatedIp()) {
+            ack.code_ = 2;
+            ack.message_ = "IP rotate in progress";
+        } else if (isMyIpFromDisconnectedState_ || !backend_->locationsModelManager()->pinIp(
+                       backend_->currentLocation(), backend_->getCurrentConnectingHostname(), myIp_)) {
+            qCWarning(LOG_BASIC) << "Could not pin IP" << myIp_;
+            ack.code_ = 1;
+            ack.message_ = "Could not favourite IP";
+        } else {
+            qCInfo(LOG_BASIC) << "Pinning IP" << myIp_ << "for hostname" << backend_->getCurrentConnectingHostname();
+        }
+        sendCommand(ack);
+        return;
     } else if (command->getStringId() == IPC::CliCommands::UnfavIp::getCommandStringId()) {
         IPC::CliCommands::UnfavIp *cmd = static_cast<IPC::CliCommands::UnfavIp *>(command);
+        IPC::CliCommands::Acknowledge ack;
         if (!NetworkingValidation::isIp(cmd->ip_)) {
-            IPC::CliCommands::Acknowledge ack;
             ack.code_ = 2;
             ack.message_ = "Invalid IP address";
-            sendCommand(ack);
-            return;
+        } else if (!backend_->locationsModelManager()->unpinIp(cmd->ip_)) {
+            qCDebug(LOG_BASIC) << "IP" << cmd->ip_ << "not found in favorites";
+            ack.code_ = 1;
+            ack.message_ = "Could not unfavourite IP";
+        } else {
+            qCInfo(LOG_BASIC) << "Unpinned IP" << cmd->ip_;
         }
-        emit unpinIp(cmd->ip_);
+        sendCommand(ack);
+        return;
     } else if (command->getStringId() == IPC::CliCommands::ShowPorts::getCommandStringId()) {
         IPC::CliCommands::ShowPorts *cmd = static_cast<IPC::CliCommands::ShowPorts *>(command);
         types::Protocol protocol = types::Protocol::fromString(cmd->protocol_);
@@ -248,6 +344,11 @@ void LocalIPCServer::onConnectionStateCallback(int state, IPC::Connection *conne
         }
         connection->close();
         connection->deleteLater();
+
+        // A rotation or log upload already asked for still goes ahead, but its answer belongs to nobody now, and must not
+        // block or reach the next CLI.
+        awaitingIpRotateResult_ = false;
+        awaitingDebugLogResult_ = false;
     }
 }
 
@@ -313,6 +414,7 @@ void LocalIPCServer::sendState()
     cmd.trafficUsed_ = backend_->getAccountInfo()->trafficUsed();
     cmd.trafficMax_ = backend_->getAccountInfo()->plan();
     cmd.myIp_ = myIp_;
+    cmd.connectRequestCount_ = backend_->connectRequestCount();
     sendCommand(cmd);
 }
 
@@ -340,10 +442,6 @@ void LocalIPCServer::onBackendConnectStateChanged(const types::ConnectState &sta
             invalidLocation_ = false;
         }
     }
-
-    if (awaitingIpRotateResult_ && connectState_.connectState != CONNECT_STATE_CONNECTED) {
-        onBackendIpRotateResult(false);
-    }
 }
 
 void LocalIPCServer::onBackendProtocolPortChanged(const types::Protocol &protocol, uint port)
@@ -357,9 +455,10 @@ void LocalIPCServer::onBackendInternetConnectivityChanged(bool connectivity)
     connectivity_ = connectivity;
 }
 
-void LocalIPCServer::onBackendMyIpChanged(const QString &ip, bool /*isFromDisconnectedState*/)
+void LocalIPCServer::onBackendMyIpChanged(const QString &ip, bool isFromDisconnectedState)
 {
     myIp_ = ip;
+    isMyIpFromDisconnectedState_ = isFromDisconnectedState;
 }
 
 void LocalIPCServer::onBackendTestTunnelResult(bool success)
@@ -412,7 +511,6 @@ void LocalIPCServer::onBackendIpRotateResult(bool success)
     }
 
     awaitingIpRotateResult_ = false;
-    lastIpRotateResultTime_ = QDateTime::currentDateTime();
 
     IPC::CliCommands::Acknowledge cmd;
     if (success) {
@@ -422,5 +520,18 @@ void LocalIPCServer::onBackendIpRotateResult(bool success)
         cmd.code_ = 1;
         cmd.message_ = "Could not rotate IP.";
     }
+    sendCommand(cmd);
+}
+
+void LocalIPCServer::onBackendDebugLogResult(bool success)
+{
+    if (!awaitingDebugLogResult_) {
+        return;
+    }
+
+    awaitingDebugLogResult_ = false;
+
+    IPC::CliCommands::Acknowledge cmd;
+    cmd.code_ = success ? 0 : 1;
     sendCommand(cmd);
 }

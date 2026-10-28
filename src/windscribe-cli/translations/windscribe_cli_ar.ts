@@ -20,8 +20,16 @@
         <translation>لا توجد منافذ متاحة للبروتوكول المحدد.</translation>
     </message>
     <message>
+        <source>Could not send logs.</source>
+        <translation>تعذّر إرسال السجلات.</translation>
+    </message>
+    <message>
         <source>Could not rotate IP.  Please check that you have Windscribe Pro or have this location in your plan, or try again later.</source>
         <translation>تعذر تدوير IP.  يرجى التحقق من أن لديك Windscribe Pro أو أن لديك هذا الموقع في خطتك ، أو حاول مرة أخرى لاحقا.</translation>
+    </message>
+    <message>
+        <source>The IP is still being rotated.  Try again in a moment.</source>
+        <translation>لا يزال تدوير IP جاريًا.  حاول مرة أخرى بعد قليل.</translation>
     </message>
     <message>
         <source>Could not favourite IP.  Please check that you have Windscribe Pro or have this location in your plan, or try again later.</source>
@@ -235,6 +243,10 @@
         <translation>خطأ في التحديث: فشل التنزيل. يرجى المحاولة مرة أخرى أو تجربة شبكة مختلفة.</translation>
     </message>
     <message>
+        <source>Update cancelled.</source>
+        <translation>تم إلغاء التحديث.</translation>
+    </message>
+    <message>
         <source>Update error: %1</source>
         <translation>خطأ في التحديث: %1</translation>
     </message>
@@ -265,6 +277,10 @@
     <message>
         <source>Password too short</source>
         <translation>كلمة المرور قصيرة جدا</translation>
+    </message>
+    <message>
+        <source>The update installer has started.</source>
+        <translation>تم بدء تشغيل مثبّت التحديث.</translation>
     </message>
     <message>
         <source>Connection is in progress.  Use &apos;windscribe-cli status&apos; to check for connection status.</source>

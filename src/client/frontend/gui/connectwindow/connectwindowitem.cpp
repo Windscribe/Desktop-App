@@ -121,13 +121,6 @@ ConnectWindowItem::ConnectWindowItem(QGraphicsObject *parent, Preferences *prefe
     connect(favouriteAnimation_, &QVariantAnimation::valueChanged, this, &ConnectWindowItem::onFavouriteAnimationValueChanged);
     connect(favouriteAnimation_, &QVariantAnimation::finished, this, &ConnectWindowItem::onFavouriteAnimationFinished);
 
-    rotateButtonReenableTimer_ = new QTimer(this);
-    rotateButtonReenableTimer_->setSingleShot(true);
-    rotateButtonReenableTimer_->setInterval(2000);
-    connect(rotateButtonReenableTimer_, &QTimer::timeout, this, [this]() {
-        ipUtilsMenu_->setRotateButtonEnabled(true);
-    });
-
     firewallLabel_ = new CommonGraphics::TextButton(tr("FIREWALL"), FontDescr(12, QFont::DemiBold, 100, 1.44), Qt::white, false, this, 0, false);
     firewallLabel_->setUnhoverOpacity(0.6);
     firewallLabel_->setCurrentOpacity(0.6);
@@ -693,7 +686,7 @@ void ConnectWindowItem::setIpUtilsEnabled(bool enabled)
     if (enabled) {
         dotMenuButton_->setUnhoverOpacity(0.6);
         dotMenuButton_->setHoverOpacity(OPACITY_FULL);
-        ipUtilsMenu_->setRotateButtonEnabled(true);
+        ipUtilsMenu_->setRotateButtonEnabled(isIpRotateReady_);
     } else {
         dotMenuButton_->setUnhoverOpacity(OPACITY_QUARTER);
         dotMenuButton_->setHoverOpacity(OPACITY_QUARTER);
@@ -702,10 +695,10 @@ void ConnectWindowItem::setIpUtilsEnabled(bool enabled)
     dotMenuButton_->unhover();
 }
 
-void ConnectWindowItem::onIpRotateResult(bool success)
+void ConnectWindowItem::setIpRotateReady(bool ready)
 {
-    Q_UNUSED(success);
-    rotateButtonReenableTimer_->start();
+    isIpRotateReady_ = ready;
+    ipUtilsMenu_->setRotateButtonEnabled(ready);
 }
 
 void ConnectWindowItem::onIpAddressWidthChanged(int width)
@@ -728,6 +721,14 @@ void ConnectWindowItem::onIpUtilsMenuFavouriteClick()
         hideIpUtilsMenu(true);
         emit unpinIp(currentIp);
     } else {
+        hideIpUtilsMenu(true);
+        emit pinIp(currentIp);
+        // The pin is applied before emit returns, and can be refused (e.g. while the IP is being rotated); only a pin that took is
+        // celebrated.
+        if (!isIpPinned_) {
+            return;
+        }
+
         if (favouriteAnimationIcon_ != nullptr) {
             delete favouriteAnimationIcon_;
         }
@@ -737,21 +738,15 @@ void ConnectWindowItem::onIpUtilsMenuFavouriteClick()
         favouriteAnimationIcon_->setOpacity(0.0);
         favouriteAnimationIcon_->setVisible(true);
 
-        hideIpUtilsMenu(true);
-
         favouriteAnimation_->stop();
         favouriteAnimation_->setStartValue(0.0);
         favouriteAnimation_->setEndValue(2.0);  // 0-1 for fade in, 1-2 for fade out + move
         favouriteAnimation_->start();
-
-        emit pinIp(currentIp);
     }
 }
 
 void ConnectWindowItem::onIpUtilsMenuRotateClick()
 {
-    rotateButtonReenableTimer_->stop();
-    ipUtilsMenu_->setRotateButtonEnabled(false);
     hideIpUtilsMenu(true);
     emit rotateIpClick();
 }

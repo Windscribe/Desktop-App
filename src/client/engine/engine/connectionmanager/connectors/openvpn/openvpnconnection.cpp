@@ -589,7 +589,7 @@ void OpenVPNConnection::handleRead(const boost::system::error_code &err, size_t 
         // skip log out BYTECOUNT
         if (!serverReply.contains(">BYTECOUNT:", Qt::CaseInsensitive))
         {
-            qCInfo(LOG_OPENVPN) << serverReply;
+            qCInfo(LOG_OPENVPN) << redactManagementLine(serverReply);
         }
         if (serverReply.contains("HOLD:Waiting for hold release", Qt::CaseInsensitive))
         {
@@ -970,6 +970,18 @@ QString OpenVPNConnection::sanitizeString(const QString &s)
     result.replace("\"", "\\\"");
     result.replace("\t", "\\t");
     return result;
+}
+
+QString OpenVPNConnection::redactManagementLine(const QString &line)
+{
+    // OpenVPN echoes management commands into its log: it masks the password itself, but not the username.
+    static const QRegularExpression re(R"re(MANAGEMENT: CMD 'username "Auth" "((?:[^"\\]|\\.)*)")re");
+    const QRegularExpressionMatch match = re.match(line);
+    if (!match.hasMatch()) {
+        return line;
+    }
+    QString result = line;
+    return result.replace(match.capturedStart(1), match.capturedLength(1), Utils::redactCredential(match.captured(1)));
 }
 
 bool OpenVPNConnection::parsePushReply(const QString &reply, AdapterGatewayInfo &outConnectionAdapterInfo, bool &outRedirectDefaultGateway)

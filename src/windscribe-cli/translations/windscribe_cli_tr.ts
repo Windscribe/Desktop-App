@@ -20,8 +20,16 @@
         <translation>Belirtilen protokol için port bulunmamaktadır.</translation>
     </message>
     <message>
+        <source>Could not send logs.</source>
+        <translation>Günlükler gönderilemedi.</translation>
+    </message>
+    <message>
         <source>Could not rotate IP.  Please check that you have Windscribe Pro or have this location in your plan, or try again later.</source>
         <translation>IP döndürülemedi.  Lütfen Windscribe Pro&apos;ya sahip olup olmadığınızı veya planınızda bu konumun olup olmadığını kontrol edin veya daha sonra tekrar deneyin.</translation>
+    </message>
+    <message>
+        <source>The IP is still being rotated.  Try again in a moment.</source>
+        <translation>IP döndürme işlemi hâlâ devam ediyor.  Lütfen biraz sonra tekrar deneyin.</translation>
     </message>
     <message>
         <source>Could not favourite IP.  Please check that you have Windscribe Pro or have this location in your plan, or try again later.</source>
@@ -235,6 +243,10 @@
         <translation>Güncelleme hatası: indirme başarısız oldu. Lütfen tekrar deneyin veya farklı bir ağ deneyin.</translation>
     </message>
     <message>
+        <source>Update cancelled.</source>
+        <translation>Güncelleme iptal edildi.</translation>
+    </message>
+    <message>
         <source>Update error: %1</source>
         <translation>Güncelleştirme hatası: %1</translation>
     </message>
@@ -265,6 +277,10 @@
     <message>
         <source>Password too short</source>
         <translation>Şifre çok kısa</translation>
+    </message>
+    <message>
+        <source>The update installer has started.</source>
+        <translation>Güncelleme yükleyicisi başlatıldı.</translation>
     </message>
     <message>
         <source>Connection is in progress.  Use &apos;windscribe-cli status&apos; to check for connection status.</source>

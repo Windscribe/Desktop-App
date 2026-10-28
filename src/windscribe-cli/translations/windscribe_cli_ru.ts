@@ -20,8 +20,16 @@
         <translation>Порты для указанного протокола недоступны.</translation>
     </message>
     <message>
+        <source>Could not send logs.</source>
+        <translation>Не удалось отправить журналы.</translation>
+    </message>
+    <message>
         <source>Could not rotate IP.  Please check that you have Windscribe Pro or have this location in your plan, or try again later.</source>
         <translation>Не удалось сменить IP. Убедитесь, что у вас есть Windscribe Pro или что это местоположение входит в ваш план, либо повторите попытку позже.</translation>
+    </message>
+    <message>
+        <source>The IP is still being rotated.  Try again in a moment.</source>
+        <translation>Смена IP ещё выполняется. Повторите попытку через минуту.</translation>
     </message>
     <message>
         <source>Could not favourite IP.  Please check that you have Windscribe Pro or have this location in your plan, or try again later.</source>
@@ -235,6 +243,10 @@
         <translation>Ошибка обновления: загрузка не удалась. Повторите попытку или попробуйте использовать другую сеть.</translation>
     </message>
     <message>
+        <source>Update cancelled.</source>
+        <translation>Обновление отменено.</translation>
+    </message>
+    <message>
         <source>Update error: %1</source>
         <translation>Ошибка обновления: %1</translation>
     </message>
@@ -265,6 +277,10 @@
     <message>
         <source>Password too short</source>
         <translation>Слишком короткий пароль</translation>
+    </message>
+    <message>
+        <source>The update installer has started.</source>
+        <translation>Установщик обновления запущен.</translation>
     </message>
     <message>
         <source>Connection is in progress.  Use &apos;windscribe-cli status&apos; to check for connection status.</source>

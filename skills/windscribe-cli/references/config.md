@@ -1,6 +1,6 @@
 # Configuration File (Linux CLI-only)
 
-The Linux CLI-only build reads preferences from `~/.config/Windscribe/windscribe_cli.conf` (QSettings INI format). Edit this file and run `windscribe-cli preferences reload` to apply changes.
+The Linux CLI-only build reads preferences from `~/.config/Windscribe/windscribe_cli.conf` (QSettings INI format). Changes apply automatically as soon as the file is saved.
 
 **⚠️ This applies only to the Linux CLI-only build. Windows, macOS, and Linux GUI builds manage these settings through the GUI.**
 
@@ -91,13 +91,11 @@ SplitTunnelingRoutes=192.168.1.0/24, example.com
 
 ## Applying Changes
 
-```bash
-windscribe-cli preferences reload
-```
+Changes apply automatically as soon as the file is saved. `windscribe-cli preferences reload` is no longer needed and does nothing.
 
 ## ⚠️ Known Issue: AI Agent Hangs After Disabling AllowLANTraffic
 
-When `AllowLANTraffic` is set to `false` and preferences are reloaded, the firewall rules update while VPN is active. This can disrupt the AI agent's outbound connection — the TCP connection dies when the firewall state changes, causing the agent to hang on a broken socket.
+When `AllowLANTraffic` is set to `false` and the file is saved, the firewall rules update while VPN is active. This can disrupt the AI agent's outbound connection — the TCP connection dies when the firewall state changes, causing the agent to hang on a broken socket.
 
 **Symptoms:** First command after the change works normally. Second command may execute but return no feedback. Subsequent commands hang indefinitely.
 

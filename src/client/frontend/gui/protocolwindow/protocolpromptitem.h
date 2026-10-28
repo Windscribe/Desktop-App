@@ -2,16 +2,18 @@
 
 #include <QKeyEvent>
 #include <QSet>
-#include "types/protocolstatus.h"
+#include <QTimer>
+
 #include "backend/backend.h"
 #include "backend/preferences/preferences.h"
 #include "backend/preferences/preferenceshelper.h"
-#include "commongraphics/imageitem.h"
 #include "commongraphics/basepage.h"
+#include "commongraphics/imageitem.h"
 #include "commongraphics/listbutton.h"
 #include "connectwindow/connectwindowitem.h"
 #include "protocolwindow/protocollineitem.h"
 #include "protocolwindow/protocolwindowmode.h"
+#include "types/protocolstatus.h"
 
 namespace ProtocolWindow {
 

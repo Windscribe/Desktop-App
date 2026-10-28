@@ -20,8 +20,16 @@
         <translation>Pre špecifikovaný protokol nie sú k dispozícii žiadne porty.</translation>
     </message>
     <message>
+        <source>Could not send logs.</source>
+        <translation>Protokoly sa nepodarilo odoslať.</translation>
+    </message>
+    <message>
         <source>Could not rotate IP.  Please check that you have Windscribe Pro or have this location in your plan, or try again later.</source>
         <translation>Nepodarilo sa rotovať IP. Skontrolujte, či máte Windscribe Pro alebo či máte toto umiestnenie v pláne, alebo to skúste neskôr.</translation>
+    </message>
+    <message>
+        <source>The IP is still being rotated.  Try again in a moment.</source>
+        <translation>Rotácia IP stále prebieha.  Skúste to znova o chvíľu.</translation>
     </message>
     <message>
         <source>Could not favourite IP.  Please check that you have Windscribe Pro or have this location in your plan, or try again later.</source>
@@ -235,6 +243,10 @@
         <translation>Chyba aktualizácie: sťahovanie sa nepodarilo. Prosím, skúste to znova alebo skúste inú sieť.</translation>
     </message>
     <message>
+        <source>Update cancelled.</source>
+        <translation>Aktualizácia bola zrušená.</translation>
+    </message>
+    <message>
         <source>Update error: %1</source>
         <translation>Chyba aktualizácie: %1</translation>
     </message>
@@ -265,6 +277,10 @@
     <message>
         <source>Password too short</source>
         <translation>Heslo je príliš krátke</translation>
+    </message>
+    <message>
+        <source>The update installer has started.</source>
+        <translation>Inštalátor aktualizácie bol spustený.</translation>
     </message>
     <message>
         <source>Connection is in progress.  Use &apos;windscribe-cli status&apos; to check for connection status.</source>

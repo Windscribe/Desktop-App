@@ -20,8 +20,16 @@
         <translation>هیچ پورتی برای پروتکل مشخص شده در دسترس نیست.</translation>
     </message>
     <message>
+        <source>Could not send logs.</source>
+        <translation>ارسال گزارش‌ها ناموفق بود.</translation>
+    </message>
+    <message>
         <source>Could not rotate IP.  Please check that you have Windscribe Pro or have this location in your plan, or try again later.</source>
         <translation>IP نمی تواند بچرخد.  لطفا بررسی کنید که Windscribe Pro دارید یا این مکان را در برنامه خود دارید، یا بعدا دوباره امتحان کنید.</translation>
+    </message>
+    <message>
+        <source>The IP is still being rotated.  Try again in a moment.</source>
+        <translation>چرخش IP هنوز در حال انجام است.  لطفاً چند لحظه دیگر دوباره امتحان کنید.</translation>
     </message>
     <message>
         <source>Could not favourite IP.  Please check that you have Windscribe Pro or have this location in your plan, or try again later.</source>
@@ -235,6 +243,10 @@
         <translation>خطای بروزرسانی: بارگیری شکست خورد. لطفا دوباره تلاش کنید یا یک شبکه دیگر را امتحان کنید.</translation>
     </message>
     <message>
+        <source>Update cancelled.</source>
+        <translation>به‌روزرسانی لغو شد.</translation>
+    </message>
+    <message>
         <source>Update error: %1</source>
         <translation>خطای بهروزرسانی:%1</translation>
     </message>
@@ -265,6 +277,10 @@
     <message>
         <source>Password too short</source>
         <translation>رمز عبور خیلی کوتاه است</translation>
+    </message>
+    <message>
+        <source>The update installer has started.</source>
+        <translation>برنامه نصب به‌روزرسانی اجرا شد.</translation>
     </message>
     <message>
         <source>Connection is in progress.  Use &apos;windscribe-cli status&apos; to check for connection status.</source>

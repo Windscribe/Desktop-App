@@ -16,6 +16,4 @@ public:
 signals:
     void macAddrSpoofingChanged(const types::MacAddrSpoofing &macAddrSpoofing);
     void sendUserWarning(USER_WARNING_TYPE userWarningType);
-    // MacOS only
-    void macSpoofApplied();
 };

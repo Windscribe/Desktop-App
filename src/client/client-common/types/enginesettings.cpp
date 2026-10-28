@@ -464,6 +464,10 @@ void EngineSettingsData::validate()
 
     proxySettings.validate();
     connectedDnsInfo.validate();
+#ifdef Q_OS_MACOS
+    // MAC spoofing is not supported on macOS, so no load or import may carry an enabled setting.
+    macAddrSpoofing = types::MacAddrSpoofing();
+#endif
     macAddrSpoofing.validate();
     connectionSettings.validate();
     firewallSettings.validate();

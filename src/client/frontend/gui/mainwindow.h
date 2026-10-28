@@ -2,6 +2,7 @@
 
 #include <QSocketNotifier>
 #include <QSystemTrayIcon>
+#include <QTimer>
 #include <QWidget>
 #include <QWidgetAction>
 
@@ -106,8 +107,8 @@ private slots:
     void onConnectWindowLocationTabClicked(LOCATION_TAB tab);
     void onConnectWindowSearchFilterChanged(const QString &filter);
     void onConnectWindowLocationsKeyPressed(QKeyEvent *event);
-    void onPinIp(); // Also used by IPC
-    void onUnpinIp(const QString &ip); // Also used by IPC
+    void onPinIp();
+    void onUnpinIp(const QString &ip);
 
     // news feed window signals
     void onEscapeNotificationsClick();
@@ -232,6 +233,8 @@ private slots:
     void onSplitTunnelingStartFailed(SPLIT_TUNNEL_START_FAIL_REASON reason);
     void onBackendBridgeApiAvailabilityChanged(bool isAvailable);
     void onBackendIpRotateResult(bool success);
+    void onBackendIpRotateReadyChanged();
+    void onLocationsModelDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QList<int> &roles);
     void onBackendClearWifiHistoryFinished(bool bSuccess);
 
     void onBackendEngineCrash();
@@ -265,9 +268,7 @@ private slots:
     void onAppCloseRequest();
 
     // LocalIPCServer signals
-    void onIpcOpenLocations(IPC::CliCommands::LocationType type);
     void onIpcConnect(const LocationID &id, const types::Protocol &protocol, uint port);
-    void onIpcConnectStaticIp(const QString &location, const types::Protocol &protocol, uint port);
     void onIpcUpdate();
 
     void showShutdownWindow();
@@ -307,6 +308,8 @@ private slots:
 
 private:
     SplitTunnelFailurePolicy splitTunnelFailurePolicy_;
+    // The selected location as the API knows it, which is what carries a pinned IP: Best Location is an alias and has none.
+    QModelIndex selectedApiLocationIndex() const;
     void gotoWelcomeWindow();
     void gotoLoginWindow();
     void gotoLogoutWindow();
@@ -412,6 +415,8 @@ private:
 
     bool sendDebugLogOnDisconnect_;
     bool receivedInitialIpAfterConnect_;
+    // The address last shown, which is what a pin is compared against.
+    QString myIp_;
 
     QSocketNotifier *socketNotifier_;
     int fd_;

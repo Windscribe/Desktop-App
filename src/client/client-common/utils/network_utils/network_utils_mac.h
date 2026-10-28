@@ -35,13 +35,8 @@ namespace NetworkUtils_mac
 
     QString lastConnectedNetworkInterfaceName();
 
-    QString trueMacAddress(const QString &interfaceName);
-
     bool isWifiAdapter(const QString &networkInterface);
     bool isAdapterUp(const QString &networkInterfaceName);
-
-    bool isInterfaceSpoofed(const QString &interfaceName);
-    bool checkMacAddr(const QString& interfaceName, const QString& macAddr);
 
     bool pingWithMtu(const QString &url, int mtu);
     QString getLocalIP();

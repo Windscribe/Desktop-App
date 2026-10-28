@@ -20,8 +20,16 @@
         <translation>指定されたプロトコル用のポートはありません。</translation>
     </message>
     <message>
+        <source>Could not send logs.</source>
+        <translation>ログを送信できませんでした。</translation>
+    </message>
+    <message>
         <source>Could not rotate IP.  Please check that you have Windscribe Pro or have this location in your plan, or try again later.</source>
         <translation>IP をローテーションできませんでした。 Windscribe Pro を使用しているか、この場所がプランに含まれていることを確認するか、後でもう一度試してください。</translation>
+    </message>
+    <message>
+        <source>The IP is still being rotated.  Try again in a moment.</source>
+        <translation>IPのローテーションはまだ進行中です。しばらくしてからもう一度お試しください。</translation>
     </message>
     <message>
         <source>Could not favourite IP.  Please check that you have Windscribe Pro or have this location in your plan, or try again later.</source>
@@ -235,6 +243,10 @@
         <translation>更新エラー: ダウンロードに失敗しました。もう一度やり直すか、別のネットワークを試してください。</translation>
     </message>
     <message>
+        <source>Update cancelled.</source>
+        <translation>アップデートをキャンセルしました。</translation>
+    </message>
+    <message>
         <source>Update error: %1</source>
         <translation>更新エラー: %1</translation>
     </message>
@@ -265,6 +277,10 @@
     <message>
         <source>Password too short</source>
         <translation>パスワードが短すぎます</translation>
+    </message>
+    <message>
+        <source>The update installer has started.</source>
+        <translation>アップデートのインストーラーを起動しました。</translation>
     </message>
     <message>
         <source>Connection is in progress.  Use &apos;windscribe-cli status&apos; to check for connection status.</source>

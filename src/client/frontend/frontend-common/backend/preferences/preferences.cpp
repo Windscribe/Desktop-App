@@ -932,6 +932,8 @@ void Preferences::loadGuiSettings()
 
 #ifdef Q_OS_LINUX
     LinuxUtils::migrateSplitTunnelingFlatpakApps(guiSettings_.splitTunneling.apps);
+    // Migration can turn an old entry into an app ID that is already in the list.
+    guiSettings_.splitTunneling.validate();
 #endif
 
     qCInfo(LOG_BASIC) << "GUI settings" << guiSettings_;
@@ -977,6 +979,7 @@ void Preferences::loadIni()
     // This is a bit roundabount but ensures that all the correct signals are emitted.
     types::GuiSettings gs = guiSettings_;
     gs.fromIni(settings);
+    gs.validate();
 
     types::EngineSettings es = engineSettings_;
     es.fromIni(settings);

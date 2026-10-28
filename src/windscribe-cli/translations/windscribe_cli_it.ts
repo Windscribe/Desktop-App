@@ -20,8 +20,16 @@
         <translation>Nessuna porta disponibile per il protocollo specificato.</translation>
     </message>
     <message>
+        <source>Could not send logs.</source>
+        <translation>Impossibile inviare i registri.</translation>
+    </message>
+    <message>
         <source>Could not rotate IP.  Please check that you have Windscribe Pro or have this location in your plan, or try again later.</source>
         <translation>Impossibile ruotare IP.  Verifica di avere Windscribe Pro o di avere questa posizione nel tuo piano, oppure riprova più tardi.</translation>
+    </message>
+    <message>
+        <source>The IP is still being rotated.  Try again in a moment.</source>
+        <translation>La rotazione IP è ancora in corso.  Riprova tra un momento.</translation>
     </message>
     <message>
         <source>Could not favourite IP.  Please check that you have Windscribe Pro or have this location in your plan, or try again later.</source>
@@ -235,6 +243,10 @@
         <translation>Errore di aggiornamento: download non riuscito. Riprova o prova un&apos;altra rete.</translation>
     </message>
     <message>
+        <source>Update cancelled.</source>
+        <translation>Aggiornamento annullato.</translation>
+    </message>
+    <message>
         <source>Update error: %1</source>
         <translation>Errore di aggiornamento: %1</translation>
     </message>
@@ -265,6 +277,10 @@
     <message>
         <source>Password too short</source>
         <translation>Password troppo corta</translation>
+    </message>
+    <message>
+        <source>The update installer has started.</source>
+        <translation>Il programma di installazione dell&apos;aggiornamento è stato avviato.</translation>
     </message>
     <message>
         <source>Connection is in progress.  Use &apos;windscribe-cli status&apos; to check for connection status.</source>

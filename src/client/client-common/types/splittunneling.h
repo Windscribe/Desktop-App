@@ -1,5 +1,8 @@
 #pragma once
 
+#include <algorithm>
+
+#include <QDir>
 #include <QFile>
 #include <QJsonArray>
 #include <QJsonObject>
@@ -285,6 +288,8 @@ struct SplitTunnelingApp
     void validate()
     {
         type = enumFromInt<SPLIT_TUNNELING_APP_TYPE>(static_cast<int>(type));
+        // The Windows file dialog returns forward slashes, while the app picker uses backslashes.
+        fullName = QDir::toNativeSeparators(fullName);
     }
 
 private:
@@ -493,11 +498,17 @@ struct SplitTunneling
                 droppedInvalidApps++;
                 continue;
             }
+            app.validate();
+            auto duplicate = std::find_if(filteredApps.begin(), filteredApps.end(),
+                                          [&app](const SplitTunnelingApp &a) { return a.fullName == app.fullName; });
+            if (duplicate != filteredApps.end()) {
+                duplicate->active = duplicate->active || app.active;
+                continue;
+            }
             if (filteredApps.size() >= kMaxApps) {
                 droppedAppsOverCap++;
                 continue;
             }
-            app.validate();
             filteredApps.append(app);
         }
         if (droppedInvalidApps > 0) {

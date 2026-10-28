@@ -1,7 +1,6 @@
 #pragma once
 
 #include <QGraphicsObject>
-#include <QTimer>
 #include <QVariantAnimation>
 
 #include "background.h"
@@ -57,7 +56,8 @@ public slots:
     void setSplitTunnelingState(bool on);
     void setInternetConnectivity(bool connectivity);
     void setProtocolPort(const types::Protocol &protocol, const uint port);
-    void onIpRotateResult(bool success);
+    // Whether the rotate item may be used right now; the app decides this for the GUI and the command line alike.
+    void setIpRotateReady(bool ready);
 
     void onConnectStateTextHoverEnter();
     void onConnectStateTextHoverLeave();
@@ -138,7 +138,6 @@ private:
     IPAddressItem *ipAddressItem_;
     CommonGraphics::TextButton *firewallLabel_;
     LogoNotificationsButton *logoButton_;
-    QTimer *rotateButtonReenableTimer_;
 
     types::ConnectState prevConnectState_;
 
@@ -151,6 +150,7 @@ private:
     bool isFirewallAlwaysOn_;
     bool isPremium_;
     bool isIpUtilsEnabled_;
+    bool isIpRotateReady_ = true;
     bool isIpPinned_;
 
     void updatePositions();

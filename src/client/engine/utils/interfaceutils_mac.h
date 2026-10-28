@@ -14,7 +14,6 @@ public:
 
     const types::NetworkInterface currentNetworkInterface();
     QVector<types::NetworkInterface> currentNetworkInterfaces(bool includeNoInterface);
-    QVector<types::NetworkInterface> currentSpoofedInterfaces();
 
 private:
     InterfaceUtils_mac();

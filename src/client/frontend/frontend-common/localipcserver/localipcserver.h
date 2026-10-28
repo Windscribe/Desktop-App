@@ -1,13 +1,12 @@
 #pragma once
 
 #include <QVector>
-#include <QDateTime>
-#include <QTimer>
+
 #include "api_responses/checkupdate.h"
 #include "backend/backend.h"
 #include "ipc/clicommands.h"
-#include "ipc/server.h"
 #include "ipc/connection.h"
+#include "ipc/server.h"
 #include "types/connectstate.h"
 #include "types/enums.h"
 #include "types/protocol.h"
@@ -21,19 +20,14 @@ public:
     ~LocalIPCServer();
 
     void start();
-    void sendLocations(const QList<IPC::CliCommands::IpcLocation> &locations, IPC::CliCommands::LocationType type);
     void setDisconnectedByKeyLimit();
 
 signals:
-    void showLocations(IPC::CliCommands::LocationType type);
     void connectToLocation(const LocationID &id, const types::Protocol &protocol, uint port);
-    void connectToStaticIpLocation(const QString &location, const types::Protocol &protocol, uint port);
     void attemptLogin(const QString &username, const QString &password, const QString &code2fa);
     void setKeyLimitBehavior(bool deleteKey);
     void setIgnoreSslErrors(bool ignore);
     void update();
-    void pinIp();
-    void unpinIp(const QString &ip);
 
 private slots:
     void onServerCallbackAcceptFunction(IPC::Connection *connection);
@@ -55,6 +49,7 @@ private slots:
     void onBackendConnectionIdChanged(const QString &connId);
     void onBackendBridgeApiAvailabilityChanged(bool isAvailable);
     void onBackendIpRotateResult(bool success);
+    void onBackendDebugLogResult(bool success);
 
     void onLocationsModelManagerDeviceNameChanged(const QString &deviceName);
 
@@ -87,9 +82,12 @@ private:
     bool invalidLocation_ = false;
     bool isBridgeApiAvailable_ = false;
     bool awaitingIpRotateResult_ = false;
-    QDateTime lastIpRotateResultTime_;
+    bool awaitingDebugLogResult_ = false;
     QString myIp_;
+    bool isMyIpFromDisconnectedState_ = true;
 
     void sendState();
     void sendCommand(const IPC::Command &command);
+    QList<IPC::CliCommands::IpcLocation> locationsList(IPC::CliCommands::LocationType type) const;
+    void sendLocations(const QList<IPC::CliCommands::IpcLocation> &locations, IPC::CliCommands::LocationType type);
 };

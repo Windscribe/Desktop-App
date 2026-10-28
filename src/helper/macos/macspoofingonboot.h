@@ -1,22 +1,8 @@
 #pragma once
 
-#include <string>
+namespace MacSpoofingOnBoot {
 
-class MacSpoofingOnBootManager
-{
-public:
-    static MacSpoofingOnBootManager& instance()
-    {
-        static MacSpoofingOnBootManager msobm;
-        return msobm;
-    }
+// Removes the boot-time MAC spoofing daemon that older versions could install.
+void remove();
 
-    bool setEnabled(bool bEnabled, const std::string &interface, const std::string &macAddress);
-
-private:
-    MacSpoofingOnBootManager();
-    ~MacSpoofingOnBootManager();
-
-    bool enable(const std::string &interface, const std::string &macAddress);
-    bool disable();
-};
+} // namespace MacSpoofingOnBoot

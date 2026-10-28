@@ -568,8 +568,6 @@ void PreferencesWindowItem::setPreferencesWindowToSplitTunnelingAppsHome()
 
 void PreferencesWindowItem::addApplicationManually(QString filename)
 {
-    QList<types::SplitTunnelingApp> apps = splitTunnelingAppsWindowItem_->getApps();
-
     QString friendlyName = Utils::fileNameFromFullPath(filename);
 
     types::SplitTunnelingApp app;
@@ -577,20 +575,23 @@ void PreferencesWindowItem::addApplicationManually(QString filename)
     app.active = true;
     app.type = SPLIT_TUNNELING_APP_TYPE_USER;
 #if defined(Q_OS_LINUX)
-    // On Linux, get the canonical path (without ., .., or symlinks)
-    std::error_code ec;
-    app.fullName = QString::fromStdString(std::filesystem::canonical(filename.toStdString(), ec));
-
-    if (ec) {
-        WS_ASSERT(false);
+    if (filename.startsWith("/snap/bin/")) {
+        // Every snap command links to the snap launcher, so only the command's own path identifies the snap.
         app.fullName = filename;
+    } else {
+        // On Linux, get the canonical path (without ., .., or symlinks)
+        std::error_code ec;
+        app.fullName = QString::fromStdString(std::filesystem::canonical(filename.toStdString(), ec));
+
+        if (ec) {
+            WS_ASSERT(false);
+            app.fullName = filename;
+        }
     }
 #else
     app.fullName = filename;
 #endif
-    apps.append(app);
-
-    updateSplitTunnelingAppsCount(apps);
+    app.validate();
     splitTunnelingAppsWindowItem_->addAppManually(app);
 }
 

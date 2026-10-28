@@ -1,11 +1,13 @@
 #include <signal.h>
-#include <syslog.h>
-#include <spdlog/spdlog.h>
 #include <spdlog/sinks/rotating_file_sink.h>
-#include <sys/stat.h>
+#include <spdlog/spdlog.h>
 #include <stdio.h>
-#include "utils/log/spdlog_utils.h"
+#include <sys/stat.h>
+#include <syslog.h>
+
+#include "macspoofingonboot.h"
 #include "server.h"
+#include "utils/log/spdlog_utils.h"
 
 Server server;
 
@@ -49,6 +51,8 @@ int main(int argc, const char *argv[])
     }
 
     spdlog::info("=== Started ===");
+
+    MacSpoofingOnBoot::remove();
 
     signal(SIGSEGV, handler_sigterm);
     signal(SIGFPE, handler_sigterm);

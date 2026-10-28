@@ -1511,10 +1511,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Отключение параметра «Разрешить трафик локальной сети» приведет к тому, что ваша защищенная точка доступа перестанет работать.  Вы хотите отключить точку доступа?</translation>
     </message>
     <message>
-        <source>MAC spoofing is not supported on your version of MacOS.</source>
-        <translation>Подмена MAC-адресов не поддерживается в вашей версии MacOS.</translation>
-    </message>
-    <message>
         <source>Automatically determine the MTU for your connection, or manually override.  This has no effect on TCP-based protocols.</source>
         <translation>Автоматически определите MTU для подключения или переопределите его вручную.  Это никак не влияет на протоколы на основе TCP.</translation>
     </message>
@@ -2381,6 +2377,10 @@ Connect to a network first</source>
 </context>
 <context>
     <name>PreferencesWindow::SplitTunnelingAppsGroup</name>
+    <message>
+        <source>This app is already in the list.</source>
+        <translation>Это приложение уже есть в списке.</translation>
+    </message>
     <message>
         <source>There are too many apps in the list. Please remove some before adding more.</source>
         <translation>В списке слишком много приложений. Пожалуйста, удалите некоторые из них, прежде чем добавлять новые.</translation>

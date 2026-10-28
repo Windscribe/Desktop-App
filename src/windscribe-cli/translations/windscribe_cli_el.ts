@@ -20,8 +20,16 @@
         <translation>Απεριόριστος</translation>
     </message>
     <message>
+        <source>Could not send logs.</source>
+        <translation>Δεν ήταν δυνατή η αποστολή των αρχείων καταγραφής.</translation>
+    </message>
+    <message>
         <source>Could not rotate IP.  Please check that you have Windscribe Pro or have this location in your plan, or try again later.</source>
         <translation>Δεν ήταν δυνατή η περιστροφή IP.  Ελέγξτε ότι έχετε το Windscribe Pro ή ότι έχετε αυτήν την τοποθεσία στο σχέδιό σας ή δοκιμάστε ξανά αργότερα.</translation>
+    </message>
+    <message>
+        <source>The IP is still being rotated.  Try again in a moment.</source>
+        <translation>Η εναλλαγή IP βρίσκεται ακόμη σε εξέλιξη.  Δοκιμάστε ξανά σε λίγο.</translation>
     </message>
     <message>
         <source>Could not favourite IP.  Please check that you have Windscribe Pro or have this location in your plan, or try again later.</source>
@@ -105,6 +113,10 @@
     <message>
         <source>Downloading: %1%</source>
         <translation>Λήψη: %1%</translation>
+    </message>
+    <message>
+        <source>The update installer has started.</source>
+        <translation>Το πρόγραμμα εγκατάστασης της ενημέρωσης ξεκίνησε.</translation>
     </message>
     <message>
         <source>Connection is in progress.  Use &apos;windscribe-cli status&apos; to check for connection status.</source>
@@ -357,6 +369,10 @@
     <message>
         <source>Update error: download failed. Please try again or try a different network.</source>
         <translation>Σφάλμα ενημέρωσης: η λήψη απέτυχε. Δοκιμάστε ξανά ή δοκιμάστε ένα διαφορετικό δίκτυο.</translation>
+    </message>
+    <message>
+        <source>Update cancelled.</source>
+        <translation>Η ενημέρωση ακυρώθηκε.</translation>
     </message>
     <message>
         <source>Update error: %1</source>

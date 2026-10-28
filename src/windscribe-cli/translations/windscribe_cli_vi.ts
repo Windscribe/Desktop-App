@@ -20,8 +20,16 @@
         <translation>Không có cổng nào có sẵn cho giao thức được chỉ định.</translation>
     </message>
     <message>
+        <source>Could not send logs.</source>
+        <translation>Không thể gửi nhật ký.</translation>
+    </message>
+    <message>
         <source>Could not rotate IP.  Please check that you have Windscribe Pro or have this location in your plan, or try again later.</source>
         <translation>Không thể xoay IP.  Vui lòng kiểm tra xem bạn có Windscribe Pro hoặc có vị trí này trong gói của bạn hay không, hoặc thử lại sau.</translation>
+    </message>
+    <message>
+        <source>The IP is still being rotated.  Try again in a moment.</source>
+        <translation>IP vẫn đang được xoay.  Hãy thử lại sau giây lát.</translation>
     </message>
     <message>
         <source>Could not favourite IP.  Please check that you have Windscribe Pro or have this location in your plan, or try again later.</source>
@@ -235,6 +243,10 @@
         <translation>Lỗi cập nhật: tải xuống không thành công. Vui lòng thử lại hoặc thử một mạng khác.</translation>
     </message>
     <message>
+        <source>Update cancelled.</source>
+        <translation>Đã hủy cập nhật.</translation>
+    </message>
+    <message>
         <source>Update error: %1</source>
         <translation>Lỗi cập nhật: %1</translation>
     </message>
@@ -265,6 +277,10 @@
     <message>
         <source>Password too short</source>
         <translation>Mật khẩu quá ngắn</translation>
+    </message>
+    <message>
+        <source>The update installer has started.</source>
+        <translation>Trình cài đặt bản cập nhật đã khởi động.</translation>
     </message>
     <message>
         <source>Connection is in progress.  Use &apos;windscribe-cli status&apos; to check for connection status.</source>

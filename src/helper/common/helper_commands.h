@@ -84,11 +84,9 @@ enum class HelperCommand {
     getFirewallRules,
     startStunnel,
     startWstunnel,
-    setMacAddress,
 
     // Mac
     setDnsScriptEnabled,
-    enableMacSpoofingOnBoot,
     setDnsOfDynamicStoreEntry,
     setIpv6Enabled,  // deprecated: no-op since the macOS IPv6 rewrite (per-interface pf rules);
                      // slot kept so older clients don't get "unknown command id" from a newer helper.
@@ -103,6 +101,7 @@ enum class HelperCommand {
     // Linux
     setDnsLeakProtectEnabled,
     setGaiIpv4PriorityEnabled,
+    setMacAddress,
     resetMacAddresses,
     setOpenVpnDcoMode,
     installerStageAndVerify,

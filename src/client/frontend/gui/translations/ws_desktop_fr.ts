@@ -1511,10 +1511,6 @@ Si le problème persiste après un redémarrage, envoyez un journal de débogage
         <translation>La désactivation de l’option Autoriser le trafic LAN entraînera l’arrêt du fonctionnement de votre point d’accès sécurisé.  Voulez-vous désactiver le hotspot ?</translation>
     </message>
     <message>
-        <source>MAC spoofing is not supported on your version of MacOS.</source>
-        <translation>L’usurpation d’adresse MAC n’est pas prise en charge sur votre version de MacOS.</translation>
-    </message>
-    <message>
         <source>Automatically determine the MTU for your connection, or manually override.  This has no effect on TCP-based protocols.</source>
         <translation>Déterminez automatiquement la MTU de votre connexion ou remplacez-la manuellement.  Cela n’a aucun effet sur les protocoles basés sur TCP.</translation>
     </message>
@@ -2381,6 +2377,10 @@ Se connecter d’abord à un réseau</translation>
 </context>
 <context>
     <name>PreferencesWindow::SplitTunnelingAppsGroup</name>
+    <message>
+        <source>This app is already in the list.</source>
+        <translation>Cette application figure déjà dans la liste.</translation>
+    </message>
     <message>
         <source>There are too many apps in the list. Please remove some before adding more.</source>
         <translation>Il y a trop d’applications dans la liste. Veuillez en retirer quelques-uns avant d’en ajouter d’autres.</translation>

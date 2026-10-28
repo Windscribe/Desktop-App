@@ -23,9 +23,7 @@ std::string getFirewallRules(const std::string &pars);
 std::string setFirewallOnBoot(const std::string &pars);
 std::string startStunnel(const std::string &pars);
 std::string startWstunnel(const std::string &pars);
-std::string setMacAddress(const std::string &pars);
 std::string setDnsScriptEnabled(const std::string &pars);
-std::string enableMacSpoofingOnBoot(const std::string &pars);
 std::string setDnsOfDynamicStoreEntry(const std::string &pars);
 std::string setIpv6Enabled(const std::string &pars);
 std::string deleteRoute(const std::string &pars);
@@ -58,9 +56,7 @@ static const std::map<const HelperCommand, std::function<std::string(const std::
     { HelperCommand::setFirewallOnBoot, setFirewallOnBoot },
     { HelperCommand::startStunnel, startStunnel },
     { HelperCommand::startWstunnel, startWstunnel },
-    { HelperCommand::setMacAddress, setMacAddress },
     { HelperCommand::setDnsScriptEnabled, setDnsScriptEnabled },
-    { HelperCommand::enableMacSpoofingOnBoot, enableMacSpoofingOnBoot },
     { HelperCommand::setDnsOfDynamicStoreEntry, setDnsOfDynamicStoreEntry },
     { HelperCommand::setIpv6Enabled, setIpv6Enabled },
     { HelperCommand::deleteRoute, deleteRoute },

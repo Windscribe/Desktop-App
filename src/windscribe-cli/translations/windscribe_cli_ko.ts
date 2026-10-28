@@ -20,8 +20,16 @@
         <translation>지정된 프로토콜에 대한 포트 사용 불가.</translation>
     </message>
     <message>
+        <source>Could not send logs.</source>
+        <translation>로그를 전송할 수 없습니다.</translation>
+    </message>
+    <message>
         <source>Could not rotate IP.  Please check that you have Windscribe Pro or have this location in your plan, or try again later.</source>
         <translation>IP를 회전할 수 없습니다.  Windscribe Pro가 있는지 또는 요금제에 이 위치가 있는지 확인하거나 나중에 다시 시도하십시오.</translation>
+    </message>
+    <message>
+        <source>The IP is still being rotated.  Try again in a moment.</source>
+        <translation>IP 교체가 아직 진행 중입니다.  잠시 후 다시 시도하세요.</translation>
     </message>
     <message>
         <source>Could not favourite IP.  Please check that you have Windscribe Pro or have this location in your plan, or try again later.</source>
@@ -235,6 +243,10 @@
         <translation>업데이트 오류: 다운로드에 실패했습니다. 다시 시도하거나 다른 네트워크를 사용해 보십시오.</translation>
     </message>
     <message>
+        <source>Update cancelled.</source>
+        <translation>업데이트가 취소되었습니다.</translation>
+    </message>
+    <message>
         <source>Update error: %1</source>
         <translation>업데이트 오류: %1</translation>
     </message>
@@ -265,6 +277,10 @@
     <message>
         <source>Password too short</source>
         <translation>비밀번호가 너무 짧습니다.</translation>
+    </message>
+    <message>
+        <source>The update installer has started.</source>
+        <translation>업데이트 설치 프로그램이 시작되었습니다.</translation>
     </message>
     <message>
         <source>Connection is in progress.  Use &apos;windscribe-cli status&apos; to check for connection status.</source>

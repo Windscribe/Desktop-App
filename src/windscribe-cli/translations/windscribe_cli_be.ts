@@ -20,8 +20,16 @@
         <translation>Няма даступных партоў для пазначанага пратаколу.</translation>
     </message>
     <message>
+        <source>Could not send logs.</source>
+        <translation>Не ўдалося адаслаць журналы.</translation>
+    </message>
+    <message>
         <source>Could not rotate IP.  Please check that you have Windscribe Pro or have this location in your plan, or try again later.</source>
         <translation>Не ўдалося зьмяніць IP-адрас.  Праверце, ці маеце Windscribe Pro, альбо ці ўваходзіць гэтае месцазнаходжаньне ў вашы тарыфны плян, альбо паўтарыце спробу пазьней.</translation>
+    </message>
+    <message>
+        <source>The IP is still being rotated.  Try again in a moment.</source>
+        <translation>Змена IP-адраса яшчэ ідзе.  Паспрабуйце яшчэ раз праз хвіліну.</translation>
     </message>
     <message>
         <source>Could not favourite IP.  Please check that you have Windscribe Pro or have this location in your plan, or try again later.</source>
@@ -235,6 +243,10 @@
         <translation>Памылка абнаўленьня: не ўдалося спампаваць. Паўтарыце спробу, альбо падлучыцеся да іншай сеткі.</translation>
     </message>
     <message>
+        <source>Update cancelled.</source>
+        <translation>Абнаўленне скасавана.</translation>
+    </message>
+    <message>
         <source>Update error: %1</source>
         <translation>Памылка абнаўленьня: %1</translation>
     </message>
@@ -265,6 +277,10 @@
     <message>
         <source>Password too short</source>
         <translation>Пароль занадта кароткі</translation>
+    </message>
+    <message>
+        <source>The update installer has started.</source>
+        <translation>Праграма ўсталявання абнаўлення запушчана.</translation>
     </message>
     <message>
         <source>Connection is in progress.  Use &apos;windscribe-cli status&apos; to check for connection status.</source>

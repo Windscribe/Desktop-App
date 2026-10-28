@@ -69,11 +69,6 @@ SplitTunnelingAppsGroup::~SplitTunnelingAppsGroup()
     threadPool_.waitForDone();
 }
 
-QList<types::SplitTunnelingApp> SplitTunnelingAppsGroup::apps()
-{
-    return apps_.values();
-}
-
 void SplitTunnelingAppsGroup::setApps(QList<types::SplitTunnelingApp> apps)
 {
     if (apps == apps_.values()) {
@@ -102,17 +97,24 @@ void SplitTunnelingAppsGroup::setApps(QList<types::SplitTunnelingApp> apps)
 
 void SplitTunnelingAppsGroup::addApp(types::SplitTunnelingApp &app)
 {
-    if(addAppInternal(app)) {
+    if (appByFullName(app.fullName)) {
+        emit setError(tr("This app is already in the list."));
+        return;
+    }
+    if (addAppInternal(app)) {
         requestIcons({app.fullName});
         emit appsUpdated(apps_.values());
     }
 }
 
-bool SplitTunnelingAppsGroup::addAppInternal(types::SplitTunnelingApp &app)
+AppIncludedItem *SplitTunnelingAppsGroup::addAppInternal(types::SplitTunnelingApp &app)
 {
+    if (appByFullName(app.fullName)) {
+        return nullptr;
+    }
     if (apps_.size() >= kMaxApps) {
         emit setError(tr("There are too many apps in the list. Please remove some before adding more."));
-        return false;
+        return nullptr;
     }
 
     AppIncludedItem *item = new AppIncludedItem(app, this);
@@ -128,7 +130,7 @@ bool SplitTunnelingAppsGroup::addAppInternal(types::SplitTunnelingApp &app)
     if (mode_ == OP_MODE::DEFAULT) {
         showItems(indexOf(item));
     }
-    return true;
+    return item;
 }
 
 void SplitTunnelingAppsGroup::addSearchApp(types::SplitTunnelingApp &app)
@@ -417,32 +419,26 @@ void SplitTunnelingAppsGroup::onSearchItemClicked()
 
 void SplitTunnelingAppsGroup::toggleAppItemActive(AppSearchItem *item)
 {
-    QString appName = item->getName();
-    AppIncludedItem *existingApp = appByName(appName);
-
-    if (!existingApp) {
+    if (!appByFullName(item->getFullName())) {
         types::SplitTunnelingApp app;
-        app.name = appName;
+        app.name = item->getName();
         app.type = SPLIT_TUNNELING_APP_TYPE_SYSTEM;
         app.active = true;
         app.fullName = item->getFullName();
         app.icon = item->getAppIcon();
-        if (addAppInternal(app)) {
+        if (AppIncludedItem *addedApp = addAppInternal(app)) {
             // The row that was just clicked already holds the decoded icon, so hand it over rather than
             // reading it again: nothing else populates an included item created on this path.
-            AppIncludedItem *addedApp = appByName(appName);
-            if (addedApp) {
-                addedApp->setIcon(item->icon());
-            }
+            addedApp->setIcon(item->icon());
             emit appsUpdated(apps_.values());
         }
     }
 }
 
-AppIncludedItem *SplitTunnelingAppsGroup::appByName(QString name)
+AppIncludedItem *SplitTunnelingAppsGroup::appByFullName(const QString &fullName)
 {
     for (AppIncludedItem *item : apps_.keys()) {
-        if (apps_[item].name == name) {
+        if (apps_[item].fullName == fullName) {
             return item;
         }
     }
@@ -451,9 +447,10 @@ AppIncludedItem *SplitTunnelingAppsGroup::appByName(QString name)
 
 void SplitTunnelingAppsGroup::showFilteredSearchItems(QString filter)
 {
-    if (OP_MODE::SEARCH) {
+    if (mode_ == OP_MODE::SEARCH) {
         for (AppSearchItem *item : searchApps_.keys()) {
-            if (filter == "" || (searchApps_[item].name.toLower().contains(filter.toLower()) && !appByName(searchApps_[item].name))) {
+            const types::SplitTunnelingApp &app = searchApps_[item];
+            if (!appByFullName(app.fullName) && (filter.isEmpty() || app.name.toLower().contains(filter.toLower()))) {
                 showItems(indexOf(item), -1, DISPLAY_FLAGS::FLAG_NO_ANIMATION);
             } else {
                 hideItems(indexOf(item), -1, DISPLAY_FLAGS::FLAG_NO_ANIMATION);

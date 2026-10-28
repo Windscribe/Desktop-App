@@ -59,7 +59,6 @@
     #include "networkdetectionmanager/reachabilityevents.h"
     #include "splittunnelextension/splittunnelextensionmanager_mac.h"
     #include "splittunnelextension/systemextensions_mac.h"
-    #include "utils/interfaceutils_mac.h"
     #include "utils/macutils.h"
     #include "utils/network_utils/network_utils_mac.h"
 #elif defined Q_OS_LINUX
@@ -114,7 +113,6 @@ Engine::Engine() : QObject(nullptr),
     downloadHelper_(nullptr),
 #ifdef Q_OS_MACOS
     autoUpdaterHelper_(nullptr),
-    macSpoofTimer_(nullptr),
 #endif
     isBlockConnect_(false),
     isCleanupFinished_(false),
@@ -634,9 +632,7 @@ void Engine::initPart2()
 
     types::MacAddrSpoofing macAddrSpoofing = engineSettings_.macAddrSpoofing();
     //todo refactor
-#ifdef Q_OS_MACOS
-    macAddrSpoofing.networkInterfaces = InterfaceUtils_mac::instance().currentNetworkInterfaces(true);
-#elif defined Q_OS_WIN
+#if defined Q_OS_WIN
     macAddrSpoofing.networkInterfaces = NetworkUtils_win::spoofableNetworkInterfaces(NetworkUtils_win::currentNetworkInterfaces(true));
 #elif defined Q_OS_LINUX
     macAddrSpoofing.networkInterfaces = NetworkUtils_linux::currentNetworkInterfaces(true);
@@ -646,15 +642,14 @@ void Engine::initPart2()
     connect(networkDetectionManager_, &INetworkDetectionManager::onlineStateChanged, this, &Engine::onNetworkOnlineStateChange);
     connect(networkDetectionManager_, &INetworkDetectionManager::networkChanged, this, &Engine::onNetworkChange);
 
+#ifndef Q_OS_MACOS
     macAddressController_ = CrossPlatformObjectFactory::createMacAddressController(this, networkDetectionManager_, helper_);
     connect(macAddressController_, &IMacAddressController::macAddrSpoofingChanged, this, &Engine::onMacAddressSpoofingChanged);
     connect(macAddressController_, &IMacAddressController::sendUserWarning, this, &Engine::onMacAddressControllerSendUserWarning);
-#ifdef Q_OS_MACOS
-    connect(macAddressController_, &IMacAddressController::macSpoofApplied, this, &Engine::onMacAddressControllerMacSpoofApplied);
-#endif
     // Init after the connects: initMacAddrSpoofing applies the spoof synchronously and can emit
     // (e.g. an init-time hard-disable on failure).
     macAddressController_->initMacAddrSpoofing(macAddrSpoofing);
+#endif
 
     packetSizeControllerThread_ = new QThread(this);
 
@@ -799,10 +794,6 @@ void Engine::initPart2()
 #ifdef Q_OS_MACOS
     autoUpdaterHelper_ = new AutoUpdaterHelper_mac();
 
-    macSpoofTimer_ = new QTimer(this);
-    connect(macSpoofTimer_, &QTimer::timeout, this, &Engine::onMacSpoofTimerTick);
-    macSpoofTimer_->setInterval(1000);
-
     // Connect system extension state change signal
     connect(SystemExtensions_mac::instance(), &SystemExtensions_mac::stateChanged, this, &Engine::onSystemExtensionStateChanged);
 
@@ -917,10 +908,6 @@ void Engine::cleanupImpl(bool isUpdating)
     WSNet::cleanup();
 
 #ifdef Q_OS_MACOS
-    if (macSpoofTimer_) {
-        macSpoofTimer_->stop();
-    }
-
     // Before the blocking disconnects: the proxy must stop before the tunnel drops (as on reconnect),
     // and the stop is queued to the macOS main queue, which only pumps until cleanup finishes.
     SplitTunnelExtensionManager::instance().stopExtension();
@@ -1390,10 +1377,12 @@ void Engine::setSettingsImpl(const types::EngineSettings &engineSettings)
     #endif
     }
 
+#ifndef Q_OS_MACOS
     if (isMACSpoofingChanged) {
         qCDebug(LOG_BASIC) << "Set MAC Spoofing (Engine)";
         macAddressController_->setMacAddrSpoofing(engineSettings_.macAddrSpoofing());
     }
+#endif
 
     if (isPacketSizeChanged) {
         qCDebug(LOG_BASIC) << "Engine updating packet size controller";
@@ -1914,23 +1903,6 @@ void Engine::onConnectionManagerWireGuardAtKeyLimit()
     emit wireGuardAtKeyLimit();
 }
 
-#ifdef Q_OS_MACOS
-void Engine::onMacSpoofTimerTick()
-{
-    QDateTime now = QDateTime::currentDateTime();
-
-    // On MacOS the network listener may not trigger when the network comes back up,
-    // so force a connectivity check for 15 seconds after the spoof
-    // Not elegant, but lower risk as additional changes to the networkdetection module may affect network whitelisting
-    if (macSpoofTimerStart_.secsTo(now) > 15) {
-        macSpoofTimer_->stop();
-        return;
-    }
-
-    updateCurrentInternetConnectivity();
-}
-#endif
-
 void Engine::onConnectionManagerRequestUsername()
 {
     pendingCustomOvpnConfigFilename_ = customConfigFilename_;
@@ -2042,12 +2014,19 @@ void Engine::updateVersionImpl(qint64 windowHandle)
         }
 #endif
         downloadHelper_->get(downloads);
+    } else {
+        // Reported, or whoever asked for the download would wait on it forever.
+        qCWarning(LOG_BASIC) << "No installer URL to download the update from";
+        emit updateVersionChanged(0, UPDATE_VERSION_STATE_DONE, UPDATE_VERSION_ERROR_DL_FAIL);
     }
 }
 
 void Engine::stopUpdateVersionImpl()
 {
-    downloadHelper_->stop();
+    // Reported so that anyone else waiting on the download, such as the command line, learns it has ended.
+    if (downloadHelper_->stop()) {
+        emit updateVersionChanged(0, UPDATE_VERSION_STATE_DONE, UPDATE_VERSION_ERROR_CANCELLED);
+    }
 }
 
 void Engine::updateAdvancedParamsImpl()
@@ -2514,16 +2493,6 @@ void Engine::onMacAddressControllerSendUserWarning(USER_WARNING_TYPE userWarning
     emit sendUserWarning(userWarningType);
 }
 
-#ifdef Q_OS_MACOS
-void Engine::onMacAddressControllerMacSpoofApplied()
-{
-    // On MacOS, MAC-spoofing can confuse the app into thinking it is offline
-    // Update the connectivity check to fix this
-    macSpoofTimerStart_ = QDateTime::currentDateTime();
-    macSpoofTimer_->start();
-}
-#endif
-
 
 
 void Engine::startProxySharingImpl(const types::ShareProxyGateway &settings)
@@ -2972,8 +2941,8 @@ void Engine::doConnect(bool bEmitAuthError)
 
         if (!bli->locationId().isCustomConfigsLocation() && !bli->locationId().isStaticIpsLocation())
         {
-            qCDebug(LOG_BASIC) << "radiusUsername openvpn: " << ovpnCredentials.username();
-            qCDebug(LOG_BASIC) << "radiusUsername ikev2: " << ikev2Credentials.username();
+            qCDebug(LOG_BASIC) << "radiusUsername openvpn: " << Utils::redactCredential(ovpnCredentials.username());
+            qCDebug(LOG_BASIC) << "radiusUsername ikev2: " << Utils::redactCredential(ikev2Credentials.username());
         }
         qCInfo(LOG_CONNECTION) << "Connecting to" << locationName_;
 

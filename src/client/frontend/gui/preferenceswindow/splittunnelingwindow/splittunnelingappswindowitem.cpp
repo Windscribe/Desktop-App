@@ -37,11 +37,6 @@ QString SplitTunnelingAppsWindowItem::caption() const
     return tr("Apps");
 }
 
-QList<types::SplitTunnelingApp> SplitTunnelingAppsWindowItem::getApps()
-{
-    return splitTunnelingAppsGroup_->apps();
-}
-
 void SplitTunnelingAppsWindowItem::addAppManually(types::SplitTunnelingApp app)
 {
     splitTunnelingAppsGroup_->addApp(app);

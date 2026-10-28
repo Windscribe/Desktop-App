@@ -36,6 +36,7 @@ private slots:
     void testParseConnectedSuccessReply();
     void testParseConnectedSuccessReplyMalformed();
     void testSanitizeString();
+    void testRedactManagementLine();
     void testMakeOvpnFileStunnelUsesLocalWrapper();
     void testMakeOvpnFileRemoteIpSuppression();
     void testMakeOvpnFileExtraConfigAppend();

@@ -20,8 +20,16 @@
         <translation>निर्दिष्ट प्रोटोकॉल के लिए कोई पोर्ट उपलब्ध नहीं है.</translation>
     </message>
     <message>
+        <source>Could not send logs.</source>
+        <translation>लॉग नहीं भेजे जा सके।</translation>
+    </message>
+    <message>
         <source>Could not rotate IP.  Please check that you have Windscribe Pro or have this location in your plan, or try again later.</source>
         <translation>IP को घुमाया नहीं जा सका।  कृपया जांचें कि आपके पास विंडसाइड प्रो है या आपकी योजना में यह स्थान है, या बाद में पुनः प्रयास करें।</translation>
+    </message>
+    <message>
+        <source>The IP is still being rotated.  Try again in a moment.</source>
+        <translation>IP अभी भी बदला जा रहा है।  कृपया कुछ देर बाद फिर से प्रयास करें।</translation>
     </message>
     <message>
         <source>Could not favourite IP.  Please check that you have Windscribe Pro or have this location in your plan, or try again later.</source>
@@ -235,6 +243,10 @@
         <translation>अद्यतन त्रुटि: डाउनलोड विफल रहा। कृपया पुन: प्रयास करें या किसी भिन्न नेटवर्क का प्रयास करें.</translation>
     </message>
     <message>
+        <source>Update cancelled.</source>
+        <translation>अद्यतन रद्द कर दिया गया।</translation>
+    </message>
+    <message>
         <source>Update error: %1</source>
         <translation>अद्यतन त्रुटि: %1</translation>
     </message>
@@ -265,6 +277,10 @@
     <message>
         <source>Password too short</source>
         <translation>पासवर्ड बहुत छोटा है</translation>
+    </message>
+    <message>
+        <source>The update installer has started.</source>
+        <translation>अद्यतन इंस्टॉलर शुरू हो गया है।</translation>
     </message>
     <message>
         <source>Connection is in progress.  Use &apos;windscribe-cli status&apos; to check for connection status.</source>

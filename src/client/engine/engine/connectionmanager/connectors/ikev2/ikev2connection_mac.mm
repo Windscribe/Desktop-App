@@ -1,23 +1,23 @@
 #include "ikev2connection_mac.h"
 
-#include <SystemConfiguration/SCSchemaDefinitions.h>
-#include <SystemConfiguration/SCNetwork.h>
-#include <SystemConfiguration/SCNetworkConnection.h>
-#include <SystemConfiguration/SCNetworkConfiguration.h>
-#import <NetworkExtension/NetworkExtension.h>
 #import <Foundation/Foundation.h>
+#import <NetworkExtension/NetworkExtension.h>
 #include <QWaitCondition>
+#include <SystemConfiguration/SCNetwork.h>
+#include <SystemConfiguration/SCNetworkConfiguration.h>
+#include <SystemConfiguration/SCNetworkConnection.h>
+#include <SystemConfiguration/SCSchemaDefinitions.h>
+#include <net/if.h>
+#include <net/route.h>
+#include <netinet/in.h>
+#include <sys/sysctl.h>
 
 #include "networkextensionlog_mac.h"
-#include "utils/ws_assert.h"
 #include "utils/log/categories.h"
 #include "utils/macutils.h"
 #include "utils/network_utils/network_utils_mac.h"
-
-#include <sys/sysctl.h>
-#include <netinet/in.h>
-#include <net/if.h>
-#include <net/route.h>
+#include "utils/utils.h"
+#include "utils/ws_assert.h"
 
 namespace KeyChainUtils
 {
@@ -171,7 +171,9 @@ void IKEv2Connection_mac::startConnect()
             [manager setOnDemandEnabled:NO];
             [manager setLocalizedDescription:@WS_MAC_VPN_DESCRIPTION];
 
-            NSString *strProtocol = [NSString stringWithFormat:@"{Protocol: %@", protocol];
+            NEVPNProtocolIKEv2 *loggedProtocol = [protocol copy];
+            loggedProtocol.username = Utils::redactCredential(username()).toNSString();
+            NSString *strProtocol = [NSString stringWithFormat:@"{Protocol: %@", loggedProtocol];
             qCInfo(LOG_IKEV2) << QString::fromNSString(strProtocol);
 
             // do config stuff
