@@ -5,7 +5,7 @@
     <name>BackendCommander</name>
     <message>
         <source>Data usage: %1 / %2</source>
-        <translation>Utilisation des données : %1 / %2</translation>
+        <translation>Données utilisées : %1 / %2</translation>
     </message>
     <message>
         <source>Unlimited</source>
@@ -13,7 +13,7 @@
     </message>
     <message>
         <source>No locations.</source>
-        <translation>Pas de lieux.</translation>
+        <translation>Aucun emplacement.</translation>
     </message>
     <message>
         <source>No ports available for the specified protocol.</source>
@@ -25,7 +25,7 @@
     </message>
     <message>
         <source>Could not rotate IP.  Please check that you have Windscribe Pro or have this location in your plan, or try again later.</source>
-        <translation>Impossible de faire pivoter l’IP.  Veuillez vérifier que vous avez Windscribe Pro ou que vous avez cet emplacement dans votre plan, ou réessayez plus tard.</translation>
+        <translation>Impossible de changer d&apos;IP. Veuillez vérifier que vous avez Windscribe Pro ou que cet emplacement est inclus dans votre forfait, ou réessayez plus tard.</translation>
     </message>
     <message>
         <source>The IP is still being rotated.  Try again in a moment.</source>
@@ -33,26 +33,26 @@
     </message>
     <message>
         <source>Could not favourite IP.  Please check that you have Windscribe Pro or have this location in your plan, or try again later.</source>
-        <translation>Impossible de mettre en favoris la propriété intellectuelle.  Veuillez vérifier que vous avez Windscribe Pro ou que vous avez cet emplacement dans votre plan, ou réessayez plus tard.</translation>
+        <translation>Impossible d&apos;ajouter l&apos;IP aux favoris. Veuillez vérifier que vous avez Windscribe Pro ou que cet emplacement est inclus dans votre forfait, ou réessayez plus tard.</translation>
     </message>
     <message>
         <source>Could not unfavourite IP.  Please check that the provided IP is valid.</source>
-        <translation>Impossible de retirer la propriété intellectuelle de vos favoris.  Veuillez vérifier que l’adresse IP fournie est valide.</translation>
+        <translation>Impossible de retirer l&apos;IP des favoris. Veuillez vérifier que l&apos;adresse IP fournie est valide.</translation>
     </message>
     <message>
         <source>IP rotate already in progress.</source>
-        <translation>Rotation IP déjà en cours.</translation>
+        <translation>Changement d&apos;IP déjà en cours.</translation>
     </message>
     <message>
         <source>No AmneziaWG configurations available.</source>
-        <translation>Aucune configuration AmneziaWG n’est disponible.</translation>
+        <translation>Aucune configuration AmneziaWG disponible.</translation>
     </message>
 </context>
 <context>
     <name>QObject</name>
     <message>
         <source>Aborting: app did not start in time</source>
-        <translation>Abandon : l’application n’a pas démarré à temps</translation>
+        <translation>Abandon : l&apos;application n&apos;a pas démarré à temps</translation>
     </message>
     <message>
         <source>Aborting: IPC communication error</source>
@@ -72,7 +72,7 @@
     </message>
     <message>
         <source>Firewall set to always on and can&apos;t be turned off</source>
-        <translation>Pare-feu toujours activé et ne peut pas être désactivé</translation>
+        <translation>Le pare-feu est configuré sur « Toujours actif » et ne peut pas être désactivé</translation>
     </message>
     <message>
         <source>Already logged in</source>
@@ -100,7 +100,7 @@
     </message>
     <message>
         <source>Logging in</source>
-        <translation>Connexion</translation>
+        <translation>Connexion en cours</translation>
     </message>
     <message>
         <source>Logged in</source>
@@ -112,19 +112,19 @@
     </message>
     <message>
         <source>No internet connectivity</source>
-        <translation>Pas de connexion Internet</translation>
+        <translation>Aucune connexion Internet</translation>
     </message>
     <message>
         <source>No API connectivity</source>
-        <translation>Pas de connectivité API</translation>
+        <translation>Aucune connectivité API</translation>
     </message>
     <message>
         <source>Incorrect username, password, or 2FA code</source>
-        <translation>Nom d’utilisateur, mot de passe ou code 2FA incorrects</translation>
+        <translation>Nom d&apos;utilisateur, mot de passe ou code 2FA incorrect</translation>
     </message>
     <message>
         <source>Could not log in.  Please try again.  If the problem continues, you can ignore SSL errors for this session, but we strongly recommend against it: doing so disables TLS certificate validation and could allow a third party to intercept your traffic.  To proceed anyway, run &quot;windscribe-cli ignoresslerrors on&quot;.</source>
-        <translation>Impossible de se connecter.  Veuillez réessayer.  Si le problème persiste, vous pouvez ignorer les erreurs SSL pour cette session, mais nous le déconseillons fortement : cela désactive la validation des certificats TLS et pourrait permettre à un tiers d’intercepter votre trafic.  Pour continuer quand même, exécutez « windscribe-cli ignoresslerrors on ».</translation>
+        <translation>Impossible de se connecter. Veuillez réessayer. Si le problème persiste, vous pouvez ignorer les erreurs SSL pour cette session, mais nous vous le déconseillons fortement : cela désactive la validation des certificats TLS et pourrait permettre à un tiers d&apos;intercepter votre trafic. Pour continuer malgré tout, exécutez « windscribe-cli ignoresslerrors on ».</translation>
     </message>
     <message>
         <source>SSL error</source>
@@ -136,7 +136,7 @@
     </message>
     <message>
         <source>Rate limited</source>
-        <translation>Tarif limité</translation>
+        <translation>Limite de requêtes atteinte</translation>
     </message>
     <message>
         <source>Unknown error</source>
@@ -152,7 +152,7 @@
     </message>
     <message>
         <source>Connected</source>
-        <translation>Relié</translation>
+        <translation>Connecté</translation>
     </message>
     <message>
         <source>[Network interference]</source>
@@ -164,47 +164,39 @@
     </message>
     <message>
         <source>Connecting</source>
-        <translation>Connectant</translation>
+        <translation>Connexion en cours</translation>
     </message>
     <message>
         <source>Disconnecting</source>
-        <translation>Déconnexion</translation>
+        <translation>Déconnexion en cours</translation>
     </message>
     <message>
         <source>Disconnected</source>
-        <translation>Coupé</translation>
+        <translation>Déconnecté</translation>
     </message>
     <message>
         <source>Error: Location does not exist or is disabled</source>
-        <translation>Erreur : L’emplacement n’existe pas ou est désactivé</translation>
+        <translation>Erreur : L&apos;emplacement n&apos;existe pas ou est désactivé</translation>
     </message>
     <message>
         <source>Error: You are out of data, or your account has been disabled. Upgrade to Pro to continue using Windscribe</source>
-        <translation>Erreur : Vous n’avez plus de données ou votre compte a été désactivé. Passez à Pro pour continuer à utiliser Windscribe</translation>
+        <translation>Erreur : Vous avez épuisé vos données ou votre compte a été désactivé. Passez à Pro pour continuer à utiliser Windscribe</translation>
     </message>
     <message>
         <source>Error: Unable to start custom DNS service</source>
         <translation>Erreur : Impossible de démarrer le service DNS personnalisé</translation>
     </message>
     <message>
-        <source>Error: Could not update the hosts file required by IKEv2</source>
-        <translation>Erreur : Impossible de mettre à jour le fichier hosts nécessaire à IKEv2</translation>
-    </message>
-    <message>
         <source>Error: Could not retrieve WireGuard configuration</source>
-        <translation>Erreur : Impossible de récupérer la configuration de WireGuard</translation>
+        <translation>Erreur : Impossible de récupérer la configuration WireGuard</translation>
     </message>
     <message>
         <source>Error: Could not generate connection configuration</source>
-        <translation>Erreur : Impossible de générer la configuration de la connexion</translation>
+        <translation>Erreur : Impossible de générer la configuration de connexion</translation>
     </message>
     <message>
         <source>Error: Local DNS server is not available. Connected DNS has been set back to Auto</source>
-        <translation>Erreur : Le serveur DNS local n’est pas disponible. Le DNS connecté a été remis en mode Auto</translation>
-    </message>
-    <message>
-        <source>Error: The custom configuration could not be loaded</source>
-        <translation>Erreur : Impossible de charger la configuration personnalisée</translation>
+        <translation>Erreur : Le serveur DNS local n&apos;est pas disponible. Le DNS connecté a été réinitialisé sur Auto</translation>
     </message>
     <message>
         <source>Unknown state</source>
@@ -220,7 +212,7 @@
     </message>
     <message>
         <source>Protocol: %1:%2</source>
-        <translation>Protocole : %1&#xa0;:%2</translation>
+        <translation>Protocole : %1:%2</translation>
     </message>
     <message>
         <source>Firewall state: %1</source>
@@ -232,11 +224,11 @@
     </message>
     <message>
         <source>On</source>
-        <translation>Sur</translation>
+        <translation>Activé</translation>
     </message>
     <message>
         <source>Off</source>
-        <translation>De</translation>
+        <translation>Désactivé</translation>
     </message>
     <message>
         <source>Update error: download failed. Please try again or try a different network.</source>
@@ -264,15 +256,15 @@
     </message>
     <message>
         <source>Disconnected due to reaching WireGuard key limit.  Use &quot;windscribe-cli keylimit delete&quot; if you want to delete the oldest key instead, and try again.</source>
-        <translation>Déconnecté en raison de l’atteinte de la limite de clés WireGuard.  Utilisez «&#xa0;windscribe-cli keylimit delete&#xa0;» si vous souhaitez supprimer la clé la plus ancienne à la place, et réessayez.</translation>
+        <translation>Déconnecté en raison de la limite de clés WireGuard atteinte. Utilisez « windscribe-cli keylimit delete » si vous souhaitez supprimer la clé la plus ancienne à la place, puis réessayez.</translation>
     </message>
     <message>
         <source>Downloading: %1%</source>
-        <translation>Téléchargement : %1%</translation>
+        <translation>Téléchargement : %1 %</translation>
     </message>
     <message>
         <source>Username too short</source>
-        <translation>Nom d’utilisateur trop court</translation>
+        <translation>Nom d&apos;utilisateur trop court</translation>
     </message>
     <message>
         <source>Password too short</source>
@@ -284,11 +276,11 @@
     </message>
     <message>
         <source>Connection is in progress.  Use &apos;windscribe-cli status&apos; to check for connection status.</source>
-        <translation>La connexion est en cours.  Utilisez &apos;windscribe-cli status&apos; pour vérifier l’état de la connexion.</translation>
+        <translation>Connexion en cours. Utilisez &apos;windscribe-cli status&apos; pour vérifier l&apos;état de la connexion.</translation>
     </message>
     <message>
         <source>Disconnection is in progress.  Use &apos;windscribe-cli status&apos; to check for connection status.</source>
-        <translation>La déconnexion est en cours.  Utilisez &apos;windscribe-cli status&apos; pour vérifier l’état de la connexion.</translation>
+        <translation>Déconnexion en cours. Utilisez &apos;windscribe-cli status&apos; pour vérifier l&apos;état de la connexion.</translation>
     </message>
     <message>
         <source>Firewall is on.</source>
@@ -304,7 +296,7 @@
     </message>
     <message>
         <source>Key limit behaviour is set.</source>
-        <translation>Le comportement de la limite de touches est défini.</translation>
+        <translation>Le comportement de la limite de clés est défini.</translation>
     </message>
     <message>
         <source>Connection has been overridden by another command.</source>
@@ -320,11 +312,11 @@
     </message>
     <message>
         <source>Logging out</source>
-        <translation>Déconnexion</translation>
+        <translation>Déconnexion en cours</translation>
     </message>
     <message>
         <source>Need 2FA code</source>
-        <translation>Besoin de code 2FA</translation>
+        <translation>Code 2FA requis</translation>
     </message>
     <message>
         <source>Incorrect 2FA code</source>
@@ -332,31 +324,31 @@
     </message>
     <message>
         <source>Error: WireGuard adapter setup failed</source>
-        <translation>Erreur : Échec de la configuration de l’adaptateur WireGuard</translation>
+        <translation>Erreur : Échec de la configuration de l&apos;adaptateur WireGuard</translation>
     </message>
     <message>
         <source>Error: VPN adapter setup failed</source>
-        <translation>Erreur : Échec de la configuration de l’adaptateur VPN</translation>
+        <translation>Erreur : Échec de la configuration de l&apos;adaptateur VPN</translation>
     </message>
     <message>
         <source>(Device name: %1)</source>
-        <translation>(Nom du périphérique : %1)</translation>
+        <translation>(Nom de l&apos;appareil : %1)</translation>
     </message>
     <message>
         <source>Internet connectivity is not available.  Try again later.</source>
-        <translation>La connectivité Internet n’est pas disponible.  Réessayez plus tard.</translation>
+        <translation>Aucune connexion Internet disponible. Réessayez plus tard.</translation>
     </message>
     <message>
         <source>Please type the numbers above to continue:</source>
-        <translation>Veuillez saisir les numéros ci-dessus pour continuer :</translation>
+        <translation>Veuillez saisir les chiffres ci-dessus pour continuer :</translation>
     </message>
     <message>
         <source> (10 Gbps)</source>
-        <translation> (10 Gbit/s)</translation>
+        <translation> (10 Gb/s)</translation>
     </message>
     <message>
         <source> (Disabled)</source>
-        <translation> (Handicapé)</translation>
+        <translation> (Désactivé)</translation>
     </message>
     <message>
         <source> (Pro)</source>
@@ -368,11 +360,11 @@
     </message>
     <message>
         <source>Ignoring SSL errors is only available when unable to log in.</source>
-        <translation>Ignorer les erreurs SSL n’est possible que lorsqu’il est impossible de se connecter.</translation>
+        <translation>Ignorer les erreurs SSL n&apos;est possible qu&apos;en cas d&apos;échec de connexion.</translation>
     </message>
     <message>
         <source>Ignoring SSL errors for this session.</source>
-        <translation>Ignorant les erreurs SSL pour cette session.</translation>
+        <translation>Erreurs SSL ignorées pour cette session.</translation>
     </message>
     <message>
         <source>SSL errors will no longer be ignored.</source>
@@ -380,23 +372,19 @@
     </message>
     <message>
         <source>IP rotated.</source>
-        <translation>IP tournée.</translation>
+        <translation>IP renouvelée.</translation>
     </message>
     <message>
         <source>IP favorited.</source>
-        <translation>IP favorite.</translation>
+        <translation>IP ajoutée aux favoris.</translation>
     </message>
     <message>
         <source>IP unfavorited.</source>
-        <translation>IP non favorite.</translation>
+        <translation>IP retirée des favoris.</translation>
     </message>
     <message>
         <source>Invalid IP address</source>
-        <translation>Adresse IP non valide</translation>
-    </message>
-    <message>
-        <source>Windscribe is already running in another user session on this computer. Quit Windscribe in that session, then try again.</source>
-        <translation>Windscribe est déjà en cours d’exécution dans la session d’un autre utilisateur sur cet ordinateur. Quittez Windscribe dans cette session, puis réessayez.</translation>
+        <translation>Adresse IP invalide</translation>
     </message>
 </context>
 </TS>
