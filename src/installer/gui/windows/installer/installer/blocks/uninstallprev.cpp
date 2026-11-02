@@ -15,6 +15,8 @@
 #include "../../../utils/path.h"
 #include "../../../utils/payloadextractor.h"
 #include "../../../utils/utils.h"
+#include "../../../utils/wide_string.h"
+#include "executable_signature/executable_signature.h"
 #include "global_consts.h"
 #include "servicecontrolmanager.h"
 #include "../installer_utils.h"
@@ -153,6 +155,13 @@ int UninstallPrev::executeStep()
             DWORD lastError = 0;
             if (!uninstallOldVersion(uninstallString, lastError)) {
                 spdlog::error(L"UninstallPrev::executeStep: uninstallOldVersion failed: {}", lastError);
+                // ERROR_INVALID_IMAGE_HASH: the default-location uninstaller failed the Windscribe
+                // signature check.  Do not abort.  stopService() and terminateProtocolHandlers()
+                // have already run, and the later blocks install over the default folder.
+                if (lastError == ERROR_INVALID_IMAGE_HASH) {
+                    spdlog::warn(L"Continuing install without running the previous uninstaller.");
+                    return 100;
+                }
                 if (lastError != 2) { // Any error other than "Not found"
                     return -wsl::ERROR_OTHER;
                 }
@@ -222,18 +231,27 @@ wstring UninstallPrev::getUninstallString() const
         }
 
         if (!prevInstallPath.empty()) {
-            error_code ec;
-            if (filesystem::exists(prevInstallPath, ec)) {
-                uninstallString = Path::append(prevInstallPath, ApplicationInfo::uninstaller());
-                // We need to write the missing uninstaller location info to the registry or the uninstaller will error out with
-                // its "The uninstall cannot proceed. The installation directory does not match the removal directory." error.
-                // Unfortunately cannot simply patch the uninstaller to fix this, as this might be an old uninstaller.
-                UninstallInfo::addMissingUninstallInfo(uninstallString);
+            // HKCU applicationPath is writable by the installing user, and the service image path is
+            // still a string we would execute elevated.  Only the default Program Files location is
+            // safe to trust here: a standard user cannot recreate that folder after uninstall.
+            // A previous custom-folder install is left on the existing path; the installer already
+            // warns that a custom folder is a security risk.
+            if (!Path::equivalent(prevInstallPath, ApplicationInfo::defaultInstallPath())) {
+                spdlog::warn(L"Previous install path ({}) is not the default Program Files location. Skipping uninstall of that path.", prevInstallPath);
             } else {
-                if (ec) {
-                    spdlog::error("UninstallPrev::getUninstallString: filesystem::exists failed ({}).", ec.message());
+                error_code ec;
+                if (filesystem::exists(prevInstallPath, ec)) {
+                    uninstallString = Path::append(prevInstallPath, ApplicationInfo::uninstaller());
+                    // We need to write the missing uninstaller location info to the registry or the uninstaller will error out with
+                    // its "The uninstall cannot proceed. The installation directory does not match the removal directory." error.
+                    // Unfortunately cannot simply patch the uninstaller to fix this, as this might be an old uninstaller.
+                    UninstallInfo::addMissingUninstallInfo(uninstallString);
+                } else {
+                    if (ec) {
+                        spdlog::error("UninstallPrev::getUninstallString: filesystem::exists failed ({}).", ec.message());
+                    }
+                    spdlog::warn(L"Previous install path ({}) does not exist.", prevInstallPath);
                 }
-                spdlog::warn(L"Previous install path ({}) does not exist.", prevInstallPath);
             }
         }
     }
@@ -253,6 +271,43 @@ bool UninstallPrev::isPrevInstall64Bit() const
 bool UninstallPrev::uninstallOldVersion(const wstring &uninstallString, DWORD &lastError) const
 {
     const wstring sUnInstallString = removeQuotes(uninstallString);
+
+    // A default-location install is the only path we will execute when HKLM is missing.  Verify the
+    // Windscribe Authenticode signature before CreateProcess so a planted uninstall.exe in that
+    // folder is not run elevated.  Custom-folder installs are outside this check.
+    if (Path::equivalent(Path::extractDir(sUnInstallString), ApplicationInfo::defaultInstallPath())) {
+        if (!Path::equivalent(Path::extractName(sUnInstallString), ApplicationInfo::uninstaller())) {
+            spdlog::error(L"Refusing to run {} from the default install location: expected {}.",
+                          sUnInstallString, ApplicationInfo::uninstaller());
+            lastError = ERROR_INVALID_NAME;
+            return false;
+        }
+
+        // A missing uninstaller must report "not found" so executeStep() extracts our own signed
+        // copy into the default folder and retries; WinVerifyTrust would otherwise fail on it and
+        // the previous version would never be uninstalled.
+        error_code ec;
+        if (!filesystem::exists(sUnInstallString, ec)) {
+            if (ec) {
+                // Existence unknown (e.g. access denied): fail rather than extract over it.
+                spdlog::error("UninstallPrev::uninstallOldVersion: filesystem::exists failed ({}).", ec.message());
+                lastError = ec.value();
+            } else {
+                lastError = ERROR_FILE_NOT_FOUND;
+            }
+            return false;
+        }
+
+        ExecutableSignature sigCheck;
+        if (!sigCheck.verify(sUnInstallString)) {
+            spdlog::error(L"Refusing to run unsigned or unexpected-signer uninstaller {}: {}",
+                          sUnInstallString, wsl::toWideString(sigCheck.lastError()));
+            // The file exists but is not ours: do not extract a replacement over it and retry.
+            lastError = ERROR_INVALID_IMAGE_HASH;
+            return false;
+        }
+    }
+
     DWORD error = 0;
 
     const auto res = Utils::instExec(sUnInstallString, L"/VERYSILENT", INFINITE, SW_HIDE, L"", &error);

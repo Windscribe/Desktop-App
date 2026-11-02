@@ -47,7 +47,8 @@ ProxySettings::ProxySettings(const QJsonObject &json) : option_(PROXY_OPTION_NON
 #ifdef CLI_ONLY
 void ProxySettings::fromIni(const QSettings &settings)
 {
-    option_ = enumFromString<PROXY_OPTION>(settings.value(kIniOptionProp, enumToString(option_)).toString());
+    const ProxySettings defaults;
+    option_ = enumFromString<PROXY_OPTION>(settings.value(kIniOptionProp, enumToString(defaults.option_)).toString());
     address_ = settings.value(kIniAddressProp).toString();
     port_ = settings.value(kIniPortProp, 0).toUInt();
     username_ = settings.value(kIniUsernameProp).toString();

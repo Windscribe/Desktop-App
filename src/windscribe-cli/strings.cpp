@@ -4,122 +4,118 @@ using namespace wsnet;
 
 QString connectivityString(bool connectivity)
 {
-    return QObject::tr("Internet connectivity: %1").arg(connectivity ? QObject::tr("available") : QObject::tr("unavailable"));
+    return connectivity ? QString("Available") : QString("Unavailable");
 }
 
-QString loginStateString(LOGIN_STATE state, wsnet::LoginResult loginError, const QString &loginErrorMessage, bool showPrefix)
+QString loginStateString(LOGIN_STATE state, wsnet::LoginResult loginError, const QString &loginErrorMessage)
 {
-    QString msg = showPrefix ? QObject::tr("Login state: %1") : "%1";
-
     switch (state) {
     case LOGIN_STATE_LOGGED_OUT:
-        return msg.arg(QObject::tr("Logged out"));
+        return QString("Logged out");
     case LOGIN_STATE_LOGGING_IN:
-        return msg.arg(QObject::tr("Logging in"));
+        return QString("Logging in");
     case LOGIN_STATE_LOGGED_IN:
-        return msg.arg(QObject::tr("Logged in"));
+        return QString("Logged in");
     case LOGIN_STATE_LOGIN_ERROR:
     default:
-        QString error = QObject::tr("Error: %1");
+        QString error = QString("Error: %1");
 
         switch(loginError) {
         case LoginResult::kNoConnectivity:
-            return msg.arg(error.arg(QObject::tr("No internet connectivity")));
+            return error.arg(QString("No internet connectivity"));
         case LoginResult::kNoApiConnectivity:
-            return msg.arg(error.arg(QObject::tr("No API connectivity")));
+            return error.arg(QString("No API connectivity"));
         case LoginResult::kBadUsername:
-            return msg.arg(error.arg(QObject::tr("Incorrect username, password, or 2FA code")));
+            return error.arg(QString("Incorrect username, password, or 2FA code"));
         case LoginResult::kMissingCode2fa:
-            return msg.arg(error.arg(QObject::tr("Need 2FA code")));
+            return error.arg(QString("Need 2FA code"));
         case LoginResult::kAccountDisabled:
         case LoginResult::kInvalidSecurityToken:
-            return msg.arg(error.arg(loginErrorMessage));
+            return error.arg(loginErrorMessage);
         case LoginResult::kSslError:
 #ifdef CLI_ONLY
-            return msg.arg(QObject::tr("Could not log in.  Please try again.  If the problem continues, you can ignore SSL errors for this session, but we strongly recommend against it: doing so disables TLS certificate validation and could allow a third party to intercept your traffic.  To proceed anyway, run \"windscribe-cli ignoresslerrors on\"."));
+            return QString("Could not log in. Please try again. If the problem continues, you can ignore SSL errors for this session, but we strongly recommend against it: doing so disables TLS certificate validation and could allow a third party to intercept your traffic. To proceed anyway, run \"windscribe-cli ignoresslerrors on\".");
 #else
-            return msg.arg(error.arg(QObject::tr("SSL error")));
+            return error.arg(QString("SSL error"));
 #endif
         case LoginResult::kSessionInvalid:
-            return msg.arg(error.arg(QObject::tr("Session expired")));
+            return error.arg(QString("Session expired"));
         case LoginResult::kRateLimited:
-            return msg.arg(error.arg(QObject::tr("Rate limited")));
+            return error.arg(QString("Rate limited"));
         case LoginResult::kBadCode2fa:
-            return msg.arg(error.arg(QObject::tr("Incorrect 2FA code")));
+            return error.arg(QString("Incorrect 2FA code"));
         case LoginResult::kIncorrectJson:
         case LoginResult::kSuccess:
         default:
-            return msg.arg(QObject::tr("Unknown error"));
+            return QString("Unknown error");
         }
     }
 }
 
-QString connectStateString(types::ConnectState state, LocationID location, TUNNEL_TEST_STATE tunnelTest, bool showPrefix)
+QString connectStateString(types::ConnectState state, LocationID location, TUNNEL_TEST_STATE tunnelTest)
 {
-    QString msg = showPrefix ? QObject::tr("Connect state: %1") : "%1";
     QString connectState;
 
     switch (state.connectState) {
     case CONNECT_STATE_CONNECTED:
         if (location.isValid()) {
-            connectState = msg.arg(QObject::tr("Connected: %1").arg(location.city()));
+            connectState = QString("Connected to %1").arg(location.city());
         } else {
-            connectState = msg.arg(QObject::tr("Connected"));
+            connectState = QString("Connected");
         }
         if (tunnelTest == TUNNEL_TEST_STATE_UNKNOWN) {
-            connectState = "*" + connectState;
+            connectState += " " + QString("(checking the connection)");
         } else if (tunnelTest == TUNNEL_TEST_STATE_FAILURE) {
-            connectState += " " + QObject::tr("[Network interference]");
+            connectState += " " + QString("(network interference detected)");
         }
         return connectState;
     case CONNECT_STATE_CONNECTING:
         if (location.isValid()) {
-            return msg.arg(QObject::tr("Connecting: %1").arg(location.city()));
+            return QString("Connecting to %1").arg(location.city());
         } else {
-            return msg.arg(QObject::tr("Connecting"));
+            return QString("Connecting");
         }
     case CONNECT_STATE_DISCONNECTING:
-        return msg.arg(QObject::tr("Disconnecting"));
+        return QString("Disconnecting");
     case CONNECT_STATE_DISCONNECTED:
         if (state.disconnectReason == DISCONNECTED_BY_KEY_LIMIT) {
-            return msg.arg(QObject::tr("Disconnected due to reaching WireGuard key limit.  Use \"windscribe-cli keylimit delete\" if you want to delete the oldest key instead, and try again."));
+            return QString("Disconnected due to reaching WireGuard key limit. Use \"windscribe-cli keylimit delete\" if you want to delete the oldest key instead, and try again.");
         }
 
         switch(state.connectError) {
         case ConnectError::kNoError:
-            return msg.arg(QObject::tr("Disconnected"));
+            return QString("Disconnected");
         case ConnectError::kLocationUnavailable:
-            return msg.arg(QObject::tr("Error: Location does not exist or is disabled"));
+            return QString("Error: Location does not exist or is disabled");
         case ConnectError::kAccountBlocked:
-            return msg.arg(QObject::tr("Error: You are out of data, or your account has been disabled. Upgrade to Pro to continue using Windscribe"));
+            return QString("Error: You are out of data, or your account has been disabled. Upgrade to Pro to continue using Windscribe");
         case ConnectError::kDnsServiceStartFailure:
-            return msg.arg(QObject::tr("Error: Unable to start custom DNS service"));
+            return QString("Error: Unable to start custom DNS service");
         case ConnectError::kHostsFileNotWritable:
-            return msg.arg(QObject::tr("Error: Could not update the hosts file required by IKEv2"));
+            return QString("Error: Could not update the hosts file required by IKEv2");
         case ConnectError::kAdapterSetupFailure:
-            return msg.arg(QObject::tr("Error: WireGuard adapter setup failed"));
+            return QString("Error: WireGuard adapter setup failed");
         case ConnectError::kAdapterNotInstalled:
-            return msg.arg(QObject::tr("Error: VPN adapter setup failed"));
+            return QString("Error: VPN adapter setup failed");
         case ConnectError::kConfigFetchFailure:
-            return msg.arg(QObject::tr("Error: Could not retrieve WireGuard configuration"));
+            return QString("Error: Could not retrieve WireGuard configuration");
         case ConnectError::kLocalConfigGenerationFailure:
-            return msg.arg(QObject::tr("Error: Could not generate connection configuration"));
+            return QString("Error: Could not generate connection configuration");
         case ConnectError::kLocalDnsServerNotAvailable:
-            return msg.arg(QObject::tr("Error: Local DNS server is not available. Connected DNS has been set back to Auto"));
+            return QString("Error: Local DNS server is not available. Connected DNS has been set back to Auto");
         case ConnectError::kCustomConfigInvalid:
             if (!state.connectErrorDetail.isEmpty()) {
-                return msg.arg(QObject::tr("Error: The custom configuration could not be loaded") + QString(". ") + state.connectErrorDetail);
+                return QString("Error: The custom configuration could not be loaded") + QString(". ") + state.connectErrorDetail;
             }
-            return msg.arg(QObject::tr("Error: The custom configuration could not be loaded"));
+            return QString("Error: The custom configuration could not be loaded");
         default:
             if (!state.connectErrorDetail.isEmpty()) {
-                return msg.arg(QObject::tr("Error: %1").arg(static_cast<int>(state.connectError))
-                               + QString(". ") + state.connectErrorDetail);
+                return QString("Error: %1").arg(static_cast<int>(state.connectError)) + QString(". ") + state.connectErrorDetail;
             }
-            return msg.arg(QObject::tr("Error: %1").arg(static_cast<int>(state.connectError)));
+            return QString("Error: %1").arg(static_cast<int>(state.connectError));
         }
     default:
-        return msg.arg(QObject::tr("Unknown state"));
+        return QString("Unknown state");
     }
 }
 
@@ -128,51 +124,40 @@ QString ipString(const QString &ip, bool isConnected)
     if (ip.isEmpty()) {
         return QString();
     }
-    return isConnected ? QObject::tr("VPN IP: %1").arg(ip) : QObject::tr("Public IP: %1").arg(ip);
+    return isConnected ? QString("%1 (VPN)").arg(ip) : QString("%1 (public)").arg(ip);
 }
 
 QString protocolString(types::Protocol protocol, uint port)
 {
-    return QObject::tr("Protocol: %1:%2").arg(protocol.toLongString()).arg(port);
+    return QString("%1:%2").arg(protocol.toLongString()).arg(port);
 }
 
 QString firewallStateString(bool isFirewallOn, bool isFirewallAlwaysOn)
 {
-    QString msg = QObject::tr("Firewall state: %1");
-
     if (isFirewallAlwaysOn) {
-        return msg.arg(QObject::tr("Always On"));
+        return QString("Always On");
     }
     else if (isFirewallOn) {
-        return msg.arg(QObject::tr("On"));
+        return QString("On");
     }
     else {
-        return msg.arg(QObject::tr("Off"));
+        return QString("Off");
     }
 }
 
-QString dataString(const QString &language, qint64 data)
+QString dataString(qint64 data)
 {
-    QLocale locale(language);
-    return locale.formattedDataSize(data, 2, QLocale::DataSizeTraditionalFormat);
-}
-
-QString updateString(const QString &updateAvailable)
-{
-    if (!updateAvailable.isEmpty()) {
-        return QObject::tr("Update available: %1").arg(updateAvailable);
-    }
-    return QObject::tr("No update available");
+    return QLocale::c().formattedDataSize(data, 2, QLocale::DataSizeTraditionalFormat);
 }
 
 QString updateErrorString(UPDATE_VERSION_ERROR error)
 {
     if (error == UPDATE_VERSION_ERROR_DL_FAIL) {
-        return QObject::tr("Update error: download failed. Please try again or try a different network.");
+        return QString("Update error: download failed. Please try again or try a different network.");
     } else if (error == UPDATE_VERSION_ERROR_CANCELLED) {
-        return QObject::tr("Update cancelled.");
+        return QString("Update cancelled.");
     } else if (error != UPDATE_VERSION_ERROR_NO_ERROR) {
-        return QObject::tr("Update error: %1").arg(error);
+        return QString("Update error: %1").arg(error);
     } else {
         return "";
     }
@@ -180,7 +165,7 @@ QString updateErrorString(UPDATE_VERSION_ERROR error)
 
 QString deviceNameString(const QString &deviceName)
 {
-    return QObject::tr("(Device name: %1)").arg(deviceName);
+    return QString("Device name: %1").arg(deviceName);
 }
 
 QString locationsString(const QList<IPC::CliCommands::IpcLocation> &locations)
@@ -205,13 +190,13 @@ QString locationsString(const QList<IPC::CliCommands::IpcLocation> &locations)
 
         if (location.flags & (int)IPC::CliCommands::LocationFlags::kDisabled) {
             if (location.flags & (int)IPC::CliCommands::LocationFlags::kPremium) {
-                locationStr += QObject::tr(" (Pro)");
+                locationStr += QString(" (Pro)");
             } else {
-                locationStr += QObject::tr(" (Disabled)");
+                locationStr += QString(" (Disabled)");
             }
         }
-    if (location.flags & (int)IPC::CliCommands::LocationFlags::k10Gbps) {
-            locationStr += QObject::tr(" (10 Gbps)");
+        if (location.flags & (int)IPC::CliCommands::LocationFlags::k10Gbps) {
+            locationStr += QString(" (10 Gbps)");
         }
 
         msg += locationStr + "\n";
@@ -222,6 +207,31 @@ QString locationsString(const QList<IPC::CliCommands::IpcLocation> &locations)
 
 QString appRunningInAnotherSessionString()
 {
-    return QObject::tr("Windscribe is already running in another user session on this computer. "
+    return QString("Windscribe is already running in another user session on this computer. "
                        "Quit Windscribe in that session, then try again.");
+}
+
+QString notLoggedInString()
+{
+    return QString("Not logged in. Run \"windscribe-cli login\" first.");
+}
+
+QString noConnectivityString()
+{
+    return QString("Internet connectivity is not available. Try again later.");
+}
+
+QString statusString(const QList<QPair<QString, QString>> &items)
+{
+    qsizetype width = 0;
+    for (const auto &item : items) {
+        width = qMax(width, item.first.length());
+    }
+
+    QStringList lines;
+    for (const auto &item : items) {
+        // Labels are translated, so line the values up by the longest one.
+        lines << (item.first + ":").leftJustified(width + 3) + item.second;
+    }
+    return lines.join("\n");
 }

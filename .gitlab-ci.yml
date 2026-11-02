@@ -40,6 +40,9 @@ variables:
   CCACHE_REMOTE_STORAGE: 'https://${NEXUS_USERNAME}:${NEXUS_PASSWORD}@nexus.int.windscribe.com/repository/client-desktop/client-desktop/ccache'
   # Qt's resource compiler otherwise embeds each file's modification time, which differs on every fresh clone.
   QT_RCC_SOURCE_DATE_OVERRIDE: '1'
+  # Artifacts carry the whole app payload between jobs; on the internal network zip time costs more than upload size.
+  FF_USE_FASTZIP: 'true'
+  ARTIFACT_COMPRESSION_LEVEL: 'fastest'
 
 .check_translations:
   script:
@@ -49,8 +52,6 @@ variables:
     - if ( $Diff.Count -ne 0 ) { echo "You have changed installer strings which are not in ts files.  Update your ts files by building locally, run the translation script on them, and add them to the commit."; exit 1 }
     - $Diff = git diff src/installer/gui/windows/uninstaller/translations
     - if ( $Diff.Count -ne 0 ) { echo "You have changed uninstaller strings which are not in ts files.  Update your ts files by building locally, run the translation script on them, and add them to the commit."; exit 1 }
-    - $Diff = git diff src/windscribe-cli/translations
-    - if ( $Diff.Count -ne 0 ) { echo "You have changed CLI strings which are not in ts files.  Update your ts files by building locally, run the translation script on them, and add them to the commit."; exit 1 }
 
 .template_win10_build: &template_win10_build
   tags: [win10qty6]
@@ -69,6 +70,7 @@ variables:
     - Set-Alias -Name curl -Value curl.exe
   interruptible: true
 
+# Sign jobs use GIT_STRATEGY fetch: every pipeline queues on the one signing runner, and they only need the scripts.
 .template_win10_sign: &template_win10_sign
   tags: [win10-digicert-sign]
   before_script:
@@ -255,7 +257,7 @@ sign:win:x64:app:
   <<: *template_win10_sign
   stage: Build
   variables:
-    GIT_STRATEGY: clone
+    GIT_STRATEGY: fetch
   script:
     - tools/build_all --sign-app --ci-mode
   needs:
@@ -269,7 +271,7 @@ sign:win:arm64:app:
   <<: *template_win10_sign
   stage: Build
   variables:
-    GIT_STRATEGY: clone
+    GIT_STRATEGY: fetch
   script:
     - tools/build_all --sign-app --arm64 --ci-mode
   needs:
@@ -286,7 +288,7 @@ build:win:x64:installer:
   artifacts:
     paths:
       - build/temp/
-      - build/src/installer/
+      - build/src/installer/gui/windows/installer/installer.exe
     expire_in: 1 day
   needs:
     - job: sign:win:x64:app
@@ -299,13 +301,13 @@ sign:win:x64:installer:
   <<: *template_win10_sign
   stage: Build
   variables:
-    GIT_STRATEGY: clone
+    GIT_STRATEGY: fetch
   script:
     - tools/build_all --sign-installer --ci-mode
   artifacts:
     paths:
       - build/temp/
-      - build/src/installer/
+      - build/src/installer/gui/windows/installer/installer.exe
     expire_in: 1 day
   needs:
     - job: build:win:x64:installer
@@ -318,13 +320,13 @@ sign:win:arm64:installer:
   <<: *template_win10_sign
   stage: Build
   variables:
-    GIT_STRATEGY: clone
+    GIT_STRATEGY: fetch
   script:
     - tools/build_all --sign-installer --arm64 --ci-mode
   artifacts:
     paths:
       - build/temp/
-      - build/src/installer/
+      - build/src/installer/gui/windows/installer/installer.exe
     expire_in: 1 day
   needs:
     - job: build:win:arm64:installer
@@ -349,7 +351,7 @@ sign:win:x64:bootstrap:
   <<: *template_win10_sign
   stage: Build
   variables:
-    GIT_STRATEGY: clone
+    GIT_STRATEGY: fetch
   script:
     - Set-Variable -name VERSION -value $(cmake -P cmake/print_version.cmake 2>&1)
     - tools/build_all --sign-bootstrap --ci-mode
@@ -369,7 +371,7 @@ sign:win:arm64:bootstrap:
   <<: *template_win10_sign
   stage: Build
   variables:
-    GIT_STRATEGY: clone
+    GIT_STRATEGY: fetch
   script:
     - Set-Variable -name VERSION -value $(cmake -P cmake/print_version.cmake 2>&1)
     - tools/build_all --sign-bootstrap --arm64 --ci-mode
@@ -389,7 +391,7 @@ sign:win:x64:bootstrap:tagged:
   <<: *template_win10_sign
   stage: Build
   variables:
-    GIT_STRATEGY: clone
+    GIT_STRATEGY: fetch
   script:
     - Set-Variable -name VERSION -value $(cmake -P cmake/print_version.cmake 2>&1)
     - Set-Variable -name TAG -value $($CI_COMMIT_TAG -replace '^v([0-9].*)','$1')
@@ -412,7 +414,7 @@ sign:win:arm64:bootstrap:tagged:
   <<: *template_win10_sign
   stage: Build
   variables:
-    GIT_STRATEGY: clone
+    GIT_STRATEGY: fetch
   script:
     - Set-Variable -name VERSION -value $(cmake -P cmake/print_version.cmake 2>&1)
     - Set-Variable -name TAG -value $($CI_COMMIT_TAG -replace '^v([0-9].*)','$1')
@@ -437,8 +439,13 @@ build:win:arm64:app:
     OS_IDENTIFIER: "windows-arm64"
     BUILD_LIBS_FOLDER: "$BUILD_LIBS_FOLDER_ARM64"
     ARCH_FLAG: "--arm64"
+  # Branch pipelines build arm64 only when this job is played: the chain doubles Windows runner and signing runner load.
+  # The later arm64 jobs need this one, so they stay skipped until it runs and then follow automatically.
   rules:
-    - if: $BUILD_WIN_ARM64 == "y" && ($CI_COMMIT_TAG != null || $CI_COMMIT_BRANCH != null) && $NIGHTLY_TEST_BUILD != "y"
+    - if: $BUILD_WIN_ARM64 == "y" && $CI_COMMIT_TAG != null && $NIGHTLY_TEST_BUILD != "y"
+    - if: $BUILD_WIN_ARM64 == "y" && $CI_COMMIT_BRANCH != null && $NIGHTLY_TEST_BUILD != "y"
+      when: manual
+      allow_failure: true
 
 build:win:arm64:mr:
   <<: *template_win10_build
@@ -463,7 +470,7 @@ build:win:arm64:installer:
   artifacts:
     paths:
       - build/temp/
-      - build/src/installer/
+      - build/src/installer/gui/windows/installer/installer.exe
     expire_in: 1 day
   needs:
     - job: sign:win:arm64:app
@@ -1201,9 +1208,9 @@ test:translations:
   variables:
     GIT_STRATEGY: clone
   script:
-    - $Unfinished = Select-String -Path src\client\frontend\gui\translations\*,src\installer\gui\installer-gui-common\translations\*,src\installer\gui\windows\uninstaller\translations\*,src\windscribe-cli\translations\* -Pattern 'type="unfinished"'
+    - $Unfinished = Select-String -Path src\client\frontend\gui\translations\*,src\installer\gui\installer-gui-common\translations\*,src\installer\gui\windows\uninstaller\translations\* -Pattern 'type="unfinished"'
     - if ( $Unfinished.Matches.Count -ne 0 ) { echo "You have untranslated strings in your ts files.  Run the translation script on the ts files and add them to the commit."; exit 1 }
-    - $Vanished = Select-String -Path src\client\frontend\gui\translations\*,src\installer\gui\installer-gui-common\translations\*,src\installer\gui\windows\uninstaller\translations\*,src\windscribe-cli\translations\* -Pattern 'type="vanished"'
+    - $Vanished = Select-String -Path src\client\frontend\gui\translations\*,src\installer\gui\installer-gui-common\translations\*,src\installer\gui\windows\uninstaller\translations\* -Pattern 'type="vanished"'
     - if ( $Vanished.Matches.Count -ne 0 ) { echo "You have vanished strings in your ts files.  Run the translation script on the ts files with --remove-vanished and add them to the commit."; exit 1 }
   needs: []
   rules:
@@ -1342,3 +1349,17 @@ build:nightly:rhel:
     - ctest --test-dir build -L client-desktop --output-on-failure
   rules:
     - if: $BUILD_LINUX == "y" && $NIGHTLY_TEST_BUILD == "y"
+
+# The CLI-only build compiles code (and tests) behind CLI_ONLY that the GUI nightly job never builds.
+build:nightly:rhel_cli:
+  <<: *template_rhel_build
+  stage: Build
+  variables:
+    GIT_STRATEGY: clone
+  script:
+    - OS_IDENTIFIER="linux"
+    - !reference [.build_linux_installer_common, script]
+    - tools/build_all --ci-mode --build-tests --integration=cli
+    - ctest --test-dir build -L client-desktop --output-on-failure
+  rules:
+    - if: $BUILD_LINUX == "y" && $BUILD_LINUX_CLI == "y" && $NIGHTLY_TEST_BUILD == "y"

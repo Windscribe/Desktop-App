@@ -14,36 +14,37 @@ bool IKEv2Route::addRouteForIKEv2()
     IF_INDEX ifIndex;
     std::wstring ip;
 
-    if (ai.getIkev2AdapterInfo(ifIndex, ip))
-    {
-        MIB_IPINTERFACE_ROW interfaceRow = { 0 };
-        interfaceRow.Family = AF_INET;
-        interfaceRow.InterfaceIndex = ifIndex;
-        if (GetIpInterfaceEntry(&interfaceRow) == NO_ERROR)
-        {
-            // add route
-            MIB_IPFORWARDROW row = { 0 };
-            row.dwForwardDest = 0;
-            row.dwForwardMask = 0;
-            row.dwForwardPolicy = 0;
-            row.dwForwardNextHop = types::IpAddress(ip).ipv4NetworkOrder();
-            row.dwForwardIfIndex = ifIndex;
-            row.dwForwardType = MIB_IPROUTE_TYPE_INDIRECT;
-            row.dwForwardProto = MIB_IPPROTO_NETMGMT;
-            row.dwForwardAge = INFINITE;
-            row.dwForwardMetric1 = interfaceRow.Metric;
+    if (!ai.getIkev2AdapterInfo(ifIndex, ip)) {
+        spdlog::error("IKEv2Route::addRouteForIKEv2(), ai.getIkev2AdapterInfo failed");
+        return false;
+    }
 
-            DWORD status = CreateIpForwardEntry(&row);
-            return status == NO_ERROR;
-        }
-        else
-        {
-            spdlog::error("IKEv2Route::addRouteForIKEv2(), GetIpInterfaceEntry() failed");
-        }
+    MIB_IPINTERFACE_ROW interfaceRow = { 0 };
+    interfaceRow.Family = AF_INET;
+    interfaceRow.InterfaceIndex = ifIndex;
+    DWORD result = GetIpInterfaceEntry(&interfaceRow);
+    if (result != NO_ERROR) {
+        spdlog::error("IKEv2Route::addRouteForIKEv2: GetIpInterfaceEntry failed {}", result);
+        return false;
     }
-    else
-    {
-        spdlog::error("IKEv2Route::addRouteForIKEv2(), ai.getIkev2AdapterInfo() failed");
+
+    // add route
+    MIB_IPFORWARDROW row = { 0 };
+    row.dwForwardDest = 0;
+    row.dwForwardMask = 0;
+    row.dwForwardPolicy = 0;
+    row.dwForwardNextHop = types::IpAddress(ip).ipv4NetworkOrder();
+    row.dwForwardIfIndex = ifIndex;
+    row.dwForwardType = MIB_IPROUTE_TYPE_INDIRECT;
+    row.dwForwardProto = MIB_IPPROTO_NETMGMT;
+    row.dwForwardAge = INFINITE;
+    row.dwForwardMetric1 = interfaceRow.Metric;
+
+    result = CreateIpForwardEntry(&row);
+    if (result != NO_ERROR) {
+        spdlog::error("IKEv2Route::addRouteForIKEv2(), CreateIpForwardEntry failed {}", result);
+        return false;
     }
-    return false;
+
+    return true;
 }

@@ -152,7 +152,19 @@ bool Helper_win::configureWireGuard(const WireGuardConfig &config)
     if (!config.hasValidServerValues()) {
         return false;
     }
-    auto result = sendCommand(HelperCommand::configureWireGuard, config.generateConfigFile().toStdWString());
+    // The helper validates these fields again and is the only author of the service .conf.
+    // Keys stay base64: wireguard-windows reads a config file, not the hex UAPI form POSIX uses.
+    auto result = sendCommand(HelperCommand::configureWireGuard,
+                              config.clientPrivateKey().toStdWString(),
+                              config.clientIpAddress().toStdWString(),
+                              config.clientDnsAddress().toStdWString(),
+                              config.clientListenPort().toStdWString(),
+                              config.peerPublicKey().toStdWString(),
+                              config.peerPresharedKey().toStdWString(),
+                              config.peerEndpoint().toStdWString(),
+                              config.peerAllowedIps().toStdWString(),
+                              config.peerPersistentKeepalive().toStdWString(),
+                              config.amneziawgParamToHelperConfig());
     bool success = false;
     deserializeAnswer(result, success);
     return success;

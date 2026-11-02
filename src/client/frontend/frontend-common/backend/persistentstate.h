@@ -54,7 +54,8 @@ public:
     bool isIgnoreNotificationDisabled() const;
 
 #ifdef CLI_ONLY
-    void fromIni(QSettings &settings);
+    // A network the file does not mention gets the trust Auto-Secure gives a newly joined network.
+    void fromIni(QSettings &settings, bool isAutoSecureNetworks);
     void toIni(QSettings &settings);
 #endif
 

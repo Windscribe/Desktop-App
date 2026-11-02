@@ -1,78 +1,93 @@
 #include <shlobj.h>
-#include <wtsapi32.h>
 
 #include <string>
 #include <spdlog/spdlog.h>
 
 #include "ikev2ipsec.h"
 #include "executecmd.h"
-
+#include "utils.h"
+#include "utils/win32handle.h"
 
 namespace
 {
 static const TCHAR kConnectionName[] = TEXT(WS_WIN_IKEV2_CONNECTION_NAME);
 
-// RAII helper for security impersonation as an active logged on user.
-// This is essential because phone books are specific to the user.
-class CurrentUserImpersonationHelper
+// RAII helper for security impersonation as the user owning the helper IPC pipe client.
+// This is essential because phone books are specific to the user, and the RAS entry is created
+// by the client process, which is not necessarily running as the active console session's user
+// (e.g. RDP, fast user switching, runas).
+class PipeClientImpersonationHelper
 {
 public:
-    CurrentUserImpersonationHelper() : token_(INVALID_HANDLE_VALUE), is_impersonated_(false)
+    explicit PipeClientImpersonationHelper(HANDLE clientPipe)
     {
-        HANDLE base_token;
-        if (!WTSQueryUserToken(WTSGetActiveConsoleSessionId(), &base_token))
+        if (!Utils::getPipeClientPrimaryToken(clientPipe, token_.data())) {
             return;
-        if (DuplicateTokenEx(base_token, MAXIMUM_ALLOWED, NULL, SecurityImpersonation,
-            TokenPrimary, &token_)) {
-            if (ImpersonateLoggedOnUser(token_))
-                is_impersonated_ = true;
         }
-        CloseHandle(base_token);
+        if (!ImpersonateLoggedOnUser(token_.getHandle())) {
+            spdlog::error("PipeClientImpersonationHelper: ImpersonateLoggedOnUser failed {}", ::GetLastError());
+            token_.closeHandle();
+        }
     }
-    ~CurrentUserImpersonationHelper()
+    ~PipeClientImpersonationHelper()
     {
-        if (is_impersonated_)
-            RevertToSelf();
-        if (token_ != INVALID_HANDLE_VALUE)
-            CloseHandle(token_);
+        if (isImpersonated()) {
+            if (!RevertToSelf()) {
+                spdlog::error("PipeClientImpersonationHelper: RevertToSelf failed {}", ::GetLastError());
+            }
+        }
     }
-    HANDLE token() const { return token_; }
-    bool isImpersonated() const { return is_impersonated_; }
+    HANDLE token() const { return token_.getHandle(); }
+    bool isImpersonated() const { return token_.isValid(); }
 private:
-    HANDLE token_;
-    bool is_impersonated_;
+    wsl::Win32Handle token_;
 };
 }
 
-bool IKEv2IPSec::setIKEv2IPSecParameters()
+bool IKEv2IPSec::setIKEv2IPSecParameters(HANDLE clientPipe)
 {
     disableMODP2048Support();
 
     // First, try to add IPSec parameters to the phonebook manually.
-    if (setIKEv2IPSecParametersInPhoneBook())
+    if (setIKEv2IPSecParametersInPhoneBook(clientPipe))
         return true;
-    // If it failed, try to add them via a PowerShell command.
-    return setIKEv2IPSecParametersPowerShell();
+
+    spdlog::warn(L"setIKEv2IPSecParameters could not edit the RAS phonebook, falling back to PowerShell.");
+    return setIKEv2IPSecParametersPowerShell(clientPipe);
 }
 
-bool IKEv2IPSec::setIKEv2IPSecParametersInPhoneBook()
+bool IKEv2IPSec::setIKEv2IPSecParametersInPhoneBook(HANDLE clientPipe)
 {
-    CurrentUserImpersonationHelper impersonation_helper;
+    PipeClientImpersonationHelper impersonation_helper(clientPipe);
     if (!impersonation_helper.isImpersonated())
         return false;
 
     TCHAR pbk_path[MAX_PATH];
     for (const auto clsid : { CSIDL_APPDATA, CSIDL_LOCAL_APPDATA, CSIDL_COMMON_APPDATA }) {
-        if (SHGetFolderPath(0, clsid, impersonation_helper.token(), SHGFP_TYPE_CURRENT, pbk_path))
+        HRESULT folderHr = SHGetFolderPath(0, clsid, impersonation_helper.token(), SHGFP_TYPE_CURRENT, pbk_path);
+        if (FAILED(folderHr)) {
+            spdlog::debug("setIKEv2IPSecParametersInPhoneBook: SHGetFolderPath({}) failed: {:#x}", clsid, static_cast<unsigned long>(folderHr));
             continue;
+        }
         std::wstring phonebookEntry(pbk_path);
         phonebookEntry += L"\\Microsoft\\Network\\Connections\\Pbk\\rasphone.pbk";
         // Check if the phonebook exists and is valid.
         auto pbk_handle = CreateFile(phonebookEntry.c_str(), GENERIC_WRITE, 0, nullptr, OPEN_EXISTING,
                                      FILE_ATTRIBUTE_NORMAL, nullptr);
-        if (pbk_handle == INVALID_HANDLE_VALUE)
+        if (pbk_handle == INVALID_HANDLE_VALUE) {
+            const DWORD openError = ::GetLastError();
+            if (openError != ERROR_FILE_NOT_FOUND && openError != ERROR_PATH_NOT_FOUND) {
+                spdlog::debug(L"setIKEv2IPSecParametersInPhoneBook: cannot open phonebook {} ({})", phonebookEntry, openError);
+            }
             continue;
+        }
         CloseHandle(pbk_handle);
+        // Only modify the phonebook that actually holds our RAS entry. Otherwise we would add an
+        // orphan section to an unrelated phonebook and never update the real entry.
+        TCHAR key_names[64] = {};
+        if (GetPrivateProfileString(kConnectionName, nullptr, L"", key_names, _countof(key_names),
+                                    phonebookEntry.c_str()) == 0)
+            continue;
         // Write custom IPSec parameters to the phonebook.
         if (!WritePrivateProfileString(
             kConnectionName, L"NumCustomPolicy", L"1", phonebookEntry.c_str()) ||
@@ -86,7 +101,9 @@ bool IKEv2IPSec::setIKEv2IPSecParametersInPhoneBook()
             !WritePrivateProfileString( kConnectionName, L"IpNBTFlags", L"0", phonebookEntry.c_str())) {
             // This is a valid phonebook, but we cannot write it. Don't try other locations, they
             // won't make any sense; better to try other IPSec setup functions, like PowerShell.
-            spdlog::warn(L"Phonebook is not accessible: {}", phonebookEntry.c_str());
+            // Short-circuit evaluation guarantees the failing WritePrivateProfileString was the last call.
+            const DWORD writeError = ::GetLastError();
+            spdlog::warn(L"Phonebook is not accessible: {} ({})", phonebookEntry.c_str(), writeError);
             break;
         }
         return true;
@@ -94,7 +111,7 @@ bool IKEv2IPSec::setIKEv2IPSecParametersInPhoneBook()
     return false;
 }
 
-bool IKEv2IPSec::setIKEv2IPSecParametersPowerShell()
+bool IKEv2IPSec::setIKEv2IPSecParametersPowerShell(HANDLE clientPipe)
 {
     TCHAR command_buffer[1024] = {};
     wsprintf(command_buffer, L"PowerShell -Command \"Set-VpnConnectionIPsecConfiguration"
@@ -103,18 +120,19 @@ bool IKEv2IPSec::setIKEv2IPSecParametersPowerShell()
         " -EncryptionMethod GCMAES256 -IntegrityCheckMethod SHA384"
         " -DHGroup ECP384 -PfsGroup ECP384 -Force\"", kConnectionName);
 
-    CurrentUserImpersonationHelper impersonation_helper;
+    PipeClientImpersonationHelper impersonation_helper(clientPipe);
     if (!impersonation_helper.isImpersonated())
         return false;
 
     auto mpr = ExecuteCmd::instance().executeBlockingCmd(
         command_buffer, impersonation_helper.token());
-    if (!mpr.success) {
-        spdlog::error(L"Command failed: {}", command_buffer);
+    if (!mpr.success || mpr.exitCode != 0) {
+        spdlog::error(L"Command failed (exit code {}): {}", mpr.exitCode, command_buffer);
         if (!mpr.output.empty())
             spdlog::info(L"Output: {}", mpr.output);
+        return false;
     }
-    return mpr.success;
+    return true;
 }
 
 void IKEv2IPSec::disableMODP2048Support()

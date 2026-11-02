@@ -4,7 +4,6 @@
 #include "arguments_parser.h"
 #include "copy_and_run.h"
 #include "registry.h"
-#include "remove_directory.h"
 #include "resource.h"
 #include "uninstall.h"
 
@@ -131,25 +130,41 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
 
     const bool uninstallSucceeded = Uninstaller::RunSecondPhase();
 
-    // On a successful interactive uninstall, remove the whole %ProgramData%\Windscribe
-    // folder including the installer/uninstaller logs, so a full removal of the product
-    // leaves no leftovers.  A silent uninstall is an upgrade driven by the installer --
-    // the logs must survive it.  On failure the logs are kept: they are the diagnostics.
-    // DelTree does not follow reparse points (it removes the link itself), so a
-    // junction/symlink planted in the folder cannot redirect the deletion elsewhere.
+    // On a successful interactive uninstall, remove the installer/uninstaller logs and the
+    // %ProgramData%\Windscribe folder, so a full removal of the product leaves no leftovers.
+    // A silent uninstall is an upgrade driven by the installer -- the logs must survive it.
+    // On failure the logs are kept: they are the diagnostics.
+    // Only the known log files are deleted, never a recursive tree walk: a standard user
+    // can pre-create this folder and own it, and could then swap a subfolder for a junction
+    // mid-walk to redirect an elevated recursive delete (e.g. to C:\Config.Msi).  Redirection
+    // Guard blocks that on build 19041+, but we support builds back to 17763.  Anything else
+    // in the folder makes RemoveDirectory fail as "not empty" and is left in place.
+    // The folder itself must also be trusted: if the user owns it, they can replace it with a
+    // junction to \RPC Control and redirect even a fixed-name delete.  A successful open() means
+    // the folder passed PersistentLog's owner/reparse checks and its DACL was reset, so a
+    // standard user can no longer swap it.  Otherwise leave the folder alone.
     if (uninstallSucceeded && !isSilent) {
         const std::wstring logDir = wsl::PersistentLog::defaultDirectory();
-        spdlog::info(L"Removing directory {}", logDir);
+        const bool logDirTrusted = persistentLog.isOpen();
+        if (logDirTrusted) {
+            spdlog::info(L"Removing log files and directory {}", logDir);
+        } else {
+            spdlog::warn(L"Log directory {} failed the safety checks; leaving it in place", logDir);
+        }
         // Close our own uninstaller.log handle; otherwise the deletion below would fail
         // with a sharing violation.  Subsequent log entries go to OutputDebugString only.
         persistentLog.close();
-        if (!logDir.empty()) {
+        if (logDirTrusted && !logDir.empty()) {
+            const wchar_t *logFiles[] = { L"installer.log", L"installer.log.1", L"uninstaller.log", L"uninstaller.log.1" };
             // Retry a few times: the first-phase uninstaller may still briefly hold its
             // uninstaller.log handle.  The log is opened with FILE_SHARE_DELETE, but on
             // older Windows 10 builds the file name disappears only when the last handle
             // closes, which can make the directory removal fail as "not empty".
             for (int attempt = 0; attempt < 5; ++attempt) {
-                if (RemoveDir::DelTree(logDir, true, true, true, false)) {
+                for (const wchar_t *logFile : logFiles) {
+                    ::DeleteFile(Path::append(logDir, logFile).c_str());
+                }
+                if (::RemoveDirectory(logDir.c_str())) {
                     break;
                 }
                 ::Sleep(200);

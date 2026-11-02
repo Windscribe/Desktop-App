@@ -56,8 +56,9 @@ struct FirewallSettings
 #ifdef CLI_ONLY
     void fromIni(const QSettings &settings)
     {
-        mode = enumFromString<FIREWALL_MODE>(settings.value(kIniModeProp, enumToString(mode)).toString());
-        when = enumFromString<FIREWALL_WHEN>(settings.value(kIniWhenProp, enumToString(when)).toString());
+        const FirewallSettings defaults;
+        mode = enumFromString<FIREWALL_MODE>(settings.value(kIniModeProp, enumToString(defaults.mode)).toString());
+        when = enumFromString<FIREWALL_WHEN>(settings.value(kIniWhenProp, enumToString(defaults.when)).toString());
     }
 
     void toIni(QSettings &settings) const

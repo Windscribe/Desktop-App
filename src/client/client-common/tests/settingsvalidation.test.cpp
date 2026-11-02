@@ -1,5 +1,6 @@
 #include "settingsvalidation.test.h"
 
+#include <QFile>
 #include <QSettings>
 #include <QTemporaryDir>
 #include <QTemporaryFile>
@@ -25,6 +26,12 @@ void TestSettingsValidation::initTestCase()
 {
     QCoreApplication::setOrganizationName("WindscribeTest");
     QCoreApplication::setApplicationName("settingsvalidation.test");
+#ifdef CLI_ONLY
+    // Loading settings also applies the CLI config file; the machine's own file must not leak into the tests.
+    QVERIFY(settingsDir_.isValid());
+    QSettings::setPath(QSettings::IniFormat, QSettings::UserScope, settingsDir_.filePath("user"));
+    QSettings::setPath(QSettings::IniFormat, QSettings::SystemScope, settingsDir_.filePath("system"));
+#endif
 }
 
 void TestSettingsValidation::cleanupTestCase()
@@ -106,6 +113,219 @@ void TestSettingsValidation::testEngineSettings_outOfRangeDnsPolicy()
     data.validate();
     QCOMPARE(data.dnsPolicy, DNS_TYPE_CLOUDFLARE);
 }
+
+#ifdef CLI_ONLY
+namespace {
+QString writeIni(const QTemporaryDir &dir, const QByteArray &contents)
+{
+    const QString path = dir.filePath("windscribe_cli.conf");
+    QFile f(path);
+    if (!f.open(QIODevice::WriteOnly) || f.write(contents) != contents.size()) {
+        return QString();
+    }
+    return path;
+}
+}
+
+void TestSettingsValidation::testEngineSettings_readsPerNetworkProtocolsFromIni()
+{
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    const QString path = writeIni(dir,
+        "[Networks]\n"
+        "MyWifi\\ConnectionMode=Manual\n"
+        "MyWifi\\ManualConnectionProtocol=TCP\n"
+        "MyWifi\\ManualConnectionPort=8080\n"
+        "Cafe\\NetworkTrustType=Unsecured\n");
+    QVERIFY(!path.isEmpty());
+
+    QSettings ini(path, QSettings::IniFormat);
+    types::EngineSettingsData data;
+    data.fromIni(ini);
+
+    QVERIFY(data.networkPreferredProtocols.contains("MyWifi"));
+    const types::ConnectionSettings &myWifi = data.networkPreferredProtocols["MyWifi"];
+    QVERIFY(!myWifi.isAutomatic());
+    QVERIFY(myWifi.protocol() == types::Protocol::OPENVPN_TCP);
+    QCOMPARE(myWifi.port(), 8080u);
+
+    QVERIFY(data.networkPreferredProtocols.contains("Cafe"));
+    QVERIFY(data.networkPreferredProtocols["Cafe"].isAutomatic());
+}
+
+void TestSettingsValidation::testEngineSettings_iniWithoutNetworksClearsPerNetworkProtocols()
+{
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    const QString path = writeIni(dir, "[Connection]\nAllowLANTraffic=true\n");
+    QVERIFY(!path.isEmpty());
+
+    QSettings ini(path, QSettings::IniFormat);
+    types::EngineSettingsData data;
+    data.networkPreferredProtocols.insert("MyWifi", types::ConnectionSettings(types::Protocol::OPENVPN_TCP, 8080, false));
+    data.fromIni(ini);
+
+    QVERIFY(data.networkPreferredProtocols.isEmpty());
+}
+
+void TestSettingsValidation::testEngineSettings_iniFormatErrorIsLogged()
+{
+    // Qt rejects a nested section header and drops what is under it without a word; the user's
+    // only clue that their settings did not apply is this warning.
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    const QString path = writeIni(dir, "[Networks/MyWifi]\nConnectionMode=Auto\n");
+    QVERIFY(!path.isEmpty());
+
+    QSettings ini(path, QSettings::IniFormat);
+    types::EngineSettingsData data;
+    data.networkPreferredProtocols.insert("MyWifi", types::ConnectionSettings(types::Protocol::OPENVPN_TCP, 8080, false));
+    QTest::ignoreMessage(QtWarningMsg, QRegularExpression("\\.conf: .*format error"));
+    data.fromIni(ini);
+
+    QVERIFY(data.networkPreferredProtocols.isEmpty());
+}
+
+// The config file is the whole configuration: a setting it no longer mentions goes back to its default.
+void TestSettingsValidation::testEngineSettings_iniMissingKeysUseDefaults()
+{
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    const QString path = writeIni(dir, "[Advanced]\n");
+    QVERIFY(!path.isEmpty());
+
+    types::EngineSettingsData data;
+    data.language = "xx";
+    data.updateChannel = UPDATE_CHANNEL_BETA;
+    data.isAllowLanTraffic = true;
+    data.isAPIAntiCensorship = !LanguagesUtil::isCensorshipCountry();
+    data.amneziawgPreset = "Preset";
+    data.customSniDomain = "example.com";
+    data.serverRoutingMethod = SERVER_ROUTING_METHOD_ALTERNATIVE;
+    data.protocolTweaksMethod = PROTOCOL_TWEAKS_METHOD_DISABLED;
+    data.IpStackEgress = IpStack::kIPv4Only;
+    data.dnsManager = DNS_MANAGER_RESOLV_CONF;
+    data.dnsPolicy = DNS_TYPE_GOOGLE;
+    data.firewallSettings.mode = FIREWALL_MODE_ALWAYS_ON;
+    data.firewallSettings.when = FIREWALL_WHEN_AFTER_CONNECTION;
+    data.connectionSettings = types::ConnectionSettings(types::Protocol::OPENVPN_TCP, 8080, false);
+    data.proxySettings.setOption(PROXY_OPTION_HTTP);
+    data.proxySettings.setAddress("10.0.0.1");
+    data.proxySettings.setPort(8080);
+    data.packetSize.isAutomatic = false;
+    data.packetSize.mtu = 1400;
+    data.connectedDnsInfo.type = CONNECTED_DNS_TYPE_CUSTOM;
+    data.connectedDnsInfo.upStream1 = "9.9.9.9";
+    data.decoyTrafficSettings.setEnabled(true);
+    data.macAddrSpoofing.isAutoRotate = true;
+
+    QSettings ini(path, QSettings::IniFormat);
+    data.fromIni(ini);
+
+    const types::EngineSettingsData defaults;
+    QCOMPARE(data.language, LanguagesUtil::systemLanguage());
+    QCOMPARE(data.updateChannel, defaults.updateChannel);
+    QCOMPARE(data.isAllowLanTraffic, defaults.isAllowLanTraffic);
+    QCOMPARE(data.isAPIAntiCensorship, LanguagesUtil::isCensorshipCountry());
+    QCOMPARE(data.amneziawgPreset, defaults.amneziawgPreset);
+    QCOMPARE(data.customSniDomain, defaults.customSniDomain);
+    QCOMPARE(data.serverRoutingMethod, defaults.serverRoutingMethod);
+    QCOMPARE(data.protocolTweaksMethod, defaults.protocolTweaksMethod);
+    QVERIFY(data.IpStackEgress == defaults.IpStackEgress);
+#ifdef Q_OS_LINUX
+    QCOMPARE(data.dnsManager, defaults.dnsManager);
+#endif
+    QCOMPARE(data.dnsPolicy, defaults.dnsPolicy);
+    QVERIFY(data.firewallSettings == defaults.firewallSettings);
+    QVERIFY(data.connectionSettings == defaults.connectionSettings);
+    QVERIFY(data.proxySettings == defaults.proxySettings);
+    QVERIFY(data.packetSize == defaults.packetSize);
+    QVERIFY(data.connectedDnsInfo == defaults.connectedDnsInfo);
+    QVERIFY(data.decoyTrafficSettings == defaults.decoyTrafficSettings);
+    QCOMPARE(data.macAddrSpoofing.isAutoRotate, defaults.macAddrSpoofing.isAutoRotate);
+}
+
+void TestSettingsValidation::testGuiSettings_iniMissingKeysUseDefaults()
+{
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    const QString path = writeIni(dir, "[Advanced]\n");
+    QVERIFY(!path.isEmpty());
+
+    types::GuiSettings gs;
+    gs.isLaunchOnStartup = !gs.isLaunchOnStartup;
+    gs.isAutoConnect = !gs.isAutoConnect;
+    gs.isAutoSecureNetworks = !gs.isAutoSecureNetworks;
+    gs.shareProxyGateway.port = 8888;
+    gs.shareProxyGateway.requireAuth = false;
+    gs.shareProxyGateway.username = "user";
+    gs.splitTunneling.settings.active = true;
+    gs.splitTunneling.settings.mode = SPLIT_TUNNELING_MODE_INCLUDE;
+    types::SplitTunnelingNetworkRoute route;
+    route.name = "10.0.0.0/8";
+    route.type = SPLIT_TUNNELING_NETWORK_ROUTE_TYPE_IP;
+    gs.splitTunneling.networkRoutes << route;
+
+    QSettings ini(path, QSettings::IniFormat);
+    gs.fromIni(ini);
+
+    const types::GuiSettings defaults;
+    QCOMPARE(gs.isLaunchOnStartup, defaults.isLaunchOnStartup);
+    QCOMPARE(gs.isAutoConnect, defaults.isAutoConnect);
+    QCOMPARE(gs.isAutoSecureNetworks, defaults.isAutoSecureNetworks);
+    QVERIFY(gs.shareProxyGateway == defaults.shareProxyGateway);
+    QVERIFY(gs.splitTunneling == defaults.splitTunneling);
+}
+
+void TestSettingsValidation::testConnectionSettings_iniMissingPortUsesProtocolDefault()
+{
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    const QString path = writeIni(dir, "[Networks]\nMyWifi\\ConnectionMode=Manual\nMyWifi\\ManualConnectionProtocol=TCP\n");
+    QVERIFY(!path.isEmpty());
+
+    QSettings ini(path, QSettings::IniFormat);
+    ini.beginGroup("Networks");
+    const types::ConnectionSettings cs(ini, "MyWifi");
+    ini.endGroup();
+
+    QVERIFY(!cs.isAutomatic());
+    QVERIFY(cs.protocol() == types::Protocol::OPENVPN_TCP);
+    QCOMPARE(cs.port(), types::Protocol::defaultPortForProtocol(types::Protocol::OPENVPN_TCP));
+}
+
+void TestSettingsValidation::testPacketSize_iniInvalidMtuUsesDefault()
+{
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    const QString path = writeIni(dir, "[Connection]\nPacketSizeMode=Manual\nPacketSizeMTU=20\n");
+    QVERIFY(!path.isEmpty());
+
+    QSettings ini(path, QSettings::IniFormat);
+    ini.beginGroup("Connection");
+    types::PacketSize ps;
+    ps.mtu = 1400;
+    ps.fromIni(ini);
+
+    QCOMPARE(ps.mtu, types::PacketSize().mtu);
+}
+
+void TestSettingsValidation::testShareProxyGateway_iniInvalidPortUsesDefault()
+{
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    const QString path = writeIni(dir, "[Connection]\nShareProxyGatewayPort=70000\n");
+    QVERIFY(!path.isEmpty());
+
+    QSettings ini(path, QSettings::IniFormat);
+    ini.beginGroup("Connection");
+    types::ShareProxyGateway gateway;
+    gateway.port = 8888;
+    gateway.fromIni(ini);
+
+    QCOMPARE(gateway.port, types::ShareProxyGateway().port);
+}
+#endif
 
 void TestSettingsValidation::testProxySettings_resetOnBadHost()
 {
@@ -354,6 +574,24 @@ void TestSettingsValidation::testPacketSize_validNoop()
     QVERIFY(!ps.isAutomatic);
 }
 
+#ifdef CLI_ONLY
+void TestSettingsValidation::testPacketSize_readsFromIni()
+{
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    const QString path = writeIni(dir, "[Connection]\nPacketSizeMode=Manual\nPacketSizeMTU=1400\n");
+    QVERIFY(!path.isEmpty());
+
+    QSettings ini(path, QSettings::IniFormat);
+    ini.beginGroup("Connection");
+    types::PacketSize ps;
+    ps.fromIni(ini);
+
+    QVERIFY(!ps.isAutomatic);
+    QCOMPARE(ps.mtu, 1400);
+}
+#endif
+
 void TestSettingsValidation::testMacAddrSpoofing_badMacDisables()
 {
     types::MacAddrSpoofing mac;
@@ -418,6 +656,15 @@ void TestSettingsValidation::testConnectedDnsInfo_tlsPersistence()
         settings.setConnectedDnsInfo(dns);
         settings.saveToSettings();
     }
+#ifdef CLI_ONLY
+    // On this build the config file is applied on top of the saved settings, so the values must survive it too.
+    {
+        QSettings ini(WS_SETTINGS_ORG, WS_SETTINGS_CLI);
+        ini.beginGroup("Connection");
+        dns.toIni(ini);
+        ini.endGroup();
+    }
+#endif
     types::EngineSettings reloaded;
     QVERIFY(reloaded.loadFromSettings());
     const types::ConnectedDnsInfo saved = reloaded.connectedDnsInfo();
@@ -719,6 +966,62 @@ void TestSettingsValidation::testSplitTunneling_rederivesRouteType()
     QCOMPARE(st.networkRoutes.size(), 2);
     QCOMPARE(st.networkRoutes[0].type, SPLIT_TUNNELING_NETWORK_ROUTE_TYPE_IP);
     QCOMPARE(st.networkRoutes[1].type, SPLIT_TUNNELING_NETWORK_ROUTE_TYPE_HOSTNAME);
+}
+
+void TestSettingsValidation::testSplitTunneling_cleansAppPath()
+{
+    types::SplitTunnelingApp app;
+    app.fullName = "/Applications//Foo.app/";
+    app.validate();
+    QCOMPARE(app.fullName, QDir::toNativeSeparators("/Applications/Foo.app"));
+
+    types::SplitTunnelingApp flatpak;
+    flatpak.fullName = "org.mozilla.firefox";
+    flatpak.validate();
+    QCOMPARE(flatpak.fullName, QString("org.mozilla.firefox"));
+
+#ifdef Q_OS_WIN
+    types::SplitTunnelingApp win;
+    win.fullName = "C://Program Files//Windscribe//Windscribe.exe";
+    win.validate();
+    QCOMPARE(win.fullName, QString("C:\\Program Files\\Windscribe\\Windscribe.exe"));
+#endif
+}
+
+void TestSettingsValidation::testSplitTunneling_mergesAppsDifferingOnlyInSeparators()
+{
+    types::SplitTunneling st;
+    types::SplitTunnelingApp plain;
+    plain.fullName = "/Applications/Foo.app";
+    plain.name = "Foo";
+    plain.active = false;
+    types::SplitTunnelingApp slashes;
+    slashes.fullName = "/Applications//Foo.app/";
+    slashes.name = "";
+    slashes.active = true;
+    st.apps << plain << slashes;
+#ifdef Q_OS_WIN
+    types::SplitTunnelingApp backslashes;
+    backslashes.fullName = "\\Applications\\Foo.app\\";
+    backslashes.active = false;
+    st.apps << backslashes;
+#endif
+    st.validate();
+    QCOMPARE(st.apps.size(), 1);
+    QCOMPARE(st.apps[0].name, QString("Foo"));
+    QVERIFY(st.apps[0].active);
+}
+
+void TestSettingsValidation::testSplitTunneling_jsonDropsMissingApp()
+{
+    QJsonObject json;
+    json["fullName"] = QDir::toNativeSeparators(QDir::tempPath() + "/ws-missing-app/missing.exe");
+    QVERIFY(types::SplitTunnelingApp(json).fullName.isEmpty());
+
+#ifdef Q_OS_LINUX
+    json["fullName"] = "org.mozilla.firefox";
+    QCOMPARE(types::SplitTunnelingApp(json).fullName, QString("org.mozilla.firefox"));
+#endif
 }
 
 void TestSettingsValidation::testGuiPersistentState_validNoop()

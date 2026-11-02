@@ -7,6 +7,8 @@ namespace api_responses {
 
 struct AmneziawgUnblockParam
 {
+    static inline const QString kDefaultTitle = "Z - API Blocked";
+
     QString id;
     QString title;
     QStringList countries;

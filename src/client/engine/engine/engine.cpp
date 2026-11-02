@@ -34,6 +34,7 @@
 #include "utils/extraconfig.h"
 #include "utils/hardcodedsettings.h"
 #include "utils/log/categories.h"
+#include "utils/log/debug_trace.h"
 #include "utils/log/logger.h"
 #include "utils/log/mergelog.h"
 #include "utils/network_utils/dnschecker.h"
@@ -576,6 +577,7 @@ void Engine::reconnect()
 
 void Engine::init()
 {
+    WS_DEBUG_TRACE_SCOPE("Engine::init");
 #ifdef Q_OS_WIN
     crashHandler_.reset(new Debug::CrashHandlerForThread());
 
@@ -605,7 +607,10 @@ void Engine::init()
     }
 #endif
 
-    helper_->backend()->startInstallHelper();
+    {
+        WS_DEBUG_TRACE_SCOPE("Engine::init startInstallHelper");
+        helper_->backend()->startInstallHelper();
+    }
 
     inititalizeHelper_ = new InitializeHelper(this, helper_->backend());
     connect(inititalizeHelper_, &InitializeHelper::finished, this, &Engine::onInitializeHelper);
@@ -615,6 +620,7 @@ void Engine::init()
 // init part2 (after helper initialized)
 void Engine::initPart2()
 {
+    WS_DEBUG_TRACE_SCOPE("Engine::initPart2");
 #if defined(Q_OS_WIN)
     WlanUtils_win::setHelper(helper_);
 #elif defined(Q_OS_MACOS)
@@ -825,6 +831,8 @@ void Engine::onLostConnectionToHelper()
 
 void Engine::onInitializeHelper(INIT_HELPER_RET ret)
 {
+    // Covers the wait between Engine::init returning and the helper being ready.
+    WS_DEBUG_TRACE_SCOPE("Engine::onInitializeHelper");
     bool isAuthHashExists =  !WSNet::instance()->apiResourcersManager()->authHash().empty();
     if (ret == INIT_HELPER_SUCCESS)
     {
@@ -3033,14 +3041,25 @@ void Engine::updateSessionStatus(const std::string &json)
     }
     wasPremium_ = ss.isPremium();
 
-    QSettings settings;
-    settings.setValue("userId", ss.getUserId());    // need for uninstaller program for open post uninstall webpage
+    // Unchanged on almost every session update, and each write rewrites the whole settings file.
+    if (savedUserId_ != ss.getUserId()) {
+        QSettings settings;
+        settings.setValue("userId", ss.getUserId());    // need for uninstaller program for open post uninstall webpage
+        savedUserId_ = ss.getUserId();
+    }
     emit sessionStatusUpdated(ss);
 }
 
 void Engine::saveWsnetSettings()
 {
-    QString wsnetSettings = QString::fromStdString(WSNet::instance()->currentPersistentSettings());
+    // Every write rewrites the whole settings file, and wsnet reports a session poll every minute while
+    // connected even when nothing changed. The auth hash below is part of these settings.
+    const std::string current = WSNet::instance()->currentPersistentSettings();
+    if (savedWsnetSettings_ == current) {
+        return;
+    }
+    savedWsnetSettings_ = current;
+    QString wsnetSettings = QString::fromStdString(current);
     QSettings settings;
     settings.setValue("wsnetSettings", wsnetSettings);
 
@@ -3319,7 +3338,14 @@ QString Engine::effectiveAmneziawgPreset() const
     if (engineSettings_.protocolTweaksMethod() == PROTOCOL_TWEAKS_METHOD_TYPE::PROTOCOL_TWEAKS_METHOD_AUTO && !apiSuggestedAmneziawgPreset_.isEmpty()) {
         return apiSuggestedAmneziawgPreset_;
     } else if (engineSettings_.protocolTweaksMethod() == PROTOCOL_TWEAKS_METHOD_TYPE::PROTOCOL_TWEAKS_METHOD_ENABLED) {
-        return engineSettings_.amneziawgPreset();
+        // Enabled with no preset chosen (possible from the CLI config file) must still obfuscate: use the first
+        // preset, or the built-in one if the list has never been fetched.
+        const QString preset = engineSettings_.amneziawgPreset();
+        if (preset.isEmpty()) {
+            const QStringList available = amneziawgParams_.presets();
+            return available.isEmpty() ? api_responses::AmneziawgUnblockParam::kDefaultTitle : available.first();
+        }
+        return preset;
     } else {
         return QString();
     }

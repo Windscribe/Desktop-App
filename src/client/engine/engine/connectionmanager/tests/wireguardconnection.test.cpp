@@ -197,11 +197,42 @@ void TestWireGuardConnection::testAnswerAppliesAmneziaPresetParam()
     conn.descr_ = makeDescr();
     QSignalSpy preparedSpy(&conn, &WireGuardConnectionBase::prepared);
 
+    QTest::failOnWarning(QRegularExpression("AmneziaWG preset"));
     conn.onGetWireGuardConfigAnswer(WireGuardConfigRetCode::kSuccess, makeDualStackConfig());
 
     QCOMPARE(preparedSpy.count(), 1);
     QVERIFY(conn.config_.haveAmneziawgParam());
     QCOMPARE(conn.config_.amneziawgParamTitle(), QString("Preset A"));
+}
+
+void TestWireGuardConnection::testAnswerBuiltInPresetWithoutAListDoesNotWarn()
+{
+    WireGuardSessionParams params;
+    params.amneziawgPreset = api_responses::AmneziawgUnblockParam::kDefaultTitle;
+    StubWireGuardConnection conn{params};
+    conn.descr_ = makeDescr();
+
+    QTest::failOnWarning(QRegularExpression("AmneziaWG preset"));
+    conn.onGetWireGuardConfigAnswer(WireGuardConfigRetCode::kSuccess, makeDualStackConfig());
+
+    QCOMPARE(conn.config_.amneziawgParamTitle(), api_responses::AmneziawgUnblockParam::kDefaultTitle);
+}
+
+void TestWireGuardConnection::testAnswerUnknownPresetFallsBackToTheFirstAndWarns()
+{
+    WireGuardSessionParams params;
+    params.amneziawgPreset = "E";
+    params.amneziawgParams = api_responses::AmneziawgUnblockParams(
+        R"({"data":{"params":[{"id":"a","title":"A - First","Jc":4},{"id":"e","title":"E - Baseline No Junk","Jc":0}]}})");
+    StubWireGuardConnection conn{params};
+    conn.descr_ = makeDescr();
+    QSignalSpy preparedSpy(&conn, &WireGuardConnectionBase::prepared);
+
+    QTest::ignoreMessage(QtWarningMsg, QRegularExpression("AmneziaWG preset \"E\" is not available, using \"A - First\""));
+    conn.onGetWireGuardConfigAnswer(WireGuardConfigRetCode::kSuccess, makeDualStackConfig());
+
+    QCOMPARE(preparedSpy.count(), 1);
+    QCOMPARE(conn.config_.amneziawgParamTitle(), QString("A - First"));
 }
 
 void TestWireGuardConnection::testAnswerEmptyPresetClearsAmneziaParam()

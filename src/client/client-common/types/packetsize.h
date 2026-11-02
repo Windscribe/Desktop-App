@@ -42,13 +42,16 @@ struct PacketSize
 #ifdef CLI_ONLY
     void fromIni(const QSettings &settings)
     {
-        QString prevMode = enumToString(isAutomatic ? TOGGLE_MODE_AUTO : TOGGLE_MODE_MANUAL);
-        TOGGLE_MODE mode = enumFromString<TOGGLE_MODE>(settings.value(kJsonIsAutomaticProp, prevMode).toString());
+        const PacketSize defaults;
+        const QString defaultMode = enumToString(defaults.isAutomatic ? TOGGLE_MODE_AUTO : TOGGLE_MODE_MANUAL);
+        TOGGLE_MODE mode = enumFromString<TOGGLE_MODE>(settings.value(kIniIsAutomaticProp, defaultMode).toString());
         isAutomatic = (mode == TOGGLE_MODE_AUTO);
-        int mtuValue = settings.value(kJsonMTUProp, mtu).toInt();
+        int mtuValue = settings.value(kIniMTUProp, defaults.mtu).toInt();
         // MTU is unset, or must be a minimum of 68 per RFC 791 and can't exceed maximum IP packet size of 65535
         if (mtuValue == -1 || (mtuValue >= 68 && mtuValue < 65536)) {
             mtu = mtuValue;
+        } else {
+            mtu = defaults.mtu;
         }
     }
 

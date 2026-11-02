@@ -31,7 +31,8 @@ static bool configureSpdlog()
 
         // this will trigger flush on every log message
         logger->flush_on(spdlog::level::trace);
-        spdlog::set_level(spdlog::level::trace);
+        // Raised to debug when a client connects with the ws-debug-trace advanced parameter set.
+        spdlog::set_level(spdlog::level::info);
         spdlog::set_default_logger(logger);
     }
     catch (const spdlog::spdlog_ex &ex)

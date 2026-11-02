@@ -145,13 +145,10 @@ bool readFileBytes(const std::string &path, off_t maxBytes, std::vector<uint8_t>
     return true;
 }
 
-// Copy src to dst without ever following a symlink at src. O_NOFOLLOW means an attacker
-// who swapped the validated source for a symlink between validateSource() and this call
-// gets ELOOP rather than a redirected read. The maxBytes cap is re-checked here after
-// the open so a content-swap between validateSource's lstat and our open can't smuggle
-// an oversized payload past the size limit.
+// The source may have been swapped since validateSource(): O_NOFOLLOW rejects a symlink, O_NONBLOCK keeps a FIFO
+// from blocking the open (the S_ISREG check below then rejects it), and the size cap is re-checked on the open fd.
 bool copyToStaging(const std::string &src, off_t maxBytes, const std::string &dst) {
-    const int srcFd = ::open(src.c_str(), O_RDONLY | O_NOFOLLOW | O_CLOEXEC);
+    const int srcFd = ::open(src.c_str(), O_RDONLY | O_NOFOLLOW | O_CLOEXEC | O_NONBLOCK);
     if (srcFd < 0) {
         spdlog::error("[{}] open({}) failed: {}", kTagStagingFailed, src, std::strerror(errno));
         return false;
@@ -244,11 +241,8 @@ bool prepareStagingDir() {
         spdlog::error("[{}] mkdir parent {} failed: {}", kTagStagingFailed, parent.string(), ec.message());
         return false;
     }
-    // Root-only: the staged package and its sibling .pub/.sig are written by this helper and
-    // read only by the elevated install-update script — both run as root, so no non-root
-    // process needs to traverse or read this directory. mkdir(0700) suffices: umask can only
-    // clear permission bits, never add them, so the result is 0700 or tighter — never group-
-    // or world-accessible. (The helper runs as a systemd service with UMask=0022 → 0700.)
+    // Root-only: only this helper and the elevated install-update script use this directory. mkdir(0700) suffices
+    // because umask can only clear bits, so the result is never group- or world-accessible.
     if (::mkdir(kStagingDir, 0700) != 0) {
         spdlog::error("[{}] mkdir {} failed: {}", kTagStagingFailed, kStagingDir, std::strerror(errno));
         return false;
@@ -661,7 +655,7 @@ std::optional<std::string> stageAndVerify(const std::string &srcPath) {
     }
 
     StagedPaths staged;
-    staged.pkg = std::string(kStagingDir) + "/installer" + formatExtension(fmt);
+    staged.pkg = std::string(kStagingDir) + "/incoming" + formatExtension(fmt);
     staged.pub = staged.pkg + ".pub";
     staged.detachedSig = staged.pkg + detachedSigExtension(fmt);
 
@@ -721,7 +715,16 @@ std::optional<std::string> stageAndVerify(const std::string &srcPath) {
         return std::nullopt;
     }
 
-    return staged.pkg;
+    // install-update accepts only the installer name, so unverified bytes must never be written under it.
+    ::unlink(staged.pub.c_str());
+    ::unlink(staged.detachedSig.c_str());
+    const std::string installerPath = std::string(kStagingDir) + "/installer" + formatExtension(fmt);
+    if (::rename(staged.pkg.c_str(), installerPath.c_str()) != 0) {
+        spdlog::error("[{}] rename({}) failed: {}", kTagStagingFailed, staged.pkg, std::strerror(errno));
+        wipeStaging();
+        return std::nullopt;
+    }
+    return installerPath;
 }
 
 void cleanupStaged() {

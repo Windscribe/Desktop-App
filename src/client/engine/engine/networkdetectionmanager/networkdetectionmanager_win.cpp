@@ -5,6 +5,7 @@
 
 #include "engine/sleepevents/isleepevents.h"
 #include "utils/log/categories.h"
+#include "utils/log/debug_trace.h"
 #include "utils/network_utils/network_utils_win.h"
 
 namespace {
@@ -56,6 +57,7 @@ NetworkDetectionManager_win::NetworkDetectionManager_win(
     : INetworkDetectionManager(parent),
       dataSource_(std::move(dataSource))
 {
+    WS_DEBUG_TRACE_SCOPE("NetworkDetectionManager_win::ctor");
     curNetworkInterface_ = dataSource_->currentNetworkInterface();
     curNetworkId_ = dataSource_->networkIdFromInterfaceGuid(curNetworkInterface_.interfaceGuid);
     bLastIsOnline_ = isOnlineImpl();
@@ -145,6 +147,7 @@ void NetworkDetectionManager_win::onNetworkChanged()
 
 bool NetworkDetectionManager_win::isOnlineImpl()
 {
+    WS_DEBUG_TRACE_SCOPE("NetworkDetectionManager_win::isOnlineImpl");
     return dataSource_->isOnline();
 }
 

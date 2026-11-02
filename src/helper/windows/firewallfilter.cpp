@@ -42,7 +42,7 @@ void FirewallFilter::on(const wchar_t *connectingIp, const std::vector<std::wstr
     if (dwRet == ERROR_SUCCESS) {
         addFilters(hEngine, connectingIp, ips, bAllowLocalTraffic, bIsCustomConfig);
     } else {
-        spdlog::error("FirewallFilter::on(), FwpmSubLayerAdd0 failed");
+        spdlog::error("FirewallFilter::on(), FwpmSubLayerAdd0 failed: {}", dwRet);
     }
 
     fwpmWrapper_.endTransaction();
@@ -73,7 +73,14 @@ bool FirewallFilter::currentStatusImpl(HANDLE engineHandle)
 {
     FWPM_SUBLAYER0 *subLayer;
     DWORD dwRet = FwpmSubLayerGetByKey0(engineHandle, &subLayerGUID_, &subLayer);
-    return dwRet == ERROR_SUCCESS;
+    if (dwRet == ERROR_SUCCESS) {
+        FwpmFreeMemory0((void **)&subLayer);
+        return true;
+    }
+    if (dwRet != FWP_E_SUBLAYER_NOT_FOUND) {
+        spdlog::error("FirewallFilter::currentStatusImpl(), FwpmSubLayerGetByKey0 failed: {}", dwRet);
+    }
+    return false;
 }
 
 void FirewallFilter::offImpl(HANDLE engineHandle)
@@ -81,7 +88,7 @@ void FirewallFilter::offImpl(HANDLE engineHandle)
     if (Utils::deleteSublayerAndAllFilters(engineHandle, &subLayerGUID_)) {
         spdlog::info("FirewallFilter::offImpl(), all filters deleted");
     } else {
-        spdlog::info("FirewallFilter::offImpl(), failed delete filters");
+        spdlog::error("FirewallFilter::offImpl(), failed delete filters");
     }
     filterIdsApps_.clear();
     filterIdsSplitRoutingIps_.clear();
@@ -206,7 +213,10 @@ void FirewallFilter::addFilters(HANDLE engineHandle, const wchar_t *connectingIp
     // add permit filter for TAP-adapters
     for (std::vector<NET_IFINDEX>::iterator it = taps.begin(); it != taps.end(); ++it) {
         NET_LUID luid;
-        ConvertInterfaceIndexToLuid(*it, &luid);
+        NETIO_STATUS luidRet = ConvertInterfaceIndexToLuid(*it, &luid);
+        if (luidRet != NO_ERROR) {
+            spdlog::error("FirewallFilter::addFilters(), ConvertInterfaceIndexToLuid failed for ifIndex {}: {}", *it, luidRet);
+        }
 
         // Always allow 10.255.255.0/24 (Windscribe reserved) regardless of custom config,
         // because the Allow LAN flag later blocks the entire 10/8 range
@@ -448,7 +458,7 @@ void FirewallFilter::removeAppsSplitTunnelingFilter(HANDLE engineHandle)
     for (size_t i = 0; i < filterIdsApps_.size(); ++i) {
         DWORD ret = FwpmFilterDeleteById0(engineHandle, filterIdsApps_[i]);
         if (ret != ERROR_SUCCESS) {
-            spdlog::error("FirewallFilter::removeAllSplitTunnelingFilters(), FwpmFilterDeleteById0 failed");
+            spdlog::error("FirewallFilter::removeAppsSplitTunnelingFilter(), FwpmFilterDeleteById0 failed: {}", ret);
         }
     }
     filterIdsApps_.clear();
@@ -459,7 +469,7 @@ void FirewallFilter::removeIpsSplitTunnelingFilter(HANDLE engineHandle)
     for (size_t i = 0; i < filterIdsSplitRoutingIps_.size(); ++i) {
         DWORD ret = FwpmFilterDeleteById0(engineHandle, filterIdsSplitRoutingIps_[i]);
         if (ret != ERROR_SUCCESS) {
-            spdlog::error("FirewallFilter::removeIpsSplitTunnelingFilter(), FwpmFilterDeleteById0 failed");
+            spdlog::error("FirewallFilter::removeIpsSplitTunnelingFilter(), FwpmFilterDeleteById0 failed: {}", ret);
         }
     }
     filterIdsSplitRoutingIps_.clear();

@@ -52,7 +52,7 @@ ConnectionSettings::ConnectionSettings(const QJsonObject &json)
 }
 
 #ifdef CLI_ONLY
-ConnectionSettings::ConnectionSettings(QSettings &settings, const QString &key)
+ConnectionSettings::ConnectionSettings(QSettings &settings, const QString &key) : ConnectionSettings()
 {
     fromIni(settings, key);
 }
@@ -90,16 +90,17 @@ QJsonObject ConnectionSettings::toJson(bool isForDebugLog) const
 #ifdef CLI_ONLY
 void ConnectionSettings::fromIni(QSettings &settings, const QString &key)
 {
-    QString prevMode = enumToString(isAutomatic_ ? TOGGLE_MODE_AUTO : TOGGLE_MODE_MANUAL);
+    const ConnectionSettings defaults;
+    const QString defaultMode = enumToString(defaults.isAutomatic_ ? TOGGLE_MODE_AUTO : TOGGLE_MODE_MANUAL);
 
     if (!key.isEmpty()) {
         settings.beginGroup(key);
     }
 
-    TOGGLE_MODE mode = enumFromString<TOGGLE_MODE>(settings.value(kIniIsAutomaticProp, prevMode).toString());
+    TOGGLE_MODE mode = enumFromString<TOGGLE_MODE>(settings.value(kIniIsAutomaticProp, defaultMode).toString());
     isAutomatic_ = (mode == TOGGLE_MODE_AUTO);
-    protocol_ = Protocol::fromString(settings.value(kIniProtocolProp, protocol_.toLongString()).toString());
-    uint port = settings.value(kIniPortProp, port_).toUInt();
+    protocol_ = Protocol::fromString(settings.value(kIniProtocolProp, defaults.protocol_.toLongString()).toString());
+    uint port = settings.value(kIniPortProp, Protocol::defaultPortForProtocol(protocol_)).toUInt();
     if (port < 65536) {
         port_ = port;
     } else {

@@ -85,9 +85,16 @@ private:
     bool awaitingDebugLogResult_ = false;
     QString myIp_;
     bool isMyIpFromDisconnectedState_ = true;
+    // Set when the connect state changes, cleared when the IP is looked up again. While connected, the IP is only
+    // looked up by a successful tunnel test, so after a reconnect whose test fails it stays the previous server's.
+    bool isMyIpStale_ = false;
 
-    void sendState();
+    void sendState(IPC::Connection *connection);
+    // Whether myIp_ was looked up in the current connect state.
+    bool isMyIpCurrent() const;
     void sendCommand(const IPC::Command &command);
+    // Answers a request on the connection that made it only.
+    void reply(IPC::Connection *connection, const IPC::Command &command);
     QList<IPC::CliCommands::IpcLocation> locationsList(IPC::CliCommands::LocationType type) const;
-    void sendLocations(const QList<IPC::CliCommands::IpcLocation> &locations, IPC::CliCommands::LocationType type);
+    void sendLocations(IPC::Connection *connection, const QList<IPC::CliCommands::IpcLocation> &locations, IPC::CliCommands::LocationType type);
 };

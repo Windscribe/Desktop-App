@@ -20,6 +20,7 @@ set(SOURCES
     ../common/io_posix.cpp
     ../common/ovpn_early_exit_log.cpp
     ../common/ovpn_mgmt_posix.cpp
+    ../common/process_kill_posix.cpp
     ../common/spawn_posix.cpp
     ../common/validation_posix.cpp
     clear_wifi_history/clear_wifi_history.cpp

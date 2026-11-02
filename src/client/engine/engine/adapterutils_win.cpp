@@ -5,6 +5,7 @@
 #include <iphlpapi.h>
 
 #include "utils/log/categories.h"
+#include "utils/log/debug_trace.h"
 
 namespace {
 
@@ -85,6 +86,7 @@ AdapterGatewayInfo AdapterUtils_win::getConnectedAdapterInfo(const QString &adap
 
 AdapterGatewayInfo AdapterUtils_win::getAdapterInfo(bool byIfIndex, unsigned long ifIndex, const QString &adapterIdentifier)
 {
+    WS_DEBUG_TRACE_SCOPE("AdapterUtils_win::getAdapterInfo");
     ULONG sz = sizeof(IP_ADAPTER_ADDRESSES_LH) * 32;
     QByteArray arr(sz, Qt::Uninitialized);
 

@@ -5,12 +5,14 @@
 #include <QByteArray>
 
 #include "utils/log/categories.h"
+#include "utils/log/debug_trace.h"
 
 namespace DnsInfo_win
 {
 
 void outputDebugDnsInfo()
 {
+    WS_DEBUG_TRACE_SCOPE("DnsInfo_win::outputDebugDnsInfo");
     qCInfo(LOG_BASIC) << "=== DNS Configuration begin ===";
 
     ULONG bufSize = sizeof(IP_ADAPTER_INFO) * 32;

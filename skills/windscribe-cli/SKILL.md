@@ -15,7 +15,7 @@ Control Windscribe VPN entirely from the command line. Any AI agent with shell a
 
 - Windscribe must be **installed and running** (CLI auto-starts the app/service if needed)
 - User must be **logged in** (`windscribe-cli login`)
-- Only **one CLI instance** can run at a time
+- Only **one CLI command** can run at a time; to poll `status` while connecting, use `connect -n`
 
 | Platform | Binary Path |
 |----------|-------------|
@@ -42,7 +42,7 @@ windscribe-cli disconnect -n                 # Non-blocking disconnect
 
 Location matching is case-insensitive. Use city name, nickname, region name, or ISO country code. Static IP locations are the exception: `connect static` needs the city or IP exactly as `windscribe-cli locations static` prints it, including case.
 
-The `-n` flag must come before the location argument. Without `-n`, the CLI blocks until the connection completes or fails.
+Quote a location that contains spaces (`connect "New York"`); an unquoted second word is rejected as an unknown protocol. Without `-n`, the CLI blocks until the connection completes or fails.
 
 ## Protocols & Ports
 
@@ -61,7 +61,7 @@ windscribe-cli ports wireguard    # e.g. 443, 80, 53, 123, 1194, 65142
 windscribe-cli ports stealth
 ```
 
-Use `protocol:port` syntax to specify a port (e.g. `stealth:143`). Default is the first port. Invalid ports silently fall back to the default. Protocol names are case-insensitive.
+Use `protocol:port` syntax to specify a port (e.g. `stealth:143`). Default is the first port. A port that is not a number is rejected; a number the protocol doesn't offer falls back to the default. Protocol names are case-insensitive.
 
 ## Status
 
@@ -69,10 +69,23 @@ Use `protocol:port` syntax to specify a port (e.g. `stealth:143`). Default is th
 windscribe-cli status
 ```
 
-Reports: Internet connectivity, login state, firewall state, connection state + city, protocol:port, public or VPN IP, data usage, and an available update (only when there is one).
+Prints one `Label: value` line per item, values aligned:
 
-- `*` prefix on "Connected" = tunnel test pending
-- `[Network interference]` suffix = tunnel test detected issues
+```
+Login:       Logged in
+Connection:  Connected to Toronto
+Protocol:    WireGuard:443
+IP:          203.0.113.5 (VPN)
+Firewall:    On
+Data usage:  1.20 GB / Unlimited
+Internet:    Available
+Update:      2.26.1 available
+```
+
+- `Connection` is omitted when logged out; `Protocol` is shown only when connected; `IP` is hidden while connecting, disconnecting, or checking the connection, and for a few seconds after, until the new IP has been looked up, and while connected if the tunnel test failed; `Data usage` is shown only when logged in; `Update` only when one is available.
+- `Connected to <City> (checking the connection)` = tunnel test pending
+- `Connected to <City> (network interference detected)` = tunnel test detected issues
+- `IP` is `(VPN)` when connected and `(public)` when disconnected
 
 ## Locations
 
@@ -85,7 +98,7 @@ windscribe-cli locations static       # Static IPs (Pro)
 Format, one location per line:
 - Cities: `Region - City - Nickname`
 - Best location: `Region - Nickname`
-- Static IPs: `City - IP`, after a first line `(Device name: <name>)`
+- Static IPs: `City - IP`, after a first line `Device name: <name>` and a blank line
 - Favourites: `City - Nickname`, followed by ` [<pinned IP>]` when an IP is pinned
 
 Any line can end with ` (Pro)` (needs Pro), ` (Disabled)` (temporarily unavailable), or ` (10 Gbps)`. Prints `No locations.` (exit 1) when the list is empty. Use nickname, city, region, or country code with `connect`.
@@ -120,6 +133,8 @@ windscribe-cli logout on              # Disconnect + logout, keeps firewall on
 
 2FA: prompted after credentials if enabled. Linux CLI-only renders CAPTCHAs as ASCII art.
 
+Prompts need a terminal (stdin a TTY). Without one, as when an agent runs the CLI, `login` never prompts: it reads a missing username, password, and 2FA code from stdin, one per line, and fails with exit 1 if stdin has none (it is empty or `/dev/null`), or if the account needs a CAPTCHA. Do not pipe the user's password yourself; ask the user to run `windscribe-cli login` in their own terminal in those cases.
+
 ## Maintenance
 
 ```bash
@@ -141,16 +156,26 @@ Config file: `~/.config/Windscribe/windscribe_cli.conf`. Changes apply automatic
 
 ## Output Parsing
 
-| Field | Pattern | Example |
-|-------|---------|---------|
-| Connection | `Connect state: Connected: <City>` | `Connect state: Connected: Toronto` |
-| Firewall | `Firewall state: <On\|Off\|Always On>` | `Firewall state: On` |
-| Protocol | `Protocol: <Name>:<port>` | `Protocol: WireGuard:443` |
-| Login | `Login state: Logged in` | |
-| IP | `Public IP: <ip>` or `VPN IP: <ip>` | `VPN IP: 203.0.113.5` |
-| Data | `Data usage: <used> / <total>` | `Data usage: 1.20 GB / Unlimited` |
+`status` lines (split on the first `:`, then trim the value):
 
-Exit codes: 0 = success, non-zero = error (error message on stdout, not stderr). Exceptions: a failed `login` exits 0, so check that its output says `Logged in`; `ip rotate` and `ip fav` exit 2 while an IP rotation is still in progress.
+| Label | Values | Example |
+|-------|--------|---------|
+| `Login` | `Logged in`, `Logged out`, `Logging in`, `Error: <reason>` | `Login:       Logged in` |
+| `Connection` | `Connected to <City>`, `Connecting to <City>`, `Disconnecting`, `Disconnected`, `Error: <reason>` | `Connection:  Connected to Toronto` |
+| `Protocol` | `<Name>:<port>` | `Protocol:    WireGuard:443` |
+| `IP` | `<ip> (VPN)` when connected, `<ip> (public)` when disconnected | `IP:          203.0.113.5 (VPN)` |
+| `Firewall` | `On`, `Off`, `Always On` | `Firewall:    On` |
+| `Data usage` | `<used> / <total>` | `Data usage:  1.20 GB / Unlimited` |
+| `Internet` | `Available`, `Unavailable` | `Internet:    Available` |
+| `Update` | `<version> available` | `Update:      2.26.1 available` |
+
+A blocking `connect` prints progress lines (`Connecting to <City>`) and ends with `Connected to <City>` or an `Error: ...` line. `login` ends with `Logged in` or `Error: <reason>`.
+
+Only one CLI command runs at a time; another one started meanwhile, `status` included, fails with `Windscribe CLI is already running`. To check the status while connecting, run `connect -n` and then poll `status`.
+
+Exit codes: 0 = success, non-zero = failure. On failure the message goes to **stderr**; everything else goes to stdout. Invalid arguments or an unknown command print `Error: <what is wrong>` and the command's usage to stderr and exit 1. `ip rotate` and `ip fav` exit 2 while an IP rotation is still in progress.
+
+Run `windscribe-cli <command> --help` (or `windscribe-cli help <command>`) for a command's arguments, and `windscribe-cli version` for the version.
 
 ## Account Dashboard (Web Only)
 

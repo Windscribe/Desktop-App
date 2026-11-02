@@ -20,7 +20,7 @@ WS_XDG=$5
 WS_XAUTH=$6
 
 # Canonicalize $1 here (as root, where we can definitely traverse /var/lib/windscribe/update)
-# and pin to the helper-staged dir. This blocks a confused-deputy where a caller could pass
+# and pin to the helper-staged installer. This blocks a confused-deputy where a caller could pass
 # a symlink or unrelated path and trick us into installing an unrelated package.
 SRC=$(realpath -e -- "$SRC" 2>/dev/null)
 if [ -z "$SRC" ]; then
@@ -28,9 +28,9 @@ if [ -z "$SRC" ]; then
     exit 1
 fi
 case "$SRC" in
-    /var/lib/windscribe/update/*) ;;
+    /var/lib/windscribe/update/installer.deb|/var/lib/windscribe/update/installer.rpm|/var/lib/windscribe/update/installer.pkg.tar.zst) ;;
     *)
-        echo "install-update: \"$SRC\" is not under /var/lib/windscribe/update/" >&2
+        echo "install-update: \"$SRC\" is not a helper-staged installer" >&2
         exit 1
         ;;
 esac
@@ -43,7 +43,7 @@ esac
 # $SRC is the helper-staged path under /var/lib/windscribe/update/, already root-owned
 # and signature-verified by the helper. No re-staging or hash check here — the helper
 # is the authority. Clean up the staged file on exit so it does not survive the install.
-cleanup() { rm -f -- "$SRC" "${SRC}.pub" "${SRC}.asc" "${SRC}.sig"; }
+cleanup() { rm -f -- "$SRC"; }
 trap cleanup EXIT
 
 USER_NAME=$(getent passwd "$PKEXEC_UID" | cut -d: -f1)
@@ -98,11 +98,8 @@ trap - EXIT
             fi
             ;;
         linux_zst_x64)
-            # pacman has no per-invocation skip-check flag (unlike dnf --nogpgcheck / zypper
-            # --no-gpg-checks). Under the default LocalFileSigLevel=Optional it would verify a
-            # present .sig against its keyring and reject our un-imported key, so drop the .sig
-            # and let Optional install the package unsigned — the helper already verified it.
-            rm -f -- "${SRC}.sig"
+            # pacman has no per-invocation skip-check flag. The helper stages no .sig beside the package, so the
+            # default LocalFileSigLevel=Optional installs it unsigned rather than rejecting our un-imported key.
             pacman -U --noconfirm "$SRC"
             ;;
     esac

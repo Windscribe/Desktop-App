@@ -73,7 +73,7 @@ void Ipv6Firewall::disableIPv6(bool allowLanTraffic, bool isCustomConfig)
 
     DWORD dwFwAPiRetCode = FwpmSubLayerAdd0(hEngine, &subLayer, NULL);
     if (dwFwAPiRetCode != ERROR_SUCCESS && dwFwAPiRetCode != FWP_E_ALREADY_EXISTS) {
-        spdlog::error("Ipv6Firewall::disableIPv6(), FwpmSubLayerAdd0 failed");
+        spdlog::error("Ipv6Firewall::disableIPv6(), FwpmSubLayerAdd0 failed: {}", dwFwAPiRetCode);
         fwpmWrapper_.abortTransaction();
         fwpmWrapper_.unlock();
         return;
@@ -197,7 +197,10 @@ void Ipv6Firewall::addFilters(HANDLE engineHandle, bool allowLanTraffic, bool is
             continue;
         }
         NET_LUID luid;
-        ConvertInterfaceIndexToLuid(*it, &luid);
+        NETIO_STATUS luidStatus = ConvertInterfaceIndexToLuid(*it, &luid);
+        if (luidStatus != NO_ERROR) {
+            spdlog::error("Ipv6Firewall::addFilters(), ConvertInterfaceIndexToLuid failed for ifIndex {}: {}", *it, luidStatus);
+        }
 
         ret = Utils::addFilterV6(engineHandle, nullptr, FWP_ACTION_PERMIT, 0, subLayerGUID_, FIREWALL_SUBLAYER_IPV6_NAMEW, &luid);
         if (!ret) {
@@ -273,7 +276,10 @@ void Ipv6Firewall::addFilters(HANDLE engineHandle, bool allowLanTraffic, bool is
                     continue;
                 }
                 NET_LUID luid;
-                ConvertInterfaceIndexToLuid(*it, &luid);
+                NETIO_STATUS luidStatus = ConvertInterfaceIndexToLuid(*it, &luid);
+                if (luidStatus != NO_ERROR) {
+                    spdlog::error("Ipv6Firewall::addFilters(), ConvertInterfaceIndexToLuid failed for ifIndex {}: {}", *it, luidStatus);
+                }
 
                 ret = Utils::addFilterV6(engineHandle, nullptr, FWP_ACTION_PERMIT, 4, subLayerGUID_, FIREWALL_SUBLAYER_IPV6_NAMEW, &luid);
                 if (!ret) {

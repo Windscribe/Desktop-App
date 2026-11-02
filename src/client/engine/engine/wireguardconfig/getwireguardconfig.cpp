@@ -122,7 +122,7 @@ void GetWireGuardConfig::onWgConfigsInitAnswer(wsnet::ApiRetCode serverApiRetCod
 
     // The API returns AllowedIPs (v4) and optionally AllowedIPsV6 as separate fields, but
     // WireGuard expects a single comma-separated dual-stack list in [Peer].AllowedIPs.
-    // Downstream helpers (stripIpv6Addresses, expandCatchAllRoutes) already operate on a
+    // Downstream helpers (stripIpv6Addresses, the Windows config writer) already operate on a
     // mixed v4/v6 string, so we merge here and keep the rest of the pipeline untouched.
     QString peerAllowedIps = res.allowedIps();
     const QString peerAllowedIpsV6 = res.allowedIpsV6();

@@ -4,8 +4,8 @@
 
 ```bash
 windscribe-cli status
-# Look for: "Connect state: Connected" and "Firewall state: On"
-# Also verify: "Internet connectivity: available"
+# Look for: "Connection:  Connected to <City>" and "Firewall:    On"
+# Also verify: "Internet:    Available"
 ```
 
 ## Verify connection with leak tests
@@ -26,7 +26,7 @@ curl -s https://checkip.windscribe.com
 windscribe-cli disconnect
 windscribe-cli connect "London"
 windscribe-cli status
-# Wait for "Connect state: Connected: London"
+# Blocks until connected; status shows "Connection:  Connected to London"
 
 # Run geo-dependent test here...
 

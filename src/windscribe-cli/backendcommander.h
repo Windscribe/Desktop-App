@@ -44,6 +44,8 @@ private:
     QString connectId_ = "";
     bool isConnectRequestCountKnown_ = false;
     uint connectRequestCount_ = 0;
+    QString username_;
+    QString password_;
     QString code2fa_ = "";
     QString captchaSolution_;
 

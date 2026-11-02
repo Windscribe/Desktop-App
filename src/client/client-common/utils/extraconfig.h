@@ -57,6 +57,7 @@ public:
 
     bool getWireGuardVerboseLogging();
     bool getNoPings();
+    bool getDebugTrace();
 
     std::optional<QString> serverlistCountryOverride();
     bool serverListIgnoreCountryOverride();

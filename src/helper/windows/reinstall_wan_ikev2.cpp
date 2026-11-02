@@ -7,6 +7,9 @@
 bool ReinstallWanIkev2::enableDevice()
 {
     HDEVINFO hDevInfo = SetupDiGetClassDevs(NULL, NULL, NULL, DIGCF_ALLCLASSES | DIGCF_PRESENT);
+    if (hDevInfo == INVALID_HANDLE_VALUE) {
+        spdlog::error("ReinstallWanIkev2::enableDevice, SetupDiGetClassDevs failed: {}", ::GetLastError());
+    }
 
     if (hDevInfo != INVALID_HANDLE_VALUE)
     {
@@ -49,6 +52,12 @@ bool ReinstallWanIkev2::enableDevice()
                 }
             }
         }
+        {
+            const DWORD enumError = ::GetLastError();
+            if (enumError != ERROR_NO_MORE_ITEMS) {
+                spdlog::error("ReinstallWanIkev2::enableDevice, SetupDiEnumDeviceInfo failed at index {}: {}", deviceIndex, enumError);
+            }
+        }
 
         SetupDiDestroyDeviceInfoList(hDevInfo);
 
@@ -89,6 +98,9 @@ bool ReinstallWanIkev2::enableDevice()
 bool ReinstallWanIkev2::uninstallDevice()
 {
     HDEVINFO hDevInfo = SetupDiGetClassDevs(NULL, NULL, NULL, DIGCF_ALLCLASSES | DIGCF_PRESENT);
+    if (hDevInfo == INVALID_HANDLE_VALUE) {
+        spdlog::error("ReinstallWanIkev2::uninstallDevice, SetupDiGetClassDevs failed: {}", ::GetLastError());
+    }
 
     if (hDevInfo != INVALID_HANDLE_VALUE)
     {
@@ -96,6 +108,8 @@ bool ReinstallWanIkev2::uninstallDevice()
         bool bWanIpDeviceFound = false;
         bool bIkev2DeviceUninstalled = false;
         bool bWanIpDeviceUninstalled = false;
+        DWORD ikev2UninstallError = ERROR_SUCCESS;
+        DWORD wanIpUninstallError = ERROR_SUCCESS;
 
         DWORD deviceIndex = 0;
         SP_DEVINFO_DATA deviceInfoData;
@@ -120,6 +134,10 @@ bool ReinstallWanIkev2::uninstallDevice()
                     {
                         bIkev2DeviceUninstalled = true;
                     }
+                    else
+                    {
+                        ikev2UninstallError = ::GetLastError();
+                    }
                 }
                 else if (wcsstr(szBuffer, L"wan miniport") != 0 && wcsstr(szBuffer, L"(ip)") != 0)
                 {
@@ -128,7 +146,17 @@ bool ReinstallWanIkev2::uninstallDevice()
                     {
                         bWanIpDeviceUninstalled = true;
                     }
+                    else
+                    {
+                        wanIpUninstallError = ::GetLastError();
+                    }
                 }
+            }
+        }
+        {
+            const DWORD enumError = ::GetLastError();
+            if (enumError != ERROR_NO_MORE_ITEMS) {
+                spdlog::error("ReinstallWanIkev2::uninstallDevice, SetupDiEnumDeviceInfo failed at index {}: {}", deviceIndex, enumError);
             }
         }
 
@@ -140,7 +168,7 @@ bool ReinstallWanIkev2::uninstallDevice()
             if (bIkev2DeviceUninstalled)
                 spdlog::info("ReinstallWanIkev2::uninstallDevice, WAN Miniport (IKEv2) uninstalled");
             else
-                spdlog::info("ReinstallWanIkev2::uninstallDevice, WAN Miniport (IKEv2) failed uninstall");
+                spdlog::error("ReinstallWanIkev2::uninstallDevice, WAN Miniport (IKEv2) failed uninstall: {}", ikev2UninstallError);
         }
         else
         {
@@ -153,7 +181,7 @@ bool ReinstallWanIkev2::uninstallDevice()
             if (bWanIpDeviceUninstalled)
                 spdlog::info("ReinstallWanIkev2::uninstallDevice, WAN Miniport (IP) uninstalled");
             else
-                spdlog::info("ReinstallWanIkev2::uninstallDevice, WAN Miniport (IP) failed uninstall");
+                spdlog::error("ReinstallWanIkev2::uninstallDevice, WAN Miniport (IP) failed uninstall: {}", wanIpUninstallError);
         }
         else
         {

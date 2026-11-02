@@ -41,6 +41,8 @@ class LocationsModel : public QAbstractItemModel
 {
     Q_OBJECT
 public:
+    // Untranslated; the GUI passes it through tr(), the CLI shows it as is.
+    static constexpr const char *BEST_LOCATION_NAME = QT_TR_NOOP("Best Location");
 
     explicit LocationsModel(QObject *parent = nullptr);
     virtual ~LocationsModel();
@@ -88,7 +90,6 @@ private:
     QSet<QString> alcLocations_;
     FavoriteLocationsStorage favoriteLocationsStorage_;
     RenamedLocationsStorage renamedLocationsStorage_;
-    const char *BEST_LOCATION_NAME = QT_TR_NOOP("Best Location");
 
     QVariant dataForLocation(int row, int role) const;
     QVariant dataForCity(LocationItem *l, int row, int role) const;

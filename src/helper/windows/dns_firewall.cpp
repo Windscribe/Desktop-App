@@ -8,6 +8,7 @@
 
 #include "dns_firewall.h"
 #include "utils.h"
+#include "utils/log/debug_trace.h"
 
 #define FIREWALL_SUBLAYER_DNS_NAMEW WS_APP_IDENTIFIER_W L"DnsFirewallSublayer"
 #define UUID_LAYER_DNS L"7e4a5678-bc70-45e8-8674-21a8e610fd02"
@@ -36,7 +37,7 @@ void DnsFirewall::disable()
     if (Utils::deleteSublayerAndAllFilters(hEngine, &subLayerGUID_)) {
         spdlog::debug("DnsFirewall::disable(), all filters deleted");
     } else {
-        spdlog::debug("DnsFirewall::disable(), no filters to delete");
+        spdlog::debug("DnsFirewall::disable(), deleteSublayerAndAllFilters returned false (sublayer may not exist)");
     }
 
     fwmpWrapper_.endTransaction();
@@ -63,7 +64,7 @@ void DnsFirewall::enable()
 
     DWORD dwFwAPiRetCode = FwpmSubLayerAdd0(hEngine, &subLayer, NULL);
     if (dwFwAPiRetCode != ERROR_SUCCESS && dwFwAPiRetCode != FWP_E_ALREADY_EXISTS) {
-        spdlog::error("DnsFirewall::enable(), FwpmSubLayerAdd0 failed");
+        spdlog::error("DnsFirewall::enable(), FwpmSubLayerAdd0 failed: {}", dwFwAPiRetCode);
         fwmpWrapper_.endTransaction();
         fwmpWrapper_.unlock();
         return;
@@ -120,6 +121,7 @@ void DnsFirewall::addFilters(HANDLE engineHandle)
 
 std::set<types::IpAddress> DnsFirewall::getDnsServers()
 {
+    WS_DEBUG_TRACE_SCOPE("DnsFirewall::getDnsServers");
     std::set<types::IpAddress> dnsServers;
 
     DWORD dwRetVal = 0;
@@ -141,6 +143,7 @@ std::set<types::IpAddress> DnsFirewall::getDnsServers()
     } while ((dwRetVal == ERROR_BUFFER_OVERFLOW) && (iterations < MAX_TRIES));
 
     if (dwRetVal != NO_ERROR) {
+        spdlog::error("DnsFirewall::getDnsServers(), GetAdaptersAddresses failed: {}", dwRetVal);
         return {};
     }
 

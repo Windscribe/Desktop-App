@@ -1,9 +1,7 @@
 #include "wireguardconfig.h"
 
-#include <QFile>
 #include <QRegularExpression>
 #include <QStringList>
-#include <QTextStream>
 
 #include "utils/extraconfig.h"
 #include "utils/log/categories.h"
@@ -35,27 +33,6 @@ QString stripIpv6Address(const QString &addressList)
     return stripIpv6Address(addressList.split(",", Qt::SkipEmptyParts));
 }
 
-// wireguard-windows (tunnel.dll) activates its own WFP firewall when AllowedIPs
-// contains any /0 entry. Replace catch-all /0 with equivalent /1 pairs so the
-// firewall stays off and our helper manages the firewall instead.
-// https://git.zx2c4.com/wireguard-windows/about/docs/netquirk.md
-QString expandCatchAllRoutes(const QString &allowedIps)
-{
-    QStringList result;
-    const QStringList entries = allowedIps.split(",", Qt::SkipEmptyParts);
-    for (const QString &entry : entries) {
-        const QString trimmed = entry.trimmed();
-        if (trimmed == QLatin1String("0.0.0.0/0")) {
-            result << QStringLiteral("0.0.0.0/1") << QStringLiteral("128.0.0.0/1");
-        } else if (trimmed == QLatin1String("::/0")) {
-            result << QStringLiteral("::/1") << QStringLiteral("8000::/1");
-        } else {
-            result << trimmed;
-        }
-    }
-    return result.join(", ");
-}
-
 }
 
 WireGuardConfig::WireGuardConfig()
@@ -74,106 +51,6 @@ WireGuardConfig::WireGuardConfig(const QString &privateKey, const QString &ipAdd
     peer_.presharedKey = presharedKey;
     peer_.endpoint = endpoint;
     peer_.allowedIps = allowedIps;
-}
-
-QString WireGuardConfig::generateConfigFile() const
-{
-    // Design Note:
-    // Tried to use QSettings(fileName, QSettings::IniFormat) to create this file.
-    // Unfortunately, the setValue method double-quotes any string with non-alphanumeric
-    // characters in it, such as the private/public keys which are base64 encoded.
-    // The wireguard-windows service cannot handle these double-quoted entries.
-
-    QString config;
-    QTextStream ts(&config);
-    ts << "[Interface]\n";
-    ts << "PrivateKey = " << client_.privateKey << '\n';
-    ts << "Address = " << client_.ipAddress << '\n';
-    ts << "DNS = " << client_.dnsAddress << '\n';
-
-    if (!client_.listenPort.isEmpty()) {
-        ts << "ListenPort = " << client_.listenPort << '\n';
-    }
-
-    // Belt-and-suspenders for a future caller that bypasses the configureWireGuard gate: omit the whole
-    // obfuscation block rather than emit malformed values or a partial set (see hasValidAmneziawgParams).
-    if (client_.amneziawgParam.isValid() && hasValidAmneziawgParams()) {
-        if (client_.amneziawgParam.jc > 0) {
-            ts << "Jc = " << client_.amneziawgParam.jc << '\n';
-        }
-        if (client_.amneziawgParam.jmin > 0) {
-            ts << "Jmin = " << client_.amneziawgParam.jmin << '\n';
-        }
-        if (client_.amneziawgParam.jmax > 0) {
-            ts << "Jmax = " << client_.amneziawgParam.jmax << '\n';
-        }
-        if (client_.amneziawgParam.s1 != 0) {
-            ts << "S1 = " << client_.amneziawgParam.s1 << '\n';
-        }
-        if (client_.amneziawgParam.s2 != 0) {
-            ts << "S2 = " << client_.amneziawgParam.s2 << '\n';
-        }
-        if (client_.amneziawgParam.s3 != 0) {
-            ts << "S3 = " << client_.amneziawgParam.s3 << '\n';
-        }
-        if (client_.amneziawgParam.s4 != 0) {
-            ts << "S4 = " << client_.amneziawgParam.s4 << '\n';
-        }
-        if (!client_.amneziawgParam.h1.isEmpty()) {
-            ts << "H1 = " << client_.amneziawgParam.h1 << '\n';
-        }
-        if (!client_.amneziawgParam.h2.isEmpty()) {
-            ts << "H2 = " << client_.amneziawgParam.h2 << '\n';
-        }
-        if (!client_.amneziawgParam.h3.isEmpty()) {
-            ts << "H3 = " << client_.amneziawgParam.h3 << '\n';
-        }
-        if (!client_.amneziawgParam.h4.isEmpty()) {
-            ts << "H4 = " << client_.amneziawgParam.h4 << '\n';
-        }
-
-        // Send I1-I5 parameters (in order, only if they exist)
-        for (auto i = 0; i < client_.amneziawgParam.iValues.size() && i < 5; ++i) {
-            const QString &iv = client_.amneziawgParam.iValues[i];
-            if (iv.isEmpty()) {
-                continue;
-            }
-            ts << "I" << i + 1 << " = " << iv << '\n';
-        }
-
-        const auto &p = client_.amneziawgParam;
-        const std::pair<const char *, const QString *> v3Keys[] = {
-            {"HeaderProtectionKey", &p.headerProtectionKey},
-            {"ContentPaddingAddition", &p.contentPaddingAddition},
-            {"RekeyAfterTime", &p.rekeyAfterTime},
-            {"RekeyTimeout", &p.rekeyTimeout},
-            {"RejectAfterTime", &p.rejectAfterTime},
-            {"KeepaliveTimeout", &p.keepaliveTimeout},
-            {"MaxHandshakeAttempts", &p.maxHandshakeAttempts},
-            {"RandomTrailers", &p.randomTrailers},
-            {"DisableCookies", &p.disableCookies},
-        };
-        for (const auto &[key, value] : v3Keys) {
-            if (!value->isEmpty()) {
-                ts << key << " = " << *value << '\n';
-            }
-        }
-    }
-
-    ts << '\n';
-    ts << "[Peer]\n";
-    ts << "PublicKey = " << peer_.publicKey << '\n';
-    ts << "Endpoint = " << peer_.endpoint << '\n';
-
-    if (!peer_.presharedKey.isEmpty()) {
-        ts << "PresharedKey = " << peer_.presharedKey << '\n';
-    }
-
-    ts << "AllowedIPs = " << expandCatchAllRoutes(peer_.allowedIps) << '\n';
-    ts << "PersistentKeepalive = " << peer_.persistentKeepalive << '\n';
-    ts.flush();
-
-    return config;
 }
 
 void WireGuardConfig::reset()
@@ -288,8 +165,8 @@ bool WireGuardConfig::hasValidAmneziawgParams() const
 
 bool WireGuardConfig::hasValidServerValues() const
 {
-    // Written verbatim into the line-oriented wireguard.conf on Windows (posix validates helper-side); reject empty
-    // required fields and a smuggled newline that would inject a spurious directive.
+    // The helpers validate these again and author the tunnel config. Reject empty required fields
+    // and a smuggled newline here so the engine fails before the IPC call.
     const bool ok =
         !peer_.publicKey.isEmpty() && NetworkingValidation::isPrintableSingleLineAscii(peer_.publicKey) &&
         NetworkingValidation::isPrintableSingleLineAscii(peer_.presharedKey) &&
@@ -322,7 +199,8 @@ AmneziawgConfig WireGuardConfig::amneziawgParamToHelperConfig() const
         for (const auto &iValue : client_.amneziawgParam.iValues) {
             config.iValues.push_back(iValue.toStdString());
         }
-        // The UAPI takes the key as hex; the config file form is base64.
+        // The UAPI takes the key as hex; the config file form is base64. The Windows helper
+        // converts this back to base64 when it authors the service .conf.
         config.headerProtectionKey =
             QByteArray::fromBase64(client_.amneziawgParam.headerProtectionKey.toLatin1()).toHex().toStdString();
         config.contentPaddingAddition = client_.amneziawgParam.contentPaddingAddition.toStdString();

@@ -504,6 +504,9 @@ private:
     QString customConfigFilename_;
     bool customConfigAllowFirewall_ = true;
     std::optional<bool> wasPremium_;
+    // What this instance last wrote to the settings file.
+    std::optional<std::string> savedWsnetSettings_;
+    std::optional<QString> savedUserId_;
 
     api_responses::AmneziawgUnblockParams amneziawgParams_;
     QString apiSuggestedAmneziawgPreset_;

@@ -4,8 +4,11 @@
 #include <ws2tcpip.h>
 #include <spdlog/spdlog.h>
 
+#include "utils/log/debug_trace.h"
+
 AdaptersInfo::AdaptersInfo()
 {
+    WS_DEBUG_TRACE_SCOPE("AdaptersInfo::AdaptersInfo");
     ULONG ulAdapterInfoSize = 4096;
     adapterInfoBuffer_.reset(new unsigned char[ulAdapterInfoSize]);
 
@@ -24,7 +27,7 @@ AdaptersInfo::AdaptersInfo()
     else
     {
         adapterInfoBuffer_.reset();
-        spdlog::error(L"AdaptersInfo - GetAdaptersAddresses failed {}", ::GetLastError());
+        spdlog::error(L"AdaptersInfo - GetAdaptersAddresses failed {}", result);
     }
 }
 

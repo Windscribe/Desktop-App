@@ -22,6 +22,8 @@ set(SOURCES
     ../../../../client/client-common/utils/languagesutil.cpp
     ../../../../client/client-common/utils/servicecontrolmanager.cpp
     ../../../../client/client-common/utils/wincryptutils.cpp
+    ../../../../client/client-common/utils/executable_signature/executable_signature.cpp
+    ../../../../client/client-common/utils/executable_signature/executable_signature_win.cpp
     ../utils/applicationinfo.cpp
     ../utils/path.cpp
     ../utils/utils.cpp
@@ -84,6 +86,7 @@ target_link_libraries(installer
     Fwpuclnt
     Ws2_32
     Crypt32
+    wintrust
     LibArchive::LibArchive
     # libarchive calls BCrypt on Windows, but the vcpkg port does not add bcrypt to LibArchive::LibArchive for static builds
     bcrypt

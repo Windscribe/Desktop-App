@@ -149,7 +149,12 @@ bool OpenVPNController::terminateProcess()
                 msgChannel_.stop();
                 return false;
             }
-            openVpnProcess_.wait(5000);
+            const DWORD waitResult = openVpnProcess_.wait(5000);
+            if (waitResult != WAIT_OBJECT_0) {
+                const DWORD waitErr = (waitResult == WAIT_FAILED) ? ::GetLastError() : NO_ERROR;
+                spdlog::warn("OpenVPNController::terminateProcess process did not exit after TerminateProcess (wait result {}, error {})",
+                             waitResult, waitErr);
+            }
         }
     }
     msgChannel_.stop();
@@ -243,7 +248,9 @@ ExecuteCmdResult OpenVPNController::runOpenvpn(std::wstring &config, const std::
     if (!msgChannel_.start(openVpnProcess_.getHandle())) {
         spdlog::error("runOpenvpn: could not start msg-channel worker");
         if (openVpnProcess_.isValid()) {
-            ::TerminateProcess(openVpnProcess_.getHandle(), 1);
+            if (!::TerminateProcess(openVpnProcess_.getHandle(), 1)) {
+                spdlog::error("runOpenvpn: TerminateProcess failed: {}", ::GetLastError());
+            }
             openVpnProcess_.closeHandle();
         }
         msgChannel_.stop();
@@ -412,7 +419,12 @@ bool OpenVPNController::writeOVPNFile(std::wstring &config, const std::wstring &
     filePath += L"\\config.ovpn";
 
     // Remove any prior config before filtering so a rejected config never leaves a stale file behind.
-    DeleteFileW(filePath.c_str());
+    if (!DeleteFileW(filePath.c_str())) {
+        const DWORD deleteErr = ::GetLastError();
+        if (deleteErr != ERROR_FILE_NOT_FOUND) {
+            spdlog::warn("writeOVPNFile: DeleteFileW of prior config failed: {}", deleteErr);
+        }
+    }
 
     std::string filtered;
     if (!OvpnDirectiveWhitelist::filterConfig(narrowConfig, filtered)) {

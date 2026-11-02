@@ -5,6 +5,7 @@
 #include "backend/persistentstate.h"
 #include "ipc/server.h"
 #include "locations/locationsmodel_roles.h"
+#include "locations/model/locationsmodel.h"
 #include "utils/log/categories.h"
 #include "utils/networkingvalidation.h"
 #include "utils/utils.h"
@@ -59,14 +60,14 @@ void LocalIPCServer::start()
     }
 }
 
-void LocalIPCServer::sendLocations(const QList<IPC::CliCommands::IpcLocation> &list, IPC::CliCommands::LocationType type)
+void LocalIPCServer::sendLocations(IPC::Connection *connection, const QList<IPC::CliCommands::IpcLocation> &list, IPC::CliCommands::LocationType type)
 {
     IPC::CliCommands::LocationsList cmd;
     cmd.locations_ = list;
     if (type == IPC::CliCommands::LocationType::kStaticIp) {
         cmd.deviceName_ = deviceName_;
     }
-    sendCommand(cmd);
+    reply(connection, cmd);
 }
 
 QList<IPC::CliCommands::IpcLocation> LocalIPCServer::locationsList(IPC::CliCommands::LocationType type) const
@@ -81,8 +82,9 @@ QList<IPC::CliCommands::IpcLocation> LocalIPCServer::locationsList(IPC::CliComma
             QString countryName = miCountry.data(gui_locations::kName).toString();
 
             if (lid.isBestLocation()) {
+                // The model holds the name translated to the GUI language; the CLI output is English-only.
                 QString nickName = miCountry.data(gui_locations::kNick).toString();
-                IPC::CliCommands::IpcLocation location(countryName, "", nickName, 0);
+                IPC::CliCommands::IpcLocation location(gui_locations::LocationsModel::BEST_LOCATION_NAME, "", nickName, 0);
                 if (miCountry.data(gui_locations::kIs10Gbps).toBool()) {
                     location.flags |= (int)IPC::CliCommands::LocationFlags::k10Gbps;
                 }
@@ -161,16 +163,16 @@ void LocalIPCServer::onServerCallbackAcceptFunction(IPC::Connection *connection)
     connect(connection, &IPC::Connection::stateChanged, this, &LocalIPCServer::onConnectionStateCallback);
 }
 
-void LocalIPCServer::onConnectionCommandCallback(IPC::Command *command, IPC::Connection * /*connection*/)
+void LocalIPCServer::onConnectionCommandCallback(IPC::Command *command, IPC::Connection *connection)
 {
     std::unique_ptr<IPC::Command> owner(command);
 
     if (command->getStringId() ==IPC::CliCommands::ShowLocations::getCommandStringId()) {
         IPC::CliCommands::ShowLocations *cmd = static_cast<IPC::CliCommands::ShowLocations *>(command);
-        sendLocations(locationsList(cmd->locationType_), cmd->locationType_);
+        sendLocations(connection, locationsList(cmd->locationType_), cmd->locationType_);
         return;
     } else if (command->getStringId() == IPC::CliCommands::GetState::getCommandStringId()) {
-        sendState();
+        sendState(connection);
         return;
     } else if (command->getStringId() == IPC::CliCommands::Connect::getCommandStringId()) {
         IPC::CliCommands::Connect *cmd = static_cast<IPC::CliCommands::Connect *>(command);
@@ -289,8 +291,14 @@ void LocalIPCServer::onConnectionCommandCallback(IPC::Command *command, IPC::Con
         } else if (backend_->isAwaitingRotatedIp()) {
             ack.code_ = 2;
             ack.message_ = "IP rotate in progress";
-        } else if (isMyIpFromDisconnectedState_ || !backend_->locationsModelManager()->pinIp(
-                       backend_->currentLocation(), backend_->getCurrentConnectingHostname(), myIp_)) {
+        } else if (connectState_.connectState == CONNECT_STATE_CONNECTED && !isMyIpCurrent()) {
+            // The address is from before this connect state: the previous server, or not looked up yet.
+            qCWarning(LOG_BASIC) << "Could not pin IP" << myIp_;
+            ack.code_ = 3;
+            ack.message_ = "Current IP is not known yet";
+        } else if (connectState_.connectState != CONNECT_STATE_CONNECTED ||
+                   !backend_->locationsModelManager()->pinIp(backend_->currentLocation(),
+                                                             backend_->getCurrentConnectingHostname(), myIp_)) {
             qCWarning(LOG_BASIC) << "Could not pin IP" << myIp_;
             ack.code_ = 1;
             ack.message_ = "Could not favourite IP";
@@ -319,12 +327,12 @@ void LocalIPCServer::onConnectionCommandCallback(IPC::Command *command, IPC::Con
         types::Protocol protocol = types::Protocol::fromString(cmd->protocol_);
         IPC::CliCommands::PortsList response;
         response.ports_ = backend_->getPreferencesHelper()->getAvailablePortsForProtocol(protocol);
-        sendCommand(response);
+        reply(connection, response);
         return;
     } else if (command->getStringId() == IPC::CliCommands::ShowAmneziawg::getCommandStringId()) {
         IPC::CliCommands::AmneziawgPresetsList response;
         response.presets_ = backend_->getPreferencesHelper()->amneziawgPresets();
-        sendCommand(response);
+        reply(connection, response);
         return;
     }
 
@@ -388,7 +396,14 @@ void LocalIPCServer::sendCommand(const IPC::Command &command)
     }
 }
 
-void LocalIPCServer::sendState()
+void LocalIPCServer::reply(IPC::Connection *connection, const IPC::Command &command)
+{
+    if (connections_.contains(connection)) {
+        connection->sendCommand(command);
+    }
+}
+
+void LocalIPCServer::sendState(IPC::Connection *connection)
 {
     IPC::CliCommands::State cmd;
     cmd.language_ = backend_->getPreferences()->language();
@@ -413,9 +428,11 @@ void LocalIPCServer::sendState()
     cmd.updateAvailable_ = updateAvailable_;
     cmd.trafficUsed_ = backend_->getAccountInfo()->trafficUsed();
     cmd.trafficMax_ = backend_->getAccountInfo()->plan();
-    cmd.myIp_ = myIp_;
+    // An IP from before the last connect state change belongs to the previous state, so leave it out rather than
+    // show the VPN IP as public, the public IP as VPN, or the previous server's IP.
+    cmd.myIp_ = isMyIpCurrent() ? myIp_ : QString();
     cmd.connectRequestCount_ = backend_->connectRequestCount();
-    sendCommand(cmd);
+    reply(connection, cmd);
 }
 
 void LocalIPCServer::onBackendCheckUpdateChanged(const api_responses::CheckUpdate &info)
@@ -429,6 +446,9 @@ void LocalIPCServer::onBackendCheckUpdateChanged(const api_responses::CheckUpdat
 
 void LocalIPCServer::onBackendConnectStateChanged(const types::ConnectState &state)
 {
+    if (state.connectState != connectState_.connectState) {
+        isMyIpStale_ = true;
+    }
     connectState_ = state;
     tunnelTestState_ = TUNNEL_TEST_STATE_UNKNOWN;
 
@@ -459,6 +479,16 @@ void LocalIPCServer::onBackendMyIpChanged(const QString &ip, bool isFromDisconne
 {
     myIp_ = ip;
     isMyIpFromDisconnectedState_ = isFromDisconnectedState;
+    isMyIpStale_ = false;
+}
+
+bool LocalIPCServer::isMyIpCurrent() const
+{
+    if (isMyIpStale_) {
+        return false;
+    }
+    return (connectState_.connectState == CONNECT_STATE_DISCONNECTED && isMyIpFromDisconnectedState_) ||
+           (connectState_.connectState == CONNECT_STATE_CONNECTED && !isMyIpFromDisconnectedState_);
 }
 
 void LocalIPCServer::onBackendTestTunnelResult(bool success)

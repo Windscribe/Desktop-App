@@ -5,6 +5,8 @@
 enum CliCommand {
     CLI_COMMAND_NONE,
     CLI_COMMAND_HELP,
+    CLI_COMMAND_INVALID,
+    CLI_COMMAND_VERSION,
     CLI_COMMAND_CONNECT,
     CLI_COMMAND_CONNECT_BEST,
     CLI_COMMAND_CONNECT_LOCATION,
@@ -37,6 +39,10 @@ public:
     void processArguments();
 
     CliCommand cliCommand() const;
+    // The command to show help for (CLI_COMMAND_HELP), or whose arguments are invalid (CLI_COMMAND_INVALID).
+    const QString &helpTopic() const;
+    // Why the arguments are invalid (CLI_COMMAND_INVALID).
+    const QString &error() const;
     const QString &location() const;
     const QString &username() const;
     const QString &password() const;
@@ -48,11 +54,10 @@ public:
     bool ignoreSslErrors() const;
     bool nonBlocking() const;
 
-    void setUsername(const QString &username);
-    void setPassword(const QString &password);
-
 private:
     CliCommand cliCommand_ = CLI_COMMAND_NONE;
+    QString helpTopic_;
+    QString error_;
     QString locationStr_ = "";
     QString username_;
     QString password_;
@@ -64,6 +69,8 @@ private:
     bool ignoreSslErrors_ = false;
     bool nonBlocking_ = false;
 
+    void setError(const QString &command, const QString &error);
+    bool parseProtocol(const QString &command, const QString &arg);
     void parseConnect(const QStringList &args);
     void parseDisconnect(const QStringList &args);
     void parseFirewall(const QStringList &args);

@@ -89,6 +89,23 @@ SplitTunnelingRoutes=192.168.1.0/24, example.com
 - `SplitTunnelingApps` — comma-separated list of executable paths (non-existent paths are silently skipped)
 - `SplitTunnelingRoutes` — comma-separated list of IP/CIDR ranges or domain names
 
+## Anti-Censorship (AmneziaWG)
+
+Obfuscate the VPN connection with an AmneziaWG preset so it is harder to detect and block. Two settings work together:
+
+```ini
+[Connection]
+ProtocolTweaksMethod=1
+AmneziawgPreset=E - Baseline No Junk
+```
+
+- `ProtocolTweaksMethod` — a number: `0` Auto (default; a preset is used only when Windscribe suggests one, otherwise plain WireGuard), `1` Enabled (always use `AmneziawgPreset`), `2` Disabled (never)
+- `AmneziawgPreset` — only used when `ProtocolTweaksMethod=1`. The value is a preset name exactly as `windscribe-cli amneziawg` prints it (the full name, e.g. `E - Baseline No Junk`, not just `E`). Empty uses the first preset. A name that is not listed also falls back to the first preset, and the app log says so. Before the list has ever been fetched, both use a built-in preset
+- The preset list comes from Windscribe. Until the app has fetched it (log in first), `windscribe-cli amneziawg` prints "No AmneziaWG configurations available." and exits with 1
+- `CircumventCensorship` does **not** turn this on. It pads the app's own requests to Windscribe and affects the emergency connection only; the VPN connection is unchanged
+
+On Windows, macOS and Linux GUI builds, open Preferences > Connection > Anti-Censorship Settings, set Protocol Tweaks to Enabled, and choose the preset under Amnezia Config.
+
 ## Applying Changes
 
 Changes apply automatically as soon as the file is saved. `windscribe-cli preferences reload` is no longer needed and does nothing.

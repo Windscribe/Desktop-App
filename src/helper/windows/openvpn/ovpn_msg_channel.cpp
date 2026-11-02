@@ -67,6 +67,8 @@ bool appendNameServer(std::vector<std::wstring> &servers, short family, const vo
 {
     wchar_t buf[64] = {};
     if (::InetNtopW(family, addr, buf, _countof(buf)) == nullptr || buf[0] == L'\0') {
+        const DWORD err = ::WSAGetLastError();
+        spdlog::error("OvpnMsgChannel appendNameServer - InetNtopW failed (family {}): {}", family, err);
         return false;
     }
     servers.push_back(buf);
@@ -83,11 +85,13 @@ DWORD setInterfaceDns(NET_IFINDEX ifIndex, short family, const std::vector<std::
         NET_LUID luid = {};
         DWORD ret = ::ConvertInterfaceIndexToLuid(ifIndex, &luid);
         if (ret != NO_ERROR) {
+            spdlog::error("OvpnMsgChannel setInterfaceDns - ConvertInterfaceIndexToLuid failed (ifIndex {}): {}", ifIndex, ret);
             return ret;
         }
         GUID guid = {};
         ret = ::ConvertInterfaceLuidToGuid(&luid, &guid);
         if (ret != NO_ERROR) {
+            spdlog::error("OvpnMsgChannel setInterfaceDns - ConvertInterfaceLuidToGuid failed (ifIndex {}): {}", ifIndex, ret);
             return ret;
         }
 
@@ -102,7 +106,11 @@ DWORD setInterfaceDns(NET_IFINDEX ifIndex, short family, const std::vector<std::
         settings.Version = DNS_INTERFACE_SETTINGS_VERSION1;
         settings.Flags = DNS_SETTING_NAMESERVER | (family == AF_INET6 ? DNS_SETTING_IPV6 : 0);
         settings.NameServer = nameServer.empty() ? nullptr : nameServer.data();
-        return pSetInterfaceDnsSettings(guid, &settings);
+        ret = pSetInterfaceDnsSettings(guid, &settings);
+        if (ret != NO_ERROR) {
+            spdlog::error("OvpnMsgChannel setInterfaceDns - SetInterfaceDnsSettings failed (ifIndex {}, family {}): {}", ifIndex, family, ret);
+        }
+        return ret;
     }
     catch (const std::system_error &ex) {
         // SetInterfaceDnsSettings unavailable on this OS — fall through to the netsh path below.
@@ -111,6 +119,10 @@ DWORD setInterfaceDns(NET_IFINDEX ifIndex, short family, const std::vector<std::
 
     auto runNetsh = [](const std::wstring &cmd) -> DWORD {
         const auto res = ExecuteCmd::instance().executeBlockingCmd(cmd);
+        if (!res.success || res.exitCode != 0) {
+            spdlog::error(L"OvpnMsgChannel setInterfaceDns - netsh failed (success {}, exit code {}): {} output: {}",
+                          res.success, res.exitCode, cmd, res.output);
+        }
         return (res.success && res.exitCode == 0) ? NO_ERROR : (res.exitCode ? res.exitCode : ERROR_GEN_FAILURE);
     };
 
@@ -302,13 +314,19 @@ void OvpnMsgChannel::workerLoop()
                 HANDLE waits[3] = { stopEvent_.getHandle(), process_.getHandle(), readEvent.getHandle() };
                 const DWORD w = ::WaitForMultipleObjects(3, waits, FALSE, INFINITE);
                 if (w != WAIT_OBJECT_0 + 2) {
+                    if (w == WAIT_FAILED) {
+                        spdlog::error("OvpnMsgChannel worker WaitForMultipleObjects(read) failed: {}", ::GetLastError());
+                    }
                     ::CancelIoEx(serverPipe_.getHandle(), &ov);
                     ::GetOverlappedResult(serverPipe_.getHandle(), &ov, &bytes, TRUE);
                     break;
                 }
                 if (!::GetOverlappedResult(serverPipe_.getHandle(), &ov, &bytes, FALSE)) {
-                    if (::GetLastError() == ERROR_MORE_DATA) {
+                    const DWORD ovErr = ::GetLastError();
+                    if (ovErr == ERROR_MORE_DATA) {
                         nackTooLarge(bytes);
+                    } else if (ovErr != ERROR_BROKEN_PIPE && ovErr != ERROR_NO_DATA && ovErr != ERROR_OPERATION_ABORTED) {
+                        spdlog::error("OvpnMsgChannel ReadFile GetOverlappedResult failed: {}", ovErr);
                     }
                     break;
                 }
@@ -366,6 +384,9 @@ bool OvpnMsgChannel::writeAck(int messageId, DWORD errorNumber, HANDLE writeEven
         HANDLE waits[3] = { stopEvent_.getHandle(), process_.getHandle(), writeEvent };
         const DWORD w = ::WaitForMultipleObjects(3, waits, FALSE, INFINITE);
         if (w != WAIT_OBJECT_0 + 2) {
+            if (w == WAIT_FAILED) {
+                spdlog::error("OvpnMsgChannel WaitForMultipleObjects(ack) failed: {}", ::GetLastError());
+            }
             ::CancelIoEx(serverPipe_.getHandle(), &ov);
             ::GetOverlappedResult(serverPipe_.getHandle(), &ov, &written, TRUE);
             return false;
@@ -523,12 +544,21 @@ DWORD OvpnMsgChannel::handleFlushNeighbors(const flush_neighbors_message_t &msg)
     NET_LUID luid{};
     const DWORD err = resolveIface(msg.iface, index, luid);
     if (err != NO_ERROR) {
+        spdlog::error("OvpnMsgChannel handleFlushNeighbors: resolveIface failed ({})", err);
         return err;
     }
     if (msg.family == AF_INET) {
-        return ::FlushIpNetTable(index);
+        const DWORD flushErr = ::FlushIpNetTable(index);
+        if (flushErr != NO_ERROR) {
+            spdlog::error("OvpnMsgChannel FlushIpNetTable failed (ifIndex {}): {}", index, flushErr);
+        }
+        return flushErr;
     }
-    return ::FlushIpNetTable2(msg.family, index);
+    const DWORD flushErr = ::FlushIpNetTable2(msg.family, index);
+    if (flushErr != NO_ERROR) {
+        spdlog::error("OvpnMsgChannel FlushIpNetTable2 failed (family {}, ifIndex {}): {}", msg.family, index, flushErr);
+    }
+    return flushErr;
 }
 
 DWORD OvpnMsgChannel::handleDnsCfg(const dns_cfg_message_t &msg)
@@ -537,6 +567,7 @@ DWORD OvpnMsgChannel::handleDnsCfg(const dns_cfg_message_t &msg)
     NET_LUID luid{};
     const DWORD err = resolveIface(msg.iface, index, luid);
     if (err != NO_ERROR) {
+        spdlog::error("OvpnMsgChannel handleDnsCfg: resolveIface failed ({})", err);
         return err;
     }
 
@@ -574,6 +605,7 @@ DWORD OvpnMsgChannel::handleNrptCfg(const nrpt_dns_cfg_message_t &msg)
     NET_LUID luid{};
     const DWORD err = resolveIface(msg.iface, index, luid);
     if (err != NO_ERROR) {
+        spdlog::error("OvpnMsgChannel handleNrptCfg: resolveIface failed ({})", err);
         return err;
     }
 
@@ -599,6 +631,8 @@ DWORD OvpnMsgChannel::handleNrptCfg(const nrpt_dns_cfg_message_t &msg)
             if (!appendNameServer(v6Servers, AF_INET6, &v6)) {
                 return kErrorMessageData;
             }
+        } else {
+            spdlog::debug("OvpnMsgChannel handleNrptCfg: skipping unparsable address '{}'", msg.addresses[i]);
         }
     }
 
@@ -620,6 +654,7 @@ DWORD OvpnMsgChannel::handleMtu(const set_mtu_message_t &msg)
     NET_LUID luid{};
     const DWORD err = resolveIface(msg.iface, index, luid);
     if (err != NO_ERROR) {
+        spdlog::error("OvpnMsgChannel handleMtu: resolveIface failed ({})", err);
         return err;
     }
 
@@ -629,13 +664,18 @@ DWORD OvpnMsgChannel::handleMtu(const set_mtu_message_t &msg)
     row.InterfaceIndex = index;
     DWORD getErr = ::GetIpInterfaceEntry(&row);
     if (getErr != NO_ERROR) {
+        spdlog::error("OvpnMsgChannel GetIpInterfaceEntry failed (family {}, ifIndex {}): {}", msg.family, index, getErr);
         return getErr;
     }
     if (msg.family == AF_INET) {
         row.SitePrefixLength = 0;
     }
     row.NlMtu = static_cast<ULONG>(msg.mtu);
-    return ::SetIpInterfaceEntry(&row);
+    const DWORD setErr = ::SetIpInterfaceEntry(&row);
+    if (setErr != NO_ERROR) {
+        spdlog::error("OvpnMsgChannel SetIpInterfaceEntry failed (family {}, ifIndex {}, mtu {}): {}", msg.family, index, msg.mtu, setErr);
+    }
+    return setErr;
 }
 
 DWORD OvpnMsgChannel::handleRegisterDns()
@@ -643,7 +683,12 @@ DWORD OvpnMsgChannel::handleRegisterDns()
     try {
         wsl::SystemLibLoader dnsapi("dnsapi.dll");
         const auto flush = dnsapi.getFunction<BOOL WINAPI()>("DnsFlushResolverCache");
-        return flush() ? NO_ERROR : ::GetLastError();
+        if (flush()) {
+            return NO_ERROR;
+        }
+        const DWORD err = ::GetLastError();
+        spdlog::error("OvpnMsgChannel DnsFlushResolverCache failed: {}", err);
+        return err;
     }
     catch (const std::system_error &ex) {
         spdlog::warn("OvpnMsgChannel DnsFlushResolverCache unavailable: {}", ex.what());

@@ -1,6 +1,8 @@
 #!/bin/bash
 
-PATH=/usr/sbin:$PATH
+# OpenVPN runs this as root with no PATH, so set one that never searches user-writable directories such as /usr/local/bin.
+PATH=/usr/bin:/bin:/usr/sbin:/sbin
+export PATH
 
 # Arbitrary UUID
 SERVICE_UUID="019566B0-ECE7-707F-9A54-EED796210EB0"

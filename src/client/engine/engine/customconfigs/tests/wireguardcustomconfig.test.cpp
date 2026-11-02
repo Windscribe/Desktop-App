@@ -448,18 +448,13 @@ void TestWireguardCustomConfig::testValidAwg3Params()
 
     const auto wg = wireGuardConfigOf(c);
     QVERIFY(wg != nullptr);
-    const QString file = wg->generateConfigFile();
-    QVERIFY(file.contains("HeaderProtectionKey = " + kValidHeaderProtectionKey + "\n"));
-    QVERIFY(file.contains("ContentPaddingAddition = 0-16\n"));
-    QVERIFY(file.contains("RekeyAfterTime = 100-140\n"));
-    QVERIFY(file.contains("RekeyTimeout = 5\n"));
-    QVERIFY(file.contains("RejectAfterTime = 180-200\n"));
-    QVERIFY(file.contains("KeepaliveTimeout = 10-12\n"));
-    QVERIFY(file.contains("MaxHandshakeAttempts = 20\n"));
-    QVERIFY(file.contains("RandomTrailers = true\n"));
-    QVERIFY(file.contains("DisableCookies = false\n"));
-
     const AmneziawgConfig helperConfig = wg->amneziawgParamToHelperConfig();
+    QCOMPARE(QString::fromStdString(helperConfig.contentPaddingAddition), QStringLiteral("0-16"));
+    QCOMPARE(QString::fromStdString(helperConfig.rekeyAfterTime), QStringLiteral("100-140"));
+    QCOMPARE(QString::fromStdString(helperConfig.rekeyTimeout), QStringLiteral("5"));
+    QCOMPARE(QString::fromStdString(helperConfig.rejectAfterTime), QStringLiteral("180-200"));
+    QCOMPARE(QString::fromStdString(helperConfig.keepaliveTimeout), QStringLiteral("10-12"));
+    QCOMPARE(QString::fromStdString(helperConfig.maxHandshakeAttempts), QStringLiteral("20"));
     QCOMPARE(QString::fromStdString(helperConfig.headerProtectionKey),
              QStringLiteral("000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f"));
     QCOMPARE(QString::fromStdString(helperConfig.randomTrailers), QStringLiteral("true"));
@@ -472,12 +467,16 @@ void TestWireguardCustomConfig::testAwg3UnsetKeysNotEmitted()
     auto c = loadConfig("H1 = 97329410\n", &err);
     QVERIFY(c != nullptr);
     QVERIFY2(c->isCorrect(), qPrintable(err));
-    const QString file = wireGuardConfigOf(c)->generateConfigFile();
-    for (const char *key : {"HeaderProtectionKey", "ContentPaddingAddition", "RekeyAfterTime", "RekeyTimeout",
-                            "RejectAfterTime", "KeepaliveTimeout", "MaxHandshakeAttempts", "RandomTrailers",
-                            "DisableCookies"}) {
-        QVERIFY2(!file.contains(key), key);
-    }
+    const AmneziawgConfig helperConfig = wireGuardConfigOf(c)->amneziawgParamToHelperConfig();
+    QVERIFY(helperConfig.headerProtectionKey.empty());
+    QVERIFY(helperConfig.contentPaddingAddition.empty());
+    QVERIFY(helperConfig.rekeyAfterTime.empty());
+    QVERIFY(helperConfig.rekeyTimeout.empty());
+    QVERIFY(helperConfig.rejectAfterTime.empty());
+    QVERIFY(helperConfig.keepaliveTimeout.empty());
+    QVERIFY(helperConfig.maxHandshakeAttempts.empty());
+    QVERIFY(helperConfig.randomTrailers.empty());
+    QVERIFY(helperConfig.disableCookies.empty());
 }
 
 void TestWireguardCustomConfig::testHeaderProtectionKeyIsAmneziawg()
@@ -545,7 +544,7 @@ void TestWireguardCustomConfig::testPersistentKeepaliveDefault()
     auto c = loadConfig("");
     QVERIFY(c != nullptr);
     QVERIFY(c->isCorrect());
-    QVERIFY(wireGuardConfigOf(c)->generateConfigFile().contains("PersistentKeepalive = 25\n"));
+    QCOMPARE(wireGuardConfigOf(c)->peerPersistentKeepalive(), QStringLiteral("25"));
 }
 
 void TestWireguardCustomConfig::testNoDisconnectOnStaleHandshake()
@@ -573,7 +572,6 @@ void TestWireguardCustomConfig::testPersistentKeepaliveValues()
         QVERIFY2(c->isCorrect(), qPrintable(input + ": " + err));
         const auto wg = wireGuardConfigOf(c);
         QCOMPARE(wg->peerPersistentKeepalive(), expected);
-        QVERIFY(wg->generateConfigFile().contains("PersistentKeepalive = " + expected + "\n"));
     }
 }
 

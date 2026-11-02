@@ -210,15 +210,17 @@ void PersistentState::setIgnoreNotificationDisabled(bool suppress)
 }
 
 #ifdef CLI_ONLY
-void PersistentState::fromIni(QSettings &settings)
+void PersistentState::fromIni(QSettings &settings, bool isAutoSecureNetworks)
 {
     QVector<types::NetworkInterface> networks = state_.networkWhiteList;
     QVector<types::NetworkInterface> out;
+    const NETWORK_TRUST_TYPE defaultTrust = isAutoSecureNetworks ? NETWORK_TRUST_SECURED : NETWORK_TRUST_UNSECURED;
 
     settings.beginGroup(kIniNetworksProp);
     for (auto network : networks) {
         settings.beginGroup(network.networkOrSsid);
-        network.trustType = enumFromString<NETWORK_TRUST_TYPE>(settings.value(kIniNetworkTrustTypeProp, enumToString(network.trustType)).toString());
+        network.trustType =
+            enumFromString<NETWORK_TRUST_TYPE>(settings.value(kIniNetworkTrustTypeProp, enumToString(defaultTrust)).toString());
         settings.endGroup();
         out << network;
     }
