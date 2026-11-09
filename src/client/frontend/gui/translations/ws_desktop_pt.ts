@@ -1511,10 +1511,6 @@ Se o problema persistir após uma reinicialização, envie um log de depuração
         <translation>Desativar Permitir tráfego LAN fará com que seu hotspot seguro pare de funcionar.  Deseja desativar o hotspot?</translation>
     </message>
     <message>
-        <source>MAC spoofing is not supported on your version of MacOS.</source>
-        <translation>A falsificação de MAC não é suportada na sua versão do MacOS.</translation>
-    </message>
-    <message>
         <source>Automatically determine the MTU for your connection, or manually override.  This has no effect on TCP-based protocols.</source>
         <translation>Determine automaticamente o MTU da sua conexão ou substitua manualmente.  Isso não tem efeito sobre protocolos baseados em TCP.</translation>
     </message>
@@ -2381,6 +2377,10 @@ Conecte-se a uma rede primeiro</translation>
 </context>
 <context>
     <name>PreferencesWindow::SplitTunnelingAppsGroup</name>
+    <message>
+        <source>This app is already in the list.</source>
+        <translation>Esta aplicação já está na lista.</translation>
+    </message>
     <message>
         <source>There are too many apps in the list. Please remove some before adding more.</source>
         <translation>Há muitos aplicativos na lista. Por favor, remova alguns antes de adicionar mais.</translation>

@@ -69,6 +69,8 @@ void SplitTunneling::detectVpnExecutables()
     HANDLE hFind = FindFirstFileEx(fileFilter.c_str(), FindExInfoBasic, &ffd, FindExSearchNameMatch, NULL, 0);
 
     if (hFind == INVALID_HANDLE_VALUE) {
+        DWORD lastError = ::GetLastError();
+        spdlog::error(L"SplitTunneling::detectVpnExecutables(), FindFirstFileEx failed for {}: {}", fileFilter, lastError);
         return;
     }
 

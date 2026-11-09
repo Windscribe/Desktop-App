@@ -24,6 +24,14 @@ void Helper_linux::resetMacAddresses(const QString &ignoreNetwork)
     sendCommand(HelperCommand::resetMacAddresses, ignoreNetwork.toStdString());
 }
 
+bool Helper_linux::setMacAddress(const QString &interface, const QString &macAddress, const QString &network, bool isWifi)
+{
+    auto result = sendCommand(HelperCommand::setMacAddress, interface.toStdString(), macAddress.toStdString(), network.toStdString(), isWifi);
+    bool success = false;
+    deserializeAnswer(result, success);
+    return success;
+}
+
 void Helper_linux::setOpenVpnDcoMode(bool useDco)
 {
     sendCommand(HelperCommand::setOpenVpnDcoMode, useDco);

@@ -1511,10 +1511,6 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
         <translation>Menonaktifkan Izinkan Lalu Lintas LAN akan menyebabkan hotspot aman Anda berhenti berfungsi.  Apakah Anda ingin menonaktifkan hotspot?</translation>
     </message>
     <message>
-        <source>MAC spoofing is not supported on your version of MacOS.</source>
-        <translation>Spoofing MAC tidak didukung di versi MacOS Anda.</translation>
-    </message>
-    <message>
         <source>Automatically determine the MTU for your connection, or manually override.  This has no effect on TCP-based protocols.</source>
         <translation>Secara otomatis menentukan MTU untuk koneksi Anda, atau mengganti secara manual.  Ini tidak berpengaruh pada protokol berbasis TCP.</translation>
     </message>
@@ -2381,6 +2377,10 @@ Menyambungkan ke jaringan terlebih dahulu</translation>
 </context>
 <context>
     <name>PreferencesWindow::SplitTunnelingAppsGroup</name>
+    <message>
+        <source>This app is already in the list.</source>
+        <translation>Aplikasi ini sudah ada dalam daftar.</translation>
+    </message>
     <message>
         <source>There are too many apps in the list. Please remove some before adding more.</source>
         <translation>Ada terlalu banyak aplikasi dalam daftar. Harap hapus beberapa sebelum menambahkan lebih banyak.</translation>

@@ -1,5 +1,8 @@
 #pragma once
 
+#include <algorithm>
+
+#include <QDir>
 #include <QFile>
 #include <QJsonArray>
 #include <QJsonObject>
@@ -198,14 +201,15 @@ struct SplitTunnelingApp
 
         if (json.contains(kJsonFullNameProp) && json[kJsonFullNameProp].isString()) {
             QString path = json[kJsonFullNameProp].toString();
+#ifdef Q_OS_LINUX
             // Linux Flatpak entries store the app ID (e.g. org.mozilla.firefox) here, which has no
             // on-disk path. Only run the existence check for path-shaped values.
-            if (!path.startsWith('/')) {
+            const bool isPath = path.startsWith('/');
+#else
+            const bool isPath = true;
+#endif
+            if (!isPath || QFile::exists(path)) {
                 fullName = path;
-            } else {
-                if (QFile::exists(path)) {
-                    fullName = path;
-                }
             }
         }
 
@@ -285,6 +289,9 @@ struct SplitTunnelingApp
     void validate()
     {
         type = enumFromInt<SPLIT_TUNNELING_APP_TYPE>(static_cast<int>(type));
+        // The Windows file dialog returns forward slashes, while the app picker uses backslashes. Doubled or trailing
+        // separators name the same app, so they are dropped for the duplicate check.
+        fullName = QDir::toNativeSeparators(QDir::cleanPath(fullName));
     }
 
 private:
@@ -355,53 +362,53 @@ struct SplitTunneling
 #ifdef CLI_ONLY
     void fromIni(const QSettings &s)
     {
-        settings.active = s.value(kIniSplitTunnelingEnabledProp, settings.active).toBool();
-        settings.mode = enumFromString<SPLIT_TUNNELING_MODE>(s.value(kIniSplitTunnelingModeProp, enumToString(settings.mode)).toString());
+        const SplitTunnelingSettings defaults;
+        settings.active = s.value(kIniSplitTunnelingEnabledProp, defaults.active).toBool();
+        settings.mode = enumFromString<SPLIT_TUNNELING_MODE>(s.value(kIniSplitTunnelingModeProp, enumToString(defaults.mode)).toString());
 
-        if (s.contains(kIniSplitTunnelingAppsProp)) {
-            apps.clear();
-            QStringList appsList;
-            appsList = s.value(kIniSplitTunnelingAppsProp).toStringList();
-            for (auto appPath : appsList) {
-                if (appPath.isEmpty()) {
+        apps.clear();
+        const QStringList appsList = s.value(kIniSplitTunnelingAppsProp).toStringList();
+        for (auto appPath : appsList) {
+            if (appPath.isEmpty()) {
+                continue;
+            }
+#ifdef Q_OS_LINUX
+            // Linux Flatpak entries store the app ID (e.g. org.mozilla.firefox) here, which has
+            // no on-disk path. Only run the existence check for path-shaped values.
+            const bool isPath = appPath.startsWith('/');
+#else
+            const bool isPath = true;
+#endif
+            if (isPath) {
+                if (!QFile::exists(appPath)) {
+                    qCDebug(LOG_BASIC) << "Skipping non-existent split tunneling app '" << appPath << "'";
                     continue;
                 }
-                // Linux Flatpak entries store the app ID (e.g. org.mozilla.firefox) here, which has
-                // no on-disk path. Only run the existence check for path-shaped values.
-                if (appPath.startsWith('/')) {
-                    if (!QFile::exists(appPath)) {
-                        qCDebug(LOG_BASIC) << "Skipping non-existent split tunneling app '" << appPath << "'";
-                        continue;
-                    }
-                }
-
-                SplitTunnelingApp a;
-                a.active = true;
-                a.fullName = appPath;
-                a.name = appPath;
-                a.icon = "";
-                a.type = SPLIT_TUNNELING_APP_TYPE_USER;
-                apps << a;
             }
+
+            SplitTunnelingApp a;
+            a.active = true;
+            a.fullName = appPath;
+            a.name = appPath;
+            a.icon = "";
+            a.type = SPLIT_TUNNELING_APP_TYPE_USER;
+            apps << a;
         }
 
-        if (s.contains(kIniSplitTunnelingRoutesProp)) {
-            networkRoutes.clear();
-            QStringList networkRoutesList;
-            networkRoutesList = s.value(kIniSplitTunnelingRoutesProp).toStringList();
-            for (auto route : networkRoutesList) {
-                if (route.isEmpty()) {
-                    continue;
-                }
-                SplitTunnelingNetworkRoute r;
-                r.name = route;
-                if (NetworkingValidation::isIpCidr(route)) {
-                    r.type = SPLIT_TUNNELING_NETWORK_ROUTE_TYPE_IP;
-                } else {
-                    r.type = SPLIT_TUNNELING_NETWORK_ROUTE_TYPE_HOSTNAME;
-                }
-                networkRoutes << r;
+        networkRoutes.clear();
+        const QStringList networkRoutesList = s.value(kIniSplitTunnelingRoutesProp).toStringList();
+        for (auto route : networkRoutesList) {
+            if (route.isEmpty()) {
+                continue;
             }
+            SplitTunnelingNetworkRoute r;
+            r.name = route;
+            if (NetworkingValidation::isIpCidr(route)) {
+                r.type = SPLIT_TUNNELING_NETWORK_ROUTE_TYPE_IP;
+            } else {
+                r.type = SPLIT_TUNNELING_NETWORK_ROUTE_TYPE_HOSTNAME;
+            }
+            networkRoutes << r;
         }
     }
 
@@ -493,11 +500,17 @@ struct SplitTunneling
                 droppedInvalidApps++;
                 continue;
             }
+            app.validate();
+            auto duplicate = std::find_if(filteredApps.begin(), filteredApps.end(),
+                                          [&app](const SplitTunnelingApp &a) { return a.fullName == app.fullName; });
+            if (duplicate != filteredApps.end()) {
+                duplicate->active = duplicate->active || app.active;
+                continue;
+            }
             if (filteredApps.size() >= kMaxApps) {
                 droppedAppsOverCap++;
                 continue;
             }
-            app.validate();
             filteredApps.append(app);
         }
         if (droppedInvalidApps > 0) {

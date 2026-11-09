@@ -1511,10 +1511,6 @@ Wenn das Problem nach einem Neustart weiterhin besteht, senden Sie bitte ein Deb
         <translation>Das Deaktivieren von LAN-Datenverkehr zulassen führt dazu, dass Ihr sicherer Hotspot nicht mehr funktioniert.  Möchten Sie den Hotspot deaktivieren?</translation>
     </message>
     <message>
-        <source>MAC spoofing is not supported on your version of MacOS.</source>
-        <translation>MAC-Spoofing wird in Ihrer MacOS-Version nicht unterstützt.</translation>
-    </message>
-    <message>
         <source>Automatically determine the MTU for your connection, or manually override.  This has no effect on TCP-based protocols.</source>
         <translation>Ermitteln Sie automatisch die MTU für Ihre Verbindung oder setzen Sie sie manuell außer Kraft.  Dies hat keine Auswirkungen auf TCP-basierte Protokolle.</translation>
     </message>
@@ -2381,6 +2377,10 @@ Zuerst eine Verbindung mit einem Netzwerk herstellen</translation>
 </context>
 <context>
     <name>PreferencesWindow::SplitTunnelingAppsGroup</name>
+    <message>
+        <source>This app is already in the list.</source>
+        <translation>Diese App ist bereits in der Liste.</translation>
+    </message>
     <message>
         <source>There are too many apps in the list. Please remove some before adding more.</source>
         <translation>Es gibt zu viele Apps in der Liste. Bitte entfernen Sie einige, bevor Sie weitere hinzufügen.</translation>

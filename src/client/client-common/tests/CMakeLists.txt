@@ -68,6 +68,18 @@ if(IS_BUILD_TESTS)
         ws_add_test(utilslinux)
     endif()
 
+    add_executable(utils.test
+        utils.test.cpp
+        utils.test.h
+    )
+    target_link_libraries(utils.test PRIVATE
+        Qt6::Test Qt6::Network engine client-common spdlog::spdlog ${OS_SPECIFIC_LIBRARIES})
+    target_include_directories(utils.test PRIVATE
+        ${PROJECT_DIRECTORY}/client-common
+    )
+    set_target_properties(utils.test PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
+    ws_add_test(utils)
+
     # Linux-only: DnsLeakParse reads resolvectl/nmcli output. Compiles the parser and ipaddress
     # directly instead of linking client-common, keeping the target free of Qt — the same module is
     # compiled into the root helper, which has no Qt.

@@ -166,6 +166,7 @@ private:
     void continueWithPrivKeyPasswordImpl();
 
     static QString sanitizeString(const QString &s);
+    static QString redactManagementLine(const QString &line);
 
     bool parsePushReply(const QString &reply, AdapterGatewayInfo &outConnectionAdapterInfo, bool &outRedirectDefaultGateway);
     bool parseDeviceOpenedReply(const QString &reply, QString &outDeviceName);

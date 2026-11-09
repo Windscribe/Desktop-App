@@ -49,12 +49,23 @@ bool deleteSublayerAndAllFilters(HANDLE engineHandle, const GUID *subLayerGUID)
         return false;
     }
 
-    deleteAllFiltersForSublayer(engineHandle, subLayerGUID, FWPM_LAYER_ALE_AUTH_CONNECT_V4);
-    deleteAllFiltersForSublayer(engineHandle, subLayerGUID, FWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V4);
-    deleteAllFiltersForSublayer(engineHandle, subLayerGUID, FWPM_LAYER_ALE_AUTH_CONNECT_V6);
-    deleteAllFiltersForSublayer(engineHandle, subLayerGUID, FWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V6);
+    if (!deleteAllFiltersForSublayer(engineHandle, subLayerGUID, FWPM_LAYER_ALE_AUTH_CONNECT_V4)) {
+        spdlog::error("deleteSublayerAndAllFilters - deleteAllFiltersForSublayer failed for layer ALE_AUTH_CONNECT_V4");
+    }
+    if (!deleteAllFiltersForSublayer(engineHandle, subLayerGUID, FWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V4)) {
+        spdlog::error("deleteSublayerAndAllFilters - deleteAllFiltersForSublayer failed for layer ALE_AUTH_RECV_ACCEPT_V4");
+    }
+    if (!deleteAllFiltersForSublayer(engineHandle, subLayerGUID, FWPM_LAYER_ALE_AUTH_CONNECT_V6)) {
+        spdlog::error("deleteSublayerAndAllFilters - deleteAllFiltersForSublayer failed for layer ALE_AUTH_CONNECT_V6");
+    }
+    if (!deleteAllFiltersForSublayer(engineHandle, subLayerGUID, FWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V6)) {
+        spdlog::error("deleteSublayerAndAllFilters - deleteAllFiltersForSublayer failed for layer ALE_AUTH_RECV_ACCEPT_V6");
+    }
 
-    FwpmSubLayerDeleteByKey0(engineHandle, subLayerGUID);
+    result = FwpmSubLayerDeleteByKey0(engineHandle, subLayerGUID);
+    if (result != ERROR_SUCCESS) {
+        spdlog::error("deleteSublayerAndAllFilters - FwpmSubLayerDeleteByKey0 failed: {}", result);
+    }
 
     return true;
 }
@@ -68,6 +79,7 @@ bool deleteAllFiltersForSublayer(HANDLE engineHandle, const GUID *subLayerGUID, 
     HANDLE enumHandle;
     DWORD dwRet = FwpmFilterCreateEnumHandle0(engineHandle, &enumTemplate, &enumHandle);
     if (dwRet != ERROR_SUCCESS) {
+        spdlog::error("deleteAllFiltersForSublayer - FwpmFilterCreateEnumHandle0 failed: {}", dwRet);
         return false;
     }
 
@@ -77,12 +89,18 @@ bool deleteAllFiltersForSublayer(HANDLE engineHandle, const GUID *subLayerGUID, 
     while (dwRet == ERROR_SUCCESS && numFiltersReturned > 0) {
         for (UINT32 i = 0; i < numFiltersReturned; ++i) {
             if (filters[i]->subLayerKey == *subLayerGUID) {
-                FwpmFilterDeleteById0(engineHandle, filters[i]->filterId);
+                const DWORD deleteRet = FwpmFilterDeleteById0(engineHandle, filters[i]->filterId);
+                if (deleteRet != ERROR_SUCCESS) {
+                    spdlog::error("deleteAllFiltersForSublayer - FwpmFilterDeleteById0 failed for filter {}: {}", filters[i]->filterId, deleteRet);
+                }
             }
         }
 
         FwpmFreeMemory0((void **)&filters);
         dwRet = FwpmFilterEnum0(engineHandle, enumHandle, INFINITE, &filters, &numFiltersReturned);
+    }
+    if (dwRet != ERROR_SUCCESS) {
+        spdlog::error("deleteAllFiltersForSublayer - FwpmFilterEnum0 failed: {}", dwRet);
     }
     dwRet = FwpmFilterDestroyEnumHandle0(engineHandle, enumHandle);
     return true;
@@ -124,7 +142,12 @@ std::wstring guidToStr(const GUID &guid)
 std::wstring getExePath()
 {
     wchar_t buffer[MAX_PATH];
-    GetModuleFileName(NULL, buffer, MAX_PATH);
+    const DWORD len = GetModuleFileName(NULL, buffer, MAX_PATH);
+    if (len == 0) {
+        spdlog::error("getExePath - GetModuleFileName failed: {}", ::GetLastError());
+    } else if (len == MAX_PATH && ::GetLastError() == ERROR_INSUFFICIENT_BUFFER) {
+        spdlog::error("getExePath - GetModuleFileName truncated the path");
+    }
     std::wstring::size_type pos = std::wstring(buffer).find_last_of(L"\\/");
     return std::wstring(buffer).substr(0, pos);
 }
@@ -420,6 +443,7 @@ bool setNetworkAdapterState(ULONG ifIndex, bool enable)
     for (DWORD i = 0; ::SetupDiEnumDeviceInfo(hDevInfo, i, &devData); ++i) {
         HKEY hKey = ::SetupDiOpenDevRegKey(hDevInfo, &devData, DICS_FLAG_GLOBAL, 0, DIREG_DRV, KEY_READ);
         if (hKey == INVALID_HANDLE_VALUE) {
+            spdlog::debug("setNetworkAdapterState: SetupDiOpenDevRegKey failed for device {}: {}", i, ::GetLastError());
             continue;
         }
 
@@ -435,6 +459,7 @@ bool setNetworkAdapterState(ULONG ifIndex, bool enable)
         ::RegCloseKey(hKey);
 
         if (result != ERROR_SUCCESS || valueType != REG_SZ) {
+            spdlog::debug("setNetworkAdapterState: RegQueryValueEx(NetCfgInstanceId) failed for device {}: {} (type {})", i, result, valueType);
             continue;
         }
 
@@ -445,6 +470,10 @@ bool setNetworkAdapterState(ULONG ifIndex, bool enable)
     }
 
     if (!found) {
+        const DWORD enumErr = ::GetLastError();
+        if (enumErr != ERROR_NO_MORE_ITEMS) {
+            spdlog::error("setNetworkAdapterState: SetupDiEnumDeviceInfo failed: {}", enumErr);
+        }
         spdlog::error(L"setNetworkAdapterState: no Net-class device matched NetCfgInstanceId {}", targetGuidStr);
         return false;
     }
@@ -801,7 +830,7 @@ std::wstring getConfigPath()
     wchar_t* programFilesPath = NULL;
     HRESULT hr = SHGetKnownFolderPath(FOLDERID_ProgramFiles, 0, NULL, &programFilesPath);
     if (FAILED(hr)) {
-        spdlog::error("Failed to get Program Files dir");
+        spdlog::error("getConfigPath - Failed to get Program Files dir: {:#x}", static_cast<unsigned long>(hr));
         return L"";
     }
 
@@ -811,7 +840,7 @@ std::wstring getConfigPath()
     filePath << L"\\" WS_WIN_CONFIG_SUBDIR_W L"\\config";
     int ret = SHCreateDirectoryEx(NULL, filePath.str().c_str(), NULL);
     if (ret != ERROR_SUCCESS && ret != ERROR_ALREADY_EXISTS) {
-        spdlog::error("Failed to create config dir");
+        spdlog::error("getConfigPath - Failed to create config dir: {}", ret);
         return L"";
     }
 
@@ -825,7 +854,7 @@ std::wstring getUpdatePath(bool create)
     wchar_t* programFilesPath = NULL;
     HRESULT hr = SHGetKnownFolderPath(FOLDERID_ProgramFiles, 0, NULL, &programFilesPath);
     if (FAILED(hr)) {
-        spdlog::error("Failed to get Program Files dir");
+        spdlog::error("getUpdatePath - Failed to get Program Files dir: {:#x}", static_cast<unsigned long>(hr));
         return L"";
     }
 
@@ -836,7 +865,7 @@ std::wstring getUpdatePath(bool create)
     if (create) {
         int ret = SHCreateDirectoryEx(NULL, filePath.str().c_str(), NULL);
         if (ret != ERROR_SUCCESS && ret != ERROR_ALREADY_EXISTS) {
-            spdlog::error("Failed to create update dir");
+            spdlog::error("getUpdatePath - Failed to create update dir: {}", ret);
             return L"";
         }
     }
@@ -864,7 +893,7 @@ std::string ssidFromInterfaceGUID(const std::wstring &interfaceGUID)
     const std::wstring dll = getSystemDir() + L"\\wlanapi.dll";
     auto wlanDll = ::LoadLibraryEx(dll.c_str(), NULL, LOAD_LIBRARY_SEARCH_SYSTEM32);
     if (wlanDll == NULL) {
-        throw std::system_error(::GetLastError(), std::generic_category(), "wlanapi.dll could not be loaded");
+        throw std::system_error(::GetLastError(), std::system_category(), "wlanapi.dll could not be loaded");
     }
 
     auto freeDLL = wsl::wsScopeGuard([&] {
@@ -879,29 +908,29 @@ std::string ssidFromInterfaceGUID(const std::wstring &interfaceGUID)
 
     WlanOpenHandleFunc pfnWlanOpenHandle = (WlanOpenHandleFunc)::GetProcAddress(wlanDll, "WlanOpenHandle");
     if (pfnWlanOpenHandle == NULL) {
-        throw std::system_error(::GetLastError(), std::generic_category(), "Failed to load WlanOpenHandle");
+        throw std::system_error(::GetLastError(), std::system_category(), "Failed to load WlanOpenHandle");
     }
 
     WlanCloseHandleFunc pfnWlanCloseHandle = (WlanCloseHandleFunc)::GetProcAddress(wlanDll, "WlanCloseHandle");
     if (pfnWlanCloseHandle == NULL) {
-        throw std::system_error(::GetLastError(), std::generic_category(), "Failed to load WlanCloseHandle");
+        throw std::system_error(::GetLastError(), std::system_category(), "Failed to load WlanCloseHandle");
     }
 
     WlanFreeMemoryFunc pfnWlanFreeMemory = (WlanFreeMemoryFunc)::GetProcAddress(wlanDll, "WlanFreeMemory");
     if (pfnWlanFreeMemory == NULL) {
-        throw std::system_error(::GetLastError(), std::generic_category(), "Failed to load WlanFreeMemory");
+        throw std::system_error(::GetLastError(), std::system_category(), "Failed to load WlanFreeMemory");
     }
 
     WlanQueryInterfaceFunc pfnWlanQueryInterface = (WlanQueryInterfaceFunc)::GetProcAddress(wlanDll, "WlanQueryInterface");
     if (pfnWlanQueryInterface == NULL) {
-        throw std::system_error(::GetLastError(), std::generic_category(), "Failed to load WlanQueryInterface");
+        throw std::system_error(::GetLastError(), std::system_category(), "Failed to load WlanQueryInterface");
     }
 
     DWORD dwCurVersion = 0;
     HANDLE hClient = NULL;
     auto result = pfnWlanOpenHandle(2, NULL, &dwCurVersion, &hClient);
     if (result != ERROR_SUCCESS) {
-        throw std::system_error(result, std::generic_category(), "WlanOpenHandle failed");
+        throw std::system_error(result, std::system_category(), "WlanOpenHandle failed");
     }
 
     PWLAN_CONNECTION_ATTRIBUTES pConnectInfo = NULL;
@@ -922,7 +951,7 @@ std::string ssidFromInterfaceGUID(const std::wstring &interfaceGUID)
     result = pfnWlanQueryInterface(hClient, &actualGUID, wlan_intf_opcode_current_connection, NULL,
                                    &connectInfoSize, (PVOID *) &pConnectInfo, &opCode);
     if (result != ERROR_SUCCESS) {
-        throw std::system_error(result, std::generic_category(), "WlanQueryInterface failed");
+        throw std::system_error(result, std::system_category(), "WlanQueryInterface failed");
     }
 
     std::string ssid;
@@ -958,7 +987,11 @@ static BOOL isElevated()
         DWORD cbSize = sizeof(TOKEN_ELEVATION);
         if (GetTokenInformation(hToken, TokenElevation, &Elevation, sizeof(Elevation), &cbSize)) {
             fRet = Elevation.TokenIsElevated;
+        } else {
+            spdlog::error("isElevated - GetTokenInformation failed: {}", ::GetLastError());
         }
+    } else {
+        spdlog::error("isElevated - OpenProcessToken failed: {}", ::GetLastError());
     }
     if (hToken) {
         CloseHandle(hToken);

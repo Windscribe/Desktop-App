@@ -8,6 +8,10 @@
 #     foreign_option_3='dhcp-option DOMAIN be.bnc.ch'
 #
 
+# OpenVPN runs this as root with no PATH, so set one that never searches user-writable directories such as /usr/local/bin.
+PATH=/usr/sbin:/usr/bin:/sbin:/bin
+export PATH
+
 [ "$script_type" ] || exit 0
 [ "$dev" ] || exit 0
 

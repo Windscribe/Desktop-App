@@ -55,7 +55,18 @@ bool isInterfaceConnected(unsigned long ifIndex, ADDRESS_FAMILY family)
     std::memset(&interfaceRow, 0, sizeof(interfaceRow));
     interfaceRow.Family = family;
     interfaceRow.InterfaceIndex = ifIndex;
-    return GetIpInterfaceEntry(&interfaceRow) == NO_ERROR && interfaceRow.Connected;
+    DWORD dwErr = GetIpInterfaceEntry(&interfaceRow);
+    if (dwErr != NO_ERROR) {
+        // ERROR_NOT_FOUND is expected if the interface disappears mid-scan; don't warn for it
+        // since this is called once per on-link route row.
+        if (dwErr == ERROR_NOT_FOUND) {
+            spdlog::debug("IpRoutes: GetIpInterfaceEntry(ifIndex={}, family={}) not found", ifIndex, static_cast<int>(family));
+        } else {
+            spdlog::warn("IpRoutes: GetIpInterfaceEntry(ifIndex={}, family={}) failed with error: {}",
+                         ifIndex, static_cast<int>(family), dwErr);
+        }
+    }
+    return dwErr == NO_ERROR && interfaceRow.Connected;
 }
 
 types::IpAddressRange toRange(const IP_ADDRESS_PREFIX &prefix)
@@ -85,8 +96,9 @@ std::set<types::IpAddressRange> collectOnLinkPrefixes()
     static const ADDRESS_FAMILY kFamilies[] = { AF_INET, AF_INET6 };
     for (const ADDRESS_FAMILY family : kFamilies) {
         PMIB_IPFORWARD_TABLE2 table = nullptr;
-        if (GetIpForwardTable2(family, &table) != NO_ERROR || table == nullptr) {
-            spdlog::warn("IpRoutes: GetIpForwardTable2(family={}) failed", static_cast<int>(family));
+        DWORD dwErr = GetIpForwardTable2(family, &table);
+        if (dwErr != NO_ERROR || table == nullptr) {
+            spdlog::warn("IpRoutes: GetIpForwardTable2(family={}) failed with error: {}", static_cast<int>(family), dwErr);
             continue;
         }
         for (ULONG i = 0; i < table->NumEntries; ++i) {

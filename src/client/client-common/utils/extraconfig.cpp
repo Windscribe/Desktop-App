@@ -39,6 +39,8 @@ const QString WS_LOG_CTRLD = WS_PREFIX + "log-ctrld";
 const QString WS_LOG_PINGS = WS_PREFIX + "log-pings";
 const QString WS_LOG_SPLITTUNNELEXTENSION = WS_PREFIX + "log-splittunnelextension";
 const QString WS_NO_PINGS = WS_PREFIX + "no-pings";
+// The Windows helper parses this flag itself (see log/debug_trace.cpp); keep the two in sync.
+const QString WS_DEBUG_TRACE = WS_PREFIX + "debug-trace";
 
 const QString WS_API_ROOT_OVERRIDE = WS_PREFIX + "api-root-override";
 const QString WS_ASSETS_ROOT_OVERRIDE = WS_PREFIX + "assets-root-override";
@@ -212,6 +214,11 @@ bool ExtraConfig::getSuppressApiToken()
 bool ExtraConfig::getNoPings()
 {
     return getFlag(WS_NO_PINGS);
+}
+
+bool ExtraConfig::getDebugTrace()
+{
+    return getFlag(WS_DEBUG_TRACE);
 }
 
 std::optional<QString> ExtraConfig::serverlistCountryOverride()

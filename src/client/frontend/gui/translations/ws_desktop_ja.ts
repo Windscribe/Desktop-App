@@ -1511,10 +1511,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>LANトラフィックの許可を無効にすると、安全なホットスポットが機能しなくなります。 ホットスポットを無効にしますか?</translation>
     </message>
     <message>
-        <source>MAC spoofing is not supported on your version of MacOS.</source>
-        <translation>MAC スプーフィングは、お使いの Mac のバージョンではサポートされていません。</translation>
-    </message>
-    <message>
         <source>Automatically determine the MTU for your connection, or manually override.  This has no effect on TCP-based protocols.</source>
         <translation>接続の MTU を自動的に決定するか、手動でオーバーライドします。 これは、TCP ベースのプロトコルには影響しません。</translation>
     </message>
@@ -2381,6 +2377,10 @@ Connect to a network first</source>
 </context>
 <context>
     <name>PreferencesWindow::SplitTunnelingAppsGroup</name>
+    <message>
+        <source>This app is already in the list.</source>
+        <translation>このアプリは既にリストにあります。</translation>
+    </message>
     <message>
         <source>There are too many apps in the list. Please remove some before adding more.</source>
         <translation>リストにアプリが多すぎます。さらに追加する前に、いくつかを削除してください。</translation>

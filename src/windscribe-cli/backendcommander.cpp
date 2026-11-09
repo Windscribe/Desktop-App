@@ -10,7 +10,6 @@
 
 #include "ipc/clicommands.h"
 #include "ipc/connection.h"
-#include "languagecontroller.h"
 #include "strings.h"
 #include "utils.h"
 #include "utils/log/categories.h"
@@ -18,12 +17,9 @@
 #include "utils/systemwideapplock.h"
 #include "utils/utils.h"
 
-#ifdef CLI_ONLY
-#include <unistd.h>
-#endif
 
-
-BackendCommander::BackendCommander(const CliArguments &cliArgs) : QObject(), cliArgs_(cliArgs)
+BackendCommander::BackendCommander(const CliArguments &cliArgs) : QObject(), cliArgs_(cliArgs),
+    username_(cliArgs.username()), password_(cliArgs.password())
 {
     unsigned long cliPid = Utils::getCurrentPid();
     qCDebug(LOG_CLI) << "CLI pid: " << cliPid;
@@ -69,19 +65,19 @@ void BackendCommander::onConnectionNewCommand(IPC::Command *command, IPC::Connec
     } else if (command->getStringId() == IPC::CliCommands::LocationsList::getCommandStringId()) {
         IPC::CliCommands::LocationsList *cmd = static_cast<IPC::CliCommands::LocationsList *>(command);
 
-        if (cliArgs_.cliCommand() == CLI_COMMAND_LOCATIONS_STATIC) {
+        if (cliArgs_.cliCommand() == CLI_COMMAND_LOCATIONS_STATIC && !cmd->locations_.isEmpty() && !cmd->deviceName_.isEmpty()) {
             std::cout << deviceNameString(cmd->deviceName_).toStdString() << std::endl << std::endl;
         }
 
         if (cmd->locations_.isEmpty()) {
-            emit finished(1, tr("No locations."));
+            emit finished(1, QString("No locations."));
         } else {
             emit finished(0, locationsString(cmd->locations_));
         }
     } else if (command->getStringId() == IPC::CliCommands::PortsList::getCommandStringId()) {
         IPC::CliCommands::PortsList *cmd = static_cast<IPC::CliCommands::PortsList *>(command);
         if (cmd->ports_.isEmpty()) {
-            emit finished(1, tr("No ports available for the specified protocol."));
+            emit finished(1, QString("No ports available for the specified protocol."));
         } else {
             QStringList portStrings;
             for (uint port : std::as_const(cmd->ports_)) {
@@ -92,13 +88,25 @@ void BackendCommander::onConnectionNewCommand(IPC::Command *command, IPC::Connec
     } else if (command->getStringId() == IPC::CliCommands::AmneziawgPresetsList::getCommandStringId()) {
         IPC::CliCommands::AmneziawgPresetsList *cmd = static_cast<IPC::CliCommands::AmneziawgPresetsList *>(command);
         if (cmd->presets_.isEmpty()) {
-            emit finished(1, tr("No AmneziaWG configurations available."));
+            emit finished(1, QString("No AmneziaWG configurations available."));
         } else {
             QString msg;
             for (const QString &preset : std::as_const(cmd->presets_)) {
                 msg += preset + "\n";
             }
-            emit finished(0, msg.trimmed());
+#ifdef CLI_ONLY
+            msg += "\nTo use a preset, set these in the [Connection] section of ~/.config/Windscribe/windscribe_cli.conf,\n"
+                   "with the name exactly as listed:\n"
+                   "  [Connection]\n"
+                   "  ProtocolTweaksMethod=1\n"
+                   "  AmneziawgPreset=" + cmd->presets_.first() + "\n"
+                   "With ProtocolTweaksMethod=0 (Auto) a preset is used only when Windscribe suggests one,\n"
+                   "and with ProtocolTweaksMethod=2 (Disabled) never.";
+#else
+            msg += "\nTo use a preset, open Preferences > Connection > Anti-Censorship Settings in the app,\n"
+                   "set Protocol Tweaks to Enabled, and choose the preset under Amnezia Config.";
+#endif
+            emit finished(0, msg);
         }
     }
 }
@@ -121,7 +129,7 @@ void BackendCommander::onConnectionStateChanged(int state, IPC::Connection * /*c
                 connectingTimer_.invalidate();
                 // Another user's app may have started after main() checked, and made ours quit.
                 const bool otherUser = SystemWideAppLock::holder() == SystemWideAppLock::Holder::kOtherUser;
-                emit finished(1, otherUser ? appRunningInAnotherSessionString() : QObject::tr("Aborting: app did not start in time"));
+                emit finished(1, otherUser ? appRunningInAnotherSessionString() : QString("Aborting: app did not start in time"));
             }
             else {
                 // Try connect again. Delay is necessary so that Engine process will actually start
@@ -130,26 +138,24 @@ void BackendCommander::onConnectionStateChanged(int state, IPC::Connection * /*c
             }
         }
         else {
-            emit finished(1, QObject::tr("Aborting: IPC communication error"));
+            emit finished(1, QString("Aborting: IPC communication error"));
         }
     }
 }
 
 void BackendCommander::sendCommand(IPC::CliCommands::State *state)
 {
-    LanguageController::instance().setLanguage(state->language_);
-
     if (cliArgs_.cliCommand() == CLI_COMMAND_CONNECT || cliArgs_.cliCommand() == CLI_COMMAND_CONNECT_BEST
             || cliArgs_.cliCommand() == CLI_COMMAND_CONNECT_LOCATION || cliArgs_.cliCommand() == CLI_COMMAND_CONNECT_STATIC) {
 #ifdef CLI_ONLY
         if (!state->connectivity_) {
-            emit(finished(1, QObject::tr("Internet connectivity is not available.  Try again later.")));
+            emit finished(1, noConnectivityString());
             return;
         }
 #endif
 
         if (state->loginState_ != LOGIN_STATE_LOGGED_IN) {
-            emit finished(1, QObject::tr("Not logged in"));
+            emit finished(1, notLoggedInString());
             return;
         }
         IPC::CliCommands::Connect cmd;
@@ -165,18 +171,19 @@ void BackendCommander::sendCommand(IPC::CliCommands::State *state)
     }
     else if (cliArgs_.cliCommand() == CLI_COMMAND_DISCONNECT) {
         if (state->loginState_ != LOGIN_STATE_LOGGED_IN) {
-            emit finished(1, QObject::tr("Not logged in"));
+            emit finished(1, notLoggedInString());
             return;
         }
         if (state->connectState_.connectState == CONNECT_STATE_DISCONNECTED) {
-            emit finished(0, QObject::tr("Already disconnected"));
+            emit finished(0, QString("Already disconnected"));
+            return;
         }
         IPC::CliCommands::Disconnect cmd;
         connection_->sendCommand(cmd);
     }
     else if (cliArgs_.cliCommand() == CLI_COMMAND_FIREWALL_ON) {
         if (state->isFirewallOn_) {
-            emit finished(0, QObject::tr("Firewall already on"));
+            emit finished(0, QString("Firewall already on"));
             return;
         }
         IPC::CliCommands::Firewall cmd;
@@ -185,11 +192,11 @@ void BackendCommander::sendCommand(IPC::CliCommands::State *state)
     }
     else if (cliArgs_.cliCommand() == CLI_COMMAND_FIREWALL_OFF) {
         if (!state->isFirewallOn_) {
-            emit finished(0, QObject::tr("Firewall already off"));
+            emit finished(0, QString("Firewall already off"));
             return;
         }
         if (state->isFirewallAlwaysOn_) {
-            emit finished(1, QObject::tr("Firewall set to always on and can't be turned off"));
+            emit finished(1, QString("Firewall set to always on and can't be turned off"));
             return;
         }
 
@@ -204,7 +211,7 @@ void BackendCommander::sendCommand(IPC::CliCommands::State *state)
     }
     else if (cliArgs_.cliCommand() == CLI_COMMAND_LOCATIONS || cliArgs_.cliCommand() == CLI_COMMAND_LOCATIONS_STATIC || cliArgs_.cliCommand() == CLI_COMMAND_LOCATIONS_FAV) {
         if (state->loginState_ != LOGIN_STATE_LOGGED_IN) {
-            emit finished(1, QObject::tr("Not logged in"));
+            emit finished(1, notLoggedInString());
             return;
         }
         IPC::CliCommands::ShowLocations cmd;
@@ -220,7 +227,7 @@ void BackendCommander::sendCommand(IPC::CliCommands::State *state)
     }
     else if (cliArgs_.cliCommand() == CLI_COMMAND_PORTS) {
         if (state->loginState_ != LOGIN_STATE_LOGGED_IN) {
-            emit finished(1, QObject::tr("Not logged in"));
+            emit finished(1, notLoggedInString());
             return;
         }
         IPC::CliCommands::ShowPorts cmd;
@@ -234,23 +241,49 @@ void BackendCommander::sendCommand(IPC::CliCommands::State *state)
     else if (cliArgs_.cliCommand() == CLI_COMMAND_LOGIN) {
 #ifdef CLI_ONLY
         if (!state->connectivity_) {
-            emit(finished(1, QObject::tr("Internet connectivity is not available.  Try again later.")));
+            emit finished(1, noConnectivityString());
             return;
         }
 #endif
         if (state->loginState_ == LOGIN_STATE_LOGGED_IN) {
-            emit finished(0, QObject::tr("Already logged in"));
+            emit finished(0, QString("Already logged in"));
             return;
+        }
+        // Get missing credentials only now that we know a login is needed.  Without a terminal they can only come
+        // from input piped to stdin, one per line; never prompt there, or read /dev/tty as readpassphrase() would.
+        if (!Utils::isInteractive()) {
+            if (username_.isEmpty()) {
+                username_ = Utils::readLine();
+            }
+            if (password_.isEmpty()) {
+                password_ = Utils::readLine();
+            }
+            if (username_.isEmpty() || password_.isEmpty()) {
+                emit finished(1, QString("Username and password are required. Run \"windscribe-cli login <username> <password>\", pipe them to stdin one per line, or run \"windscribe-cli login\" in a terminal."));
+                return;
+            }
+        } else {
+            // Checked before any prompt, so the user isn't asked for a username only to be refused.
+            if (password_.isEmpty() && !Utils::canDisableEcho()) {
+                emit finished(1, QString("This terminal would show the password as it is typed. Pipe the credentials to stdin one per line, or run \"winpty windscribe-cli login\"."));
+                return;
+            }
+            if (username_.isEmpty()) {
+                username_ = Utils::getInput("Username: ", false);
+            }
+            if (password_.isEmpty()) {
+                password_ = Utils::getInput("Password: ", true);
+            }
         }
         IPC::CliCommands::Login cmd;
-        cmd.username_ = cliArgs_.username();
+        cmd.username_ = username_;
         if (cmd.username_.size() < 3) {
-            emit finished(1, QObject::tr("Username too short"));
+            emit finished(1, QString("Username too short"));
             return;
         }
-        cmd.password_ = cliArgs_.password();
+        cmd.password_ = password_;
         if (cmd.password_.size() < 8) {
-            emit finished(1, QObject::tr("Password too short"));
+            emit finished(1, QString("Password too short"));
             return;
         }
         cmd.code2fa_ = code2fa_;
@@ -261,12 +294,12 @@ void BackendCommander::sendCommand(IPC::CliCommands::State *state)
     else if (cliArgs_.cliCommand() == CLI_COMMAND_LOGOUT) {
 #ifdef CLI_ONLY
         if (!state->connectivity_) {
-            emit(finished(1, QObject::tr("Internet connectivity is not available.  Try again later.")));
+            emit finished(1, noConnectivityString());
             return;
         }
 #endif
         if (state->loginState_ == LOGIN_STATE_LOGGED_OUT) {
-            emit finished(0, QObject::tr("Already logged out"));
+            emit finished(0, QString("Already logged out"));
             return;
         }
         IPC::CliCommands::Logout cmd;
@@ -276,7 +309,7 @@ void BackendCommander::sendCommand(IPC::CliCommands::State *state)
     else if (cliArgs_.cliCommand() == CLI_COMMAND_SEND_LOGS) {
 #ifdef CLI_ONLY
         if (!state->connectivity_) {
-            emit(finished(1, QObject::tr("Internet connectivity is not available.  Try again later.")));
+            emit finished(1, noConnectivityString());
             return;
         }
 #endif
@@ -286,16 +319,16 @@ void BackendCommander::sendCommand(IPC::CliCommands::State *state)
     else if (cliArgs_.cliCommand() == CLI_COMMAND_UPDATE) {
 #ifdef CLI_ONLY
         if (!state->connectivity_) {
-            emit(finished(1, QObject::tr("Internet connectivity is not available.  Try again later.")));
+            emit finished(1, noConnectivityString());
             return;
         }
 #endif
         if (state->loginState_ != LOGIN_STATE_LOGGED_IN) {
-            emit finished(1, QObject::tr("Not logged in"));
+            emit finished(1, notLoggedInString());
             return;
         }
         if (state->updateAvailable_.isEmpty()) {
-            emit finished(1, QObject::tr("No update available"));
+            emit finished(1, QString("No update available"));
             return;
         }
         IPC::CliCommands::Update cmd;
@@ -303,7 +336,7 @@ void BackendCommander::sendCommand(IPC::CliCommands::State *state)
     }
     else if (cliArgs_.cliCommand() == CLI_COMMAND_SET_IGNORE_SSL_ERRORS) {
         if (cliArgs_.ignoreSslErrors() && state->loginError_ != wsnet::LoginResult::kSslError) {
-            emit finished(1, QObject::tr("Ignoring SSL errors is only available when unable to log in."));
+            emit finished(1, QString("Ignoring SSL errors is only available when unable to log in."));
             return;
         }
         IPC::CliCommands::SetIgnoreSslErrors cmd;
@@ -312,11 +345,11 @@ void BackendCommander::sendCommand(IPC::CliCommands::State *state)
     }
     else if (cliArgs_.cliCommand() == CLI_COMMAND_IP_ROTATE) {
         if (state->loginState_ != LOGIN_STATE_LOGGED_IN) {
-            emit finished(1, QObject::tr("Not logged in"));
+            emit finished(1, notLoggedInString());
             return;
         }
         if (state->connectState_.connectState != CONNECT_STATE_CONNECTED) {
-            emit finished(1, QObject::tr("Not connected"));
+            emit finished(1, QString("Not connected"));
             return;
         }
         IPC::CliCommands::RotateIp cmd;
@@ -324,11 +357,11 @@ void BackendCommander::sendCommand(IPC::CliCommands::State *state)
     }
     else if (cliArgs_.cliCommand() == CLI_COMMAND_IP_FAV) {
         if (state->loginState_ != LOGIN_STATE_LOGGED_IN) {
-            emit finished(1, QObject::tr("Not logged in"));
+            emit finished(1, notLoggedInString());
             return;
         }
         if (state->connectState_.connectState != CONNECT_STATE_CONNECTED) {
-            emit finished(1, QObject::tr("Not connected"));
+            emit finished(1, QString("Not connected"));
             return;
         }
         IPC::CliCommands::FavIp cmd;
@@ -336,12 +369,12 @@ void BackendCommander::sendCommand(IPC::CliCommands::State *state)
     }
     else if (cliArgs_.cliCommand() == CLI_COMMAND_IP_UNFAV) {
         if (state->loginState_ != LOGIN_STATE_LOGGED_IN) {
-            emit finished(1, QObject::tr("Not logged in"));
+            emit finished(1, notLoggedInString());
             return;
         }
         QString ipAddress = cliArgs_.ipAddress();
         if (!NetworkingValidation::isIp(ipAddress)) {
-            emit finished(1, QObject::tr("Invalid IP address"));
+            emit finished(1, QString("Invalid IP address"));
             return;
         }
         IPC::CliCommands::UnfavIp cmd;
@@ -365,48 +398,59 @@ void BackendCommander::onStateResponse(IPC::Command *command)
 {
     IPC::CliCommands::State *cmd = static_cast<IPC::CliCommands::State *>(command);
 
-    LanguageController::instance().setLanguage(cmd->language_);
-
-    QString msg = QString("%1\n%2\n%3")
-        .arg(connectivityString(cmd->connectivity_))
-        .arg(loginStateString(cmd->loginState_, cmd->loginError_, cmd->loginErrorMessage_))
-        .arg(firewallStateString(cmd->isFirewallOn_, cmd->isFirewallAlwaysOn_));
+    QList<QPair<QString, QString>> items;
+    items << qMakePair(QString("Login"), loginStateString(cmd->loginState_, cmd->loginError_, cmd->loginErrorMessage_));
 
     if (cmd->loginState_ != LOGIN_STATE_LOGGED_OUT) {
-        msg += "\n" + connectStateString(cmd->connectState_, cmd->location_, cmd->tunnelTestState_);
+        items << qMakePair(QString("Connection"), connectStateString(cmd->connectState_, cmd->location_, cmd->tunnelTestState_));
     }
 
-    if (cmd->connectState_.connectState != CONNECT_STATE_DISCONNECTED && cmd->protocol_.isValid()) {
-        msg += "\n" + protocolString(cmd->protocol_, cmd->port_);
+    // While connecting or disconnecting, the reported address still belongs to the previous state.
+    // Once connected, show it only after a successful connection check. A later check that fails
+    // leaves the previous VPN address in place; labeling that address public is wrong, so omit it.
+    const bool showIp = !cmd->myIp_.isEmpty() &&
+                        (cmd->connectState_.connectState == CONNECT_STATE_DISCONNECTED ||
+                         (cmd->connectState_.connectState == CONNECT_STATE_CONNECTED &&
+                          cmd->tunnelTestState_ == TUNNEL_TEST_STATE_SUCCESS));
+
+    if (cmd->connectState_.connectState == CONNECT_STATE_CONNECTED && cmd->protocol_.isValid()) {
+        items << qMakePair(QString("Protocol"), protocolString(cmd->protocol_, cmd->port_));
     }
 
-    if (!cmd->myIp_.isEmpty()) {
-        bool isVpnIp = cmd->connectState_.connectState == CONNECT_STATE_CONNECTED &&
-                       cmd->tunnelTestState_ == TUNNEL_TEST_STATE_SUCCESS;
-        msg += "\n" + ipString(cmd->myIp_, isVpnIp);
+    if (showIp) {
+        const bool isVpnIp = cmd->connectState_.connectState == CONNECT_STATE_CONNECTED;
+        items << qMakePair(QString("IP"), ipString(cmd->myIp_, isVpnIp));
     }
+
+    items << qMakePair(QString("Firewall"), firewallStateString(cmd->isFirewallOn_, cmd->isFirewallAlwaysOn_));
 
     if (cmd->loginState_ == LOGIN_STATE_LOGGED_IN) {
-        msg += "\n" + tr("Data usage: %1 / %2")
-            .arg(dataString(cmd->language_, cmd->trafficUsed_))
-            .arg((cmd->trafficMax_ == -1) ? tr("Unlimited") : dataString(cmd->language_, cmd->trafficMax_));
-        if (!cmd->updateAvailable_.isEmpty()) {
-            msg += "\n" + updateString(cmd->updateAvailable_);
-        }
+        items << qMakePair(QString("Data usage"), QString("%1 / %2")
+            .arg(dataString(cmd->trafficUsed_))
+            .arg((cmd->trafficMax_ == -1) ? QString("Unlimited") : dataString(cmd->trafficMax_)));
     }
 
+    items << qMakePair(QString("Internet"), connectivityString(cmd->connectivity_));
+
+    if (cmd->loginState_ == LOGIN_STATE_LOGGED_IN && !cmd->updateAvailable_.isEmpty()) {
+        items << qMakePair(QString("Update"), QString("%1 available").arg(cmd->updateAvailable_));
+    }
+
+    const QString msg = statusString(items);
     emit finished(0, msg);
 }
 
 void BackendCommander::onUpdateStateResponse(IPC::Command *command)
 {
-#ifdef CLI_ONLY
     static int printedLength = 0;
 
     IPC::CliCommands::State *cmd = static_cast<IPC::CliCommands::State *>(command);
 
     // If an error has occurred, print it and quit
     if (cmd->updateError_ != UPDATE_VERSION_ERROR_NO_ERROR) {
+        if (printedLength > 0) {
+            std::cout << std::endl;
+        }
         emit finished(1, updateErrorString(cmd->updateError_));
         return;
     }
@@ -416,7 +460,7 @@ void BackendCommander::onUpdateStateResponse(IPC::Command *command)
         std::cout << '\b';
     }
 
-    QString str = QObject::tr("Downloading: %1%").arg(cmd->updateProgress_);
+    QString str = QString("Downloading: %1%").arg(cmd->updateProgress_);
     std::cout << str.toStdString();
 
     for (int i = str.toUtf8().size(); i < printedLength; i++) {
@@ -426,6 +470,7 @@ void BackendCommander::onUpdateStateResponse(IPC::Command *command)
     // the length is in bytes, not characters, because we need to 'backspace' this many times.
     printedLength = str.toUtf8().size();
 
+#ifdef CLI_ONLY
     if (cmd->updateState_ == UPDATE_VERSION_STATE_RUNNING) {
         std::cout << std::endl;
 
@@ -437,22 +482,22 @@ void BackendCommander::onUpdateStateResponse(IPC::Command *command)
         emit finished(ret, "");
         return;
     }
+#else
+    // The app runs the installer itself once the download is done, and reports when it has started it.
+    if (cmd->updateState_ == UPDATE_VERSION_STATE_DONE) {
+        std::cout << std::endl;
+        emit finished(0, QString("The update installer has started."));
+        return;
+    }
+#endif
 
     // If still in progress, wait 1 second and then request state again.
-    sleep(1);
+    std::this_thread::sleep_for(std::chrono::seconds(1));
     sendStateCommand();
-#endif
 }
 
 void BackendCommander::onAcknowledge(IPC::CliCommands::Acknowledge *ackCmd)
 {
-    //  This only occurs on CLI with GUI backend; it just changes the appropriate window/tab.  Do not wait for this operation.
-    if (cliArgs_.cliCommand() == CLI_COMMAND_LOCATIONS || cliArgs_.cliCommand() == CLI_COMMAND_LOCATIONS_STATIC || cliArgs_.cliCommand() == CLI_COMMAND_LOCATIONS_FAV
-        || cliArgs_.cliCommand() == CLI_COMMAND_PORTS) {
-        emit(finished(0, ""));
-        return;
-    }
-
     if (!cliArgs_.nonBlocking()) {
         sendStateCommand();
         return;
@@ -460,53 +505,61 @@ void BackendCommander::onAcknowledge(IPC::CliCommands::Acknowledge *ackCmd)
 
     if (cliArgs_.cliCommand() == CLI_COMMAND_CONNECT || cliArgs_.cliCommand() == CLI_COMMAND_CONNECT_BEST
             || cliArgs_.cliCommand() == CLI_COMMAND_CONNECT_LOCATION || cliArgs_.cliCommand() == CLI_COMMAND_CONNECT_STATIC) {
-        emit(finished(0, QObject::tr("Connection is in progress.  Use 'windscribe-cli status' to check for connection status.")));
+        emit(finished(0, QString("Connecting. Run \"windscribe-cli status\" to check the connection status.")));
     }
     else if (cliArgs_.cliCommand() == CLI_COMMAND_DISCONNECT) {
-        emit(finished(0, QObject::tr("Disconnection is in progress.  Use 'windscribe-cli status' to check for connection status.")));
+        emit(finished(0, QString("Disconnecting. Run \"windscribe-cli status\" to check the connection status.")));
     }
     else if (cliArgs_.cliCommand() == CLI_COMMAND_FIREWALL_ON) {
-        emit(finished(0, QObject::tr("Firewall is on.")));
+        emit(finished(0, QString("Firewall is on.")));
     }
     else if (cliArgs_.cliCommand() == CLI_COMMAND_FIREWALL_OFF) {
-        emit(finished(0, QObject::tr("Firewall is off.")));
+        emit(finished(0, QString("Firewall is off.")));
     }
     else if (cliArgs_.cliCommand() == CLI_COMMAND_SET_KEYLIMIT_BEHAVIOR) {
-        emit(finished(0, QObject::tr("Key limit behaviour is set.")));
+        emit(finished(0, QString("Key limit behaviour is set.")));
     }
     else if (cliArgs_.cliCommand() == CLI_COMMAND_SEND_LOGS) {
-        emit(finished(0, QObject::tr("Logs sent.")));
+        if (ackCmd->code_ != 0) {
+            emit(finished(ackCmd->code_, QString("Could not send logs.")));
+        } else {
+            emit(finished(0, QString("Logs sent.")));
+        }
     }
     else if (cliArgs_.cliCommand() == CLI_COMMAND_SET_IGNORE_SSL_ERRORS) {
         if (ackCmd->code_ != 0) {
             emit(finished(ackCmd->code_, ackCmd->message_));
         } else if (cliArgs_.ignoreSslErrors()) {
-            emit(finished(0, QObject::tr("Ignoring SSL errors for this session.")));
+            emit(finished(0, QString("Ignoring SSL errors for this session.")));
         } else {
-            emit(finished(0, QObject::tr("SSL errors will no longer be ignored.")));
+            emit(finished(0, QString("SSL errors will no longer be ignored.")));
         }
     }
     else if (cliArgs_.cliCommand() == CLI_COMMAND_IP_ROTATE) {
         if (ackCmd->code_ == 2) {
-            emit(finished(ackCmd->code_, tr("IP rotate already in progress.")));
+            emit(finished(ackCmd->code_, QString("IP rotate already in progress.")));
         } else if (ackCmd->code_ != 0) {
-            emit(finished(ackCmd->code_, tr("Could not rotate IP.  Please check that you have Windscribe Pro or have this location in your plan, or try again later.")));
+            emit(finished(ackCmd->code_, QString("Could not rotate IP. Please check that you have Windscribe Pro or have this location in your plan, or try again later.")));
         } else {
-            emit(finished(0, QObject::tr("IP rotated.")));
+            emit(finished(0, QString("IP rotated.")));
         }
     }
     else if (cliArgs_.cliCommand() == CLI_COMMAND_IP_FAV) {
-        if (ackCmd->code_ != 0) {
-            emit(finished(ackCmd->code_, tr("Could not favourite IP.  Please check that you have Windscribe Pro or have this location in your plan, or try again later.")));
+        if (ackCmd->code_ == 2) {
+            emit(finished(ackCmd->code_, QString("The IP is still being rotated. Try again in a moment.")));
+        } else if (ackCmd->code_ == 3) {
+            emit(finished(1, QString("The current IP is not known yet. Try again once the connection check has succeeded.")));
+        } else if (ackCmd->code_ != 0) {
+            emit(finished(ackCmd->code_, QString("Could not favourite IP. Please check that you have Windscribe Pro or have this location in your plan, or try again later.")));
         } else {
-            emit(finished(0, QObject::tr("IP favorited.")));
+            emit(finished(0, QString("IP favourited.")));
         }
     }
     else if (cliArgs_.cliCommand() == CLI_COMMAND_IP_UNFAV) {
         if (ackCmd->code_ != 0) {
-            emit(finished(ackCmd->code_, tr("Could not unfavourite IP.  Please check that the provided IP is valid.")));
+            emit(finished(ackCmd->code_, QString("Could not unfavourite IP. Please check that the provided IP is valid.")));
         } else {
-            emit(finished(0, QObject::tr("IP unfavorited.")));
+            emit(finished(0, QString("IP unfavourited.")));
         }
     }
     else {
@@ -526,22 +579,28 @@ void BackendCommander::onStateUpdated(IPC::Command *command)
         if (connectId_.isEmpty() && cmd->connectState_.connectState == CONNECT_STATE_CONNECTING) {
             connectId_ = cmd->connectId_;
         }
+        // Our own connect request was counted before the acknowledgement, so this first state is the baseline.
+        if (!isConnectRequestCountKnown_) {
+            isConnectRequestCountKnown_ = true;
+            connectRequestCount_ = cmd->connectRequestCount_;
+        }
 
         if (cmd->connectState_.connectState == CONNECT_STATE_DISCONNECTED && cmd->connectState_.connectError != ConnectError::kNoError ||
             cmd->connectState_.connectState == CONNECT_STATE_DISCONNECTED && cmd->connectState_.disconnectReason == DISCONNECTED_BY_KEY_LIMIT ||
             cmd->connectState_.connectState == CONNECT_STATE_DISCONNECTED && cmd->connectId_.isEmpty())
         {
             // Disconnected with error
-            emit(finished(1, connectStateString(cmd->connectState_, cmd->location_, cmd->tunnelTestState_, false)));
+            emit(finished(1, connectStateString(cmd->connectState_, cmd->location_, cmd->tunnelTestState_)));
+        } else if (cmd->connectRequestCount_ != connectRequestCount_) {
+            emit(finished(1, QString("Connection has been overridden by another command.")));
         } else if (cmd->connectState_.connectState == CONNECT_STATE_CONNECTED && cmd->tunnelTestState_ != TUNNEL_TEST_STATE_UNKNOWN) {
             // connected with a known tunnel test state
-            emit(finished(0, connectStateString(cmd->connectState_, cmd->location_, cmd->tunnelTestState_, false)));
-        } else if (cmd->connectId_ != connectId_ && connectId_.isEmpty() && !cmd->connectId_.isEmpty() &&
-            cmd->connectState_.connectState == CONNECT_STATE_CONNECTING || cmd->connectState_.connectState == CONNECT_STATE_DISCONNECTED)
-        {
-            emit(finished(1, QObject::tr("Connection has been overridden by another command.")));
+            emit(finished(0, connectStateString(cmd->connectState_, cmd->location_, cmd->tunnelTestState_)));
+        } else if (cmd->connectState_.connectState == CONNECT_STATE_DISCONNECTED) {
+            // Disconnected without an error, e.g. by the user, before this connection completed.
+            emit(finished(1, QString("Connection has been overridden by another command.")));
         } else {
-            str = connectStateString(cmd->connectState_, cmd->location_, cmd->tunnelTestState_, false).toStdString();
+            str = connectStateString(cmd->connectState_, cmd->location_, cmd->tunnelTestState_).toStdString();
             if (str != prevStr) {
                 std::cout << str << std::endl;
                 prevStr = str;
@@ -551,17 +610,25 @@ void BackendCommander::onStateUpdated(IPC::Command *command)
             sendStateCommand();
         }
     } else if (cliArgs_.cliCommand() == CLI_COMMAND_DISCONNECT) {
+        // The first state after the acknowledgement is the baseline.
+        if (!isConnectRequestCountKnown_) {
+            isConnectRequestCountKnown_ = true;
+            connectRequestCount_ = cmd->connectRequestCount_;
+        }
+        // A connection still being set up may not have its ID yet when the baseline arrives; adopt it once it does.
         if (connectId_.isEmpty()) {
             connectId_ = cmd->connectId_;
         }
 
-        if (cmd->connectState_.connectState == CONNECT_STATE_DISCONNECTED || cmd->connectId_.isEmpty()) {
-            cmd->connectState_.connectState = CONNECT_STATE_DISCONNECTED;
-            emit(finished(0, connectStateString(cmd->connectState_, cmd->location_, cmd->tunnelTestState_, false)));
-        } else if (cmd->connectId_ != connectId_) {
-            emit(finished(1, QObject::tr("Disconnection has been overridden by another command.")));
+        // Only DISCONNECTED means done: the connection ID is cleared as soon as the tunnel is down, before the app
+        // restores DNS and turns the firewall off.
+        if (cmd->connectState_.connectState == CONNECT_STATE_DISCONNECTED) {
+            emit(finished(0, connectStateString(cmd->connectState_, cmd->location_, cmd->tunnelTestState_)));
+        } else if (cmd->connectRequestCount_ != connectRequestCount_ ||
+                   (!cmd->connectId_.isEmpty() && cmd->connectId_ != connectId_)) {
+            emit(finished(1, QString("Disconnection has been overridden by another command.")));
         } else {
-            str = connectStateString(cmd->connectState_, cmd->location_, cmd->tunnelTestState_, false).toStdString();
+            str = connectStateString(cmd->connectState_, cmd->location_, cmd->tunnelTestState_).toStdString();
             if (str != prevStr) {
                 std::cout << str << std::endl;
                 prevStr = str;
@@ -572,19 +639,37 @@ void BackendCommander::onStateUpdated(IPC::Command *command)
         }
     } else if (cliArgs_.cliCommand() == CLI_COMMAND_LOGIN) {
         if (cmd->loginState_ == LOGIN_STATE_LOGIN_ERROR && cmd->loginError_ == wsnet::LoginResult::kMissingCode2fa) {
-            code2fa_ = Utils::getInput("2FA code: ", false);
+            // Without a terminal, the code can only come from input piped to stdin, on the line after any credentials.
+            const bool isInteractive = Utils::isInteractive();
+            code2fa_ = isInteractive ? Utils::getInput("2FA code: ", false) : Utils::readLine();
+            // An empty code would only be asked for again, forever.
+            if (code2fa_.isEmpty()) {
+                emit(finished(1, isInteractive ? QString("No 2FA code entered.")
+                                               : QString("A 2FA code is required. Pipe it to stdin, or run \"windscribe-cli login\" in a terminal.")));
+                return;
+            }
             sendCommand(cmd);
 #ifdef CLI_ONLY
         } else if (cmd->isCaptchaRequired_) {
+            if (!Utils::isInteractive()) {
+                emit(finished(1, QString("A CAPTCHA must be solved. Run \"windscribe-cli login\" in a terminal.")));
+                return;
+            }
             QString asciiArt = QByteArray::fromBase64(cmd->asciiArt_.toUtf8());
             std::cout << asciiArt.toStdString() << std::endl;
-            captchaSolution_ = Utils::getInput(QObject::tr("Please type the numbers above to continue:"), false);
+            captchaSolution_ = Utils::getInput(QString("Please type the numbers above to continue:"), false);
+            if (captchaSolution_.isEmpty()) {
+                emit(finished(1, QString("No CAPTCHA solution entered.")));
+                return;
+            }
             sendCommand(cmd);
 #endif
-        } else if (cmd->loginState_ == LOGIN_STATE_LOGGED_IN || cmd->loginState_ == LOGIN_STATE_LOGIN_ERROR) {
-            emit(finished(0, loginStateString(cmd->loginState_, cmd->loginError_, cmd->loginErrorMessage_, false)));
+        } else if (cmd->loginState_ == LOGIN_STATE_LOGGED_IN) {
+            emit(finished(0, loginStateString(cmd->loginState_, cmd->loginError_, cmd->loginErrorMessage_)));
+        } else if (cmd->loginState_ == LOGIN_STATE_LOGIN_ERROR) {
+            emit(finished(1, loginStateString(cmd->loginState_, cmd->loginError_, cmd->loginErrorMessage_)));
         } else {
-            str = loginStateString(cmd->loginState_, cmd->loginError_, cmd->loginErrorMessage_, false).toStdString();
+            str = loginStateString(cmd->loginState_, cmd->loginError_, cmd->loginErrorMessage_).toStdString();
             if (str != prevStr) {
                 std::cout << str << std::endl;
                 prevStr = str;
@@ -595,9 +680,9 @@ void BackendCommander::onStateUpdated(IPC::Command *command)
         }
     } else if (cliArgs_.cliCommand() == CLI_COMMAND_LOGOUT) {
         if (cmd->loginState_ == LOGIN_STATE_LOGGED_OUT) {
-            emit(finished(0, loginStateString(cmd->loginState_, cmd->loginError_, cmd->loginErrorMessage_, false)));
+            emit(finished(0, loginStateString(cmd->loginState_, cmd->loginError_, cmd->loginErrorMessage_)));
         } else {
-            str = QObject::tr("Logging out").toStdString();
+            str = QString("Logging out").toStdString();
             if (str != prevStr) {
                 std::cout << str << std::endl;
                 prevStr = str;

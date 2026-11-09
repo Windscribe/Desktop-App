@@ -417,6 +417,29 @@ void TestOpenVPNConnection::testSanitizeString()
     }
 }
 
+void TestOpenVPNConnection::testRedactManagementLine()
+{
+    struct Row {
+        QString in;
+        QString out;
+    };
+    const QVector<Row> rows = {
+        {">LOG:1792769252,D,MANAGEMENT: CMD 'username \"Auth\" \"xq7example-user1\"'",
+         ">LOG:1792769252,D,MANAGEMENT: CMD 'username \"Auth\" \"xq***\"'"},
+        {">LOG:1792769252,D,MANAGEMENT: CMD 'username \"Auth\" \"a\\\"b\\\\c\"'",
+         ">LOG:1792769252,D,MANAGEMENT: CMD 'username \"Auth\" \"a\\***\"'"},
+        {">LOG:1792769252,D,MANAGEMENT: CMD 'username \"Auth\" \"\"'",
+         ">LOG:1792769252,D,MANAGEMENT: CMD 'username \"Auth\" \"\"'"},
+        {">LOG:1792769252,D,MANAGEMENT: CMD 'password [...]'", ">LOG:1792769252,D,MANAGEMENT: CMD 'password [...]'"},
+        {">LOG:1792769252,D,MANAGEMENT: CMD 'username \"HTTP Proxy\" \"proxyuser\"'",
+         ">LOG:1792769252,D,MANAGEMENT: CMD 'username \"HTTP Proxy\" \"proxyuser\"'"},
+        {">PASSWORD:Need 'Auth' username/password", ">PASSWORD:Need 'Auth' username/password"},
+    };
+    for (const auto &row : rows) {
+        QCOMPARE(OpenVPNConnection::redactManagementLine(row.in), row.out);
+    }
+}
+
 void TestOpenVPNConnection::testMakeOvpnFileStunnelUsesLocalWrapper()
 {
     for (types::Protocol protocol : {types::Protocol::STUNNEL, types::Protocol::WSTUNNEL}) {

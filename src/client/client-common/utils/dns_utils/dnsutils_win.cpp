@@ -7,6 +7,7 @@
     #include <windows.h>
     #include <iphlpapi.h>
 #endif
+#include "utils/log/debug_trace.h"
 #include "utils/ws_assert.h"
 
 namespace DnsUtils
@@ -17,6 +18,7 @@ std::vector<std::wstring> getOSDefaultDnsServers()
     std::vector<std::wstring> dnsServers;
 
 #ifdef Q_OS_WIN
+    WS_DEBUG_TRACE_SCOPE("DnsUtils::getOSDefaultDnsServers");
     DWORD dwRetVal = 0;
     ULONG outBufLen = 0;
     ULONG iterations = 0;

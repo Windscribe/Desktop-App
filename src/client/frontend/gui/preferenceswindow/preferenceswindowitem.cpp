@@ -1,23 +1,26 @@
 #include "preferenceswindowitem.h"
 
-#include <QPainter>
-#include <QCursor>
-#include <QGraphicsSceneMouseEvent>
 #include <QCoreApplication>
+#include <QCursor>
+#include <QDir>
+#include <QFileInfo>
+#include <QGraphicsSceneMouseEvent>
+#include <QPainter>
+
+#include "commongraphics/footerbackground.h"
+#include "dpiscalemanager.h"
+#include "generalmessagecontroller.h"
+#include "graphicresources/fontmanager.h"
+#include "graphicresources/imageresourcessvg.h"
+#include "ieditableitem.h"
+#include "preferencestab/preferencestabcontrolitem.h"
+#include "utils/utils.h"
+#include "utils/ws_assert.h"
+
 #if defined(Q_OS_LINUX)
 #include <filesystem>
 #include <unistd.h>
 #endif
-
-#include "graphicresources/imageresourcessvg.h"
-#include "preferencestab/preferencestabcontrolitem.h"
-#include "graphicresources/fontmanager.h"
-#include "commongraphics/footerbackground.h"
-#include "utils/ws_assert.h"
-#include "utils/utils.h"
-#include "dpiscalemanager.h"
-#include "generalmessagecontroller.h"
-#include "ieditableitem.h"
 
 namespace PreferencesWindow {
 
@@ -568,29 +571,33 @@ void PreferencesWindowItem::setPreferencesWindowToSplitTunnelingAppsHome()
 
 void PreferencesWindowItem::addApplicationManually(QString filename)
 {
-    QList<types::SplitTunnelingApp> apps = splitTunnelingAppsWindowItem_->getApps();
-
-    QString friendlyName = Utils::fileNameFromFullPath(filename);
-
     types::SplitTunnelingApp app;
-    app.name = friendlyName;
     app.active = true;
     app.type = SPLIT_TUNNELING_APP_TYPE_USER;
 #if defined(Q_OS_LINUX)
-    // On Linux, get the canonical path (without ., .., or symlinks)
-    std::error_code ec;
-    app.fullName = QString::fromStdString(std::filesystem::canonical(filename.toStdString(), ec));
-
-    if (ec) {
-        WS_ASSERT(false);
+    app.name = Utils::fileNameFromFullPath(filename);
+    if (filename.startsWith("/snap/bin/")) {
+        // Every snap command links to the snap launcher, so only the command's own path identifies the snap.
         app.fullName = filename;
+    } else {
+        // On Linux, get the canonical path (without ., .., or symlinks)
+        std::error_code ec;
+        app.fullName = QString::fromStdString(std::filesystem::canonical(filename.toStdString(), ec));
+
+        if (ec) {
+            WS_ASSERT(false);
+            app.fullName = filename;
+        }
     }
 #else
-    app.fullName = filename;
+    // Doubled or trailing separators and links name the same app as its canonical path, so they must not add a duplicate.
+    app.fullName = QFileInfo(filename).canonicalFilePath();
+    if (app.fullName.isEmpty()) {
+        app.fullName = QDir::cleanPath(filename);
+    }
+    app.name = QFileInfo(app.fullName).fileName();
 #endif
-    apps.append(app);
-
-    updateSplitTunnelingAppsCount(apps);
+    app.validate();
     splitTunnelingAppsWindowItem_->addAppManually(app);
 }
 

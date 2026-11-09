@@ -17,7 +17,6 @@
 #include "firewallonboot.h"
 #include "installer/staging.h"
 #include "ipc/helper_security.h"
-#include "macspoofingonboot.h"
 #include "macutils.h"
 #include "ovpn.h"
 #include "routes_manager/routes_manager.h"
@@ -27,6 +26,7 @@
 #include "wireguard/wireguardcontroller.h"
 #include "../common/io_posix.h"
 #include "../common/ovpn_mgmt_posix.h"
+#include "../common/process_kill_posix.h"
 #include "../common/spawn_posix.h"
 #include "../common/validation_posix.h"
 #include "clear_wifi_history/clear_wifi_history.h"
@@ -235,8 +235,8 @@ std::string executeTaskKill(const std::string &pars)
         success = true;
     } else if (target == kTargetCtrld) {
         spdlog::info("Killing ctrld processes");
-        Utils::executeCommand("pkill", {"-f", WS_PRODUCT_NAME_LOWER "ctrld"});
-        success = true;
+        // The next ctrld binds the same 127.0.0.1:53 and exits if a dying instance still holds it.
+        success = ProcessKill::terminateAndWait(WS_PRODUCT_NAME_LOWER "ctrld");
     } else {
         spdlog::error("Did not kill processes for type {}", (int)target);
         success = false;
@@ -514,29 +514,6 @@ std::string startWstunnel(const std::string &pars)
     return serializeResult(true);
 }
 
-std::string setMacAddress(const std::string &pars)
-{
-    std::string interface, macAddress, network;
-    bool isWifi;
-    deserializePars(pars, interface, macAddress, network, isWifi);
-
-    if (!Validation::isValidInterfaceName(interface)) {
-        spdlog::error("Invalid interface name: {}", interface);
-        return serializeResult(false);
-    }
-
-    if (!Validation::isValidMacAddress(macAddress)) {
-        spdlog::error("Invalid MAC address: {}", macAddress);
-        return serializeResult(false);
-    }
-
-    spdlog::info("Set mac address on {}: {}", interface, macAddress);
-    Utils::executeCommand("/System/Library/PrivateFrameworks/Apple80211.framework/Resources/airport", {"-z"});
-    bool success = (Utils::executeCommand("ifconfig", {interface, "ether", macAddress}) == 0);
-    Utils::executeCommand("ifconfig", {interface, "up"});
-    return serializeResult(success);
-}
-
 std::string setDnsScriptEnabled(const std::string &pars)
 {
     bool enabled;
@@ -549,28 +526,6 @@ std::string setDnsScriptEnabled(const std::string &pars)
         Utils::executeCommand(std::string(Utils::kHelperBinDir) + "/dns.sh", {"-down"}, &out);
         spdlog::info("{}", out.c_str());
     }
-    return std::string();
-}
-
-std::string enableMacSpoofingOnBoot(const std::string &pars)
-{
-    bool enabled;
-    std::string interface, macAddress;
-    deserializePars(pars, enabled, interface, macAddress);
-
-    if (enabled) {
-        if (!Validation::isValidInterfaceName(interface)) {
-            spdlog::error("enableMacSpoofingOnBoot: invalid interface \"{}\", rejecting", interface);
-            return std::string();
-        }
-        if (!Validation::isValidMacAddress(macAddress)) {
-            spdlog::error("enableMacSpoofingOnBoot: invalid MAC address \"{}\", rejecting", macAddress);
-            return std::string();
-        }
-    }
-
-    spdlog::info("Set mac spoofing on boot: {}", enabled ? "true" : "false");
-    MacSpoofingOnBootManager::instance().setEnabled(enabled, interface, macAddress);
     return std::string();
 }
 

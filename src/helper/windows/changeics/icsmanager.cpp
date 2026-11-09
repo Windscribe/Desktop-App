@@ -1,6 +1,5 @@
 #include "IcsManager.h"
 
-#include <wtsapi32.h>
 #include <spdlog/spdlog.h>
 #include "../utils.h"
 
@@ -16,13 +15,13 @@ IcsManager::IcsManager()
     ncFreeNetconProperties_ = (PFNNcFreeNetconProperties)GetProcAddress(hDll_, "NcFreeNetconProperties");
 
     if (!ncFreeNetconProperties_) {
-        spdlog::error("Failed to load the function NcFreeNetconProperties() from netshell.dll");
+        spdlog::error("Failed to load the function NcFreeNetconProperties() from netshell.dll ({})", ::GetLastError());
     }
 
     HRESULT hr = ::CoCreateInstance(__uuidof(NetSharingManager), NULL, CLSCTX_ALL, __uuidof(INetSharingManager), (void**)&pNSM_);
     if (hr != S_OK) {
         pNSM_ = nullptr;
-        spdlog::error("Failed to create INetSharingManager instance");
+        spdlog::error("Failed to create INetSharingManager instance ({:#x})", static_cast<unsigned long>(hr));
     }
 }
 
@@ -46,8 +45,11 @@ bool IcsManager::isSupported()
     }
 
     VARIANT_BOOL bInstalled = VARIANT_FALSE;
-    if (pNSM_->get_SharingInstalled(&bInstalled) != S_OK)
+    HRESULT hr = pNSM_->get_SharingInstalled(&bInstalled);
+    if (hr != S_OK) {
+        spdlog::warn("get_SharingInstalled failed, {:#x}", static_cast<unsigned long>(hr));
         return false;
+    }
 
     return (bInstalled == VARIANT_TRUE);
 }
@@ -80,6 +82,8 @@ bool IcsManager::change(const std::wstring &adapterName)
 
             if (ncFreeNetconProperties_)
                 ncFreeNetconProperties_(ppProps);
+        } else {
+            spdlog::debug("INetConnection::GetProperties failed, {:#x}", static_cast<unsigned long>(hr));
         }
     }
 
@@ -143,12 +147,18 @@ bool IcsManager::change(const std::wstring &adapterName)
 
     // Disable existing ICS first, otherwise it won't work
     if (pNetConfigurationPublic_) {
-        pNetConfigurationPublic_->DisableSharing();
+        hr = pNetConfigurationPublic_->DisableSharing();
+        if (FAILED(hr)) {
+            spdlog::warn("DisableSharing failed for previous public configuration, {:#x}", static_cast<unsigned long>(hr));
+        }
         pNetConfigurationPublic_ = nullptr;
     }
 
     if (pNetConfigurationPrivate_) {
-        pNetConfigurationPrivate_->DisableSharing();
+        hr = pNetConfigurationPrivate_->DisableSharing();
+        if (FAILED(hr)) {
+            spdlog::warn("DisableSharing failed for previous private configuration, {:#x}", static_cast<unsigned long>(hr));
+        }
         pNetConfigurationPrivate_ = nullptr;
     }
 
@@ -165,7 +175,10 @@ bool IcsManager::change(const std::wstring &adapterName)
     hr = pNetConfigurationPrivate->EnableSharing(ICSSHARINGTYPE_PRIVATE);
     if (hr != S_OK) {
         spdlog::warn("EnableSharing failed for private guid, {}", hr);
-        pNetConfigurationPublic->DisableSharing();
+        HRESULT hrRollback = pNetConfigurationPublic->DisableSharing();
+        if (FAILED(hrRollback)) {
+            spdlog::error("DisableSharing rollback failed for public guid, {:#x}", static_cast<unsigned long>(hrRollback));
+        }
         pNetConfigurationPublic_ = nullptr;
         return false;
     } else {
@@ -178,12 +191,18 @@ bool IcsManager::change(const std::wstring &adapterName)
 bool IcsManager::stop()
 {
     if (pNetConfigurationPublic_) {
-        pNetConfigurationPublic_->DisableSharing();
+        HRESULT hr = pNetConfigurationPublic_->DisableSharing();
+        if (FAILED(hr)) {
+            spdlog::warn("DisableSharing failed for public configuration, {:#x}", static_cast<unsigned long>(hr));
+        }
         pNetConfigurationPublic_ = nullptr;
     }
 
     if (pNetConfigurationPrivate_) {
-        pNetConfigurationPrivate_->DisableSharing();
+        HRESULT hr = pNetConfigurationPrivate_->DisableSharing();
+        if (FAILED(hr)) {
+            spdlog::warn("DisableSharing failed for private configuration, {:#x}", static_cast<unsigned long>(hr));
+        }
         pNetConfigurationPrivate_ = nullptr;
     }
 
@@ -254,8 +273,15 @@ void IcsManager::disableIcsOnAll(CComPtr<INetSharingManager> &pNSM, std::vector<
             VARIANT_BOOL bEnabled = VARIANT_FALSE;
             hr = pNetConfiguration->get_SharingEnabled(&bEnabled);
             if (hr == S_OK && bEnabled == VARIANT_TRUE) {
-                pNetConfiguration->DisableSharing();
+                hr = pNetConfiguration->DisableSharing();
+                if (FAILED(hr)) {
+                    spdlog::warn("disableIcsOnAll: DisableSharing failed, {:#x}", static_cast<unsigned long>(hr));
+                }
+            } else if (hr != S_OK) {
+                spdlog::debug("disableIcsOnAll: get_SharingEnabled failed, {:#x}", static_cast<unsigned long>(hr));
             }
+        } else {
+            spdlog::debug("disableIcsOnAll: get_INetSharingConfigurationForINetConnection failed, {:#x}", static_cast<unsigned long>(hr));
         }
     }
 }

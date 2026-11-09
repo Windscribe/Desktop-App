@@ -17,7 +17,7 @@ InterfaceUtils_mac::~InterfaceUtils_mac()
 QString ssidOfInterface(const QString &networkInterface)
 {
     // In MacOS 15.0, Apple removed the SSID from networksetup -getairportnetwork as well.
-    // As of 24A335, even wdutil redacts it, so we must have the locations permission, otherwise we just use "Wi-F"
+    // As of 24A335, even wdutil redacts it, so we must have the locations permission, otherwise we just use "Wi-Fi"
     if (MacUtils::isOsVersionAtLeast(15, 0)) {
         if (NetworkUtils_mac::isLocationPermissionGranted()) {
             // Use CoreWLAN API to get the SSID
@@ -25,19 +25,15 @@ QString ssidOfInterface(const QString &networkInterface)
         } else {
             return "Wi-Fi";
         }
-    // In MacOS 14.4, Apple removed the SSID from scutil output, use an alternative method
-    } else if (MacUtils::isOsVersionAtLeast(14, 4)) {
-        QString command = "networksetup -getairportnetwork " + networkInterface + " | head -n 1 | cut -s -d ':' -f 2";
-        QString strReply = Utils::execCmd(command).trimmed();
-        if (strReply.length() > 32) {
-            // SSIDs are at most 32 octets, so if the string is longer than that, it's probably an error message.
-            strReply = "";
-        }
-        return strReply;
     }
-    // Older versions of macOS should use scutil
-    QString command = "echo 'show State:/Network/Interface/" + networkInterface + "/AirPort' | scutil | grep SSID_STR | sed -e 's/.*SSID_STR : //'";
-    return Utils::execCmd(command).trimmed();
+    // In MacOS 14.4, Apple removed the SSID from scutil output, use an alternative method
+    QString command = "networksetup -getairportnetwork " + networkInterface + " | head -n 1 | cut -s -d ':' -f 2";
+    QString strReply = Utils::execCmd(command).trimmed();
+    if (strReply.length() > 32) {
+        // SSIDs are at most 32 octets, so if the string is longer than that, it's probably an error message.
+        strReply = "";
+    }
+    return strReply;
 }
 
 bool isAdapterActive(const QString &networkInterface)
@@ -89,18 +85,6 @@ QMap<QString, int> currentHardwareInterfaceIndexes()
     return result;
 }
 
-QVector<types::NetworkInterface> currentlyUpNetInterfaces()
-{
-    auto isUp = [](const types::NetworkInterface &ni) {
-        return NetworkUtils_mac::isAdapterUp(ni.interfaceName);
-    };
-
-    QVector<types::NetworkInterface> interfaces = InterfaceUtils_mac::instance().currentNetworkInterfaces(false);
-    QVector<types::NetworkInterface> upInterfaces;
-    std::copy_if(interfaces.begin(), interfaces.end(), std::back_inserter(upInterfaces), isUp);
-    return upInterfaces;
-}
-
 const types::NetworkInterface InterfaceUtils_mac::currentNetworkInterface()
 {
     QVector<types::NetworkInterface> ni = currentNetworkInterfaces(false);
@@ -111,21 +95,6 @@ const types::NetworkInterface InterfaceUtils_mac::currentNetworkInterface()
     return types::NetworkInterface::noNetworkInterface();
 }
 
-
-QVector<types::NetworkInterface> InterfaceUtils_mac::currentSpoofedInterfaces()
-{
-    QVector<types::NetworkInterface> spoofed;
-    QVector<types::NetworkInterface> currentInterfaces = currentlyUpNetInterfaces();
-    for (const types::NetworkInterface &ii : currentInterfaces) {
-        const QString &interfaceName = ii.interfaceName;
-
-        if (NetworkUtils_mac::isInterfaceSpoofed(interfaceName)) {
-            spoofed << ii;
-        }
-    }
-
-    return spoofed;
-}
 
 QVector<types::NetworkInterface> InterfaceUtils_mac::currentNetworkInterfaces(bool includeNoInterface)
 {

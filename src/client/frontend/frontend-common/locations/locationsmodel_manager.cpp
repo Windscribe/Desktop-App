@@ -167,6 +167,68 @@ LocationID LocationsModelManager::findLocationByFilter(const QString &strFilter)
     return LocationID();
 }
 
+LocationID LocationsModelManager::findStaticIpLocation(const QString &nameOrNick) const
+{
+    QList<LocationID> matches;
+    for (int i = 0, rowCount = staticIpsProxyModel_->rowCount(); i < rowCount; ++i) {
+        QModelIndex mi = staticIpsProxyModel_->index(i, 0);
+        if (nameOrNick == mi.data(kName).toString() || nameOrNick == mi.data(kNick).toString()) {
+            matches << qvariant_cast<LocationID>(mi.data(kLocationId));
+        }
+    }
+
+    if (matches.isEmpty()) {
+        return LocationID();
+    }
+    return matches[Utils::generateIntegerRandom(0, matches.length() - 1)];
+}
+
+bool LocationsModelManager::pinIp(LocationID locationId, const QString &hostname, const QString &ip)
+{
+    // No hostname means there is no current connection whose server the pin could name.
+    if (ip.isEmpty() || hostname.isEmpty()) {
+        return false;
+    }
+    if (locationId.isBestLocation()) {
+        locationId = locationId.bestLocationToApiLocation();
+    }
+    // Pins are only read back for API locations (see Backend::sendConnect).
+    if (!locationId.isValid() || locationId.isStaticIpsLocation() || locationId.isCustomConfigsLocation()) {
+        return false;
+    }
+
+    QModelIndex index = locationsModel_->getIndexByLocationId(locationId);
+    if (!index.isValid()) {
+        return false;
+    }
+    // Only the subdomain is stored, so the pin still works when the server TLD changes.
+    const QString subdomain = hostname.section('.', 0, 0);
+    return locationsModel_->setData(index, QVariantList() << subdomain << ip, kPinnedIp);
+}
+
+bool LocationsModelManager::unpinIp(const QString &ip)
+{
+    if (ip.isEmpty()) {
+        return false;
+    }
+    for (int i = 0, rowCount = favoriteCitiesProxyModel_->rowCount(); i < rowCount; ++i) {
+        QModelIndex favourite = favoriteCitiesProxyModel_->index(i, 0);
+        const QVariantList pinnedData = favourite.data(kPinnedIp).toList();
+        if (pinnedData.size() != 2 || pinnedData[1].toString() != ip) {
+            continue;
+        }
+
+        QModelIndex index = locationsModel_->getIndexByLocationId(qvariant_cast<LocationID>(favourite.data(kLocationId)));
+        if (!index.isValid()) {
+            return false;
+        }
+        locationsModel_->setData(index, QVariantList() << QString() << QString(), kPinnedIp);
+        locationsModel_->setData(index, false, kIsFavorite);
+        return true;
+    }
+    return false;
+}
+
 LocationID LocationsModelManager::getBestLocationId() const
 {
     QModelIndex mi = locationsModel_->getBestLocationIndex();

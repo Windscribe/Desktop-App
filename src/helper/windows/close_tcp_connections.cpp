@@ -9,6 +9,8 @@
 #include <iphlpapi.h>
 #include <Psapi.h>
 
+#include <spdlog/spdlog.h>
+
 // static
 void CloseTcpConnections::closeAllTcpConnections(bool keepLocalSockets, bool isExclude /*= true*/, const std::vector<std::wstring> &apps/* = std::vector<std::wstring>()*/)
 {
@@ -25,8 +27,12 @@ void CloseTcpConnections::closeAllTcpConnections(bool keepLocalSockets, bool isE
     }
 
     if (dwRetVal != NO_ERROR) {
+        spdlog::error("CloseTcpConnections::closeAllTcpConnections, GetTcpTable2 failed: {}", dwRetVal);
         return;
     }
+
+    int setTcpEntryFailures = 0;
+    DWORD lastSetTcpEntryError = NO_ERROR;
 
     PMIB_TCPTABLE2 pTcpTable = reinterpret_cast<PMIB_TCPTABLE2>(buffer.get());
     for (int i = 0; i < (int)pTcpTable->dwNumEntries; i++) {
@@ -43,7 +49,11 @@ void CloseTcpConnections::closeAllTcpConnections(bool keepLocalSockets, bool isE
         // always close ctrld util sockets
         if (isCtrldProcessName(entry->dwOwningPid)) {
             entry->dwState = MIB_TCP_STATE_DELETE_TCB;
-            SetTcpEntry(reinterpret_cast<MIB_TCPROW *>(entry));
+            const DWORD setRet = SetTcpEntry(reinterpret_cast<MIB_TCPROW *>(entry));
+            if (setRet != NO_ERROR) {
+                setTcpEntryFailures++;
+                lastSetTcpEntryError = setRet;
+            }
             continue;
         }
 
@@ -79,7 +89,16 @@ void CloseTcpConnections::closeAllTcpConnections(bool keepLocalSockets, bool isE
         }
 
         entry->dwState = MIB_TCP_STATE_DELETE_TCB;
-        SetTcpEntry(reinterpret_cast<MIB_TCPROW *>(entry));
+        const DWORD setRet = SetTcpEntry(reinterpret_cast<MIB_TCPROW *>(entry));
+        if (setRet != NO_ERROR) {
+            setTcpEntryFailures++;
+            lastSetTcpEntryError = setRet;
+        }
+    }
+
+    if (setTcpEntryFailures > 0) {
+        spdlog::debug("CloseTcpConnections::closeAllTcpConnections, SetTcpEntry failed for {} connection(s), last error: {}",
+                      setTcpEntryFailures, lastSetTcpEntryError);
     }
 }
 

@@ -36,6 +36,9 @@ Backend::Backend(QObject *parent) : QObject(parent),
     tunnelTestSuccessful_(false),
     bridgeApiAvailable_(false)
 {
+    ipRotateCooldownTimer_.setSingleShot(true);
+    ipRotateCooldownTimer_.setInterval(kIpRotateCooldownMs);
+    connect(&ipRotateCooldownTimer_, &QTimer::timeout, this, &Backend::onIpRotateCooldownTimeout);
 
     preferences_.loadGuiSettings();
 
@@ -128,7 +131,7 @@ void Backend::init()
     connect(engine_, &Engine::systemExtensionAvailabilityChanged, this, &Backend::systemExtensionAvailabilityChanged);
     connect(engine_, &Engine::connectionIdChanged, this, &Backend::connectionIdChanged);
     connect(engine_, &Engine::bridgeApiAvailabilityChanged, this, &Backend::onEngineBridgeApiAvailabilityChanged);
-    connect(engine_, &Engine::ipRotateResult, this, &Backend::ipRotateResult);
+    connect(engine_, &Engine::ipRotateResult, this, &Backend::onEngineIpRotateResult);
     connect(engine_, &Engine::connectingHostnameChanged, this, &Backend::onEngineConnectingHostnameChanged);
     connect(engine_, &Engine::controldDevicesFetched, this, &Backend::controldDevicesFetched);
     connect(engine_, &Engine::clearWifiHistoryFinished, this, &Backend::clearWifiHistoryFinished);
@@ -209,6 +212,17 @@ void Backend::logout(bool keepFirewallOn)
 }
 
 void Backend::sendConnect(const LocationID &lid, const types::ConnectionSettings &connectionSettings)
+{
+    connectRequestCount_++;
+    startConnect(lid, connectionSettings);
+}
+
+void Backend::sendAutomaticConnect(const LocationID &lid)
+{
+    startConnect(lid, types::ConnectionSettings(types::Protocol(), 0, true));
+}
+
+void Backend::startConnect(const LocationID &lid, const types::ConnectionSettings &connectionSettings)
 {
     if (isDisconnected()) {
         osDnsServers_ = DnsUtils::getOSDefaultDnsServers();
@@ -557,6 +571,11 @@ void Backend::onEngineUpdateVersionChanged(uint progressPercent, const UPDATE_VE
 void Backend::onEngineMyIpUpdated(const QString &ip, bool isDisconnected)
 {
     emit myIpChanged(ip, isDisconnected);
+    // Cleared only once listeners have seen it, so they can tell this is the rotated address. An address arriving while the
+    // rotation is still in flight predates it: the engine reports the outcome before it looks up the new address.
+    if (!isDisconnected && !isIpRotateInFlight_) {
+        isAwaitingRotatedIp_ = false;
+    }
 }
 
 void Backend::onEngineConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, ConnectError err, const QString &errorDetail, const LocationID &locationId)
@@ -573,6 +592,13 @@ void Backend::onEngineConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON
     connectState.connectErrorDetail = errorDetail;
     connectState.location = locationId;
     connectStateHelper_.setConnectStateFromEngine(connectState);
+
+    // The engine drops a rotation once the tunnel is down without ever answering it. Reported after the new state, so that
+    // listeners can tell this from the API turning the rotation down.
+    if (state != CONNECT_STATE_CONNECTED) {
+        isAwaitingRotatedIp_ = false;
+        onEngineIpRotateResult(false);
+    }
 }
 
 void Backend::onEngineStatisticsUpdated(quint64 bytesIn, quint64 bytesOut, bool isTotalBytes)
@@ -631,6 +657,10 @@ void Backend::onEngineEmergencyConnectError(ConnectError err)
 void Backend::onEngineTestTunnelResult(bool bSuccess)
 {
     tunnelTestSuccessful_ = bSuccess;
+    // A failed test reports no address, so the one a rotation is waiting for will not come. One still in flight starts a test of its own.
+    if (!bSuccess && !isIpRotateInFlight_) {
+        isAwaitingRotatedIp_ = false;
+    }
     emit testTunnelResult(bSuccess);
 
     if (bSuccess && bridgeApiAvailable_) {
@@ -1101,9 +1131,47 @@ bool Backend::wouldDnsServerLeak(const std::wstring &dnsServer)
                        [&](const std::wstring &ip) { return canonical(ip) == needle; });
 }
 
-void Backend::rotateIp()
+bool Backend::rotateIp()
 {
-    engine_->rotateIp();
+    if (isIpRotateInFlight_ || currentConnectState() != CONNECT_STATE_CONNECTED) {
+        return false;
+    }
+    isIpRotateInFlight_ = true;
+    isAwaitingRotatedIp_ = true;
+    emit ipRotateStarted();
+    if (ipRotateCooldownTimer_.isActive()) {
+        isIpRotateWaitingForCooldown_ = true;
+    } else {
+        engine_->rotateIp();
+    }
+    return true;
+}
+
+void Backend::onIpRotateCooldownTimeout()
+{
+    if (isIpRotateWaitingForCooldown_) {
+        isIpRotateWaitingForCooldown_ = false;
+        engine_->rotateIp();
+    }
+    emit ipRotateCooldownFinished();
+}
+
+void Backend::onEngineIpRotateResult(bool success)
+{
+    // An answer for a rotation already reported as failed is dropped.
+    if (!isIpRotateInFlight_) {
+        return;
+    }
+    isIpRotateInFlight_ = false;
+    // A request still waiting out the settling period is answered here too, when the connection drops before it is sent.
+    isIpRotateWaitingForCooldown_ = false;
+    // A failed rotation brings no new address.
+    if (!success) {
+        isAwaitingRotatedIp_ = false;
+    }
+    // The settling period runs from the outcome, not the request: a failed rotation is still an attempt the API needs time to recover from.
+    ipRotateCooldownTimer_.start();
+    emit ipRotateResult(success);
 }
 
 QString Backend::getCurrentConnectingHostname() const

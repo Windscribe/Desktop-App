@@ -927,11 +927,13 @@ void Preferences::loadGuiSettings()
     QSettings ini(WS_SETTINGS_ORG, WS_SETTINGS_CLI);
     guiSettings_.fromIni(ini);
     guiSettings_.validate();
-    PersistentState::instance().fromIni(ini);
+    PersistentState::instance().fromIni(ini, guiSettings_.isAutoSecureNetworks);
 #endif
 
 #ifdef Q_OS_LINUX
     LinuxUtils::migrateSplitTunnelingFlatpakApps(guiSettings_.splitTunneling.apps);
+    // Migration can turn an old entry into an app ID that is already in the list.
+    guiSettings_.splitTunneling.validate();
 #endif
 
     qCInfo(LOG_BASIC) << "GUI settings" << guiSettings_;
@@ -970,13 +972,14 @@ void Preferences::loadIni()
     // on-disk file so fromIni() below sees the user's changes.
     settings.sync();
 
-    // PersistentState can be updated directly as there are no signals to worry about
-    PersistentState::instance().fromIni(settings);
-
     // Copy settings and apply the ini to the copy, then call the setXYZ functions on the actual settings.
     // This is a bit roundabount but ensures that all the correct signals are emitted.
     types::GuiSettings gs = guiSettings_;
     gs.fromIni(settings);
+    gs.validate();
+
+    // PersistentState can be updated directly as there are no signals to worry about
+    PersistentState::instance().fromIni(settings, gs.isAutoSecureNetworks);
 
     types::EngineSettings es = engineSettings_;
     es.fromIni(settings);
@@ -1011,6 +1014,8 @@ void Preferences::loadIni()
     setServerRoutingMethod(es.serverRoutingMethod());
     setProtocolTweaksMethod(es.protocolTweaksMethod());
     setIpStackEgress(es.ipStackEgress());
+    setCustomSniDomain(es.customSniDomain());
+    setNetworkPreferredProtocols(es.networkPreferredProtocols());
     isSettingEngineSettings_ = false;
 
     emitEngineSettingsChanged();

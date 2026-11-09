@@ -464,6 +464,10 @@ void EngineSettingsData::validate()
 
     proxySettings.validate();
     connectedDnsInfo.validate();
+#ifdef Q_OS_MACOS
+    // MAC spoofing is not supported on macOS, so no load or import may carry an enabled setting.
+    macAddrSpoofing = types::MacAddrSpoofing();
+#endif
     macAddrSpoofing.validate();
     connectionSettings.validate();
     firewallSettings.validate();
@@ -651,15 +655,21 @@ QJsonObject EngineSettingsData::toJson(bool isForDebugLog) const
 #ifdef CLI_ONLY
 void EngineSettingsData::fromIni(QSettings &settings)
 {
-    language = settings.value(kIniLanguageProp, language).toString();
+    // Qt skips what it cannot parse without saying so, e.g. a nested [Networks/MyWifi] header.
+    if (settings.status() == QSettings::FormatError) {
+        qCWarning(LOG_BASIC).noquote() << WS_SETTINGS_CLI ".conf: format error, some settings in the file may not apply";
+    }
 
-    updateChannel = enumFromString<UPDATE_CHANNEL>(settings.value(kIniUpdateChannelProp, enumToString(updateChannel)).toString());
+    const EngineSettingsData defaults;
+    language = settings.value(kIniLanguageProp, LanguagesUtil::systemLanguage()).toString();
 
+    updateChannel = enumFromString<UPDATE_CHANNEL>(settings.value(kIniUpdateChannelProp, enumToString(defaults.updateChannel)).toString());
+
+    // Each network is a subgroup of [Networks] (MyWifi\ConnectionMode=...), not a key.
     settings.beginGroup(QString("Networks"));
-    QMap<QString, types::ConnectionSettings> networkPreferredProtocols;
-    for (const auto& key : settings.childKeys()) {
-        ConnectionSettings connSettings(settings, key);
-        networkPreferredProtocols.insert(key, connSettings);
+    networkPreferredProtocols.clear();
+    for (const QString &network : settings.childGroups()) {
+        networkPreferredProtocols.insert(network, ConnectionSettings(settings, network));
     }
     settings.endGroup();
 
@@ -670,21 +680,24 @@ void EngineSettingsData::fromIni(QSettings &settings)
     packetSize.fromIni(settings);
     macAddrSpoofing.fromIni(settings);
     connectedDnsInfo.fromIni(settings);
-    isAllowLanTraffic = settings.value(kIniIsAllowLanTrafficProp, isAllowLanTraffic).toBool();
+    isAllowLanTraffic = settings.value(kIniIsAllowLanTrafficProp, defaults.isAllowLanTraffic).toBool();
     decoyTrafficSettings.fromIni(settings);
-    isAPIAntiCensorship = settings.value(kIniIsAntiCensorshipProp, isAPIAntiCensorship).toBool();
-    amneziawgPreset = settings.value(kIniAmneziawgPresetProp, amneziawgPreset).toString();
-    customSniDomain = settings.value(kIniCustomSniDomainProp, customSniDomain).toString();
-    serverRoutingMethod = enumFromInt<SERVER_ROUTING_METHOD_TYPE>(settings.value(kIniServerRoutingMethodProp, static_cast<int>(serverRoutingMethod)).toInt());
-    protocolTweaksMethod = enumFromInt<PROTOCOL_TWEAKS_METHOD_TYPE>(settings.value(kIniProtocolTweaksMethodProp, static_cast<int>(protocolTweaksMethod)).toInt());
-    IpStackEgress = enumFromString<IpStack>(settings.value(kIniIpStackEgressProp, enumToString(IpStackEgress)).toString());
+    // A first install turns this on in countries that censor; a missing key gets the same default.
+    isAPIAntiCensorship = settings.value(kIniIsAntiCensorshipProp, LanguagesUtil::isCensorshipCountry()).toBool();
+    amneziawgPreset = settings.value(kIniAmneziawgPresetProp, defaults.amneziawgPreset).toString();
+    customSniDomain = settings.value(kIniCustomSniDomainProp, defaults.customSniDomain).toString();
+    serverRoutingMethod = enumFromInt<SERVER_ROUTING_METHOD_TYPE>(
+        settings.value(kIniServerRoutingMethodProp, static_cast<int>(defaults.serverRoutingMethod)).toInt());
+    protocolTweaksMethod = enumFromInt<PROTOCOL_TWEAKS_METHOD_TYPE>(
+        settings.value(kIniProtocolTweaksMethodProp, static_cast<int>(defaults.protocolTweaksMethod)).toInt());
+    IpStackEgress = enumFromString<IpStack>(settings.value(kIniIpStackEgressProp, enumToString(defaults.IpStackEgress)).toString());
     settings.endGroup();
 
     settings.beginGroup(QString("Advanced"));
 #ifdef Q_OS_LINUX
-    dnsManager = enumFromString<DNS_MANAGER_TYPE>(settings.value(kIniDnsManagerProp, enumToString(dnsManager)).toString());
+    dnsManager = enumFromString<DNS_MANAGER_TYPE>(settings.value(kIniDnsManagerProp, enumToString(defaults.dnsManager)).toString());
 #endif
-    dnsPolicy = enumFromString<DNS_POLICY_TYPE>(settings.value(kIniDnsPolicyProp, enumToString(dnsPolicy)).toString());
+    dnsPolicy = enumFromString<DNS_POLICY_TYPE>(settings.value(kIniDnsPolicyProp, enumToString(defaults.dnsPolicy)).toString());
     settings.endGroup();
 }
 

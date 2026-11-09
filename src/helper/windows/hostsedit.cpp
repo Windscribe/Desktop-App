@@ -486,14 +486,18 @@ void HostsEdit::logWin32Error(const char *what, const std::wstring &path, DWORD 
 std::wstring HostsEdit::getHostsPath() const
 {
     wchar_t path[MAX_PATH];
-    PathCombineW(path, systemDir_.c_str(), L"drivers\\etc\\hosts");
+    if (PathCombineW(path, systemDir_.c_str(), L"drivers\\etc\\hosts") == NULL) {
+        spdlog::error(L"HostsEdit::getHostsPath - PathCombineW failed for system dir {}", systemDir_);
+    }
     return path;
 }
 
 std::wstring HostsEdit::getTempHostsPath() const
 {
     wchar_t path[MAX_PATH];
-    PathCombineW(path, systemDir_.c_str(), L"drivers\\etc\\hosts.tmp");
+    if (PathCombineW(path, systemDir_.c_str(), L"drivers\\etc\\hosts.tmp") == NULL) {
+        spdlog::error(L"HostsEdit::getTempHostsPath - PathCombineW failed for system dir {}", systemDir_);
+    }
     return path;
 }
 

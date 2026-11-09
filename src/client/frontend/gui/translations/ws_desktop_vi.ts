@@ -1511,10 +1511,6 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
         <translation>Vô hiệu hóa Cho phép lưu lượng mạng LAN sẽ khiến điểm phát sóng an toàn của bạn ngừng hoạt động.  Bạn có muốn tắt điểm phát sóng không?</translation>
     </message>
     <message>
-        <source>MAC spoofing is not supported on your version of MacOS.</source>
-        <translation>Giả mạo MAC không được hỗ trợ trên phiên bản MacOS của bạn.</translation>
-    </message>
-    <message>
         <source>Automatically determine the MTU for your connection, or manually override.  This has no effect on TCP-based protocols.</source>
         <translation>Tự động xác định MTU cho kết nối của bạn hoặc ghi đè theo cách thủ công.  Điều này không ảnh hưởng đến các giao thức dựa trên TCP.</translation>
     </message>
@@ -2381,6 +2377,10 @@ Kết nối với mạng trước</translation>
 </context>
 <context>
     <name>PreferencesWindow::SplitTunnelingAppsGroup</name>
+    <message>
+        <source>This app is already in the list.</source>
+        <translation>Ứng dụng này đã có trong danh sách.</translation>
+    </message>
     <message>
         <source>There are too many apps in the list. Please remove some before adding more.</source>
         <translation>Có quá nhiều ứng dụng trong danh sách. Vui lòng xóa một số trước khi thêm nhiều hơn.</translation>

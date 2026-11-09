@@ -47,7 +47,7 @@ std::string removeMacAddressSpoof(const std::string &pars);
 std::string resetNetworkAdapter(const std::string &pars);
 std::string addIKEv2DefaultRoute(const std::string &pars);
 std::string removeAppNetworkProfiles(const std::string &pars);
-std::string setIKEv2IPSecParameters(const std::string &pars);
+std::string setIKEv2IPSecParameters(const std::string &pars, HANDLE clientPipe);
 std::string createOpenVpnAdapter(const std::string &pars);
 std::string removeOpenVpnAdapter(const std::string &pars);
 std::string disableDohSettings(const std::string &pars);
@@ -98,7 +98,7 @@ static const std::map<const HelperCommand, std::function<std::string(const std::
     { HelperCommand::resetNetworkAdapter, resetNetworkAdapter },
     { HelperCommand::addIKEv2DefaultRoute, addIKEv2DefaultRoute },
     { HelperCommand::removeAppNetworkProfiles, removeAppNetworkProfiles },
-    { HelperCommand::setIKEv2IPSecParameters, setIKEv2IPSecParameters },
+    // setIKEv2IPSecParameters is dispatched directly by processCommand (needs the client pipe handle).
     { HelperCommand::createOpenVpnAdapter, createOpenVpnAdapter },
     { HelperCommand::removeOpenVpnAdapter, removeOpenVpnAdapter },
     { HelperCommand::disableDohSettings, disableDohSettings },

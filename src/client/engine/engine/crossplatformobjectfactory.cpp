@@ -15,7 +15,6 @@
     #include "dns/ctrldmanager/ctrldmanager_posix.h"
     #include "firewall/firewallcontroller_mac.h"
     #include "helper/helperbackend_mac.h"
-    #include "macaddresscontroller/macaddresscontroller_mac.h"
     #include "networkdetectionmanager/networkdetectionmanager_mac.h"
     #include "sleepevents/sleepevents_mac.h"
 #elif defined Q_OS_LINUX
@@ -67,16 +66,16 @@ INetworkDetectionManager *CrossPlatformObjectFactory::createNetworkDetectionMana
 #endif
 }
 
+#ifndef Q_OS_MACOS
 IMacAddressController *CrossPlatformObjectFactory::createMacAddressController(QObject *parent, INetworkDetectionManager *ndManager, Helper *helper)
 {
 #ifdef Q_OS_WIN
     return new MacAddressController_win(parent, ndManager, helper);
-#elif defined Q_OS_MACOS
-    return new MacAddressController_mac(parent, static_cast<NetworkDetectionManager_mac*>(ndManager), helper);
 #elif defined Q_OS_LINUX
     return new MacAddressController_linux(parent, static_cast<NetworkDetectionManager_linux*>(ndManager), helper);
 #endif
 }
+#endif
 
 ICtrldManager *CrossPlatformObjectFactory::createCtrldManager(QObject *parent, Helper *helper, bool isCreateLog)
 {

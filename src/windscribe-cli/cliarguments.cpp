@@ -1,7 +1,8 @@
 #include <QCoreApplication>
-//#include <iostream>
+#include <algorithm>
 
 #include "cliarguments.h"
+#include "help.h"
 
 CliArguments::CliArguments()
 {
@@ -17,276 +18,229 @@ static bool isProtocol(const QString &str)
     return false;
 }
 
-static QString getProtocol(const QString &str)
+static bool isHelpFlag(const QString &str)
 {
-    QString sub = str.split(':').first();
-    return sub;
+    return str == "-h" || str == "--help";
 }
 
-static uint getPort(const QString &str)
+void CliArguments::setError(const QString &command, const QString &error)
 {
-    QString sub = str.split(':').last();
-    return sub.toUInt();
+    cliCommand_ = CLI_COMMAND_INVALID;
+    helpTopic_ = command;
+    error_ = error;
 }
 
-static QString getOptions(const QString &str)
+// Parses an optional "protocol[:port]" argument.  Returns false, with the error set, if it is not one.
+bool CliArguments::parseProtocol(const QString &command, const QString &arg)
 {
-    if (str.startsWith("-")) {
-        return str.mid(1);
+    const QString str = arg.toLower();
+    if (!isProtocol(str)) {
+        setError(command, QString("unknown protocol \"%1\" (quote a location that contains spaces)").arg(arg));
+        return false;
     }
 
-    return "";
-}
-
-void CliArguments::setUsername(const QString &username)
-{
-    username_ = username;
-}
-
-void CliArguments::setPassword(const QString &password)
-{
-    password_ = password;
+    const QStringList parts = str.split(':');
+    if (parts.size() > 2) {
+        setError(command, QString("invalid protocol and port \"%1\"").arg(arg));
+        return false;
+    }
+    if (parts.size() == 2) {
+        bool ok = false;
+        port_ = parts[1].toUInt(&ok);
+        if (!ok || port_ == 0 || port_ > 65535) {
+            setError(command, QString("invalid port \"%1\"").arg(parts[1]));
+            return false;
+        }
+    }
+    protocol_ = parts[0];
+    return true;
 }
 
 void CliArguments::parseConnect(const QStringList &args)
 {
-    if (args.length() <= 2) {
-        cliCommand_ = CLI_COMMAND_CONNECT;
+    QStringList positional;
+    for (const QString &arg : args) {
+        if (arg == "-n" || arg == "-N") {
+            nonBlocking_ = true;
+        } else if (arg.startsWith("-")) {
+            setError("connect", QString("unknown flag \"%1\"").arg(arg));
+            return;
+        } else {
+            positional << arg;
+        }
+    }
+
+    int idx = 0;
+    cliCommand_ = CLI_COMMAND_CONNECT;
+    if (positional.isEmpty()) {
         return;
     }
 
-    int idx = 2;
-    QString arg = args[idx].toLower();
-    if (getOptions(arg) == "n") {
-        nonBlocking_ = true;
+    const QString first = positional[idx].toLower();
+    if (isProtocol(first)) {
+        // Last location with the given protocol.
+    } else if (first == "best") {
+        locationStr_ = "best";
+        cliCommand_ = CLI_COMMAND_CONNECT_BEST;
+        idx++;
+    } else if (first == "static") {
+        if (positional.length() < 2) {
+            setError("connect", "missing static IP city or IP");
+            return;
+        }
+        // Static IP locations are matched exactly, so keep the case.
+        locationStr_ = positional[1];
+        cliCommand_ = CLI_COMMAND_CONNECT_STATIC;
+        idx += 2;
+    } else {
+        locationStr_ = first;
+        cliCommand_ = CLI_COMMAND_CONNECT_LOCATION;
         idx++;
     }
 
-    if (args.length() <= idx) {
-        cliCommand_ = CLI_COMMAND_CONNECT;
+    if (positional.length() > idx && !parseProtocol("connect", positional[idx++])) {
         return;
     }
-    arg = args[idx++].toLower();
-    if (isProtocol(arg)) {
-        protocol_ = getProtocol(arg);
-        port_ = getPort(arg);
-        cliCommand_ = CLI_COMMAND_CONNECT;
-        return;
-    }
-
-    if (arg == "best") {
-        locationStr_ = "best";
-        cliCommand_ = CLI_COMMAND_CONNECT_BEST;
-    } else if (arg == "static") {
-        if (args.length() <= idx) {
-            cliCommand_ = CLI_COMMAND_HELP;
-            return;
-        }
-        locationStr_ = args[idx++];
-        cliCommand_ = CLI_COMMAND_CONNECT_STATIC;
-    } else {
-        locationStr_ = arg;
-        cliCommand_ = CLI_COMMAND_CONNECT_LOCATION;
-    }
-
-    if (args.length() > idx) {
-        arg = args[idx].toLower();
-        if (isProtocol(arg)) {
-            protocol_ = getProtocol(arg);
-            port_ = getPort(arg);
-        }
+    if (positional.length() > idx) {
+        setError("connect", QString("unexpected argument \"%1\"").arg(positional[idx]));
     }
 }
 
 void CliArguments::parseDisconnect(const QStringList &args)
 {
     cliCommand_ = CLI_COMMAND_DISCONNECT;
-    if (args.length() <= 2) {
-        return;
-    }
-
-    int idx = 2;
-    QString arg = args[idx].toLower();
-    if (getOptions(arg) == "n") {
-        nonBlocking_ = true;
+    for (const QString &arg : args) {
+        if (arg == "-n" || arg == "-N") {
+            nonBlocking_ = true;
+        } else {
+            setError("disconnect", QString("unexpected argument \"%1\"").arg(arg));
+            return;
+        }
     }
 }
 
 void CliArguments::parseFirewall(const QStringList &args)
 {
-    if (args.length() <= 2) {
-        cliCommand_ = CLI_COMMAND_HELP;
-        return;
-    }
-
-    QString arg2 = args[2].toLower();
-    if (arg2 == "on") {
+    const QString arg = args.value(0).toLower();
+    if (args.length() != 1 || (arg != "on" && arg != "off")) {
+        setError("firewall", "expected \"on\" or \"off\"");
+    } else if (arg == "on") {
         cliCommand_ = CLI_COMMAND_FIREWALL_ON;
-    } else if (arg2 == "off") {
-        cliCommand_ = CLI_COMMAND_FIREWALL_OFF;
     } else {
-        cliCommand_ = CLI_COMMAND_HELP;
+        cliCommand_ = CLI_COMMAND_FIREWALL_OFF;
     }
 }
 
 void CliArguments::parseIp(const QStringList &args)
 {
-    if (args.length() <= 2) {
-        cliCommand_ = CLI_COMMAND_HELP;
-        return;
-    }
-
-    QString arg2 = args[2].toLower();
-    if (arg2 == "rotate") {
+    const QString arg = args.value(0).toLower();
+    if (arg == "rotate" && args.length() == 1) {
         cliCommand_ = CLI_COMMAND_IP_ROTATE;
-    } else if (arg2 == "fav") {
+    } else if (arg == "fav" && args.length() == 1) {
         cliCommand_ = CLI_COMMAND_IP_FAV;
-    } else if (arg2 == "unfav") {
-        if (args.length() <= 3) {
-            cliCommand_ = CLI_COMMAND_HELP;
-            return;
-        }
-        ipAddress_ = args[3];
+    } else if (arg == "unfav" && args.length() == 2) {
+        ipAddress_ = args[1];
         cliCommand_ = CLI_COMMAND_IP_UNFAV;
+    } else if (arg == "unfav" && args.length() == 1) {
+        setError("ip", "missing IP address");
     } else {
-        cliCommand_ = CLI_COMMAND_HELP;
+        setError("ip", "expected \"rotate\", \"fav\", or \"unfav <ip>\"");
     }
 }
 
 void CliArguments::parseKeyLimit(const QStringList &args)
 {
-    if (args.length() <= 2) {
-        cliCommand_ = CLI_COMMAND_HELP;
+    const QString arg = args.value(0).toLower();
+    if (args.length() != 1 || (arg != "keep" && arg != "delete")) {
+        setError("keylimit", "expected \"keep\" or \"delete\"");
         return;
     }
-
     cliCommand_ = CLI_COMMAND_SET_KEYLIMIT_BEHAVIOR;
-    QString arg2 = args[2].toLower();
-    if (arg2 == "keep") {
-        keyLimitDelete_ = false;
-    } else if (arg2 == "delete") {
-        keyLimitDelete_ = true;
-    } else {
-        cliCommand_ = CLI_COMMAND_HELP;
-    }
+    keyLimitDelete_ = (arg == "delete");
 }
 
 void CliArguments::parseIgnoreSslErrors(const QStringList &args)
 {
-    if (args.length() <= 2) {
-        cliCommand_ = CLI_COMMAND_HELP;
+    const QString arg = args.value(0).toLower();
+    if (args.length() != 1 || (arg != "on" && arg != "off")) {
+        setError("ignoresslerrors", "expected \"on\" or \"off\"");
         return;
     }
-
     cliCommand_ = CLI_COMMAND_SET_IGNORE_SSL_ERRORS;
-    QString arg2 = args[2].toLower();
-    if (arg2 == "off") {
-        ignoreSslErrors_ = false;
-    } else if (arg2 == "on") {
-        ignoreSslErrors_ = true;
-    } else {
-        cliCommand_ = CLI_COMMAND_HELP;
-    }
+    ignoreSslErrors_ = (arg == "on");
 }
 
 void CliArguments::parseLocations(const QStringList &args)
 {
-    if (args.length() <= 2) {
+    const QString arg = args.value(0).toLower();
+    if (args.isEmpty()) {
         cliCommand_ = CLI_COMMAND_LOCATIONS;
-        return;
-    }
-
-    QString arg2 = args[2].toLower();
-    if (arg2 == "fav") {
+    } else if (arg == "fav" && args.length() == 1) {
         cliCommand_ = CLI_COMMAND_LOCATIONS_FAV;
-    } else if (arg2 == "static") {
+    } else if (arg == "static" && args.length() == 1) {
         cliCommand_ = CLI_COMMAND_LOCATIONS_STATIC;
+    } else {
+        setError("locations", "expected nothing, \"fav\", or \"static\"");
     }
 }
 
 void CliArguments::parsePorts(const QStringList &args)
 {
-    if (args.length() <= 2) {
-        cliCommand_ = CLI_COMMAND_HELP;
+    if (args.isEmpty()) {
+        setError("ports", "missing protocol");
+        return;
+    }
+    if (args.length() > 1) {
+        setError("ports", QString("unexpected argument \"%1\"").arg(args[1]));
         return;
     }
 
-    QString arg2 = args[2].toLower();
-    if (isProtocol(arg2)) {
-        protocol_ = getProtocol(arg2);
-        cliCommand_ = CLI_COMMAND_PORTS;
-    } else {
-        cliCommand_ = CLI_COMMAND_HELP;
+    const QString arg = args[0].toLower();
+    if (!isProtocol(arg) || arg.contains(':')) {
+        setError("ports", QString("unknown protocol \"%1\"").arg(args[0]));
+        return;
     }
+    protocol_ = arg;
+    cliCommand_ = CLI_COMMAND_PORTS;
 }
 
 void CliArguments::parseLogin(const QStringList &args)
 {
-    cliCommand_ = CLI_COMMAND_LOGIN;
-
-    if (args.length() <= 2) {
+    if (args.length() > 2) {
+        setError("login", "too many arguments; quote a username or password that contains spaces");
         return;
     }
-
-    int idx = 2;
-    if (args.length() > idx) {
-        // More positional arguments exist, consider it 'username'
-        username_ = args.at(idx++);
-    }
-
-    if (args.length() > idx) {
-        // More positional arguments exist, consider it 'password'
-        password_ = args.at(idx++);
-    }
+    cliCommand_ = CLI_COMMAND_LOGIN;
+    username_ = args.value(0);
+    password_ = args.value(1);
 }
 
 void CliArguments::parseLogout(const QStringList &args)
 {
-    if (args.length() < 2) {
-        cliCommand_ = CLI_COMMAND_HELP;
+    const QString arg = args.value(0).toLower();
+    if (args.length() > 1 || (!args.isEmpty() && arg != "on" && arg != "off")) {
+        setError("logout", "expected nothing, \"on\", or \"off\"");
         return;
     }
-
     cliCommand_ = CLI_COMMAND_LOGOUT;
-    if (args.length() == 2) {
-        return;
-    }
-
-    int idx = 2;
-    if (args.length() > idx && args[idx].toLower() == "on") {
-        keepFirewallOn_ = true;
-    } else {
-        keepFirewallOn_ = false;
-    }
+    keepFirewallOn_ = (arg == "on");
 }
 
 void CliArguments::parsePreferences(const QStringList &args)
 {
-    if (args.length() <= 2) {
-        cliCommand_ = CLI_COMMAND_HELP;
-        return;
-    }
-
-    QString arg2 = args[2].toLower();
-    if (arg2 == "reload") {
+    if (args.length() == 1 && args[0].toLower() == "reload") {
         cliCommand_ = CLI_COMMAND_RELOAD_CONFIG;
     } else {
-        cliCommand_ = CLI_COMMAND_HELP;
+        setError("", "unknown command \"preferences\"");
     }
 }
 
 void CliArguments::parseLogs(const QStringList &args)
 {
-    if (args.length() <= 2) {
-        cliCommand_ = CLI_COMMAND_HELP;
-        return;
-    }
-
-    QString arg2 = args[2].toLower();
-    if (arg2 == "send") {
+    if (args.length() == 1 && args[0].toLower() == "send") {
         cliCommand_ = CLI_COMMAND_SEND_LOGS;
     } else {
-        cliCommand_ = CLI_COMMAND_HELP;
+        setError("logs", "expected \"send\"");
     }
 }
 
@@ -298,44 +252,84 @@ void CliArguments::processArguments()
         return;
     }
 
-    QString arg1 = args[1].toLower();
-    if (arg1 == "connect") {
-        parseConnect(args);
-    } else if (arg1 == "disconnect") {
-        parseDisconnect(args);
-    } else if (arg1 == "firewall") {
-        parseFirewall(args);
-    } else if (arg1 == "?" || arg1 == "help") {
+    const QString command = args[1].toLower();
+    const QStringList rest = args.mid(2);
+
+    if (command == "help" || command == "?" || isHelpFlag(command)) {
         cliCommand_ = CLI_COMMAND_HELP;
-#ifdef CLI_ONLY
-    } else if (arg1 == "keylimit") {
-        parseKeyLimit(args);
-    } else if (arg1 == "ignoresslerrors") {
-        parseIgnoreSslErrors(args);
-#endif
-    } else if (arg1 == "ip") {
-        parseIp(args);
-    } else if (arg1 == "amneziawg") {
-        cliCommand_ = CLI_COMMAND_AMNEZIAWG;
-    } else if (arg1 == "locations") {
-        parseLocations(args);
-    } else if (arg1 == "ports") {
-        parsePorts(args);
-    } else if (arg1 == "login") {
-        parseLogin(args);
-    } else if (arg1 == "logout") {
-        parseLogout(args);
-    } else if (arg1 == "status") {
-        cliCommand_ = CLI_COMMAND_STATUS;
-#ifdef CLI_ONLY
-    } else if (arg1 == "preferences") {
-        parsePreferences(args);
-#endif
-    } else if (arg1 == "update") {
-        cliCommand_ = CLI_COMMAND_UPDATE;
-    } else if (arg1 == "logs") {
-        parseLogs(args);
+        if (!rest.isEmpty()) {
+            helpTopic_ = rest[0].toLower();
+            if (!Help::isCommand(helpTopic_)) {
+                setError("", QString("unknown command \"%1\"").arg(rest[0]));
+            }
+        }
+        return;
     }
+
+    if (command == "version" || command == "-v" || command == "--version") {
+        cliCommand_ = CLI_COMMAND_VERSION;
+        return;
+    }
+
+    // "<command> --help".  A username or password could look like a flag, so for login only the first argument counts.
+    if (Help::isCommand(command)) {
+        const bool wantsHelp = (command == "login") ? isHelpFlag(rest.value(0)) : std::any_of(rest.begin(), rest.end(), isHelpFlag);
+        if (wantsHelp) {
+            cliCommand_ = CLI_COMMAND_HELP;
+            helpTopic_ = command;
+            return;
+        }
+    }
+
+    if (command == "connect") {
+        parseConnect(rest);
+    } else if (command == "disconnect") {
+        parseDisconnect(rest);
+    } else if (command == "firewall") {
+        parseFirewall(rest);
+#ifdef CLI_ONLY
+    } else if (command == "keylimit") {
+        parseKeyLimit(rest);
+    } else if (command == "ignoresslerrors") {
+        parseIgnoreSslErrors(rest);
+    } else if (command == "preferences") {
+        parsePreferences(rest);
+#endif
+    } else if (command == "ip") {
+        parseIp(rest);
+    } else if (command == "locations") {
+        parseLocations(rest);
+    } else if (command == "ports") {
+        parsePorts(rest);
+    } else if (command == "login") {
+        parseLogin(rest);
+    } else if (command == "logout") {
+        parseLogout(rest);
+    } else if (command == "logs") {
+        parseLogs(rest);
+    } else if (command == "status" || command == "update" || command == "amneziawg") {
+        if (!rest.isEmpty()) {
+            setError(command, QString("unexpected argument \"%1\"").arg(rest[0]));
+        } else if (command == "status") {
+            cliCommand_ = CLI_COMMAND_STATUS;
+        } else if (command == "update") {
+            cliCommand_ = CLI_COMMAND_UPDATE;
+        } else {
+            cliCommand_ = CLI_COMMAND_AMNEZIAWG;
+        }
+    } else {
+        setError("", QString("unknown command \"%1\"").arg(args[1]));
+    }
+}
+
+const QString &CliArguments::helpTopic() const
+{
+    return helpTopic_;
+}
+
+const QString &CliArguments::error() const
+{
+    return error_;
 }
 
 CliCommand CliArguments::cliCommand() const

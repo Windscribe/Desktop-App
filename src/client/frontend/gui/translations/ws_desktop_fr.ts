@@ -2386,6 +2386,10 @@ Connectez-vous d&apos;abord à un réseau</translation>
 <context>
     <name>PreferencesWindow::SplitTunnelingAppsGroup</name>
     <message>
+        <source>This app is already in the list.</source>
+        <translation>Cette application figure déjà dans la liste.</translation>
+    </message>
+    <message>
         <source>There are too many apps in the list. Please remove some before adding more.</source>
         <translation>Trop d&apos;applications dans la liste. Veuillez en supprimer avant d&apos;en ajouter d&apos;autres.</translation>
     </message>

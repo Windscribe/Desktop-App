@@ -14,7 +14,6 @@ public:
     explicit SplitTunnelingAppsWindowItem(ScalableGraphicsObject *parent, Preferences *preferences);
 
     QString caption() const override;
-    QList<types::SplitTunnelingApp> getApps();
     void addAppManually(types::SplitTunnelingApp app);
     void ensureAppsPopulated();
 

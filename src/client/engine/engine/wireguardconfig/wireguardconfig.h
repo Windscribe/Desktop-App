@@ -42,8 +42,6 @@ public:
     // from the node descriptor at connect time, so they are intentionally not part of this check.
     bool haveCompleteConfig() const;
 
-    QString generateConfigFile() const;
-
     bool generateKeyPair();
     bool haveKeyPair() const;
     void setKeyPair(const QString& publicKey, const QString& privateKey);

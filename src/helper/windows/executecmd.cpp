@@ -48,8 +48,12 @@ ExecuteCmdResult ExecuteCmd::executeBlockingCmd(const std::wstring &cmd, HANDLE 
                                                 CREATE_NO_WINDOW | NORMAL_PRIORITY_CLASS, NULL, NULL, &si, &pi);
 
     if (run_result) {
-        WaitForSingleObject(pi.hProcess, INFINITE);
-        GetExitCodeProcess(pi.hProcess, &res.exitCode);
+        if (WaitForSingleObject(pi.hProcess, INFINITE) == WAIT_FAILED) {
+            spdlog::error("executeBlockingCmd WaitForSingleObject failed: {}", ::GetLastError());
+        }
+        if (!GetExitCodeProcess(pi.hProcess, &res.exitCode)) {
+            spdlog::error("executeBlockingCmd GetExitCodeProcess failed: {}", ::GetLastError());
+        }
 
         pipeWrite.closeHandle();
         res.output = toWString(Utils::readAllFromPipe(pipeRead.getHandle()));

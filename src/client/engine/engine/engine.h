@@ -327,16 +327,12 @@ private slots:
 
     void onMacAddressSpoofingChanged(const types::MacAddrSpoofing &macAddrSpoofing);
     void onMacAddressControllerSendUserWarning(USER_WARNING_TYPE userWarningType);
-#ifdef Q_OS_MACOS
-    void onMacAddressControllerMacSpoofApplied();
-#endif
 
     void stopPacketDetectionImpl();
 
     void onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, ConnectError err, const QString &errorDetail, const LocationID &location);
 
 #ifdef Q_OS_MACOS
-    void onMacSpoofTimerTick();
     void onSystemExtensionStateChanged(SystemExtensions_mac::SystemExtensionState newState);
 #endif
 
@@ -403,8 +399,6 @@ private:
     DownloadHelper *downloadHelper_;
 #ifdef Q_OS_MACOS
     AutoUpdaterHelper_mac *autoUpdaterHelper_;
-    QDateTime macSpoofTimerStart_;
-    QTimer *macSpoofTimer_;
     // Last reported split tunnel extension availability, so unchanged availability is not re-emitted
     // on every recheck.
     std::optional<bool> lastSystemExtensionAvailability_;
@@ -510,6 +504,9 @@ private:
     QString customConfigFilename_;
     bool customConfigAllowFirewall_ = true;
     std::optional<bool> wasPremium_;
+    // What this instance last wrote to the settings file.
+    std::optional<std::string> savedWsnetSettings_;
+    std::optional<QString> savedUserId_;
 
     api_responses::AmneziawgUnblockParams amneziawgParams_;
     QString apiSuggestedAmneziawgPreset_;

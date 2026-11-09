@@ -7,10 +7,8 @@
 
 #include "backendcommander.h"
 #include "cliarguments.h"
-#include "languagecontroller.h"
+#include "help.h"
 #include "strings.h"
-#include "utils.h"
-#include "utils/languagesutil.h"
 #include "utils/log/logger.h"
 #include "utils/log/paths.h"
 #include "utils/systemwideapplock.h"
@@ -35,15 +33,11 @@
 // Only seems to happen when debugger is attached to CLI
 // (observation made with GUI and Engine each running in Qt Creator instances in debug mode)
 
-void logAndCout(const QString & str);
+// Errors go to stderr, everything else to stdout.
+void logAndCout(const QString &str, bool isError = false);
 
 int main(int argc, char *argv[])
 {
-    if (Utils::isCLIRunning(1)) {
-        logAndCout("Windscribe CLI is already running");
-        return 1;
-    }
-
     // clear Qt plugin library paths for release build
 #ifndef QT_DEBUG
     QCoreApplication::setLibraryPaths(QStringList());
@@ -52,106 +46,32 @@ int main(int argc, char *argv[])
     QCoreApplication::setApplicationName(WS_SETTINGS_APP);
     QCoreApplication::setOrganizationName(WS_SETTINGS_ORG);
 
-    log_utils::Logger::instance().install(log_utils::paths::cliLogLocation(), false);
-
-    qCInfo(LOG_CLI) << "=== Started ===";
-    qCInfo(LOG_CLI) << "OS Version:" << Utils::getOSVersion();
-
     QCoreApplication a(argc, argv);
 
     CliArguments cliArgs;
     cliArgs.processArguments();
 
-    LanguageController::instance().setLanguage(LanguagesUtil::systemLanguage());
-
+    // Help, version, and argument errors don't talk to the app, so they work while another CLI instance is running.
+    // They don't log either: installing the logger rotates the log file another instance may be writing.
     if (cliArgs.cliCommand() == CLI_COMMAND_NONE || cliArgs.cliCommand() == CLI_COMMAND_HELP) {
-        qCDebug(LOG_CLI) << "Printing help menu";
-        std::cout << "windscribe-cli v" << WS_VERSION << std::endl;
-        std::cout << std::endl;
-        std::cout << "windscribe-cli <command>:" << std::endl;
-        std::cout << std::endl;
-#ifdef Q_OS_LINUX
-        std::cout << "Protocols: " << "wireguard, udp, tcp, stealth, wstunnel" << std::endl;
-#else
-        std::cout << "Protocols: " << "wireguard, ikev2, udp, tcp, stealth, wstunnel" << std::endl;
-#endif
-        std::cout << std::endl;
-        std::cout << "Authenticating with Windscribe" << std::endl;
-        std::cout << "    login [username [password]]" << std::endl;
-        std::cout << "        " << "Login with given credentials." << std::endl;
-        std::cout << "        " << "If any input has special characters in it, it should be wrapped in single quotes or escaped." << std::endl;
-        std::cout << "        " << "If any credentials are not provided, a prompt will be presented. 2FA code is always prompted if required." << std::endl;
-        std::cout << "    logout [on|off]" << std::endl;
-        std::cout << "        " << "Sign out of the application, and optionally leave the firewall ON/OFF" << std::endl;
-        std::cout << std::endl;
-        std::cout << "Getting application state" << std::endl;
-        std::cout << "    status" << std::endl;
-        std::cout << "        " << "View basic login, connection, and account information" << std::endl;
-        std::cout << "    locations [fav|static]" << std::endl;
-        std::cout << "        " << "View a list of available locations." << std::endl;
-        std::cout << "        " << "If 'fav' is present, show favourited locations/IPs instead" << std::endl;
-        std::cout << "        " << "If 'static' is present, show static IP locations instead" << std::endl;
-        std::cout << "    ports protocol" << std::endl;
-        std::cout << "        " << "View available ports for the specified protocol" << std::endl;
-#ifdef CLI_ONLY
-        std::cout << "    amneziawg" << std::endl;
-        std::cout << "        " << "View a list of available AmneziaWG circumvent censorship configurations" << std::endl;
-#endif
-        std::cout << std::endl;
-#ifdef CLI_ONLY
-        std::cout << "Managing preferences" << std::endl;
-        std::cout << "    The preferences conf file is located at ~/.config/Windscribe/windscribe_cli.conf." << std::endl;
-        std::cout << "    Changes are applied automatically as soon as the file is saved." << std::endl;
-        std::cout << std::endl;
-#endif
-        std::cout << "Managing VPN and firewall" << std::endl;
-        std::cout << "    connect [options] [protocol[:port]]" << std::endl;
-        std::cout << "        " << "Connect to last connected location. If no last location, connect to best location." << std::endl;
-        std::cout << "    connect [options] best [protocol[:port]]" << std::endl;
-        std::cout << "        " << "Connect to best location" << std::endl;
-        std::cout << "    connect [options] \"ISO CountryCode\" [protocol[:port]]" << std::endl;
-        std::cout << "    connect [options] \"RegionName\" [protocol[:port]]" << std::endl;
-        std::cout << "    connect [options] \"CityName\" [protocol[:port]]" << std::endl;
-        std::cout << "    connect [options] \"Nickname\" [protocol[:port]]" << std::endl;
-        std::cout << "        " << "Connect to a random datacenter in the specified country, region, or city, or by nickname." << std::endl;
-        std::cout << "    connect [options] static \"CityName\" [protocol[:port]]" << std::endl;
-        std::cout << "    connect [options] static \"IP\" [protocol[:port]]" << std::endl;
-        std::cout << "        " << "Connect to a static IP location by city or by IP." << std::endl;
-#ifdef CLI_ONLY
-        std::cout << "    keylimit keep|delete" << std::endl;
-        std::cout << "        " << "Configure behaviour for the next time during this run that the key limit is reached for WireGuard." << std::endl;
-        std::cout << "        " << "keep [default] - Do not delete key.  Connection attempt will fail if the key limit is reached." << std::endl;
-        std::cout << "        " << "delete - Delete the oldest WireGuard key if key limit is reached." << std::endl;
-        std::cout << "    ignoresslerrors on|off" << std::endl;
-        std::cout << "        " << "Ignore SSL errors for the rest of this session.  Only available if unable to login." << std::endl;
-        std::cout << "        " << "This disables TLS certificate validation and is a security risk." << std::endl;
-        std::cout << "        " << "off [default] - Do not ignore SSL errors." << std::endl;
-        std::cout << "        " << "on - Ignore SSL errors and retry login." << std::endl;
-#endif
-        std::cout << "    disconnect [options]" << std::endl;
-        std::cout << "        " << "Disconnect from current datacenter" << std::endl;
-        std::cout << "    firewall on|off" << std::endl;
-        std::cout << "        " << "Turn firewall on/off" << std::endl;
-        std::cout << std::endl;
-        std::cout << "IP utilities" << std::endl;
-        std::cout << "    You must be connected, and need to be Pro or have the current location in your plan to use these commands." << std::endl;
-        std::cout << std::endl;
-        std::cout << "    ip rotate" << std::endl;
-        std::cout << "        " << "Rotate your IP address to a different one while connected to VPN." << std::endl;
-        std::cout << "    ip fav" << std::endl;
-        std::cout << "        " << "Favourite your current IP address." << std::endl;
-        std::cout << "    ip unfav <ip>" << std::endl;
-        std::cout << "        " << "Unfavourite the provided IP address." << std::endl;
-        std::cout << std::endl;
-        std::cout << "Options: " << std::endl;
-        std::cout << "    -n: non-blocking mode. Command returns immediately instead of waiting to complete." << std::endl;
-        std::cout << std::endl;
-        std::cout << "Application administration" << std::endl;
-        std::cout << "    logs send" << std:: endl;
-        std::cout << "        " << "Send debug log to Windscribe" << std::endl;
-        std::cout << "    update" << std::endl;
-        std::cout << "        " << "Update to the latest available version" << std::endl;
+        std::cout << (cliArgs.helpTopic().isEmpty() ? Help::overview() : Help::command(cliArgs.helpTopic())).toStdString();
         return 0;
+    }
+
+    if (cliArgs.cliCommand() == CLI_COMMAND_VERSION) {
+        std::cout << "windscribe-cli " << WS_VERSION << std::endl;
+        return 0;
+    }
+
+    if (cliArgs.cliCommand() == CLI_COMMAND_INVALID) {
+        std::cerr << "Error: " << cliArgs.error().toStdString() << std::endl;
+        if (cliArgs.helpTopic().isEmpty()) {
+            std::cerr << "Run \"windscribe-cli --help\" for a list of commands." << std::endl;
+        } else {
+            std::cerr << std::endl << Help::usage(cliArgs.helpTopic()).toStdString();
+            std::cerr << std::endl << "Run \"windscribe-cli " << cliArgs.helpTopic().toStdString() << " --help\" for more information." << std::endl;
+        }
+        return 1;
     }
 
 #ifdef CLI_ONLY
@@ -161,27 +81,27 @@ int main(int argc, char *argv[])
     }
 #endif
 
-    // Before anything is started or prompted for: another user's app holds the helper, and ours would only
-    // quit. Read-only, so it cannot get in the way of an app that is starting up.
-    if (SystemWideAppLock::holder() == SystemWideAppLock::Holder::kOtherUser) {
-        logAndCout(appRunningInAnotherSessionString());
+    if (Utils::isCLIRunning(1)) {
+        std::cerr << "Windscribe CLI is already running" << std::endl;
         return 1;
     }
 
-    // If logging in, prompt for any missing credentials
-    if (cliArgs.cliCommand() == CLI_COMMAND_LOGIN) {
-        if (cliArgs.username().isEmpty()) {
-            cliArgs.setUsername(Utils::getInput("Username: ", false));
-        }
-        if (cliArgs.password().isEmpty()) {
-            cliArgs.setPassword(Utils::getInput("Password: ", true));
-        }
+    log_utils::Logger::instance().install(log_utils::paths::cliLogLocation(), false);
+
+    qCInfo(LOG_CLI) << "=== Started ===";
+    qCInfo(LOG_CLI) << "OS Version:" << Utils::getOSVersion();
+
+    // Before anything is started or prompted for: another user's app holds the helper, and ours would only
+    // quit. Read-only, so it cannot get in the way of an app that is starting up.
+    if (SystemWideAppLock::holder() == SystemWideAppLock::Holder::kOtherUser) {
+        logAndCout(appRunningInAnotherSessionString(), true);
+        return 1;
     }
 
     BackendCommander *backendCommander = new BackendCommander(cliArgs);
 
     QObject::connect(backendCommander, &BackendCommander::finished, [&](int returnCode, const QString &msg) {
-        logAndCout(msg);
+        logAndCout(msg, returnCode != 0);
         backendCommander->deleteLater();
         backendCommander = nullptr;
         a.exit(returnCode);
@@ -197,13 +117,13 @@ int main(int argc, char *argv[])
 #ifdef CLI_ONLY
         uid_t uid = geteuid();
         if (uid == 0) {
-            logAndCout("Error: this application should not run as root.");
+            logAndCout("Error: this application should not run as root.", true);
             return -1;
         }
 
         int err = system("systemctl --user daemon-reload && systemctl --user enable windscribe && systemctl --user start windscribe");
         if (err != 0) {
-            logAndCout("Could not start application");
+            logAndCout("Could not start application", true);
             return err;
         }
         backendCommander->initAndSend();
@@ -242,12 +162,12 @@ int main(int argc, char *argv[])
     return a.exec();
 }
 
-void logAndCout(const QString &str)
+void logAndCout(const QString &str, bool isError)
 {
     if (str.isEmpty()) {
         return;
     }
     qCInfo(LOG_CLI) << str;
-    std::cout << str.toStdString() << std::endl;
+    (isError ? std::cerr : std::cout) << str.toStdString() << std::endl;
 }
 

@@ -70,11 +70,12 @@ struct GuiSettings
 #ifdef CLI_ONLY
     void fromIni(QSettings &settings)
     {
-        isLaunchOnStartup = settings.value(kIniIsLaunchOnStartupProp, isLaunchOnStartup).toBool();
+        const GuiSettings defaults;
+        isLaunchOnStartup = settings.value(kIniIsLaunchOnStartupProp, defaults.isLaunchOnStartup).toBool();
 
         settings.beginGroup(QString("Connection"));
-        isAutoConnect = settings.value(kIniIsAutoConnectProp, isAutoConnect).toBool();
-        isAutoSecureNetworks = settings.value(kIniIsAutoSecureNetworksProp, isAutoSecureNetworks).toBool();
+        isAutoConnect = settings.value(kIniIsAutoConnectProp, defaults.isAutoConnect).toBool();
+        isAutoSecureNetworks = settings.value(kIniIsAutoSecureNetworksProp, defaults.isAutoSecureNetworks).toBool();
 
         shareProxyGateway.fromIni(settings);
         splitTunneling.fromIni(settings);

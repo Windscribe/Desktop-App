@@ -97,23 +97,29 @@ struct ShareProxyGateway
 #ifdef CLI_ONLY
     void fromIni(const QSettings &settings)
     {
-        isEnabled = settings.value(kIniIsEnabledProp, isEnabled).toBool();
-        proxySharingMode = enumFromString<PROXY_SHARING_TYPE>(settings.value(kIniProxySharingModeProp, enumToString(proxySharingMode)).toString());
-        uint p = settings.value(kIniPortProp, port).toUInt();
+        const ShareProxyGateway defaults;
+        isEnabled = settings.value(kIniIsEnabledProp, defaults.isEnabled).toBool();
+        proxySharingMode = enumFromString<PROXY_SHARING_TYPE>(
+            settings.value(kIniProxySharingModeProp, enumToString(defaults.proxySharingMode)).toString());
+        uint p = settings.value(kIniPortProp, defaults.port).toUInt();
         if (p < 65536) {
             port = p;
+        } else {
+            port = defaults.port;
         }
-        whileConnected = settings.value(kIniWhileConnectedProp, whileConnected).toBool();
+        whileConnected = settings.value(kIniWhileConnectedProp, defaults.whileConnected).toBool();
         // A pre-auth INI that had the gateway enabled keeps requireAuth=false
         // to avoid breaking an existing setup.
         if (settings.contains(kIniRequireAuthProp)) {
-            requireAuth = settings.value(kIniRequireAuthProp, requireAuth).toBool();
+            requireAuth = settings.value(kIniRequireAuthProp, defaults.requireAuth).toBool();
         } else if (isEnabled) {
             requireAuth = false;
             upgradedFromV3 = true;
+        } else {
+            requireAuth = defaults.requireAuth;
         }
-        username = settings.value(kIniUsernameProp, username).toString();
-        password = settings.value(kIniPasswordProp, password).toString();
+        username = settings.value(kIniUsernameProp, defaults.username).toString();
+        password = settings.value(kIniPasswordProp, defaults.password).toString();
     }
 
     void toIni(QSettings &settings) const

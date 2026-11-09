@@ -224,7 +224,8 @@ bool CalloutFilter::enable(UINT32 localIp, UINT32 vpnIp,
     const bool v6ExclusiveDestinationBlock = isExclude;
     if (success && vpnIfIndex != 0 && (v6InclusiveAntiLeak || v6ExclusiveDestinationBlock)) {
         NET_LUID vpnLuid = { 0 };
-        if (ConvertInterfaceIndexToLuid(static_cast<NET_IFINDEX>(vpnIfIndex), &vpnLuid) == NO_ERROR) {
+        NETIO_STATUS luidRet = ConvertInterfaceIndexToLuid(static_cast<NET_IFINDEX>(vpnIfIndex), &vpnLuid);
+        if (luidRet == NO_ERROR) {
             v6AntiLeakActive_ = true;
             v6AntiLeakIsExclude_ = isExclude;
             v6AntiLeakVpnLuid_ = vpnLuid.Value;
@@ -238,7 +239,7 @@ bool CalloutFilter::enable(UINT32 localIp, UINT32 vpnIp,
             // Reachable only in exclusive mode when addFilters() didn't already convert
             // (and fail on) the same index — no per-app v6 BLOCK was installed there.
             // Fail enable() rather than silently leak excluded destinations' v6.
-            spdlog::error("CalloutFilter::enable(), ConvertInterfaceIndexToLuid failed for vpnIfIndex={}", vpnIfIndex);
+            spdlog::error("CalloutFilter::enable(), ConvertInterfaceIndexToLuid failed for vpnIfIndex={}: {}", vpnIfIndex, luidRet);
             success = false;
         }
     }
@@ -505,7 +506,7 @@ bool CalloutFilter::addCallouts(HANDLE engineHandle, bool withV6)
         callout.flags |= FWPM_CALLOUT_FLAG_USES_PROVIDER_CONTEXT;
         DWORD ret = FwpmCalloutAdd(engineHandle, &callout, NULL, &calloutId);
         if (ret != ERROR_SUCCESS) {
-            spdlog::error("CalloutFilter::addCallouts(), FwpmCalloutAdd (non-TCP) failed");
+            spdlog::error("CalloutFilter::addCallouts(), FwpmCalloutAdd (non-TCP) failed: {}", ret);
             return false;
         }
     }
@@ -520,7 +521,7 @@ bool CalloutFilter::addCallouts(HANDLE engineHandle, bool withV6)
         callout.flags |= FWPM_CALLOUT_FLAG_USES_PROVIDER_CONTEXT;
         DWORD ret = FwpmCalloutAdd(engineHandle, &callout, NULL, &calloutId);
         if (ret != ERROR_SUCCESS) {
-            spdlog::error("CalloutFilter::addCallouts(), FwpmCalloutAdd (TCP) failed");
+            spdlog::error("CalloutFilter::addCallouts(), FwpmCalloutAdd (TCP) failed: {}", ret);
             return false;
         }
     }
@@ -535,7 +536,7 @@ bool CalloutFilter::addCallouts(HANDLE engineHandle, bool withV6)
             callout.flags |= FWPM_CALLOUT_FLAG_USES_PROVIDER_CONTEXT;
             DWORD ret = FwpmCalloutAdd(engineHandle, &callout, NULL, &calloutId);
             if (ret != ERROR_SUCCESS) {
-                spdlog::error("CalloutFilter::addCallouts(), FwpmCalloutAdd (non-TCP v6) failed");
+                spdlog::error("CalloutFilter::addCallouts(), FwpmCalloutAdd (non-TCP v6) failed: {}", ret);
                 return false;
             }
         }
@@ -549,7 +550,7 @@ bool CalloutFilter::addCallouts(HANDLE engineHandle, bool withV6)
             callout.flags |= FWPM_CALLOUT_FLAG_USES_PROVIDER_CONTEXT;
             DWORD ret = FwpmCalloutAdd(engineHandle, &callout, NULL, &calloutId);
             if (ret != ERROR_SUCCESS) {
-                spdlog::error("CalloutFilter::addCallouts(), FwpmCalloutAdd (TCP v6) failed");
+                spdlog::error("CalloutFilter::addCallouts(), FwpmCalloutAdd (TCP v6) failed: {}", ret);
                 return false;
             }
         }
@@ -567,7 +568,7 @@ bool CalloutFilter::addSubLayer(HANDLE engineHandle)
 
     DWORD dwFwAPiRetCode = FwpmSubLayerAdd(engineHandle, &subLayer, NULL);
     if (dwFwAPiRetCode != ERROR_SUCCESS) {
-        spdlog::error("CalloutFilter::addSubLayer(), FwpmSubLayerAdd failed");
+        spdlog::error("CalloutFilter::addSubLayer(), FwpmSubLayerAdd failed: {}", dwFwAPiRetCode);
         return false;
     }
     return true;
@@ -850,11 +851,12 @@ bool CalloutFilter::addFilters(HANDLE engineHandle, bool withTcpFilters, bool wi
     // enable()).
     if (!isExclude && vpnIfIndex != 0 && appsIds.count() > 0) {
         NET_LUID vpnLuid = { 0 };
-        if (ConvertInterfaceIndexToLuid(static_cast<NET_IFINDEX>(vpnIfIndex), &vpnLuid) != NO_ERROR) {
+        NETIO_STATUS luidRet = ConvertInterfaceIndexToLuid(static_cast<NET_IFINDEX>(vpnIfIndex), &vpnLuid);
+        if (luidRet != NO_ERROR) {
             // This is now the only path that would silently skip the anti-leak BLOCK, so
             // treat it as fatal: fail addFilters() so enable() does not report a working
             // split tunnel that leaks v6.
-            spdlog::error("CalloutFilter::addFilters(), ConvertInterfaceIndexToLuid failed for vpnIfIndex={}", vpnIfIndex);
+            spdlog::error("CalloutFilter::addFilters(), ConvertInterfaceIndexToLuid failed for vpnIfIndex={}: {}", vpnIfIndex, luidRet);
             return false;
         }
 
@@ -898,10 +900,11 @@ bool CalloutFilter::addFilters(HANDLE engineHandle, bool withTcpFilters, bool wi
     // separately via setV6WhitelistIps).
     if (isExclude && !withV6 && vpnIfIndex != 0 && appsIds.count() > 0) {
         NET_LUID vpnLuid = { 0 };
-        if (ConvertInterfaceIndexToLuid(static_cast<NET_IFINDEX>(vpnIfIndex), &vpnLuid) != NO_ERROR) {
+        NETIO_STATUS luidRet = ConvertInterfaceIndexToLuid(static_cast<NET_IFINDEX>(vpnIfIndex), &vpnLuid);
+        if (luidRet != NO_ERROR) {
             // Same reasoning as the inclusive branch above: this is the only way to silently
             // end up without the block, so fail loudly.
-            spdlog::error("CalloutFilter::addFilters(), ConvertInterfaceIndexToLuid failed for vpnIfIndex={}", vpnIfIndex);
+            spdlog::error("CalloutFilter::addFilters(), ConvertInterfaceIndexToLuid failed for vpnIfIndex={}: {}", vpnIfIndex, luidRet);
             return false;
         }
 
@@ -934,6 +937,9 @@ bool CalloutFilter::deleteSublayer(HANDLE engineHandle)
     bool b5 = Utils::deleteAllFiltersForSublayer(engineHandle, &SUBLAYER_CALLOUT_GUID, FWPM_LAYER_ALE_AUTH_CONNECT_V6);
     bool b6 = Utils::deleteAllFiltersForSublayer(engineHandle, &SUBLAYER_CALLOUT_GUID, FWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V6);
     DWORD dwRet = FwpmSubLayerDeleteByKey0(engineHandle, &SUBLAYER_CALLOUT_GUID);
+    if (dwRet != NO_ERROR && dwRet != FWP_E_SUBLAYER_NOT_FOUND) {
+        spdlog::error("CalloutFilter::deleteSublayer(), FwpmSubLayerDeleteByKey0 failed: {}", dwRet);
+    }
     return b1 && b2 && b3 && b4 && b5 && b6 && dwRet == NO_ERROR;
 }
 
@@ -945,11 +951,29 @@ bool CalloutFilter::removeAllFilters(FwpmWrapper &fwmpWrapper)
     DWORD ret = deleteSublayer(hEngine);
 
     ret = FwpmCalloutDeleteByKey(hEngine, &BIND_CALLOUT_GUID);
+    if (ret != ERROR_SUCCESS && ret != FWP_E_CALLOUT_NOT_FOUND) {
+        spdlog::error("CalloutFilter::removeAllFilters(), FwpmCalloutDeleteByKey (non-TCP) failed: {}", ret);
+    }
     ret = FwpmCalloutDeleteByKey(hEngine, &TCP_CALLOUT_GUID);
+    if (ret != ERROR_SUCCESS && ret != FWP_E_CALLOUT_NOT_FOUND) {
+        spdlog::error("CalloutFilter::removeAllFilters(), FwpmCalloutDeleteByKey (TCP) failed: {}", ret);
+    }
     ret = FwpmCalloutDeleteByKey(hEngine, &BIND_CALLOUT_V6_GUID);
+    if (ret != ERROR_SUCCESS && ret != FWP_E_CALLOUT_NOT_FOUND) {
+        spdlog::error("CalloutFilter::removeAllFilters(), FwpmCalloutDeleteByKey (non-TCP v6) failed: {}", ret);
+    }
     ret = FwpmCalloutDeleteByKey(hEngine, &TCP_CALLOUT_V6_GUID);
+    if (ret != ERROR_SUCCESS && ret != FWP_E_CALLOUT_NOT_FOUND) {
+        spdlog::error("CalloutFilter::removeAllFilters(), FwpmCalloutDeleteByKey (TCP v6) failed: {}", ret);
+    }
     ret = FwpmProviderContextDeleteByKey(hEngine, &CALLOUT_PROVIDER_CONTEXT_IP_GUID);
+    if (ret != ERROR_SUCCESS && ret != FWP_E_PROVIDER_CONTEXT_NOT_FOUND) {
+        spdlog::error("CalloutFilter::removeAllFilters(), FwpmProviderContextDeleteByKey (IPv4) failed: {}", ret);
+    }
     ret = FwpmProviderContextDeleteByKey(hEngine, &CALLOUT_PROVIDER_CONTEXT_IPV6_GUID);
+    if (ret != ERROR_SUCCESS && ret != FWP_E_PROVIDER_CONTEXT_NOT_FOUND) {
+        spdlog::error("CalloutFilter::removeAllFilters(), FwpmProviderContextDeleteByKey (IPv6) failed: {}", ret);
+    }
 
     fwmpWrapper.endTransaction();
     fwmpWrapper.unlock();

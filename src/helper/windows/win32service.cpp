@@ -47,9 +47,10 @@ void Win32Service::setStatus(DWORD state, DWORD waitHint)
         break;
     }
 
-    // Report to the SCM outside the lock, using a consistent snapshot taken under it.
     if (serviceStatusHandle_ != NULL) {
-        ::SetServiceStatus(serviceStatusHandle_, &serviceStatus_);
+        if (!::SetServiceStatus(serviceStatusHandle_, &serviceStatus_)) {
+            spdlog::error("Win32Service::setStatus - SetServiceStatus({}) failed: {}", state, ::GetLastError());
+        }
     }
 }
 
@@ -105,7 +106,9 @@ DWORD WINAPI Win32Service::SCMHandler(DWORD controlCode, DWORD eventType, LPVOID
     // Requests the service to immediately report its current status information to the SCM.
     case SERVICE_CONTROL_INTERROGATE: {
         std::lock_guard<std::mutex> lock(pThis_->statusMutex_);
-        ::SetServiceStatus(pThis_->serviceStatusHandle_, &pThis_->serviceStatus_);
+        if (!::SetServiceStatus(pThis_->serviceStatusHandle_, &pThis_->serviceStatus_)) {
+            spdlog::error("Win32Service::SCMHandler - SetServiceStatus failed: {}", ::GetLastError());
+        }
         break;
     }
 

@@ -85,20 +85,28 @@ void DownloadHelper::get(QMap<QString, QString> downloads)
 
     busy_ = true;
     progressPercent_ = 0;
-    for (const auto & download : downloads.keys())
-        getInner(download, downloads[download]);
+    for (const auto & download : downloads.keys()) {
+        // One file that cannot be written fails the whole set, the same as a failed reply.
+        if (!getInner(download, downloads[download])) {
+            deleteAllCurrentReplies();
+            busy_ = false;
+            emit finished(DOWNLOAD_STATE_FAIL);
+            return;
+        }
+    }
 }
 
-void DownloadHelper::stop()
+bool DownloadHelper::stop()
 {
     if (!busy_) {
         qCDebug(LOG_DOWNLOADER) << "No download to stop";
-        return;
+        return false;
     }
 
     qCDebug(LOG_DOWNLOADER) << "Stopping download";
     deleteAllCurrentReplies();
     busy_ = false;
+    return true;
 }
 
 void DownloadHelper::onReplyFinished(std::uint64_t requestId, std::shared_ptr<WSNetRequestError> error, const std::string &data)
@@ -178,7 +186,7 @@ void DownloadHelper::onReplyReadyRead(std::uint64_t requestId, const std::string
     }
 }
 
-void DownloadHelper::getInner(const QString url, const QString targetFilenamePath)
+bool DownloadHelper::getInner(const QString url, const QString targetFilenamePath)
 {
     // remove a previously used file if it exists
     QFile::remove(targetFilenamePath);
@@ -189,7 +197,7 @@ void DownloadHelper::getInner(const QString url, const QString targetFilenamePat
     if (!fileAndProgess->file.open(QIODevice::WriteOnly))
     {
         qCWarning(LOG_DOWNLOADER) << "Failed to open file for download" << url;
-        return;
+        return false;
     }
 
     auto callbackFinished = [this] (std::uint64_t requestId, std::uint32_t elapsedMs,
@@ -219,6 +227,7 @@ void DownloadHelper::getInner(const QString url, const QString targetFilenamePat
     fileAndProgess->request = WSNet::instance()->httpNetworkManager()->executeRequestEx(httpRequest, uniqueRequestId_, callbackFinished, callbackProgress, callbackReadyData);
     replies_[uniqueRequestId_] = std::move(fileAndProgess);
     uniqueRequestId_++;
+    return true;
 }
 
 void DownloadHelper::removeAutoUpdateInstallerFiles()

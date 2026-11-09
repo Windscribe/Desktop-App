@@ -5,10 +5,12 @@
 #include <iphlpapi.h>
 
 #include "utils/log/categories.h"
+#include "utils/log/debug_trace.h"
 #include "utils/ws_assert.h"
 
 void AdapterMetricsController_win::updateMetrics(const QString &adapterName, Helper *helper)
 {
+    WS_DEBUG_TRACE_SCOPE("AdapterMetricsController_win::updateMetrics");
     if (adapterName.isEmpty()) {
         qCCritical(LOG_BASIC) << "AdapterMetricsController_win::updateMetrics(), Error, adapterName is empty";
         WS_ASSERT(false);

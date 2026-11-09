@@ -1511,10 +1511,6 @@ Jeśli problem nadal występuje po ponownym uruchomieniu, wyślij dziennik debug
         <translation>Wyłączenie opcji Zezwalaj na ruch w sieci LAN spowoduje, że bezpieczny hotspot przestanie działać.  Czy chcesz wyłączyć hotspot?</translation>
     </message>
     <message>
-        <source>MAC spoofing is not supported on your version of MacOS.</source>
-        <translation>Podszywanie się pod adresy MAC nie jest obsługiwane w używanej wersji systemu MacOS.</translation>
-    </message>
-    <message>
         <source>Automatically determine the MTU for your connection, or manually override.  This has no effect on TCP-based protocols.</source>
         <translation>Automatycznie określ jednostkę MTU dla swojego połączenia lub zastąp ją ręcznie.  Nie ma to wpływu na protokoły oparte na protokole TCP.</translation>
     </message>
@@ -2381,6 +2377,10 @@ Najpierw połącz się z siecią</translation>
 </context>
 <context>
     <name>PreferencesWindow::SplitTunnelingAppsGroup</name>
+    <message>
+        <source>This app is already in the list.</source>
+        <translation>Ta aplikacja jest już na liście.</translation>
+    </message>
     <message>
         <source>There are too many apps in the list. Please remove some before adding more.</source>
         <translation>Na liście jest zbyt wiele aplikacji. Usuń niektóre z nich, zanim dodasz kolejne.</translation>

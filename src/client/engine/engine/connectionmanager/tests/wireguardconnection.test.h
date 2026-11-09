@@ -23,6 +23,8 @@ private slots:
     void testAnswerSuccessStripsWhenIpv4Only();
     void testAnswerSuccessInvalidNodeIp();
     void testAnswerAppliesAmneziaPresetParam();
+    void testAnswerUnknownPresetFallsBackToTheFirstAndWarns();
+    void testAnswerBuiltInPresetWithoutAListDoesNotWarn();
     void testAnswerEmptyPresetClearsAmneziaParam();
     void testAnswerKeyLimit();
     void testAnswerFailoverFailed();

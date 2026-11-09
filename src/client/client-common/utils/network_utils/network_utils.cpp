@@ -57,18 +57,6 @@ QString NetworkUtils::normalizeMacAddress(const QString &str)
     return macAddr.toUpper();
 }
 
-QVector<types::NetworkInterface> NetworkUtils::interfacesExceptOne(const QVector<types::NetworkInterface> &interfaces, const types::NetworkInterface &exceptInterface)
-{
-    auto differentInterfaceName = [&exceptInterface](const types::NetworkInterface &ni)
-    {
-        return ni.interfaceName != exceptInterface.interfaceName;
-    };
-
-    QVector<types::NetworkInterface> resultInterfaces;
-    std::copy_if(interfaces.begin(), interfaces.end(),  std::back_inserter(resultInterfaces), differentInterfaceName);
-    return resultInterfaces;
-}
-
 bool NetworkUtils::pingWithMtu(const QString &url, int mtu)
 {
 #ifdef Q_OS_WIN

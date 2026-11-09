@@ -24,10 +24,14 @@ MacAddressController_linux::~MacAddressController_linux()
 void MacAddressController_linux::initMacAddrSpoofing(const types::MacAddrSpoofing &spoofing)
 {
     spoofing_ = spoofing;
+    refreshSelectedInterface();
 
     if (spoofing.isEnabled) {
         enableSpoofing(spoofing_.isAutoRotate);
     }
+
+    // Echo the refreshed selection so the frontend persists it.
+    emit macAddrSpoofingChanged(spoofing_);
 }
 
 void MacAddressController_linux::setMacAddrSpoofing(const types::MacAddrSpoofing &spoofing)
@@ -70,7 +74,7 @@ void MacAddressController_linux::enableSpoofing(bool networkChanged)
     types::NetworkInterface interface;
     networkDetectionManager_->getCurrentNetworkInterface(interface);
 
-    if (interface.interfaceIndex != spoofing_.selectedNetworkInterface.interfaceIndex) {
+    if (interface.interfaceName != spoofing_.selectedNetworkInterface.interfaceName) {
         // Current interface is not the spoofed interface, ignore
 #ifdef CLI_ONLY
         helper_->resetMacAddresses(spoofing_.selectedNetworkInterface.interfaceName);
@@ -111,21 +115,9 @@ void MacAddressController_linux::disableSpoofing()
 void MacAddressController_linux::onNetworkListChanged(const QList<types::NetworkInterface> &interfaces)
 {
     spoofing_.networkInterfaces = interfaces;
-
-    // Check if the spoofed adapter is still in the list.
-    bool found = false;
-    for (const types::NetworkInterface &interface : interfaces) {
-        if (spoofing_.selectedNetworkInterface.interfaceIndex == interface.interfaceIndex) {
-            spoofing_.selectedNetworkInterface = interface;
-            found = true;
-            break;
-        }
-    }
-
-    if (!found) {
-        spoofing_.selectedNetworkInterface = types::NetworkInterface::noNetworkInterface();
-        spoofing_.isEnabled = false;
-    }
+    // A Wi-Fi adapter is missing from the list whenever it is not associated (suspend, NetworkManager restart),
+    // so an absent adapter keeps its selection and spoofing is reapplied when it returns.
+    refreshSelectedInterface();
 
     emit macAddrSpoofingChanged(spoofing_);
 
@@ -162,7 +154,7 @@ void MacAddressController_linux::onNetworkListChanged(const QList<types::Network
         spoofInProgress_ = false;
 #endif
 
-        if (spoofing_.selectedNetworkInterface.interfaceIndex != interface.interfaceIndex) {
+        if (spoofing_.selectedNetworkInterface.interfaceName != interface.interfaceName) {
             removeSpoofs();
         } else {
             enableSpoofing(true);
@@ -181,7 +173,7 @@ void MacAddressController_linux::applySpoof(const types::NetworkInterface &inter
         return;
     }
 
-    if (interface.interfaceIndex != spoofing_.selectedNetworkInterface.interfaceIndex) {
+    if (interface.interfaceName != spoofing_.selectedNetworkInterface.interfaceName) {
         qCInfo(LOG_BASIC) << "MacAddressController_linux::applySpoof Skipping (Selected interface is different than current)";
         return;
     }
@@ -217,4 +209,20 @@ void MacAddressController_linux::applySpoof(const types::NetworkInterface &inter
 void MacAddressController_linux::removeSpoofs()
 {
     helper_->resetMacAddresses();
+}
+
+void MacAddressController_linux::refreshSelectedInterface()
+{
+    // Matched by name: an adapter's index can change when its driver reloads (e.g. on resume or reboot).
+    for (const types::NetworkInterface &interface : std::as_const(spoofing_.networkInterfaces)) {
+        if (interface.interfaceName == spoofing_.selectedNetworkInterface.interfaceName) {
+            spoofing_.selectedNetworkInterface = interface;
+            return;
+        }
+    }
+
+    // Keep an absent adapter in the list so Preferences keeps showing it while spoofing stays set for it.
+    if (!types::NetworkInterface::isNoNetworkInterface(spoofing_.selectedNetworkInterface.interfaceIndex)) {
+        spoofing_.networkInterfaces.append(spoofing_.selectedNetworkInterface);
+    }
 }

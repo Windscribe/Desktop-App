@@ -6,13 +6,8 @@
 #include "utils/log/categories.h"
 #include "utils/network_utils/network_utils.h"
 #include "utils/networkingvalidation.h"
-#ifdef Q_OS_MACOS
-#include "utils/macutils.h"
-#include "utils/network_utils/network_utils_mac.h"
-#elif defined(Q_OS_LINUX)
+#ifdef Q_OS_LINUX
 #include "utils/network_utils/network_utils_linux.h"
-#elif defined(Q_OS_WIN)
-#include "utils/network_utils/network_utils_win.h"
 #endif
 
 namespace types {
@@ -25,12 +20,6 @@ struct MacAddrSpoofing
     {
         if (json.contains(kJsonIsEnabledProp) && json[kJsonIsEnabledProp].isBool()) {
             isEnabled = json[kJsonIsEnabledProp].toBool();
-#ifdef Q_OS_MACOS
-            // MacOS 14.4 does not support this feature
-            if (MacUtils::isOsVersionAtLeast(14, 4)) {
-                isEnabled = false;
-            }
-#endif
         }
 
         if (json.contains(kJsonMacAddressProp) && json[kJsonMacAddressProp].isString()) {
@@ -55,26 +44,6 @@ struct MacAddrSpoofing
                 }
             }
         }
-
-#if defined(Q_OS_LINUX)
-        selectedNetworkInterface = NetworkUtils_linux::networkInterfaceByName(selectedNetworkInterface.interfaceName);
-        if (NetworkInterface::isNoNetworkInterface(selectedNetworkInterface.interfaceIndex)) {
-            isEnabled = false;
-        }
-#elif defined(Q_OS_WIN)
-        bool resolved = false;
-        types::NetworkInterface live = NetworkUtils_win::interfaceByIndex(selectedNetworkInterface.interfaceIndex, resolved);
-        if (resolved) {
-            selectedNetworkInterface = live;
-        } else {
-            isEnabled = false;
-        }
-#elif defined(Q_OS_MACOS)
-        if (selectedNetworkInterface.interfaceName.isEmpty() ||
-            NetworkUtils_mac::macAddressFromInterfaceName(selectedNetworkInterface.interfaceName).isEmpty()) {
-            isEnabled = false;
-        }
-#endif
     }
 
     bool isEnabled = false;

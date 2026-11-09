@@ -46,6 +46,11 @@ if(IS_BUILD_TESTS)
         set_target_properties(spawn.test PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
         ws_add_test(spawn)
 
+        add_executable(process_kill.test process_kill.test.cpp ../process_kill_posix.cpp)
+        target_link_libraries(process_kill.test PRIVATE spdlog::spdlog)
+        set_target_properties(process_kill.test PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
+        ws_add_test(process_kill)
+
         add_executable(validation.test
             validation.test.cpp
             ../validation_posix.cpp

@@ -2,6 +2,7 @@
 
 #include <Windows.h>
 
+#include "utils/log/debug_trace.h"
 #include "utils/log/logger.h"
 #include "utils/winutils.h"
 #include "utils/ws_assert.h"
@@ -67,6 +68,7 @@ WlanUtils_win::~WlanUtils_win()
 
 DWORD WlanUtils_win::ssidFromInterfaceGUID(const QString &interfaceGUID, QString &ssid)
 {
+    WS_DEBUG_TRACE_SCOPE("WlanUtils_win::ssidFromInterfaceGUID");
     if (!loaded_) {
         qCWarning(LOG_BASIC) << "ssidFromInterfaceGUID called when wlanapi.dll is not loaded";
         return ERROR_INVALID_STATE;
@@ -192,6 +194,7 @@ void WlanUtils_win::setHelper(Helper *helper)
 
 DWORD WlanUtils_win::getSsidFromHelper(const QString &interfaceGUID, QString &out)
 {
+    WS_DEBUG_TRACE_SCOPE("WlanUtils_win::getSsidFromHelper");
     // To avoid spamming the log with this warning.
     static bool warnWLanAPIBlocked = true;
 

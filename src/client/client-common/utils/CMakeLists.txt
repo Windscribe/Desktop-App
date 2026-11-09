@@ -15,6 +15,8 @@ target_sources(client-common PRIVATE
     languagesutil.cpp
     languagesutil.h
     log/categories.cpp
+    log/debug_trace.cpp
+    log/debug_trace.h
     log/categories.h
     log/clean_sensitive_info.cpp
     log/clean_sensitive_info.h

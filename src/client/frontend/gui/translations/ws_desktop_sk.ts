@@ -1511,10 +1511,6 @@ Ak problém pretrváva aj po reštarte, pošlite nám denník ladenia, otvorte �
         <translation>Zakázanie funkcie Povoliť prevádzku v sieti LAN spôsobí, že váš zabezpečený hotspot prestane fungovať.  Chcete hotspot vypnúť?</translation>
     </message>
     <message>
-        <source>MAC spoofing is not supported on your version of MacOS.</source>
-        <translation>Podvrhovanie MAC nie je vo vašej verzii MacOS podporované.</translation>
-    </message>
-    <message>
         <source>Automatically determine the MTU for your connection, or manually override.  This has no effect on TCP-based protocols.</source>
         <translation>Automatické určenie MTU pre vaše pripojenie alebo ručné prepisovanie.  Toto nemá žiadny vplyv na protokoly založené na TCP.</translation>
     </message>
@@ -2381,6 +2377,10 @@ Najprv sa pripojte k sieti</translation>
 </context>
 <context>
     <name>PreferencesWindow::SplitTunnelingAppsGroup</name>
+    <message>
+        <source>This app is already in the list.</source>
+        <translation>Táto aplikácia už je v zozname.</translation>
+    </message>
     <message>
         <source>There are too many apps in the list. Please remove some before adding more.</source>
         <translation>V zozname je príliš veľa aplikácií. Pred pridaním ďalších ich odstráňte.</translation>

@@ -93,7 +93,7 @@ bool LanguagesUtil::isCensorshipCountry()
     // Using our systemLanguage() implementation, rather than QLocale::name()/bcp47Name(),
     // since we discovered during development of this class that they do not give the correct
     // language on macOS.
-    const QStringList censoredCountries = { "be", "fa", "ru", "tr", "zh" };
+    const QStringList censoredCountries = { "be", "fa", "ru", "tr", "zh-CN" };
     if (censoredCountries.contains(systemLanguage())) {
         return true;
     }

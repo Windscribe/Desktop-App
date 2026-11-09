@@ -12,6 +12,7 @@ public:
     void setDnsLeakProtectEnabled(bool bEnabled);
     void setGaiIpv4PriorityEnabled(bool bEnabled);
     void resetMacAddresses(const QString &ignoreNetwork = "");
+    bool setMacAddress(const QString &interface, const QString &macAddress, const QString &network = "", bool isWifi = false);
     void setOpenVpnDcoMode(bool useDco);
 
     QString installerStageAndVerify(const QString &srcPath);

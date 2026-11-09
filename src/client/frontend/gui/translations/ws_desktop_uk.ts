@@ -1511,10 +1511,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Вимкнення параметра «Дозволити трафік локальної мережі» призведе до того, що ваша безпечна точка доступу перестане працювати.  Хочете відключити точку доступу?</translation>
     </message>
     <message>
-        <source>MAC spoofing is not supported on your version of MacOS.</source>
-        <translation>Підміна MAC не підтримується у вашій версії MacOS.</translation>
-    </message>
-    <message>
         <source>Automatically determine the MTU for your connection, or manually override.  This has no effect on TCP-based protocols.</source>
         <translation>Автоматичне визначення MTU для вашого з&apos;єднання або перевизначення вручну.  Це ніяк не впливає на протоколи на основі TCP.</translation>
     </message>
@@ -2381,6 +2377,10 @@ Connect to a network first</source>
 </context>
 <context>
     <name>PreferencesWindow::SplitTunnelingAppsGroup</name>
+    <message>
+        <source>This app is already in the list.</source>
+        <translation>Цей додаток уже є у списку.</translation>
+    </message>
     <message>
         <source>There are too many apps in the list. Please remove some before adding more.</source>
         <translation>У списку занадто багато додатків. Будь ласка, видаліть деякі з них, перш ніж додавати нові.</translation>

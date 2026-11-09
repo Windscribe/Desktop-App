@@ -1511,10 +1511,6 @@ Si el problema persiste después de un reinicio, envíe un registro de depuraci�
         <translation>Deshabilitar Permitir tráfico LAN hará que su punto de acceso seguro deje de funcionar.  ¿Desea desactivar el punto de acceso?</translation>
     </message>
     <message>
-        <source>MAC spoofing is not supported on your version of MacOS.</source>
-        <translation>La suplantación de MAC no es compatible con su versión de MacOS.</translation>
-    </message>
-    <message>
         <source>Automatically determine the MTU for your connection, or manually override.  This has no effect on TCP-based protocols.</source>
         <translation>Determinar automáticamente la MTU para su conexión o cámbiela manualmente.  Esto no tiene ningún efecto en los protocolos basados en TCP.</translation>
     </message>
@@ -2381,6 +2377,10 @@ Conéctese primero a una red</translation>
 </context>
 <context>
     <name>PreferencesWindow::SplitTunnelingAppsGroup</name>
+    <message>
+        <source>This app is already in the list.</source>
+        <translation>Esta aplicación ya está en la lista.</translation>
+    </message>
     <message>
         <source>There are too many apps in the list. Please remove some before adding more.</source>
         <translation>Hay demasiadas aplicaciones en la lista. Por favor, elimine algunas antes de añadir más.</translation>

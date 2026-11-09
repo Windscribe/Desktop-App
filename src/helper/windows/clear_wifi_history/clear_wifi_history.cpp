@@ -114,6 +114,9 @@ std::set<std::wstring> ClearWiFiHistory::getCurrentConnectedProfiles()
                         connectedProfiles.insert(profileName);
 
                         wlanFreeMemory(pConnectInfo);
+                    } else {
+                        // The connected profile will not be preserved by clearWlanProfileFiles().
+                        spdlog::warn("WlanQueryInterface(current_connection) failed for connected interface {} with error: {}; its profile will not be preserved", i, dwResult);
                     }
                 }
             }
@@ -191,7 +194,7 @@ bool ClearWiFiHistory::clearNlaCache()
             }
         } else {
             // Key doesn't exist - this is fine, just skip it
-            spdlog::debug(L"NLA registry key not found (skipping): {}", subKey);
+            spdlog::debug(L"NLA registry key could not be opened (skipping): {} (error {})", subKey, result.Code());
         }
     }
 

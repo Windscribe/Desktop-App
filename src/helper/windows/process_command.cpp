@@ -1,6 +1,7 @@
 #include "ws_branding.h"
 #include "process_command.h"
 
+#include <aclapi.h>
 #include <codecvt>
 #include <filesystem>
 #include <locale>
@@ -13,9 +14,6 @@
 #include <iphlpapi.h>
 
 #include "active_processes.h"
-#include "utils/executable_signature/executable_signature.h"
-#include "utils/systemlibloader.h"
-#include "utils/win32handle.h"
 #include "changeics/icsmanager.h"
 #include "clear_wifi_history/clear_wifi_history.h"
 #include "close_tcp_connections.h"
@@ -35,7 +33,11 @@
 #include "remove_app_network_profiles.h"
 #include "split_tunneling/split_tunneling.h"
 #include "utils.h"
+#include "utils/executable_signature/executable_signature.h"
+#include "utils/log/debug_trace.h"
 #include "utils/servicecontrolmanager.h"
+#include "utils/systemlibloader.h"
+#include "utils/win32handle.h"
 #include "wireguard/wireguardcontroller.h"
 #include "wmi_utils.h"
 
@@ -51,10 +53,13 @@ struct SPLIT_TUNNELING_PARS
 
 std::string processCommand(HelperCommand cmdId, const std::string &pars, HANDLE clientPipe)
 {
-    // executeOpenVPN needs the caller's pipe so it can spawn OpenVPN as that user. Dispatched
-    // directly rather than through kCommands (whose handlers take only the serialized parameters).
+    // These commands need the caller's pipe so they can act as that user. Dispatched directly
+    // rather than through kCommands (whose handlers take only the serialized parameters).
     if (cmdId == HelperCommand::executeOpenVPN) {
         return executeOpenVPN(pars, clientPipe);
+    }
+    if (cmdId == HelperCommand::setIKEv2IPSecParameters) {
+        return setIKEv2IPSecParameters(pars, clientPipe);
     }
 
     const auto command = kCommands.find(cmdId);
@@ -68,6 +73,8 @@ std::string processCommand(HelperCommand cmdId, const std::string &pars, HANDLE 
 
 std::string setSplitTunnelingSettings(const std::string &pars)
 {
+    WS_DEBUG_TRACE_SCOPE("setSplitTunnelingSettings");
+
     bool isActive, isExclude, isAllowLanTraffic;
     std::vector<std::wstring> files, ips, hosts_wstr;
     deserializePars(pars, isActive, isExclude, isAllowLanTraffic, files, ips, hosts_wstr);
@@ -105,20 +112,19 @@ std::string setSplitTunnelingSettings(const std::string &pars)
                        return converter.to_bytes(wstr);
                    });
 
-    spdlog::debug("setSplitTunnelingSettings, isEnabled: {}, isExclude: {},"
-                  " isAllowLanTraffic: {}, cntApps: {}",
-                  isActive, isExclude, isAllowLanTraffic, files.size());
+    spdlog::info("setSplitTunnelingSettings, isEnabled: {}, isExclude: {}, isAllowLanTraffic: {}, cntApps: {}",
+                 isActive, isExclude, isAllowLanTraffic, files.size());
 
     for (size_t i = 0; i < files.size(); ++i) {
-        spdlog::debug(L"setSplitTunnelingSettings: {}", files[i].substr(files[i].find_last_of(L"/\\") + 1));
+        spdlog::info(L"setSplitTunnelingSettings: {}", files[i].substr(files[i].find_last_of(L"/\\") + 1));
     }
 
     for (size_t i = 0; i < ips.size(); ++i) {
-        spdlog::debug(L"setSplitTunnelingSettings: {}", ips[i]);
+        spdlog::info(L"setSplitTunnelingSettings: {}", ips[i]);
     }
 
     for (size_t i = 0; i < hosts.size(); ++i) {
-        spdlog::debug("setSplitTunnelingSettings: {}", hosts[i]);
+        spdlog::info("setSplitTunnelingSettings: {}", hosts[i]);
     }
 
     SplitTunneling::instance().setSettings(isActive, isExclude, files, ips, hosts, isAllowLanTraffic);
@@ -131,13 +137,12 @@ std::string setSplitTunnelingSettings(const std::string &pars)
 
 std::string sendConnectStatus(const std::string &pars)
 {
-    ConnectStatus connectStatus;
+    WS_DEBUG_TRACE_SCOPE("sendConnectStatus");
 
+    ConnectStatus connectStatus;
     deserializePars(pars, connectStatus.isConnected, connectStatus.isTerminateSocket, connectStatus.isKeepLocalSocket,
                     connectStatus.protocol, connectStatus.defaultAdapter, connectStatus.vpnAdapter,
                     connectStatus.connectedIp, connectStatus.remoteIp);
-
-    spdlog::debug("sendConnectStatus: {}", connectStatus.isConnected);
 
     bool success = SplitTunneling::instance().setConnectStatus(connectStatus);
     g_SplitTunnelingPars.isVpnConnected = connectStatus.isConnected;
@@ -146,6 +151,8 @@ std::string sendConnectStatus(const std::string &pars)
 
 std::string changeMtu(const std::string &pars)
 {
+    WS_DEBUG_TRACE_SCOPE("changeMtu");
+
     std::wstring adapterName;
     int mtu;
     deserializePars(pars, adapterName, mtu);
@@ -185,12 +192,14 @@ std::string changeMtu(const std::string &pars)
         return std::string();
     }
 
-    spdlog::debug(L"changeMtu: adapter='{}' mtu={}", adapterName, mtu);
+    spdlog::info(L"changeMtu: adapter='{}' mtu={}", adapterName, mtu);
     return std::string();
 }
 
 std::string executeOpenVPN(const std::string &pars, HANDLE clientPipe)
 {
+    WS_DEBUG_TRACE_SCOPE("executeOpenVPN");
+
     std::wstring config, httpProxy, socksProxy;
     unsigned int httpPort, socksPort;
     deserializePars(pars, config, httpProxy, httpPort, socksProxy, socksPort);
@@ -220,6 +229,8 @@ std::string executeOpenVPN(const std::string &pars, HANDLE clientPipe)
 
 std::string executeTaskKill(const std::string &pars)
 {
+    WS_DEBUG_TRACE_SCOPE("executeTaskKill");
+
     CmdKillTarget target;
     deserializePars(pars, target);
 
@@ -232,8 +243,11 @@ std::string executeTaskKill(const std::string &pars)
         // Fallback for an orphaned daemon whose handle we no longer hold (e.g. after helper restart).
         std::wstringstream killCmd;
         killCmd << Utils::getSystemDir() << L"\\taskkill.exe /f /t /im " WS_PRODUCT_NAME_LOWER_W L"openvpn.exe";
-        spdlog::debug(L"executeTaskKill, cmd={}", killCmd.str());
         res = ExecuteCmd::instance().executeBlockingCmd(killCmd.str());
+        if (res.success && res.exitCode != 0) {
+            // taskkill also exits non-zero when no matching process exists, so this is not necessarily a failure.
+            spdlog::warn(L"executeTaskKill - taskkill fallback exited with code {}: {}", res.exitCode, res.output);
+        }
     }
     else {
         spdlog::error(L"executeTaskKill, invalid ID received {}", (int)target);
@@ -244,38 +258,48 @@ std::string executeTaskKill(const std::string &pars)
 
 std::string startWireGuard(const std::string &pars)
 {
+    WS_DEBUG_TRACE_SCOPE("startWireGuard");
     bool useAmneziaWG;
     deserializePars(pars, useAmneziaWG);
     bool success = WireGuardController::instance().installService(useAmneziaWG);
-    spdlog::debug("startWireGuard: success = {}", success);
+    spdlog::info("startWireGuard: useAmneziaWG = {}, success = {}", useAmneziaWG, success);
     return serializeResult(success);
 }
 
 std::string stopWireGuard(const std::string &pars)
 {
+    WS_DEBUG_TRACE_SCOPE("stopWireGuard");
     bool success = WireGuardController::instance().deleteService();
-    spdlog::debug("stopWireGuard");
     return serializeResult(success);
 }
 
 std::string configureWireGuard(const std::string &pars)
 {
-    std::wstring config;
-    deserializePars(pars, config);
-    bool success = WireGuardController::instance().configure(config);
-    spdlog::debug("configureWireGuard: success = {}", success);
+    WS_DEBUG_TRACE_SCOPE("configureWireGuard");
+
+    std::wstring clientPrivateKey, clientIpAddress, clientDnsAddress, clientListenPort, peerPublicKey,
+                 peerPresharedKey, peerEndpoint, allowedIps, persistentKeepalive;
+    AmneziawgConfig amneziawgConfig;
+    deserializePars(pars, clientPrivateKey, clientIpAddress, clientDnsAddress, clientListenPort, peerPublicKey,
+                    peerPresharedKey, peerEndpoint, allowedIps, persistentKeepalive, amneziawgConfig);
+    bool success = WireGuardController::instance().configure(
+        clientPrivateKey, clientIpAddress, clientDnsAddress, clientListenPort, peerPublicKey,
+        peerPresharedKey, peerEndpoint, allowedIps, persistentKeepalive, amneziawgConfig);
+    spdlog::info("configureWireGuard: success = {}", success);
     return serializeResult(success);
 }
 
 std::string getWireGuardStatus(const std::string &pars)
 {
-   ULONG64 lastHandshake, txBytes, rxBytes;
-   bool success = (WireGuardController::instance().getStatus(lastHandshake, txBytes, rxBytes) != kWgStateError);
-   return serializeResult(success, lastHandshake, txBytes, rxBytes);
+    ULONG64 lastHandshake, txBytes, rxBytes;
+    bool success = (WireGuardController::instance().getStatus(lastHandshake, txBytes, rxBytes) != kWgStateError);
+    return serializeResult(success, lastHandshake, txBytes, rxBytes);
 }
 
 std::string firewallOn(const std::string &pars)
 {
+    WS_DEBUG_TRACE_SCOPE("firewallOn");
+
     std::wstring connectingIp;
     std::vector<std::wstring> ips;
     bool bAllowLanTraffic;
@@ -306,36 +330,33 @@ std::string firewallOn(const std::string &pars)
     if (!prevStatus) {
         SplitTunneling::instance().updateState();
     }
-    spdlog::debug("firewallOn, AllowLocalTraffic={}", bAllowLanTraffic);
+    spdlog::info("firewallOn: allowLanTraffic = {}, isCustomConfig = {}", bAllowLanTraffic, bIsCustomConfig);
     return std::string();
 }
 
 std::string firewallOff(const std::string &pars)
 {
+    WS_DEBUG_TRACE_SCOPE("firewallOff");
+
     bool prevStatus = FirewallFilter::instance().currentStatus();
     FirewallFilter::instance().off();
     if (prevStatus) {
         SplitTunneling::instance().updateState();
     }
-    spdlog::debug("firewallOff");
+    spdlog::info("firewallOff");
     return std::string();
 }
 
 std::string firewallActualState(const std::string &pars)
 {
-    bool state;
-    if (FirewallFilter::instance().currentStatus()) {
-        spdlog::debug("firewallActualState, On");
-        state = true;
-    } else {
-        spdlog::debug("firewallActualState, Off");
-        state = false;
-    }
+    bool state = FirewallFilter::instance().currentStatus();
     return serializeResult(state);
 }
 
 std::string setCustomDnsWhileConnected(const std::string &pars)
 {
+    WS_DEBUG_TRACE_SCOPE("setCustomDnsWhileConnected");
+
     unsigned long ifIndex;
     std::wstring overrideDnsIpAddress;
     deserializePars(pars, ifIndex, overrideDnsIpAddress);
@@ -388,24 +409,29 @@ std::string setCustomDnsWhileConnected(const std::string &pars)
             return serializeResult(false);
         }
 
-        spdlog::debug(L"setCustomDnsWhileConnected: ifIndex={} dns={}", ifIndex, overrideDnsIpAddress);
+        spdlog::info(L"setCustomDnsWhileConnected: ifIndex={} dns={}", ifIndex, overrideDnsIpAddress);
         return serializeResult(true);
     }
     catch (const std::system_error &ex) {
         // SetInterfaceDnsSettings unavailable on this OS — fall through to the netsh path below.
-        spdlog::debug("setCustomDnsWhileConnected: SetInterfaceDnsSettings API unavailable ({}), falling back to netsh", ex.what());
+        spdlog::info("setCustomDnsWhileConnected: SetInterfaceDnsSettings API unavailable ({}), falling back to netsh", ex.what());
     }
 
     std::wstring netshCmd = Utils::getSystemDir() + L"\\netsh.exe interface ipv4 set dns \"" + std::to_wstring(ifIndex) + L"\" static " + overrideDnsIpAddress;
     auto res = ExecuteCmd::instance().executeBlockingCmd(netshCmd);
-
-    std::wstring logBuf = L"setCustomDnsWhileConnected: " + netshCmd + L" " + (res.success ? L"Success" : L"Failure") + L" " + std::to_wstring(res.exitCode);
-    spdlog::debug(L"{}", logBuf);
+    if (res.exitCode != 0) {
+        std::wstring logBuf = L"setCustomDnsWhileConnected: " + netshCmd + L" failed with exit code " + std::to_wstring(res.exitCode);
+        spdlog::error(L"{}", logBuf);
+    } else {
+        spdlog::info(L"setCustomDnsWhileConnected: ifIndex={} dns={} (netsh)", ifIndex, overrideDnsIpAddress);
+    }
     return serializeResult(res.exitCode == 0);
 }
 
 std::string executeSetMetric(const std::string &pars)
 {
+    WS_DEBUG_TRACE_SCOPE("executeSetMetric");
+
     ADDRESS_FAMILY family;
     std::wstring interfaceName;
     ULONG metric;
@@ -444,7 +470,7 @@ std::string executeSetMetric(const std::string &pars)
         return serializeResult(false);
     }
 
-    spdlog::debug(L"executeSetMetric: family={} adapter='{}' metric={}", family, interfaceName, metric);
+    spdlog::info(L"executeSetMetric: family={} adapter='{}' metric={}", family, interfaceName, metric);
     return serializeResult(true);
 }
 
@@ -455,7 +481,7 @@ std::string isWanIkev2AdapterDisabled(const std::string &pars)
 
 std::string isIcsSupported(const std::string &pars)
 {
-    spdlog::debug("isIcsSupported");
+    WS_DEBUG_TRACE_SCOPE("isIcsSupported");
     bool supported = IcsManager::instance().isSupported();
     return serializeResult(supported);
 }
@@ -463,31 +489,30 @@ std::string isIcsSupported(const std::string &pars)
 std::string startIcs(const std::string &pars)
 {
     // do nothing in the current implementation
-    spdlog::debug("startIcs");
     return serializeResult(true);
 }
 
 std::string changeIcs(const std::string &pars)
 {
+    WS_DEBUG_TRACE_SCOPE("changeIcs");
+
     std::wstring adapterName;
     deserializePars(pars, adapterName);
 
-    spdlog::debug("changeIcs");
     bool success = IcsManager::instance().change(adapterName);
     return serializeResult(success);
 }
 
 std::string stopIcs(const std::string &pars)
 {
-    spdlog::debug("stopIcs");
+    WS_DEBUG_TRACE_SCOPE("stopIcs");
     bool success = IcsManager::instance().stop();
     return serializeResult(success);
 }
 
 std::string enableBFE(const std::string &pars)
 {
-    spdlog::debug("enableBFE");
-
+    WS_DEBUG_TRACE_SCOPE("enableBFE");
     bool success = false;
     try {
         wsl::ServiceControlManager scm;
@@ -505,8 +530,7 @@ std::string enableBFE(const std::string &pars)
 
 std::string queryBFEStatus(const std::string &pars)
 {
-    spdlog::debug("queryBFEStatus");
-
+    WS_DEBUG_TRACE_SCOPE("queryBFEStatus");
     DWORD status = 0;
     try {
         wsl::ServiceControlManager scm;
@@ -523,8 +547,7 @@ std::string queryBFEStatus(const std::string &pars)
 
 std::string queryRASStatus(const std::string &pars)
 {
-    spdlog::debug("queryRASStatus");
-
+    WS_DEBUG_TRACE_SCOPE("queryRASStatus");
     DWORD status = 0;
     try {
         wsl::ServiceControlManager scm;
@@ -541,7 +564,7 @@ std::string queryRASStatus(const std::string &pars)
 
 std::string enableRAS(const std::string &pars)
 {
-    spdlog::debug("enableRAS");
+    WS_DEBUG_TRACE_SCOPE("enableRAS");
 
     // The client blocks on this command, so keep the SCM waits short.  A RasMan that has not stopped or
     // started within this window is wedged badly enough that waiting longer will not help.
@@ -579,9 +602,11 @@ std::string enableRAS(const std::string &pars)
 
 std::string setIPv6EnabledInFirewall(const std::string &pars)
 {
+    WS_DEBUG_TRACE_SCOPE("setIPv6EnabledInFirewall");
+
     bool bEnable, bAllowLanTraffic, bIsCustomConfig;
     deserializePars(pars, bEnable, bAllowLanTraffic, bIsCustomConfig);
-    spdlog::debug("setIPv6EnabledInFirewall, enable={}, allowLanTraffic={}, isCustomConfig={}", bEnable, bAllowLanTraffic, bIsCustomConfig);
+    spdlog::info("setIPv6EnabledInFirewall: enable = {}, allowLanTraffic = {}, isCustomConfig = {}", bEnable, bAllowLanTraffic, bIsCustomConfig);
     if (bEnable) {
         Ipv6Firewall::instance().enableIPv6();
     } else {
@@ -592,23 +617,27 @@ std::string setIPv6EnabledInFirewall(const std::string &pars)
 
 std::string setFirewallOnBoot(const std::string &pars)
 {
+    WS_DEBUG_TRACE_SCOPE("setFirewallOnBoot");
+
     bool bEnable;
     deserializePars(pars, bEnable);
 
-    spdlog::debug("setFirewallOnBoot: {}", bEnable ? "enabled" : "disabled");
+    spdlog::info("setFirewallOnBoot: {}", bEnable ? "enabled" : "disabled");
     FirewallOnBootManager::instance().setEnabled(bEnable);
     return std::string();
 }
 
 std::string clearWifiHistoryData(const std::string &pars)
 {
-    spdlog::debug("clearWifiHistoryData");
+    WS_DEBUG_TRACE_SCOPE("clearWifiHistoryData");
     bool success = ClearWiFiHistory::clear();
     return serializeResult(success);
 }
 
 std::string addHosts(const std::string &pars)
 {
+    WS_DEBUG_TRACE_SCOPE("addHosts");
+
     std::wstring ip, hostname;
     deserializePars(pars, ip, hostname);
 
@@ -621,24 +650,25 @@ std::string addHosts(const std::string &pars)
         return serializeResult(false);
     }
 
-    spdlog::debug("addHosts");
     bool success = HostsEdit::instance().addHosts(ip, hostname);
     return serializeResult(success);
 }
 
 std::string removeHosts(const std::string &pars)
 {
-    spdlog::debug("removeHosts");
+    WS_DEBUG_TRACE_SCOPE("removeHosts");
     bool success = HostsEdit::instance().removeHosts();
     return serializeResult(success);
 }
 
 std::string closeAllTcpConnections(const std::string &pars)
 {
+    WS_DEBUG_TRACE_SCOPE("closeAllTcpConnections");
+
     bool isKeepLocalSockets;
     deserializePars(pars, isKeepLocalSockets);
 
-    spdlog::debug("closeAllTcpConnections, KeepLocalSockets = {}", isKeepLocalSockets);
+    spdlog::info("closeAllTcpConnections: keepLocalSockets = {}", isKeepLocalSockets);
     if (g_SplitTunnelingPars.isEnabled && g_SplitTunnelingPars.isVpnConnected) {
         CloseTcpConnections::closeAllTcpConnections(isKeepLocalSockets, g_SplitTunnelingPars.isExclude, g_SplitTunnelingPars.apps);
     } else {
@@ -649,13 +679,15 @@ std::string closeAllTcpConnections(const std::string &pars)
 
 std::string getProcessesList(const std::string &pars)
 {
-    spdlog::debug("getProcessesList");
+    WS_DEBUG_TRACE_SCOPE("getProcessesList");
     std::vector<std::wstring> list = ActiveProcesses::instance().getList();
     return serializeResult(list);
 }
 
 std::string whitelistPorts(const std::string &pars)
 {
+    WS_DEBUG_TRACE_SCOPE("whitelistPorts");
+
     std::wstring ports;
     deserializePars(pars, ports);
 
@@ -668,32 +700,49 @@ std::string whitelistPorts(const std::string &pars)
     std::wstring strCmd = Utils::getSystemDir() + L"\\netsh.exe advfirewall firewall add rule name=\"" WS_APP_IDENTIFIER_W L"StaticIpTcp\" protocol=TCP dir=in localport=\"";
     strCmd += ports;
     strCmd += L"\" action=allow";
-    spdlog::debug(L"whitelistPorts, cmd={}", strCmd);
     auto res1 = ExecuteCmd::instance().executeBlockingCmd(strCmd);
+    if (res1.exitCode != 0) {
+        std::wstring logBuf = L"whitelistPorts: " + strCmd + L" failed with exit code " + std::to_wstring(res1.exitCode);
+        spdlog::error(L"{}", logBuf);
+    }
 
     strCmd = Utils::getSystemDir() + L"\\netsh.exe advfirewall firewall add rule name=\"" WS_APP_IDENTIFIER_W L"StaticIpUdp\" protocol=UDP dir=in localport=\"";
     strCmd += ports;
     strCmd += L"\" action=allow";
-    spdlog::debug(L"whitelistPorts, cmd={}", strCmd);
     auto res2 = ExecuteCmd::instance().executeBlockingCmd(strCmd);
+    if (res2.exitCode != 0) {
+        std::wstring logBuf = L"whitelistPorts: " + strCmd + L" failed with exit code " + std::to_wstring(res2.exitCode);
+        spdlog::error(L"{}", logBuf);
+    }
     return serializeResult(res1.success && res2.success);
 }
 
 std::string deleteWhitelistPorts(const std::string &pars)
 {
+    WS_DEBUG_TRACE_SCOPE("deleteWhitelistPorts");
+
     // Design note: replacing this netsh call with structured APIs requires too much code and no extra protection.
     std::wstring strCmd = Utils::getSystemDir() + L"\\netsh.exe advfirewall firewall delete rule name=\"" WS_APP_IDENTIFIER_W L"StaticIpTcp\" dir=in";
-    spdlog::debug(L"deleteWhitelistPorts, cmd={}", strCmd);
     auto res1 = ExecuteCmd::instance().executeBlockingCmd(strCmd);
+    if (res1.exitCode != 0) {
+        std::wstring logBuf = L"deleteWhitelistPorts: " + strCmd + L" failed with exit code " + std::to_wstring(res1.exitCode);
+        spdlog::error(L"{}", logBuf);
+    }
 
     strCmd = Utils::getSystemDir() + L"\\netsh.exe advfirewall firewall delete rule name=\"" WS_APP_IDENTIFIER_W L"StaticIpUdp\" dir=in";
-    spdlog::debug(L"deleteWhitelistPorts, cmd={}", strCmd);
     auto res2 =  ExecuteCmd::instance().executeBlockingCmd(strCmd);
+    if (res2.exitCode != 0) {
+        std::wstring logBuf = L"deleteWhitelistPorts: " + strCmd + L" failed with exit code " + std::to_wstring(res2.exitCode);
+        spdlog::error(L"{}", logBuf);
+    }
+
     return serializeResult(res1.success && res2.success);
 }
 
 std::string enableDnsLeaksProtection(const std::string &pars)
 {
+    WS_DEBUG_TRACE_SCOPE("enableDnsLeaksProtection");
+
     std::vector<std::wstring> customDnsIp;
     deserializePars(pars, customDnsIp);
 
@@ -710,7 +759,6 @@ std::string enableDnsLeaksProtection(const std::string &pars)
                                      }),
                       customDnsIp.end());
 
-    spdlog::debug("enableDnsLeaksProtection");
     DnsFirewall::instance().setExcludeIps(customDnsIp);
     DnsFirewall::instance().enable();
     return std::string();
@@ -718,14 +766,14 @@ std::string enableDnsLeaksProtection(const std::string &pars)
 
 std::string disableDnsLeaksProtection(const std::string &pars)
 {
-    spdlog::debug("disableDnsLeaksProtection");
+    WS_DEBUG_TRACE_SCOPE("disableDnsLeaksProtection");
     DnsFirewall::instance().disable();
     return std::string();
 }
 
 std::string reinstallWanIkev2(const std::string &pars)
 {
-    spdlog::debug("reinstallWanIkev2");
+    WS_DEBUG_TRACE_SCOPE("reinstallWanIkev2");
     ReinstallWanIkev2::uninstallDevice();
     ReinstallWanIkev2::scanForHardwareChanges();
     return std::string();
@@ -733,13 +781,14 @@ std::string reinstallWanIkev2(const std::string &pars)
 
 std::string enableWanIkev2(const std::string &pars)
 {
-    spdlog::debug("enableWanIkev2");
+    WS_DEBUG_TRACE_SCOPE("enableWanIkev2");
     ReinstallWanIkev2::enableDevice();
     return std::string();
 }
 
 std::string setMacAddressSpoof(const std::string &pars)
 {
+    WS_DEBUG_TRACE_SCOPE("setMacAddressSpoof");
     std::wstring interfaceName, value;
     deserializePars(pars, interfaceName, value);
     MacAddressSpoof::set(interfaceName, value);
@@ -748,6 +797,7 @@ std::string setMacAddressSpoof(const std::string &pars)
 
 std::string removeMacAddressSpoof(const std::string &pars)
 {
+    WS_DEBUG_TRACE_SCOPE("removeMacAddressSpoof");
     std::wstring interfaceName;
     deserializePars(pars, interfaceName);
     MacAddressSpoof::remove(interfaceName);
@@ -756,15 +806,16 @@ std::string removeMacAddressSpoof(const std::string &pars)
 
 std::string resetNetworkAdapter(const std::string &pars)
 {
+    WS_DEBUG_TRACE_SCOPE("resetNetworkAdapter");
+
     ULONG ifIndex;
     bool bringBackUp;
     deserializePars(pars, ifIndex, bringBackUp);
 
-    spdlog::debug("resetNetworkAdapter: Disable ifIndex={}", ifIndex);
+    spdlog::info("resetNetworkAdapter: ifIndex = {}, bringBackUp = {}", ifIndex, bringBackUp);
     Utils::setNetworkAdapterState(ifIndex, false);
 
     if (bringBackUp) {
-        spdlog::debug("resetNetworkAdapter: Enable ifIndex={}", ifIndex);
         Utils::setNetworkAdapterState(ifIndex, true);
     }
     return std::string();
@@ -772,58 +823,62 @@ std::string resetNetworkAdapter(const std::string &pars)
 
 std::string addIKEv2DefaultRoute(const std::string &pars)
 {
-    bool success = IKEv2Route::addRouteForIKEv2();
-    spdlog::debug("addIKEv2DefaultRoute: success = {}", success);
+    WS_DEBUG_TRACE_SCOPE("addIKEv2DefaultRoute");
+    IKEv2Route::addRouteForIKEv2();
     return std::string();
 }
 
 std::string removeAppNetworkProfiles(const std::string &pars)
 {
-    spdlog::debug("removeAppNetworkProfiles");
+    WS_DEBUG_TRACE_SCOPE("removeAppNetworkProfiles");
     RemoveAppNetworkProfiles::remove();
     return std::string();
 }
 
-std::string setIKEv2IPSecParameters(const std::string &pars)
+std::string setIKEv2IPSecParameters(const std::string &pars, HANDLE clientPipe)
 {
-    bool success = IKEv2IPSec::setIKEv2IPSecParameters();
-    spdlog::debug("setIKEv2IPSecParameters: success = {}", success);
+    WS_DEBUG_TRACE_SCOPE("setIKEv2IPSecParameters");
+    IKEv2IPSec::setIKEv2IPSecParameters(clientPipe);
     return std::string();
 }
 
 std::string createOpenVpnAdapter(const std::string &pars)
 {
+    WS_DEBUG_TRACE_SCOPE("createOpenVpnAdapter");
+
     bool useDCODriver;
     deserializePars(pars, useDCODriver);
 
-    spdlog::debug(L"createOpenVpnAdapter: creating '{}' adapter", (useDCODriver ? L"ovpn-dco" : L"tap-windows6"));
+    spdlog::info(L"createOpenVpnAdapter: creating '{}' adapter", (useDCODriver ? L"ovpn-dco" : L"tap-windows6"));
     bool success = OpenVPNController::instance().createAdapter(useDCODriver);
     return serializeResult(success);
 }
 
 std::string removeOpenVpnAdapter(const std::string &pars)
 {
-    spdlog::debug("removeOpenVpnAdapter");
+    WS_DEBUG_TRACE_SCOPE("removeOpenVpnAdapter");
     OpenVPNController::instance().removeAdapter();
     return std::string();
 }
 
 std::string disableDohSettings(const std::string &pars)
 {
-    spdlog::debug("disableDohSettings");
+    WS_DEBUG_TRACE_SCOPE("disableDohSettings");
     DohData::instance().disableDohSettings();
     return std::string();
 }
 
 std::string enableDohSettings(const std::string &pars)
 {
-    spdlog::debug("enableDohSettings");
+    WS_DEBUG_TRACE_SCOPE("enableDohSettings");
     DohData::instance().enableDohSettings();
     return std::string();
 }
 
 std::string ssidFromInterfaceGUID(const std::string &pars)
 {
+    WS_DEBUG_TRACE_SCOPE("ssidFromInterfaceGUID");
+
     std::wstring interfaceGUID;
     deserializePars(pars, interfaceGUID);
 
@@ -845,7 +900,7 @@ std::string ssidFromInterfaceGUID(const std::string &pars)
         if (exitCode != ERROR_ACCESS_DENIED && exitCode != ERROR_NOT_FOUND && exitCode != ERROR_INVALID_STATE) {
             // Only log 'abnormal' errors so we do not spam the log.  We'll receive ERROR_ACCESS_DENIED if location services
             // are blocked on the computer, and the other two when an adapter is being reset.
-            spdlog::debug("ssidFromInterfaceGUID - {}", ex.what());
+            spdlog::warn("ssidFromInterfaceGUID - {}", ex.what());
         }
     }
 
@@ -854,6 +909,8 @@ std::string ssidFromInterfaceGUID(const std::string &pars)
 
 std::string installerStageAndVerify(const std::string &pars)
 {
+    WS_DEBUG_TRACE_SCOPE("installerStageAndVerify");
+
     std::wstring srcPath;
     deserializePars(pars, srcPath);
 
@@ -959,18 +1016,21 @@ std::string installerStageAndVerify(const std::string &pars)
         return serializeResult(std::wstring(), false);
     }
 
-    const std::wstring stagedPath = updateDir + L"\\installer.exe";
+    const std::wstring stagedPath = updateDir + L"\\installer.tmp";
+    const std::wstring installerPath = updateDir + L"\\installer.exe";
 
-    // Copy bytes from the validated handle rather than re-opening srcPath by name. Re-opening
-    // (as CopyFileW does internally) would reintroduce the swap window the handle above closes.
-    // The destination lives in the Admins-only update dir we just recreated, so its path is not
-    // attacker-controllable; the new file inherits the Program Files ACL just as CopyFileW's would.
+    // Copy bytes from the validated handle rather than re-opening srcPath by name, which would reintroduce the swap window
+    // the handle above closes. Until the signature check passes, the copy is readable only by SYSTEM and Administrators: the
+    // source was read as SYSTEM, so a caller could otherwise use it to read files they have no access to.
+    if (!Utils::createRestrictedFile(stagedPath)) {
+        return serializeResult(std::wstring(), false);
+    }
     bool copyOk = false;
     {
         wsl::Win32Handle dstHandle(::CreateFileW(stagedPath.c_str(), GENERIC_WRITE, 0, NULL,
-                                                 CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL | FILE_FLAG_SEQUENTIAL_SCAN, NULL));
+                                                 OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL | FILE_FLAG_SEQUENTIAL_SCAN, NULL));
         if (!dstHandle.isValid()) {
-            spdlog::error("installerStageAndVerify: failed to create staged file ({})", ::GetLastError());
+            spdlog::error("installerStageAndVerify: failed to open staged file ({})", ::GetLastError());
             return serializeResult(std::wstring(), false);
         }
 
@@ -1007,11 +1067,6 @@ std::string installerStageAndVerify(const std::string &pars)
         return serializeResult(std::wstring(), false);
     }
 
-    // The staged file inherits the Program Files ACL: Users RX (so the launching
-    // non-elevated user can ShellExecuteEx the file through UAC) and Admins/SYSTEM Full.
-    // Users have no W, which is what closes the TOCTOU window — the bytes can't be
-    // swapped between the signature check and the runas launch.
-
     ExecutableSignature sigCheck;
     if (!sigCheck.verify(stagedPath)) {
         spdlog::error("installerStageAndVerify: signature verification failed: {}", sigCheck.lastError());
@@ -1019,11 +1074,33 @@ std::string installerStageAndVerify(const std::string &pars)
         return serializeResult(std::wstring(), false);
     }
 
-    return serializeResult(stagedPath, true);
+    // Now verified, let the file inherit the update dir's ACL: Users RX so the non-elevated client can launch it through UAC,
+    // but no write, so the bytes cannot change before the launch. An empty DACL here, not a null one, which would grant everyone.
+    ACL emptyAcl;
+    const DWORD aclErr = ::InitializeAcl(&emptyAcl, sizeof(emptyAcl), ACL_REVISION)
+        ? ::SetNamedSecurityInfoW(const_cast<LPWSTR>(stagedPath.c_str()), SE_FILE_OBJECT,
+                                  DACL_SECURITY_INFORMATION | UNPROTECTED_DACL_SECURITY_INFORMATION, NULL, NULL, &emptyAcl, NULL)
+        : ::GetLastError();
+    if (aclErr != ERROR_SUCCESS) {
+        spdlog::error("installerStageAndVerify: failed to reset staged file ACL ({})", aclErr);
+        ::DeleteFileW(stagedPath.c_str());
+        return serializeResult(std::wstring(), false);
+    }
+
+    // The engine launches only installer.exe, so unverified bytes must never be written under that name. Replace an existing
+    // one because the update dir wipe above is best-effort.
+    if (!::MoveFileExW(stagedPath.c_str(), installerPath.c_str(), MOVEFILE_REPLACE_EXISTING)) {
+        spdlog::error("installerStageAndVerify: failed to move staged file ({})", ::GetLastError());
+        ::DeleteFileW(stagedPath.c_str());
+        return serializeResult(std::wstring(), false);
+    }
+    return serializeResult(installerPath, true);
 }
 
 std::string installerCleanupStaged(const std::string &pars)
 {
+    WS_DEBUG_TRACE_SCOPE("installerCleanupStaged");
+
     // Pass create=false: we're about to remove the directory, so recreating it first
     // would be pointless and racey.
     const std::wstring updateDir = Utils::getUpdatePath(false);

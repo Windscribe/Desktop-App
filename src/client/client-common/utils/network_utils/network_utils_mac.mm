@@ -61,17 +61,6 @@ QString NetworkUtils_mac::lastConnectedNetworkInterfaceName()
     return ifname;
 }
 
-QString NetworkUtils_mac::trueMacAddress(const QString &interfaceName)
-{
-    QString cmdGetTrueMAC = "networksetup -getmacaddress " + interfaceName + " | awk '{print $3}'";
-    return Utils::execCmd(cmdGetTrueMAC).trimmed();
-}
-
-bool NetworkUtils_mac::isInterfaceSpoofed(const QString &interfaceName)
-{
-    return trueMacAddress(interfaceName) != macAddressFromInterfaceName(interfaceName);
-}
-
 bool NetworkUtils_mac::isWifiAdapter(const QString &networkInterface)
 {
     QString command = "echo 'list' | scutil | grep State:/Network/Interface/" + networkInterface + "/AirPort";
@@ -349,11 +338,6 @@ QStringList NetworkUtils_mac::getListOfDnsNetworkServiceEntries()
         }
     }
     return result;
-}
-
-bool NetworkUtils_mac::checkMacAddr(const QString &interfaceName, const QString &macAddr)
-{
-    return macAddressFromInterfaceName(interfaceName).toUpper().remove(':') == macAddr;
 }
 
 QStringList NetworkUtils_mac::getP2P_AWDL_NetworkInterfaces()

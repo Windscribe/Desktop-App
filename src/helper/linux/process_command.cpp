@@ -19,6 +19,7 @@
 #include "utils.h"
 #include "wireguard/wireguardcontroller.h"
 #include "../common/ovpn_mgmt_posix.h"
+#include "../common/process_kill_posix.h"
 #include "../common/spawn_posix.h"
 #include "../common/validation_posix.h"
 
@@ -275,8 +276,8 @@ std::string executeTaskKill(const std::string &pars)
         success = true;
     } else if (target == kTargetCtrld) {
         spdlog::info("Killing ctrld processes");
-        Utils::executeCommand("pkill", {"-f", WS_PRODUCT_NAME_LOWER "ctrld"});
-        success = true;
+        // The next ctrld binds the same 127.0.0.1:53 and exits if a dying instance still holds it.
+        success = ProcessKill::terminateAndWait(WS_PRODUCT_NAME_LOWER "ctrld");
     } else {
         spdlog::error("Did not kill processes for type {}", (int)target);
         success = false;

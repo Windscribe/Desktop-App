@@ -9,12 +9,7 @@ if (WIN32)
         macaddresscontroller_win.h
 
     )
-elseif(APPLE)
-    target_sources(engine PRIVATE
-        macaddresscontroller_mac.cpp
-        macaddresscontroller_mac.h
-    )
-elseif(UNIX)
+elseif(UNIX AND NOT APPLE)
     target_sources(engine PRIVATE
         macaddresscontroller_linux.cpp
         macaddresscontroller_linux.h

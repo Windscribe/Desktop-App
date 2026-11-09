@@ -3,12 +3,15 @@
 #include <comdef.h>
 #include <Wbemidl.h>
 #include <spdlog/spdlog.h>
+#include "utils/log/debug_trace.h"
 #include "utils/wsscopeguard.h"
 
 namespace WmiUtils {
 
 bool isWanIkev2AdapterDisabled()
 {
+    WS_DEBUG_TRACE_SCOPE("isWanIkev2AdapterDisabled");
+
     // Initialize COM
     HRESULT hres = CoInitializeEx(0, COINIT_MULTITHREADED);
     if (FAILED(hres)) {
@@ -68,6 +71,9 @@ bool isWanIkev2AdapterDisabled()
         IWbemClassObject *pclsObj = NULL;
         ULONG uReturn = 0;
         HRESULT hr = pEnumerator->Next(WBEM_INFINITE, 1, &pclsObj, &uReturn);
+        if (FAILED(hr)) {
+            spdlog::error("isWanIkev2AdapterDisabled: IEnumWbemClassObject::Next failed: {:#x}", static_cast<unsigned long>(hr));
+        }
         if (FAILED(hr) || uReturn == 0) {
             break;
         }
@@ -78,6 +84,9 @@ bool isWanIkev2AdapterDisabled()
         auto varCleanup = wsl::wsScopeGuard([&vtProp]() { VariantClear(&vtProp); });
 
         hr = pclsObj->Get(L"ConfigManagerErrorCode", 0, &vtProp, 0, 0);
+        if (FAILED(hr)) {
+            spdlog::error("isWanIkev2AdapterDisabled: IWbemClassObject::Get(ConfigManagerErrorCode) failed: {:#x}", static_cast<unsigned long>(hr));
+        }
         if (SUCCEEDED(hr) && vtProp.vt == VT_I4 && vtProp.lVal != 0) {
             spdlog::debug("isWanIkev2AdapterDisabled: WAN miniport reports ConfigManagerErrorCode={}", vtProp.lVal);
             return true;

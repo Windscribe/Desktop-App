@@ -25,6 +25,10 @@
 #   down /etc/openvpn/scripts/update-systemd-resolved
 #   down-pre
 
+# OpenVPN runs this as root with no PATH, so set one that never searches user-writable directories such as /usr/local/bin.
+PATH=/usr/sbin:/usr/bin:/sbin:/bin
+export PATH
+
 # Define what needs to be called via DBus
 DBUS_DEST="org.freedesktop.resolve1"
 DBUS_NODE="/org/freedesktop/resolve1"

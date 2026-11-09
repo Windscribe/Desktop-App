@@ -90,16 +90,18 @@ bool Logger::install(const QString &logFilePath, bool consoleOutput)
         spdlog::register_logger(rawLogger);
 
         // Also output logs to debugger/stdout for QA/dev use.
+        if (consoleOutput) {
 #if defined(Q_OS_WIN)
-        auto sinkDebug = std::make_shared<spdlog::sinks::msvc_sink_mt>(false);
-        spdlog::default_logger()->sinks().push_back(sinkDebug);
-        spdlog::get("raw")->sinks().push_back(sinkDebug);
+            auto sinkDebug = std::make_shared<spdlog::sinks::msvc_sink_mt>(false);
+            spdlog::default_logger()->sinks().push_back(sinkDebug);
+            spdlog::get("raw")->sinks().push_back(sinkDebug);
 #elif not defined(CLI_ONLY)
-        auto sinkDebug = std::make_shared<spdlog::sinks::stdout_sink_mt>();
-        sinkDebug->set_level(spdlog::level::trace); // Required to get any output in the terminal on Linux.
-        spdlog::default_logger()->sinks().push_back(sinkDebug);
-        spdlog::get("raw")->sinks().push_back(sinkDebug);
+            auto sinkDebug = std::make_shared<spdlog::sinks::stdout_sink_mt>();
+            sinkDebug->set_level(spdlog::level::trace); // Required to get any output in the terminal on Linux.
+            spdlog::default_logger()->sinks().push_back(sinkDebug);
+            spdlog::get("raw")->sinks().push_back(sinkDebug);
 #endif
+        }
 
         // this will trigger flush on every log message
         spdlog::flush_on(spdlog::level::trace);

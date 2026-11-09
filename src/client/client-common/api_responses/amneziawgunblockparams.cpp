@@ -40,7 +40,7 @@ bool AmneziawgUnblockParam::hasPrintableObfuscationValues() const
 
 void AmneziawgUnblockParam::setDefault()
 {
-    title = "Z - API Blocked";
+    title = kDefaultTitle;
     countries.clear();
     jc = 0;
     jmin = 0;
@@ -206,6 +206,9 @@ AmneziawgUnblockParam AmneziawgUnblockParams::getUnblockParamForPreset(const QSt
             param.setDefault();
         } else {
             param = params_.first();
+        }
+        if (!preset.isEmpty() && param.title != preset) {
+            qCWarning(LOG_BASIC) << "AmneziaWG preset" << preset << "is not available, using" << param.title << "instead";
         }
     }
 

@@ -1,3 +1,41 @@
+2.25.7 (02/11/2026)
+All:
+   * Improved app hardening from the OpenAI Daybreak Blue and Anthropic "Defense Access" audit. #1971
+   * Improved windscribe-cli help to use a conventional layout with an aligned command list and per-command help, and made command output consistent. #2054
+   * Improved windscribe-cli help and documentation to explain how to turn on AmneziaWG with Protocol Tweaks. The app now logs a warning when the configured AmneziaWG preset is not available and it falls back to another preset. #2065
+   * Fixed the anti-censorship check not detecting a Chinese system language. #2062
+   * Fixed the app rewriting its whole settings file about once a minute while connected, even when nothing changed. #2068
+   * Updated ctrld to 1.5.9. #2064
+Windows:
+   * Added optional detailed app and helper debug tracing to help pinpoint launch and connection delays. #1990
+   * Improved security of WireGuard config handling. #2056
+   * Improved security of the installer and uninstaller. #2060
+   * Improved security of in-app update staging. #2057
+   * Improved split tunneling app selection duplicate detection. #2049
+macOS:
+   * Improved security of the OpenVPN DNS script. #2058
+   * Improved split tunneling app selection duplicate detection. #2049
+   * Fixed ctrld being restarted before its previous instance had exited. #2012
+Linux:
+   * Improved security of in-app update staging and installation. #2057
+   * Improved security of the OpenVPN DNS scripts. #2058
+   * Fixed Custom Connected DNS failing after connection or location changes while the app showed Connected. #2012
+
+
+2.25.6 (23/10/2026)
+All:
+   * Improved security by redacting VPN server credentials in debug logs. #2050
+   * Improved windscribe-cli commands to report the app's actual result instead of only confirming the request was sent. #2047
+   * Improved windscribe-cli locations commands to list locations in the terminal instead of opening the locations list in the app. #2047
+   * Fixed windscribe-cli `logs send` command reporting success before the upload finished, which hid upload failures. #2045
+   * Fixed Split Tunneling Apps list accepting duplicate entries for manually added apps. Existing duplicates are now removed on load. #2049
+macOS:
+   * Fixed windscribe-cli log output appears in stdout. #2051
+Linux:
+   * Fixed MAC Spoofing turning off and its interface resetting to "No Interface" after suspend/resume or a NetworkManager restart. #2043
+   * Fixed windscribe-cli log output appears in stdout. #2051
+
+
 2.25.5 (22/10/2026)
 All:
    * Improved the app to remove servers from the locations list with the force_disconnect flag set. #1983

@@ -101,6 +101,14 @@ QString Utils::generateSecureCredential(int length)
     return out;
 }
 
+QString Utils::redactCredential(const QString &value)
+{
+    if (value.isEmpty()) {
+        return value;
+    }
+    return (value.size() <= 2 ? QString() : value.left(2)) + "***";
+}
+
 bool Utils::isSubdomainsEqual(const QString &hostname1, const QString &hostname2)
 {
     // Compare only the subdomain portion so pinned IP matching still works when the server TLD changes.

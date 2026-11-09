@@ -3,6 +3,8 @@
 #include <psapi.h>
 #include <wchar.h>
 
+#include <spdlog/spdlog.h>
+
 ActiveProcesses::ActiveProcesses() : hTimer_(NULL)
 {
 }
@@ -30,6 +32,7 @@ std::vector<std::wstring> ActiveProcesses::getList()
         const auto processIdsSize = static_cast<DWORD>(processIds.size() * sizeof(DWORD));
         if (!EnumProcesses(&processIds[0], processIdsSize, &cbProcess))
         {
+            spdlog::error("ActiveProcesses::getList - EnumProcesses failed: {}", ::GetLastError());
             return std::vector<std::wstring>();
         }
 
@@ -89,7 +92,9 @@ std::vector<std::wstring> ActiveProcesses::getList()
                             else
                             {
                                 auto len = wcslen(szProcessName);
-                                wcscpy(szProcessName + len - 4, L"\0");
+                                if (len >= 4) {
+                                    szProcessName[len - 4] = L'\0';
+                                }
 
                                 bool fProcessExists = false;
                                 int count = 0;
@@ -128,6 +133,7 @@ std::vector<std::wstring> ActiveProcesses::getList()
 
         if (!CreateTimerQueueTimer(&hTimer_, NULL, timerCallback, this, CLEAR_SAVED_LIST_PERIOD_MS, 0, WT_EXECUTEONLYONCE))
         {
+            spdlog::error("ActiveProcesses::getList - CreateTimerQueueTimer failed: {}", ::GetLastError());
             hTimer_ = NULL;
         }
 

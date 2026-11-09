@@ -193,6 +193,19 @@ QMap<QString, QString> enumerateInstalledPrograms()
     return programs;
 }
 
+// A running binary is reported under its resolved path, so a binary reached through a link must be stored resolved.
+static QString resolveBinaryPath(const QString &path)
+{
+    QFile file(path);
+    if (QFileInfo(path).isFile() && file.open(QIODevice::ReadOnly) && file.read(4) == "\x7f" "ELF") {
+        const QString canonical = QFileInfo(path).canonicalFilePath();
+        if (!canonical.isEmpty()) {
+            return canonical;
+        }
+    }
+    return path;
+}
+
 QString extractExeName(const QString &execLine)
 {
     QString remaining = execLine;
@@ -258,7 +271,7 @@ QString extractExeName(const QString &execLine)
                 continue;
             }
 
-            return path;
+            return resolveBinaryPath(path);
         }
     }
 

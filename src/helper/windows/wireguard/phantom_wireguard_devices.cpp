@@ -30,9 +30,11 @@ void removeRegisteredDevices()
         SP_DEVINFO_DATA devInfoData;
         devInfoData.cbSize = sizeof(SP_DEVINFO_DATA);
         if (!::SetupDiEnumDeviceInfo(devInfo, index, &devInfoData)) {
-            if (::GetLastError() == ERROR_NO_MORE_ITEMS) {
+            const DWORD enumErr = ::GetLastError();
+            if (enumErr == ERROR_NO_MORE_ITEMS) {
                 break;
             }
+            spdlog::debug("PhantomWireGuardDevices: SetupDiEnumDeviceInfo failed at index {} ({})", index, enumErr);
             continue;
         }
 
@@ -70,8 +72,13 @@ void removePhantomRegistryEntries()
 {
     winreg::RegKey enumKey;
     // TryDeleteTree (RegDeleteTreeW) requires DELETE | KEY_ENUMERATE_SUB_KEYS | KEY_QUERY_VALUE on the handle.
-    if (enumKey.TryOpen(HKEY_LOCAL_MACHINE, L"SYSTEM\\CurrentControlSet\\Enum\\ROOT\\WireGuard",
-                        KEY_ENUMERATE_SUB_KEYS | KEY_QUERY_VALUE | DELETE).Failed()) {
+    const winreg::RegResult openResult = enumKey.TryOpen(HKEY_LOCAL_MACHINE, L"SYSTEM\\CurrentControlSet\\Enum\\ROOT\\WireGuard",
+                                                         KEY_ENUMERATE_SUB_KEYS | KEY_QUERY_VALUE | DELETE);
+    if (openResult.Failed()) {
+        if (openResult.Code() != ERROR_FILE_NOT_FOUND) {
+            spdlog::error(L"PhantomWireGuardDevices: failed to open ROOT\\WireGuard enum key ({}): {}",
+                          openResult.Code(), openResult.ErrorMessage());
+        }
         return;
     }
 
@@ -89,12 +96,26 @@ void removePhantomRegistryEntries()
         DEVINST devInst;
         // CM_Uninstall_DevNode is the proper removal for a phantom devnode; fall back to deleting the raw
         // registry entry for debris the PnP manager does not recognize at all.
-        if ((::CM_Locate_DevNodeW(&devInst, instanceId.data(), CM_LOCATE_DEVNODE_PHANTOM) == CR_SUCCESS &&
-             ::CM_Uninstall_DevNode(devInst, 0) == CR_SUCCESS) ||
-            !enumKey.TryDeleteTree(subKey).Failed()) {
+        // Same short-circuit order as before; the intermediate results are kept only for the failure log.
+        const CONFIGRET locateRet = ::CM_Locate_DevNodeW(&devInst, instanceId.data(), CM_LOCATE_DEVNODE_PHANTOM);
+        CONFIGRET uninstallRet = CR_SUCCESS;
+        bool removed = false;
+        if (locateRet == CR_SUCCESS) {
+            uninstallRet = ::CM_Uninstall_DevNode(devInst, 0);
+            removed = (uninstallRet == CR_SUCCESS);
+        }
+        LSTATUS deleteTreeRet = ERROR_SUCCESS;
+        if (!removed) {
+            const winreg::RegResult deleteResult = enumKey.TryDeleteTree(subKey);
+            deleteTreeRet = deleteResult.Code();
+            removed = !deleteResult.Failed();
+        }
+        if (removed) {
             spdlog::info(L"PhantomWireGuardDevices: removed phantom device {}", instanceId);
         } else {
-            spdlog::error(L"PhantomWireGuardDevices: failed to remove phantom device {}", instanceId);
+            spdlog::error(L"PhantomWireGuardDevices: failed to remove phantom device {} (CM_Locate_DevNodeW {}, CM_Uninstall_DevNode {}, RegDeleteTree {})",
+                          instanceId, locateRet, (locateRet == CR_SUCCESS) ? std::to_wstring(uninstallRet) : std::wstring(L"n/a"),
+                          deleteTreeRet);
         }
     }
 }

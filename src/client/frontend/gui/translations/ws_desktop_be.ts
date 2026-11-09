@@ -1511,10 +1511,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Адключэньне &quot;Дазвол LAN-трафіку&quot; прывядзе да спыненьня працы бясьпечнай кропкі доступу.  Адключыць кропку доступу?</translation>
     </message>
     <message>
-        <source>MAC spoofing is not supported on your version of MacOS.</source>
-        <translation>Падмена MAC-адраса не падтрымліваецца ў гэтай версіі MacOS.</translation>
-    </message>
-    <message>
         <source>Automatically determine the MTU for your connection, or manually override.  This has no effect on TCP-based protocols.</source>
         <translation>Аўтаматычна вызначайце MTU для падлучэньня альбо задавайце яго ўручную.  Гэта не ўплывае на пратаколы, заснаваныя на TCP.</translation>
     </message>
@@ -2381,6 +2377,10 @@ Connect to a network first</source>
 </context>
 <context>
     <name>PreferencesWindow::SplitTunnelingAppsGroup</name>
+    <message>
+        <source>This app is already in the list.</source>
+        <translation>Гэтая праґрама ўжо ёсьць у сьпісе.</translation>
+    </message>
     <message>
         <source>There are too many apps in the list. Please remove some before adding more.</source>
         <translation>У сьпісе зашмат праґрам. Выдаліце некалькі, перш чым дадаць новыя.</translation>

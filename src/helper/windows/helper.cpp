@@ -16,6 +16,7 @@
 #include "split_tunneling/split_tunneling.h"
 #include "utils.h"
 #include "utils/crashhandler.h"
+#include "utils/log/debug_trace.h"
 #include "utils/wsscopeguard.h"
 
 namespace wsl
@@ -139,7 +140,9 @@ void Helper::stop()
     }
 
     if (clientHandlerThread_.isValid()) {
-        ::QueueUserAPC(stopClientHandlerThreadApc, clientHandlerThread_.getHandle(), 0);
+        if (::QueueUserAPC(stopClientHandlerThreadApc, clientHandlerThread_.getHandle(), 0) == 0) {
+            spdlog::error("Helper::stop - QueueUserAPC failed: {}", ::GetLastError());
+        }
     }
 }
 
@@ -157,6 +160,7 @@ bool Helper::createClientPipe()
         TEXT("(A;OICI;GRGWGX;;;IU)");  // Allow read/write/execute to interactive users
 
     if (!::ConvertStringSecurityDescriptorToSecurityDescriptor(szSD, SDDL_REVISION_1, &sa.lpSecurityDescriptor, NULL)) {
+        spdlog::error("Helper::createClientPipe - ConvertStringSecurityDescriptorToSecurityDescriptor failed: {}", ::GetLastError());
         return false;
     }
     auto freeSD = wsScopeGuard([&] {
@@ -181,6 +185,33 @@ void Helper::processClientRequests()
         return;
     }
 #endif
+
+    // The service runs as SYSTEM, so the advanced parameters file is in the connected user's app data folder.
+    // Resolved per connection: a different user may connect next, and the check is cached until then.
+    // That folder is user-writable, so read it as the user: SYSTEM must not follow a junction planted there.
+    wsl::Win32Handle clientToken;
+    std::wstring traceFolder;
+    if (Utils::getPipeClientPrimaryToken(clientPipe_.getHandle(), clientToken.data())) {
+        traceFolder = Utils::getClientLogFolder(clientToken.getHandle());
+    }
+    log_utils::loadDebugTraceSetting(std::wstring());
+    if (!traceFolder.empty()) {
+        if (::ImpersonateLoggedOnUser(clientToken.getHandle())) {
+            log_utils::loadDebugTraceSetting(traceFolder);
+            if (!::RevertToSelf()) {
+                spdlog::critical("RevertToSelf after reading debug trace setting failed: {}", ::GetLastError());
+                return;
+            }
+        } else {
+            spdlog::warn("ImpersonateLoggedOnUser failed, debug trace setting not read: {}", ::GetLastError());
+        }
+    }
+    if (log_utils::debugTraceEnabled()) {
+        spdlog::set_level(spdlog::level::debug);
+        spdlog::info(L"Debug trace enabled from {}", traceFolder);
+    } else {
+        spdlog::set_level(spdlog::level::info);
+    }
 
     Win32Handle ioCompletedEvent(::CreateEvent(NULL, TRUE, TRUE, NULL));
     if (!ioCompletedEvent.isValid()) {
@@ -240,7 +271,10 @@ DWORD WINAPI Helper::clientHandlerThreadProc(LPVOID lpParameter)
     Helper* pThis = static_cast<Helper*>(lpParameter);
 
     // Required for the IcsManager class.
-    ::CoInitializeEx(0, COINIT_MULTITHREADED);
+    const HRESULT hrCoInit = ::CoInitializeEx(0, COINIT_MULTITHREADED);
+    if (FAILED(hrCoInit)) {
+        spdlog::error("Helper::clientHandlerThreadProc - CoInitializeEx failed: {:#x}", static_cast<unsigned long>(hrCoInit));
+    }
 
     BIND_CRASH_HANDLER_FOR_THREAD();
 
@@ -267,7 +301,9 @@ DWORD WINAPI Helper::clientHandlerThreadProc(LPVOID lpParameter)
         DWORD dwWait = clientConnectedEvent.wait(INFINITE, TRUE);
         if (dwWait == WAIT_OBJECT_0) {
             pThis->processClientRequests();
-            ::DisconnectNamedPipe(pThis->clientPipe_.getHandle());
+            if (!::DisconnectNamedPipe(pThis->clientPipe_.getHandle())) {
+                spdlog::error("DisconnectNamedPipe failed {}", ::GetLastError());
+            }
         } else {
             if (dwWait == WAIT_FAILED) {
                 spdlog::error("Client connect event wait failed {}", ::GetLastError());

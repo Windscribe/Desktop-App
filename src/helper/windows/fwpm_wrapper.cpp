@@ -3,6 +3,8 @@
 #include <fwpmu.h>
 #include <spdlog/spdlog.h>
 
+#include "utils/log/debug_trace.h"
+
 FwpmWrapper::FwpmWrapper()
 {
 }
@@ -14,6 +16,7 @@ FwpmWrapper::~FwpmWrapper()
 
 bool FwpmWrapper::initialize()
 {
+    WS_DEBUG_TRACE_SCOPE("FwpmWrapper::initialize");
     DWORD dwFwAPiRetCode = FwpmEngineOpen0(NULL, RPC_C_AUTHN_WINNT, NULL, NULL, &engineHandle_);
     if (dwFwAPiRetCode != ERROR_SUCCESS) {
         spdlog::error("EngineHandleWrapper::EngineHandleWrapper(), FwpmEngineOpen0 failed, {}", dwFwAPiRetCode);
@@ -44,6 +47,7 @@ void FwpmWrapper::unlock()
 
 bool FwpmWrapper::beginTransaction()
 {
+    WS_DEBUG_TRACE_SCOPE("FwpmWrapper::beginTransaction");
     DWORD dwFwAPiRetCode = FwpmTransactionBegin0(engineHandle_, NULL);
     if (dwFwAPiRetCode != ERROR_SUCCESS) {
         spdlog::error("FwpmWrapper::beginTransaction(), FwpmTransactionBegin0 failed, {}", dwFwAPiRetCode);
@@ -54,6 +58,7 @@ bool FwpmWrapper::beginTransaction()
 
 bool FwpmWrapper::endTransaction()
 {
+    WS_DEBUG_TRACE_SCOPE("FwpmWrapper::endTransaction");
     DWORD dwFwAPiRetCode = FwpmTransactionCommit0(engineHandle_);
     if (dwFwAPiRetCode != ERROR_SUCCESS) {
         spdlog::error("FwpmWrapper::endTransaction(), FwpmTransactionCommit0 failed, {}", dwFwAPiRetCode);
@@ -64,6 +69,7 @@ bool FwpmWrapper::endTransaction()
 
 bool FwpmWrapper::abortTransaction()
 {
+    WS_DEBUG_TRACE_SCOPE("FwpmWrapper::abortTransaction");
     DWORD dwFwAPiRetCode = FwpmTransactionAbort0(engineHandle_);
     if (dwFwAPiRetCode != ERROR_SUCCESS) {
         spdlog::error("FwpmWrapper::abortTransaction(), FwpmTransactionAbort0 failed, {}", dwFwAPiRetCode);

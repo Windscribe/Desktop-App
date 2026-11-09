@@ -3,6 +3,8 @@
 #include <Windows.h>
 #include <string>
 
+struct AmneziawgConfig;
+
 class WireGuardController final
 {
 public:
@@ -13,7 +15,12 @@ public:
     }
 
     bool installService(bool isAmneziaWG);
-    bool configure(const std::wstring &config);
+    // Validates the fields and writes the service .conf. The caller never supplies config text.
+    bool configure(const std::wstring &clientPrivateKey, const std::wstring &clientIpAddress,
+                   const std::wstring &clientDnsAddress, const std::wstring &clientListenPort,
+                   const std::wstring &peerPublicKey, const std::wstring &peerPresharedKey,
+                   const std::wstring &peerEndpoint, const std::wstring &allowedIps,
+                   const std::wstring &persistentKeepalive, const AmneziawgConfig &amneziawgConfig);
     bool deleteService();
 
     UINT getStatus(ULONG64 &lastHandshake, ULONG64 &txBytes, ULONG64 &rxBytes) const;
