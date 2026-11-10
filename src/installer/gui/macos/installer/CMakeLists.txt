@@ -68,11 +68,6 @@ target_include_directories(installer PRIVATE
                            ./installer
 )
 
-target_link_directories(installer
-                        PRIVATE
-                        ${CMAKE_SOURCE_DIR}/Frameworks
-)
-
 target_link_libraries(installer
                       PRIVATE
                       Boost::serialization

@@ -300,6 +300,45 @@
     </message>
 </context>
 <context>
+    <name>LocalIPCServer</name>
+    <message>
+        <source>Malformed hydra profile command.</source>
+        <translation>Μη έγκυρη εντολή προφίλ hydra.</translation>
+    </message>
+    <message>
+        <source>Could not remove the hydra profile.</source>
+        <translation>Δεν ήταν δυνατή η κατάργηση του προφίλ hydra.</translation>
+    </message>
+    <message>
+        <source>Hydra profile removed.</source>
+        <translation>Το προφίλ Hydra καταργήθηκε.</translation>
+    </message>
+    <message>
+        <source>No hydra profile imported.</source>
+        <translation>Δεν έχει εισαχθεί προφίλ hydra.</translation>
+    </message>
+    <message>
+        <source>The imported hydra profile is not in use. %1</source>
+        <translation>Το εισηγμένο προφίλ hydra δεν χρησιμοποιείται. %1</translation>
+    </message>
+    <message>
+        <source>Hydra profile %1:</source>
+        <translation>Προφίλ Hydra %1:</translation>
+    </message>
+    <message>
+        <source>(unnamed)</source>
+        <translation>(χωρίς όνομα)</translation>
+    </message>
+    <message>
+        <source>It maps every location: all of them connect through your hydra server.</source>
+        <translation>Καλύπτει όλες τις τοποθεσίες: όλες συνδέονται μέσω του διακομιστή hydra σας.</translation>
+    </message>
+    <message>
+        <source>Connect to one of these locations to go through your hydra server; the others connect directly.</source>
+        <translation>Συνδεθείτε σε μία από αυτές τις τοποθεσίες για να περάσετε μέσω του διακομιστή hydra σας· οι υπόλοιπες συνδέονται απευθείας.</translation>
+    </message>
+</context>
+<context>
     <name>LogViewer::LogViewerWindow</name>
     <message>
         <source>Word Wrap</source>
@@ -710,6 +749,18 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
         <translation>Αποσυνδεθεί</translation>
     </message>
     <message>
+        <source>Import Hydra Profile</source>
+        <translation>Εισαγωγή προφίλ Hydra</translation>
+    </message>
+    <message>
+        <source>Unable to import hydra profile</source>
+        <translation>Δεν είναι δυνατή η εισαγωγή του προφίλ hydra</translation>
+    </message>
+    <message>
+        <source>The imported hydra profile is not in use. %1</source>
+        <translation>Το εισηγμένο προφίλ hydra δεν χρησιμοποιείται. %1</translation>
+    </message>
+    <message>
         <source>The selected directory is writeable for other users. Custom configs in this directory may pose a potential security risk.</source>
         <translation>Ο επιλεγμένος κατάλογος είναι εγγράψιμος για άλλους χρήστες. Οι προσαρμοσμένες ρυθμίσεις παραμέτρων σε αυτόν τον κατάλογο ενδέχεται να αποτελούν πιθανό κίνδυνο για την ασφάλεια.</translation>
     </message>
@@ -968,6 +1019,22 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Windscribe could not generate the connection configuration. If this error persists, please send a debug log and open a support ticket.</source>
         <translation>Το Windscrib δεν μπόρεσε να δημιουργήσει τη διαμόρφωση σύνδεσης. Εάν αυτό το σφάλμα παραμένει, στείλτε ένα αρχείο καταγραφής εντοπισμού σφαλμάτων και ανοίξτε ένα δελτίο υποστήριξης.</translation>
+    </message>
+    <message>
+        <source>Can&apos;t reach your hydra server</source>
+        <translation>Ο διακομιστής hydra σας δεν είναι προσβάσιμος</translation>
+    </message>
+    <message>
+        <source>Windscribe couldn&apos;t connect through the hydra server at %1. Check that it&apos;s running (hydra doctor), or remove the hydra profile in Preferences &gt; Connection to connect without it.</source>
+        <translation>Το Windscribe δεν μπόρεσε να συνδεθεί μέσω του διακομιστή hydra στο %1. Ελέγξτε ότι εκτελείται (hydra doctor) ή καταργήστε το προφίλ hydra στις Προτιμήσεις &gt; Σύνδεση για να συνδεθείτε χωρίς αυτό.</translation>
+    </message>
+    <message>
+        <source>Hydra needs WireGuard</source>
+        <translation>Το Hydra απαιτεί WireGuard</translation>
+    </message>
+    <message>
+        <source>This location is set to connect through your hydra server, which works with WireGuard only. Choose WireGuard or Auto, or remove the hydra profile in Preferences &gt; Connection.</source>
+        <translation>Αυτή η τοποθεσία έχει ρυθμιστεί να συνδέεται μέσω του διακομιστή hydra σας, ο οποίος λειτουργεί μόνο με WireGuard. Επιλέξτε WireGuard ή Auto, ή καταργήστε το προφίλ hydra στις Προτιμήσεις &gt; Σύνδεση.</translation>
     </message>
     <message>
         <source>The Remote Access Connection Manager (RasMan) service is not running and could not be started. This prevents IKEv2 from being used on this PC. Please try another connection mode or investigate why this core Windows service is unable to start.</source>
@@ -1485,6 +1552,42 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Allow access to local services and printers while connected to Windscribe.</source>
         <translation>Επιτρέψτε την πρόσβαση σε τοπικές υπηρεσίες και εκτυπωτές ενώ είστε συνδεδεμένοι στο Windscrib.</translation>
+    </message>
+    <message>
+        <source>Hydra Profile</source>
+        <translation>Προφίλ Hydra</translation>
+    </message>
+    <message>
+        <source>Import Profile</source>
+        <translation>Εισαγωγή προφίλ</translation>
+    </message>
+    <message>
+        <source>Remove Profile</source>
+        <translation>Κατάργηση προφίλ</translation>
+    </message>
+    <message>
+        <source>All locations</source>
+        <translation>Όλες οι τοποθεσίες</translation>
+    </message>
+    <message>
+        <source>Connect to Windscribe through a private hydra server you run. Applies to WireGuard.</source>
+        <translation>Συνδεθείτε στο Windscribe μέσω ενός ιδιωτικού διακομιστή hydra που εκτελείτε εσείς. Ισχύει για το WireGuard.</translation>
+    </message>
+    <message>
+        <source>+1 more location</source>
+        <translation>+1 ακόμη τοποθεσία</translation>
+    </message>
+    <message>
+        <source>+%1 more locations</source>
+        <translation>+%1 ακόμη τοποθεσίες</translation>
+    </message>
+    <message>
+        <source>Select this location to connect through your hydra server.</source>
+        <translation>Επιλέξτε αυτή την τοποθεσία για σύνδεση μέσω του διακομιστή hydra σας.</translation>
+    </message>
+    <message>
+        <source>Select one of these locations to connect through your hydra server.</source>
+        <translation>Επιλέξτε μία από αυτές τις τοποθεσίες για σύνδεση μέσω του διακομιστή hydra σας.</translation>
     </message>
     <message>
         <source>Spoof your device&apos;s physical address (MAC address).</source>
@@ -2821,6 +2924,106 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Windscribe is already running in another user session on this computer. Quit Windscribe in that session, then try again.</source>
         <translation>Το Windscribe εκτελείται ήδη στην περίοδο λειτουργίας άλλου χρήστη σε αυτόν τον υπολογιστή. Πραγματοποιήστε έξοδο από το Windscribe σε εκείνη την περίοδο λειτουργίας και δοκιμάστε ξανά.</translation>
+    </message>
+    <message>
+        <source>%1 is required</source>
+        <translation>Το %1 είναι υποχρεωτικό</translation>
+    </message>
+    <message>
+        <source>%1 must be a string</source>
+        <translation>Το %1 πρέπει να είναι συμβολοσειρά</translation>
+    </message>
+    <message>
+        <source>%1 must be 1-65535</source>
+        <translation>Το %1 πρέπει να είναι 1-65535</translation>
+    </message>
+    <message>
+        <source>%1 must be a positive whole number</source>
+        <translation>Το %1 πρέπει να είναι θετικός ακέραιος αριθμός</translation>
+    </message>
+    <message>
+        <source>%1 must be a hostname</source>
+        <translation>Το %1 πρέπει να είναι όνομα κεντρικού υπολογιστή</translation>
+    </message>
+    <message>
+        <source>%1 must be an IPv4 address</source>
+        <translation>Το %1 πρέπει να είναι διεύθυνση IPv4</translation>
+    </message>
+    <message>
+        <source>must be an object</source>
+        <translation>πρέπει να είναι αντικείμενο</translation>
+    </message>
+    <message>
+        <source>unknown field %1</source>
+        <translation>άγνωστο πεδίο %1</translation>
+    </message>
+    <message>
+        <source>unsupported protocol %1</source>
+        <translation>μη υποστηριζόμενο πρωτόκολλο %1</translation>
+    </message>
+    <message>
+        <source>The file is too large to be a hydra profile.</source>
+        <translation>Το αρχείο είναι πολύ μεγάλο για να είναι προφίλ hydra.</translation>
+    </message>
+    <message>
+        <source>Not a hydra profile: the file is not a JSON object.</source>
+        <translation>Δεν είναι προφίλ hydra: το αρχείο δεν είναι αντικείμενο JSON.</translation>
+    </message>
+    <message>
+        <source>Not a hydra profile: kind must be %1.</source>
+        <translation>Δεν είναι προφίλ hydra: το kind πρέπει να είναι %1.</translation>
+    </message>
+    <message>
+        <source>This hydra profile is from an older hydra and names one server; ask for a new one.</source>
+        <translation>Αυτό το προφίλ hydra προέρχεται από παλαιότερη έκδοση του hydra και ορίζει έναν διακομιστή· ζητήστε ένα νέο.</translation>
+    </message>
+    <message>
+        <source>Unsupported hydra profile version; this app reads version 2.</source>
+        <translation>Μη υποστηριζόμενη έκδοση προφίλ hydra· αυτή η εφαρμογή διαβάζει την έκδοση 2.</translation>
+    </message>
+    <message>
+        <source>Invalid hydra profile: unknown field %1.</source>
+        <translation>Μη έγκυρο προφίλ hydra: άγνωστο πεδίο %1.</translation>
+    </message>
+    <message>
+        <source>Invalid hydra profile: %1.</source>
+        <translation>Μη έγκυρο προφίλ hydra: %1.</translation>
+    </message>
+    <message>
+        <source>Invalid hydra profile: all must be true or false.</source>
+        <translation>Μη έγκυρο προφίλ hydra: το all πρέπει να είναι true ή false.</translation>
+    </message>
+    <message>
+        <source>Invalid hydra profile: it has no fronts.</source>
+        <translation>Μη έγκυρο προφίλ hydra: δεν έχει fronts.</translation>
+    </message>
+    <message>
+        <source>Invalid hydra profile: front %1: %2.</source>
+        <translation>Μη έγκυρο προφίλ hydra: front %1: %2.</translation>
+    </message>
+    <message>
+        <source>Invalid hydra profile: front %1: entry %2 is listed twice.</source>
+        <translation>Μη έγκυρο προφίλ hydra: front %1: η καταχώριση %2 εμφανίζεται δύο φορές.</translation>
+    </message>
+    <message>
+        <source>%1 via %2</source>
+        <translation>%1 μέσω %2</translation>
+    </message>
+    <message>
+        <source>%1 via %2 (not in the server list)</source>
+        <translation>%1 μέσω %2 (δεν υπάρχει στη λίστα διακομιστών)</translation>
+    </message>
+    <message>
+        <source>Could not read the hydra profile: %1</source>
+        <translation>Δεν ήταν δυνατή η ανάγνωση του προφίλ hydra: %1</translation>
+    </message>
+    <message>
+        <source>Could not save the hydra profile: %1</source>
+        <translation>Δεν ήταν δυνατή η αποθήκευση του προφίλ hydra: %1</translation>
+    </message>
+    <message>
+        <source>%1 (not in the server list)</source>
+        <translation>%1 (δεν υπάρχει στη λίστα διακομιστών)</translation>
     </message>
 </context>
 <context>

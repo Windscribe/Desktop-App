@@ -62,6 +62,7 @@ public:
     void setWebSessionCompleted();
     void setPreferencesImportCompleted();
     void setLocationNamesImportCompleted();
+    void setHydraProfile(bool imported, const HydraProfile::Locations &locations, const QString &problem);
 
 signals:
     void logoutClick();
@@ -71,6 +72,8 @@ signals:
     void viewLogClick();
     void exportSettingsClick();
     void importSettingsClick();
+    void importHydraProfileClick();
+    void removeHydraProfileClick();
     void exportLocationNamesClick();
     void importLocationNamesClick();
     void resetLocationNamesClick();

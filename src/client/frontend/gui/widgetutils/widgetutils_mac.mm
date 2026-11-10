@@ -19,7 +19,8 @@ void ignoreTrayMenuTracking(id, SEL, NSNotification *)
 void WidgetUtils_mac::allowMinimizeForFramelessWindow(QWidget *window)
 {
     NSWindow* nsWindow = [(__bridge NSView*)reinterpret_cast<void*>(window->winId()) window];
-    [nsWindow setCollectionBehavior:NSWindowCollectionBehaviorCanJoinAllSpaces | NSWindowCollectionBehaviorTransient];
+    [nsWindow setCollectionBehavior:NSWindowCollectionBehaviorCanJoinAllSpaces | NSWindowCollectionBehaviorTransient |
+                                    NSWindowCollectionBehaviorFullScreenAuxiliary];
 
     [nsWindow setStyleMask:(/*NSWindowStyleMaskResizable |*/ NSWindowStyleMaskBorderless | NSWindowStyleMaskFullSizeContentView | NSWindowStyleMaskMiniaturizable)];
     [nsWindow setTitlebarAppearsTransparent:YES];       // 10.10+
@@ -35,12 +36,14 @@ void WidgetUtils_mac::allowMinimizeForFramelessWindow(QWidget *window)
 void WidgetUtils_mac::allowMoveBetweenSpacesForWindow(QWidget *window, bool docked, bool moveWindow)
 {
     NSWindow* nsWindow = [(__bridge NSView*)reinterpret_cast<void*>(window->winId()) window];
+    // Without FullScreenAuxiliary the window can't appear on another app's full-screen Space.
     if (docked) {
-        [nsWindow setCollectionBehavior:NSWindowCollectionBehaviorCanJoinAllSpaces | NSWindowCollectionBehaviorTransient];
+        [nsWindow setCollectionBehavior:NSWindowCollectionBehaviorCanJoinAllSpaces | NSWindowCollectionBehaviorTransient |
+                                        NSWindowCollectionBehaviorFullScreenAuxiliary];
     } else if (moveWindow) {
-        [nsWindow setCollectionBehavior:NSWindowCollectionBehaviorMoveToActiveSpace];
+        [nsWindow setCollectionBehavior:NSWindowCollectionBehaviorMoveToActiveSpace | NSWindowCollectionBehaviorFullScreenAuxiliary];
     } else {
-        [nsWindow setCollectionBehavior:NSWindowCollectionBehaviorDefault];
+        [nsWindow setCollectionBehavior:NSWindowCollectionBehaviorDefault | NSWindowCollectionBehaviorFullScreenAuxiliary];
     }
 }
 

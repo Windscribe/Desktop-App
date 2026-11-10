@@ -98,6 +98,9 @@ qt_add_executable(${WS_APP_TARGET}
 )
 
 if (WIN32)
+    if(TARGET wstunnel-version-resource)
+        add_dependencies(${WS_APP_TARGET} wstunnel-version-resource)
+    endif()
     if (NOT DEFINED ENV{QTC_RUN})
         foreach(_entry ${WS_BUNDLED_HELPERS})
             string(REPLACE "|" ";" _pair "${_entry}")

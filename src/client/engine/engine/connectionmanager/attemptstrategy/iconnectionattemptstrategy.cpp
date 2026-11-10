@@ -2,6 +2,7 @@
 
 #include "engine/locationsmodel/mutablelocationinfo.h"
 #include "utils/extraconfig.h"
+#include "utils/hydraprofile.h"
 #include "utils/log/categories.h"
 #include "utils/networkingvalidation.h"
 
@@ -69,6 +70,19 @@ CurrentConnectionDescr IConnectionAttemptStrategy::descrForSelectedNode(location
         // for static ip with wireguard protocol override id to wg_ip
         if (ccd.protocol == types::Protocol::WIREGUARD) {
             ccd.ip = locationInfo->getWgIpForSelectedNode();
+        }
+    } else if (ccd.protocol.isWireGuardProtocol()) {
+        if (const auto hydra = HydraProfile::load()) {
+            if (const auto *front = hydra->frontForDatacenter(locationInfo->getDatacenterId())) {
+                // A front stands in for the whole datacenter: hydra forwards to one of its servers on that
+                // server's own WireGuard port. Whichever node was selected, the entry replaces its IP and
+                // the port the user picked.
+                ccd.portBeforeHydra = ccd.port;
+                ccd.hydraDatacenter = front->datacenter;
+                ccd.ip = front->entryIp;
+                ccd.port = front->entryPort;
+                qCInfo(LOG_CONNECTION).noquote() << "Selected hydra entry" << front->redactedEndpoint() << "for" << front->datacenter;
+            }
         }
     }
 

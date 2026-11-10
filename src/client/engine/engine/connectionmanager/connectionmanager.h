@@ -253,6 +253,9 @@ private:
     void clearCachedConfigIfExhausted(bool isCachedConfigFailure);
     void startFailoverReconnect();
     void failWithError(ConnectError err);
+    // The hydra entry the current attempt dials, as ip:port.
+    QString hydraEntry() const;
+    void logHydraGiveUp() const;
 
     void disconnect();
 };

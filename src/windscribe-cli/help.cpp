@@ -95,6 +95,20 @@ const QList<CommandHelp> &commands()
             "while it is set to Always on in the app's preferences.\n"
         },
         {
+            "hydra", "Connection",
+            "Show, import, or remove your hydra profile",
+            { "hydra", "hydra import <file>", "hydra remove" },
+            "A hydra profile, written by a hydra server you run, lists private entry\n"
+            "points into Windscribe locations. While one is imported, connections to\n"
+            "those locations use WireGuard through the entry point, and fail rather\n"
+            "than connect without it.\n"
+            "\n"
+            "Commands:\n"
+            "  (none)        Show the imported profile and the locations it fronts\n"
+            "  import <file> Import a profile, replacing the one imported before\n"
+            "  remove        Remove the profile; those locations connect directly again\n"
+        },
+        {
             "locations", "Locations",
             "List locations, favourites, or static IPs",
             { "locations [fav|static]" },

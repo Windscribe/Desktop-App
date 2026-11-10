@@ -49,4 +49,15 @@ private slots:
     void testDefaultPolicyVirtualsAutoAndManual();
     void testResolveHostnamesEmitsForAutoAndManual();
     void testCachedConfigBudgetEdges();
+    void testHydraFrontMatchedByDatacenterWhicheverNode();
+    void testHydraRetryDialsTheNextNodeThroughTheEntry();
+    void testHydraKeepsPreferredNode();
+    void testHydraFrontMatchesTheIdNotTheHostname();
+    void testHydraIgnoredForNonWireGuard();
+    void testHydraWithoutMatchingFrontConnectsDirectly();
+    void testHydraIgnoredForStaticIps();
+    void testHydraFrontedAutoModeOnlyDialsTheFront();
+    void testHydraFrontedManualOpenVpnIsRefused();
+    void testHydraFrontedAlwaysOnPlusIsNotSubstituted();
+    void testNonFrontedLocationStillFailsOver();
 };

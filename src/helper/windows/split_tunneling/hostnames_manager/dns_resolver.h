@@ -53,6 +53,10 @@ private:
     std::map<std::string, HostInfo> results_;
 
     std::chrono::time_point<std::chrono::steady_clock> startTime_;
+    bool isWSNetInitialized_ = false;
+    bool isWSNetInitFailed_ = false;
+
+    bool ensureWSNetInitialized();
 
     void onDnsResolved(std::uint64_t requestId, const std::string &hostname, std::shared_ptr<wsnet::WSNetDnsRequestResult> result);
     void onTimer(const boost::system::error_code& error);

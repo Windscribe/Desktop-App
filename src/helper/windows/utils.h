@@ -20,6 +20,10 @@ namespace Utils
     // pass false so they don't recreate the dir on the same call that removes it.
     std::wstring getUpdatePath(bool create = true);
     std::wstring getSystemDir();
+    // Terminates every running process whose image is exePath (full path, case-insensitive) and
+    // waits up to 5s for each to exit. Used instead of spawning taskkill.exe, which costs 100ms+
+    // even when nothing matches. Returns the number of processes terminated.
+    int terminateProcessesByPath(const std::wstring &exePath);
     bool isValidFileName(std::wstring &filename);
     bool isFileExists(const wchar_t *path);
     // Creates an empty file (replacing any existing one) whose DACL grants access only to SYSTEM and

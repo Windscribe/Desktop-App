@@ -300,6 +300,45 @@
     </message>
 </context>
 <context>
+    <name>LocalIPCServer</name>
+    <message>
+        <source>Malformed hydra profile command.</source>
+        <translation>Comando de perfil hydra mal formado.</translation>
+    </message>
+    <message>
+        <source>Could not remove the hydra profile.</source>
+        <translation>Não foi possível remover o perfil hydra.</translation>
+    </message>
+    <message>
+        <source>Hydra profile removed.</source>
+        <translation>Perfil hydra removido.</translation>
+    </message>
+    <message>
+        <source>No hydra profile imported.</source>
+        <translation>Nenhum perfil hydra importado.</translation>
+    </message>
+    <message>
+        <source>The imported hydra profile is not in use. %1</source>
+        <translation>O perfil hydra importado não está a ser utilizado. %1</translation>
+    </message>
+    <message>
+        <source>Hydra profile %1:</source>
+        <translation>Perfil hydra %1:</translation>
+    </message>
+    <message>
+        <source>(unnamed)</source>
+        <translation>(sem nome)</translation>
+    </message>
+    <message>
+        <source>It maps every location: all of them connect through your hydra server.</source>
+        <translation>Abrange todas as localizações: todas se ligam através do seu servidor hydra.</translation>
+    </message>
+    <message>
+        <source>Connect to one of these locations to go through your hydra server; the others connect directly.</source>
+        <translation>Ligue-se a uma destas localizações para passar pelo seu servidor hydra; as restantes ligam-se diretamente.</translation>
+    </message>
+</context>
+<context>
     <name>LogViewer::LogViewerWindow</name>
     <message>
         <source>Word Wrap</source>
@@ -658,6 +697,18 @@ Se perderes o hash da tua conta, ele desaparece para sempre e o suporte não te 
         <translation>Desconectado</translation>
     </message>
     <message>
+        <source>Import Hydra Profile</source>
+        <translation>Importar perfil Hydra</translation>
+    </message>
+    <message>
+        <source>Unable to import hydra profile</source>
+        <translation>Não foi possível importar o perfil hydra</translation>
+    </message>
+    <message>
+        <source>The imported hydra profile is not in use. %1</source>
+        <translation>O perfil hydra importado não está a ser utilizado. %1</translation>
+    </message>
+    <message>
         <source>The selected directory is writeable for other users. Custom configs in this directory may pose a potential security risk.</source>
         <translation>O diretório selecionado é escritável para outros utilizadores. Configurações personalizadas neste diretório podem representar um risco de segurança potencial.</translation>
     </message>
@@ -832,6 +883,22 @@ Se o problema persistir após uma reinicialização, envie um log de depuração
     <message>
         <source>Windscribe could not generate the connection configuration. If this error persists, please send a debug log and open a support ticket.</source>
         <translation>O Windscribe não conseguiu gerar a configuração da ligação. Se este erro persistir, por favor envie um registo de depuração e abra um pedido de suporte.</translation>
+    </message>
+    <message>
+        <source>Can&apos;t reach your hydra server</source>
+        <translation>Não é possível contactar o seu servidor hydra</translation>
+    </message>
+    <message>
+        <source>Windscribe couldn&apos;t connect through the hydra server at %1. Check that it&apos;s running (hydra doctor), or remove the hydra profile in Preferences &gt; Connection to connect without it.</source>
+        <translation>O Windscribe não conseguiu ligar-se através do servidor hydra em %1. Verifique se está em execução (hydra doctor) ou remova o perfil hydra em Preferências &gt; Ligação para se ligar sem ele.</translation>
+    </message>
+    <message>
+        <source>Hydra needs WireGuard</source>
+        <translation>O Hydra requer WireGuard</translation>
+    </message>
+    <message>
+        <source>This location is set to connect through your hydra server, which works with WireGuard only. Choose WireGuard or Auto, or remove the hydra profile in Preferences &gt; Connection.</source>
+        <translation>Esta localização está configurada para se ligar através do seu servidor hydra, que só funciona com WireGuard. Escolha WireGuard ou Auto, ou remova o perfil hydra em Preferências &gt; Ligação.</translation>
     </message>
     <message>
         <source>The Remote Access Connection Manager (RasMan) service is not running and could not be started. This prevents IKEv2 from being used on this PC. Please try another connection mode or investigate why this core Windows service is unable to start.</source>
@@ -1473,6 +1540,42 @@ Se o problema persistir após uma reinicialização, envie um log de depuração
     <message>
         <source>Allow access to local services and printers while connected to Windscribe.</source>
         <translation>Permita o acesso a serviços locais e impressoras enquanto estiver conectado ao Windscribe.</translation>
+    </message>
+    <message>
+        <source>Hydra Profile</source>
+        <translation>Perfil Hydra</translation>
+    </message>
+    <message>
+        <source>Import Profile</source>
+        <translation>Importar perfil</translation>
+    </message>
+    <message>
+        <source>Remove Profile</source>
+        <translation>Remover perfil</translation>
+    </message>
+    <message>
+        <source>All locations</source>
+        <translation>Todas as localizações</translation>
+    </message>
+    <message>
+        <source>Connect to Windscribe through a private hydra server you run. Applies to WireGuard.</source>
+        <translation>Ligue-se ao Windscribe através de um servidor hydra privado gerido por si. Aplica-se ao WireGuard.</translation>
+    </message>
+    <message>
+        <source>+1 more location</source>
+        <translation>+1 localização</translation>
+    </message>
+    <message>
+        <source>+%1 more locations</source>
+        <translation>+%1 localizações</translation>
+    </message>
+    <message>
+        <source>Select this location to connect through your hydra server.</source>
+        <translation>Selecione esta localização para se ligar através do seu servidor hydra.</translation>
+    </message>
+    <message>
+        <source>Select one of these locations to connect through your hydra server.</source>
+        <translation>Selecione uma destas localizações para se ligar através do seu servidor hydra.</translation>
     </message>
     <message>
         <source>Spoof your device&apos;s physical address (MAC address).</source>
@@ -2821,6 +2924,106 @@ Se a reinstalação não ajudar, entre em contato com o suporte do Windscribe pa
     <message>
         <source>Windscribe is already running in another user session on this computer. Quit Windscribe in that session, then try again.</source>
         <translation>O Windscribe já está em execução na sessão de outro utilizador neste computador. Saia do Windscribe nessa sessão e tente novamente.</translation>
+    </message>
+    <message>
+        <source>%1 is required</source>
+        <translation>%1 é obrigatório</translation>
+    </message>
+    <message>
+        <source>%1 must be a string</source>
+        <translation>%1 tem de ser uma cadeia de texto</translation>
+    </message>
+    <message>
+        <source>%1 must be 1-65535</source>
+        <translation>%1 tem de estar entre 1-65535</translation>
+    </message>
+    <message>
+        <source>%1 must be a positive whole number</source>
+        <translation>%1 tem de ser um número inteiro positivo</translation>
+    </message>
+    <message>
+        <source>%1 must be a hostname</source>
+        <translation>%1 tem de ser um nome de anfitrião</translation>
+    </message>
+    <message>
+        <source>%1 must be an IPv4 address</source>
+        <translation>%1 tem de ser um endereço IPv4</translation>
+    </message>
+    <message>
+        <source>must be an object</source>
+        <translation>tem de ser um objeto</translation>
+    </message>
+    <message>
+        <source>unknown field %1</source>
+        <translation>campo desconhecido %1</translation>
+    </message>
+    <message>
+        <source>unsupported protocol %1</source>
+        <translation>protocolo não suportado %1</translation>
+    </message>
+    <message>
+        <source>The file is too large to be a hydra profile.</source>
+        <translation>O ficheiro é demasiado grande para ser um perfil hydra.</translation>
+    </message>
+    <message>
+        <source>Not a hydra profile: the file is not a JSON object.</source>
+        <translation>Não é um perfil hydra: o ficheiro não é um objeto JSON.</translation>
+    </message>
+    <message>
+        <source>Not a hydra profile: kind must be %1.</source>
+        <translation>Não é um perfil hydra: kind tem de ser %1.</translation>
+    </message>
+    <message>
+        <source>This hydra profile is from an older hydra and names one server; ask for a new one.</source>
+        <translation>Este perfil hydra é de uma versão antiga do hydra e indica apenas um servidor; peça um novo.</translation>
+    </message>
+    <message>
+        <source>Unsupported hydra profile version; this app reads version 2.</source>
+        <translation>Versão de perfil hydra não suportada; esta aplicação lê a versão 2.</translation>
+    </message>
+    <message>
+        <source>Invalid hydra profile: unknown field %1.</source>
+        <translation>Perfil hydra inválido: campo desconhecido %1.</translation>
+    </message>
+    <message>
+        <source>Invalid hydra profile: %1.</source>
+        <translation>Perfil hydra inválido: %1.</translation>
+    </message>
+    <message>
+        <source>Invalid hydra profile: all must be true or false.</source>
+        <translation>Perfil hydra inválido: all tem de ser true ou false.</translation>
+    </message>
+    <message>
+        <source>Invalid hydra profile: it has no fronts.</source>
+        <translation>Perfil hydra inválido: não tem fronts.</translation>
+    </message>
+    <message>
+        <source>Invalid hydra profile: front %1: %2.</source>
+        <translation>Perfil hydra inválido: front %1: %2.</translation>
+    </message>
+    <message>
+        <source>Invalid hydra profile: front %1: entry %2 is listed twice.</source>
+        <translation>Perfil hydra inválido: front %1: a entrada %2 está listada duas vezes.</translation>
+    </message>
+    <message>
+        <source>%1 via %2</source>
+        <translation>%1 via %2</translation>
+    </message>
+    <message>
+        <source>%1 via %2 (not in the server list)</source>
+        <translation>%1 via %2 (não está na lista de servidores)</translation>
+    </message>
+    <message>
+        <source>Could not read the hydra profile: %1</source>
+        <translation>Não foi possível ler o perfil hydra: %1</translation>
+    </message>
+    <message>
+        <source>Could not save the hydra profile: %1</source>
+        <translation>Não foi possível guardar o perfil hydra: %1</translation>
+    </message>
+    <message>
+        <source>%1 (not in the server list)</source>
+        <translation>%1 (não está na lista de servidores)</translation>
     </message>
 </context>
 <context>

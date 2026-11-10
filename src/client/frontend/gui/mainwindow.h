@@ -124,6 +124,10 @@ private slots:
     void onPreferencesViewLogClick();
     void onPreferencesExportSettingsClick();
     void onPreferencesImportSettingsClick();
+    void onPreferencesImportHydraProfileClick();
+    void onPreferencesRemoveHydraProfileClick();
+    // Lists the imported hydra profile's fronts in Preferences > Connection, named as the server list names them.
+    void updateHydraProfileInPreferences();
     void onPreferencesSendConfirmEmailClick();
     void onSendDebugLogClick(); // also used by protocol window
     void onPreferencesManageAccountClick();

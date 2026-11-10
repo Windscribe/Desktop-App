@@ -300,6 +300,45 @@
     </message>
 </context>
 <context>
+    <name>LocalIPCServer</name>
+    <message>
+        <source>Malformed hydra profile command.</source>
+        <translation>Perintah profil hydra tidak valid.</translation>
+    </message>
+    <message>
+        <source>Could not remove the hydra profile.</source>
+        <translation>Tidak dapat menghapus profil hydra.</translation>
+    </message>
+    <message>
+        <source>Hydra profile removed.</source>
+        <translation>Profil hydra dihapus.</translation>
+    </message>
+    <message>
+        <source>No hydra profile imported.</source>
+        <translation>Belum ada profil hydra yang diimpor.</translation>
+    </message>
+    <message>
+        <source>The imported hydra profile is not in use. %1</source>
+        <translation>Profil hydra yang diimpor tidak digunakan. %1</translation>
+    </message>
+    <message>
+        <source>Hydra profile %1:</source>
+        <translation>Profil hydra %1:</translation>
+    </message>
+    <message>
+        <source>(unnamed)</source>
+        <translation>(tanpa nama)</translation>
+    </message>
+    <message>
+        <source>It maps every location: all of them connect through your hydra server.</source>
+        <translation>Profil ini memetakan semua lokasi: semuanya terhubung melalui server hydra Anda.</translation>
+    </message>
+    <message>
+        <source>Connect to one of these locations to go through your hydra server; the others connect directly.</source>
+        <translation>Hubungkan ke salah satu lokasi ini untuk melewati server hydra Anda; lokasi lainnya terhubung langsung.</translation>
+    </message>
+</context>
+<context>
     <name>LogViewer::LogViewerWindow</name>
     <message>
         <source>Word Wrap</source>
@@ -658,6 +697,18 @@ Jika Anda kehilangan hash akun, itu akan hilang selamanya dan dukungan tidak dap
         <translation>Terputus</translation>
     </message>
     <message>
+        <source>Import Hydra Profile</source>
+        <translation>Impor Profil Hydra</translation>
+    </message>
+    <message>
+        <source>Unable to import hydra profile</source>
+        <translation>Tidak dapat mengimpor profil hydra</translation>
+    </message>
+    <message>
+        <source>The imported hydra profile is not in use. %1</source>
+        <translation>Profil hydra yang diimpor tidak digunakan. %1</translation>
+    </message>
+    <message>
         <source>The selected directory is writeable for other users. Custom configs in this directory may pose a potential security risk.</source>
         <translation>Direktori yang dipilih dapat ditulis untuk pengguna lain. Konfigurasi kustom di direktori ini dapat menimbulkan potensi risiko keamanan.</translation>
     </message>
@@ -832,6 +883,22 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
     <message>
         <source>Windscribe could not generate the connection configuration. If this error persists, please send a debug log and open a support ticket.</source>
         <translation>Windscribe tidak dapat menghasilkan konfigurasi koneksi. Jika kesalahan ini berlanjut, kirim log debug dan buka tiket dukungan.</translation>
+    </message>
+    <message>
+        <source>Can&apos;t reach your hydra server</source>
+        <translation>Tidak dapat menjangkau server hydra Anda</translation>
+    </message>
+    <message>
+        <source>Windscribe couldn&apos;t connect through the hydra server at %1. Check that it&apos;s running (hydra doctor), or remove the hydra profile in Preferences &gt; Connection to connect without it.</source>
+        <translation>Windscribe tidak dapat terhubung melalui server hydra di %1. Pastikan server berjalan (hydra doctor), atau hapus profil hydra di Preferensi &gt; Sambungan untuk terhubung tanpanya.</translation>
+    </message>
+    <message>
+        <source>Hydra needs WireGuard</source>
+        <translation>Hydra memerlukan WireGuard</translation>
+    </message>
+    <message>
+        <source>This location is set to connect through your hydra server, which works with WireGuard only. Choose WireGuard or Auto, or remove the hydra profile in Preferences &gt; Connection.</source>
+        <translation>Lokasi ini diatur untuk terhubung melalui server hydra Anda, yang hanya berfungsi dengan WireGuard. Pilih WireGuard atau Auto, atau hapus profil hydra di Preferensi &gt; Sambungan.</translation>
     </message>
     <message>
         <source>The Remote Access Connection Manager (RasMan) service is not running and could not be started. This prevents IKEv2 from being used on this PC. Please try another connection mode or investigate why this core Windows service is unable to start.</source>
@@ -1473,6 +1540,42 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
     <message>
         <source>Allow access to local services and printers while connected to Windscribe.</source>
         <translation>Izinkan akses ke layanan dan printer lokal saat terhubung ke Windscribe.</translation>
+    </message>
+    <message>
+        <source>Hydra Profile</source>
+        <translation>Profil Hydra</translation>
+    </message>
+    <message>
+        <source>Import Profile</source>
+        <translation>Impor Profil</translation>
+    </message>
+    <message>
+        <source>Remove Profile</source>
+        <translation>Hapus Profil</translation>
+    </message>
+    <message>
+        <source>All locations</source>
+        <translation>Semua lokasi</translation>
+    </message>
+    <message>
+        <source>Connect to Windscribe through a private hydra server you run. Applies to WireGuard.</source>
+        <translation>Hubungkan ke Windscribe melalui server hydra pribadi yang Anda jalankan. Berlaku untuk WireGuard.</translation>
+    </message>
+    <message>
+        <source>+1 more location</source>
+        <translation>+1 lokasi lainnya</translation>
+    </message>
+    <message>
+        <source>+%1 more locations</source>
+        <translation>+%1 lokasi lainnya</translation>
+    </message>
+    <message>
+        <source>Select this location to connect through your hydra server.</source>
+        <translation>Pilih lokasi ini untuk terhubung melalui server hydra Anda.</translation>
+    </message>
+    <message>
+        <source>Select one of these locations to connect through your hydra server.</source>
+        <translation>Pilih salah satu lokasi ini untuk terhubung melalui server hydra Anda.</translation>
     </message>
     <message>
         <source>Spoof your device&apos;s physical address (MAC address).</source>
@@ -2821,6 +2924,106 @@ Jika penginstalan ulang tidak membantu, hubungi dukungan Windscribe untuk mendap
     <message>
         <source>Windscribe is already running in another user session on this computer. Quit Windscribe in that session, then try again.</source>
         <translation>Windscribe sudah berjalan di sesi pengguna lain di komputer ini. Silakan berhenti dari Windscribe di sesi tersebut, lalu coba lagi.</translation>
+    </message>
+    <message>
+        <source>%1 is required</source>
+        <translation>%1 wajib diisi</translation>
+    </message>
+    <message>
+        <source>%1 must be a string</source>
+        <translation>%1 harus berupa string</translation>
+    </message>
+    <message>
+        <source>%1 must be 1-65535</source>
+        <translation>%1 harus 1-65535</translation>
+    </message>
+    <message>
+        <source>%1 must be a positive whole number</source>
+        <translation>%1 harus berupa bilangan bulat positif</translation>
+    </message>
+    <message>
+        <source>%1 must be a hostname</source>
+        <translation>%1 harus berupa nama host</translation>
+    </message>
+    <message>
+        <source>%1 must be an IPv4 address</source>
+        <translation>%1 harus berupa alamat IPv4</translation>
+    </message>
+    <message>
+        <source>must be an object</source>
+        <translation>harus berupa objek</translation>
+    </message>
+    <message>
+        <source>unknown field %1</source>
+        <translation>kolom tidak dikenal %1</translation>
+    </message>
+    <message>
+        <source>unsupported protocol %1</source>
+        <translation>protokol tidak didukung %1</translation>
+    </message>
+    <message>
+        <source>The file is too large to be a hydra profile.</source>
+        <translation>File terlalu besar untuk menjadi profil hydra.</translation>
+    </message>
+    <message>
+        <source>Not a hydra profile: the file is not a JSON object.</source>
+        <translation>Bukan profil hydra: file bukan objek JSON.</translation>
+    </message>
+    <message>
+        <source>Not a hydra profile: kind must be %1.</source>
+        <translation>Bukan profil hydra: kind harus %1.</translation>
+    </message>
+    <message>
+        <source>This hydra profile is from an older hydra and names one server; ask for a new one.</source>
+        <translation>Profil hydra ini berasal dari hydra versi lama dan hanya menyebut satu server; mintalah yang baru.</translation>
+    </message>
+    <message>
+        <source>Unsupported hydra profile version; this app reads version 2.</source>
+        <translation>Versi profil hydra tidak didukung; aplikasi ini membaca versi 2.</translation>
+    </message>
+    <message>
+        <source>Invalid hydra profile: unknown field %1.</source>
+        <translation>Profil hydra tidak valid: kolom tidak dikenal %1.</translation>
+    </message>
+    <message>
+        <source>Invalid hydra profile: %1.</source>
+        <translation>Profil hydra tidak valid: %1.</translation>
+    </message>
+    <message>
+        <source>Invalid hydra profile: all must be true or false.</source>
+        <translation>Profil hydra tidak valid: all harus true atau false.</translation>
+    </message>
+    <message>
+        <source>Invalid hydra profile: it has no fronts.</source>
+        <translation>Profil hydra tidak valid: tidak memiliki front.</translation>
+    </message>
+    <message>
+        <source>Invalid hydra profile: front %1: %2.</source>
+        <translation>Profil hydra tidak valid: front %1: %2.</translation>
+    </message>
+    <message>
+        <source>Invalid hydra profile: front %1: entry %2 is listed twice.</source>
+        <translation>Profil hydra tidak valid: front %1: entri %2 tercantum dua kali.</translation>
+    </message>
+    <message>
+        <source>%1 via %2</source>
+        <translation>%1 melalui %2</translation>
+    </message>
+    <message>
+        <source>%1 via %2 (not in the server list)</source>
+        <translation>%1 melalui %2 (tidak ada di daftar server)</translation>
+    </message>
+    <message>
+        <source>Could not read the hydra profile: %1</source>
+        <translation>Tidak dapat membaca profil hydra: %1</translation>
+    </message>
+    <message>
+        <source>Could not save the hydra profile: %1</source>
+        <translation>Tidak dapat menyimpan profil hydra: %1</translation>
+    </message>
+    <message>
+        <source>%1 (not in the server list)</source>
+        <translation>%1 (tidak ada di daftar server)</translation>
     </message>
 </context>
 <context>

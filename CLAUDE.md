@@ -38,7 +38,7 @@ client-desktop/
 ├── cmake/                  # CMake configuration files
 ├── data/                   # Application resources and test data
 ├── build/                  # Build output (created during build)
-├── build-libs/            # Compiled dependencies (WSTunnel, Wintun, etc.)
+├── build-libs/            # Compiled Windows dependencies (Wintun, OpenVPN DCO)
 ├── build-exe/             # Final installers/packages (created during build)
 └── CMakeLists.txt         # Root build configuration
 ```
@@ -132,7 +132,6 @@ Windscribe's custom networking library with anti-censorship capabilities. It is 
 - **`build_all.py`** - Main Python build orchestrator
 - **`base/`** - Python build utilities
 - **`deps/`** - Dependency installation scripts
-  - `install_wstunnel` - WSTunnel binary installer
   - `install_openvpn_dco` - OpenVPN DCO driver (Windows)
   - `install_wintun` - Wintun driver (Windows)
 - **`vcpkg/`** - vcpkg package manager configuration
@@ -152,7 +151,6 @@ Most components have separate implementations:
 ### Core Languages
 - **C++17** - Primary language (MSVC on Windows, Clang on macOS, GCC/Clang on Linux)
 - **Python 3.6.8+** - Build scripts (3.11+ recommended)
-- **Go 1.23+** - For building WSTunnel dependency
 - **Shell Scripts** - Bash (macOS/Linux), PowerShell (Windows)
 
 ### GUI Framework
@@ -286,20 +284,13 @@ headers: `libnftables-dev` (Debian/Ubuntu), `nftables-devel` (Fedora/openSUSE), 
 headers ship in the main package). The `nftables` runtime package is declared as a dependency in the
 Linux installers.
 
-### Building Libraries (Required First)
+### Building Libraries (Required First, Windows only)
 
 Navigate to `tools/deps/` and run installation scripts **in order**:
 
-**Windows**:
 ```bash
 install_openvpn_dco [--arm64]
 install_wintun [--arm64]
-install_wstunnel [--arm64]
-```
-
-**macOS/Linux**:
-```bash
-./install_wstunnel
 ```
 
 Libraries are placed in `build-libs/` (or `build-libs-arm64/` on Windows ARM64).

@@ -14,6 +14,7 @@
 #include "proxygatewaygroup.h"
 #include "securehotspotgroup.h"
 #include "decoytrafficgroup.h"
+#include "utils/hydraprofile.h"
 #include "utils/network_utils/dnschecker.h"
 
 enum CONNECTION_SCREEN_TYPE { CONNECTION_SCREEN_HOME,
@@ -40,6 +41,9 @@ public:
     void setPacketSizeDetectionState(bool on);
     void showPacketSizeDetectionError(const QString &title, const QString &message);
     void setClearWifiHistoryResult(bool success);
+    // The imported hydra profile's locations to select; or, when the stored file can't be used,
+    // why (problem); imported is false when there is none.
+    void setHydraProfile(bool imported, const HydraProfile::Locations &locations, const QString &problem);
 
 signals:
     void networkOptionsPageClick();
@@ -51,6 +55,8 @@ signals:
     void connectedDnsDomainsClick(const QStringList &domains);
     void fetchControldDevices(const QString &apiKey);
     void clearWifiHistoryClick();
+    void importHydraProfileClick();
+    void removeHydraProfileClick();
 
 public slots:
     void checkLocalDns();
@@ -102,6 +108,7 @@ private:
     // Sets the MAC spoofing group's description for the current platform/support state, in the current
     // language. Single source of truth shared by onLanguageChanged() and the show-time re-evaluation.
     void updateMacSpoofingDescription();
+    void updateHydraProfileDescription();
 
     Preferences *preferences_;
     PreferencesHelper *preferencesHelper_;
@@ -135,6 +142,16 @@ private:
     ProxyGatewayGroup *proxyGatewayGroup_;
     DecoyTrafficGroup *decoyTrafficGroup_;
 
+    PreferenceGroup *hydraProfileGroup_;
+    LinkItem *hydraProfileItem_;
+    // The locations to select, in the row style so they stand out from the description under them.
+    LinkItem *hydraLocationItems_[HydraProfile::kShownLocations];
+    bool hydraLocationShown_[HydraProfile::kShownLocations] = {};
+    LinkItem *importHydraProfileItem_;
+    LinkItem *removeHydraProfileItem_;
+    bool hydraImported_ = false;
+    HydraProfile::Locations hydraLocations_;
+    QString hydraProblem_;
     PreferenceGroup *clearWifiHistoryGroup_;
     LinkItem *clearWifiHistoryItem_;
     enum class ClearWifiState {

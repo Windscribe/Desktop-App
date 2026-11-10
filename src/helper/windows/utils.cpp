@@ -8,6 +8,7 @@
 #include <shlobj.h>
 #include <wlanapi.h>
 #include <SetupAPI.h>
+#include <tlhelp32.h>
 #include <devguid.h>
 
 #include <filesystem>
@@ -150,6 +151,50 @@ std::wstring getExePath()
     }
     std::wstring::size_type pos = std::wstring(buffer).find_last_of(L"\\/");
     return std::wstring(buffer).substr(0, pos);
+}
+
+int terminateProcessesByPath(const std::wstring &exePath)
+{
+    const std::wstring exeName = std::filesystem::path(exePath).filename().wstring();
+
+    wsl::Win32Handle snapshot(::CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0));
+    if (!snapshot.isValid()) {
+        spdlog::error("terminateProcessesByPath CreateToolhelp32Snapshot failed: {}", ::GetLastError());
+        return 0;
+    }
+
+    int killed = 0;
+    PROCESSENTRY32W entry;
+    entry.dwSize = sizeof(entry);
+    for (BOOL more = ::Process32FirstW(snapshot.getHandle(), &entry); more; more = ::Process32NextW(snapshot.getHandle(), &entry)) {
+        if (_wcsicmp(entry.szExeFile, exeName.c_str()) != 0) {
+            continue;
+        }
+
+        wsl::Win32Handle process(::OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION | PROCESS_TERMINATE | SYNCHRONIZE,
+                                               FALSE, entry.th32ProcessID));
+        if (!process.isValid()) {
+            spdlog::warn("terminateProcessesByPath OpenProcess({}) failed: {}", entry.th32ProcessID, ::GetLastError());
+            continue;
+        }
+
+        // Only kill the binary at exePath, not a same-named exe from elsewhere.
+        wchar_t imagePath[MAX_PATH * 2];
+        DWORD imagePathLen = ARRAYSIZE(imagePath);
+        if (!::QueryFullProcessImageNameW(process.getHandle(), 0, imagePath, &imagePathLen) ||
+            !iequals(imagePath, exePath)) {
+            continue;
+        }
+
+        if (!::TerminateProcess(process.getHandle(), 1)) {
+            spdlog::error("terminateProcessesByPath TerminateProcess({}) failed: {}", entry.th32ProcessID, ::GetLastError());
+            continue;
+        }
+        process.wait(5000);
+        ++killed;
+    }
+
+    return killed;
 }
 
 std::wstring getDirPathFromFullPath(std::wstring &fullPath)

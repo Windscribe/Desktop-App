@@ -56,11 +56,6 @@ ws-vcpkg-registry\install-vcpkg\vcpkg_install.bat C:\path\to\vcpkg
 - Verify that `python3` is available in your System `PATH` environment variable.
   - If you installed Python from the Microsoft Store, enable the `python3.exe` execution alias in System Settings `Manage App Execution Aliases`.
   - If you installed Python from python.org, you can `mklink /path/to/your/python3.exe /path/to/your/python.exe`
-- If you plan to build the `wstunnel` dependency listed in the `Build libraries` section:
-  - Install golang (minimum version 1.23) following the instructions from `https://go.dev/doc/install`
-  - Download the latest llvm-mingw msvcrt x86_64 package from `https://github.com/mstorsjo/llvm-mingw/releases`.
-  - Extract the `bin` and `include` folders to a folder of your choosing.
-  - Before running `install_wstunnel`, set the environment variable `LLVM_MINGW_ROOT` to the folder you created in the previous step.
 
 ### Install build script dependencies
 - You will have to go to `Manage App Execution Aliases` in System Settings and disable app installer for `python.exe` and `python3.exe`
@@ -91,7 +86,6 @@ Go to subfolder `tools/deps` and run the following scripts in order. Append `--a
 ```
 install_openvpn_dco
 install_wintun
-install_wstunnel
 ```
 
 ### Build the Windscribe 2.0 app
@@ -150,19 +144,10 @@ git clone https://github.com/Windscribe/ws-vcpkg-registry.git
 ```python
   python3 -m pip install -r tools/requirements.txt
 ```
-- Install golang (minimum version 1.23): follow instructions from `https://go.dev/doc/install`
 
 ### Install signing certificate (required)
 - Install your Developer ID Application signing certificate from your Apple Developer account in Keychain Access.
 - Edit `client/common/utils/executable_signature/executable_signature_defs.h` and set the `MACOS_CERT_TEAM_ID` entry to match your Developer ID Application signing certificate's team ID.
-
-### Build libraries
-
-Go to subfolder `tools/deps` and run the following scripts in order. Libraries will be placed in `build-libs`.
-
-```
-install_wstunnel
-```
 
 ### Build the Windscribe 2.0 app
 
@@ -195,10 +180,6 @@ The repository contains Dockerfile to simplify building process. Skip all the ot
 ```bash
   sudo docker run --rm -v .:/w ws-builder /bin/bash -c "git clone https://github.com/Windscribe/ws-vcpkg-registry.git /tmp/ws-vcpkg-registry && /tmp/ws-vcpkg-registry/install-vcpkg/vcpkg_install.sh /w/vcpkg"
 ```
-- Build all the dependencies:
-```bash
-  for i in qt wstunnel; do sudo docker run --rm -v .:/w ws-builder /bin/bash -c "cd /w/tools/deps/ && ./install_$i"; done
-```
 - Build the application:
 ```bash
   sudo docker run --rm -v .:/w ws-builder /bin/bash -c "export VCPKG_ROOT=/w/vcpkg  && cd /w/tools/ && ./build_all --dev-mode"
@@ -222,19 +203,10 @@ Build process tested on Ubuntu 22.04/24.04.
 git clone https://github.com/Windscribe/ws-vcpkg-registry.git
 ./ws-vcpkg-registry/install-vcpkg/vcpkg_install.sh /path/to/vcpkg
 ```
-- Install golang (minimum version 1.23): follow instructions from `https://go.dev/doc/install`
 - Clone the repository.
 - Install Python (if necessary) and Python deps.  You may want to use a virtual environment for Python (e.g. with pyenv), but this is up to you (and possibly your distribution).  We recommend 3.11 or later.
 ```python
   python3 -m pip install -r tools/requirements.txt
-```
-
-### Build libraries
-
-Go to subfolder `tools/deps` and run the following scripts in order. Libraries will be placed in `build-libs`.
-
-```
-install_wstunnel
 ```
 
 ### Build the Windscribe 2.0 app

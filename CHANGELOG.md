@@ -1,3 +1,14 @@
+2.26.1 (10/11/2026)
+All:
+   * Added support for hydra profiles. Import a hydra profile in Preferences > Connection > Hydra Profile, or with windscribe-cli hydra, to connect to the profile's locations through your own self-hosted hydra WireGuard server. #2072
+Windows:
+   * Improved app launch time by no longer executing taskkill.exe in the helper to stop OpenVPN. #2079
+   * Improved security by moving IKEv2 IPsec parameter setup, which runs as the signed-in user, out of the helper and into the app. #2076
+   * Fixed the helper crashing on startup when third-party software installs a WinSock Layered Service Provider (LSP). #2084
+macOS:
+   * Fixed the app window opening behind full-screen apps when clicking the menu bar icon on macOS 27. #2080
+
+
 2.25.8 (05/11/2026)
 All:
    * Improved windscribe-cli error messages for connection and update failures, so they describe the actual problem instead of showing a numeric error code. #2047

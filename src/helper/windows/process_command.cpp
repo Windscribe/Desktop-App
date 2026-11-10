@@ -7,6 +7,7 @@
 #include <locale>
 #include <spdlog/spdlog.h>
 #include <sstream>
+#include <winreg/WinReg.hpp>
 
 #include <WinSock2.h>
 #include <ws2ipdef.h>
@@ -23,7 +24,6 @@
 #include "firewallfilter.h"
 #include "firewallonboot.h"
 #include "hostsedit.h"
-#include "ikev2ipsec.h"
 #include "ikev2route.h"
 #include "network_validation.h"
 #include "ipv6_firewall.h"
@@ -53,13 +53,10 @@ struct SPLIT_TUNNELING_PARS
 
 std::string processCommand(HelperCommand cmdId, const std::string &pars, HANDLE clientPipe)
 {
-    // These commands need the caller's pipe so they can act as that user. Dispatched directly
+    // This command needs the caller's pipe so it can act as that user. Dispatched directly
     // rather than through kCommands (whose handlers take only the serialized parameters).
     if (cmdId == HelperCommand::executeOpenVPN) {
         return executeOpenVPN(pars, clientPipe);
-    }
-    if (cmdId == HelperCommand::setIKEv2IPSecParameters) {
-        return setIKEv2IPSecParameters(pars, clientPipe);
     }
 
     const auto command = kCommands.find(cmdId);
@@ -234,26 +231,20 @@ std::string executeTaskKill(const std::string &pars)
     CmdKillTarget target;
     deserializePars(pars, target);
 
-    ExecuteCmdResult res;
-    if (target == kTargetOpenVpn) {
-        if (OpenVPNController::instance().terminateProcess()) {
-            res.success = true;
-            return serializeResult(res.success, res.exitCode, res.output);
-        }
-        // Fallback for an orphaned daemon whose handle we no longer hold (e.g. after helper restart).
-        std::wstringstream killCmd;
-        killCmd << Utils::getSystemDir() << L"\\taskkill.exe /f /t /im " WS_PRODUCT_NAME_LOWER_W L"openvpn.exe";
-        res = ExecuteCmd::instance().executeBlockingCmd(killCmd.str());
-        if (res.success && res.exitCode != 0) {
-            // taskkill also exits non-zero when no matching process exists, so this is not necessarily a failure.
-            spdlog::warn(L"executeTaskKill - taskkill fallback exited with code {}: {}", res.exitCode, res.output);
-        }
-    }
-    else {
+    if (target != kTargetOpenVpn) {
         spdlog::error(L"executeTaskKill, invalid ID received {}", (int)target);
+        return serializeResult(false);
     }
 
-    return serializeResult(res.success, res.exitCode, res.output);
+    if (!OpenVPNController::instance().terminateProcess()) {
+        // Fallback for an orphaned daemon whose handle we no longer hold (e.g. after helper restart).
+        const int killed = Utils::terminateProcessesByPath(OpenVPNController::exePath());
+        if (killed > 0) {
+            spdlog::info("executeTaskKill - terminated {} orphaned OpenVPN process(es)", killed);
+        }
+    }
+
+    return serializeResult(true);
 }
 
 std::string startWireGuard(const std::string &pars)
@@ -835,10 +826,39 @@ std::string removeAppNetworkProfiles(const std::string &pars)
     return std::string();
 }
 
-std::string setIKEv2IPSecParameters(const std::string &pars, HANDLE clientPipe)
+std::string disableIKEv2MODP2048Support(const std::string &pars)
 {
-    WS_DEBUG_TRACE_SCOPE("setIKEv2IPSecParameters");
-    IKEv2IPSec::setIKEv2IPSecParameters(clientPipe);
+    WS_DEBUG_TRACE_SCOPE("disableIKEv2MODP2048Support");
+
+    // RasDial in the client will fail with error code 13868 if this registry setting is enabled.
+    // See https://wiki.strongswan.org/projects/strongswan/wiki/WindowsClients for more info on this setting.
+    static const std::wstring kRasmanParametersKey = L"System\\CurrentControlSet\\Services\\Rasman\\Parameters";
+    static const std::wstring kNegotiateDH2048Value = L"NegotiateDH2048_AES256";
+
+    winreg::RegKey registry;
+    const winreg::RegResult openResult = registry.TryOpen(HKEY_LOCAL_MACHINE, kRasmanParametersKey,
+                                                          KEY_QUERY_VALUE | KEY_SET_VALUE);
+    if (!openResult) {
+        spdlog::error("disableIKEv2MODP2048Support: failed to open the 'Rasman Parameters' key ({})", openResult.Code());
+        return std::string();
+    }
+
+    const auto value = registry.TryGetDwordValue(kNegotiateDH2048Value);
+    if (!value) {
+        if (value.GetError().Code() != ERROR_FILE_NOT_FOUND) {
+            spdlog::error("disableIKEv2MODP2048Support: failed to query the 'NegotiateDH2048_AES256' value ({})",
+                          value.GetError().Code());
+        }
+        return std::string();
+    }
+
+    if (value.GetValue() != 0) {
+        spdlog::info("disableIKEv2MODP2048Support: resetting the 'NegotiateDH2048_AES256' value from {} to 0", value.GetValue());
+        const winreg::RegResult setResult = registry.TrySetDwordValue(kNegotiateDH2048Value, 0);
+        if (!setResult) {
+            spdlog::error("disableIKEv2MODP2048Support: failed to set the 'NegotiateDH2048_AES256' value ({})", setResult.Code());
+        }
+    }
     return std::string();
 }
 

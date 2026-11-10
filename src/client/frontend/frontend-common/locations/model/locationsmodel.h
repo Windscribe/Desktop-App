@@ -64,6 +64,11 @@ public:
     QModelIndex getIndexByLocationId(const LocationID &id) const;
     QModelIndex getBestLocationIndex() const;
     QModelIndex getCustomConfigLocationIndex() const;
+    // The server list's own name for the datacenter with this id, as "City - Nick" (never a rename); empty
+    // when no city in the list has it.
+    QString cityNameForDatacenter(int datacenterId) const;
+    // The datacenter id of an API city, or of the city a best location stands for; 0 for anything else.
+    int datacenterIdForLocation(const LocationID &lid) const;
 
     // the client of the class must explicitly save locations if required
     void saveFavoriteLocations();

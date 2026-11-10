@@ -300,6 +300,45 @@
     </message>
 </context>
 <context>
+    <name>LocalIPCServer</name>
+    <message>
+        <source>Malformed hydra profile command.</source>
+        <translation>hydra 프로필 명령이 잘못되었습니다.</translation>
+    </message>
+    <message>
+        <source>Could not remove the hydra profile.</source>
+        <translation>hydra 프로필을 제거할 수 없습니다.</translation>
+    </message>
+    <message>
+        <source>Hydra profile removed.</source>
+        <translation>Hydra 프로필을 제거했습니다.</translation>
+    </message>
+    <message>
+        <source>No hydra profile imported.</source>
+        <translation>가져온 hydra 프로필이 없습니다.</translation>
+    </message>
+    <message>
+        <source>The imported hydra profile is not in use. %1</source>
+        <translation>가져온 hydra 프로필이 사용되지 않습니다. %1</translation>
+    </message>
+    <message>
+        <source>Hydra profile %1:</source>
+        <translation>Hydra 프로필 %1:</translation>
+    </message>
+    <message>
+        <source>(unnamed)</source>
+        <translation>(이름 없음)</translation>
+    </message>
+    <message>
+        <source>It maps every location: all of them connect through your hydra server.</source>
+        <translation>모든 위치에 적용됩니다. 모든 위치가 hydra 서버를 통해 연결됩니다.</translation>
+    </message>
+    <message>
+        <source>Connect to one of these locations to go through your hydra server; the others connect directly.</source>
+        <translation>hydra 서버를 거치려면 다음 위치 중 하나에 연결하세요. 나머지 위치는 직접 연결됩니다.</translation>
+    </message>
+</context>
+<context>
     <name>LogViewer::LogViewerWindow</name>
     <message>
         <source>Word Wrap</source>
@@ -658,6 +697,18 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
         <translation>연결 끊김</translation>
     </message>
     <message>
+        <source>Import Hydra Profile</source>
+        <translation>Hydra 프로필 가져오기</translation>
+    </message>
+    <message>
+        <source>Unable to import hydra profile</source>
+        <translation>hydra 프로필을 가져올 수 없음</translation>
+    </message>
+    <message>
+        <source>The imported hydra profile is not in use. %1</source>
+        <translation>가져온 hydra 프로필이 사용되지 않습니다. %1</translation>
+    </message>
+    <message>
         <source>The selected directory is writeable for other users. Custom configs in this directory may pose a potential security risk.</source>
         <translation>선택된 디렉터리는 다른 사용자들을 위해 쓸 수 있습니다. 이 디렉터리의 사용자 지정 설정은 잠재적인 보안 위험을 초래할 수 있습니다.</translation>
     </message>
@@ -832,6 +883,22 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Windscribe could not generate the connection configuration. If this error persists, please send a debug log and open a support ticket.</source>
         <translation>Windscribe는 연결 구성을 생성할 수 없었습니다. 이 오류가 계속되면 디버그 로그를 보내고 지원 티켓을 열어주세요.</translation>
+    </message>
+    <message>
+        <source>Can&apos;t reach your hydra server</source>
+        <translation>hydra 서버에 연결할 수 없음</translation>
+    </message>
+    <message>
+        <source>Windscribe couldn&apos;t connect through the hydra server at %1. Check that it&apos;s running (hydra doctor), or remove the hydra profile in Preferences &gt; Connection to connect without it.</source>
+        <translation>Windscribe가 %1의 hydra 서버를 통해 연결하지 못했습니다. 서버가 실행 중인지 확인하거나(hydra doctor), hydra 없이 연결하려면 설정 &gt; 연결에서 hydra 프로필을 제거하세요.</translation>
+    </message>
+    <message>
+        <source>Hydra needs WireGuard</source>
+        <translation>Hydra에는 WireGuard가 필요합니다</translation>
+    </message>
+    <message>
+        <source>This location is set to connect through your hydra server, which works with WireGuard only. Choose WireGuard or Auto, or remove the hydra profile in Preferences &gt; Connection.</source>
+        <translation>이 위치는 hydra 서버를 통해 연결하도록 설정되어 있으며, hydra 서버는 WireGuard에서만 작동합니다. WireGuard 또는 Auto를 선택하거나 설정 &gt; 연결에서 hydra 프로필을 제거하세요.</translation>
     </message>
     <message>
         <source>The Remote Access Connection Manager (RasMan) service is not running and could not be started. This prevents IKEv2 from being used on this PC. Please try another connection mode or investigate why this core Windows service is unable to start.</source>
@@ -1473,6 +1540,42 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Allow access to local services and printers while connected to Windscribe.</source>
         <translation>Windscribe에 연결되어 있는 동안 로컬 서비스 및 프린터에 대한 액세스를 허용합니다.</translation>
+    </message>
+    <message>
+        <source>Hydra Profile</source>
+        <translation>Hydra 프로필</translation>
+    </message>
+    <message>
+        <source>Import Profile</source>
+        <translation>프로필 가져오기</translation>
+    </message>
+    <message>
+        <source>Remove Profile</source>
+        <translation>프로필 제거</translation>
+    </message>
+    <message>
+        <source>All locations</source>
+        <translation>모든 위치</translation>
+    </message>
+    <message>
+        <source>Connect to Windscribe through a private hydra server you run. Applies to WireGuard.</source>
+        <translation>직접 운영하는 개인 hydra 서버를 통해 Windscribe에 연결합니다. WireGuard에 적용됩니다.</translation>
+    </message>
+    <message>
+        <source>+1 more location</source>
+        <translation>외 1개 위치</translation>
+    </message>
+    <message>
+        <source>+%1 more locations</source>
+        <translation>외 %1개 위치</translation>
+    </message>
+    <message>
+        <source>Select this location to connect through your hydra server.</source>
+        <translation>hydra 서버를 통해 연결하려면 이 위치를 선택하세요.</translation>
+    </message>
+    <message>
+        <source>Select one of these locations to connect through your hydra server.</source>
+        <translation>hydra 서버를 통해 연결하려면 다음 위치 중 하나를 선택하세요.</translation>
     </message>
     <message>
         <source>Spoof your device&apos;s physical address (MAC address).</source>
@@ -2821,6 +2924,106 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Windscribe is already running in another user session on this computer. Quit Windscribe in that session, then try again.</source>
         <translation>이 컴퓨터의 다른 사용자 세션에서 Windscribe가 이미 실행 중입니다. 해당 세션에서 Windscribe를 종료한 후 다시 시도해 주세요.</translation>
+    </message>
+    <message>
+        <source>%1 is required</source>
+        <translation>%1은(는) 필수입니다</translation>
+    </message>
+    <message>
+        <source>%1 must be a string</source>
+        <translation>%1은(는) 문자열이어야 합니다</translation>
+    </message>
+    <message>
+        <source>%1 must be 1-65535</source>
+        <translation>%1은(는) 1-65535 사이여야 합니다</translation>
+    </message>
+    <message>
+        <source>%1 must be a positive whole number</source>
+        <translation>%1은(는) 양의 정수여야 합니다</translation>
+    </message>
+    <message>
+        <source>%1 must be a hostname</source>
+        <translation>%1은(는) 호스트 이름이어야 합니다</translation>
+    </message>
+    <message>
+        <source>%1 must be an IPv4 address</source>
+        <translation>%1은(는) IPv4 주소여야 합니다</translation>
+    </message>
+    <message>
+        <source>must be an object</source>
+        <translation>객체여야 합니다</translation>
+    </message>
+    <message>
+        <source>unknown field %1</source>
+        <translation>알 수 없는 필드 %1</translation>
+    </message>
+    <message>
+        <source>unsupported protocol %1</source>
+        <translation>지원되지 않는 프로토콜 %1</translation>
+    </message>
+    <message>
+        <source>The file is too large to be a hydra profile.</source>
+        <translation>파일이 너무 커서 hydra 프로필일 수 없습니다.</translation>
+    </message>
+    <message>
+        <source>Not a hydra profile: the file is not a JSON object.</source>
+        <translation>hydra 프로필이 아닙니다: 파일이 JSON 객체가 아닙니다.</translation>
+    </message>
+    <message>
+        <source>Not a hydra profile: kind must be %1.</source>
+        <translation>hydra 프로필이 아닙니다: kind는 %1이어야 합니다.</translation>
+    </message>
+    <message>
+        <source>This hydra profile is from an older hydra and names one server; ask for a new one.</source>
+        <translation>이 hydra 프로필은 이전 버전의 hydra에서 생성되었으며 서버 하나만 지정합니다. 새 프로필을 요청하세요.</translation>
+    </message>
+    <message>
+        <source>Unsupported hydra profile version; this app reads version 2.</source>
+        <translation>지원되지 않는 hydra 프로필 버전입니다. 이 앱은 버전 2를 읽습니다.</translation>
+    </message>
+    <message>
+        <source>Invalid hydra profile: unknown field %1.</source>
+        <translation>잘못된 hydra 프로필: 알 수 없는 필드 %1.</translation>
+    </message>
+    <message>
+        <source>Invalid hydra profile: %1.</source>
+        <translation>잘못된 hydra 프로필: %1.</translation>
+    </message>
+    <message>
+        <source>Invalid hydra profile: all must be true or false.</source>
+        <translation>잘못된 hydra 프로필: all은 true 또는 false여야 합니다.</translation>
+    </message>
+    <message>
+        <source>Invalid hydra profile: it has no fronts.</source>
+        <translation>잘못된 hydra 프로필: 프런트가 없습니다.</translation>
+    </message>
+    <message>
+        <source>Invalid hydra profile: front %1: %2.</source>
+        <translation>잘못된 hydra 프로필: 프런트 %1: %2.</translation>
+    </message>
+    <message>
+        <source>Invalid hydra profile: front %1: entry %2 is listed twice.</source>
+        <translation>잘못된 hydra 프로필: 프런트 %1: 항목 %2이(가) 중복되었습니다.</translation>
+    </message>
+    <message>
+        <source>%1 via %2</source>
+        <translation>%1(%2 경유)</translation>
+    </message>
+    <message>
+        <source>%1 via %2 (not in the server list)</source>
+        <translation>%1(%2 경유, 서버 목록에 없음)</translation>
+    </message>
+    <message>
+        <source>Could not read the hydra profile: %1</source>
+        <translation>hydra 프로필을 읽을 수 없습니다: %1</translation>
+    </message>
+    <message>
+        <source>Could not save the hydra profile: %1</source>
+        <translation>hydra 프로필을 저장할 수 없습니다: %1</translation>
+    </message>
+    <message>
+        <source>%1 (not in the server list)</source>
+        <translation>%1(서버 목록에 없음)</translation>
     </message>
 </context>
 <context>

@@ -8,7 +8,7 @@
 #include "utils/win32handle.h"
 #include "utils/wsscopeguard.h"
 
-ExecuteCmdResult ExecuteCmd::executeBlockingCmd(const std::wstring &cmd, HANDLE user_token)
+ExecuteCmdResult ExecuteCmd::executeBlockingCmd(const std::wstring &cmd)
 {
     ExecuteCmdResult res;
 
@@ -41,13 +41,7 @@ ExecuteCmdResult ExecuteCmd::executeBlockingCmd(const std::wstring &cmd, HANDLE 
     wcsncpy_s(exec.get(), 32767, cmd.c_str(), _TRUNCATE);
 
     ZeroMemory( &pi, sizeof(pi) );
-    const auto run_result = user_token != INVALID_HANDLE_VALUE
-                                ? CreateProcessAsUser(user_token, NULL, exec.get(), NULL, NULL, TRUE,
-                                                      CREATE_NO_WINDOW | NORMAL_PRIORITY_CLASS, NULL, NULL, &si, &pi)
-                                : CreateProcess(NULL, exec.get(), NULL, NULL, TRUE,
-                                                CREATE_NO_WINDOW | NORMAL_PRIORITY_CLASS, NULL, NULL, &si, &pi);
-
-    if (run_result) {
+    if (CreateProcess(NULL, exec.get(), NULL, NULL, TRUE, CREATE_NO_WINDOW | NORMAL_PRIORITY_CLASS, NULL, NULL, &si, &pi)) {
         if (WaitForSingleObject(pi.hProcess, INFINITE) == WAIT_FAILED) {
             spdlog::error("executeBlockingCmd WaitForSingleObject failed: {}", ::GetLastError());
         }

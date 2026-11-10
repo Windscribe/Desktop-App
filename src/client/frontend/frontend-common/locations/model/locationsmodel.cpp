@@ -510,6 +510,44 @@ void LocationsModel::saveFavoriteLocations()
     favoriteLocationsStorage_.writeToSettings();
 }
 
+QString LocationsModel::cityNameForDatacenter(int datacenterId) const
+{
+    if (datacenterId <= 0) {
+        return QString();
+    }
+    for (const LocationItem *li : locations_) {
+        // The best location repeats one of the cities below; static IPs and custom configs have no datacenter.
+        const LocationID &lid = li->location().id;
+        if (lid.isBestLocation() || lid.isStaticIpsLocation() || lid.isCustomConfigsLocation()) {
+            continue;
+        }
+        for (const types::City &city : li->location().cities) {
+            if (city.datacenterId == datacenterId) {
+                return city.city + " - " + city.nick;
+            }
+        }
+    }
+    return QString();
+}
+int LocationsModel::datacenterIdForLocation(const LocationID &lid) const
+{
+    if (!lid.isValid() || lid.isStaticIpsLocation() || lid.isCustomConfigsLocation()) {
+        return 0;
+    }
+    const LocationID cityId = lid.isBestLocation() ? lid.bestLocationToApiLocation() : lid;
+    for (const LocationItem *li : locations_) {
+        if (li->location().id.isBestLocation()) {
+            continue;
+        }
+        for (const types::City &city : li->location().cities) {
+            if (city.id == cityId) {
+                return city.datacenterId;
+            }
+        }
+    }
+    return 0;
+}
+
 QJsonArray LocationsModel::favoriteLocationsToJson() const
 {
     return favoriteLocationsStorage_.toJson();

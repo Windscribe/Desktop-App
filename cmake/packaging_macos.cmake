@@ -9,17 +9,6 @@ add_custom_target(prep-installer-macos
     DEPENDS build-app
 )
 
-# Run macdeployqt on main application bundle
-find_program(MACDEPLOYQT_EXECUTABLE macdeployqt HINTS "${Qt6_DIR}/../../../bin")
-if(MACDEPLOYQT_EXECUTABLE)
-    add_custom_command(TARGET prep-installer-macos POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E echo "Running macdeployqt on ${WS_MAC_APP_BUNDLE_NAME}..."
-        COMMAND ${MACDEPLOYQT_EXECUTABLE} "$<TARGET_BUNDLE_DIR:${WS_APP_TARGET}>" -always-overwrite
-    )
-else()
-    message(WARNING "macdeployqt not found, Qt frameworks may not be properly deployed")
-endif()
-
 # Remove unused Qt frameworks from main application bundle
 foreach(_fw ${WS_MAC_UNUSED_FRAMEWORKS})
     add_custom_command(TARGET prep-installer-macos POST_BUILD
@@ -82,14 +71,6 @@ if(BUILD_INSTALLER)
     add_custom_target(build-dmg ALL
         DEPENDS prep-installer-macos ${WS_MAC_INSTALLER_TARGET}
     )
-
-    # Run macdeployqt on installer.app
-    if(MACDEPLOYQT_EXECUTABLE)
-        add_custom_command(TARGET build-dmg POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E echo "Running macdeployqt on installer.app..."
-            COMMAND ${MACDEPLOYQT_EXECUTABLE} "$<TARGET_BUNDLE_DIR:${WS_MAC_INSTALLER_TARGET}>" -always-overwrite
-        )
-    endif()
 
     # Remove unused Qt frameworks from installer.app
     foreach(_fw ${WS_MAC_UNUSED_FRAMEWORKS})

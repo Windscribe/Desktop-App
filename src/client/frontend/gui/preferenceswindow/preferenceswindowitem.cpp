@@ -64,6 +64,8 @@ PreferencesWindowItem::PreferencesWindowItem(QGraphicsObject *parent, Preference
     connect(connectionWindowItem_, &ConnectionWindowItem::connectedDnsDomainsClick, this, &PreferencesWindowItem::onConnectedDnsDomainsClick);
     connect(connectionWindowItem_, &ConnectionWindowItem::fetchControldDevices, this, &PreferencesWindowItem::fetchControldDevices);
     connect(connectionWindowItem_, &ConnectionWindowItem::clearWifiHistoryClick, this, &PreferencesWindowItem::clearWifiHistoryClick);
+    connect(connectionWindowItem_, &ConnectionWindowItem::importHydraProfileClick, this, &PreferencesWindowItem::importHydraProfileClick);
+    connect(connectionWindowItem_, &ConnectionWindowItem::removeHydraProfileClick, this, &PreferencesWindowItem::removeHydraProfileClick);
 
     advancedWindowItem_ = new AdvancedWindowItem(nullptr, preferences, preferencesHelper);
     connect(advancedWindowItem_, &AdvancedWindowItem::advParametersClick, this, &PreferencesWindowItem::onAdvParametersClick);
@@ -227,6 +229,11 @@ void PreferencesWindowItem::setConfirmEmailResult(bool bSuccess)
 void PreferencesWindowItem::setSendLogResult(bool bSuccess)
 {
     helpWindowItem_->setSendLogResult(bSuccess);
+}
+
+void PreferencesWindowItem::setHydraProfile(bool imported, const HydraProfile::Locations &locations, const QString &problem)
+{
+    connectionWindowItem_->setHydraProfile(imported, locations, problem);
 }
 
 void PreferencesWindowItem::setClearWifiHistoryResult(bool bSuccess)

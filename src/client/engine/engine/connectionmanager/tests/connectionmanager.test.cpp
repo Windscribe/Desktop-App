@@ -122,6 +122,17 @@ CurrentConnectionDescr TestConnectionManager::makeStaticIpIkev2Descr()
     return d;
 }
 
+// A WireGuard attempt the strategy routed through a hydra front for the datacenter yyz-12-wg.example.com.
+CurrentConnectionDescr TestConnectionManager::makeHydraWireGuardDescr()
+{
+    CurrentConnectionDescr d = makeWireGuardDescr();
+    d.portBeforeHydra = d.port;
+    d.hydraDatacenter = "yyz-12-wg.example.com";
+    d.ip = "203.0.113.5";
+    d.port = 8443;
+    return d;
+}
+
 types::ConnectedDnsInfo TestConnectionManager::makeDnsInfo(CONNECTED_DNS_TYPE type, const QString &upstream)
 {
     types::ConnectedDnsInfo dnsInfo;
@@ -3707,6 +3718,45 @@ void TestConnectionManager::testHostnamesResolvedDuringStoppingIgnored()
     QTRY_COMPARE(disconnectedSpy.count(), 1);
     QCOMPARE(qvariant_cast<DISCONNECT_REASON>(disconnectedSpy.at(0).at(0)), DISCONNECTED_BY_USER);
     QCOMPARE(cm_->state_, ConnectionManager::State::kDisconnected);
+}
+
+void TestConnectionManager::testHydraGiveUpStopsWithTheEntryAndNamesTheDatacenter()
+{
+    // Once a fronted location's attempts are spent, the connect stops with the hydra error and the entry,
+    // and the log names the entry and the datacenter; nothing is dialled without the front.
+    attemptStrategyFactory_->setCurrentConnectionSettings(makeHydraWireGuardDescr());
+    attemptStrategyFactory_->setAutomaticMode(false);
+    attemptStrategyFactory_->setGiveUpError(ConnectError::kHydraUnreachable);
+    FakeConnection *conn = startConnecting();
+    QVERIFY(conn);
+    const int created = connectionFactory_->createdCount();
+    attemptStrategyFactory_->lastCreated()->setFailed(true);
+
+    QSignalSpy errorSpy(cm_, &ConnectionManager::errorDuringConnection);
+    QSignalSpy disconnectedSpy(cm_, &ConnectionManager::disconnected);
+    QTest::ignoreMessage(QtInfoMsg, "Hydra entry 203.0.113.***:8443 for yyz-12-wg.example.com failed; not connecting without it");
+    conn->driveError(ConnectError::kTransientTunnelFailure);
+
+    QTRY_COMPARE(errorSpy.count(), 1);
+    QCOMPARE(qvariant_cast<ConnectError>(errorSpy.at(0).at(0)), ConnectError::kHydraUnreachable);
+    QCOMPARE(errorSpy.at(0).at(2).toString(), QString("203.0.113.5:8443"));
+    QCOMPARE(disconnectedSpy.count(), 0);
+    QCOMPARE(cm_->state_, ConnectionManager::State::kDisconnected);
+    QCOMPARE(connectionFactory_->createdCount(), created);
+}
+
+void TestConnectionManager::testHydraProtocolPortChangedReportsThePortBeforeTheEntry()
+{
+    // The entry port only works through hydra; the connection reports the port the attempt asked for.
+    attemptStrategyFactory_->setCurrentConnectionSettings(makeHydraWireGuardDescr());
+    QSignalSpy protocolPortSpy(cm_, &ConnectionManager::protocolPortChanged);
+
+    FakeConnection *conn = startConnecting();
+    QVERIFY(conn);
+
+    QTRY_COMPARE(protocolPortSpy.count(), 1);
+    QCOMPARE(qvariant_cast<types::Protocol>(protocolPortSpy.at(0).at(0)), types::Protocol(types::Protocol::WIREGUARD));
+    QCOMPARE(protocolPortSpy.at(0).at(1).toUInt(), 51820u);
 }
 
 QTEST_MAIN(TestConnectionManager)

@@ -37,6 +37,7 @@
 #include "utils/directorypermissions.h"
 #include "utils/extraconfig.h"
 #include "utils/hardcodedsettings.h"
+#include "utils/hydraprofile.h"
 #include "utils/log/categories.h"
 #include "utils/log/multiline_message_logger.h"
 #include "utils/network_utils/network_utils.h"
@@ -187,6 +188,7 @@ MainWindow::MainWindow() :
     connect(localIpcServer_, &LocalIPCServer::connectToLocation, this, &MainWindow::onIpcConnect);
     connect(localIpcServer_, &LocalIPCServer::attemptLogin, this, &MainWindow::onLoginClick);
     connect(localIpcServer_, &LocalIPCServer::update, this, &MainWindow::onIpcUpdate);
+    connect(localIpcServer_, &LocalIPCServer::hydraProfileChanged, this, &MainWindow::updateHydraProfileInPreferences);
 
     soundManager_ = new SoundManager(this, backend_->getPreferences());
 
@@ -277,6 +279,11 @@ MainWindow::MainWindow() :
     connect(mainWindowController_->getPreferencesWindow(), &PreferencesWindow::PreferencesWindowItem::viewLogClick, this, &MainWindow::onPreferencesViewLogClick);
     connect(mainWindowController_->getPreferencesWindow(), &PreferencesWindow::PreferencesWindowItem::exportSettingsClick, this, &MainWindow::onPreferencesExportSettingsClick);
     connect(mainWindowController_->getPreferencesWindow(), &PreferencesWindow::PreferencesWindowItem::importSettingsClick, this, &MainWindow::onPreferencesImportSettingsClick);
+    connect(mainWindowController_->getPreferencesWindow(), &PreferencesWindow::PreferencesWindowItem::importHydraProfileClick, this, &MainWindow::onPreferencesImportHydraProfileClick);
+    connect(mainWindowController_->getPreferencesWindow(), &PreferencesWindow::PreferencesWindowItem::removeHydraProfileClick, this, &MainWindow::onPreferencesRemoveHydraProfileClick);
+    // A front is named as the server list names its datacenter, so the list follows the locations.
+    connect(backend_->locationsModelManager()->locationsModel(), &QAbstractItemModel::modelReset, this, &MainWindow::updateHydraProfileInPreferences);
+    updateHydraProfileInPreferences();
     connect(mainWindowController_->getPreferencesWindow(), &PreferencesWindow::PreferencesWindowItem::advancedParametersClicked, this, &MainWindow::onPreferencesAdvancedParametersClicked);
     connect(mainWindowController_->getPreferencesWindow(), &PreferencesWindow::PreferencesWindowItem::currentNetworkUpdated, this, &MainWindow::onCurrentNetworkUpdated);
     connect(mainWindowController_->getPreferencesWindow(), &PreferencesWindow::PreferencesWindowItem::sendConfirmEmailClick, this, &MainWindow::onPreferencesSendConfirmEmailClick);
@@ -1212,6 +1219,56 @@ void MainWindow::onPreferencesExportSettingsClick()
     file.write(doc.toJson());
 
     qCDebug(LOG_BASIC) << "Exported preferences to the file.";
+}
+
+void MainWindow::onPreferencesImportHydraProfileClick()
+{
+    ShowingDialogState::instance().setCurrentlyShowingExternalDialog(true);
+    const QString filename = QFileDialog::getOpenFileName(this, tr("Import Hydra Profile"), "", tr("JSON Files (*.json)"));
+    ShowingDialogState::instance().setCurrentlyShowingExternalDialog(false);
+    if (filename.isEmpty()) {
+        return;
+    }
+
+    QFile file(filename);
+    if (!file.open(QIODevice::ReadOnly)) {
+        onPreferencesReportErrorToUser(tr("Unable to import hydra profile"), tr("Could not open file."));
+        return;
+    }
+    QString error;
+    const auto before = HydraProfile::load();
+    const auto profile = HydraProfile::save(file.read(HydraProfile::kMaxFileSize + 1), error);
+    if (!profile) {
+        onPreferencesReportErrorToUser(tr("Unable to import hydra profile"), error);
+        return;
+    }
+    qCInfo(LOG_BASIC) << "Hydra profile imported:" << profile->fronts().size() << "front(s)";
+    updateHydraProfileInPreferences();
+    backend_->reconnectIfHydraFrontChanged(before, profile);
+}
+
+void MainWindow::onPreferencesRemoveHydraProfileClick()
+{
+    const auto before = HydraProfile::load();
+    if (HydraProfile::remove()) {
+        qCInfo(LOG_BASIC) << "Hydra profile removed";
+        backend_->reconnectIfHydraFrontChanged(before, std::nullopt);
+    }
+    updateHydraProfileInPreferences();
+}
+
+void MainWindow::updateHydraProfileInPreferences()
+{
+    QString error;
+    const auto profile = HydraProfile::load(&error);
+    HydraProfile::Locations shown;
+    if (profile) {
+        const gui_locations::LocationsModelManager *locations = backend_->locationsModelManager();
+        shown = profile->locations([locations](int datacenterId) { return locations->cityNameForDatacenter(datacenterId); });
+    }
+    // A file the app can no longer read, such as a version 1 profile, stays listed so it can be removed.
+    const QString problem = !profile && !error.isEmpty() ? tr("The imported hydra profile is not in use. %1").arg(error) : QString();
+    mainWindowController_->getPreferencesWindow()->setHydraProfile(profile.has_value() || !problem.isEmpty(), shown, problem);
 }
 
 void MainWindow::onPreferencesImportSettingsClick()
@@ -3551,6 +3608,7 @@ void MainWindow::handleDisconnectWithError(const types::ConnectState &connectSta
 {
     WS_ASSERT(connectState.disconnectReason == DISCONNECTED_WITH_ERROR);
 
+    QString title = tr("Connection Error");
     QString msg;
     if (connectState.connectError == ConnectError::kLocationUnavailable) {
         LocationID bestLocation = backend_->locationsModelManager()->getBestLocationId();
@@ -3651,6 +3709,14 @@ void MainWindow::handleDisconnectWithError(const types::ConnectState &connectSta
     } else if (connectState.connectError == ConnectError::kHostsFileNotWritable) {
         msg = tr("Windscribe could not update your hosts file, which IKEv2 requires. Another program, such as antivirus or endpoint"
                  " security software, may be blocking changes to it. Please try again, or use a different connection mode.");
+    } else if (connectState.connectError == ConnectError::kHydraUnreachable) {
+        title = tr("Can't reach your hydra server");
+        msg = tr("Windscribe couldn't connect through the hydra server at %1. Check that it's running (hydra doctor), "
+                 "or remove the hydra profile in Preferences > Connection to connect without it.").arg(connectState.connectErrorDetail);
+    } else if (connectState.connectError == ConnectError::kHydraNeedsWireGuard) {
+        title = tr("Hydra needs WireGuard");
+        msg = tr("This location is set to connect through your hydra server, which works with WireGuard only. "
+                 "Choose WireGuard or Auto, or remove the hydra profile in Preferences > Connection.");
     } else if (connectState.connectError == ConnectError::kOSServiceUnavailable) {
         msg = tr("The Remote Access Connection Manager (RasMan) service is not running and could not be started. This prevents IKEv2 from being used on this PC."
                  " Please try another connection mode or investigate why this core Windows service is unable to start.");
@@ -3662,7 +3728,7 @@ void MainWindow::handleDisconnectWithError(const types::ConnectState &connectSta
     }
 
     GeneralMessageController::instance().showMessage("ERROR_ICON",
-                                                     tr("Connection Error"),
+                                                     title,
                                                      msg,
                                                      GeneralMessageController::tr(GeneralMessageController::kOk),
                                                      "",

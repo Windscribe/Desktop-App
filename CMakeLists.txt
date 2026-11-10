@@ -7,6 +7,16 @@ cmake_minimum_required(VERSION 3.23)
 
 set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)  # option() honors normal variables
 
+# Set before project(): vcpkg's toolchain wraps find_package/add_executable/add_library, and those wrappers
+# keep the policies in effect when the toolchain loads. CMP0167: find_package(Boost) uses BoostConfig.cmake.
+# CMP0156: Apple's linker needs no repeated static libraries; Windows would also reorder its DLL import libs.
+if(POLICY CMP0167)
+    cmake_policy(SET CMP0167 NEW)
+endif()
+if(CMAKE_HOST_APPLE AND POLICY CMP0156)
+    cmake_policy(SET CMP0156 NEW)
+endif()
+
 # Set macOS deployment target and architecture before project()
 set(CMAKE_OSX_DEPLOYMENT_TARGET "14.4" CACHE STRING "Minimum OS X deployment version")
 
@@ -211,11 +221,11 @@ else()
     set(WS_BUILD_SUFFIX "${WS_BUILD_TYPE}")
 endif()
 
-# Only app code consumes this, and signing-only configures skip cmake/vcpkg.cmake entirely,
-# leaving VCPKG_ROOT unset. Defined only here so an unguarded use fails to compile rather than
-# silently getting "".
+# Sent as ovpn_version on the ServerConfigs request; the server tailors the returned config to it. Only app code consumes this,
+# and signing-only configures skip cmake/vcpkg.cmake entirely, leaving VCPKG_ROOT unset. Defined only here so an unguarded use
+# fails to compile rather than silently getting "".
 if(BUILD_APP)
-    ws_resolve_openvpn_version(WS_OPENVPN_VERSION)
+    ws_resolve_port_version(openvpn WS_OPENVPN_VERSION)
 
     # Resolved here rather than next to ws_resolve_shared_libs() below, because the names are needed
     # by the branding definitions that follow and by the subdirectories those definitions reach.
@@ -328,7 +338,7 @@ message(STATUS "==================================================")
 message(STATUS "")
 
 # ------------------------------------------------------------------------------
-# Custom Dependencies (WSTunnel, Wintun, OpenVPN DCO)
+# Custom Dependencies (Wintun, OpenVPN DCO)
 # ------------------------------------------------------------------------------
 
 # Verify WINDSCRIBE_BUILD_LIBS_PATH is set (from architectures.cmake)
@@ -337,11 +347,17 @@ if(NOT DEFINED WINDSCRIBE_BUILD_LIBS_PATH)
 endif()
 
 # Check if custom dependencies directory exists
-if(NOT EXISTS "${WINDSCRIBE_BUILD_LIBS_PATH}")
+if(WIN32 AND NOT EXISTS "${WINDSCRIBE_BUILD_LIBS_PATH}")
     message(WARNING "Dependencies directory not found: ${WINDSCRIBE_BUILD_LIBS_PATH}")
 endif()
 
 # ------------------------------------------------------------------------------
+if(WIN32)
+    set(WS_WSTUNNEL_WIN_EXE "${CMAKE_BINARY_DIR}/wstunnel/${WS_PRODUCT_NAME_LOWER}wstunnel.exe")
+    if(BUILD_APP AND "wstunnel" IN_LIST WS_BUNDLED_HELPER_NAMES)
+        ws_add_wstunnel_version_resource("${WS_WSTUNNEL_WIN_EXE}")
+    endif()
+endif()
 ws_resolve_bundled_helpers()
 ws_resolve_shared_libs()
 

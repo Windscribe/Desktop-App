@@ -31,15 +31,14 @@ function(ws_resolve_output_name TEMPLATE OUT_VAR)
 endfunction()
 
 
-# Resolve the version of the bundled OpenVPN. Sent as ovpn_version on the ServerConfigs request, and
-# the server tailors the returned config to it. Asking vcpkg tracks whatever the registry pins and
-# works when cross-compiling. Call after VCPKG_ROOT is set and the packages are installed.
-function(ws_resolve_openvpn_version OUT_VAR)
+# Resolve the upstream version of an installed vcpkg port. Asking vcpkg tracks whatever the registry
+# pins and works when cross-compiling. Call after VCPKG_ROOT is set and the packages are installed.
+function(ws_resolve_port_version PORT OUT_VAR)
     # `list` reports only what is installed, for this triplet. Parsing the status database by hand
     # would have to reproduce its rules: removed ports keep their stanza, features get their own.
     # --x-install-root must match the one install_vcpkg_dependencies() installs into.
     execute_process(
-        COMMAND "${VCPKG_ROOT}/vcpkg" list openvpn --x-json
+        COMMAND "${VCPKG_ROOT}/vcpkg" list ${PORT} --x-json
                 "--x-install-root=${VCPKG_INSTALLED_DIR}"
         WORKING_DIRECTORY "${VCPKG_ROOT}"
         OUTPUT_VARIABLE _json
@@ -48,38 +47,60 @@ function(ws_resolve_openvpn_version OUT_VAR)
         OUTPUT_STRIP_TRAILING_WHITESPACE
     )
     if(NOT _listResult EQUAL 0)
-        message(FATAL_ERROR "ws_resolve_openvpn_version: vcpkg list failed (${_listResult}): ${_listError}")
+        message(FATAL_ERROR "ws_resolve_port_version: vcpkg list ${PORT} failed (${_listResult}): ${_listError}")
     endif()
 
     # Entries are keyed "<port>:<triplet>". The port version (a packaging revision) is deliberately
-    # left off: the API wants upstream's version.
+    # left off: callers want upstream's version.
     string(JSON _ver ERROR_VARIABLE _jsonError
-           GET "${_json}" "openvpn:${VCPKG_TARGET_TRIPLET}" "version")
+           GET "${_json}" "${PORT}:${VCPKG_TARGET_TRIPLET}" "version")
 
-    # Fail rather than emit an empty or malformed string: a wrong ovpn_version would silently get us
-    # configs for the wrong OpenVPN, which is exactly the drift this is meant to prevent.
+    # Fail rather than emit an empty or malformed string, which callers would otherwise pass on silently.
     if(_jsonError OR NOT _ver MATCHES "^[0-9]+\\.[0-9]+")
-        message(FATAL_ERROR "ws_resolve_openvpn_version: no usable openvpn version for triplet "
+        message(FATAL_ERROR "ws_resolve_port_version: no usable ${PORT} version for triplet "
                             "${VCPKG_TARGET_TRIPLET} (error: ${_jsonError}, value: \"${_ver}\")")
     endif()
 
     set(${OUT_VAR} "${_ver}" PARENT_SCOPE)
 endfunction()
 
+# vcpkg builds wstunnel.exe without a version resource so one build serves every integration. This writes
+# the integration's branding into a copy at OUTPUT, built by the target wstunnel-version-resource.
+function(ws_add_wstunnel_version_resource OUTPUT)
+    ws_resolve_port_version(wstunnel WSTUNNEL_VERSION)
+    if(NOT WSTUNNEL_VERSION MATCHES "^([0-9]+)\\.([0-9]+)\\.([0-9]+)$")
+        message(FATAL_ERROR "ws_add_wstunnel_version_resource: wstunnel version \"${WSTUNNEL_VERSION}\" is not x.y.z")
+    endif()
+    set(WSTUNNEL_VERSION_NUMBERS "${CMAKE_MATCH_1},${CMAKE_MATCH_2},${CMAKE_MATCH_3},0")
+
+    set(_dir "${CMAKE_BINARY_DIR}/wstunnel")
+    set(_input "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/tools/wstunnel/wstunnel.exe")
+    set(_script "${CMAKE_SOURCE_DIR}/cmake/set_version_resource.py")
+    configure_file("${CMAKE_SOURCE_DIR}/cmake/wstunnel.rc.in" "${_dir}/wstunnel.rc" @ONLY)
+
+    add_custom_command(
+        OUTPUT "${OUTPUT}"
+        COMMAND "${CMAKE_RC_COMPILER}" /nologo /fo "${_dir}/wstunnel.res" "${_dir}/wstunnel.rc"
+        COMMAND python3 "${_script}" "${_input}" "${_dir}/wstunnel.res" "${OUTPUT}"
+        DEPENDS "${_input}" "${_dir}/wstunnel.rc" "${_script}"
+        VERBATIM
+    )
+    add_custom_target(wstunnel-version-resource DEPENDS "${OUTPUT}")
+endfunction()
+
 # Resolve bundled helper source paths.
 # Populates WS_BUNDLED_HELPERS as a list of "source_path|dest_name" pairs used by packaging.
-# Must be called after VCPKG_ROOT and WINDSCRIBE_BUILD_LIBS_PATH are set.
+# Must be called after VCPKG_ROOT and, on Windows, WS_WSTUNNEL_WIN_EXE are set.
 function(ws_resolve_bundled_helpers)
     set(_vcpkg_tools "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/tools")
-    set(_build_libs  "${WINDSCRIBE_BUILD_LIBS_PATH}")
     set(_p           "${WS_PRODUCT_NAME_LOWER}")
 
     set(_SRC_openvpn_WIN      "${_vcpkg_tools}/openvpn/openvpn.exe")
     set(_SRC_openvpn_POSIX     "${_vcpkg_tools}/openvpn/sbin/openvpn")
     set(_SRC_ctrld_WIN        "${_vcpkg_tools}/ctrld/ctrld.exe")
     set(_SRC_ctrld_POSIX       "${_vcpkg_tools}/ctrld/ctrld")
-    set(_SRC_wstunnel_WIN     "${_build_libs}/wstunnel/${_p}wstunnel.exe")
-    set(_SRC_wstunnel_POSIX    "${_build_libs}/wstunnel/${_p}wstunnel")
+    set(_SRC_wstunnel_WIN     "${WS_WSTUNNEL_WIN_EXE}")
+    set(_SRC_wstunnel_POSIX    "${_vcpkg_tools}/wstunnel/wstunnel")
     set(_SRC_amneziawg_POSIX   "${_vcpkg_tools}/amneziawg/amneziawg-go")
 
     # amneziawg on Windows bundles raw DLLs instead of a single prefixed binary.

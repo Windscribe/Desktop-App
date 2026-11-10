@@ -20,6 +20,8 @@ public:
     // SIGTERM-equivalent for a stuck daemon: TerminateProcess on the retained handle.
     bool terminateProcess();
 
+    static std::wstring exePath();
+
     // OpenVPN now chooses its own management port (the config requests "management 127.0.0.1 0").
     // On success, outPort is set to the OS-assigned management port resolved from the spawned
     // process, and the returned ExecuteCmdResult::processId carries the OpenVPN PID. The engine
@@ -43,6 +45,7 @@ private:
     OvpnMsgChannel msgChannel_;
 
     void deleteAdapter(bool bestEffort = false);
+    static std::wstring tapctlPath();
 
     bool writeOVPNFile(std::wstring &config, const std::wstring &httpProxy, unsigned int httpPort,
                        const std::wstring &socksProxy, unsigned int socksPort, HANDLE userToken,

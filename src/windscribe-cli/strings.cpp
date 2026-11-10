@@ -103,6 +103,13 @@ QString connectStateString(types::ConnectState state, LocationID location, TUNNE
             return QString("Error: Could not generate connection configuration");
         case ConnectError::kLocalDnsServerNotAvailable:
             return QString("Error: Local DNS server is not available. Connected DNS has been set back to Auto");
+        case ConnectError::kHydraUnreachable:
+            return QString("Error: Can't reach your hydra server at %1. Check that it's running (hydra doctor), "
+                           "or remove the hydra profile (windscribe-cli hydra remove) to connect without it")
+                .arg(state.connectErrorDetail);
+        case ConnectError::kHydraNeedsWireGuard:
+            return QString("Error: This location is set to connect through your hydra server, which works with "
+                           "WireGuard only. Connect with WireGuard, or remove the hydra profile (windscribe-cli hydra remove)");
         case ConnectError::kCustomConfigInvalid:
             if (!state.connectErrorDetail.isEmpty()) {
                 return QString("Error: The custom configuration could not be loaded") + QString(". ") + state.connectErrorDetail;

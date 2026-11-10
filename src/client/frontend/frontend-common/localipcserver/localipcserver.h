@@ -28,6 +28,8 @@ signals:
     void setKeyLimitBehavior(bool deleteKey);
     void setIgnoreSslErrors(bool ignore);
     void update();
+    // windscribe-cli imported or removed the hydra profile.
+    void hydraProfileChanged();
 
 private slots:
     void onServerCallbackAcceptFunction(IPC::Connection *connection);
@@ -97,4 +99,5 @@ private:
     void reply(IPC::Connection *connection, const IPC::Command &command);
     QList<IPC::CliCommands::IpcLocation> locationsList(IPC::CliCommands::LocationType type) const;
     void sendLocations(IPC::Connection *connection, const QList<IPC::CliCommands::IpcLocation> &locations, IPC::CliCommands::LocationType type);
+    IPC::CliCommands::Acknowledge hydraProfileAnswer(const IPC::CliCommands::SetHydraProfile &cmd) const;
 };

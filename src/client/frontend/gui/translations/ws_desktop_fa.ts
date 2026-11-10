@@ -300,6 +300,45 @@
     </message>
 </context>
 <context>
+    <name>LocalIPCServer</name>
+    <message>
+        <source>Malformed hydra profile command.</source>
+        <translation>فرمان نمایه hydra نامعتبر است.</translation>
+    </message>
+    <message>
+        <source>Could not remove the hydra profile.</source>
+        <translation>حذف نمایه hydra ممکن نشد.</translation>
+    </message>
+    <message>
+        <source>Hydra profile removed.</source>
+        <translation>نمایه Hydra حذف شد.</translation>
+    </message>
+    <message>
+        <source>No hydra profile imported.</source>
+        <translation>هیچ نمایه hydra وارد نشده است.</translation>
+    </message>
+    <message>
+        <source>The imported hydra profile is not in use. %1</source>
+        <translation>نمایه hydra واردشده استفاده نمی‌شود. %1</translation>
+    </message>
+    <message>
+        <source>Hydra profile %1:</source>
+        <translation>نمایه Hydra %1:</translation>
+    </message>
+    <message>
+        <source>(unnamed)</source>
+        <translation>(بدون نام)</translation>
+    </message>
+    <message>
+        <source>It maps every location: all of them connect through your hydra server.</source>
+        <translation>همه مکان‌ها را پوشش می‌دهد: همه از طریق سرور hydra شما متصل می‌شوند.</translation>
+    </message>
+    <message>
+        <source>Connect to one of these locations to go through your hydra server; the others connect directly.</source>
+        <translation>برای عبور از سرور hydra خود به یکی از این مکان‌ها متصل شوید؛ بقیه مستقیماً متصل می‌شوند.</translation>
+    </message>
+</context>
+<context>
     <name>LogViewer::LogViewerWindow</name>
     <message>
         <source>Word Wrap</source>
@@ -658,6 +697,18 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
         <translation>قطع</translation>
     </message>
     <message>
+        <source>Import Hydra Profile</source>
+        <translation>وارد کردن نمایه Hydra</translation>
+    </message>
+    <message>
+        <source>Unable to import hydra profile</source>
+        <translation>وارد کردن نمایه hydra ممکن نیست</translation>
+    </message>
+    <message>
+        <source>The imported hydra profile is not in use. %1</source>
+        <translation>نمایه hydra واردشده استفاده نمی‌شود. %1</translation>
+    </message>
+    <message>
         <source>The selected directory is writeable for other users. Custom configs in this directory may pose a potential security risk.</source>
         <translation>دایرکتوری انتخاب شده برای سایر کاربران قابل نوشتن است. پیکربندی های سفارشی در این دایرکتوری ممکن است ریسک امنیتی بالقوه ای ایجاد کنند.</translation>
     </message>
@@ -832,6 +883,22 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Windscribe could not generate the connection configuration. If this error persists, please send a debug log and open a support ticket.</source>
         <translation>Windscribe نتوانست پیکربندی اتصال را تولید کند. اگر این خطا ادامه داشت، لطفا یک لاگ اشکال زدایی ارسال کنید و یک تیکت پشتیبانی باز کنید.</translation>
+    </message>
+    <message>
+        <source>Can&apos;t reach your hydra server</source>
+        <translation>دسترسی به سرور hydra شما ممکن نیست</translation>
+    </message>
+    <message>
+        <source>Windscribe couldn&apos;t connect through the hydra server at %1. Check that it&apos;s running (hydra doctor), or remove the hydra profile in Preferences &gt; Connection to connect without it.</source>
+        <translation>Windscribe نتوانست از طریق سرور hydra در %1 متصل شود. بررسی کنید که در حال اجرا باشد (hydra doctor)، یا نمایه hydra را در تنظیمات &gt; اتصال حذف کنید تا بدون آن متصل شوید.</translation>
+    </message>
+    <message>
+        <source>Hydra needs WireGuard</source>
+        <translation>Hydra به WireGuard نیاز دارد</translation>
+    </message>
+    <message>
+        <source>This location is set to connect through your hydra server, which works with WireGuard only. Choose WireGuard or Auto, or remove the hydra profile in Preferences &gt; Connection.</source>
+        <translation>این مکان برای اتصال از طریق سرور hydra شما تنظیم شده است که فقط با WireGuard کار می‌کند. WireGuard یا Auto را انتخاب کنید، یا نمایه hydra را در تنظیمات &gt; اتصال حذف کنید.</translation>
     </message>
     <message>
         <source>The Remote Access Connection Manager (RasMan) service is not running and could not be started. This prevents IKEv2 from being used on this PC. Please try another connection mode or investigate why this core Windows service is unable to start.</source>
@@ -1473,6 +1540,42 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Allow access to local services and printers while connected to Windscribe.</source>
         <translation>اجازه دسترسی به خدمات محلی و چاپگرها در حالی که به Windscribe متصل است.</translation>
+    </message>
+    <message>
+        <source>Hydra Profile</source>
+        <translation>نمایه Hydra</translation>
+    </message>
+    <message>
+        <source>Import Profile</source>
+        <translation>وارد کردن نمایه</translation>
+    </message>
+    <message>
+        <source>Remove Profile</source>
+        <translation>حذف نمایه</translation>
+    </message>
+    <message>
+        <source>All locations</source>
+        <translation>همه مکان‌ها</translation>
+    </message>
+    <message>
+        <source>Connect to Windscribe through a private hydra server you run. Applies to WireGuard.</source>
+        <translation>از طریق یک سرور hydra خصوصی که خودتان اجرا می‌کنید به Windscribe متصل شوید. برای WireGuard اعمال می‌شود.</translation>
+    </message>
+    <message>
+        <source>+1 more location</source>
+        <translation>+۱ مکان دیگر</translation>
+    </message>
+    <message>
+        <source>+%1 more locations</source>
+        <translation>+%1 مکان دیگر</translation>
+    </message>
+    <message>
+        <source>Select this location to connect through your hydra server.</source>
+        <translation>این مکان را برای اتصال از طریق سرور hydra خود انتخاب کنید.</translation>
+    </message>
+    <message>
+        <source>Select one of these locations to connect through your hydra server.</source>
+        <translation>یکی از این مکان‌ها را برای اتصال از طریق سرور hydra خود انتخاب کنید.</translation>
     </message>
     <message>
         <source>Spoof your device&apos;s physical address (MAC address).</source>
@@ -2821,6 +2924,106 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Windscribe is already running in another user session on this computer. Quit Windscribe in that session, then try again.</source>
         <translation>Windscribe در حال حاضر در جلسه کاربر دیگری روی این رایانه در حال اجرا است. لطفاً در آن جلسه از Windscribe خارج شوید و سپس دوباره تلاش کنید.</translation>
+    </message>
+    <message>
+        <source>%1 is required</source>
+        <translation>%1 الزامی است</translation>
+    </message>
+    <message>
+        <source>%1 must be a string</source>
+        <translation>%1 باید یک رشته باشد</translation>
+    </message>
+    <message>
+        <source>%1 must be 1-65535</source>
+        <translation>%1 باید بین 1-65535 باشد</translation>
+    </message>
+    <message>
+        <source>%1 must be a positive whole number</source>
+        <translation>%1 باید یک عدد صحیح مثبت باشد</translation>
+    </message>
+    <message>
+        <source>%1 must be a hostname</source>
+        <translation>%1 باید یک نام میزبان باشد</translation>
+    </message>
+    <message>
+        <source>%1 must be an IPv4 address</source>
+        <translation>%1 باید یک نشانی IPv4 باشد</translation>
+    </message>
+    <message>
+        <source>must be an object</source>
+        <translation>باید یک شیء باشد</translation>
+    </message>
+    <message>
+        <source>unknown field %1</source>
+        <translation>فیلد ناشناخته %1</translation>
+    </message>
+    <message>
+        <source>unsupported protocol %1</source>
+        <translation>پروتکل پشتیبانی‌نشده %1</translation>
+    </message>
+    <message>
+        <source>The file is too large to be a hydra profile.</source>
+        <translation>فایل برای یک نمایه hydra بیش از حد بزرگ است.</translation>
+    </message>
+    <message>
+        <source>Not a hydra profile: the file is not a JSON object.</source>
+        <translation>نمایه hydra نیست: فایل یک شیء JSON نیست.</translation>
+    </message>
+    <message>
+        <source>Not a hydra profile: kind must be %1.</source>
+        <translation>نمایه hydra نیست: kind باید %1 باشد.</translation>
+    </message>
+    <message>
+        <source>This hydra profile is from an older hydra and names one server; ask for a new one.</source>
+        <translation>این نمایه hydra از نسخه قدیمی‌تر hydra است و فقط یک سرور را مشخص می‌کند؛ یک نمایه جدید درخواست کنید.</translation>
+    </message>
+    <message>
+        <source>Unsupported hydra profile version; this app reads version 2.</source>
+        <translation>نسخه نمایه hydra پشتیبانی نمی‌شود؛ این برنامه نسخه 2 را می‌خواند.</translation>
+    </message>
+    <message>
+        <source>Invalid hydra profile: unknown field %1.</source>
+        <translation>نمایه hydra نامعتبر: فیلد ناشناخته %1.</translation>
+    </message>
+    <message>
+        <source>Invalid hydra profile: %1.</source>
+        <translation>نمایه hydra نامعتبر: %1.</translation>
+    </message>
+    <message>
+        <source>Invalid hydra profile: all must be true or false.</source>
+        <translation>نمایه hydra نامعتبر: all باید true یا false باشد.</translation>
+    </message>
+    <message>
+        <source>Invalid hydra profile: it has no fronts.</source>
+        <translation>نمایه hydra نامعتبر: هیچ fronts ندارد.</translation>
+    </message>
+    <message>
+        <source>Invalid hydra profile: front %1: %2.</source>
+        <translation>نمایه hydra نامعتبر: front %1: %2.</translation>
+    </message>
+    <message>
+        <source>Invalid hydra profile: front %1: entry %2 is listed twice.</source>
+        <translation>نمایه hydra نامعتبر: front %1: ورودی %2 دو بار فهرست شده است.</translation>
+    </message>
+    <message>
+        <source>%1 via %2</source>
+        <translation>%1 از طریق %2</translation>
+    </message>
+    <message>
+        <source>%1 via %2 (not in the server list)</source>
+        <translation>%1 از طریق %2 (در فهرست سرورها نیست)</translation>
+    </message>
+    <message>
+        <source>Could not read the hydra profile: %1</source>
+        <translation>خواندن نمایه hydra ممکن نشد: %1</translation>
+    </message>
+    <message>
+        <source>Could not save the hydra profile: %1</source>
+        <translation>ذخیره نمایه hydra ممکن نشد: %1</translation>
+    </message>
+    <message>
+        <source>%1 (not in the server list)</source>
+        <translation>%1 (در فهرست سرورها نیست)</translation>
     </message>
 </context>
 <context>

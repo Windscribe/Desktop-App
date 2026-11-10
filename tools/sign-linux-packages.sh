@@ -51,6 +51,12 @@ if [ -z "$gpg_path" ]; then
     exit 1
 fi
 
+# Without a terminal on stdin (CI), rpmsign warns that it cannot set GPG_TTY unless it is already set.
+# Signing needs no terminal there; with one, rpmsign still sets GPG_TTY itself for an interactive pinentry.
+if [ ! -t 0 ]; then
+    export GPG_TTY="${GPG_TTY-}"
+fi
+
 signed_any=0
 for f in "$build_exe_dir"/*.deb "$build_exe_dir"/*.rpm; do
     echo "[sign-linux-packages] $f"

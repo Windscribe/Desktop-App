@@ -11,6 +11,7 @@
 #include "engine/locationsmodel/mutablelocationinfo.h"
 #include "engine/locationsmodel/tests/customconfigfixtures.h"
 #include "extraconfig_mock.h"
+#include "utils/hydraprofile.h"
 #include "types/locationid.h"
 #include "types/proxysettings.h"
 
@@ -18,6 +19,9 @@ using customconfig_fixtures::makeOvpnCustomConfigLocationInfo;
 using customconfig_fixtures::makeWireGuardCustomConfigLocationInfo;
 
 namespace {
+
+// The datacenter id (the server list's group id) of makeLocationInfo()'s nodes.
+const int kDatacenterId = 12;
 
 QSharedPointer<locationsmodel::MutableLocationInfo> makeLocationInfo()
 {
@@ -29,7 +33,7 @@ QSharedPointer<locationsmodel::MutableLocationInfo> makeLocationInfo()
     nodes << QSharedPointer<const locationsmodel::BaseNode>(
         new locationsmodel::ApiLocationNode({"10.0.0.3", "10.0.0.3", "10.0.0.3"}, "node3", 1, "pubkey3", false, 103));
     return QSharedPointer<locationsmodel::MutableLocationInfo>::create(
-        LocationID::createApiLocationId(1, "City", "Nick"), "Location", nodes, 0, "dns.host", "");
+        LocationID::createApiLocationId(1, "City", "Nick"), "Location", nodes, 0, "dns.host", "", kDatacenterId);
 }
 
 api_responses::PortMap makePortMap(const QVector<types::Protocol> &protocols)
@@ -46,7 +50,8 @@ api_responses::PortMap makePortMap(const QVector<types::Protocol> &protocols)
     return portMap;
 }
 
-QSharedPointer<locationsmodel::MutableLocationInfo> makeStaticIpsLocationInfo()
+// A static IP has no datacenter of its own; datacenterId lets a test pretend it had one.
+QSharedPointer<locationsmodel::MutableLocationInfo> makeStaticIpsLocationInfo(int datacenterId = 0)
 {
     api_responses::StaticIpPortsVector staticPorts;
     staticPorts << 1195 << 1196;
@@ -55,7 +60,19 @@ QSharedPointer<locationsmodel::MutableLocationInfo> makeStaticIpsLocationInfo()
         new locationsmodel::StaticLocationNode({"10.1.0.1", "10.1.0.2", "10.1.0.3"}, "static1", "pubkey1", "10.255.255.1",
                                                "dns.static", "user1", "pass1", staticPorts, false, 201));
     return QSharedPointer<locationsmodel::MutableLocationInfo>::create(
-        LocationID::createStaticIpsLocationId("City", "10.1.0.1"), "Static", nodes, 0, "dns.host", "");
+        LocationID::createStaticIpsLocationId("City", "10.1.0.1"), "Static", nodes, 0, "dns.host", "", datacenterId);
+}
+
+// Imports a profile fronting the datacenter with this id at 203.0.113.5:8443, by default named
+// yyz-<id>-wg.example.com.
+void importHydraProfile(int datacenterId, const QString &datacenter = QString())
+{
+    QString error;
+    const QString hostname = datacenter.isEmpty() ? QString("yyz-%1-wg.example.com").arg(datacenterId) : datacenter;
+    const QByteArray json = QString(R"({"version":2,"kind":"windscribe.hydra.profile","fronts":[{
+        "location":"Toronto","datacenter":"%1","datacenter_id":%2,"exit_port":443,
+        "entry_ip":"203.0.113.5","entry_port":8443}]})").arg(hostname).arg(datacenterId).toUtf8();
+    QVERIFY2(HydraProfile::save(json, error).has_value(), qPrintable(error));
 }
 
 } // namespace
@@ -63,11 +80,13 @@ QSharedPointer<locationsmodel::MutableLocationInfo> makeStaticIpsLocationInfo()
 void TestConnectionAttemptStrategy::initTestCase()
 {
     qRegisterMetaType<QVector<types::ProtocolStatus>>("QVector<types::ProtocolStatus>");
+    QStandardPaths::setTestModeEnabled(true);
 }
 
 void TestConnectionAttemptStrategy::init()
 {
     ExtraConfigMock::reset();
+    HydraProfile::remove();
 }
 
 void TestConnectionAttemptStrategy::testNodeIdentityFromWsnet()
@@ -823,6 +842,211 @@ void TestConnectionAttemptStrategy::testCachedConfigBudgetEdges()
     QCOMPARE(autoStrategy.takeCachedConfigAdvice(), IConnectionAttemptStrategy::CachedConfigAdvice::UseCachedOnly);
     QVERIFY(autoStrategy.isCachedConfigExhausted());
     QCOMPARE(autoStrategy.takeCachedConfigAdvice(), IConnectionAttemptStrategy::CachedConfigAdvice::Advance);
+}
+
+void TestConnectionAttemptStrategy::testHydraFrontMatchedByDatacenterWhicheverNode()
+{
+    // Whichever node the app picks in the fronted datacenter is dialled through the front.
+    importHydraProfile(kDatacenterId);
+    QTest::ignoreMessage(QtInfoMsg, "Selected hydra entry 203.0.113.***:8443 for yyz-12-wg.example.com");
+
+    for (int nodeId : {101, 102, 103}) {
+        auto li = makeLocationInfo();
+        const QString n = QString::number(nodeId - 100);
+        ManualConnectionAttemptStrategy strategy(li, types::ConnectionSettings(types::Protocol::WIREGUARD, 443, false),
+                                                 makePortMap({types::Protocol::WIREGUARD}), "node" + n);
+
+        const CurrentConnectionDescr descr = strategy.getCurrentConnectionSettings();
+        QCOMPARE(descr.nodeId, nodeId);
+        QCOMPARE(descr.hostname, "node" + n);
+        QCOMPARE(descr.wireGuard.peerPublicKey, "pubkey" + n);
+        QCOMPARE(descr.ip, QString("203.0.113.5"));
+        QCOMPARE(descr.port, 8443u);
+        QCOMPARE(descr.portBeforeHydra, 443u);
+        QCOMPARE(descr.hydraDatacenter, QString("yyz-12-wg.example.com"));
+    }
+}
+
+void TestConnectionAttemptStrategy::testHydraRetryDialsTheNextNodeThroughTheEntry()
+{
+    // Two nodes of the fronted datacenter: the retry moves to the other one, as without hydra, and both
+    // attempts go through the entry. Then the usual count gives up.
+    QVector<QSharedPointer<const locationsmodel::BaseNode>> nodes;
+    nodes << QSharedPointer<const locationsmodel::BaseNode>(
+        new locationsmodel::ApiLocationNode({"10.0.0.1", "10.0.0.1", "10.0.0.1"}, "yyz-121.example.com", 1, "dckey", false, 101));
+    nodes << QSharedPointer<const locationsmodel::BaseNode>(
+        new locationsmodel::ApiLocationNode({"10.0.0.2", "10.0.0.2", "10.0.0.2"}, "yyz-122.example.com", 1, "dckey", false, 102));
+    auto li = QSharedPointer<locationsmodel::MutableLocationInfo>::create(
+        LocationID::createApiLocationId(1, "Toronto", "The 6"), "Toronto - The 6", nodes, 0, "dns.host", "", kDatacenterId);
+    importHydraProfile(kDatacenterId);
+
+    ConnectionAttemptStrategyFactory factory;
+    QScopedPointer<IConnectionAttemptStrategy> strategy(factory.createStrategy(
+        li, types::ConnectionSettings(types::Protocol::WIREGUARD, 443, false), makePortMap({types::Protocol::WIREGUARD}),
+        types::ProxySettings(), {}, false, true, false));
+
+    QStringList dialled;
+    while (!strategy->isFailed()) {
+        const CurrentConnectionDescr descr = strategy->getCurrentConnectionSettings();
+        QCOMPARE(descr.ip, QString("203.0.113.5"));
+        QCOMPARE(descr.port, 8443u);
+        dialled << descr.hostname;
+        strategy->putFailedConnection();
+    }
+    QCOMPARE(dialled, QStringList({"yyz-121.example.com", "yyz-122.example.com"}));
+    QCOMPARE(strategy->giveUpError(), ConnectError::kHydraUnreachable);
+}
+
+void TestConnectionAttemptStrategy::testHydraKeepsPreferredNode()
+{
+    // A front no longer pins a node: the user's pinned node is used, through the entry.
+    auto li = makeLocationInfo();
+    importHydraProfile(kDatacenterId);
+
+    ManualConnectionAttemptStrategy strategy(li, types::ConnectionSettings(types::Protocol::WIREGUARD, 443, false),
+                                             makePortMap({types::Protocol::WIREGUARD}), "node3");
+
+    const CurrentConnectionDescr descr = strategy.getCurrentConnectionSettings();
+    QCOMPARE(descr.hostname, QString("node3"));
+    QCOMPARE(descr.ip, QString("203.0.113.5"));
+}
+
+void TestConnectionAttemptStrategy::testHydraFrontMatchesTheIdNotTheHostname()
+{
+    // A front is matched by the datacenter's id. One naming this datacenter's hostname, or one of its
+    // servers', with another datacenter's id does not stand in for it.
+    QVector<QSharedPointer<const locationsmodel::BaseNode>> nodes;
+    nodes << QSharedPointer<const locationsmodel::BaseNode>(
+        new locationsmodel::ApiLocationNode({"10.0.0.1", "10.0.0.1", "10.0.0.1"}, "yyz-121.example.com", 1, "dckey", false, 101));
+    auto li = QSharedPointer<locationsmodel::MutableLocationInfo>::create(
+        LocationID::createApiLocationId(1, "Toronto", "The 6"), "Toronto - The 6", nodes, 0, "dns.host", "", kDatacenterId);
+    importHydraProfile(kDatacenterId + 1, "yyz-12-wg.example.com");
+
+    ConnectionAttemptStrategyFactory factory;
+    QScopedPointer<IConnectionAttemptStrategy> strategy(factory.createStrategy(
+        li, types::ConnectionSettings(types::Protocol::WIREGUARD, 443, false), makePortMap({types::Protocol::WIREGUARD}),
+        types::ProxySettings(), {}, false, true, false));
+
+    const CurrentConnectionDescr descr = strategy->getCurrentConnectionSettings();
+    QCOMPARE(descr.ip, QString("10.0.0.1"));
+    QCOMPARE(descr.port, 443u);
+    QCOMPARE(strategy->giveUpError(), ConnectError::kNoError);
+}
+
+void TestConnectionAttemptStrategy::testHydraIgnoredForNonWireGuard()
+{
+    auto li = makeLocationInfo();
+    importHydraProfile(kDatacenterId);
+
+    ManualConnectionAttemptStrategy strategy(li, types::ConnectionSettings(types::Protocol::OPENVPN_UDP, 443, false),
+                                             makePortMap({types::Protocol::OPENVPN_UDP}), {});
+
+    const CurrentConnectionDescr descr = strategy.getCurrentConnectionSettings();
+    QCOMPARE(descr.hostname, QString("node1"));
+    QCOMPARE(descr.ip, QString("10.0.0.1"));
+    QCOMPARE(descr.port, 443u);
+    QVERIFY(descr.hydraDatacenter.isEmpty());
+}
+
+void TestConnectionAttemptStrategy::testHydraWithoutMatchingFrontConnectsDirectly()
+{
+    auto li = makeLocationInfo();
+    importHydraProfile(2);
+
+    ManualConnectionAttemptStrategy strategy(li, types::ConnectionSettings(types::Protocol::WIREGUARD, 443, false),
+                                             makePortMap({types::Protocol::WIREGUARD}), {});
+
+    const CurrentConnectionDescr descr = strategy.getCurrentConnectionSettings();
+    QCOMPARE(descr.hostname, QString("node1"));
+    QCOMPARE(descr.ip, QString("10.0.0.1"));
+    QCOMPARE(descr.port, 443u);
+    QCOMPARE(descr.portBeforeHydra, 0u);
+    QVERIFY(descr.hydraDatacenter.isEmpty());
+}
+
+void TestConnectionAttemptStrategy::testHydraIgnoredForStaticIps()
+{
+    auto li = makeStaticIpsLocationInfo(kDatacenterId);
+    importHydraProfile(kDatacenterId);
+
+    ConnectionAttemptStrategyFactory factory;
+    QScopedPointer<IConnectionAttemptStrategy> strategy(factory.createStrategy(
+        li, types::ConnectionSettings(types::Protocol::WIREGUARD, 443, false), makePortMap({types::Protocol::WIREGUARD}),
+        types::ProxySettings(), {}, false, true, false));
+
+    const CurrentConnectionDescr descr = strategy->getCurrentConnectionSettings();
+    QCOMPARE(descr.ip, QString("10.255.255.1"));
+    QCOMPARE(descr.port, 443u);
+    QCOMPARE(strategy->giveUpError(), ConnectError::kNoError);
+}
+
+void TestConnectionAttemptStrategy::testHydraFrontedAutoModeOnlyDialsTheFront()
+{
+    auto li = makeLocationInfo();
+    importHydraProfile(kDatacenterId);
+
+    ConnectionAttemptStrategyFactory factory;
+    QScopedPointer<IConnectionAttemptStrategy> strategy(factory.createStrategy(
+        li, types::ConnectionSettings(types::Protocol::OPENVPN_UDP, 443, true),
+        makePortMap({types::Protocol::OPENVPN_UDP, types::Protocol::WIREGUARD, types::Protocol::OPENVPN_TCP}),
+        types::ProxySettings(), {}, false, true, false));
+
+    QVERIFY(!strategy->isAutomaticMode());
+    QCOMPARE(strategy->giveUpError(), ConnectError::kHydraUnreachable);
+    int attempts = 0;
+    while (!strategy->isFailed()) {
+        const CurrentConnectionDescr descr = strategy->getCurrentConnectionSettings();
+        QCOMPARE(descr.protocol, types::Protocol(types::Protocol::WIREGUARD));
+        QCOMPARE(descr.ip, QString("203.0.113.5"));
+        QCOMPARE(descr.port, 8443u);
+        strategy->putFailedConnection();
+        ++attempts;
+    }
+    QCOMPARE(attempts, 2);
+}
+
+void TestConnectionAttemptStrategy::testHydraFrontedManualOpenVpnIsRefused()
+{
+    auto li = makeLocationInfo();
+    importHydraProfile(kDatacenterId);
+
+    ConnectionAttemptStrategyFactory factory;
+    QScopedPointer<IConnectionAttemptStrategy> strategy(factory.createStrategy(
+        li, types::ConnectionSettings(types::Protocol::OPENVPN_UDP, 443, false), makePortMap({types::Protocol::OPENVPN_UDP}),
+        types::ProxySettings(), {}, false, true, false));
+
+    QCOMPARE(strategy->getCurrentConnectionSettings().connectionNodeType, CONNECTION_NODE_ERROR);
+    QCOMPARE(strategy->giveUpError(), ConnectError::kHydraNeedsWireGuard);
+}
+
+void TestConnectionAttemptStrategy::testHydraFrontedAlwaysOnPlusIsNotSubstituted()
+{
+    auto li = makeLocationInfo();
+    importHydraProfile(kDatacenterId);
+
+    ConnectionAttemptStrategyFactory factory;
+    QScopedPointer<IConnectionAttemptStrategy> strategy(factory.createStrategy(
+        li, types::ConnectionSettings(types::Protocol::WIREGUARD, 443, false),
+        makePortMap({types::Protocol::WIREGUARD, types::Protocol::IKEV2, types::Protocol::OPENVPN_UDP}),
+        types::ProxySettings(), {}, true, false, false));
+
+    const CurrentConnectionDescr descr = strategy->getCurrentConnectionSettings();
+    QCOMPARE(descr.protocol, types::Protocol(types::Protocol::WIREGUARD));
+    QCOMPARE(descr.ip, QString("203.0.113.5"));
+}
+
+void TestConnectionAttemptStrategy::testNonFrontedLocationStillFailsOver()
+{
+    auto li = makeLocationInfo();
+    importHydraProfile(2);
+
+    ConnectionAttemptStrategyFactory factory;
+    QScopedPointer<IConnectionAttemptStrategy> strategy(factory.createStrategy(
+        li, types::ConnectionSettings(types::Protocol::WIREGUARD, 443, true),
+        makePortMap({types::Protocol::WIREGUARD, types::Protocol::OPENVPN_UDP}), types::ProxySettings(), {}, false, true, false));
+
+    QVERIFY(strategy->isAutomaticMode());
+    QCOMPARE(strategy->giveUpError(), ConnectError::kNoError);
 }
 
 QTEST_MAIN(TestConnectionAttemptStrategy)

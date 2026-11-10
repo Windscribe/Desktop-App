@@ -87,6 +87,16 @@ OpenVPNController::OpenVPNController()
 {
 }
 
+std::wstring OpenVPNController::exePath()
+{
+    return Utils::getExePath() + L"\\" WS_PRODUCT_NAME_LOWER_W L"openvpn.exe";
+}
+
+std::wstring OpenVPNController::tapctlPath()
+{
+    return Utils::getExePath() + L"\\tapctl.exe";
+}
+
 void OpenVPNController::release()
 {
     terminateProcess();
@@ -106,7 +116,7 @@ bool OpenVPNController::createAdapter(bool useDCODriver)
     adapterCreated_ = true;
 
     std::wstringstream stream;
-    stream << L"\"" << Utils::getExePath() << L"\\tapctl.exe\"" << L" create --name " << kOpenVPNAdapterIdentifier
+    stream << L"\"" << tapctlPath() << L"\"" << L" create --name " << kOpenVPNAdapterIdentifier
            << L" --hwid " << (useDCODriver ? L"ovpn-dco" : L"root\\tap0901");
 
     spdlog::info(L"createAdapter cmd = {}", stream.str());
@@ -165,7 +175,7 @@ bool OpenVPNController::terminateProcess()
 void OpenVPNController::deleteAdapter(bool bestEffort)
 {
     std::wstringstream stream;
-    stream << L"\"" << Utils::getExePath() << L"\\tapctl.exe\"" << L" delete " << kOpenVPNAdapterIdentifier;
+    stream << L"\"" << tapctlPath() << L"\"" << L" delete " << kOpenVPNAdapterIdentifier;
 
     spdlog::info(L"deleteAdapter cmd = {}", stream.str());
     auto result = ExecuteCmd::instance().executeBlockingCmd(stream.str());
@@ -208,7 +218,7 @@ ExecuteCmdResult OpenVPNController::runOpenvpn(std::wstring &config, const std::
         return ExecuteCmdResult();
     }
 
-    const std::wstring ovpnExe = Utils::getExePath() + L"\\" WS_PRODUCT_NAME_LOWER_W L"openvpn.exe";
+    const std::wstring ovpnExe = exePath();
 
 #if defined(USE_SIGNATURE_CHECK)
     ExecutableSignature sigCheck;

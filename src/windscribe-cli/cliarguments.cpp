@@ -204,6 +204,25 @@ void CliArguments::parsePorts(const QStringList &args)
     cliCommand_ = CLI_COMMAND_PORTS;
 }
 
+void CliArguments::parseHydra(const QStringList &args)
+{
+    const QString arg = args.isEmpty() ? QString() : args[0].toLower();
+    if (args.isEmpty()) {
+        cliCommand_ = CLI_COMMAND_HYDRA_SHOW;
+    } else if (arg == "import" && args.length() == 2) {
+        hydraFile_ = args[1];
+        cliCommand_ = CLI_COMMAND_HYDRA_IMPORT;
+    } else if (arg == "import" && args.length() == 1) {
+        setError("hydra", "missing profile file");
+    } else if (arg == "remove" && args.length() == 1) {
+        cliCommand_ = CLI_COMMAND_HYDRA_REMOVE;
+    } else if (arg == "import" || arg == "remove") {
+        setError("hydra", QString("unexpected argument \"%1\"").arg(args.last()));
+    } else {
+        setError("hydra", "expected nothing, \"import <file>\", or \"remove\"");
+    }
+}
+
 void CliArguments::parseLogin(const QStringList &args)
 {
     if (args.length() > 2) {
@@ -309,6 +328,8 @@ void CliArguments::processArguments()
         parseLocations(rest);
     } else if (command == "ports") {
         parsePorts(rest);
+    } else if (command == "hydra") {
+        parseHydra(rest);
     } else if (command == "login") {
         parseLogin(rest);
     } else if (command == "logout") {
@@ -373,6 +394,11 @@ const uint &CliArguments::port() const
 const QString &CliArguments::ipAddress() const
 {
     return ipAddress_;
+}
+
+const QString &CliArguments::hydraFile() const
+{
+    return hydraFile_;
 }
 
 bool CliArguments::keepFirewallOn() const

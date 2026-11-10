@@ -160,27 +160,13 @@ variables:
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --create-dirs -o ${BUILD_LIBS_FOLDER}/wintun.zip "${NEXUS_PATH_DEPS}/${OS_IDENTIFIER}/wintun.zip"
 
-.download_dependency_wireguard:
-  script:
-    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --create-dirs -o ${BUILD_LIBS_FOLDER}/wireguard.zip "${NEXUS_PATH_DEPS}/${OS_IDENTIFIER}/wireguard.zip"
-
-.download_dependency_wstunnel:
-  script:
-    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --create-dirs -o ${BUILD_LIBS_FOLDER}/wstunnel.zip "${NEXUS_PATH_DEPS}/${OS_IDENTIFIER}/wstunnel.zip"
-
 .download_dependencies_win:
   script:
     - !reference [.download_dependency_openvpn_dco, script]
     - !reference [.download_dependency_wintun, script]
-    - !reference [.download_dependency_wireguard, script]
-    - !reference [.download_dependency_wstunnel, script]
 
 .download_dependencies_posix:
   script:
-    - !reference [.download_dependency_wireguard, script]
-    - !reference [.download_dependency_wstunnel, script]
     - export VCPKG_ROOT="${HOME}/vcpkg"
     - export VCPKG_INSTALL_OPTIONS="--clean-after-build"
     - rm -rf ws-vcpkg-registry
@@ -501,7 +487,6 @@ build:win:arm64:bootstrap:
   script:
     - OS_IDENTIFIER="macos"
     - !reference [.download_dependencies_posix, script]
-    - if [ -d ./${BUILD_LIBS_FOLDER}/ ]; then for z in ./${BUILD_LIBS_FOLDER}/*.zip; do unzip -qod ./${BUILD_LIBS_FOLDER} $z; done; fi
     # Download the provisioning profiles from Nexus
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o data/provisioning_profile/embedded.provisionprofile "$NEXUS_PATH_ROOT/secrets/embedded.provisionprofile"
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o data/provisioning_profile/splittunnelextension.provisionprofile "$NEXUS_PATH_ROOT/secrets/splittunnelextension.provisionprofile"
@@ -587,7 +572,6 @@ build:mac:installer:tagged:
 .build_linux_installer_common:
   script:
     - !reference [.download_dependencies_posix, script]
-    - if [ -d ./${BUILD_LIBS_FOLDER}/ ]; then for z in ./${BUILD_LIBS_FOLDER}/*.zip; do unzip -qod ./${BUILD_LIBS_FOLDER} $z; done; fi
     - VERSION=$(cmake -P cmake/print_version.cmake 2>&1)
 
 build:aarch64_ubuntu:installer:
@@ -1264,7 +1248,7 @@ test:linux:package_permissions:
     - "build:archlinux_cli:installer"
   script:
     - export PATH=${RHEL_CMAKE_BUILD_PATH}/bin:$PATH
-    - if ! command -v rpm >/dev/null || ! command -v zstd >/dev/null; then apt-get update -qq && apt-get install -y -qq rpm zstd; fi
+    - if ! command -v rpm >/dev/null || ! command -v zstd >/dev/null; then apt-get -o Acquire::Retries=0 update -qq && apt-get -o Acquire::Retries=0 install -y -qq rpm zstd; fi
     - VERSION=$(cmake -P cmake/print_version.cmake 2>&1)
     - mkdir -p pkgs
     - |

@@ -300,6 +300,45 @@
     </message>
 </context>
 <context>
+    <name>LocalIPCServer</name>
+    <message>
+        <source>Malformed hydra profile command.</source>
+        <translation>hydra प्रोफ़ाइल कमांड गलत है।</translation>
+    </message>
+    <message>
+        <source>Could not remove the hydra profile.</source>
+        <translation>hydra प्रोफ़ाइल हटाई नहीं जा सकी।</translation>
+    </message>
+    <message>
+        <source>Hydra profile removed.</source>
+        <translation>Hydra प्रोफ़ाइल हटा दी गई।</translation>
+    </message>
+    <message>
+        <source>No hydra profile imported.</source>
+        <translation>कोई hydra प्रोफ़ाइल इम्पोर्ट नहीं की गई है।</translation>
+    </message>
+    <message>
+        <source>The imported hydra profile is not in use. %1</source>
+        <translation>इम्पोर्ट की गई hydra प्रोफ़ाइल उपयोग में नहीं है। %1</translation>
+    </message>
+    <message>
+        <source>Hydra profile %1:</source>
+        <translation>Hydra प्रोफ़ाइल %1:</translation>
+    </message>
+    <message>
+        <source>(unnamed)</source>
+        <translation>(बिना नाम)</translation>
+    </message>
+    <message>
+        <source>It maps every location: all of them connect through your hydra server.</source>
+        <translation>यह हर लोकेशन को मैप करती है: सभी आपके hydra सर्वर के ज़रिए कनेक्ट होती हैं।</translation>
+    </message>
+    <message>
+        <source>Connect to one of these locations to go through your hydra server; the others connect directly.</source>
+        <translation>अपने hydra सर्वर के ज़रिए जाने के लिए इनमें से किसी एक लोकेशन से कनेक्ट करें; बाकी सीधे कनेक्ट होती हैं।</translation>
+    </message>
+</context>
+<context>
     <name>LogViewer::LogViewerWindow</name>
     <message>
         <source>Word Wrap</source>
@@ -658,6 +697,22 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
         <translation>Windscribe कनेक्शन कॉन्फ़िगरेशन जनरेट नहीं कर सका। यदि यह त्रुटि बनी रहती है, तो कृपया एक डीबग लॉग भेजें और एक समर्थन टिकट खोलें।</translation>
     </message>
     <message>
+        <source>Can&apos;t reach your hydra server</source>
+        <translation>आपके hydra सर्वर तक नहीं पहुँचा जा सका</translation>
+    </message>
+    <message>
+        <source>Windscribe couldn&apos;t connect through the hydra server at %1. Check that it&apos;s running (hydra doctor), or remove the hydra profile in Preferences &gt; Connection to connect without it.</source>
+        <translation>Windscribe %1 पर मौजूद hydra सर्वर के ज़रिए कनेक्ट नहीं कर सका। जाँचें कि वह चल रहा है (hydra doctor), या उसके बिना कनेक्ट करने के लिए प्राथमिकताएँ &gt; नाता में hydra प्रोफ़ाइल हटा दें।</translation>
+    </message>
+    <message>
+        <source>Hydra needs WireGuard</source>
+        <translation>Hydra के लिए WireGuard ज़रूरी है</translation>
+    </message>
+    <message>
+        <source>This location is set to connect through your hydra server, which works with WireGuard only. Choose WireGuard or Auto, or remove the hydra profile in Preferences &gt; Connection.</source>
+        <translation>यह लोकेशन आपके hydra सर्वर के ज़रिए कनेक्ट होने के लिए सेट है, जो केवल WireGuard के साथ काम करता है। WireGuard या Auto चुनें, या प्राथमिकताएँ &gt; नाता में hydra प्रोफ़ाइल हटा दें।</translation>
+    </message>
+    <message>
         <source>The Remote Access Connection Manager (RasMan) service is not running and could not be started. This prevents IKEv2 from being used on this PC. Please try another connection mode or investigate why this core Windows service is unable to start.</source>
         <translation>दूरस्थ पहुँच कनेक्शन प्रबंधक (RasMan) सेवा नहीं चल रही है और प्रारंभ नहीं किया जा सका. यह IKEv2 को इस PC पर उपयोग किए जाने से रोकता है. कृपया किसी अन्य कनेक्शन मोड का प्रयास करें या जाँच करें कि यह कोर Windows सेवा प्रारंभ करने में असमर्थ क्यों है.</translation>
     </message>
@@ -692,6 +747,18 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
     <message>
         <source>Disconnected</source>
         <translation>डिस्कनेक्ट</translation>
+    </message>
+    <message>
+        <source>Import Hydra Profile</source>
+        <translation>Hydra प्रोफ़ाइल इम्पोर्ट करें</translation>
+    </message>
+    <message>
+        <source>Unable to import hydra profile</source>
+        <translation>hydra प्रोफ़ाइल इम्पोर्ट नहीं की जा सकी</translation>
+    </message>
+    <message>
+        <source>The imported hydra profile is not in use. %1</source>
+        <translation>इम्पोर्ट की गई hydra प्रोफ़ाइल उपयोग में नहीं है। %1</translation>
     </message>
     <message>
         <source>The selected directory is writeable for other users. Custom configs in this directory may pose a potential security risk.</source>
@@ -1469,6 +1536,42 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Allow access to local services and printers while connected to Windscribe.</source>
         <translation>विंडस्क्राइब से कनेक्ट होने के दौरान स्थानीय सेवाओं और प्रिंटर तक पहुंच की अनुमति दें।</translation>
+    </message>
+    <message>
+        <source>Hydra Profile</source>
+        <translation>Hydra प्रोफ़ाइल</translation>
+    </message>
+    <message>
+        <source>Import Profile</source>
+        <translation>प्रोफ़ाइल इम्पोर्ट करें</translation>
+    </message>
+    <message>
+        <source>Remove Profile</source>
+        <translation>प्रोफ़ाइल हटाएँ</translation>
+    </message>
+    <message>
+        <source>All locations</source>
+        <translation>सभी लोकेशन</translation>
+    </message>
+    <message>
+        <source>Connect to Windscribe through a private hydra server you run. Applies to WireGuard.</source>
+        <translation>अपने चलाए जा रहे निजी hydra सर्वर के ज़रिए Windscribe से कनेक्ट करें। WireGuard पर लागू होता है।</translation>
+    </message>
+    <message>
+        <source>+1 more location</source>
+        <translation>+1 और लोकेशन</translation>
+    </message>
+    <message>
+        <source>+%1 more locations</source>
+        <translation>+%1 और लोकेशन</translation>
+    </message>
+    <message>
+        <source>Select this location to connect through your hydra server.</source>
+        <translation>अपने hydra सर्वर के ज़रिए कनेक्ट करने के लिए यह लोकेशन चुनें।</translation>
+    </message>
+    <message>
+        <source>Select one of these locations to connect through your hydra server.</source>
+        <translation>अपने hydra सर्वर के ज़रिए कनेक्ट करने के लिए इनमें से कोई एक लोकेशन चुनें।</translation>
     </message>
     <message>
         <source>Spoof your device&apos;s physical address (MAC address).</source>
@@ -2821,6 +2924,106 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Windscribe is already running in another user session on this computer. Quit Windscribe in that session, then try again.</source>
         <translation>Windscribe इस कंप्यूटर पर किसी अन्य उपयोगकर्ता के सत्र में पहले से चल रहा है। कृपया उस सत्र में Windscribe से बाहर निकलें, फिर पुनः प्रयास करें।</translation>
+    </message>
+    <message>
+        <source>%1 is required</source>
+        <translation>%1 ज़रूरी है</translation>
+    </message>
+    <message>
+        <source>%1 must be a string</source>
+        <translation>%1 एक स्ट्रिंग होनी चाहिए</translation>
+    </message>
+    <message>
+        <source>%1 must be 1-65535</source>
+        <translation>%1 का मान 1-65535 होना चाहिए</translation>
+    </message>
+    <message>
+        <source>%1 must be a positive whole number</source>
+        <translation>%1 एक धनात्मक पूर्ण संख्या होनी चाहिए</translation>
+    </message>
+    <message>
+        <source>%1 must be a hostname</source>
+        <translation>%1 एक होस्टनेम होना चाहिए</translation>
+    </message>
+    <message>
+        <source>%1 must be an IPv4 address</source>
+        <translation>%1 एक IPv4 पता होना चाहिए</translation>
+    </message>
+    <message>
+        <source>must be an object</source>
+        <translation>एक ऑब्जेक्ट होना चाहिए</translation>
+    </message>
+    <message>
+        <source>unknown field %1</source>
+        <translation>अज्ञात फ़ील्ड %1</translation>
+    </message>
+    <message>
+        <source>unsupported protocol %1</source>
+        <translation>असमर्थित प्रोटोकॉल %1</translation>
+    </message>
+    <message>
+        <source>The file is too large to be a hydra profile.</source>
+        <translation>फ़ाइल hydra प्रोफ़ाइल होने के लिए बहुत बड़ी है।</translation>
+    </message>
+    <message>
+        <source>Not a hydra profile: the file is not a JSON object.</source>
+        <translation>यह hydra प्रोफ़ाइल नहीं है: फ़ाइल JSON ऑब्जेक्ट नहीं है।</translation>
+    </message>
+    <message>
+        <source>Not a hydra profile: kind must be %1.</source>
+        <translation>यह hydra प्रोफ़ाइल नहीं है: kind का मान %1 होना चाहिए।</translation>
+    </message>
+    <message>
+        <source>This hydra profile is from an older hydra and names one server; ask for a new one.</source>
+        <translation>यह hydra प्रोफ़ाइल hydra के पुराने वर्ज़न की है और इसमें एक ही सर्वर है; नई प्रोफ़ाइल माँगें।</translation>
+    </message>
+    <message>
+        <source>Unsupported hydra profile version; this app reads version 2.</source>
+        <translation>असमर्थित hydra प्रोफ़ाइल वर्ज़न; यह ऐप वर्ज़न 2 पढ़ता है।</translation>
+    </message>
+    <message>
+        <source>Invalid hydra profile: unknown field %1.</source>
+        <translation>अमान्य hydra प्रोफ़ाइल: अज्ञात फ़ील्ड %1।</translation>
+    </message>
+    <message>
+        <source>Invalid hydra profile: %1.</source>
+        <translation>अमान्य hydra प्रोफ़ाइल: %1।</translation>
+    </message>
+    <message>
+        <source>Invalid hydra profile: all must be true or false.</source>
+        <translation>अमान्य hydra प्रोफ़ाइल: all का मान true या false होना चाहिए।</translation>
+    </message>
+    <message>
+        <source>Invalid hydra profile: it has no fronts.</source>
+        <translation>अमान्य hydra प्रोफ़ाइल: इसमें कोई फ्रंट नहीं है।</translation>
+    </message>
+    <message>
+        <source>Invalid hydra profile: front %1: %2.</source>
+        <translation>अमान्य hydra प्रोफ़ाइल: फ्रंट %1: %2।</translation>
+    </message>
+    <message>
+        <source>Invalid hydra profile: front %1: entry %2 is listed twice.</source>
+        <translation>अमान्य hydra प्रोफ़ाइल: फ्रंट %1: एंट्री %2 दो बार दी गई है।</translation>
+    </message>
+    <message>
+        <source>%1 via %2</source>
+        <translation>%1, %2 के ज़रिए</translation>
+    </message>
+    <message>
+        <source>%1 via %2 (not in the server list)</source>
+        <translation>%1, %2 के ज़रिए (सर्वर सूची में नहीं)</translation>
+    </message>
+    <message>
+        <source>Could not read the hydra profile: %1</source>
+        <translation>hydra प्रोफ़ाइल पढ़ी नहीं जा सकी: %1</translation>
+    </message>
+    <message>
+        <source>Could not save the hydra profile: %1</source>
+        <translation>hydra प्रोफ़ाइल सेव नहीं की जा सकी: %1</translation>
+    </message>
+    <message>
+        <source>%1 (not in the server list)</source>
+        <translation>%1 (सर्वर सूची में नहीं)</translation>
     </message>
 </context>
 <context>

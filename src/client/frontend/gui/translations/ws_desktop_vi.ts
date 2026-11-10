@@ -300,6 +300,45 @@
     </message>
 </context>
 <context>
+    <name>LocalIPCServer</name>
+    <message>
+        <source>Malformed hydra profile command.</source>
+        <translation>Lệnh hồ sơ hydra không hợp lệ.</translation>
+    </message>
+    <message>
+        <source>Could not remove the hydra profile.</source>
+        <translation>Không thể xóa hồ sơ hydra.</translation>
+    </message>
+    <message>
+        <source>Hydra profile removed.</source>
+        <translation>Đã xóa hồ sơ hydra.</translation>
+    </message>
+    <message>
+        <source>No hydra profile imported.</source>
+        <translation>Chưa nhập hồ sơ hydra nào.</translation>
+    </message>
+    <message>
+        <source>The imported hydra profile is not in use. %1</source>
+        <translation>Hồ sơ hydra đã nhập không được sử dụng. %1</translation>
+    </message>
+    <message>
+        <source>Hydra profile %1:</source>
+        <translation>Hồ sơ hydra %1:</translation>
+    </message>
+    <message>
+        <source>(unnamed)</source>
+        <translation>(chưa đặt tên)</translation>
+    </message>
+    <message>
+        <source>It maps every location: all of them connect through your hydra server.</source>
+        <translation>Áp dụng cho mọi vị trí: tất cả đều kết nối qua máy chủ hydra của bạn.</translation>
+    </message>
+    <message>
+        <source>Connect to one of these locations to go through your hydra server; the others connect directly.</source>
+        <translation>Kết nối đến một trong các vị trí này để đi qua máy chủ hydra của bạn; các vị trí khác kết nối trực tiếp.</translation>
+    </message>
+</context>
+<context>
     <name>LogViewer::LogViewerWindow</name>
     <message>
         <source>Word Wrap</source>
@@ -658,6 +697,18 @@ Nếu bạn mất hàm băm tài khoản của mình, nó sẽ biến mất vĩn
         <translation>Rời rạc</translation>
     </message>
     <message>
+        <source>Import Hydra Profile</source>
+        <translation>Nhập hồ sơ Hydra</translation>
+    </message>
+    <message>
+        <source>Unable to import hydra profile</source>
+        <translation>Không thể nhập hồ sơ hydra</translation>
+    </message>
+    <message>
+        <source>The imported hydra profile is not in use. %1</source>
+        <translation>Hồ sơ hydra đã nhập không được sử dụng. %1</translation>
+    </message>
+    <message>
         <source>The selected directory is writeable for other users. Custom configs in this directory may pose a potential security risk.</source>
         <translation>Thư mục đã chọn có thể ghi được cho những người dùng khác. Cấu hình tùy chỉnh trong thư mục này có thể gây ra rủi ro bảo mật tiềm ẩn.</translation>
     </message>
@@ -832,6 +883,22 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
     <message>
         <source>Windscribe could not generate the connection configuration. If this error persists, please send a debug log and open a support ticket.</source>
         <translation>Windscribe không thể tạo cấu hình kết nối. Nếu lỗi này vẫn tiếp diễn, vui lòng gửi nhật ký gỡ lỗi và mở phiếu hỗ trợ.</translation>
+    </message>
+    <message>
+        <source>Can&apos;t reach your hydra server</source>
+        <translation>Không thể kết nối tới máy chủ hydra của bạn</translation>
+    </message>
+    <message>
+        <source>Windscribe couldn&apos;t connect through the hydra server at %1. Check that it&apos;s running (hydra doctor), or remove the hydra profile in Preferences &gt; Connection to connect without it.</source>
+        <translation>Windscribe không thể kết nối qua máy chủ hydra tại %1. Hãy kiểm tra xem máy chủ có đang chạy không (hydra doctor), hoặc xóa hồ sơ hydra trong Tùy chọn &gt; Kết nối để kết nối mà không dùng nó.</translation>
+    </message>
+    <message>
+        <source>Hydra needs WireGuard</source>
+        <translation>Hydra cần WireGuard</translation>
+    </message>
+    <message>
+        <source>This location is set to connect through your hydra server, which works with WireGuard only. Choose WireGuard or Auto, or remove the hydra profile in Preferences &gt; Connection.</source>
+        <translation>Vị trí này được đặt để kết nối qua máy chủ hydra của bạn, vốn chỉ hoạt động với WireGuard. Hãy chọn WireGuard hoặc Auto, hoặc xóa hồ sơ hydra trong Tùy chọn &gt; Kết nối.</translation>
     </message>
     <message>
         <source>The Remote Access Connection Manager (RasMan) service is not running and could not be started. This prevents IKEv2 from being used on this PC. Please try another connection mode or investigate why this core Windows service is unable to start.</source>
@@ -1473,6 +1540,42 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
     <message>
         <source>Allow access to local services and printers while connected to Windscribe.</source>
         <translation>Cho phép truy cập vào các dịch vụ cục bộ và máy in trong khi kết nối với Windscribe.</translation>
+    </message>
+    <message>
+        <source>Hydra Profile</source>
+        <translation>Hồ sơ Hydra</translation>
+    </message>
+    <message>
+        <source>Import Profile</source>
+        <translation>Nhập hồ sơ</translation>
+    </message>
+    <message>
+        <source>Remove Profile</source>
+        <translation>Xóa hồ sơ</translation>
+    </message>
+    <message>
+        <source>All locations</source>
+        <translation>Tất cả vị trí</translation>
+    </message>
+    <message>
+        <source>Connect to Windscribe through a private hydra server you run. Applies to WireGuard.</source>
+        <translation>Kết nối với Windscribe qua máy chủ hydra riêng do bạn vận hành. Áp dụng cho WireGuard.</translation>
+    </message>
+    <message>
+        <source>+1 more location</source>
+        <translation>+1 vị trí khác</translation>
+    </message>
+    <message>
+        <source>+%1 more locations</source>
+        <translation>+%1 vị trí khác</translation>
+    </message>
+    <message>
+        <source>Select this location to connect through your hydra server.</source>
+        <translation>Chọn vị trí này để kết nối qua máy chủ hydra của bạn.</translation>
+    </message>
+    <message>
+        <source>Select one of these locations to connect through your hydra server.</source>
+        <translation>Chọn một trong các vị trí này để kết nối qua máy chủ hydra của bạn.</translation>
     </message>
     <message>
         <source>Spoof your device&apos;s physical address (MAC address).</source>
@@ -2821,6 +2924,106 @@ Nếu việc cài đặt lại không hiệu quả, vui lòng liên hệ với b
     <message>
         <source>Windscribe is already running in another user session on this computer. Quit Windscribe in that session, then try again.</source>
         <translation>Windscribe đang chạy trong phiên của người dùng khác trên máy tính này. Vui lòng thoát Windscribe trong phiên đó rồi thử lại.</translation>
+    </message>
+    <message>
+        <source>%1 is required</source>
+        <translation>%1 là bắt buộc</translation>
+    </message>
+    <message>
+        <source>%1 must be a string</source>
+        <translation>%1 phải là chuỗi</translation>
+    </message>
+    <message>
+        <source>%1 must be 1-65535</source>
+        <translation>%1 phải nằm trong khoảng 1-65535</translation>
+    </message>
+    <message>
+        <source>%1 must be a positive whole number</source>
+        <translation>%1 phải là số nguyên dương</translation>
+    </message>
+    <message>
+        <source>%1 must be a hostname</source>
+        <translation>%1 phải là tên máy chủ</translation>
+    </message>
+    <message>
+        <source>%1 must be an IPv4 address</source>
+        <translation>%1 phải là địa chỉ IPv4</translation>
+    </message>
+    <message>
+        <source>must be an object</source>
+        <translation>phải là một đối tượng</translation>
+    </message>
+    <message>
+        <source>unknown field %1</source>
+        <translation>trường không xác định %1</translation>
+    </message>
+    <message>
+        <source>unsupported protocol %1</source>
+        <translation>giao thức không được hỗ trợ %1</translation>
+    </message>
+    <message>
+        <source>The file is too large to be a hydra profile.</source>
+        <translation>Tệp quá lớn để là hồ sơ hydra.</translation>
+    </message>
+    <message>
+        <source>Not a hydra profile: the file is not a JSON object.</source>
+        <translation>Không phải hồ sơ hydra: tệp không phải là đối tượng JSON.</translation>
+    </message>
+    <message>
+        <source>Not a hydra profile: kind must be %1.</source>
+        <translation>Không phải hồ sơ hydra: kind phải là %1.</translation>
+    </message>
+    <message>
+        <source>This hydra profile is from an older hydra and names one server; ask for a new one.</source>
+        <translation>Hồ sơ hydra này thuộc phiên bản hydra cũ và chỉ chỉ định một máy chủ; hãy yêu cầu hồ sơ mới.</translation>
+    </message>
+    <message>
+        <source>Unsupported hydra profile version; this app reads version 2.</source>
+        <translation>Phiên bản hồ sơ hydra không được hỗ trợ; ứng dụng này đọc phiên bản 2.</translation>
+    </message>
+    <message>
+        <source>Invalid hydra profile: unknown field %1.</source>
+        <translation>Hồ sơ hydra không hợp lệ: trường không xác định %1.</translation>
+    </message>
+    <message>
+        <source>Invalid hydra profile: %1.</source>
+        <translation>Hồ sơ hydra không hợp lệ: %1.</translation>
+    </message>
+    <message>
+        <source>Invalid hydra profile: all must be true or false.</source>
+        <translation>Hồ sơ hydra không hợp lệ: all phải là true hoặc false.</translation>
+    </message>
+    <message>
+        <source>Invalid hydra profile: it has no fronts.</source>
+        <translation>Hồ sơ hydra không hợp lệ: không có front nào.</translation>
+    </message>
+    <message>
+        <source>Invalid hydra profile: front %1: %2.</source>
+        <translation>Hồ sơ hydra không hợp lệ: front %1: %2.</translation>
+    </message>
+    <message>
+        <source>Invalid hydra profile: front %1: entry %2 is listed twice.</source>
+        <translation>Hồ sơ hydra không hợp lệ: front %1: mục %2 bị liệt kê hai lần.</translation>
+    </message>
+    <message>
+        <source>%1 via %2</source>
+        <translation>%1 qua %2</translation>
+    </message>
+    <message>
+        <source>%1 via %2 (not in the server list)</source>
+        <translation>%1 qua %2 (không có trong danh sách máy chủ)</translation>
+    </message>
+    <message>
+        <source>Could not read the hydra profile: %1</source>
+        <translation>Không thể đọc hồ sơ hydra: %1</translation>
+    </message>
+    <message>
+        <source>Could not save the hydra profile: %1</source>
+        <translation>Không thể lưu hồ sơ hydra: %1</translation>
+    </message>
+    <message>
+        <source>%1 (not in the server list)</source>
+        <translation>%1 (không có trong danh sách máy chủ)</translation>
     </message>
 </context>
 <context>

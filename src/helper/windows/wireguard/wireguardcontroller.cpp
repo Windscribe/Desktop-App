@@ -18,7 +18,6 @@
 #include <sstream>
 
 #include "../../common/helper_commands.h"
-#include "../executecmd.h"
 #include "../utils.h"
 #include "phantom_wireguard_devices.h"
 #include "wireguardconfigwriter.h"
@@ -52,6 +51,11 @@ WireGuardController::WireGuardController()
 {
 }
 
+std::wstring WireGuardController::servicePath() const
+{
+    return Utils::getExePath() + L"\\" + exeName_;
+}
+
 bool WireGuardController::installService(bool isAmneziaWG)
 {
     isAmneziaWG_ = isAmneziaWG;
@@ -68,7 +72,7 @@ bool WireGuardController::installService(bool isAmneziaWG)
         std::wstring serviceCmdLine;
         {
             std::wostringstream stream;
-            stream << L"\"" << Utils::getExePath() << L"\\" << exeName_ << "\" \"" << confFile << L"\"";
+            stream << L"\"" << servicePath() << "\" \"" << confFile << L"\"";
             if (isAmneziaWG) {
                 stream << " --amneziawg";
             }
@@ -88,8 +92,7 @@ bool WireGuardController::installService(bool isAmneziaWG)
 
 #if defined(USE_SIGNATURE_CHECK)
         ExecutableSignature sigCheck;
-        std::wstring servicePath = Utils::getExePath() + L"\\" + exeName_;
-        if (!sigCheck.verify(servicePath)) {
+        if (!sigCheck.verify(servicePath())) {
             spdlog::error("WireGuard service signature incorrect: {}", sigCheck.lastError());
             return false;
         }
@@ -174,13 +177,9 @@ bool WireGuardController::deleteService()
     }
 
     if (!bServiceDeleted && !exeName_.empty()) {
-        spdlog::info("WireGuardController::deleteService - task killing the WireGuard service");
-        std::wstring killCmd = Utils::getSystemDir() + L"\\taskkill.exe /f /t /im " + exeName_;
-        const auto killResult = ExecuteCmd::instance().executeBlockingCmd(killCmd);
-        if (!killResult.success || killResult.exitCode != 0) {
-            spdlog::warn(L"WireGuardController::deleteService - taskkill failed (success {}, exit code {}): {}",
-                         killResult.success, killResult.exitCode, killResult.output);
-        }
+        spdlog::info("WireGuardController::deleteService - terminating the WireGuard service process");
+        const int killed = Utils::terminateProcessesByPath(servicePath());
+        spdlog::info("WireGuardController::deleteService - terminated {} WireGuard service process(es)", killed);
     }
 
     const std::wstring confFile = configFile();

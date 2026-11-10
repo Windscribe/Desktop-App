@@ -4,9 +4,11 @@
 #include "utils/ws_assert.h"
 
 ManualConnectionAttemptStrategy::ManualConnectionAttemptStrategy(QSharedPointer<locationsmodel::BaseLocationInfo> bli,
-    const types::ConnectionSettings &connectionSettings, const api_responses::PortMap &portMap, const QString &preferredNodeHostname) :
+    const types::ConnectionSettings &connectionSettings, const api_responses::PortMap &portMap, const QString &preferredNodeHostname,
+    HydraLock hydraLock) :
         locationInfo_(qSharedPointerDynamicCast<locationsmodel::MutableLocationInfo>(bli)),
-        portMap_(portMap), connectionSettings_(connectionSettings), failedManualModeCounter_(0), preferredNodeHostname_(preferredNodeHostname)
+        portMap_(portMap), connectionSettings_(connectionSettings), failedManualModeCounter_(0), preferredNodeHostname_(preferredNodeHostname),
+        hydraLock_(hydraLock)
 {
     WS_ASSERT(!locationInfo_.isNull());
     WS_ASSERT(!locationInfo_->locationId().isCustomConfigsLocation());
@@ -44,7 +46,23 @@ bool ManualConnectionAttemptStrategy::isFailed() const
 
 CurrentConnectionDescr ManualConnectionAttemptStrategy::getCurrentConnectionSettings() const
 {
+    if (hydraLock_ == HydraLock::kRefused) {
+        return CurrentConnectionDescr();
+    }
     return descrForSelectedNode(locationInfo_.data(), portMap_, connectionSettings_.protocol(), connectionSettings_.port());
+}
+
+ConnectError ManualConnectionAttemptStrategy::giveUpError() const
+{
+    switch (hydraLock_) {
+    case HydraLock::kThroughFront:
+        return ConnectError::kHydraUnreachable;
+    case HydraLock::kRefused:
+        return ConnectError::kHydraNeedsWireGuard;
+    case HydraLock::kNone:
+        break;
+    }
+    return ConnectError::kNoError;
 }
 
 bool ManualConnectionAttemptStrategy::isAutomaticMode()

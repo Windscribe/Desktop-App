@@ -142,7 +142,8 @@ QSharedPointer<BaseLocationInfo> ApiLocationsModel::getMutableLocationInfoById(c
                     }
 
                     int selectedNode = NodeSelectionAlgorithm::selectRandomNodeBasedOnWeight(nodes);
-                    QSharedPointer<BaseLocationInfo> bli(new MutableLocationInfo(modifiedLocationId, group.getCity() + " - " + group.getNick(), nodes, selectedNode,dnsHostname, group.getOvpnX509()));
+                    QSharedPointer<BaseLocationInfo> bli(new MutableLocationInfo(modifiedLocationId, group.getCity() + " - " + group.getNick(), nodes, selectedNode,dnsHostname, group.getOvpnX509(),
+                                                                                 group.getId()));
                     return bli;
                 }
             }
@@ -340,6 +341,7 @@ BestAndAllLocations ApiLocationsModel::generateLocationsUpdated(const QVector<ap
             city.is10Gbps = (group.getLinkSpeed() == 10000);
             city.isNoP2P = (group.getP2P() == 0);
             city.health = group.getNetLoad();
+            city.datacenterId = group.getId();
             item.cities << city;
 
             if (!isBestLocationValid && bestLocation_.isValid() && bestLocation_.getId() == city.id && !city.isDisabled)

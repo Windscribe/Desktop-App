@@ -30,6 +30,9 @@ enum CliCommand {
     CLI_COMMAND_UPDATE,
     CLI_COMMAND_AMNEZIAWG,
     CLI_COMMAND_PORTS,
+    CLI_COMMAND_HYDRA_SHOW,
+    CLI_COMMAND_HYDRA_IMPORT,
+    CLI_COMMAND_HYDRA_REMOVE,
 };
 
 class CliArguments
@@ -49,6 +52,7 @@ public:
     const QString &protocol() const;
     const uint &port() const;
     const QString &ipAddress() const;
+    const QString &hydraFile() const;
     bool keepFirewallOn() const;
     bool keyLimitDelete() const;
     bool ignoreSslErrors() const;
@@ -64,6 +68,7 @@ private:
     QString protocol_ = "";
     uint port_ = 0;
     QString ipAddress_ = "";
+    QString hydraFile_;
     bool keepFirewallOn_ = false;
     bool keyLimitDelete_ = false;
     bool ignoreSslErrors_ = false;
@@ -78,6 +83,7 @@ private:
     void parseLocations(const QStringList &args);
     void parseLogin(const QStringList &args);
     void parsePorts(const QStringList &args);
+    void parseHydra(const QStringList &args);
     void parseLogout(const QStringList &args);
     void parsePreferences(const QStringList &args);
     void parseLogs(const QStringList &args);

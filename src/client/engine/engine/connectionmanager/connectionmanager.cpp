@@ -11,6 +11,7 @@
 #include "engine/networkdetectionmanager/inetworkdetectionmanager.h"
 #include "engine/sleepevents/isleepevents.h"
 #include "utils/extraconfig.h"
+#include "utils/hydraprofile.h"
 #include "types/connectionsettings.h"
 #include "types/enums.h"
 #include "utils/network_utils/network_utils.h"
@@ -467,7 +468,12 @@ void ConnectionManager::onConnectionError(ConnectError err)
                                  attemptStrategy_->shouldRetryOnAttemptFailure())) {
         case ConnectErrorClassification::ErrorAfterDisconnect:
             // emit error in disconnected event
-            stopWithError(err, errorDetail);
+            if (err == ConnectError::kTunnelEstablishmentFailure && attemptStrategy_->giveUpError() == ConnectError::kHydraUnreachable) {
+                logHydraGiveUp();
+                stopWithError(ConnectError::kHydraUnreachable, hydraEntry());
+            } else {
+                stopWithError(err, errorDetail);
+            }
             // for ConnectError::kAuthFailure signal disconnected will be emitted automatically; other
             // emitters can be settled already and never emit it, wedging kStopping — force the teardown
             // (startDisconnect() on a settled connector emits disconnected() immediately).
@@ -779,16 +785,24 @@ void ConnectionManager::onHostnamesResolved()
     currentConnectionDescr_ = attemptStrategy_->getCurrentConnectionSettings();
 
     if (currentConnectionDescr_.connectionNodeType == CONNECTION_NODE_ERROR) {
-        qCWarning(LOG_CONNECTION) << "attemptStrategy_.getCurrentConnectionSettings returned incorrect value";
-        failWithError(ConnectError::kLocationUnavailable);
+        const ConnectError refusal = attemptStrategy_->giveUpError();
+        if (refusal == ConnectError::kNoError) {
+            qCWarning(LOG_CONNECTION) << "attemptStrategy_.getCurrentConnectionSettings returned incorrect value";
+        }
+        failWithError(refusal != ConnectError::kNoError ? refusal : ConnectError::kLocationUnavailable);
         return;
     }
 
-    qCInfo(LOG_CONNECTION) << "Connecting to IP:" << currentConnectionDescr_.ip << " protocol:" << currentConnectionDescr_.protocol.toLongString() << " port:" << currentConnectionDescr_.port;
+    // A hydra entry is the user's own server, often also their egress address: never logged in full.
+    const QString loggedIp = currentConnectionDescr_.hydraDatacenter.isEmpty() ? currentConnectionDescr_.ip
+                                                                               : HydraProfile::redactIp(currentConnectionDescr_.ip);
+    qCInfo(LOG_CONNECTION) << "Connecting to IP:" << loggedIp << " protocol:" << currentConnectionDescr_.protocol.toLongString() << " port:" << currentConnectionDescr_.port;
     if (!lastRequest_.openVpn.amneziawgPreset.isEmpty()) {
         qCInfo(LOG_CONNECTION) << "Using protocol tweaks, preset:" << lastRequest_.openVpn.amneziawgPreset;
     }
-    emit protocolPortChanged(currentConnectionDescr_.protocol, currentConnectionDescr_.port);
+    emit protocolPortChanged(currentConnectionDescr_.protocol, currentConnectionDescr_.portBeforeHydra != 0
+                                                                   ? currentConnectionDescr_.portBeforeHydra
+                                                                   : currentConnectionDescr_.port);
 
     if (!dnsConfigurator_->prepare()) {
         failWithError(ConnectError::kDnsServiceStartFailure);
@@ -928,7 +942,12 @@ void ConnectionManager::handleAttemptFailed(bool bDisconnectConnector)
             }
             break;
         case FailureAdvice::GiveUp:
-            stopWithDisconnect(DISCONNECTED_ITSELF, false);
+            if (attemptStrategy_->giveUpError() != ConnectError::kNoError) {
+                logHydraGiveUp();
+                stopWithError(attemptStrategy_->giveUpError(), hydraEntry());
+            } else {
+                stopWithDisconnect(DISCONNECTED_ITSELF, false);
+            }
             if (bDisconnectConnector && connector_) {
                 connector_->startDisconnect();
             }
@@ -1270,4 +1289,15 @@ void ConnectionManager::onConnectingTimeout()
     // check before the reconnect logic below can reset the attempt counter.
     clearCachedConfigIfExhausted(true);
     startFailoverReconnect();
+}
+
+QString ConnectionManager::hydraEntry() const
+{
+    return currentConnectionDescr_.ip + ":" + QString::number(currentConnectionDescr_.port);
+}
+
+void ConnectionManager::logHydraGiveUp() const
+{
+    qCInfo(LOG_CONNECTION).noquote() << "Hydra entry" << HydraProfile::redactIp(currentConnectionDescr_.ip) + ":" + QString::number(currentConnectionDescr_.port) << "for" << currentConnectionDescr_.hydraDatacenter
+                                     << "failed; not connecting without it";
 }

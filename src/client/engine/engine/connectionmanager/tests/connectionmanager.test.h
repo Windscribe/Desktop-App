@@ -216,6 +216,8 @@ private slots:
     void testConnectingTimerUsesConnectorTimeout();
     void testStaleQueuedDisconnectedIgnoredAfterNewConnect();
     void testHostnamesResolvedDuringStoppingIgnored();
+    void testHydraGiveUpStopsWithTheEntryAndNamesTheDatacenter();
+    void testHydraProtocolPortChangedReportsThePortBeforeTheEntry();
 
 private:
     ConnectionManager *cm_ = nullptr;
@@ -236,6 +238,7 @@ private:
     static CurrentConnectionDescr makeIkev2Descr();
     static CurrentConnectionDescr makeWireGuardDescr();
     static CurrentConnectionDescr makeStaticIpIkev2Descr();
+    static CurrentConnectionDescr makeHydraWireGuardDescr();
     static types::ConnectedDnsInfo makeDnsInfo(CONNECTED_DNS_TYPE type, const QString &upstream = QString());
     static types::ConnectedDnsInfo makeControldDnsInfo();
 

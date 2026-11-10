@@ -9,12 +9,13 @@
 namespace locationsmodel {
 
 MutableLocationInfo::MutableLocationInfo(const LocationID &locationId, const QString &name, const QVector< QSharedPointer<const BaseNode> > &nodes, int selectedNode,
-                                         const QString &dnsHostName, const QString &verifyX509name)
+                                         const QString &dnsHostName, const QString &verifyX509name, int datacenterId)
     : BaseLocationInfo(locationId, name)
     , nodes_(nodes)
     , selectedNode_(selectedNode)
     , dnsHostName_(dnsHostName)
     , verifyX509name_(verifyX509name)
+    , datacenterId_(datacenterId)
 {
 
     QString strNodes;
@@ -46,6 +47,11 @@ QString MutableLocationInfo::getDnsName() const
     {
         return dnsHostName_;
     }
+}
+
+int MutableLocationInfo::getDatacenterId() const
+{
+    return datacenterId_;
 }
 
 bool MutableLocationInfo::isExistSelectedNode() const

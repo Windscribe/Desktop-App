@@ -355,6 +355,7 @@ public:
     bool hasProtocolChanged() override { return hasProtocolChanged_; }
     bool shouldWaitForNetwork() const override { return waitForNetwork_; }
     bool shouldRetryOnAttemptFailure() const override { return retryOnAttemptFailure_; }
+    ConnectError giveUpError() const override { return giveUpError_; }
 
     void setCurrentConnectionSettings(const CurrentConnectionDescr &descr) { currentConnectionDescr_ = descr; }
     void setFailed(bool failed) { isFailed_ = failed; }
@@ -364,6 +365,7 @@ public:
     void setAutoResolveHostnames(bool value) { autoResolveHostnames_ = value; }
     void setWaitForNetwork(bool value) { waitForNetwork_ = value; }
     void setRetryOnAttemptFailure(bool value) { retryOnAttemptFailure_ = value; }
+    void setGiveUpError(ConnectError err) { giveUpError_ = err; }
     void driveProtocolStatusChanged() { emit protocolStatusChanged({}, isAutomaticMode_); }
     // Bounded so a budget-accounting regression fails assertions instead of hanging the suite.
     void exhaustCachedConfigBudget()
@@ -384,6 +386,7 @@ private:
     bool autoResolveHostnames_ = true;
     bool waitForNetwork_ = true;
     bool retryOnAttemptFailure_ = false;
+    ConnectError giveUpError_ = ConnectError::kNoError;
     int resetCount_ = 0;
     int putFailedConnectionCount_ = 0;
 };
@@ -412,6 +415,7 @@ public:
         lastCreated_->setAutoResolveHostnames(autoResolveHostnames_);
         lastCreated_->setWaitForNetwork(waitForNetwork_);
         lastCreated_->setRetryOnAttemptFailure(retryOnAttemptFailure_);
+        lastCreated_->setGiveUpError(giveUpError_);
         // Mirror the production factory: the fresh strategy receives the availability snapshot.
         lastCreated_->setCachedConfigAvailability(hasUsableCachedWgConfig);
         return lastCreated_;
@@ -428,6 +432,7 @@ public:
     void setAutoResolveHostnames(bool value) { autoResolveHostnames_ = value; }
     void setWaitForNetwork(bool value) { waitForNetwork_ = value; }
     void setRetryOnAttemptFailure(bool value) { retryOnAttemptFailure_ = value; }
+    void setGiveUpError(ConnectError err) { giveUpError_ = err; }
 
 private:
     QPointer<FakeConnectionAttemptStrategy> lastCreated_;
@@ -439,6 +444,7 @@ private:
     bool autoResolveHostnames_ = true;
     bool waitForNetwork_ = true;
     bool retryOnAttemptFailure_ = false;
+    ConnectError giveUpError_ = ConnectError::kNoError;
 };
 
 // CM owns the ISleepEvents it is handed (setParent + SAFE_DELETE); tests keep a raw pointer only to

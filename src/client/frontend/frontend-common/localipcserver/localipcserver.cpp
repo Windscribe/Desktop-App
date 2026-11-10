@@ -6,6 +6,7 @@
 #include "ipc/server.h"
 #include "locations/locationsmodel_roles.h"
 #include "locations/model/locationsmodel.h"
+#include "utils/hydraprofile.h"
 #include "utils/log/categories.h"
 #include "utils/networkingvalidation.h"
 #include "utils/utils.h"
@@ -218,6 +219,17 @@ void LocalIPCServer::onConnectionCommandCallback(IPC::Command *command, IPC::Con
             return;
         }
         emit setIgnoreSslErrors(cmd->isEnable_);
+    } else if (command->getStringId() == IPC::CliCommands::SetHydraProfile::getCommandStringId()) {
+        const auto *cmd = static_cast<IPC::CliCommands::SetHydraProfile *>(command);
+        const auto before = HydraProfile::load();
+        const IPC::CliCommands::Acknowledge ack = hydraProfileAnswer(*cmd);
+        // Only the asker: another CLI waiting on its own command would take this for its acknowledge.
+        connection->sendCommand(ack);
+        if (ack.code_ == 0 && cmd->isValid_ && (cmd->remove_ || !cmd->json_.isEmpty())) {
+            emit hydraProfileChanged();
+            backend_->reconnectIfHydraFrontChanged(before, HydraProfile::load());
+        }
+        return;
     } else if (command->getStringId() == IPC::CliCommands::Firewall::getCommandStringId()) {
         IPC::CliCommands::Firewall *cmd = static_cast<IPC::CliCommands::Firewall *>(command);
         if (cmd->isEnable_ && !backend_->isFirewallEnabled()) {
@@ -564,4 +576,59 @@ void LocalIPCServer::onBackendDebugLogResult(bool success)
     IPC::CliCommands::Acknowledge cmd;
     cmd.code_ = success ? 0 : 1;
     sendCommand(cmd);
+}
+
+IPC::CliCommands::Acknowledge LocalIPCServer::hydraProfileAnswer(const IPC::CliCommands::SetHydraProfile &cmd) const
+{
+    IPC::CliCommands::Acknowledge ack;
+    std::optional<HydraProfile> profile;
+    QString error;
+    if (!cmd.isValid_) {
+        error = tr("Malformed hydra profile command.");
+    } else if (cmd.remove_) {
+        if (!HydraProfile::remove()) {
+            error = tr("Could not remove the hydra profile.");
+        } else {
+            qCInfo(LOG_BASIC) << "Hydra profile removed";
+            ack.message_ = tr("Hydra profile removed.");
+            return ack;
+        }
+    } else if (!cmd.json_.isEmpty()) {
+        profile = HydraProfile::save(cmd.json_, error);
+        if (profile) {
+            qCInfo(LOG_BASIC) << "Hydra profile imported:" << profile->fronts().size() << "front(s)";
+        }
+    } else {
+        profile = HydraProfile::load(&error);
+        if (!profile && error.isEmpty()) {
+            ack.message_ = tr("No hydra profile imported.");
+            return ack;
+        }
+        if (!profile) {
+            // A file the app can no longer read, such as a version 1 profile: say why it does nothing.
+            error = tr("The imported hydra profile is not in use. %1").arg(error);
+        }
+    }
+
+    if (!profile) {
+        ack.code_ = 1;
+        ack.message_ = error;
+        return ack;
+    }
+    QStringList lines;
+    lines << tr("Hydra profile %1:").arg(profile->id().isEmpty() ? tr("(unnamed)") : profile->id());
+    const gui_locations::LocationsModelManager *locations = backend_->locationsModelManager();
+    const QStringList fronts = profile->summary([locations](int datacenterId) {
+        return locations->cityNameForDatacenter(datacenterId);
+    });
+    for (const QString &front : fronts) {
+        lines << "  " + front;
+    }
+    if (profile->all()) {
+        lines << tr("It maps every location: all of them connect through your hydra server.");
+    } else {
+        lines << tr("Connect to one of these locations to go through your hydra server; the others connect directly.");
+    }
+    ack.message_ = lines.join("\n");
+    return ack;
 }

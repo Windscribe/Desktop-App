@@ -24,7 +24,6 @@ set(SOURCES
     fwpm_wrapper.cpp
     helper.cpp
     hostsedit.cpp
-    ikev2ipsec.cpp
     ikev2route.cpp
     ipv6_firewall.cpp
     macaddressspoof.cpp
@@ -74,16 +73,17 @@ add_executable(${WS_APP_IDENTIFIER}Service ${SOURCES})
 set_property(TARGET ${WS_APP_IDENTIFIER}Service PROPERTY COMPILE_WARNING_AS_ERROR ON)
 
 # Enable the process mitigations applied from the TLS callback in wsprocessmitigations.h.  This is
-# a native, statically-linked (/MT) SYSTEM service with no Qt.  MicrosoftSignedOnly (SIGNATURE) and
-# DisableExtensionPoints (EXTENSION_POINT) are opted out: the service does in-process networking via
-# wsnet and uses ICS (netshell COM) and WMI, which can legitimately load third-party Winsock LSPs /
-# DNS NSPs and in-proc COM handlers depending on the end user's machine.  The remaining policies
-# (dynamic code, image-load, strict handle, redirection trust) are environment-independent.
+# a native, statically-linked (/MT) SYSTEM service with no Qt.  MicrosoftSignedOnly (SIGNATURE) is
+# opted out: SetupDiCallClassInstaller/DiUninstallDevice can load third-party class installers and
+# co-installers in-process, WinVerifyTrust loads trust providers, and ICS (netshell/HNetCfg COM) can
+# pull in in-proc handlers, depending on the end user's machine.  DisableExtensionPoints stays
+# enabled: the service has no windows, hooks, or IME use, and Winsock LSPs are simply bypassed (its
+# only in-process networking is wsnet's c-ares DNS over base-provider sockets).  The remaining
+# policies (dynamic code, image-load, strict handle, redirection trust) are environment-independent.
 target_compile_definitions(${WS_APP_IDENTIFIER}Service
                            PRIVATE
                            WS_ENABLE_PROCESS_MITIGATIONS
                            WS_DISABLE_SIGNATURE_POLICY
-                           WS_DISABLE_EXTENSION_POINT_POLICY
 )
 
 target_link_libraries(${WS_APP_IDENTIFIER}Service

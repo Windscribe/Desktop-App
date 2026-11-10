@@ -217,6 +217,22 @@ void Backend::sendConnect(const LocationID &lid, const types::ConnectionSettings
     startConnect(lid, connectionSettings);
 }
 
+void Backend::reconnectIfHydraFrontChanged(const std::optional<HydraProfile> &before, const std::optional<HydraProfile> &after)
+{
+    const LocationID lid = PersistentState::instance().lastLocation();
+    if (currentConnectState() != CONNECT_STATE_CONNECTED || !lid.isValid()) {
+        return;
+    }
+    const int datacenterId = locationsModelManager_->datacenterIdForLocation(lid);
+    const HydraProfile::Front *was = before ? before->frontForDatacenter(datacenterId) : nullptr;
+    const HydraProfile::Front *now = after ? after->frontForDatacenter(datacenterId) : nullptr;
+    if ((!was && !now) || (was && now && was->endpoint() == now->endpoint() && was->datacenter == now->datacenter)) {
+        return;
+    }
+    qCInfo(LOG_BASIC) << "The hydra profile changed the connected location's route; reconnecting";
+    sendConnect(lid);
+}
+
 void Backend::sendAutomaticConnect(const LocationID &lid)
 {
     startConnect(lid, types::ConnectionSettings(types::Protocol(), 0, true));

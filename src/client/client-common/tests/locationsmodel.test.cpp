@@ -628,6 +628,36 @@ void TestLocationsModel::testUnfavouriteReportsPinChange()
     QVERIFY(lima.data(gui_locations::kPinnedIp).toList().at(1).toString().isEmpty());
 }
 
+// A hydra front is listed by the server list's name for its datacenter, found by the datacenter's id:
+// never by a rename, which is the user's, nor by the profile's own label.
+void TestLocationsModel::testCityNameForDatacenter()
+{
+    locationsModel_->resetRenamedLocations();
+    QVERIFY(locationsModel_->cityNameForDatacenter(3).isEmpty());
+
+    // The engine fills the id in from the server list; a changed city reaches the model.
+    QVector<types::Location> locations = testOriginal_;
+    QCOMPARE(locations[0].cities[1].city + " - " + locations[0].cities[1].nick, QString("Dallas - Ranch"));
+    locations[0].cities[1].datacenterId = 3;
+    locations[1].cities[0].datacenterId = 1;
+    locationsModel_->updateLocations(LocationID::createApiLocationId(65, "Dallas", "Ranch").apiLocationToBestLocation(), locations);
+
+    QCOMPARE(locationsModel_->cityNameForDatacenter(3), QString("Dallas - Ranch"));
+    QCOMPARE(locationsModel_->cityNameForDatacenter(1), QString("Philadelphia - Cheese"));
+    QVERIFY(locationsModel_->cityNameForDatacenter(4).isEmpty());
+    // Cities the server list gives no datacenter (static IPs, custom configs) have id 0.
+    QVERIFY(locationsModel_->cityNameForDatacenter(0).isEmpty());
+
+    const QModelIndex dallas = locationsModel_->getIndexByLocationId(locations[0].cities[1].id);
+    QVERIFY(dallas.isValid());
+    QVERIFY(locationsModel_->setData(dallas, QStringLiteral("Home"), Qt::DisplayRole));
+    QVERIFY(locationsModel_->setData(dallas, QStringLiteral("Sweet"), gui_locations::kDisplayNickname));
+    QCOMPARE(dallas.data().toString(), QString("Home"));
+    QCOMPARE(locationsModel_->cityNameForDatacenter(3), QString("Dallas - Ranch"));
+
+    locationsModel_->resetRenamedLocations();
+}
+
 QTEST_MAIN(TestLocationsModel)
 
 

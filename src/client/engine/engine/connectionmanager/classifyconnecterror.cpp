@@ -43,6 +43,8 @@ ConnectErrorClassification classifyConnectError(ConnectError err, bool isAutomat
         case ConnectError::kDnsServiceStartFailure:
         case ConnectError::kBlockedByOsPolicy:
         case ConnectError::kLocalDnsServerNotAvailable:
+        case ConnectError::kHydraUnreachable:
+        case ConnectError::kHydraNeedsWireGuard:
             return ConnectErrorClassification::Unknown;
     }
     return ConnectErrorClassification::Unknown;

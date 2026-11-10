@@ -34,8 +34,10 @@
 //   WS_DISABLE_STRICT_HANDLE_CHECK_POLICY  - strict handle checks
 //   WS_DISABLE_REDIRECTION_TRUST_POLICY    - redirection trust
 // This is for targets that need most of the hardening but must run a reduced set -- e.g. the
-// helper service disables SIGNATURE and EXTENSION_POINT because it does in-process networking
-// (wsnet) and ICS/WMI COM that can legitimately load third-party LSPs/NSPs and in-proc handlers.
+// helper service disables SIGNATURE because SetupDi class installers, WinVerifyTrust providers,
+// and ICS COM can legitimately load third-party in-proc DLLs.  Note EXTENSION_POINT only covers
+// AppInit_DLLs, global window hooks, legacy IMEs, and Winsock LSPs; LSPs are bypassed (sockets use
+// the base provider), not broken, so in-process networking alone is no reason to disable it.
 
 namespace {
 

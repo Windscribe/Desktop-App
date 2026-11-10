@@ -26,7 +26,8 @@ bool City::operator==(const City &other) const
            other.customConfigErrorMessage == customConfigErrorMessage &&
            other.is10Gbps == is10Gbps &&
            other.isNoP2P == isNoP2P &&
-           other.health == health;
+           other.health == health &&
+           other.datacenterId == datacenterId;
 }
 
 bool City::operator!=(const City &other) const
@@ -104,6 +105,7 @@ Location Location::locationFromJsonObject(const QJsonObject &obj)
         city.customConfigErrorMessage = objCity["custom_config_error_message"].toString();
         city.is10Gbps = (objCity["link_speed"].toInt() == 10000);
         city.health = objCity["health"].toInt();
+        city.datacenterId = objCity["datacenter_id"].toInt();
         if (objCity.contains("is_p2p_supported"))
             city.isNoP2P = !objCity["is_p2p_supported"].toBool();
         else

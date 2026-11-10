@@ -41,6 +41,7 @@
         "miniaudio",
         "ctrld",
         "amneziawg",
+        "wstunnel",
         {
             "name": "wireguard-windows",
             "platform": "windows"

@@ -5,6 +5,7 @@
 #include "api_responses/portmap.h"
 #include "api_responses/servercredentials.h"
 #include "api_responses/staticips.h"
+#include "types/enums.h"
 #include "types/protocolstatus.h"
 #include "engine/wireguardconfig/wireguardconfig.h"
 
@@ -34,6 +35,11 @@ struct CurrentConnectionDescr
     QString hostname;
     QString verifyX509name;
     bool isIpv6Support = false;
+    // Set when a hydra front replaced ip and port: the port the attempt asked for, which is what the
+    // user sees and what a network's preferred protocol records. The entry port only works via hydra.
+    uint portBeforeHydra = 0;
+    // Set with portBeforeHydra: the datacenter the front stands in for, as the profile names it.
+    QString hydraDatacenter;
 
     // OpenVPN payload; filled only for custom-config attempts. The finished .ovpn text: body plus
     // the single selected remote line with the resolved IP substituted, assembled upstream.
@@ -93,6 +99,9 @@ public:
     // Whether a failed tunnel test is surfaced to the caller instead of driving failover; a custom
     // config has no alternatives to fail over to.
     virtual bool surfacesTunnelTestFailure() const { return false; }
+    // What to stop with, instead of a plain disconnect, once this strategy gives up or refuses the
+    // attempt; kNoError for a plain disconnect.
+    virtual ConnectError giveUpError() const { return ConnectError::kNoError; }
 
     // Records the failed attempt and decides whether the caller should try the next attempt or give
     // up. An exhausted walk restarts from the top (with a fresh cached-config budget) instead of

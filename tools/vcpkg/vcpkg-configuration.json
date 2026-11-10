@@ -9,7 +9,7 @@
       {
         "kind": "git",
         "repository": "https://github.com/Windscribe/ws-vcpkg-registry",
-        "baseline": "dccef93be8c0fe34b513317176d749ab70cc2718",
+        "baseline": "3012065313af1adf459932c2b971d49ef25a49e3",
         "packages": [
           "amneziawg",
           "boost-context",
@@ -32,7 +32,8 @@
           "skyr-url",
           "spdlog",
           "tap-windows6-driver",
-          "wireguard-windows"
+          "wireguard-windows",
+          "wstunnel"
         ]
       }
     ]

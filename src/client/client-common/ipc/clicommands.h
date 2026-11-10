@@ -164,6 +164,40 @@ public:
     bool isEnable_ = false;
 };
 
+// Imports the hydra profile in json_, removes it (remove_), or, with neither, asks what is imported.
+// The service answers with an Acknowledge: the profile's fronts, or why it was refused.
+class SetHydraProfile : public Command
+{
+public:
+    SetHydraProfile() {}
+    explicit SetHydraProfile(char *buf, int size)
+    {
+        QByteArray arr(buf, size);
+        QDataStream ds(&arr, QIODevice::ReadOnly);
+        ds >> remove_ >> json_;
+        isValid_ = ds.status() == QDataStream::Ok;
+    }
+
+    std::vector<char> getData() const override
+    {
+        QByteArray arr;
+        QDataStream ds(&arr, QIODevice::WriteOnly);
+        ds << remove_ << json_;
+        return std::vector<char>(arr.begin(), arr.end());
+    }
+
+    std::string getStringId() const override { return getCommandStringId(); }
+    std::string getDebugString() const override
+    {
+        return "CliCommands::SetHydraProfile debug string";
+    }
+    static std::string getCommandStringId() { return "CliCommands::SetHydraProfile";  }
+
+    bool remove_ = false;
+    QByteArray json_;
+    bool isValid_ = true;
+};
+
 class ShowLocations : public Command
 {
 public:

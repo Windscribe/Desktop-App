@@ -93,18 +93,7 @@ bool Helper_win::executeTaskKill(CmdKillTarget target)
 {
     auto result = sendCommand(HelperCommand::executeTaskKill, (int)target);
     bool success = false;
-    unsigned long exitCode = 0;
-    universal_string log;
-    deserializeAnswer(result, success, exitCode, log);
-
-#ifdef Q_OS_WIN
-    if (success && exitCode != 0) {
-        QString result = toQString(log).trimmed();
-        if (!result.startsWith("ERROR: The process") && !result.endsWith("not found.")) {
-            qCWarning(LOG_BASIC) << QString("executeTaskKill(%1) failed: %2").arg(target).arg(result);
-        }
-    }
-#endif
+    deserializeAnswer(result, success);
     return success;
 }
 
@@ -407,9 +396,9 @@ void Helper_win::removeAppNetworkProfiles()
     sendCommand(HelperCommand::removeAppNetworkProfiles);
 }
 
-void Helper_win::setIKEv2IPSecParameters()
+void Helper_win::disableIKEv2MODP2048Support()
 {
-    sendCommand(HelperCommand::setIKEv2IPSecParameters);
+    sendCommand(HelperCommand::disableIKEv2MODP2048Support);
 }
 
 void Helper_win::setCustomDnsIps(const QStringList &ips)

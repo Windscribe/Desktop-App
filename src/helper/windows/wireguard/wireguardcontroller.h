@@ -33,6 +33,7 @@ private:
 private:
     explicit WireGuardController();
     std::wstring configFile() const;
+    std::wstring servicePath() const;
 
     void getKernelDriverStatus(ULONG64& lastHandshake, ULONG64& txBytes, ULONG64& rxBytes) const;
     HANDLE getKernelInterfaceHandle() const;

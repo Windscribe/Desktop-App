@@ -300,6 +300,45 @@
     </message>
 </context>
 <context>
+    <name>LocalIPCServer</name>
+    <message>
+        <source>Malformed hydra profile command.</source>
+        <translation>أمر ملف تعريف hydra غير صالح.</translation>
+    </message>
+    <message>
+        <source>Could not remove the hydra profile.</source>
+        <translation>تعذّرت إزالة ملف تعريف hydra.</translation>
+    </message>
+    <message>
+        <source>Hydra profile removed.</source>
+        <translation>تمت إزالة ملف تعريف Hydra.</translation>
+    </message>
+    <message>
+        <source>No hydra profile imported.</source>
+        <translation>لم يتم استيراد أي ملف تعريف hydra.</translation>
+    </message>
+    <message>
+        <source>The imported hydra profile is not in use. %1</source>
+        <translation>ملف تعريف hydra المستورد غير مستخدم. %1</translation>
+    </message>
+    <message>
+        <source>Hydra profile %1:</source>
+        <translation>ملف تعريف Hydra %1:</translation>
+    </message>
+    <message>
+        <source>(unnamed)</source>
+        <translation>(بدون اسم)</translation>
+    </message>
+    <message>
+        <source>It maps every location: all of them connect through your hydra server.</source>
+        <translation>يشمل جميع المواقع: كلها تتصل عبر خادم hydra الخاص بك.</translation>
+    </message>
+    <message>
+        <source>Connect to one of these locations to go through your hydra server; the others connect directly.</source>
+        <translation>اتصل بأحد هذه المواقع للمرور عبر خادم hydra الخاص بك؛ أما المواقع الأخرى فتتصل مباشرةً.</translation>
+    </message>
+</context>
+<context>
     <name>LogViewer::LogViewerWindow</name>
     <message>
         <source>Word Wrap</source>
@@ -658,6 +697,22 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
         <translation>لم يتمكن Windscribe من توليد تكوين الاتصال. إذا استمر هذا الخطأ، يرجى إرسال سجل تصحيح وفتح تذكرة دعم.</translation>
     </message>
     <message>
+        <source>Can&apos;t reach your hydra server</source>
+        <translation>تعذّر الوصول إلى خادم hydra الخاص بك</translation>
+    </message>
+    <message>
+        <source>Windscribe couldn&apos;t connect through the hydra server at %1. Check that it&apos;s running (hydra doctor), or remove the hydra profile in Preferences &gt; Connection to connect without it.</source>
+        <translation>تعذّر على Windscribe الاتصال عبر خادم hydra على %1. تحقق من أنه يعمل (hydra doctor)، أو أزل ملف تعريف hydra من التفضيلات &gt; الاتصال للاتصال بدونه.</translation>
+    </message>
+    <message>
+        <source>Hydra needs WireGuard</source>
+        <translation>يتطلب Hydra بروتوكول WireGuard</translation>
+    </message>
+    <message>
+        <source>This location is set to connect through your hydra server, which works with WireGuard only. Choose WireGuard or Auto, or remove the hydra profile in Preferences &gt; Connection.</source>
+        <translation>هذا الموقع مضبوط للاتصال عبر خادم hydra الخاص بك، الذي يعمل مع WireGuard فقط. اختر WireGuard أو Auto، أو أزل ملف تعريف hydra من التفضيلات &gt; الاتصال.</translation>
+    </message>
+    <message>
         <source>The Remote Access Connection Manager (RasMan) service is not running and could not be started. This prevents IKEv2 from being used on this PC. Please try another connection mode or investigate why this core Windows service is unable to start.</source>
         <translation>خدمة مدير الاتصال للوصول عن بعد (RasMan) لا تعمل ولم يكن بالإمكان تشغيلها. هذا يمنع استخدام IKEv2 على هذا الكمبيوتر. يرجى تجربة وضع اتصال آخر أو التحقق من سبب عدم تشغيل هذه الخدمة الأساسية لويندوز.</translation>
     </message>
@@ -692,6 +747,18 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
     <message>
         <source>Disconnected</source>
         <translation>قطع اتصال</translation>
+    </message>
+    <message>
+        <source>Import Hydra Profile</source>
+        <translation>استيراد ملف تعريف Hydra</translation>
+    </message>
+    <message>
+        <source>Unable to import hydra profile</source>
+        <translation>تعذّر استيراد ملف تعريف hydra</translation>
+    </message>
+    <message>
+        <source>The imported hydra profile is not in use. %1</source>
+        <translation>ملف تعريف hydra المستورد غير مستخدم. %1</translation>
     </message>
     <message>
         <source>The selected directory is writeable for other users. Custom configs in this directory may pose a potential security risk.</source>
@@ -1469,6 +1536,42 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Allow access to local services and printers while connected to Windscribe.</source>
         <translation>السماح بالوصول إلى الخدمات المحلية والطابعات أثناء الاتصال ب Windscribe.</translation>
+    </message>
+    <message>
+        <source>Hydra Profile</source>
+        <translation>ملف تعريف Hydra</translation>
+    </message>
+    <message>
+        <source>Import Profile</source>
+        <translation>استيراد ملف التعريف</translation>
+    </message>
+    <message>
+        <source>Remove Profile</source>
+        <translation>إزالة ملف التعريف</translation>
+    </message>
+    <message>
+        <source>All locations</source>
+        <translation>جميع المواقع</translation>
+    </message>
+    <message>
+        <source>Connect to Windscribe through a private hydra server you run. Applies to WireGuard.</source>
+        <translation>اتصل بـ Windscribe عبر خادم hydra خاص تديره بنفسك. ينطبق على WireGuard.</translation>
+    </message>
+    <message>
+        <source>+1 more location</source>
+        <translation>+موقع واحد آخر</translation>
+    </message>
+    <message>
+        <source>+%1 more locations</source>
+        <translation>+%1 مواقع أخرى</translation>
+    </message>
+    <message>
+        <source>Select this location to connect through your hydra server.</source>
+        <translation>اختر هذا الموقع للاتصال عبر خادم hydra الخاص بك.</translation>
+    </message>
+    <message>
+        <source>Select one of these locations to connect through your hydra server.</source>
+        <translation>اختر أحد هذه المواقع للاتصال عبر خادم hydra الخاص بك.</translation>
     </message>
     <message>
         <source>Spoof your device&apos;s physical address (MAC address).</source>
@@ -2821,6 +2924,106 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Windscribe is already running in another user session on this computer. Quit Windscribe in that session, then try again.</source>
         <translation>يعمل Windscribe بالفعل في جلسة مستخدم آخر على هذا الكمبيوتر. يرجى إنهاء Windscribe في تلك الجلسة، ثم المحاولة مرة أخرى.</translation>
+    </message>
+    <message>
+        <source>%1 is required</source>
+        <translation>%1 مطلوب</translation>
+    </message>
+    <message>
+        <source>%1 must be a string</source>
+        <translation>يجب أن يكون %1 نصًا</translation>
+    </message>
+    <message>
+        <source>%1 must be 1-65535</source>
+        <translation>يجب أن يكون %1 بين 1-65535</translation>
+    </message>
+    <message>
+        <source>%1 must be a positive whole number</source>
+        <translation>يجب أن يكون %1 عددًا صحيحًا موجبًا</translation>
+    </message>
+    <message>
+        <source>%1 must be a hostname</source>
+        <translation>يجب أن يكون %1 اسم مضيف</translation>
+    </message>
+    <message>
+        <source>%1 must be an IPv4 address</source>
+        <translation>يجب أن يكون %1 عنوان IPv4</translation>
+    </message>
+    <message>
+        <source>must be an object</source>
+        <translation>يجب أن يكون كائنًا</translation>
+    </message>
+    <message>
+        <source>unknown field %1</source>
+        <translation>حقل غير معروف %1</translation>
+    </message>
+    <message>
+        <source>unsupported protocol %1</source>
+        <translation>بروتوكول غير مدعوم %1</translation>
+    </message>
+    <message>
+        <source>The file is too large to be a hydra profile.</source>
+        <translation>الملف كبير جدًا ليكون ملف تعريف hydra.</translation>
+    </message>
+    <message>
+        <source>Not a hydra profile: the file is not a JSON object.</source>
+        <translation>ليس ملف تعريف hydra: الملف ليس كائن JSON.</translation>
+    </message>
+    <message>
+        <source>Not a hydra profile: kind must be %1.</source>
+        <translation>ليس ملف تعريف hydra: يجب أن تكون قيمة kind هي %1.</translation>
+    </message>
+    <message>
+        <source>This hydra profile is from an older hydra and names one server; ask for a new one.</source>
+        <translation>ملف تعريف hydra هذا من إصدار أقدم من hydra ويحدد خادمًا واحدًا؛ اطلب ملفًا جديدًا.</translation>
+    </message>
+    <message>
+        <source>Unsupported hydra profile version; this app reads version 2.</source>
+        <translation>إصدار ملف تعريف hydra غير مدعوم؛ يقرأ هذا التطبيق الإصدار 2.</translation>
+    </message>
+    <message>
+        <source>Invalid hydra profile: unknown field %1.</source>
+        <translation>ملف تعريف hydra غير صالح: حقل غير معروف %1.</translation>
+    </message>
+    <message>
+        <source>Invalid hydra profile: %1.</source>
+        <translation>ملف تعريف hydra غير صالح: %1.</translation>
+    </message>
+    <message>
+        <source>Invalid hydra profile: all must be true or false.</source>
+        <translation>ملف تعريف hydra غير صالح: يجب أن تكون قيمة all هي true أو false.</translation>
+    </message>
+    <message>
+        <source>Invalid hydra profile: it has no fronts.</source>
+        <translation>ملف تعريف hydra غير صالح: لا يحتوي على أي fronts.</translation>
+    </message>
+    <message>
+        <source>Invalid hydra profile: front %1: %2.</source>
+        <translation>ملف تعريف hydra غير صالح: front %1: %2.</translation>
+    </message>
+    <message>
+        <source>Invalid hydra profile: front %1: entry %2 is listed twice.</source>
+        <translation>ملف تعريف hydra غير صالح: front %1: الإدخال %2 مدرج مرتين.</translation>
+    </message>
+    <message>
+        <source>%1 via %2</source>
+        <translation>%1 عبر %2</translation>
+    </message>
+    <message>
+        <source>%1 via %2 (not in the server list)</source>
+        <translation>%1 عبر %2 (غير موجود في قائمة الخوادم)</translation>
+    </message>
+    <message>
+        <source>Could not read the hydra profile: %1</source>
+        <translation>تعذّرت قراءة ملف تعريف hydra: %1</translation>
+    </message>
+    <message>
+        <source>Could not save the hydra profile: %1</source>
+        <translation>تعذّر حفظ ملف تعريف hydra: %1</translation>
+    </message>
+    <message>
+        <source>%1 (not in the server list)</source>
+        <translation>%1 (غير موجود في قائمة الخوادم)</translation>
     </message>
 </context>
 <context>

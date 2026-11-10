@@ -300,6 +300,45 @@
     </message>
 </context>
 <context>
+    <name>LocalIPCServer</name>
+    <message>
+        <source>Malformed hydra profile command.</source>
+        <translation>hydra 配置文件命令格式错误。</translation>
+    </message>
+    <message>
+        <source>Could not remove the hydra profile.</source>
+        <translation>无法移除 hydra 配置文件。</translation>
+    </message>
+    <message>
+        <source>Hydra profile removed.</source>
+        <translation>已移除 hydra 配置文件。</translation>
+    </message>
+    <message>
+        <source>No hydra profile imported.</source>
+        <translation>未导入 hydra 配置文件。</translation>
+    </message>
+    <message>
+        <source>The imported hydra profile is not in use. %1</source>
+        <translation>导入的 hydra 配置文件未在使用。%1</translation>
+    </message>
+    <message>
+        <source>Hydra profile %1:</source>
+        <translation>hydra 配置文件 %1：</translation>
+    </message>
+    <message>
+        <source>(unnamed)</source>
+        <translation>（未命名）</translation>
+    </message>
+    <message>
+        <source>It maps every location: all of them connect through your hydra server.</source>
+        <translation>覆盖所有位置：所有位置均通过您的 hydra 服务器连接。</translation>
+    </message>
+    <message>
+        <source>Connect to one of these locations to go through your hydra server; the others connect directly.</source>
+        <translation>连接到以下任一位置即可经由您的 hydra 服务器；其他位置直接连接。</translation>
+    </message>
+</context>
+<context>
     <name>LogViewer::LogViewerWindow</name>
     <message>
         <source>Word Wrap</source>
@@ -658,6 +697,18 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
         <translation>断开</translation>
     </message>
     <message>
+        <source>Import Hydra Profile</source>
+        <translation>导入 Hydra 配置文件</translation>
+    </message>
+    <message>
+        <source>Unable to import hydra profile</source>
+        <translation>无法导入 hydra 配置文件</translation>
+    </message>
+    <message>
+        <source>The imported hydra profile is not in use. %1</source>
+        <translation>导入的 hydra 配置文件未在使用。%1</translation>
+    </message>
+    <message>
         <source>The selected directory is writeable for other users. Custom configs in this directory may pose a potential security risk.</source>
         <translation>所选目录可写入其他用户。该目录中的自定义配置可能构成潜在的安全风险。</translation>
     </message>
@@ -832,6 +883,22 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Windscribe could not generate the connection configuration. If this error persists, please send a debug log and open a support ticket.</source>
         <translation>Windscribe 无法生成连接配置。如果错误依旧，请发送调试日志并开启支持工单。</translation>
+    </message>
+    <message>
+        <source>Can&apos;t reach your hydra server</source>
+        <translation>无法访问您的 hydra 服务器</translation>
+    </message>
+    <message>
+        <source>Windscribe couldn&apos;t connect through the hydra server at %1. Check that it&apos;s running (hydra doctor), or remove the hydra profile in Preferences &gt; Connection to connect without it.</source>
+        <translation>Windscribe 无法通过位于 %1 的 hydra 服务器连接。请检查其是否正在运行（hydra doctor），或在“偏好设置 &gt; 连接”中移除 hydra 配置文件以不经由它连接。</translation>
+    </message>
+    <message>
+        <source>Hydra needs WireGuard</source>
+        <translation>Hydra 需要 WireGuard</translation>
+    </message>
+    <message>
+        <source>This location is set to connect through your hydra server, which works with WireGuard only. Choose WireGuard or Auto, or remove the hydra profile in Preferences &gt; Connection.</source>
+        <translation>此位置设置为通过您的 hydra 服务器连接，而该服务器仅支持 WireGuard。请选择 WireGuard 或 Auto，或在“偏好设置 &gt; 连接”中移除 hydra 配置文件。</translation>
     </message>
     <message>
         <source>The Remote Access Connection Manager (RasMan) service is not running and could not be started. This prevents IKEv2 from being used on this PC. Please try another connection mode or investigate why this core Windows service is unable to start.</source>
@@ -1469,6 +1536,42 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Allow access to local services and printers while connected to Windscribe.</source>
         <translation>允许在连接到 Windscribe 时访问本地服务和打印机。</translation>
+    </message>
+    <message>
+        <source>Hydra Profile</source>
+        <translation>Hydra 配置文件</translation>
+    </message>
+    <message>
+        <source>Import Profile</source>
+        <translation>导入配置文件</translation>
+    </message>
+    <message>
+        <source>Remove Profile</source>
+        <translation>移除配置文件</translation>
+    </message>
+    <message>
+        <source>All locations</source>
+        <translation>所有位置</translation>
+    </message>
+    <message>
+        <source>Connect to Windscribe through a private hydra server you run. Applies to WireGuard.</source>
+        <translation>通过您自己运行的私有 hydra 服务器连接到 Windscribe。适用于 WireGuard。</translation>
+    </message>
+    <message>
+        <source>+1 more location</source>
+        <translation>+另外 1 个位置</translation>
+    </message>
+    <message>
+        <source>+%1 more locations</source>
+        <translation>+另外 %1 个位置</translation>
+    </message>
+    <message>
+        <source>Select this location to connect through your hydra server.</source>
+        <translation>选择此位置以通过您的 hydra 服务器连接。</translation>
+    </message>
+    <message>
+        <source>Select one of these locations to connect through your hydra server.</source>
+        <translation>选择以下任一位置以通过您的 hydra 服务器连接。</translation>
     </message>
     <message>
         <source>Spoof your device&apos;s physical address (MAC address).</source>
@@ -2821,6 +2924,106 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Windscribe is already running in another user session on this computer. Quit Windscribe in that session, then try again.</source>
         <translation>Windscribe 已在此电脑上另一个用户的会话中运行。请在该会话中退出 Windscribe，然后重试。</translation>
+    </message>
+    <message>
+        <source>%1 is required</source>
+        <translation>%1 为必填项</translation>
+    </message>
+    <message>
+        <source>%1 must be a string</source>
+        <translation>%1 必须是字符串</translation>
+    </message>
+    <message>
+        <source>%1 must be 1-65535</source>
+        <translation>%1 必须在 1-65535 之间</translation>
+    </message>
+    <message>
+        <source>%1 must be a positive whole number</source>
+        <translation>%1 必须是正整数</translation>
+    </message>
+    <message>
+        <source>%1 must be a hostname</source>
+        <translation>%1 必须是主机名</translation>
+    </message>
+    <message>
+        <source>%1 must be an IPv4 address</source>
+        <translation>%1 必须是 IPv4 地址</translation>
+    </message>
+    <message>
+        <source>must be an object</source>
+        <translation>必须是对象</translation>
+    </message>
+    <message>
+        <source>unknown field %1</source>
+        <translation>未知字段 %1</translation>
+    </message>
+    <message>
+        <source>unsupported protocol %1</source>
+        <translation>不支持的协议 %1</translation>
+    </message>
+    <message>
+        <source>The file is too large to be a hydra profile.</source>
+        <translation>文件过大，不是有效的 hydra 配置文件。</translation>
+    </message>
+    <message>
+        <source>Not a hydra profile: the file is not a JSON object.</source>
+        <translation>不是 hydra 配置文件：该文件不是 JSON 对象。</translation>
+    </message>
+    <message>
+        <source>Not a hydra profile: kind must be %1.</source>
+        <translation>不是 hydra 配置文件：kind 必须为 %1。</translation>
+    </message>
+    <message>
+        <source>This hydra profile is from an older hydra and names one server; ask for a new one.</source>
+        <translation>此 hydra 配置文件来自旧版 hydra，仅指定一台服务器；请索取新的配置文件。</translation>
+    </message>
+    <message>
+        <source>Unsupported hydra profile version; this app reads version 2.</source>
+        <translation>不支持的 hydra 配置文件版本；此应用读取版本 2。</translation>
+    </message>
+    <message>
+        <source>Invalid hydra profile: unknown field %1.</source>
+        <translation>无效的 hydra 配置文件：未知字段 %1。</translation>
+    </message>
+    <message>
+        <source>Invalid hydra profile: %1.</source>
+        <translation>无效的 hydra 配置文件：%1。</translation>
+    </message>
+    <message>
+        <source>Invalid hydra profile: all must be true or false.</source>
+        <translation>无效的 hydra 配置文件：all 必须为 true 或 false。</translation>
+    </message>
+    <message>
+        <source>Invalid hydra profile: it has no fronts.</source>
+        <translation>无效的 hydra 配置文件：没有任何 front。</translation>
+    </message>
+    <message>
+        <source>Invalid hydra profile: front %1: %2.</source>
+        <translation>无效的 hydra 配置文件：front %1：%2。</translation>
+    </message>
+    <message>
+        <source>Invalid hydra profile: front %1: entry %2 is listed twice.</source>
+        <translation>无效的 hydra 配置文件：front %1：条目 %2 重复列出。</translation>
+    </message>
+    <message>
+        <source>%1 via %2</source>
+        <translation>%1，经由 %2</translation>
+    </message>
+    <message>
+        <source>%1 via %2 (not in the server list)</source>
+        <translation>%1，经由 %2（不在服务器列表中）</translation>
+    </message>
+    <message>
+        <source>Could not read the hydra profile: %1</source>
+        <translation>无法读取 hydra 配置文件：%1</translation>
+    </message>
+    <message>
+        <source>Could not save the hydra profile: %1</source>
+        <translation>无法保存 hydra 配置文件：%1</translation>
+    </message>
+    <message>
+        <source>%1 (not in the server list)</source>
+        <translation>%1（不在服务器列表中）</translation>
     </message>
 </context>
 <context>

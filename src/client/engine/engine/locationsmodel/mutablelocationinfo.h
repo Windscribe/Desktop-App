@@ -17,10 +17,13 @@ class MutableLocationInfo : public BaseLocationInfo
 public:
     explicit MutableLocationInfo(const LocationID &locationId, const QString &name,
                                  const QVector< QSharedPointer<const BaseNode> > &nodes, int selectedNode,
-                                 const QString &dnsHostName, const QString &verifyX509name);
+                                 const QString &dnsHostName, const QString &verifyX509name,
+                                 int datacenterId = 0);
 
 
     QString getDnsName() const;
+    // The datacenter's id (the server list's group id); 0 for a static IP.
+    int getDatacenterId() const;
     bool isExistSelectedNode() const override;
     QString getVerifyX509name() const override;
     QString getLogString() const override;
@@ -53,6 +56,7 @@ private:
     int selectedNode_;
     QString dnsHostName_;
     QString verifyX509name_;
+    int datacenterId_;
 
     QString getLogForNode(int ind) const;
 

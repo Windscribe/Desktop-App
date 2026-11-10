@@ -93,7 +93,7 @@ public:
 
     void addIKEv2DefaultRoute();
     void removeAppNetworkProfiles();
-    void setIKEv2IPSecParameters();
+    void disableIKEv2MODP2048Support();
 
     void setCustomDnsIps(const QStringList& ips);
 

@@ -10,6 +10,8 @@ target_sources(client-common PRIVATE
     filechangewatcher.h
     hardcodedsettings.cpp
     hardcodedsettings.h
+    hydraprofile.cpp
+    hydraprofile.h
     networkingvalidation.cpp
     networkingvalidation.h
     languagesutil.cpp

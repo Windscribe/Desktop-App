@@ -116,7 +116,7 @@ set(WS_MAC_INSTALLER_BUNDLE_NAME "${WS_MAC_INSTALLER_APP_NAME}.app")
 # macOS helpers that need openssl dylib paths fixed to @executable_path/../Frameworks/.
 set(WS_MAC_RPATH_BINARIES openvpn)
 
-# Qt frameworks to remove from macOS bundles after macdeployqt
+# Qt frameworks to remove from macOS bundles
 set(WS_MAC_UNUSED_FRAMEWORKS QtQml QtQuick)
 
 # macOS entitlements file for the main app executable (empty string to skip)

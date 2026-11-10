@@ -1,5 +1,7 @@
 #pragma once
 
+#include <optional>
+
 #include <QObject>
 #include <QTimer>
 #include <wsnet/WSNet.h>
@@ -11,6 +13,7 @@
 #include "preferences/preferences.h"
 #include "preferences/preferenceshelper.h"
 #include "types/locationid.h"
+#include "utils/hydraprofile.h"
 #include "types/protocolstatus.h"
 #include "types/proxysharinginfo.h"
 #include "types/shareproxygateway.h"
@@ -45,6 +48,9 @@ public:
     bool isLastLoginWithAuthHash() const;
     void logout(bool keepFirewallOn);
     void sendConnect(const LocationID &lid, const types::ConnectionSettings &connectionSettings = types::ConnectionSettings(types::Protocol(), 0, true));
+    // After a hydra profile import or Remove: reconnects when the change moved the connected location onto
+    // a front, off one, or to another entry, so the live tunnel follows now rather than at the next connect.
+    void reconnectIfHydraFrontChanged(const std::optional<HydraProfile> &before, const std::optional<HydraProfile> &after);
     // The app retrying a connection it was already making, which a command waiting on that connection follows rather than
     // reporting as replaced by another command.
     void sendAutomaticConnect(const LocationID &lid);

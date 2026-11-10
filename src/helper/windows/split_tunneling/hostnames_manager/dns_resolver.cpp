@@ -6,12 +6,7 @@ using namespace wsnet;
 DnsResolver::DnsResolver(std::function<void (std::map<std::string, HostInfo>)> resolveDomainsCallback) :
     resolveDomainsCallback_(resolveDomainsCallback),
     work_(boost::asio::make_work_guard(io_context_))
-{    
-    // will not log the output from the library, too much unnecessary information
-    if (!WSNet::initialize("", "", "", "", "", "", false, "en", "", nullptr, false, "")) {
-        spdlog::error("WSNet::initialize failed");
-    }
-
+{
     thread_ = std::thread([this](){ io_context_.run(); });
 }
 
@@ -19,7 +14,32 @@ DnsResolver::~DnsResolver()
 {
     io_context_.stop();
     thread_.join();
-    WSNet::cleanup();
+    // isWSNetInitialized_ is only written on the io_context thread, which has been joined above.
+    if (isWSNetInitialized_)
+        WSNet::cleanup();
+}
+
+bool DnsResolver::ensureWSNetInitialized()
+{
+    // Called only on the io_context thread. WSNet is initialized lazily on the first hostname lookup
+    // so the helper doesn't spin up wsnet (threads, c-ares, etc.) unless split tunneling actually needs it.
+    if (isWSNetInitialized_)
+        return true;
+    if (isWSNetInitFailed_)
+        return false;
+
+    // will not log the output from the library, too much unnecessary information
+    if (!WSNet::initialize("", "", "", "", "", "", false, "en", "", nullptr, false, "")) {
+        spdlog::error("WSNet::initialize failed");
+        // On failure WSNet::initialize leaves a partially initialized instance behind. It can't be safely
+        // released (e.g. DnsResolver_cares joins a thread it never started) and can't be re-initialized
+        // (WSNet::initialize asserts there is no existing instance), so leave it and don't retry.
+        isWSNetInitFailed_ = true;
+        return false;
+    }
+
+    isWSNetInitialized_ = true;
+    return true;
 }
 
 void DnsResolver::onDnsResolved(uint64_t requestId, const std::string &hostname, std::shared_ptr<wsnet::WSNetDnsRequestResult> result)
@@ -80,6 +100,21 @@ void DnsResolver::resolveDomains(const std::vector<std::string> &hostnames)
     cancelAll();
 
     boost::asio::post(io_context_, [this, hostnames] {
+        if (hostnames.empty())
+            return;
+
+        if (!ensureWSNetInitialized()) {
+            std::map<std::string, HostInfo> failed;
+            for (const auto &hostname : hostnames) {
+                HostInfo hi;
+                hi.hostname = hostname;
+                hi.error = true;
+                failed[hostname] = hi;
+            }
+            resolveDomainsCallback_(failed);
+            return;
+        }
+
         startTime_ = std::chrono::steady_clock::now();
         for (const auto &hostname : hostnames) {
             using namespace std::placeholders;

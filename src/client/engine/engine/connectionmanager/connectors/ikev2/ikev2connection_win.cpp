@@ -3,6 +3,8 @@
 
 #include <QElapsedTimer>
 
+#include <shlobj.h>
+
 #include "engine/adapterutils_win.h"
 #include "utils/extraconfig.h"
 #include "utils/crashhandler.h"
@@ -22,6 +24,57 @@ struct DialStatePayload
     RASCONNSTATE rascs;
     DWORD dwError;
 };
+
+// Write our custom IKEv2 IPsec policy into the phonebook entry created by RasSetEntryProperties.
+// The public RAS API (RASENTRY) has no fields for custom IPsec proposals; the only supported
+// alternatives are the Set-VpnConnectionIPsecConfiguration cmdlet or its WMI class, both of which
+// end up writing these same phonebook keys.
+bool setIPsecParametersInPhoneBook()
+{
+    // RasSetEntryProperties(NULL, ...) places the entry in the calling user's phonebook, but check
+    // the all-users phonebook as well in case it landed there.
+    for (const auto &folderId : { FOLDERID_RoamingAppData, FOLDERID_LocalAppData, FOLDERID_ProgramData }) {
+        PWSTR folder = nullptr;
+        const HRESULT hr = ::SHGetKnownFolderPath(folderId, KF_FLAG_DEFAULT, nullptr, &folder);
+        if (FAILED(hr)) {
+            ::CoTaskMemFree(folder);
+            qCDebug(LOG_IKEV2) << "setIPsecParametersInPhoneBook: SHGetKnownFolderPath failed:" << Qt::showbase << Qt::hex << static_cast<unsigned long>(hr);
+            continue;
+        }
+        std::wstring phonebook(folder);
+        ::CoTaskMemFree(folder);
+        phonebook += L"\\Microsoft\\Network\\Connections\\Pbk\\rasphone.pbk";
+
+        // Only modify the phonebook that actually holds our RAS entry. Otherwise we would add an
+        // orphan section to an unrelated phonebook and never update the real entry. This also
+        // covers the phonebook not existing. Don't open the file ourselves to probe it: an
+        // exclusive open fails whenever RasMan or another process has the phonebook open.
+        wchar_t keyNames[64] = {};
+        if (::GetPrivateProfileStringW(IKEV2_CONNECTION_NAME, nullptr, L"", keyNames, _countof(keyNames),
+                                       phonebook.c_str()) == 0) {
+            continue;
+        }
+
+        if (!::WritePrivateProfileStringW(IKEV2_CONNECTION_NAME, L"NumCustomPolicy", L"1", phonebook.c_str()) ||
+            // Note that this value is approximately, but not exactly, a ROUTER_CUSTOM_IKEv2_POLICY0 structure,
+            // with each DWORD written out one byte at a time.  This value was actually derived from setting
+            // the policy with the PowerShell command and then inspecting the rasphone.pbk file.
+            !::WritePrivateProfileStringW(IKEV2_CONNECTION_NAME, L"CustomIPSecPolicies",
+                                          L"030000000600000005000000080000000500000005000000", phonebook.c_str()) ||
+            // This disables NetBIOS over TCP/IP.
+            !::WritePrivateProfileStringW(IKEV2_CONNECTION_NAME, L"IpNBTFlags", L"0", phonebook.c_str())) {
+            // Short-circuit evaluation guarantees the failing WritePrivateProfileString was the last call.
+            const DWORD writeError = ::GetLastError();
+            qCCritical(LOG_IKEV2) << "setIPsecParametersInPhoneBook: cannot write phonebook"
+                                  << QString::fromStdWString(phonebook) << writeError;
+            return false;
+        }
+        return true;
+    }
+
+    qCCritical(LOG_IKEV2) << "setIPsecParametersInPhoneBook: no phonebook contains the" << QString::fromWCharArray(IKEV2_CONNECTION_NAME) << "entry";
+    return false;
+}
 }
 
 // static global variable, because we reinstall WAN only once during the lifetime of the process
@@ -319,7 +372,11 @@ IKEv2Connection_win::DialResult IKEv2Connection_win::startDial()
         return DialResult::Error;
     }
 
-    helper_->setIKEv2IPSecParameters();
+    helper_->disableIKEv2MODP2048Support();
+    if (!setIPsecParametersInPhoneBook()) {
+        // Not fatal: the entry still dials with the Windows default IKEv2 proposals.
+        qCCritical(LOG_IKEV2) << "Failed to write the custom IPsec policy to the RAS phonebook";
+    }
     helper_->enableDnsLeaksProtection();
     hostsAndDnsProtectionSet_ = true;
 

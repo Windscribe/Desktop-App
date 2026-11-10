@@ -300,6 +300,45 @@
     </message>
 </context>
 <context>
+    <name>LocalIPCServer</name>
+    <message>
+        <source>Malformed hydra profile command.</source>
+        <translation>Hatalı hydra profili komutu.</translation>
+    </message>
+    <message>
+        <source>Could not remove the hydra profile.</source>
+        <translation>Hydra profili kaldırılamadı.</translation>
+    </message>
+    <message>
+        <source>Hydra profile removed.</source>
+        <translation>Hydra profili kaldırıldı.</translation>
+    </message>
+    <message>
+        <source>No hydra profile imported.</source>
+        <translation>İçe aktarılmış hydra profili yok.</translation>
+    </message>
+    <message>
+        <source>The imported hydra profile is not in use. %1</source>
+        <translation>İçe aktarılan hydra profili kullanılmıyor. %1</translation>
+    </message>
+    <message>
+        <source>Hydra profile %1:</source>
+        <translation>Hydra profili %1:</translation>
+    </message>
+    <message>
+        <source>(unnamed)</source>
+        <translation>(adsız)</translation>
+    </message>
+    <message>
+        <source>It maps every location: all of them connect through your hydra server.</source>
+        <translation>Tüm konumları kapsar: hepsi hydra sunucunuz üzerinden bağlanır.</translation>
+    </message>
+    <message>
+        <source>Connect to one of these locations to go through your hydra server; the others connect directly.</source>
+        <translation>hydra sunucunuz üzerinden geçmek için bu konumlardan birine bağlanın; diğerleri doğrudan bağlanır.</translation>
+    </message>
+</context>
+<context>
     <name>LogViewer::LogViewerWindow</name>
     <message>
         <source>Word Wrap</source>
@@ -658,6 +697,18 @@ Hesabınızı kaybederseniz, sonsuza dek kaybolur ve destek size onu kurtarmaya 
         <translation>Bağlantısı kesilmiş</translation>
     </message>
     <message>
+        <source>Import Hydra Profile</source>
+        <translation>Hydra Profilini İçe Aktar</translation>
+    </message>
+    <message>
+        <source>Unable to import hydra profile</source>
+        <translation>Hydra profili içe aktarılamadı</translation>
+    </message>
+    <message>
+        <source>The imported hydra profile is not in use. %1</source>
+        <translation>İçe aktarılan hydra profili kullanılmıyor. %1</translation>
+    </message>
+    <message>
         <source>The selected directory is writeable for other users. Custom configs in this directory may pose a potential security risk.</source>
         <translation>Seçilen dizin diğer kullanıcılar için yazılabilir. Bu dizindeki özel yapılandırmalar potansiyel bir güvenlik riski oluşturabilir.</translation>
     </message>
@@ -832,6 +883,22 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
     <message>
         <source>Windscribe could not generate the connection configuration. If this error persists, please send a debug log and open a support ticket.</source>
         <translation>Windscribe bağlantı yapılandırmasını oluşturamadı. Bu hata devam ederse, lütfen bir hata ayıklama kaydı gönderin ve destek bileti açın.</translation>
+    </message>
+    <message>
+        <source>Can&apos;t reach your hydra server</source>
+        <translation>hydra sunucunuza ulaşılamıyor</translation>
+    </message>
+    <message>
+        <source>Windscribe couldn&apos;t connect through the hydra server at %1. Check that it&apos;s running (hydra doctor), or remove the hydra profile in Preferences &gt; Connection to connect without it.</source>
+        <translation>Windscribe, %1 adresindeki hydra sunucusu üzerinden bağlanamadı. Çalıştığını kontrol edin (hydra doctor) veya onsuz bağlanmak için Tercihler &gt; Bağlantı bölümünden hydra profilini kaldırın.</translation>
+    </message>
+    <message>
+        <source>Hydra needs WireGuard</source>
+        <translation>Hydra için WireGuard gerekli</translation>
+    </message>
+    <message>
+        <source>This location is set to connect through your hydra server, which works with WireGuard only. Choose WireGuard or Auto, or remove the hydra profile in Preferences &gt; Connection.</source>
+        <translation>Bu konum, yalnızca WireGuard ile çalışan hydra sunucunuz üzerinden bağlanacak şekilde ayarlı. WireGuard veya Auto seçin ya da Tercihler &gt; Bağlantı bölümünden hydra profilini kaldırın.</translation>
     </message>
     <message>
         <source>The Remote Access Connection Manager (RasMan) service is not running and could not be started. This prevents IKEv2 from being used on this PC. Please try another connection mode or investigate why this core Windows service is unable to start.</source>
@@ -1473,6 +1540,42 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
     <message>
         <source>Allow access to local services and printers while connected to Windscribe.</source>
         <translation>Windscribe&apos;a bağlıyken yerel hizmetlere ve yazıcılara erişime izin verin.</translation>
+    </message>
+    <message>
+        <source>Hydra Profile</source>
+        <translation>Hydra Profili</translation>
+    </message>
+    <message>
+        <source>Import Profile</source>
+        <translation>Profili İçe Aktar</translation>
+    </message>
+    <message>
+        <source>Remove Profile</source>
+        <translation>Profili Kaldır</translation>
+    </message>
+    <message>
+        <source>All locations</source>
+        <translation>Tüm konumlar</translation>
+    </message>
+    <message>
+        <source>Connect to Windscribe through a private hydra server you run. Applies to WireGuard.</source>
+        <translation>Windscribe&apos;a kendi çalıştırdığınız özel bir hydra sunucusu üzerinden bağlanın. WireGuard için geçerlidir.</translation>
+    </message>
+    <message>
+        <source>+1 more location</source>
+        <translation>+1 konum daha</translation>
+    </message>
+    <message>
+        <source>+%1 more locations</source>
+        <translation>+%1 konum daha</translation>
+    </message>
+    <message>
+        <source>Select this location to connect through your hydra server.</source>
+        <translation>hydra sunucunuz üzerinden bağlanmak için bu konumu seçin.</translation>
+    </message>
+    <message>
+        <source>Select one of these locations to connect through your hydra server.</source>
+        <translation>hydra sunucunuz üzerinden bağlanmak için bu konumlardan birini seçin.</translation>
     </message>
     <message>
         <source>Spoof your device&apos;s physical address (MAC address).</source>
@@ -2821,6 +2924,106 @@ Yeniden yükleme yardımcı olmazsa, lütfen yardım için Windscribe desteği i
     <message>
         <source>Windscribe is already running in another user session on this computer. Quit Windscribe in that session, then try again.</source>
         <translation>Windscribe bu bilgisayarda başka bir kullanıcının oturumunda zaten çalışıyor. Lütfen o oturumda Windscribe&apos;dan çıkın ve tekrar deneyin.</translation>
+    </message>
+    <message>
+        <source>%1 is required</source>
+        <translation>%1 gerekli</translation>
+    </message>
+    <message>
+        <source>%1 must be a string</source>
+        <translation>%1 bir dize olmalı</translation>
+    </message>
+    <message>
+        <source>%1 must be 1-65535</source>
+        <translation>%1 1-65535 arasında olmalı</translation>
+    </message>
+    <message>
+        <source>%1 must be a positive whole number</source>
+        <translation>%1 pozitif bir tam sayı olmalı</translation>
+    </message>
+    <message>
+        <source>%1 must be a hostname</source>
+        <translation>%1 bir ana bilgisayar adı olmalı</translation>
+    </message>
+    <message>
+        <source>%1 must be an IPv4 address</source>
+        <translation>%1 bir IPv4 adresi olmalı</translation>
+    </message>
+    <message>
+        <source>must be an object</source>
+        <translation>bir nesne olmalı</translation>
+    </message>
+    <message>
+        <source>unknown field %1</source>
+        <translation>bilinmeyen alan %1</translation>
+    </message>
+    <message>
+        <source>unsupported protocol %1</source>
+        <translation>desteklenmeyen protokol %1</translation>
+    </message>
+    <message>
+        <source>The file is too large to be a hydra profile.</source>
+        <translation>Dosya, hydra profili olamayacak kadar büyük.</translation>
+    </message>
+    <message>
+        <source>Not a hydra profile: the file is not a JSON object.</source>
+        <translation>Hydra profili değil: dosya bir JSON nesnesi değil.</translation>
+    </message>
+    <message>
+        <source>Not a hydra profile: kind must be %1.</source>
+        <translation>Hydra profili değil: kind %1 olmalı.</translation>
+    </message>
+    <message>
+        <source>This hydra profile is from an older hydra and names one server; ask for a new one.</source>
+        <translation>Bu hydra profili eski bir hydra sürümüne ait ve tek bir sunucu belirtiyor; yenisini isteyin.</translation>
+    </message>
+    <message>
+        <source>Unsupported hydra profile version; this app reads version 2.</source>
+        <translation>Desteklenmeyen hydra profili sürümü; bu uygulama sürüm 2&apos;yi okur.</translation>
+    </message>
+    <message>
+        <source>Invalid hydra profile: unknown field %1.</source>
+        <translation>Geçersiz hydra profili: bilinmeyen alan %1.</translation>
+    </message>
+    <message>
+        <source>Invalid hydra profile: %1.</source>
+        <translation>Geçersiz hydra profili: %1.</translation>
+    </message>
+    <message>
+        <source>Invalid hydra profile: all must be true or false.</source>
+        <translation>Geçersiz hydra profili: all, true veya false olmalı.</translation>
+    </message>
+    <message>
+        <source>Invalid hydra profile: it has no fronts.</source>
+        <translation>Geçersiz hydra profili: hiç front yok.</translation>
+    </message>
+    <message>
+        <source>Invalid hydra profile: front %1: %2.</source>
+        <translation>Geçersiz hydra profili: front %1: %2.</translation>
+    </message>
+    <message>
+        <source>Invalid hydra profile: front %1: entry %2 is listed twice.</source>
+        <translation>Geçersiz hydra profili: front %1: %2 girdisi iki kez listelenmiş.</translation>
+    </message>
+    <message>
+        <source>%1 via %2</source>
+        <translation>%2 üzerinden %1</translation>
+    </message>
+    <message>
+        <source>%1 via %2 (not in the server list)</source>
+        <translation>%2 üzerinden %1 (sunucu listesinde yok)</translation>
+    </message>
+    <message>
+        <source>Could not read the hydra profile: %1</source>
+        <translation>Hydra profili okunamadı: %1</translation>
+    </message>
+    <message>
+        <source>Could not save the hydra profile: %1</source>
+        <translation>Hydra profili kaydedilemedi: %1</translation>
+    </message>
+    <message>
+        <source>%1 (not in the server list)</source>
+        <translation>%1 (sunucu listesinde yok)</translation>
     </message>
 </context>
 <context>

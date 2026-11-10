@@ -1,5 +1,6 @@
 #include "backendcommander.h"
 
+#include <QFile>
 #include <QProcess>
 #include <QTimer>
 #include <chrono>
@@ -12,6 +13,7 @@
 #include "ipc/connection.h"
 #include "strings.h"
 #include "utils.h"
+#include "utils/hydraprofile.h"
 #include "utils/log/categories.h"
 #include "utils/networkingvalidation.h"
 #include "utils/systemwideapplock.h"
@@ -242,6 +244,25 @@ void BackendCommander::sendCommand(IPC::CliCommands::State *state)
     }
     else if (cliArgs_.cliCommand() == CLI_COMMAND_AMNEZIAWG) {
         IPC::CliCommands::ShowAmneziawg cmd;
+        connection_->sendCommand(cmd);
+    }
+    else if (cliArgs_.cliCommand() == CLI_COMMAND_HYDRA_SHOW || cliArgs_.cliCommand() == CLI_COMMAND_HYDRA_IMPORT
+             || cliArgs_.cliCommand() == CLI_COMMAND_HYDRA_REMOVE) {
+        IPC::CliCommands::SetHydraProfile cmd;
+        cmd.remove_ = cliArgs_.cliCommand() == CLI_COMMAND_HYDRA_REMOVE;
+        if (cliArgs_.cliCommand() == CLI_COMMAND_HYDRA_IMPORT) {
+            // Read here, as the user running the CLI: the service may not be able to open the path.
+            QFile file(cliArgs_.hydraFile());
+            if (!file.open(QIODevice::ReadOnly)) {
+                emit finished(1, QObject::tr("Could not read %1: %2").arg(cliArgs_.hydraFile(), file.errorString()));
+                return;
+            }
+            cmd.json_ = file.read(HydraProfile::kMaxFileSize + 1);
+            if (cmd.json_.isEmpty()) {
+                emit finished(1, QObject::tr("%1 is empty.").arg(cliArgs_.hydraFile()));
+                return;
+            }
+        }
         connection_->sendCommand(cmd);
     }
     else if (cliArgs_.cliCommand() == CLI_COMMAND_LOGIN) {
@@ -511,6 +532,12 @@ void BackendCommander::onUpdateStateResponse(IPC::Command *command)
 
 void BackendCommander::onAcknowledge(IPC::CliCommands::Acknowledge *ackCmd)
 {
+    if (cliArgs_.cliCommand() == CLI_COMMAND_HYDRA_SHOW || cliArgs_.cliCommand() == CLI_COMMAND_HYDRA_IMPORT
+        || cliArgs_.cliCommand() == CLI_COMMAND_HYDRA_REMOVE) {
+        emit finished(ackCmd->code_, ackCmd->message_);
+        return;
+    }
+
     if (!cliArgs_.nonBlocking()) {
         sendStateCommand();
         return;

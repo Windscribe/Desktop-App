@@ -32,15 +32,16 @@ add_executable(WireguardService ${SOURCES})
 
 # Enable the reduced process-mitigation profile from the TLS callback in wsprocessmitigations.h
 # (included by ServiceMain.cpp).  MicrosoftSignedOnly (SIGNATURE) is opted out because this service
-# loads the non-Microsoft tunnel.dll/amneziawgtunnel.dll in-process; DisableExtensionPoints
-# (EXTENSION_POINT) is opted out to match the helper service.  The remaining policies (dynamic
-# code, image-load, strict handle, redirection trust) plus the always-on DLL search-path hardening
-# stay active.
+# loads the non-Microsoft tunnel.dll/amneziawgtunnel.dll in-process.  DisableExtensionPoints stays
+# enabled: neither tunnel DLL uses windows, hooks, or IMEs, and Winsock LSPs are simply bypassed --
+# tunnel.dll has no userspace sockets (wireguard-nt does UDP in the kernel), and amneziawgtunnel.dll
+# uses RIO UDP sockets (falling back to standard sockets) with UAPI over named pipes.  The remaining
+# policies (dynamic code, image-load, strict handle, redirection trust) plus the always-on DLL
+# search-path hardening stay active.
 target_compile_definitions(WireguardService
                            PRIVATE
                            WS_ENABLE_PROCESS_MITIGATIONS
                            WS_DISABLE_SIGNATURE_POLICY
-                           WS_DISABLE_EXTENSION_POINT_POLICY
 )
 
 target_include_directories(WireguardService PRIVATE

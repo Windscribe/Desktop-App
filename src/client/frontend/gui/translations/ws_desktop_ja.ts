@@ -300,6 +300,45 @@
     </message>
 </context>
 <context>
+    <name>LocalIPCServer</name>
+    <message>
+        <source>Malformed hydra profile command.</source>
+        <translation>hydra プロファイルのコマンドが不正です。</translation>
+    </message>
+    <message>
+        <source>Could not remove the hydra profile.</source>
+        <translation>hydra プロファイルを削除できませんでした。</translation>
+    </message>
+    <message>
+        <source>Hydra profile removed.</source>
+        <translation>Hydra プロファイルを削除しました。</translation>
+    </message>
+    <message>
+        <source>No hydra profile imported.</source>
+        <translation>hydra プロファイルがインポートされていません。</translation>
+    </message>
+    <message>
+        <source>The imported hydra profile is not in use. %1</source>
+        <translation>インポートした hydra プロファイルは使用されていません。%1</translation>
+    </message>
+    <message>
+        <source>Hydra profile %1:</source>
+        <translation>Hydra プロファイル %1:</translation>
+    </message>
+    <message>
+        <source>(unnamed)</source>
+        <translation>(名前なし)</translation>
+    </message>
+    <message>
+        <source>It maps every location: all of them connect through your hydra server.</source>
+        <translation>すべてのロケーションに対応しています。すべてのロケーションが hydra サーバー経由で接続します。</translation>
+    </message>
+    <message>
+        <source>Connect to one of these locations to go through your hydra server; the others connect directly.</source>
+        <translation>hydra サーバーを経由するには、これらのロケーションのいずれかに接続してください。その他のロケーションは直接接続します。</translation>
+    </message>
+</context>
+<context>
     <name>LogViewer::LogViewerWindow</name>
     <message>
         <source>Word Wrap</source>
@@ -658,6 +697,18 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
         <translation>未接続</translation>
     </message>
     <message>
+        <source>Import Hydra Profile</source>
+        <translation>Hydra プロファイルをインポート</translation>
+    </message>
+    <message>
+        <source>Unable to import hydra profile</source>
+        <translation>hydra プロファイルをインポートできません</translation>
+    </message>
+    <message>
+        <source>The imported hydra profile is not in use. %1</source>
+        <translation>インポートした hydra プロファイルは使用されていません。%1</translation>
+    </message>
+    <message>
         <source>The selected directory is writeable for other users. Custom configs in this directory may pose a potential security risk.</source>
         <translation>選択したディレクトリは他のユーザーのために書き込むことができます。このディレクトリ内のカスタム設定は潜在的なセキュリティリスクをもたらす可能性があります。</translation>
     </message>
@@ -832,6 +883,22 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Windscribe could not generate the connection configuration. If this error persists, please send a debug log and open a support ticket.</source>
         <translation>Windscribeは接続設定を生成できませんでした。このエラーが続く場合は、デバッグログを送信し、サポートチケットを開いてください。</translation>
+    </message>
+    <message>
+        <source>Can&apos;t reach your hydra server</source>
+        <translation>hydra サーバーに接続できません</translation>
+    </message>
+    <message>
+        <source>Windscribe couldn&apos;t connect through the hydra server at %1. Check that it&apos;s running (hydra doctor), or remove the hydra profile in Preferences &gt; Connection to connect without it.</source>
+        <translation>Windscribe は %1 の hydra サーバー経由で接続できませんでした。サーバーが動作しているか確認するか (hydra doctor)、設定 &gt; 接続 で hydra プロファイルを削除して、hydra なしで接続してください。</translation>
+    </message>
+    <message>
+        <source>Hydra needs WireGuard</source>
+        <translation>Hydra には WireGuard が必要です</translation>
+    </message>
+    <message>
+        <source>This location is set to connect through your hydra server, which works with WireGuard only. Choose WireGuard or Auto, or remove the hydra profile in Preferences &gt; Connection.</source>
+        <translation>このロケーションは hydra サーバー経由で接続するよう設定されていますが、hydra サーバーは WireGuard でのみ動作します。WireGuard または Auto を選択するか、設定 &gt; 接続 で hydra プロファイルを削除してください。</translation>
     </message>
     <message>
         <source>The Remote Access Connection Manager (RasMan) service is not running and could not be started. This prevents IKEv2 from being used on this PC. Please try another connection mode or investigate why this core Windows service is unable to start.</source>
@@ -1473,6 +1540,42 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Allow access to local services and printers while connected to Windscribe.</source>
         <translation>Windscribe に接続している間、ローカルサービスとプリンターへのアクセスを許可します。</translation>
+    </message>
+    <message>
+        <source>Hydra Profile</source>
+        <translation>Hydra プロファイル</translation>
+    </message>
+    <message>
+        <source>Import Profile</source>
+        <translation>プロファイルをインポート</translation>
+    </message>
+    <message>
+        <source>Remove Profile</source>
+        <translation>プロファイルを削除</translation>
+    </message>
+    <message>
+        <source>All locations</source>
+        <translation>すべてのロケーション</translation>
+    </message>
+    <message>
+        <source>Connect to Windscribe through a private hydra server you run. Applies to WireGuard.</source>
+        <translation>ご自身で運用するプライベート hydra サーバー経由で Windscribe に接続します。WireGuard に適用されます。</translation>
+    </message>
+    <message>
+        <source>+1 more location</source>
+        <translation>他 1 件のロケーション</translation>
+    </message>
+    <message>
+        <source>+%1 more locations</source>
+        <translation>他 %1 件のロケーション</translation>
+    </message>
+    <message>
+        <source>Select this location to connect through your hydra server.</source>
+        <translation>hydra サーバー経由で接続するには、このロケーションを選択してください。</translation>
+    </message>
+    <message>
+        <source>Select one of these locations to connect through your hydra server.</source>
+        <translation>hydra サーバー経由で接続するには、これらのロケーションのいずれかを選択してください。</translation>
     </message>
     <message>
         <source>Spoof your device&apos;s physical address (MAC address).</source>
@@ -2821,6 +2924,106 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Windscribe is already running in another user session on this computer. Quit Windscribe in that session, then try again.</source>
         <translation>Windscribeはこのコンピューターの別のユーザーセッションですでに実行されています。そのセッションでWindscribeを終了してから、もう一度お試しください。</translation>
+    </message>
+    <message>
+        <source>%1 is required</source>
+        <translation>%1 は必須です</translation>
+    </message>
+    <message>
+        <source>%1 must be a string</source>
+        <translation>%1 は文字列である必要があります</translation>
+    </message>
+    <message>
+        <source>%1 must be 1-65535</source>
+        <translation>%1 は 1-65535 である必要があります</translation>
+    </message>
+    <message>
+        <source>%1 must be a positive whole number</source>
+        <translation>%1 は正の整数である必要があります</translation>
+    </message>
+    <message>
+        <source>%1 must be a hostname</source>
+        <translation>%1 はホスト名である必要があります</translation>
+    </message>
+    <message>
+        <source>%1 must be an IPv4 address</source>
+        <translation>%1 は IPv4 アドレスである必要があります</translation>
+    </message>
+    <message>
+        <source>must be an object</source>
+        <translation>オブジェクトである必要があります</translation>
+    </message>
+    <message>
+        <source>unknown field %1</source>
+        <translation>不明なフィールド %1</translation>
+    </message>
+    <message>
+        <source>unsupported protocol %1</source>
+        <translation>サポートされていないプロトコル %1</translation>
+    </message>
+    <message>
+        <source>The file is too large to be a hydra profile.</source>
+        <translation>ファイルが大きすぎるため、hydra プロファイルではありません。</translation>
+    </message>
+    <message>
+        <source>Not a hydra profile: the file is not a JSON object.</source>
+        <translation>hydra プロファイルではありません: ファイルが JSON オブジェクトではありません。</translation>
+    </message>
+    <message>
+        <source>Not a hydra profile: kind must be %1.</source>
+        <translation>hydra プロファイルではありません: kind は %1 である必要があります。</translation>
+    </message>
+    <message>
+        <source>This hydra profile is from an older hydra and names one server; ask for a new one.</source>
+        <translation>この hydra プロファイルは古い hydra のもので、サーバーが 1 つしか指定されていません。新しいプロファイルを入手してください。</translation>
+    </message>
+    <message>
+        <source>Unsupported hydra profile version; this app reads version 2.</source>
+        <translation>サポートされていない hydra プロファイルのバージョンです。このアプリはバージョン 2 を読み込みます。</translation>
+    </message>
+    <message>
+        <source>Invalid hydra profile: unknown field %1.</source>
+        <translation>無効な hydra プロファイル: 不明なフィールド %1。</translation>
+    </message>
+    <message>
+        <source>Invalid hydra profile: %1.</source>
+        <translation>無効な hydra プロファイル: %1。</translation>
+    </message>
+    <message>
+        <source>Invalid hydra profile: all must be true or false.</source>
+        <translation>無効な hydra プロファイル: all は true または false である必要があります。</translation>
+    </message>
+    <message>
+        <source>Invalid hydra profile: it has no fronts.</source>
+        <translation>無効な hydra プロファイル: フロントがありません。</translation>
+    </message>
+    <message>
+        <source>Invalid hydra profile: front %1: %2.</source>
+        <translation>無効な hydra プロファイル: フロント %1: %2。</translation>
+    </message>
+    <message>
+        <source>Invalid hydra profile: front %1: entry %2 is listed twice.</source>
+        <translation>無効な hydra プロファイル: フロント %1: エントリ %2 が重複しています。</translation>
+    </message>
+    <message>
+        <source>%1 via %2</source>
+        <translation>%1 (%2 経由)</translation>
+    </message>
+    <message>
+        <source>%1 via %2 (not in the server list)</source>
+        <translation>%1 (%2 経由、サーバーリストにありません)</translation>
+    </message>
+    <message>
+        <source>Could not read the hydra profile: %1</source>
+        <translation>hydra プロファイルを読み込めませんでした: %1</translation>
+    </message>
+    <message>
+        <source>Could not save the hydra profile: %1</source>
+        <translation>hydra プロファイルを保存できませんでした: %1</translation>
+    </message>
+    <message>
+        <source>%1 (not in the server list)</source>
+        <translation>%1 (サーバーリストにありません)</translation>
     </message>
 </context>
 <context>

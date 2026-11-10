@@ -66,7 +66,7 @@ enum class HelperCommand {
     resetNetworkAdapter,
     addIKEv2DefaultRoute,
     removeAppNetworkProfiles,
-    setIKEv2IPSecParameters,
+    disableIKEv2MODP2048Support,
     createOpenVpnAdapter,
     removeOpenVpnAdapter,
     disableDohSettings,

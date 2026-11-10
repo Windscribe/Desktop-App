@@ -10,8 +10,13 @@ class ManualConnectionAttemptStrategy : public IConnectionAttemptStrategy
 {
     Q_OBJECT
 public:
+    // A location whose datacenter a hydra front stands in for fails closed: WireGuard through the front, or
+    // no attempt at all.
+    enum class HydraLock { kNone, kThroughFront, kRefused };
+
     ManualConnectionAttemptStrategy(QSharedPointer<locationsmodel::BaseLocationInfo> bli, const types::ConnectionSettings &connectionSettings,
-                             const api_responses::PortMap &portMap, const QString &preferredNodeHostname);
+                             const api_responses::PortMap &portMap, const QString &preferredNodeHostname,
+                             HydraLock hydraLock = HydraLock::kNone);
     void reset() override;
     void debugLocationInfoToLog() const override;
     void putFailedConnection() override;
@@ -19,6 +24,7 @@ public:
     CurrentConnectionDescr getCurrentConnectionSettings() const override;
     bool isAutomaticMode() override;
     types::Protocol preResolveProtocol() const override { return connectionSettings_.protocol(); }
+    ConnectError giveUpError() const override;
 
 private:
     QSharedPointer<locationsmodel::MutableLocationInfo> locationInfo_;
@@ -26,4 +32,5 @@ private:
     types::ConnectionSettings connectionSettings_;
     int failedManualModeCounter_;
     QString preferredNodeHostname_;
+    HydraLock hydraLock_;
 };

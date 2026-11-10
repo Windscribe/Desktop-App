@@ -160,6 +160,24 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
     connect(decoyTrafficGroup_, &DecoyTrafficGroup::decoyTrafficSettingsChanged, this, &ConnectionWindowItem::onDecoyTrafficSettingsChangedByUser);
     addItem(decoyTrafficGroup_);
 
+    hydraProfileGroup_ = new PreferenceGroup(this);
+    hydraProfileItem_ = new LinkItem(hydraProfileGroup_, LinkItem::LinkType::TEXT_ONLY);
+    hydraProfileItem_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/IMPORT_ICON"));
+    hydraProfileGroup_->addItem(hydraProfileItem_);
+    for (LinkItem *&item : hydraLocationItems_) {
+        item = new LinkItem(hydraProfileGroup_, LinkItem::LinkType::TEXT_ONLY);
+        hydraProfileGroup_->addItem(item);
+        hydraProfileGroup_->hideItems(hydraProfileGroup_->indexOf(item), -1, PreferenceGroup::FLAG_NO_ANIMATION);
+    }
+    importHydraProfileItem_ = new LinkItem(hydraProfileGroup_, LinkItem::LinkType::SUBPAGE_LINK);
+    connect(importHydraProfileItem_, &LinkItem::clicked, this, &ConnectionWindowItem::importHydraProfileClick);
+    hydraProfileGroup_->addItem(importHydraProfileItem_);
+    removeHydraProfileItem_ = new LinkItem(hydraProfileGroup_, LinkItem::LinkType::BLANK_LINK);
+    connect(removeHydraProfileItem_, &LinkItem::clicked, this, &ConnectionWindowItem::removeHydraProfileClick);
+    hydraProfileGroup_->addItem(removeHydraProfileItem_);
+    hydraProfileGroup_->hideItems(hydraProfileGroup_->indexOf(removeHydraProfileItem_), -1, PreferenceGroup::FLAG_NO_ANIMATION);
+    addItem(hydraProfileGroup_);
+
     clearWifiHistoryGroup_ = new PreferenceGroup(this);
     clearWifiHistoryItem_ = new LinkItem(clearWifiHistoryGroup_, LinkItem::LinkType::SUBPAGE_LINK);
     clearWifiHistoryItem_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/CLEAR_WIFI_ICON"));
@@ -415,9 +433,75 @@ void ConnectionWindowItem::onLanguageChanged()
 
     proxyGatewayGroup_->setDescription(tr("Configure your TV, gaming console, or other devices that support proxy servers."),
                                        QString("https://%1/features/proxy-gateway").arg(HardcodedSettings::instance().windscribeServerUrl()));
+    hydraProfileItem_->setTitle(tr("Hydra Profile"));
+    importHydraProfileItem_->setTitle(tr("Import Profile"));
+    removeHydraProfileItem_->setTitle(tr("Remove Profile"));
+    updateHydraProfileDescription();
     clearWifiHistoryItem_->setTitle(tr("Clear Wi-Fi History"));
     clearWifiHistoryGroup_->setDescription(tr("Remove Wi-Fi SSID and MAC information from your operating system to prevent location history tracking."),
                                             QString("https://%1/features/clear-wifi-history").arg(HardcodedSettings::instance().windscribeServerUrl()));
+}
+
+void ConnectionWindowItem::setHydraProfile(bool imported, const HydraProfile::Locations &locations, const QString &problem)
+{
+    if (imported != hydraImported_) {
+        const int removeIndex = hydraProfileGroup_->indexOf(removeHydraProfileItem_);
+        if (imported) {
+            hydraProfileGroup_->showItems(removeIndex);
+        } else {
+            hydraProfileGroup_->hideItems(removeIndex);
+        }
+    }
+    hydraImported_ = imported;
+    hydraLocations_ = locations;
+    hydraProblem_ = problem;
+    updateHydraProfileDescription();
+}
+
+void ConnectionWindowItem::updateHydraProfileDescription()
+{
+    // The rows name the locations to select; "All locations" stands alone.
+    const bool usable = hydraImported_ && hydraProblem_.isEmpty();
+    QStringList rows;
+    if (usable && hydraLocations_.all) {
+        rows << tr("All locations");
+    } else if (usable) {
+        rows = hydraLocations_.shown;
+    }
+    for (int i = 0; i < HydraProfile::kShownLocations; ++i) {
+        const bool show = i < rows.size();
+        if (show) {
+            hydraLocationItems_[i]->setTitle(rows[i]);
+        }
+        if (show != hydraLocationShown_[i]) {
+            const int index = hydraProfileGroup_->indexOf(hydraLocationItems_[i]);
+            if (show) {
+                hydraProfileGroup_->showItems(index);
+            } else {
+                hydraProfileGroup_->hideItems(index);
+            }
+            hydraLocationShown_[i] = show;
+        }
+    }
+
+    if (!hydraImported_) {
+        hydraProfileGroup_->setDescription(tr("Connect to Windscribe through a private hydra server you run. Applies to WireGuard."));
+    } else if (!hydraProblem_.isEmpty()) {
+        hydraProfileGroup_->setDescription(hydraProblem_);
+    } else if (hydraLocations_.all) {
+        hydraProfileGroup_->setDescription(QString());
+    } else {
+        QStringList lines;
+        if (hydraLocations_.more == 1) {
+            lines << tr("+1 more location");
+        } else if (hydraLocations_.more > 1) {
+            lines << tr("+%1 more locations").arg(hydraLocations_.more);
+        }
+        lines << (hydraLocations_.shown.size() + hydraLocations_.more == 1
+                      ? tr("Select this location to connect through your hydra server.")
+                      : tr("Select one of these locations to connect through your hydra server."));
+        hydraProfileGroup_->setDescription(lines.join("\n"));
+    }
 }
 
 void ConnectionWindowItem::updateMacSpoofingDescription()

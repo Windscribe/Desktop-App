@@ -22,7 +22,7 @@ public:
 
     void release() {}
 
-    ExecuteCmdResult executeBlockingCmd(const std::wstring &cmd, HANDLE user_token = INVALID_HANDLE_VALUE);
+    ExecuteCmdResult executeBlockingCmd(const std::wstring &cmd);
     // If outProcessHandle is non-null and the process is created successfully, ownership of the
     // process handle is transferred to the caller (who must CloseHandle it). This lets the caller
     // keep the handle open to prevent the spawned process's PID from being reused while it runs.

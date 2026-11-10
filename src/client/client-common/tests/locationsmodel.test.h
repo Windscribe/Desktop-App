@@ -34,6 +34,7 @@ private slots:
     void testManagerUnpinIp();
     void testManagerFindStaticIpLocation();
     void testUnfavouriteReportsPinChange();
+    void testCityNameForDatacenter();
 
 private:
     QVector<types::Location> testOriginal_;

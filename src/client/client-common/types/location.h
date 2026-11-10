@@ -34,6 +34,9 @@ struct City
     bool isNoP2P = false;
     int health = 0;     // correct values [0..100]
 
+    // The datacenter's id (the server list's group id); API locations only, 0 otherwise.
+    int datacenterId = 0;
+
     bool operator==(const City &other) const;
     bool operator!=(const City &other) const;
 };

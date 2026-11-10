@@ -300,6 +300,45 @@
     </message>
 </context>
 <context>
+    <name>LocalIPCServer</name>
+    <message>
+        <source>Malformed hydra profile command.</source>
+        <translation>Neplatný příkaz profilu hydra.</translation>
+    </message>
+    <message>
+        <source>Could not remove the hydra profile.</source>
+        <translation>Profil hydra se nepodařilo odebrat.</translation>
+    </message>
+    <message>
+        <source>Hydra profile removed.</source>
+        <translation>Profil hydra byl odebrán.</translation>
+    </message>
+    <message>
+        <source>No hydra profile imported.</source>
+        <translation>Není importován žádný profil hydra.</translation>
+    </message>
+    <message>
+        <source>The imported hydra profile is not in use. %1</source>
+        <translation>Importovaný profil hydra se nepoužívá. %1</translation>
+    </message>
+    <message>
+        <source>Hydra profile %1:</source>
+        <translation>Profil hydra %1:</translation>
+    </message>
+    <message>
+        <source>(unnamed)</source>
+        <translation>(bez názvu)</translation>
+    </message>
+    <message>
+        <source>It maps every location: all of them connect through your hydra server.</source>
+        <translation>Pokrývá všechny lokace: všechny se připojují přes váš server hydra.</translation>
+    </message>
+    <message>
+        <source>Connect to one of these locations to go through your hydra server; the others connect directly.</source>
+        <translation>Připojte se k jedné z těchto lokací, abyste šli přes váš server hydra; ostatní se připojují přímo.</translation>
+    </message>
+</context>
+<context>
     <name>LogViewer::LogViewerWindow</name>
     <message>
         <source>Word Wrap</source>
@@ -658,6 +697,18 @@ Pokud ztratíte hash účtu, je navždy pryč a podpora vám nemůže pomoci ho 
         <translation>Nesouvislý</translation>
     </message>
     <message>
+        <source>Import Hydra Profile</source>
+        <translation>Importovat profil Hydra</translation>
+    </message>
+    <message>
+        <source>Unable to import hydra profile</source>
+        <translation>Profil hydra nelze importovat</translation>
+    </message>
+    <message>
+        <source>The imported hydra profile is not in use. %1</source>
+        <translation>Importovaný profil hydra se nepoužívá. %1</translation>
+    </message>
+    <message>
         <source>The selected directory is writeable for other users. Custom configs in this directory may pose a potential security risk.</source>
         <translation>Vybraný adresář je zapisovatelný pro ostatní uživatele. Vlastní konfigurace v tomto adresáři mohou představovat potenciální bezpečnostní riziko.</translation>
     </message>
@@ -832,6 +883,22 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
     <message>
         <source>Windscribe could not generate the connection configuration. If this error persists, please send a debug log and open a support ticket.</source>
         <translation>Windscribe nedokázal vygenerovat konfiguraci spojení. Pokud tato chyba přetrvává, pošlete prosím debugovací log a otevřete tiket na podporu.</translation>
+    </message>
+    <message>
+        <source>Can&apos;t reach your hydra server</source>
+        <translation>Váš server hydra je nedostupný</translation>
+    </message>
+    <message>
+        <source>Windscribe couldn&apos;t connect through the hydra server at %1. Check that it&apos;s running (hydra doctor), or remove the hydra profile in Preferences &gt; Connection to connect without it.</source>
+        <translation>Windscribe se nemohl připojit přes server hydra na %1. Zkontrolujte, zda běží (hydra doctor), nebo odeberte profil hydra v Předvolby &gt; Připojení a připojte se bez něj.</translation>
+    </message>
+    <message>
+        <source>Hydra needs WireGuard</source>
+        <translation>Hydra vyžaduje WireGuard</translation>
+    </message>
+    <message>
+        <source>This location is set to connect through your hydra server, which works with WireGuard only. Choose WireGuard or Auto, or remove the hydra profile in Preferences &gt; Connection.</source>
+        <translation>Tato lokace se připojuje přes váš server hydra, který funguje pouze s WireGuard. Zvolte WireGuard nebo Auto, nebo odeberte profil hydra v Předvolby &gt; Připojení.</translation>
     </message>
     <message>
         <source>The Remote Access Connection Manager (RasMan) service is not running and could not be started. This prevents IKEv2 from being used on this PC. Please try another connection mode or investigate why this core Windows service is unable to start.</source>
@@ -1469,6 +1536,42 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
     <message>
         <source>Allow access to local services and printers while connected to Windscribe.</source>
         <translation>Povolte přístup k místním službám a tiskárnám při připojení k aplikaci Windscribe.</translation>
+    </message>
+    <message>
+        <source>Hydra Profile</source>
+        <translation>Profil Hydra</translation>
+    </message>
+    <message>
+        <source>Import Profile</source>
+        <translation>Importovat profil</translation>
+    </message>
+    <message>
+        <source>Remove Profile</source>
+        <translation>Odebrat profil</translation>
+    </message>
+    <message>
+        <source>All locations</source>
+        <translation>Všechny lokace</translation>
+    </message>
+    <message>
+        <source>Connect to Windscribe through a private hydra server you run. Applies to WireGuard.</source>
+        <translation>Připojte se k Windscribe přes soukromý server hydra, který sami provozujete. Platí pro WireGuard.</translation>
+    </message>
+    <message>
+        <source>+1 more location</source>
+        <translation>+1 další lokace</translation>
+    </message>
+    <message>
+        <source>+%1 more locations</source>
+        <translation>Další lokace: +%1</translation>
+    </message>
+    <message>
+        <source>Select this location to connect through your hydra server.</source>
+        <translation>Vyberte tuto lokaci pro připojení přes váš server hydra.</translation>
+    </message>
+    <message>
+        <source>Select one of these locations to connect through your hydra server.</source>
+        <translation>Vyberte jednu z těchto lokací pro připojení přes váš server hydra.</translation>
     </message>
     <message>
         <source>Spoof your device&apos;s physical address (MAC address).</source>
@@ -2821,6 +2924,106 @@ Pokud přeinstalace nepomůže, obraťte se na podporu Windscribe a požádejte 
     <message>
         <source>Windscribe is already running in another user session on this computer. Quit Windscribe in that session, then try again.</source>
         <translation>Aplikace Windscribe již běží v relaci jiného uživatele na tomto počítači. Ukončete aplikaci Windscribe v dané relaci a zkuste to prosím znovu.</translation>
+    </message>
+    <message>
+        <source>%1 is required</source>
+        <translation>%1 je povinné</translation>
+    </message>
+    <message>
+        <source>%1 must be a string</source>
+        <translation>%1 musí být řetězec</translation>
+    </message>
+    <message>
+        <source>%1 must be 1-65535</source>
+        <translation>%1 musí být v rozsahu 1-65535</translation>
+    </message>
+    <message>
+        <source>%1 must be a positive whole number</source>
+        <translation>%1 musí být kladné celé číslo</translation>
+    </message>
+    <message>
+        <source>%1 must be a hostname</source>
+        <translation>%1 musí být název hostitele</translation>
+    </message>
+    <message>
+        <source>%1 must be an IPv4 address</source>
+        <translation>%1 musí být adresa IPv4</translation>
+    </message>
+    <message>
+        <source>must be an object</source>
+        <translation>musí být objekt</translation>
+    </message>
+    <message>
+        <source>unknown field %1</source>
+        <translation>neznámé pole %1</translation>
+    </message>
+    <message>
+        <source>unsupported protocol %1</source>
+        <translation>nepodporovaný protokol %1</translation>
+    </message>
+    <message>
+        <source>The file is too large to be a hydra profile.</source>
+        <translation>Soubor je příliš velký na to, aby byl profilem hydra.</translation>
+    </message>
+    <message>
+        <source>Not a hydra profile: the file is not a JSON object.</source>
+        <translation>Nejde o profil hydra: soubor není objekt JSON.</translation>
+    </message>
+    <message>
+        <source>Not a hydra profile: kind must be %1.</source>
+        <translation>Nejde o profil hydra: kind musí být %1.</translation>
+    </message>
+    <message>
+        <source>This hydra profile is from an older hydra and names one server; ask for a new one.</source>
+        <translation>Tento profil hydra pochází ze starší verze hydra a uvádí jen jeden server; vyžádejte si nový.</translation>
+    </message>
+    <message>
+        <source>Unsupported hydra profile version; this app reads version 2.</source>
+        <translation>Nepodporovaná verze profilu hydra; tato aplikace čte verzi 2.</translation>
+    </message>
+    <message>
+        <source>Invalid hydra profile: unknown field %1.</source>
+        <translation>Neplatný profil hydra: neznámé pole %1.</translation>
+    </message>
+    <message>
+        <source>Invalid hydra profile: %1.</source>
+        <translation>Neplatný profil hydra: %1.</translation>
+    </message>
+    <message>
+        <source>Invalid hydra profile: all must be true or false.</source>
+        <translation>Neplatný profil hydra: all musí být true nebo false.</translation>
+    </message>
+    <message>
+        <source>Invalid hydra profile: it has no fronts.</source>
+        <translation>Neplatný profil hydra: neobsahuje žádné fronts.</translation>
+    </message>
+    <message>
+        <source>Invalid hydra profile: front %1: %2.</source>
+        <translation>Neplatný profil hydra: front %1: %2.</translation>
+    </message>
+    <message>
+        <source>Invalid hydra profile: front %1: entry %2 is listed twice.</source>
+        <translation>Neplatný profil hydra: front %1: položka %2 je uvedena dvakrát.</translation>
+    </message>
+    <message>
+        <source>%1 via %2</source>
+        <translation>%1 přes %2</translation>
+    </message>
+    <message>
+        <source>%1 via %2 (not in the server list)</source>
+        <translation>%1 přes %2 (není v seznamu serverů)</translation>
+    </message>
+    <message>
+        <source>Could not read the hydra profile: %1</source>
+        <translation>Profil hydra nelze načíst: %1</translation>
+    </message>
+    <message>
+        <source>Could not save the hydra profile: %1</source>
+        <translation>Profil hydra nelze uložit: %1</translation>
+    </message>
+    <message>
+        <source>%1 (not in the server list)</source>
+        <translation>%1 (není v seznamu serverů)</translation>
     </message>
 </context>
 <context>

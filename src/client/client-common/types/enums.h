@@ -72,6 +72,8 @@ enum class ConnectError {
     kLocalDnsServerNotAvailable = 17,
     kAdapterNotInstalled = 18,          // required VPN adapter/driver is not installed; terminal
     kOSServiceUnavailable = 19,         //
+    kHydraUnreachable = 20,             // a hydra front never connected; its location isn't tried without it
+    kHydraNeedsWireGuard = 21,          // a hydra-fronted location with a protocol other than WireGuard chosen
 };
 
 enum PROXY_SHARING_TYPE {

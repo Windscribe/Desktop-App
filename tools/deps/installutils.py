@@ -3,7 +3,6 @@
 # Windscribe Build System
 # Copyright (c) 2020-2026, Windscribe Limited. All rights reserved.
 # ------------------------------------------------------------------------------
-import glob
 import multiprocessing
 import os
 import subprocess
@@ -97,17 +96,6 @@ def CheckChecksum(localfilename, expected_checksum):
     if actual_checksum != expected_checksum.lower():
         raise ChecksumError("Checksum mismatch for {}. Expected: {}, Actual: {}".
                             format(localfilename, expected_checksum, actual_checksum))
-
-
-def VerifyGitCommit(dep_title, expected_commit):
-    if not expected_commit:
-        raise InstallError("No pinned commit defined for {}.".format(dep_title))
-    actual_commit = proc.ExecuteAndGetOutput(["git", "rev-parse", "HEAD"]).lower()
-    if actual_commit != expected_commit.lower():
-        raise ChecksumError("Commit mismatch for {}. Expected: {}, Actual: {}. "
-                            "The checked-out tag may have been moved or the upstream repository tampered with.".
-                            format(dep_title, expected_commit, actual_commit))
-    msg.Info("Verified {} commit: {}".format(dep_title, actual_commit))
 
 
 def DownloadFile(webfilename, localfilename, checksum=None):
@@ -218,12 +206,6 @@ def RunCommand(command_and_args, env=None, shell=False):
         raise InstallError("Command failed: \"{}\"".format(str(command_and_args)))
 
 
-def CopyCustomFiles(projectname, directory):
-    srcdir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "custom_" + projectname)
-    if os.path.exists(srcdir):
-        utl.CopyAllFiles(srcdir, directory)
-
-
 def ApplyPatch(directory, patchfile):
     msg.Info("Applying patch: \"{}\"".format(os.path.basename(patchfile)))
     result = subprocess.run(["git", "apply", "-p1", "--whitespace=nowarn", patchfile], cwd=directory)
@@ -231,63 +213,11 @@ def ApplyPatch(directory, patchfile):
         raise InstallError("Failed to apply patch: \"{}\"".format(patchfile))
 
 
-def InstallArtifacts(directory, filemasks, installpath, zipfilename):
-    aflist = []
-    msg.Verbose("InstallArtifacts: \"{}\"[{}] to \"{}\" (zip=\"{}\")".format(
-        directory, str(filemasks), installpath, zipfilename))
-    if not installpath and not zipfilename:
-        msg.Verbose("Nothing to do!")
-        return aflist
-    if installpath:
-        utl.CreateDirectory(installpath, True)
-        aflist.append(installpath)
-    if zipfilename:
-        utl.RemoveFile(zipfilename)
-        zf = zipfile.ZipFile(zipfilename, "w", zipfile.ZIP_DEFLATED)
-        aflist.append(zipfilename)
-    for mask in filemasks:
-        if "*" in mask:
-            fullmask = os.path.join(directory, mask)
-            skiplen = len(directory) + 1
-            for srcfilename in glob.glob(fullmask, recursive=True):
-                if os.path.isdir(srcfilename):
-                    continue
-                srcfilenamepartial = srcfilename[skiplen:]
-                if installpath:
-                    dstfilename = os.path.join(installpath, srcfilenamepartial)
-                    utl.CopyFile(srcfilename, dstfilename)
-                if zipfilename:
-                    zf.write(utl.MakeUnicodePath(srcfilename), srcfilenamepartial)
-        else:
-            srcfilename = os.path.join(directory, mask)
-            if not os.path.exists(srcfilename):
-                continue
-            if installpath:
-                dstfilename = os.path.join(installpath, mask)
-                utl.CopyFile(srcfilename, dstfilename)
-            if zipfilename:
-                zf.write(utl.MakeUnicodePath(srcfilename), mask)
-    if zipfilename:
-        zf.close()
-    return aflist
-
-
 def ParseProductArg():
     for arg in sys.argv:
         if arg.startswith("--product="):
             return arg.split("=", 1)[1]
     return "windscribe"
-
-
-def ConfigureDependencyTemplate(product, input_file, output_file):
-    cmake_script = os.path.join(REPOSITORY_ROOT, "cmake", "configure_dependency.cmake")
-    RunCommand([
-        "cmake",
-        "-DPRODUCT=" + product,
-        "-DINPUT_FILE=" + input_file,
-        "-DOUTPUT_FILE=" + output_file,
-        "-P", cmake_script
-    ])
 
 
 def GetBuildLibsRoot(product, is_arm64=False):

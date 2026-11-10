@@ -13,6 +13,31 @@ if(IS_BUILD_TESTS)
     set_target_properties(locationsmodel.test PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
     ws_add_test(locationsmodel)
 
+    add_executable(hydraprofile.test
+        hydraprofile.test.cpp
+        hydraprofile.test.h
+    )
+    target_link_libraries(hydraprofile.test PRIVATE
+        Qt6::Test Qt6::Network engine client-common spdlog::spdlog ${OS_SPECIFIC_LIBRARIES})
+    target_include_directories(hydraprofile.test PRIVATE
+        ${PROJECT_DIRECTORY}/client-common
+    )
+    set_target_properties(hydraprofile.test PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
+    ws_add_test(hydraprofile)
+
+    # The IPC commands between windscribe-cli and the app: what crosses, and what an unreadable body reads as.
+    add_executable(clicommands.test
+        clicommands.test.cpp
+        clicommands.test.h
+    )
+    target_link_libraries(clicommands.test PRIVATE
+        Qt6::Test Qt6::Network engine client-common wsnet::wsnet spdlog::spdlog ${OS_SPECIFIC_LIBRARIES})
+    target_include_directories(clicommands.test PRIVATE
+        ${PROJECT_DIRECTORY}/client-common
+    )
+    set_target_properties(clicommands.test PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
+    ws_add_test(clicommands)
+
     add_executable(networkingvalidation.test
         networkingvalidation.test.cpp
         networkingvalidation.test.h
