@@ -1565,7 +1565,7 @@ Se il problema persiste dopo un riavvio, inviare un registro di debug e aprire u
         <translation>Traffico esca</translation>
     </message>
     <message>
-        <source>This is an experimental feature that attempts to combat traffic correlation attacks on adversarial networks.When enabled, the app will generate random activity over the tunnel, and upload and download random data at chosen intervals.</source>
+        <source>This is an experimental feature that attempts to combat traffic correlation attacks on adversarial networks. When enabled, the app will generate random activity over the tunnel, and upload and download random data at chosen intervals.</source>
         <translation>Si tratta di una funzionalità sperimentale che tenta di combattere gli attacchi di correlazione del traffico sulle reti avversarie. Se abilitata, l&apos;app genererà un&apos;attività casuale sul tunnel e caricherà e scaricherà dati casuali a intervalli scelti.</translation>
     </message>
     <message>

@@ -744,6 +744,7 @@ void ConnectionManager::startAttempt()
     }
 
     qCInfo(LOG_CONNECTION) << "Default adapter and gateway:" << defaultAdapterInfo_.makeLogString();
+    emit defaultAdapterDetected(defaultAdapterInfo_);
     connectTimer_.stop();
 
     recreateConnector(protocol);

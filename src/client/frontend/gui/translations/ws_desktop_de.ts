@@ -1565,7 +1565,7 @@ Wenn das Problem nach einem Neustart weiterhin besteht, senden Sie bitte ein Deb
         <translation>Köder-Datenverkehr</translation>
     </message>
     <message>
-        <source>This is an experimental feature that attempts to combat traffic correlation attacks on adversarial networks.When enabled, the app will generate random activity over the tunnel, and upload and download random data at chosen intervals.</source>
+        <source>This is an experimental feature that attempts to combat traffic correlation attacks on adversarial networks. When enabled, the app will generate random activity over the tunnel, and upload and download random data at chosen intervals.</source>
         <translation>Dabei handelt es sich um eine experimentelle Funktion, mit der versucht wird, Angriffe auf die Korrelation des Datenverkehrs in gegnerischen Netzwerken zu bekämpfen. Wenn diese Option aktiviert ist, generiert die App zufällige Aktivitäten über dem Tunnel und lädt zufällige Daten in ausgewählten Intervallen hoch und herunter.</translation>
     </message>
     <message>

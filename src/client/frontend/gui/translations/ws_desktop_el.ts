@@ -1565,7 +1565,7 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Κυκλοφορία δόλωμα</translation>
     </message>
     <message>
-        <source>This is an experimental feature that attempts to combat traffic correlation attacks on adversarial networks.When enabled, the app will generate random activity over the tunnel, and upload and download random data at chosen intervals.</source>
+        <source>This is an experimental feature that attempts to combat traffic correlation attacks on adversarial networks. When enabled, the app will generate random activity over the tunnel, and upload and download random data at chosen intervals.</source>
         <translation>Πρόκειται για ένα πειραματικό χαρακτηριστικό που επιχειρεί να καταπολεμήσει τις επιθέσεις συσχέτισης κυκλοφορίας σε αντίπαλα δίκτυα. Όταν είναι ενεργοποιημένη, η εφαρμογή θα δημιουργεί τυχαία δραστηριότητα μέσω της σήραγγας και θα ανεβάζει και θα κατεβάζει τυχαία δεδομένα σε επιλεγμένα χρονικά διαστήματα.</translation>
     </message>
     <message>

@@ -1,6 +1,21 @@
+2.25.8 (05/11/2026)
+All:
+   * Improved windscribe-cli error messages for connection and update failures, so they describe the actual problem instead of showing a numeric error code. #2047
+   * Fixed windscribe-cli login waiting forever when the login was abandoned, for example by closing the CAPTCHA, or when an email address was entered as the username. #2047
+   * Fixed windscribe-cli `help --help` and `version --help` not showing help, and `version` accepting unexpected arguments. #2047
+   * Fixed declining the permission prompt during an in-app update showing an "Auto-Update Failed" error. The update window now returns to its prompt so the update can be started again. #2047
+   * Fixed a missing space between the two sentences of the Decoy Traffic description in Preferences > Connection. #2069
+Windows:
+   * Fixed excluded apps' traffic, including IPv6 on dual-stack networks, going through the tunnel in Exclusive split tunneling mode. #2048
+macOS:
+   * Fixed the app not stopping an unresponsive WireGuard process after a disconnect timeout. #2075
+Linux:
+   * Fixed the app not stopping an unresponsive WireGuard process after a disconnect timeout. #2075
+
+
 2.25.7 (02/11/2026)
 All:
-   * Improved app hardening from the OpenAI Daybreak Blue and Anthropic "Defense Access" audit. #1971
+   * Improved app hardening from the OpenAI Day Break Blue and Anthropic "Defense Access" audit. #1971
    * Improved windscribe-cli help to use a conventional layout with an aligned command list and per-command help, and made command output consistent. #2054
    * Improved windscribe-cli help and documentation to explain how to turn on AmneziaWG with Protocol Tweaks. The app now logs a warning when the configured AmneziaWG preset is not available and it falls back to another preset. #2065
    * Fixed the anti-censorship check not detecting a Chinese system language. #2062

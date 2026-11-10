@@ -1565,7 +1565,7 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
         <translation>Lalu Lintas Umpan</translation>
     </message>
     <message>
-        <source>This is an experimental feature that attempts to combat traffic correlation attacks on adversarial networks.When enabled, the app will generate random activity over the tunnel, and upload and download random data at chosen intervals.</source>
+        <source>This is an experimental feature that attempts to combat traffic correlation attacks on adversarial networks. When enabled, the app will generate random activity over the tunnel, and upload and download random data at chosen intervals.</source>
         <translation>Ini adalah fitur eksperimental yang mencoba memerangi serangan korelasi lalu lintas pada jaringan musuh. Saat diaktifkan, aplikasi akan menghasilkan aktivitas acak melalui terowongan, dan mengunggah dan mengunduh data acak pada interval yang dipilih.</translation>
     </message>
     <message>

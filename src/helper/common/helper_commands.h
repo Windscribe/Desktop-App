@@ -177,6 +177,11 @@ struct ConnectStatus {
     // Windows only
     bool isTerminateSocket;
     bool isKeepLocalSocket;
+    // Windows only. True from the start of a connection attempt until the engine settles into
+    // DISCONNECTED (connecting, reconnecting, connected, disconnecting): a tunnel may exist or come
+    // up at any moment. Exclusive split tunneling keeps its redirect active for the whole session
+    // so excluded apps' sockets never bind to the tunnel in the window before isConnected (#2048).
+    bool isVpnSessionActive = false;
 
     // Extra DNS IPs to permit through DNS-leak protection (ctrld listen IP plus its plain-DNS :53
     // upstreams). These are NOT set as system resolvers; they only bypass the :53 leak block so

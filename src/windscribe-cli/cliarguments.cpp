@@ -258,7 +258,8 @@ void CliArguments::processArguments()
     if (command == "help" || command == "?" || isHelpFlag(command)) {
         cliCommand_ = CLI_COMMAND_HELP;
         if (!rest.isEmpty()) {
-            helpTopic_ = rest[0].toLower();
+            // "help --help" is help about the help command.
+            helpTopic_ = isHelpFlag(rest[0]) ? QString("help") : rest[0].toLower();
             if (!Help::isCommand(helpTopic_)) {
                 setError("", QString("unknown command \"%1\"").arg(rest[0]));
             }
@@ -267,7 +268,14 @@ void CliArguments::processArguments()
     }
 
     if (command == "version" || command == "-v" || command == "--version") {
-        cliCommand_ = CLI_COMMAND_VERSION;
+        if (std::any_of(rest.begin(), rest.end(), isHelpFlag)) {
+            cliCommand_ = CLI_COMMAND_HELP;
+            helpTopic_ = "version";
+        } else if (!rest.isEmpty()) {
+            setError("version", QString("unexpected argument \"%1\"").arg(rest[0]));
+        } else {
+            cliCommand_ = CLI_COMMAND_VERSION;
+        }
         return;
     }
 

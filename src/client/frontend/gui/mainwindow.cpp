@@ -2907,6 +2907,11 @@ void MainWindow::onBackendUpdateVersionChanged(uint progressPercent, UPDATE_VERS
             if (error == UPDATE_VERSION_ERROR_NO_ERROR) {
                 isExitingAfterUpdate_ = true; // the flag for prevent firewall off for some states
                 // nothing todo, because installer will close app here
+            } else if (error == UPDATE_VERSION_ERROR_ELEVATION_DECLINED) {
+                // Declining the permission prompt is a cancel, so return to the update prompt without an error message.
+                mainWindowController_->getUpdateAppItem()->setProgress(0);
+                mainWindowController_->getUpdateWindow()->stopAnimation();
+                mainWindowController_->getUpdateWindow()->changeToPromptScreen();
             } else {
                 QString titleText = tr("Auto-Update Failed");
                 QString descText;

@@ -35,7 +35,8 @@ void Helper_win::setSplitTunnelingSettings(bool isActive, bool isExclude, bool i
 }
 
 bool Helper_win::sendConnectStatus(bool isConnected, bool isTerminateSocket, bool isKeepLocalSocket, const AdapterGatewayInfo &defaultAdapter, const AdapterGatewayInfo &vpnAdapter,
-                               const QString &connectedIp, const types::Protocol &protocol, const QStringList &dnsWhitelistIps)
+                               const QString &connectedIp, const types::Protocol &protocol, const QStringList &dnsWhitelistIps,
+                               bool isVpnSessionActive)
 {
     // Windows carries the DNS-leak whitelist through setCustomDnsWhileConnected (see
     // ConnectionManager::doConnect / Helper_win::setCustomDnsIps), so the whitelist is intentionally
@@ -75,7 +76,8 @@ bool Helper_win::sendConnectStatus(bool isConnected, bool isTerminateSocket, boo
 
     fillAdapterInfo(defaultAdapter, defaultAdapterInfo);
     auto result = sendCommand(HelperCommand::sendConnectStatus, isConnected, isTerminateSocket, isKeepLocalSocket, cmdProtocol, defaultAdapterInfo, vpnAdapterInfo,
-                              types::IpAddress(connectedIp.toStdString()), vpnAdapter.remoteIp());
+                              types::IpAddress(connectedIp.toStdString()), vpnAdapter.remoteIp(),
+                              isConnected || isVpnSessionActive);
 
     bool success = false;
     deserializeAnswer(result, success);

@@ -1565,7 +1565,7 @@ Se o problema persistir após uma reinicialização, envie um log de depuração
         <translation>Trânsito de Chamariz</translation>
     </message>
     <message>
-        <source>This is an experimental feature that attempts to combat traffic correlation attacks on adversarial networks.When enabled, the app will generate random activity over the tunnel, and upload and download random data at chosen intervals.</source>
+        <source>This is an experimental feature that attempts to combat traffic correlation attacks on adversarial networks. When enabled, the app will generate random activity over the tunnel, and upload and download random data at chosen intervals.</source>
         <translation>Este é um recurso experimental que tenta combater ataques de correlação de tráfego em redes adversárias. Quando ativado, o aplicativo gerará atividades aleatórias no túnel e carregará e baixará dados aleatórios em intervalos escolhidos.</translation>
     </message>
     <message>

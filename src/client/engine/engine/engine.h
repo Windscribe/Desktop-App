@@ -285,6 +285,9 @@ private slots:
     void onConnectionManagerTestTunnelResult(bool success, const QString & ipAddress);
     void onConnectionManagerWireGuardAtKeyLimit();
     void onConnectionManagerConnectionEnded();
+#ifdef Q_OS_WIN
+    void onConnectionManagerDefaultAdapterDetected(const AdapterGatewayInfo &defaultAdapter);
+#endif
 
     void onConnectionManagerRequestUsername();
     void onConnectionManagerRequestPassword();
@@ -347,6 +350,7 @@ private:
 
 #ifdef Q_OS_WIN
     void enableDohSettings();
+    void sendVpnSessionStatusToHelper(const AdapterGatewayInfo &defaultAdapter);
 #endif
 
     types::EngineSettings engineSettings_;

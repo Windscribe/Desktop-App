@@ -92,7 +92,7 @@ void DecoyTrafficGroup::hideOpenPopups()
 void DecoyTrafficGroup::onLanguageChanged()
 {
     checkBoxEnable_->setCaption(tr("Decoy Traffic"));
-    setDescription(tr("This is an experimental feature that attempts to combat traffic correlation attacks on adversarial networks." \
+    setDescription(tr("This is an experimental feature that attempts to combat traffic correlation attacks on adversarial networks. " \
                       "When enabled, the app will generate random activity over the tunnel, and upload and download random data at chosen intervals."),
                    QString("https://%1/features/decoy-traffic").arg(HardcodedSettings::instance().windscribeServerUrl()));
 

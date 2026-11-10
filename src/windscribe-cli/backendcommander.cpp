@@ -121,6 +121,12 @@ void BackendCommander::onConnectionStateChanged(int state, IPC::Connection * /*c
     }
     else if (state == IPC::CONNECTION_DISCONNECTED) {
         qCDebug(LOG_CLI) << "Disconnected from app";
+        // The installer closes the app, which can happen before the app reports the launch or before the next poll reads it.
+        if (isUpdateInstallerRunning_) {
+            std::cout << std::endl;
+            emit finished(0, QString("The app closed while the update installer was starting."));
+            return;
+        }
         emit finished(0, "");
     }
     else if (state == IPC::CONNECTION_ERROR) {
@@ -279,6 +285,12 @@ void BackendCommander::sendCommand(IPC::CliCommands::State *state)
         cmd.username_ = username_;
         if (cmd.username_.size() < 3) {
             emit finished(1, QString("Username too short"));
+            return;
+        }
+        // Checked here as well as in the GUI: the GUI refuses these without ever calling login, so the
+        // only thing that reaches us is a state of LOGGED_OUT, which we would report as "Logged out".
+        if (cmd.username_.contains("@")) {
+            emit finished(1, QString("Username should not be an email address"));
             return;
         }
         cmd.password_ = password_;
@@ -484,6 +496,7 @@ void BackendCommander::onUpdateStateResponse(IPC::Command *command)
     }
 #else
     // The app runs the installer itself once the download is done, and reports when it has started it.
+    isUpdateInstallerRunning_ = cmd->updateState_ == UPDATE_VERSION_STATE_RUNNING;
     if (cmd->updateState_ == UPDATE_VERSION_STATE_DONE) {
         std::cout << std::endl;
         emit finished(0, QString("The update installer has started."));
@@ -666,7 +679,8 @@ void BackendCommander::onStateUpdated(IPC::Command *command)
 #endif
         } else if (cmd->loginState_ == LOGIN_STATE_LOGGED_IN) {
             emit(finished(0, loginStateString(cmd->loginState_, cmd->loginError_, cmd->loginErrorMessage_)));
-        } else if (cmd->loginState_ == LOGIN_STATE_LOGIN_ERROR) {
+        } else if (cmd->loginState_ == LOGIN_STATE_LOGIN_ERROR || cmd->loginState_ == LOGIN_STATE_LOGGED_OUT) {
+            // Both mean the login did not happen: the attempt failed, or it was abandoned, e.g. by closing the CAPTCHA.
             emit(finished(1, loginStateString(cmd->loginState_, cmd->loginError_, cmd->loginErrorMessage_)));
         } else {
             str = loginStateString(cmd->loginState_, cmd->loginError_, cmd->loginErrorMessage_).toStdString();

@@ -1565,7 +1565,7 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>شرك حركة المرور</translation>
     </message>
     <message>
-        <source>This is an experimental feature that attempts to combat traffic correlation attacks on adversarial networks.When enabled, the app will generate random activity over the tunnel, and upload and download random data at chosen intervals.</source>
+        <source>This is an experimental feature that attempts to combat traffic correlation attacks on adversarial networks. When enabled, the app will generate random activity over the tunnel, and upload and download random data at chosen intervals.</source>
         <translation>هذه ميزة تجريبية تحاول مكافحة هجمات ارتباط حركة المرور على الشبكات العدائية. عند التمكين، سيقوم التطبيق بإنشاء نشاط عشوائي عبر النفق، وتحميل وتنزيل بيانات عشوائية على فترات زمنية محددة.</translation>
     </message>
     <message>

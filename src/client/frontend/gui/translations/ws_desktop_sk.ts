@@ -1565,7 +1565,7 @@ Ak problém pretrváva aj po reštarte, pošlite nám denník ladenia, otvorte �
         <translation>Falošná prevádzka</translation>
     </message>
     <message>
-        <source>This is an experimental feature that attempts to combat traffic correlation attacks on adversarial networks.When enabled, the app will generate random activity over the tunnel, and upload and download random data at chosen intervals.</source>
+        <source>This is an experimental feature that attempts to combat traffic correlation attacks on adversarial networks. When enabled, the app will generate random activity over the tunnel, and upload and download random data at chosen intervals.</source>
         <translation>Ide o experimentálnu funkciu, ktorá sa snaží bojovať proti útokom korelácie prevádzky v nepriateľských sieťach. Keď je táto funkcia zapnutá, aplikácia bude generovať náhodnú aktivitu cez tunel a vo zvolených intervaloch bude odosielať a sťahovať náhodné údaje.</translation>
     </message>
     <message>

@@ -1565,7 +1565,7 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
         <translation>Návnada Provoz</translation>
     </message>
     <message>
-        <source>This is an experimental feature that attempts to combat traffic correlation attacks on adversarial networks.When enabled, the app will generate random activity over the tunnel, and upload and download random data at chosen intervals.</source>
+        <source>This is an experimental feature that attempts to combat traffic correlation attacks on adversarial networks. When enabled, the app will generate random activity over the tunnel, and upload and download random data at chosen intervals.</source>
         <translation>Jedná se o experimentální funkci, která se pokouší bojovat proti útokům na korelaci provozu v nepřátelských sítích. Pokud je tato možnost povolena, aplikace bude generovat náhodnou aktivitu prostřednictvím tunelu a ve zvolených intervalech odesílat a stahovat náhodná data.</translation>
     </message>
     <message>

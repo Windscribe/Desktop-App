@@ -1565,7 +1565,7 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
         <translation>Tuzak Trafik</translation>
     </message>
     <message>
-        <source>This is an experimental feature that attempts to combat traffic correlation attacks on adversarial networks.When enabled, the app will generate random activity over the tunnel, and upload and download random data at chosen intervals.</source>
+        <source>This is an experimental feature that attempts to combat traffic correlation attacks on adversarial networks. When enabled, the app will generate random activity over the tunnel, and upload and download random data at chosen intervals.</source>
         <translation>Bu, düşman ağlara yönelik trafik korelasyon saldırılarıyla mücadele etmeye çalışan deneysel bir özelliktir. Etkinleştirildiğinde, uygulama tünel üzerinden rastgele etkinlik oluşturur ve seçilen aralıklarla rastgele verileri karşıya yükler ve indirir.</translation>
     </message>
     <message>

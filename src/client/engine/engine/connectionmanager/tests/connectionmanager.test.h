@@ -93,6 +93,7 @@ private slots:
     void testWakeWhileOfflineWithoutConnectorPollsAndReconnects();
     void testConnectorReconnectingSignalFromConnected();
     void testOnlineButNoDefaultAdapterWaitsForNetwork();
+    void testDefaultAdapterDetectedBeforeConnector();
     void testNoWaitPolicyFailsFastWhenOffline();
     void testLockdownModeIkev2Error();
     void testRequestUsernameForwarded();

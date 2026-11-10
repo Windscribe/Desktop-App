@@ -120,7 +120,9 @@ exit 0
 pkexec sh -c "$PRIVILEGED_SCRIPT" _ "$1" "$platform" \
     "${DISPLAY:-}" "${DBUS_SESSION_BUS_ADDRESS:-}" "${XDG_RUNTIME_DIR:-}" "${XAUTHORITY:-}"
 rc=$?
+# pkexec exits 126 when the user dismisses the prompt, and 127 when authorization could not be obtained.
 case $rc in
-    126|127) exit 3 ;;
+    126) exit 3 ;;
+    127) exit 4 ;;
     *) exit $rc ;;
 esac

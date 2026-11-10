@@ -1565,7 +1565,7 @@ Jeśli problem nadal występuje po ponownym uruchomieniu, wyślij dziennik debug
         <translation>Ruch wabików</translation>
     </message>
     <message>
-        <source>This is an experimental feature that attempts to combat traffic correlation attacks on adversarial networks.When enabled, the app will generate random activity over the tunnel, and upload and download random data at chosen intervals.</source>
+        <source>This is an experimental feature that attempts to combat traffic correlation attacks on adversarial networks. When enabled, the app will generate random activity over the tunnel, and upload and download random data at chosen intervals.</source>
         <translation>Jest to eksperymentalna funkcja, która próbuje zwalczać ataki korelacji ruchu w sieciach przeciwstawnych. Po włączeniu aplikacja będzie generować losową aktywność w tunelu oraz przesyłać i pobierać losowe dane w wybranych odstępach czasu.</translation>
     </message>
     <message>

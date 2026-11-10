@@ -1565,7 +1565,7 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>डिकॉय ट्रैफिक</translation>
     </message>
     <message>
-        <source>This is an experimental feature that attempts to combat traffic correlation attacks on adversarial networks.When enabled, the app will generate random activity over the tunnel, and upload and download random data at chosen intervals.</source>
+        <source>This is an experimental feature that attempts to combat traffic correlation attacks on adversarial networks. When enabled, the app will generate random activity over the tunnel, and upload and download random data at chosen intervals.</source>
         <translation>यह एक प्रयोगात्मक विशेषता है जो प्रतिकूल नेटवर्क पर यातायात सहसंबंध हमलों का मुकाबला करने का प्रयास करती है। सक्षम होने पर, ऐप सुरंग पर यादृच्छिक गतिविधि उत्पन्न करेगा, और चुने हुए अंतराल पर यादृच्छिक डेटा अपलोड और डाउनलोड करेगा।</translation>
     </message>
     <message>

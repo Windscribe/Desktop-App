@@ -1565,7 +1565,7 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Імітацыя трафіку</translation>
     </message>
     <message>
-        <source>This is an experimental feature that attempts to combat traffic correlation attacks on adversarial networks.When enabled, the app will generate random activity over the tunnel, and upload and download random data at chosen intervals.</source>
+        <source>This is an experimental feature that attempts to combat traffic correlation attacks on adversarial networks. When enabled, the app will generate random activity over the tunnel, and upload and download random data at chosen intervals.</source>
         <translation>Гэта экспэрымэнтальная функцыя для супрацьдзеяньня атакам карэляцыі трафіку ў варожых сетках. Пры ўключэньні, праґрама будзе ствараць выпадковую дзейнасьць у тунэлі, а таксама спампоўваць і запампоўваць выпадковыя дадзеныя ў вызначаныя прамежкі часу.</translation>
     </message>
     <message>

@@ -1565,7 +1565,7 @@ Si el problema persiste después de un reinicio, envíe un registro de depuraci�
         <translation>Tráfico señuelo</translation>
     </message>
     <message>
-        <source>This is an experimental feature that attempts to combat traffic correlation attacks on adversarial networks.When enabled, the app will generate random activity over the tunnel, and upload and download random data at chosen intervals.</source>
+        <source>This is an experimental feature that attempts to combat traffic correlation attacks on adversarial networks. When enabled, the app will generate random activity over the tunnel, and upload and download random data at chosen intervals.</source>
         <translation>Se trata de una función experimental que intenta combatir los ataques de correlación de tráfico en redes adversarias. Cuando está habilitada, la aplicación generará actividad aleatoria a través del túnel y cargará y descargará datos aleatorios a intervalos elegidos.</translation>
     </message>
     <message>

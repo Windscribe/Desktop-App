@@ -97,6 +97,40 @@ typedef struct CALLOUT_DATA_V6_
 } CALLOUT_DATA_V6;
 #pragma pack(pop)
 
+// Destinations the driver never redirects (local address ranges).
+static const std::vector<std::string> kLanRangesV4 = {
+    "10.0.0.0/9",    // this and the following 10.x.x.x ranges represent the range 10.0.0.0 - 10.254.255.255,
+    "10.128.0.0/10", // specifically excluding the reserved range of 10.255.255.0/24
+    "10.192.0.0/11",
+    "10.224.0.0/12",
+    "10.240.0.0/13",
+    "10.248.0.0/14",
+    "10.252.0.0/15",
+    "10.254.0.0/16",
+    "127.0.0.0/8",
+    "169.254.0.0/16",
+    "172.16.0.0/12",
+    "192.168.0.0/16",
+    "224.0.0.0/4",
+};
+
+static const std::vector<std::string> kLanRangesV6 = {
+    "::1/128",
+    "fe80::/10",
+    "fc00::/7",
+    "ff00::/8",
+};
+
+static std::vector<types::IpAddressRange> toIpAddressRanges(const std::vector<std::string> &ranges)
+{
+    std::vector<types::IpAddressRange> result;
+    result.reserve(ranges.size());
+    for (const auto &it : ranges) {
+        result.emplace_back(it);
+    }
+    return result;
+}
+
 static void prefixToMaskV6(UINT8 prefix, UINT8 mask[16])
 {
     memset(mask, 0, 16);
@@ -139,10 +173,10 @@ bool CalloutFilter::enable(UINT32 localIp, UINT32 vpnIp,
         return true;
     }
 
-    if (isEnabled_) {
-        spdlog::debug("CalloutFilter: disable before enable");
-        disable();
-    }
+    // The previous objects are replaced inside the same transaction as the add below. A separate
+    // disable() would commit a moment with no redirect, and a socket an excluded app opens then
+    // keeps the tunnel source for its lifetime (#2048).
+    const bool isReplacing = isEnabled_;
 
     appsIds_ = appsIds;
     prevLocalIp_ = localIp;
@@ -176,6 +210,16 @@ bool CalloutFilter::enable(UINT32 localIp, UINT32 vpnIp,
 
     HANDLE hEngine = fwmpWrapper_.getHandleAndLock();
     fwmpWrapper_.beginTransaction();
+
+    if (isReplacing) {
+        spdlog::debug("CalloutFilter: replacing the active filters");
+        removeAllObjectsLocked(hEngine);
+        // Same bookkeeping reset as disable(): the per-destination filters went with the sublayer.
+        v6AntiLeakActive_ = false;
+        v6AntiLeakIsExclude_ = false;
+        v6AntiLeakVpnLuid_ = 0;
+        v6WhitelistFilterIds_.clear();
+    }
 
     bool success = true;
 
@@ -258,6 +302,12 @@ bool CalloutFilter::enable(UINT32 localIp, UINT32 vpnIp,
         v6WhitelistFilterIds_.clear();
     }
     fwmpWrapper_.unlock();
+
+    if (!success && isReplacing) {
+        // The abort brought back the previous filters, whose ids and parameters no longer match
+        // the bookkeeping above. Fall back to the known disabled state, as before.
+        disable();
+    }
 
     return success;
 }
@@ -371,21 +421,7 @@ void CalloutFilter::removeV6WhitelistFiltersLocked(HANDLE engineHandle)
 
 bool CalloutFilter::addProviderContext(HANDLE engineHandle, const GUID &guid, UINT32 localIp, UINT32 vpnIp, bool isExclude)
 {
-    const std::vector<std::string> lanRanges = {
-        "10.0.0.0/9",    // this and the following 10.x.x.x ranges represent the range 10.0.0.0 - 10.254.255.255,
-        "10.128.0.0/10", // specifically excluding the reserved range of 10.255.255.0/24
-        "10.192.0.0/11",
-        "10.224.0.0/12",
-        "10.240.0.0/13",
-        "10.248.0.0/14",
-        "10.252.0.0/15",
-        "10.254.0.0/16",
-        "127.0.0.0/8",
-        "169.254.0.0/16",
-        "172.16.0.0/12",
-        "192.168.0.0/16",
-        "224.0.0.0/4",
-    };
+    const std::vector<std::string> &lanRanges = kLanRangesV4;
 
     bool bRet = true;
     FWP_BYTE_BLOB         byteBlob = { 0 };
@@ -430,12 +466,7 @@ bool CalloutFilter::addProviderContext(HANDLE engineHandle, const GUID &guid, UI
 
 bool CalloutFilter::addProviderContextV6(HANDLE engineHandle, const GUID &guid, const types::IpAddress &localIp, const types::IpAddress &vpnIp, bool isExclude)
 {
-    const std::vector<std::string> lanRangesV6 = {
-        "::1/128",
-        "fe80::/10",
-        "fc00::/7",
-        "ff00::/8",
-    };
+    const std::vector<std::string> &lanRangesV6 = kLanRangesV6;
 
     std::vector<unsigned char> data;
     data.resize(sizeof(CALLOUT_DATA_V6) - sizeof(CALLOUT_DATA_V6().excludeAddresses) + lanRangesV6.size() * 2 * 16);
@@ -890,15 +921,20 @@ bool CalloutFilter::addFilters(HANDLE engineHandle, bool withTcpFilters, bool wi
         }
     }
 
-    // Mirror case for exclusive split tunneling: without a valid localIpV6 there is no
-    // address to redirect excluded apps' v6 traffic to, so the v6 redirect filters are not
-    // installed (withV6 == false) and excluded apps' v6 traffic follows the default route
-    // into the tunnel — an excluded app would show the VPN v6 IP. Block v6 on the VPN LUID
-    // for the excluded apps only; they fall back to v4, which the callout correctly steers
-    // outside the tunnel. Other apps are unaffected: in exclusive mode they are supposed to
-    // use the tunnel, including over v6 (excluded hostname/CIDR destinations are handled
-    // separately via setV6WhitelistIps).
-    if (isExclude && !withV6 && vpnIfIndex != 0 && appsIds.count() > 0) {
+    // Exclusive split tunneling: excluded apps must never egress the tunnel, over v4 or v6. The
+    // callout redirect normally keeps them off it and these BLOCKs on the VPN LUID never match.
+    // They catch what the redirect cannot:
+    //  - v6 without a valid localIpV6: there is no address to redirect to, the v6 redirect
+    //    filters are not installed (withV6 == false), and v6 would follow the default route into
+    //    the tunnel. Blocked, it falls back to v4, which the callout steers outside.
+    //  - sockets that got the tunnel source before the redirect was in place (#2048).
+    // Other apps are unaffected: in exclusive mode they are supposed to use the tunnel (excluded
+    // hostname/CIDR destinations are handled separately via setV6WhitelistIps).
+    //
+    // The driver does not redirect LAN destinations (kLanRangesV4/V6, the provider context
+    // lists), and those can legitimately be routed into the tunnel, e.g. by a custom config.
+    // A higher-weight PERMIT for them keeps that working.
+    if (isExclude && vpnIfIndex != 0 && appsIds.count() > 0) {
         NET_LUID vpnLuid = { 0 };
         NETIO_STATUS luidRet = ConvertInterfaceIndexToLuid(static_cast<NET_IFINDEX>(vpnIfIndex), &vpnLuid);
         if (luidRet != NO_ERROR) {
@@ -908,16 +944,42 @@ bool CalloutFilter::addFilters(HANDLE engineHandle, bool withTcpFilters, bool wi
             return false;
         }
 
-        // persistent=false for the same FWP_E_LIFETIME_MISMATCH reason as above. Weight 4
-        // for consistency with the inclusive BLOCK; nothing competes with it in this
-        // sublayer in exclusive mode.
+        // persistent=false for the same FWP_E_LIFETIME_MISMATCH reason as above. Weights match
+        // the inclusive BLOCK/PERMIT pair: the LAN PERMIT (5) beats the BLOCK (4).
         AppsIds blockAppsIds = appsIds;
-        bool ok = Utils::addFilterV6(engineHandle, nullptr, FWP_ACTION_BLOCK, 4,
+        bool ok = Utils::addFilterV4(engineHandle, nullptr, FWP_ACTION_BLOCK, 4,
                                      SUBLAYER_CALLOUT_GUID,
-                                     (wchar_t *)WS_PRODUCT_NAME_W L" v6 leak block on VPN for excluded apps",
+                                     (wchar_t *)WS_PRODUCT_NAME_W L" v4 leak block on VPN for excluded apps",
                                      &vpnLuid, nullptr, 0, 0, &blockAppsIds, false);
         if (!ok) {
+            spdlog::error("CalloutFilter::addFilters(), v4 leak BLOCK for excluded apps on VPN LUID failed");
+            return false;
+        }
+        ok = Utils::addFilterV6(engineHandle, nullptr, FWP_ACTION_BLOCK, 4,
+                                SUBLAYER_CALLOUT_GUID,
+                                (wchar_t *)WS_PRODUCT_NAME_W L" v6 leak block on VPN for excluded apps",
+                                &vpnLuid, nullptr, 0, 0, &blockAppsIds, false);
+        if (!ok) {
             spdlog::error("CalloutFilter::addFilters(), v6 leak BLOCK for excluded apps on VPN LUID failed");
+            return false;
+        }
+
+        const std::vector<types::IpAddressRange> lanRanges = toIpAddressRanges(kLanRangesV4);
+        ok = Utils::addFilterV4(engineHandle, nullptr, FWP_ACTION_PERMIT, 5,
+                                SUBLAYER_CALLOUT_GUID,
+                                (wchar_t *)WS_PRODUCT_NAME_W L" v4 LAN permit on VPN for excluded apps",
+                                &vpnLuid, &lanRanges, 0, 0, &blockAppsIds, false);
+        if (!ok) {
+            spdlog::error("CalloutFilter::addFilters(), v4 LAN PERMIT for excluded apps on VPN LUID failed");
+            return false;
+        }
+        const std::vector<types::IpAddressRange> lanRangesV6 = toIpAddressRanges(kLanRangesV6);
+        ok = Utils::addFilterV6(engineHandle, nullptr, FWP_ACTION_PERMIT, 5,
+                                SUBLAYER_CALLOUT_GUID,
+                                (wchar_t *)WS_PRODUCT_NAME_W L" v6 LAN permit on VPN for excluded apps",
+                                &vpnLuid, &lanRangesV6, 0, 0, &blockAppsIds, false);
+        if (!ok) {
+            spdlog::error("CalloutFilter::addFilters(), v6 LAN PERMIT for excluded apps on VPN LUID failed");
             return false;
         }
     }
@@ -931,16 +993,18 @@ bool CalloutFilter::deleteSublayer(HANDLE engineHandle)
     bool b2 = Utils::deleteAllFiltersForSublayer(engineHandle, &SUBLAYER_CALLOUT_GUID, FWPM_LAYER_ALE_CONNECT_REDIRECT_V4);
     bool b3 = Utils::deleteAllFiltersForSublayer(engineHandle, &SUBLAYER_CALLOUT_GUID, FWPM_LAYER_ALE_BIND_REDIRECT_V6);
     bool b4 = Utils::deleteAllFiltersForSublayer(engineHandle, &SUBLAYER_CALLOUT_GUID, FWPM_LAYER_ALE_CONNECT_REDIRECT_V6);
-    // Anti-leak v6 filters live on ALE_AUTH_CONNECT_V6 / ALE_AUTH_RECV_ACCEPT_V6 (added by
-    // Utils::addFilterV6). Without explicit cleanup here FwpmSubLayerDeleteByKey0 would fail
+    // Anti-leak filters live on ALE_AUTH_CONNECT_V4/V6 / ALE_AUTH_RECV_ACCEPT_V4/V6 (added by
+    // Utils::addFilterV4/V6). Without explicit cleanup here FwpmSubLayerDeleteByKey0 would fail
     // with FWP_E_IN_USE on the next disable()/enable() cycle.
     bool b5 = Utils::deleteAllFiltersForSublayer(engineHandle, &SUBLAYER_CALLOUT_GUID, FWPM_LAYER_ALE_AUTH_CONNECT_V6);
     bool b6 = Utils::deleteAllFiltersForSublayer(engineHandle, &SUBLAYER_CALLOUT_GUID, FWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V6);
+    bool b7 = Utils::deleteAllFiltersForSublayer(engineHandle, &SUBLAYER_CALLOUT_GUID, FWPM_LAYER_ALE_AUTH_CONNECT_V4);
+    bool b8 = Utils::deleteAllFiltersForSublayer(engineHandle, &SUBLAYER_CALLOUT_GUID, FWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V4);
     DWORD dwRet = FwpmSubLayerDeleteByKey0(engineHandle, &SUBLAYER_CALLOUT_GUID);
     if (dwRet != NO_ERROR && dwRet != FWP_E_SUBLAYER_NOT_FOUND) {
         spdlog::error("CalloutFilter::deleteSublayer(), FwpmSubLayerDeleteByKey0 failed: {}", dwRet);
     }
-    return b1 && b2 && b3 && b4 && b5 && b6 && dwRet == NO_ERROR;
+    return b1 && b2 && b3 && b4 && b5 && b6 && b7 && b8 && dwRet == NO_ERROR;
 }
 
 bool CalloutFilter::removeAllFilters(FwpmWrapper &fwmpWrapper)
@@ -948,6 +1012,16 @@ bool CalloutFilter::removeAllFilters(FwpmWrapper &fwmpWrapper)
     HANDLE hEngine = fwmpWrapper.getHandleAndLock();
     fwmpWrapper.beginTransaction();
 
+    removeAllObjectsLocked(hEngine);
+
+    fwmpWrapper.endTransaction();
+    fwmpWrapper.unlock();
+
+    return true;
+}
+
+void CalloutFilter::removeAllObjectsLocked(HANDLE hEngine)
+{
     DWORD ret = deleteSublayer(hEngine);
 
     ret = FwpmCalloutDeleteByKey(hEngine, &BIND_CALLOUT_GUID);
@@ -974,9 +1048,4 @@ bool CalloutFilter::removeAllFilters(FwpmWrapper &fwmpWrapper)
     if (ret != ERROR_SUCCESS && ret != FWP_E_PROVIDER_CONTEXT_NOT_FOUND) {
         spdlog::error("CalloutFilter::removeAllFilters(), FwpmProviderContextDeleteByKey (IPv6) failed: {}", ret);
     }
-
-    fwmpWrapper.endTransaction();
-    fwmpWrapper.unlock();
-
-    return true;
 }

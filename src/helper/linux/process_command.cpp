@@ -272,7 +272,7 @@ std::string executeTaskKill(const std::string &pars)
         success = true;
     } else if (target == kTargetWireGuard) {
         spdlog::info("Killing WireGuard processes");
-        Utils::executeCommand("pkill", {"-f", WS_PRODUCT_NAME_LOWER "wireguard"});
+        Utils::executeCommand("pkill", {"-f", WS_PRODUCT_NAME_LOWER "amneziawg"});
         success = true;
     } else if (target == kTargetCtrld) {
         spdlog::info("Killing ctrld processes");

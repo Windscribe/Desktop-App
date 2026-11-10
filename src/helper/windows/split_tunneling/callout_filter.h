@@ -41,6 +41,9 @@ private:
                     bool isExclude, unsigned long vpnIfIndex);
 
     static bool deleteSublayer(HANDLE engineHandle);
+    // Deletes the sublayer with its filters, the callouts and the provider contexts. Caller must
+    // hold an open engine handle and an active FwpmTransaction.
+    static void removeAllObjectsLocked(HANDLE engineHandle);
 
     // Apply / remove the per-destination v6 filters on the VPN LUID (PERMIT in inclusive
     // mode, BLOCK in exclusive mode — see setV6WhitelistIps). Caller must hold mutex_,

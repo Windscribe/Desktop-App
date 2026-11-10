@@ -1565,7 +1565,7 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
         <translation>Giao thông mồi nhử</translation>
     </message>
     <message>
-        <source>This is an experimental feature that attempts to combat traffic correlation attacks on adversarial networks.When enabled, the app will generate random activity over the tunnel, and upload and download random data at chosen intervals.</source>
+        <source>This is an experimental feature that attempts to combat traffic correlation attacks on adversarial networks. When enabled, the app will generate random activity over the tunnel, and upload and download random data at chosen intervals.</source>
         <translation>Đây là một tính năng thử nghiệm cố gắng chống lại các cuộc tấn công tương quan lưu lượng truy cập vào các mạng đối thủ. Khi được bật, ứng dụng sẽ tạo hoạt động ngẫu nhiên qua đường hầm và tải lên và tải xuống dữ liệu ngẫu nhiên theo các khoảng thời gian đã chọn.</translation>
     </message>
     <message>

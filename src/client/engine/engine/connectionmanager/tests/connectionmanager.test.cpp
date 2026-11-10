@@ -1266,6 +1266,31 @@ void TestConnectionManager::testOnlineButNoDefaultAdapterWaitsForNetwork()
     QVERIFY(connectionFactory_->createdCount() > 0);
 }
 
+void TestConnectionManager::testDefaultAdapterDetectedBeforeConnector()
+{
+    // The engine hands the captured adapter to the helper on this signal so exclusive split
+    // tunneling redirects excluded apps before the attempt can bring up tunnel routes (#2048):
+    // it must come before the connector exists, and never carry an empty adapter.
+    QVector<int> createdCountAtEmit;
+    QVector<QString> adapterNames;
+    connect(cm_, &ConnectionManager::defaultAdapterDetected, this, [&](const AdapterGatewayInfo &adapter) {
+        createdCountAtEmit << connectionFactory_->createdCount();
+        adapterNames << adapter.adapterName();
+    });
+
+    platformPolicy_->setDefaultAdapter(AdapterGatewayInfo());
+    startConnecting();
+    QVERIFY(createdCountAtEmit.isEmpty());
+
+    platformPolicy_->setDefaultAdapter(vpnAdapterInfo());
+    cm_->onTimerWaitNetworkConnectivity();
+
+    QCOMPARE(createdCountAtEmit.size(), 1);
+    QCOMPARE(createdCountAtEmit.at(0), 0);
+    QCOMPARE(adapterNames.at(0), vpnAdapterInfo().adapterName());
+    QVERIFY(connectionFactory_->createdCount() > 0);
+}
+
 void TestConnectionManager::testNoWaitPolicyFailsFastWhenOffline()
 {
     // A strategy that opts out of waiting for connectivity (emergency connect) surfaces the failure

@@ -37,7 +37,10 @@ variables:
   CCACHE_COMPILERCHECK: 'content'
   CCACHE_MAXSIZE: '10G'
   CCACHE_NOHASHDIR: '1'
-  CCACHE_REMOTE_STORAGE: 'https://${NEXUS_USERNAME}:${NEXUS_PASSWORD}@nexus.int.windscribe.com/repository/client-desktop/client-desktop/ccache'
+  CCACHE_REMOTE_URL: 'https://${NEXUS_USERNAME}:${NEXUS_PASSWORD}@nexus.int.windscribe.com/repository/client-desktop/client-desktop/ccache'
+  CCACHE_REMOTE_STORAGE: '${CCACHE_REMOTE_URL}'
+  # Merge request jobs only read the cache: their entries are rarely reused, and every one adds to Nexus storage.
+  CCACHE_REMOTE_STORAGE_READ_ONLY: '${CCACHE_REMOTE_URL}|read-only=true'
   # Qt's resource compiler otherwise embeds each file's modification time, which differs on every fresh clone.
   QT_RCC_SOURCE_DATE_OVERRIDE: '1'
   # Artifacts carry the whole app payload between jobs; on the internal network zip time costs more than upload size.
@@ -242,6 +245,7 @@ build:win:x64:mr:
   <<: *template_win10_build
   stage: Build
   variables:
+    CCACHE_REMOTE_STORAGE: '${CCACHE_REMOTE_STORAGE_READ_ONLY}'
     GIT_STRATEGY: clone
     VCPKG_ROOT: '%VCPKG_ROOT_WINDOWS%'
   script:
@@ -451,6 +455,7 @@ build:win:arm64:mr:
   <<: *template_win10_build
   stage: Build
   variables:
+    CCACHE_REMOTE_STORAGE: '${CCACHE_REMOTE_STORAGE_READ_ONLY}'
     GIT_STRATEGY: clone
     VCPKG_ROOT: '%VCPKG_ROOT_WINDOWS%'
   script:
@@ -527,6 +532,7 @@ build:mac:installer:mr:
   <<: *template_mac_build
   stage: Build
   variables:
+    CCACHE_REMOTE_STORAGE: '${CCACHE_REMOTE_STORAGE_READ_ONLY}'
     GIT_STRATEGY: clone
   script:
     - !reference [.build_mac_installer_common, script]
@@ -645,6 +651,7 @@ build:aarch64_ubuntu:installer:mr:
   <<: *template_aarch64_ubuntu_build
   stage: Build
   variables:
+    CCACHE_REMOTE_STORAGE: '${CCACHE_REMOTE_STORAGE_READ_ONLY}'
     GIT_STRATEGY: clone
   script:
     - OS_IDENTIFIER="linux-arm64"
@@ -657,6 +664,7 @@ build:aarch64_ubuntu_cli:installer:mr:
   <<: *template_aarch64_ubuntu_build
   stage: Build
   variables:
+    CCACHE_REMOTE_STORAGE: '${CCACHE_REMOTE_STORAGE_READ_ONLY}'
     GIT_STRATEGY: clone
   script:
     - OS_IDENTIFIER="linux-arm64"
@@ -798,6 +806,7 @@ build:rhel:installer:mr:
   <<: *template_rhel_build
   stage: Build
   variables:
+    CCACHE_REMOTE_STORAGE: '${CCACHE_REMOTE_STORAGE_READ_ONLY}'
     GIT_STRATEGY: clone
   script:
     - OS_IDENTIFIER="linux"
@@ -810,6 +819,7 @@ build:rhel_cli:installer:mr:
   <<: *template_rhel_build
   stage: Build
   variables:
+    CCACHE_REMOTE_STORAGE: '${CCACHE_REMOTE_STORAGE_READ_ONLY}'
     GIT_STRATEGY: clone
   script:
     - OS_IDENTIFIER="linux"

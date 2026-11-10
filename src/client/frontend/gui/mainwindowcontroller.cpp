@@ -572,7 +572,10 @@ void MainWindowController::expandLocations()
 
 void MainWindowController::collapseLocations()
 {
-    WS_ASSERT(curWindow_ == WINDOW_ID_CONNECT);
+    // Leaving the connect window already collapses the list, so on any other window there is nothing to do.
+    if (curWindow_ != WINDOW_ID_CONNECT) {
+        return;
+    }
     WS_ASSERT(expandLocationsAnimationGroup_ != NULL);
 
     if (expandLocationsAnimationGroup_->direction() == QAbstractAnimation::Backward &&

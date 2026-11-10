@@ -142,7 +142,7 @@ std::string sendConnectStatus(const std::string &pars)
     ConnectStatus connectStatus;
     deserializePars(pars, connectStatus.isConnected, connectStatus.isTerminateSocket, connectStatus.isKeepLocalSocket,
                     connectStatus.protocol, connectStatus.defaultAdapter, connectStatus.vpnAdapter,
-                    connectStatus.connectedIp, connectStatus.remoteIp);
+                    connectStatus.connectedIp, connectStatus.remoteIp, connectStatus.isVpnSessionActive);
 
     bool success = SplitTunneling::instance().setConnectStatus(connectStatus);
     g_SplitTunnelingPars.isVpnConnected = connectStatus.isConnected;

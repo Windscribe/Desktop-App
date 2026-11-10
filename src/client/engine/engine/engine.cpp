@@ -749,6 +749,11 @@ void Engine::initPart2()
     connect(connectionManager_, &ConnectionManager::requestPrivKeyPassword, this, &Engine::onConnectionManagerRequestPrivKeyPassword);
     connect(connectionManager_, &ConnectionManager::protocolStatusChanged, this, &Engine::protocolStatusChanged);
     connect(connectionManager_, &ConnectionManager::connectionEnded, this, &Engine::onConnectionManagerConnectionEnded);
+#ifdef Q_OS_WIN
+    // Direct: the helper must have the split tunnel redirect in place before startAttempt() goes on
+    // to create the connector and bring up tunnel routes.
+    connect(connectionManager_, &ConnectionManager::defaultAdapterDetected, this, &Engine::onConnectionManagerDefaultAdapterDetected, Qt::DirectConnection);
+#endif
 
     locationsModel_ = new locationsmodel::LocationsModel(this, connectStateController_, networkDetectionManager_);
     connect(locationsModel_, &locationsmodel::LocationsModel::whitelistLocationsIpsChanged, this, &Engine::onLocationsModelWhitelistIpsChanged);
@@ -2189,7 +2194,10 @@ void Engine::updateRunInstaller(qint32 windowCenterX, qint32 windowCenterY)
         DWORD lastError = GetLastError();
         qCCritical(LOG_AUTO_UPDATER) << "Can't start installer: errorCode = " << lastError;
         QFile::remove(installerPath_);
-        emit updateVersionChanged(0, UPDATE_VERSION_STATE_DONE, UPDATE_VERSION_ERROR_START_INSTALLER_FAIL);
+        // ERROR_CANCELLED is the user declining the UAC prompt.
+        emit updateVersionChanged(0, UPDATE_VERSION_STATE_DONE,
+                                  lastError == ERROR_CANCELLED ? UPDATE_VERSION_ERROR_ELEVATION_DECLINED
+                                                               : UPDATE_VERSION_ERROR_START_INSTALLER_FAIL);
         return;
     }
 
@@ -2259,7 +2267,8 @@ void Engine::onInstallUpdateFinished(int exitCode, QProcess::ExitStatus exitStat
     UPDATE_VERSION_ERROR err;
     switch (exitCode) {
         case 0: err = UPDATE_VERSION_ERROR_NO_ERROR; break;
-        case 3: err = UPDATE_VERSION_ERROR_START_INSTALLER_FAIL; break;
+        case 3: err = UPDATE_VERSION_ERROR_ELEVATION_DECLINED; break;
+        case 4: err = UPDATE_VERSION_ERROR_START_INSTALLER_FAIL; break;
         default: err = UPDATE_VERSION_ERROR_OTHER_FAIL; break;
     }
     emit updateVersionChanged(0, UPDATE_VERSION_STATE_DONE, err);
@@ -3085,6 +3094,17 @@ void Engine::onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON /*reas
     }
 
     if (helper_) {
+#ifdef Q_OS_WIN
+        if (state == CONNECT_STATE_CONNECTING || state == CONNECT_STATE_DISCONNECTING) {
+            // Once the connection manager has left disconnected, a tunnel may still be up (reconnect,
+            // disconnect in progress) and GetBestInterface would report the VPN adapter. Use the
+            // physical adapter captured before the tunnel came up instead; the helper keeps its last
+            // good adapter when this one is empty or turns out to be the tunnel.
+            sendVpnSessionStatusToHelper(connectionManager_->isDisconnected()
+                                             ? AdapterGatewayInfo::detectAndCreateDefaultAdapterInfo()
+                                             : connectionManager_->getDefaultAdapterInfo());
+        } else
+#endif
         if (state != CONNECT_STATE_CONNECTED) {
             helper_->sendConnectStatus(false, engineSettings_.isTerminateSockets(), engineSettings_.isAllowLanTraffic(), AdapterGatewayInfo::detectAndCreateDefaultAdapterInfo(), AdapterGatewayInfo(), QString(), types::Protocol());
         }
@@ -3126,6 +3146,21 @@ void Engine::enableDohSettings()
 {
     if (WinUtils::isDohSupported()) {
         helper_->enableDohSettings();
+    }
+}
+
+void Engine::sendVpnSessionStatusToHelper(const AdapterGatewayInfo &defaultAdapter)
+{
+    helper_->sendConnectStatus(false, engineSettings_.isTerminateSockets(), engineSettings_.isAllowLanTraffic(),
+                               defaultAdapter, AdapterGatewayInfo(), QString(), types::Protocol(), QStringList(), true);
+}
+
+void Engine::onConnectionManagerDefaultAdapterDetected(const AdapterGatewayInfo &defaultAdapter)
+{
+    // Before the attempt brings up tunnel routes: lets exclusive split tunneling redirect excluded
+    // apps to the physical adapter for the whole window until onConnectionManagerConnected (#2048).
+    if (helper_) {
+        sendVpnSessionStatusToHelper(defaultAdapter);
     }
 }
 #endif

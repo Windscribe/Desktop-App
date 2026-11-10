@@ -1565,7 +1565,7 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>おとりのトラフィック</translation>
     </message>
     <message>
-        <source>This is an experimental feature that attempts to combat traffic correlation attacks on adversarial networks.When enabled, the app will generate random activity over the tunnel, and upload and download random data at chosen intervals.</source>
+        <source>This is an experimental feature that attempts to combat traffic correlation attacks on adversarial networks. When enabled, the app will generate random activity over the tunnel, and upload and download random data at chosen intervals.</source>
         <translation>これは、敵対的ネットワークに対するトラフィック相関攻撃に対抗しようとする実験的な機能です。有効にすると、アプリはトンネル上でランダムなアクティビティを生成し、選択した間隔でランダムなデータをアップロードおよびダウンロードします。</translation>
     </message>
     <message>

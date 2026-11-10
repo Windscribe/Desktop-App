@@ -28,7 +28,8 @@ public:
     bool sendConnectStatus(bool isConnected, bool isTerminateSocket, bool isKeepLocalSocket,
                            const AdapterGatewayInfo &defaultAdapter, const AdapterGatewayInfo &vpnAdapter,
                            const QString &connectedIp, const types::Protocol &protocol,
-                           const QStringList &dnsWhitelistIps = QStringList());
+                           const QStringList &dnsWhitelistIps = QStringList(),
+                           bool isVpnSessionActive = false);
     void changeMtu(const QString &adapter, int mtu);
     // OpenVPN chooses its own management port; on success outPort/outPid receive the OS-assigned
     // management port and the OpenVPN PID, which the engine uses to verify the management peer.

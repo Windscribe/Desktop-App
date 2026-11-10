@@ -87,6 +87,9 @@ public:
     void setFirewallAlwaysOnPlusEnabled(bool isEnabled);
 
 signals:
+    // Emitted from startAttempt() once the physical default adapter is captured and before the
+    // connector is created, i.e. before the attempt can bring up tunnel routes.
+    void defaultAdapterDetected(const AdapterGatewayInfo &defaultAdapter);
     void connected();
     void connectingToHostname(const QString &hostname, const QString &ip, const QStringList &dnsServers, int nodeId);
     void disconnected(DISCONNECT_REASON reason);

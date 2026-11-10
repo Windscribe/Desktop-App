@@ -40,6 +40,7 @@ private:
     QElapsedTimer connectingTimer_;
     QElapsedTimer loggedInTimer_;
     bool bCommandSent_ = false;
+    bool isUpdateInstallerRunning_ = false;
     bool bLoggingInMessageShown_ = false;
     QString connectId_ = "";
     bool isConnectRequestCountKnown_ = false;

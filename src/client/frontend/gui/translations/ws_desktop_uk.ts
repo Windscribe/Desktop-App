@@ -1565,7 +1565,7 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Трафік-приманка</translation>
     </message>
     <message>
-        <source>This is an experimental feature that attempts to combat traffic correlation attacks on adversarial networks.When enabled, the app will generate random activity over the tunnel, and upload and download random data at chosen intervals.</source>
+        <source>This is an experimental feature that attempts to combat traffic correlation attacks on adversarial networks. When enabled, the app will generate random activity over the tunnel, and upload and download random data at chosen intervals.</source>
         <translation>Це експериментальна функція, яка намагається боротися з атаками кореляції трафіку на зловмисні мережі. Коли цей параметр увімкнено, додаток генеруватиме випадкову активність у тунелі, а також завантажуватиме та завантажуватиме випадкові дані через вибрані проміжки часу.</translation>
     </message>
     <message>

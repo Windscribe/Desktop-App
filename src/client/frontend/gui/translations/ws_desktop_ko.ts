@@ -1565,7 +1565,7 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>가짜 트래픽</translation>
     </message>
     <message>
-        <source>This is an experimental feature that attempts to combat traffic correlation attacks on adversarial networks.When enabled, the app will generate random activity over the tunnel, and upload and download random data at chosen intervals.</source>
+        <source>This is an experimental feature that attempts to combat traffic correlation attacks on adversarial networks. When enabled, the app will generate random activity over the tunnel, and upload and download random data at chosen intervals.</source>
         <translation>이는 적대적 네트워크에서 트래픽의 상관관계를 기반으로 차단하는 경우에 맞서기 위한 실험적 기능입니다. 활성화되면 앱은 터널을 통해 무작위 활동을 생성하고 선택한 간격으로 무작위 데이터를 업로드 및 다운로드합니다.</translation>
     </message>
     <message>

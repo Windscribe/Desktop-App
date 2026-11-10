@@ -108,6 +108,27 @@ QString connectStateString(types::ConnectState state, LocationID location, TUNNE
                 return QString("Error: The custom configuration could not be loaded") + QString(". ") + state.connectErrorDetail;
             }
             return QString("Error: The custom configuration could not be loaded");
+        case ConnectError::kAuthFailure:
+            return QString("Error: The server did not accept the connection credentials");
+        case ConnectError::kPrivKeyPasswordFailure:
+            return QString("Error: The private key password for the custom configuration is incorrect");
+        case ConnectError::kLocalProcessLaunchFailure:
+            if (!state.connectErrorDetail.isEmpty()) {
+                return QString("Error: A required VPN process could not be started") + QString(". ") + state.connectErrorDetail;
+            }
+            return QString("Error: A required VPN process could not be started");
+        case ConnectError::kLocalProcessNotResponding:
+            return QString("Error: A required VPN process is not responding");
+        case ConnectError::kTransientTunnelFailure:
+        case ConnectError::kTunnelEstablishmentFailure:
+            return QString("Error: The VPN tunnel could not be established. Please try a different protocol");
+        case ConnectError::kVpnServiceSetupFailure:
+            return QString("Error: The system VPN service could not be set up");
+        case ConnectError::kBlockedByOsPolicy:
+            return QString("Error: IKEv2 connectivity is not available in macOS Lockdown Mode. "
+                           "Please disable Lockdown Mode in System Settings or change your connection settings");
+        case ConnectError::kOSServiceUnavailable:
+            return QString("Error: The Remote Access Connection Manager (RasMan) service is not running and could not be started");
         default:
             if (!state.connectErrorDetail.isEmpty()) {
                 return QString("Error: %1").arg(static_cast<int>(state.connectError)) + QString(". ") + state.connectErrorDetail;
@@ -154,8 +175,14 @@ QString updateErrorString(UPDATE_VERSION_ERROR error)
 {
     if (error == UPDATE_VERSION_ERROR_DL_FAIL) {
         return QString("Update error: download failed. Please try again or try a different network.");
-    } else if (error == UPDATE_VERSION_ERROR_CANCELLED) {
+    } else if (error == UPDATE_VERSION_ERROR_CANCELLED || error == UPDATE_VERSION_ERROR_ELEVATION_DECLINED) {
         return QString("Update cancelled.");
+    } else if (error == UPDATE_VERSION_ERROR_SIGN_FAIL) {
+        return QString("Update error: the installer signature could not be verified.");
+    } else if (error == UPDATE_VERSION_ERROR_START_INSTALLER_FAIL) {
+        return QString("Update error: the installer could not be started.");
+    } else if (error == UPDATE_VERSION_ERROR_OTHER_FAIL) {
+        return QString("Update error: the installer failed.");
     } else if (error != UPDATE_VERSION_ERROR_NO_ERROR) {
         return QString("Update error: %1").arg(error);
     } else {
@@ -230,7 +257,7 @@ QString statusString(const QList<QPair<QString, QString>> &items)
 
     QStringList lines;
     for (const auto &item : items) {
-        // Labels are translated, so line the values up by the longest one.
+        // Line the values up by the longest label.
         lines << (item.first + ":").leftJustified(width + 3) + item.second;
     }
     return lines.join("\n");

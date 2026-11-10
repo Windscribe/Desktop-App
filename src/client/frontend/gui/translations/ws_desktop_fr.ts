@@ -1565,7 +1565,7 @@ Si le problème persiste après un redémarrage, envoyez un journal de débogage
         <translation>Trafic de leurres</translation>
     </message>
     <message>
-        <source>This is an experimental feature that attempts to combat traffic correlation attacks on adversarial networks.When enabled, the app will generate random activity over the tunnel, and upload and download random data at chosen intervals.</source>
+        <source>This is an experimental feature that attempts to combat traffic correlation attacks on adversarial networks. When enabled, the app will generate random activity over the tunnel, and upload and download random data at chosen intervals.</source>
         <translation>Il s’agit d’une fonctionnalité expérimentale qui tente de lutter contre les attaques de corrélation de trafic sur les réseaux adverses. Lorsqu’elle est activée, l’application génère une activité aléatoire sur le tunnel, et télécharge et télécharge des données aléatoires à des intervalles choisis.</translation>
     </message>
     <message>
