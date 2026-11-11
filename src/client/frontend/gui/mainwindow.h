@@ -56,6 +56,9 @@ public:
 protected:
     bool event(QEvent *event);
     void closeEvent(QCloseEvent *event);
+#ifdef Q_OS_LINUX
+    void resizeEvent(QResizeEvent *event) override;
+#endif
 
     virtual void mousePressEvent(QMouseEvent *event);
     virtual void mouseReleaseEvent(QMouseEvent *event);
@@ -325,7 +328,7 @@ private:
     LocalIPCServer *localIpcServer_;
     NotificationsController notificationsController_;
 
-    MainWindowController *mainWindowController_;
+    MainWindowController *mainWindowController_ = nullptr;
 
     LocationsWindow *locationsWindow_;
     LogViewer::LogViewerWindow *logViewerWindow_;
