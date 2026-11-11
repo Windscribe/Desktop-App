@@ -1,6 +1,9 @@
 #include "mainwindowcontroller.h"
 
 #include <QApplication>
+#ifdef Q_OS_LINUX
+#include <QScopedValueRollback>
+#endif
 #include <QScreen>
 #include <QSequentialAnimationGroup>
 #include <QTimer>
@@ -138,6 +141,9 @@ MainWindowController::MainWindowController(QWidget *parent, LocationsWindow *loc
 
     connect(signupWindow_, &LoginWindow::SignupWindowItem::heightChanged, this, &MainWindowController::onSignupWindowHeightChanged);
     connect(locationsWindow_, &LocationsWindow::heightChanged, this, &MainWindowController::onLocationsWindowHeightChanged);
+#ifdef Q_OS_LINUX
+    connect(locationsWindow_, &LocationsWindow::resizeFinished, this, &MainWindowController::onLocationsWindowResizeFinished);
+#endif
     connect(bottomInfoWindow_, &SharingFeatures::BottomInfoItem::heightChanged, this, &MainWindowController::onBottomInfoHeightChanged);
     connect(bottomInfoWindow_, &QGraphicsObject::yChanged, this, &MainWindowController::onBottomInfoPosChanged);
     connect(preferences_, &Preferences::appSkinChanged, this, &MainWindowController::onAppSkinChanged);
@@ -366,6 +372,9 @@ void MainWindowController::setWindowPosFromPersistent()
     if (PersistentState::instance().haveAppGeometry()) {
         if (mainWindow_->restoreGeometry(PersistentState::instance().appGeometry())) {
             qCDebug(LOG_BASIC) << "setWindowPosFromPersistent() - restored app geometry:" << mainWindow_->geometry();
+#ifdef Q_OS_LINUX
+            updateMainAndViewGeometry(false, true);
+#endif
 
             // Qt's restoreGeometry may restore the app onto a display that is no longer attached. According to the Qt
             // documentation, it is supposed to take detached displays into account, and appears to do a pretty good
@@ -738,7 +747,7 @@ void MainWindowController::onExpandLocationsListAnimationFinished()
         setMaskForGraphicsView();
     }
 
-    updateMainAndViewGeometry(false); // prevent out of sync app with viewport when proxy is showing
+    updateMainAndViewGeometry(false, true); // prevent out of sync app with viewport when proxy is showing
 
 #ifdef Q_OS_MACOS
     //QTimer::singleShot(1, this, SLOT(invalidateShadow_mac()));
@@ -808,6 +817,13 @@ void MainWindowController::onLocationsWindowHeightChanged() // manual resizing
     keepWindowInsideScreenCoordinates();
 }
 
+#ifdef Q_OS_LINUX
+void MainWindowController::onLocationsWindowResizeFinished()
+{
+    updateMainAndViewGeometry(false, true);
+}
+#endif
+
 void MainWindowController::onWindowResize(ResizableWindow *window)
 {
     windowSizeManager_->setWindowHeight(window, window->boundingRect().height()/G_SCALE);
@@ -836,6 +852,7 @@ void MainWindowController::onWindowResizeFinished(ResizableWindow *window)
                                               childWindowShadowOffsetY(true),
                                               window->boundingRect().width(),
                                               window->boundingRect().height() - childWindowShadowOffsetY(false)));
+    updateMainAndViewGeometry(false, true);
 }
 
 void MainWindowController::onBottomInfoHeightChanged()
@@ -865,7 +882,7 @@ void MainWindowController::onSignupWindowHeightChanged()
                                               0,
                                               signupWindow_->boundingRect().width(),
                                               signupWindow_->boundingRect().height()));
-    updateMainAndViewGeometry(false);
+    updateMainAndViewGeometry(false, true);
     keepWindowInsideScreenCoordinates();
 }
 
@@ -939,7 +956,7 @@ void MainWindowController::gotoInitializationWindow()
     initWindow_->setVisible(true);
     initWindow_->show();
 
-    updateMainAndViewGeometry(false);
+    updateMainAndViewGeometry(false, true);
 
 }
 
@@ -3137,7 +3154,7 @@ void MainWindowController::collapsePreferencesFromWelcome()
         emit preferencesCollapsed();
         shadowManager_->setOpacity(ShadowManager::SHAPE_ID_CONNECT_WINDOW, 1.0, false);
         shadowManager_->setVisible(ShadowManager::SHAPE_ID_WELCOME_WINDOW, true);
-        updateMainAndViewGeometry(false);
+        updateMainAndViewGeometry(false, true);
         invalidateShadow_mac();
         isAtomicAnimationActive_ = false;
         handleNextWindowChange();
@@ -3215,7 +3232,7 @@ void MainWindowController::collapseWindow(ResizableWindow *window, bool bSkipBot
             emit preferencesCollapsed();
         }
         TooltipController::instance().hideAllTooltips();
-        updateMainAndViewGeometry(false);
+        updateMainAndViewGeometry(false, true);
 
         if (!bSkipSetClickable) {
             connectWindow_->setClickable(true);
@@ -3587,27 +3604,98 @@ void MainWindowController::centerMainGeometryAndUpdateView()
     int widthWithShadow = width +  shadowSize * 2;
     int heightWithShadow = height + shadowSize * 2 + addHeightToGeometry;
 
+    QRect geo(0, 0, widthWithShadow, heightWithShadow);
     QWindow *window = mainWindow_->window()->windowHandle();
     if (window) {
         int screenWidth = window->screen()->geometry().width();
         int screenHeight = window->screen()->geometry().height();
-        mainWindow_->setGeometry((screenWidth - widthWithShadow) / 2, (screenHeight - heightWithShadow) / 2, widthWithShadow, heightWithShadow);
+        geo.moveTopLeft(QPoint((screenWidth - widthWithShadow) / 2, (screenHeight - heightWithShadow) / 2));
     } else { // should only happen on startup if there are no persistentGuiSettings in registry
         QScreen *primaryScreen = qApp->primaryScreen();
         if (primaryScreen) {
             qCDebug(LOG_BASIC) << "centerMainGeometryAndUpdateView() - screen" << primaryScreen->name() << "geometry" << primaryScreen->geometry();
             int screenWidth = primaryScreen->geometry().width();
             int screenHeight = primaryScreen->geometry().height();
-            mainWindow_->setGeometry((screenWidth - widthWithShadow) / 2, (screenHeight - heightWithShadow) / 2, widthWithShadow, heightWithShadow);
-        } else {
-            mainWindow_->setGeometry(0, 0, widthWithShadow, heightWithShadow);
+            geo.moveTopLeft(QPoint((screenWidth - widthWithShadow) / 2, (screenHeight - heightWithShadow) / 2));
         }
     }
 
+    applyMainWindowGeometry(geo, true);
     updateViewAndScene(width, height, shadowSize, true);
 }
 
-void MainWindowController::updateMainAndViewGeometry(bool updateShadow)
+void MainWindowController::applyMainWindowGeometry(const QRect &geo, bool lockFixedSize)
+{
+#ifdef Q_OS_LINUX
+    QScopedValueRollback<bool> guard(updatingMainWindowGeometry_, true);
+
+    const QSize targetSize = geo.size();
+    expectedMainWindowSize_ = targetSize;
+    lastRejectedExternalSize_ = QSize();
+
+    // Keep Wayland/X11 size hints synchronized with the active UI state so compositors
+    // (such as Hyprland) clamp max size instead of tiling or keeping an expanded frame.
+    if (lockFixedSize) {
+        // Adjust bounds in grow-safe order so min never transiently exceeds max.
+        if (targetSize.width() > mainWindow_->maximumWidth() || targetSize.height() > mainWindow_->maximumHeight()) {
+            mainWindow_->setMaximumSize(targetSize);
+            mainWindow_->setMinimumSize(targetSize);
+        } else {
+            mainWindow_->setMinimumSize(targetSize);
+            mainWindow_->setMaximumSize(targetSize);
+        }
+    } else {
+        // During animations or live drag, keep width fixed and widen height bounds only once
+        // when crossing the current bound instead of updating compositor hints every frame.
+        if (targetSize.width() > mainWindow_->maximumWidth()) {
+            mainWindow_->setMaximumWidth(targetSize.width());
+            mainWindow_->setMinimumWidth(targetSize.width());
+        } else {
+            mainWindow_->setMinimumWidth(targetSize.width());
+            mainWindow_->setMaximumWidth(targetSize.width());
+        }
+        if (targetSize.height() < mainWindow_->minimumHeight()) {
+            mainWindow_->setMinimumHeight(0);
+        }
+        if (targetSize.height() > mainWindow_->maximumHeight()) {
+            mainWindow_->setMaximumHeight(QWIDGETSIZE_MAX);
+        }
+    }
+#else
+    Q_UNUSED(lockFixedSize);
+#endif
+
+    // qDebug() << "Updating mainwindow geo: " << geo;
+    mainWindow_->setGeometry(geo);
+}
+
+#ifdef Q_OS_LINUX
+void MainWindowController::onMainWindowExternalResize(const QSize &actualSize)
+{
+    if (updatingMainWindowGeometry_ || !expectedMainWindowSize_.isValid() || curWindow_ == WINDOW_ID_UNINITIALIZED) {
+        return;
+    }
+    if (actualSize == expectedMainWindowSize_) {
+        lastRejectedExternalSize_ = QSize();
+        return;
+    }
+
+    const bool animating = isAtomicAnimationActive_
+        || (expandLocationsAnimationGroup_ && expandLocationsAnimationGroup_->state() == QAbstractAnimation::Running)
+        || (expandLocationsListAnimation_ && expandLocationsListAnimation_->state() == QAbstractAnimation::Running)
+        || (updateWidgetAnimation_.state() == QAbstractAnimation::Running);
+    if (!animating && !pendingGeometryResync_ && actualSize != lastRejectedExternalSize_) {
+        lastRejectedExternalSize_ = actualSize;
+        pendingGeometryResync_ = true;
+        QTimer::singleShot(0, this, [this]() {
+            pendingGeometryResync_ = false;
+            updateMainAndViewGeometry(false, true);
+        });
+    }
+}
+#endif
+
+void MainWindowController::updateMainAndViewGeometry(bool updateShadow, bool lockFixedSizeOnLinux)
 {
     int width = 0, height = 0;
     int addHeightToGeometry = 0;
@@ -3665,17 +3753,7 @@ void MainWindowController::updateMainAndViewGeometry(bool updateShadow)
 
     }
 
-#ifdef Q_OS_LINUX
-    // This is a workaround for #930.  In some DEs on Linux, if the window is completely occluded by another,
-    // the below setGeometry() does not actually resize the window.  Force the window to resize by setting a minimum size.
-    // Only do this if updateShadow is true, since doing this on every animation frame may make it seem jittery.
-    if (updateShadow && QGuiApplication::platformName() != "xcb") {
-        mainWindow_->setMinimumSize(geo.width(), geo.height());
-    }
-#endif
-
-    // qDebug() << "Updating mainwindow geo: " << geo;
-    mainWindow_->setGeometry(geo);
+    applyMainWindowGeometry(geo, updateShadow || lockFixedSizeOnLinux);
     updateViewAndScene(width, height, shadowSize, updateShadow);
 }
 
@@ -3757,7 +3835,7 @@ void MainWindowController::updateBottomInfoWindowVisibilityAndPos(bool forceColl
 
             bottomInfoWindow_->stackBefore(connectWindow_);
         }
-        updateMainAndViewGeometry(false);
+        updateMainAndViewGeometry(false, !isAtomicAnimationActive_);
     }
 }
 
@@ -3876,7 +3954,7 @@ void MainWindowController::onAppSkinChanged(APP_SKIN s)
 
     // if preferences is open, update shadows and scroll etc
     if (windowSizeManager_->state(preferencesWindow_) == WindowSizeManager::kWindowExpanded) {
-        updateMainAndViewGeometry(false);
+        updateMainAndViewGeometry(false, true);
         shadowManager_->changeRectangleSize(ShadowManager::SHAPE_ID_PREFERENCES,
                                             QRect(0,
                                                   childWindowShadowOffsetY(true),
