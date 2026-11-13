@@ -187,7 +187,6 @@ private slots:
 
     void onEngineNetworkChanged(types::NetworkInterface networkInterface);
 
-    void onEngineDetectionCpuUsageAfterConnected(QStringList list);
 
     void onEngineRequestUsernameAndPassword(const QString &username);
     void onEngineRequestPrivKeyPassword();
@@ -260,7 +259,6 @@ signals:
     void sessionDeleted();
     void testTunnelResult(bool success);
     void lostConnectionToHelper();
-    void highCpuUsage(const QStringList &processesList);
     void userWarning(USER_WARNING_TYPE userWarningType);
     void internetConnectivityChanged(bool connectivity);
     void protocolPortChanged(const types::Protocol &protocol, const uint port);

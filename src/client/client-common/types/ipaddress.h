@@ -76,6 +76,8 @@ public:
     const IpAddress &address() const;
     uint8_t prefixLength() const;
 
+    bool contains(const IpAddress &addr) const;
+
     // IPv4-only: prefix length as a bitmask (e.g. /24 -> 0xFFFFFF00).
     uint32_t ipv4MaskNetworkOrder() const;
     uint32_t ipv4MaskHostOrder() const;

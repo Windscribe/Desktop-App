@@ -33,7 +33,7 @@ void ManualConnectionAttemptStrategy::putFailedConnection()
 
     if (failedManualModeCounter_ < 2) {
         selectNodeForAttempt(locationInfo_.data(), connectionSettings_.protocol(), preferredNodeHostname_, true);
-    } else {
+    } else if (hydraLock_ == HydraLock::kNone) {
         QVector<types::ProtocolStatus> status;
         emit protocolStatusChanged(status, false);
     }

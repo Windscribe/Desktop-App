@@ -843,14 +843,6 @@ Wenn du den Hash deines Kontos verlierst, ist er für immer weg und der Support 
         <translation>Service-Fehler</translation>
     </message>
     <message>
-        <source>Windscribe has detected that %1 is using a high amount of CPU due to a potential conflict with the VPN connection. Do you want to disable the Windscribe TCP socket termination feature that may be causing this issue?</source>
-        <translation>Windscribe hat festgestellt, dass %1 aufgrund eines möglichen Konflikts mit der VPN-Verbindung eine hohe CPU-Menge verwendet. Möchten Sie die Windscribe TCP-Socket-Terminierungsfunktion deaktivieren, die dieses Problem verursachen könnte?</translation>
-    </message>
-    <message>
-        <source>High CPU Usage</source>
-        <translation>Hohe CPU-Auslastung</translation>
-    </message>
-    <message>
         <source>MAC Spoofing Failed</source>
         <translation>MAC-Spoofing fehlgeschlagen</translation>
     </message>

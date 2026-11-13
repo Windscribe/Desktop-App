@@ -95,17 +95,6 @@ bool PersistentState::isFirstLogin()
     return state_.isFirstLogin;
 }
 
-void PersistentState::setIgnoreCpuUsageWarnings(bool isIgnore)
-{
-    state_.isIgnoreCpuUsageWarnings = isIgnore;
-    save();
-}
-
-bool PersistentState::isIgnoreCpuUsageWarnings()
-{
-    return state_.isIgnoreCpuUsageWarnings;
-}
-
 void PersistentState::setLastLocation(const LocationID &lid)
 {
     state_.lastLocation = lid;

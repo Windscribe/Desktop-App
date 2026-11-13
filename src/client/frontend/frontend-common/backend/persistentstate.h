@@ -24,8 +24,6 @@ public:
     void setFirstLogin(bool bFirstRun);
     bool isFirstLogin();
 
-    void setIgnoreCpuUsageWarnings(bool isIgnore);
-    bool isIgnoreCpuUsageWarnings();
 
     void setLastLocation(const LocationID &lid);
     LocationID lastLocation() const;

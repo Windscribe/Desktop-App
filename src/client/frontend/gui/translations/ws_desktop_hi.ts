@@ -843,14 +843,6 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
         <translation>सेवा त्रुटि</translation>
     </message>
     <message>
-        <source>Windscribe has detected that %1 is using a high amount of CPU due to a potential conflict with the VPN connection. Do you want to disable the Windscribe TCP socket termination feature that may be causing this issue?</source>
-        <translation>विंडस्क्राइब ने पता लगाया है कि वीपीएन कनेक्शन के साथ संभावित संघर्ष के कारण %1 उच्च मात्रा में सीपीयू का उपयोग कर रहा है. क्या आप विंडस्क्राइब TCP सॉकेट समाप्ति सुविधा को अक्षम करना चाहते हैं जो इस समस्या का कारण हो सकता है?</translation>
-    </message>
-    <message>
-        <source>High CPU Usage</source>
-        <translation>उच्च सीपीयू उपयोग</translation>
-    </message>
-    <message>
         <source>MAC Spoofing Failed</source>
         <translation>मैक स्पूफिंग विफल</translation>
     </message>

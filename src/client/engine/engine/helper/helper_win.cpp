@@ -327,14 +327,6 @@ void Helper_win::closeAllTcpConnections(bool isKeepLocalSockets)
     sendCommand(HelperCommand::closeAllTcpConnections, isKeepLocalSockets);
 }
 
-QStringList Helper_win::getProcessesList()
-{
-    auto result = sendCommand(HelperCommand::getProcessesList);
-    std::vector<std::wstring> list;
-    deserializeAnswer(result, list);
-    return toStringList(list);
-}
-
 bool Helper_win::whitelistPorts(const QString &ports)
 {
     auto result = sendCommand(HelperCommand::whitelistPorts, ports.toStdWString());

@@ -1,21 +1,34 @@
 #import "FlowUDP.h"
 
+#include <memory>
 #include <spdlog/spdlog.h>
+#include <vector>
+
+#include "UdpSocket.h"
 #import "Utils.h"
+
+@interface FlowUDPSocket : NSObject {
+@public
+    std::unique_ptr<UdpSocket> socket;
+}
+@end
+
+@implementation FlowUDPSocket
+@end
 
 @implementation FlowUDP
 
 - (instancetype)init {
     self = [super init];
     if (self) {
-        flowConnections_ = [NSMapTable mapTableWithKeyOptions:NSPointerFunctionsObjectPointerPersonality | NSPointerFunctionsStrongMemory
-                                                 valueOptions:NSPointerFunctionsObjectPersonality | NSPointerFunctionsStrongMemory];
+        flowSockets_ = [NSMapTable mapTableWithKeyOptions:NSPointerFunctionsObjectPointerPersonality | NSPointerFunctionsStrongMemory
+                                             valueOptions:NSPointerFunctionsObjectPersonality | NSPointerFunctionsStrongMemory];
         settings_ = nil;
     }
     return self;
 }
 
-- (void)setSettings:(Settings *)settings {
+- (void)setSettings:(id<SplitTunnelUDPRouting>)settings {
     // settings_ is published here (start queue) and read on the flow queues, so guard it with the same
     // lock.  Re-arm for a fresh session: a new proxy start clears the stop that disabled connections.
     @synchronized (self) {
@@ -24,62 +37,20 @@
     }
 }
 
-// What identifies a connection within a flow: the destination it talks to -- the same hostname and
-// port Utils.isSameEndpoint compared -- plus the interface it is bound to, because the same
-// destination can need a different interface after a live settings update, and a connection bound to
-// the wrong one must never be reused.
-- (NSString * _Nullable)keyForEndpoint:(nw_endpoint_t)endpoint interface:(nw_interface_t _Nullable)interface {
-    if (!endpoint) {
-        return nil;
-    }
-    const char *host = nw_endpoint_get_hostname(endpoint);
-    const char *ifname = interface ? nw_interface_get_name(interface) : NULL;
-    // Enough for the longest hostname the resolver can produce, plus ":65535|" and an interface name.
-    char buf[1088];
-    snprintf(buf, sizeof(buf), "%s:%u|%s", host ? host : "", nw_endpoint_get_port(endpoint), ifname ? ifname : "");
-    return [[NSString alloc] initWithUTF8String:buf];
-}
-
-- (void)removeConnection:(nw_connection_t)connection key:(NSString *)key forFlow:(NEAppProxyUDPFlow *)flow {
-    if (!connection || !key || !flow) {
-        return;
-    }
-    // Drop the connection only; the flow is closed once by cleanupFlow, its sole owner.  Idempotent:
-    // cancelling completes the pending receive, whose handler lands here again.
+- (void)cleanupFlow:(id<SplitTunnelUDPFlow>)flow withError:(NSError * _Nullable)error {
+    // Take the flow's sockets out first, so nothing can be handed out while they are closed.
+    NSArray *sockets = nil;
     @synchronized (self) {
-        NSMutableDictionary<NSString *, id> *connections = [flowConnections_ objectForKey:flow];
-        if (connections[key] != connection) {
-            // Already gone, or a newer connection to the same destination has taken its place.
-            return;
-        }
-        [connections removeObjectForKey:key];
-        if (connections.count == 0) {
-            // A flow with no connections is not tracked, exactly as before.
-            [flowConnections_ removeObjectForKey:flow];
-        }
+        sockets = [[flowSockets_ objectForKey:flow] allValues];
+        [flowSockets_ removeObjectForKey:flow];
     }
-    // Cancelling outside the lock: it completes the pending receive, and that handler takes this same
-    // lock on its way back in here.
-    nw_connection_cancel(connection);
-    spdlog::debug("[UDP] removed connection to {}", [key UTF8String]);
-}
-
-- (void)cleanupFlow:(NEAppProxyUDPFlow *)flow withError:(NSError * _Nullable)error {
-    // Take the flow's connections out first, so nothing can be handed out while they are cancelled.
-    NSArray *connections = nil;
-    @synchronized (self) {
-        connections = [[flowConnections_ objectForKey:flow] allValues];
-        [flowConnections_ removeObjectForKey:flow];
-    }
-    for (id connection in connections) {
-        nw_connection_cancel((nw_connection_t)connection);
-    }
+    sockets = nil;
     [flow closeReadWithError:error];
     [flow closeWriteWithError:error];
 }
 
-- (BOOL)setupUDPConnection:(NEAppProxyUDPFlow *)flow interface:(nw_interface_t)interface onTunnel:(BOOL)onTunnel {
-    Settings *settings;
+- (BOOL)setupUDPConnection:(id<SplitTunnelUDPFlow>)flow interface:(nw_interface_t _Nullable)interface onTunnel:(BOOL)onTunnel {
+    id<SplitTunnelUDPRouting> settings;
     BOOL stopped;
     @synchronized (self) {
         settings = settings_;
@@ -110,17 +81,50 @@
             return;
         }
         spdlog::debug("[UDP] Flow opened successfully");
-        // Outbound flows that create connections will start the inbound handler
         [self handleUDPOutboundFlow:flow interface:interface onTunnel:onTunnel];
     }];
 
     // For UDP, we don't know what the remote endpoint is until we process the datagrams, so we always accept the flow.
-    spdlog::info("[UDP] Handling flow from {} => {}", [flow.metaData.sourceAppSigningIdentifier UTF8String], nw_interface_get_name(interface));
+    const char *app = [flow.metaData.sourceAppSigningIdentifier UTF8String];
+    const char *interfaceName = interface ? nw_interface_get_name(interface) : nullptr;
+    spdlog::info("[UDP] Handling flow from {} => {}", app ? app : "<null>", interfaceName ? interfaceName : "<null>");
     return YES;
 }
 
-- (void)handleUDPOutboundFlow:(NEAppProxyUDPFlow *)flow interface:(nw_interface_t)interface onTunnel:(BOOL)onTunnel {
-    [flow readDatagramsWithCompletionHandler:^(NSArray<NSData *> * _Nullable datagrams, NSArray<NWEndpoint *> * _Nullable endpoints, NSError * _Nullable error) {
+- (void)startReadingSocket:(FlowUDPSocket *)socket forFlow:(id<SplitTunnelUDPFlow>)flow {
+    socket->socket->startReading(dispatch_get_main_queue(), [self, flow](std::vector<UdpSocket::Datagram> batch,
+                                                                         UdpSocket::ResumeReading resume) {
+        NSMutableArray<NSData *> *datagrams = [NSMutableArray arrayWithCapacity:batch.size()];
+        NSMutableArray<NWEndpoint *> *endpoints = [NSMutableArray arrayWithCapacity:batch.size()];
+        for (const auto &datagram : batch) {
+            nw_endpoint_t sender = nw_endpoint_create_address(reinterpret_cast<const sockaddr *>(&datagram.from));
+            NWEndpoint *endpoint = sender ? [Utils convertToOldEndpoint:sender] : nil;
+            if (!endpoint) {
+                spdlog::debug("[UDP] failed to convert sender address, dropping datagram");
+                continue;
+            }
+            [datagrams addObject:[NSData dataWithBytes:datagram.data.data() length:datagram.data.size()]];
+            [endpoints addObject:endpoint];
+        }
+        if (datagrams.count == 0) {
+            resume();
+            return;
+        }
+
+        [flow writeDatagrams:datagrams sentByEndpoints:endpoints completionHandler:^(NSError * _Nullable error) {
+            if (error) {
+                spdlog::error("[UDP] write error to flow: {}", [[error localizedDescription] UTF8String]);
+                [self cleanupFlow:flow withError:error];
+                return;
+            }
+            resume();
+        }];
+    });
+}
+
+- (void)handleUDPOutboundFlow:(id<SplitTunnelUDPFlow>)flow interface:(nw_interface_t _Nullable)interface onTunnel:(BOOL)onTunnel {
+    [flow readDatagramsWithCompletionHandler:^(NSArray<NSData *> * _Nullable datagrams, NSArray<NWEndpoint *> * _Nullable endpoints,
+                                               NSError * _Nullable error) {
         if (error) {
             spdlog::error("[UDP] Read error: {} ({})", [[error localizedDescription] UTF8String], error.code);
             [self cleanupFlow:flow withError:error];
@@ -139,7 +143,7 @@
             return;
         }
 
-        Settings *settings;
+        id<SplitTunnelUDPRouting> settings;
         @synchronized (self) {
             settings = settings_;
         }
@@ -148,9 +152,7 @@
         for (NSUInteger i = 0; i < datagrams.count; i++) {
             NSData *datagram = datagrams[i];
 
-            // Create and configure parameters for secure UDP connection
-            nw_parameters_t parameters = nw_parameters_create_secure_udp(NW_PARAMETERS_DISABLE_PROTOCOL, NW_PARAMETERS_DEFAULT_CONFIGURATION);
-            nw_endpoint_t endpoint = [Utils convertToNewEndpoint:endpoints[i]];
+            nw_endpoint_t endpoint = i < endpoints.count ? [Utils convertToNewEndpoint:endpoints[i]] : nil;
             if (!endpoint) {
                 // One unusable destination is not a reason to close the socket the app is using for
                 // every other destination: drop this datagram and carry on.
@@ -161,13 +163,14 @@
             nw_interface_t targetInterface = interface;
 
             const BOOL isLan = [Utils isLanRange:endpoint];
-            const BOOL isSplit = !isLan && [settings isSplitTunnelApplicable:flow remoteEndpoint:endpoint];
+            const BOOL isSplit = !isLan && [settings isSplitTunnelApplicable:(NEAppProxyFlow *)flow remoteEndpoint:endpoint];
 
             // Anything we relay leaves under our group, which the firewall always passes.  So a non-split datagram
             // off the tunnel (the app bound this socket to a physical interface, or the system routed it there)
             // is dropped, as the firewall would drop it from the app.  LAN goes on: the firewall's
             // LAN rules apply to our group too.  The VPN server is let through only for the processes the firewall allows.
-            if (!onTunnel && !isLan && !isSplit && !([settings isVpnServer:endpoint] && [settings isFromVpnProcess:flow])) {
+            if (!onTunnel && !isLan && !isSplit &&
+                !([settings isVpnServer:endpoint] && [settings isFromVpnProcess:(NEAppProxyFlow *)flow])) {
                 spdlog::debug("[UDP] dropping non-split datagram off the tunnel to {}", (nw_endpoint_get_hostname(endpoint) == NULL) ? "<null>" : nw_endpoint_get_hostname(endpoint));
                 continue;
             }
@@ -179,122 +182,71 @@
                 targetInterface = flow.networkInterface;
             }
 
-            nw_parameters_require_interface(parameters, targetInterface);
-
-            NSString *key = [self keyForEndpoint:endpoint interface:targetInterface];
-            if (!key) {
-                spdlog::error("[UDP] failed to build a connection key, dropping datagram");
+            const struct sockaddr *address = nw_endpoint_get_address(endpoint);
+            if (!address || (address->sa_family != AF_INET && address->sa_family != AF_INET6)) {
+                spdlog::debug("[UDP] destination is not an address, dropping datagram");
                 continue;
             }
 
-            // Reuse the connection to this destination, or make one.  A new connection is not created
-            // once the proxy has stopped, so none outlives cleanup.
-            nw_connection_t connection = nil;
+            const uint32_t interfaceIndex = targetInterface ? nw_interface_get_index(targetInterface) : 0;
+            NSString *key = [NSString stringWithFormat:@"%u|%d", interfaceIndex, address->sa_family];
+
+            // Reuse the flow's socket for this interface and family, or make one.  A new socket is not
+            // created once the proxy has stopped, so none outlives cleanup.
+            FlowUDPSocket *socket = nil;
+            BOOL stopped = NO;
+            int createError = 0;
             @synchronized (self) {
-                NSMutableDictionary<NSString *, id> *connections = [flowConnections_ objectForKey:flow];
-                connection = connections[key];
-                if (!connection && !stopped_) {
-                    connection = nw_connection_create(endpoint, parameters);
-                    nw_connection_set_queue(connection, dispatch_get_main_queue());
-                    if (!connections) {
-                        connections = [NSMutableDictionary dictionary];
-                        [flowConnections_ setObject:connections forKey:flow];
+                stopped = stopped_;
+                if (!stopped) {
+                    NSMutableDictionary<NSString *, id> *sockets = [flowSockets_ objectForKey:flow];
+                    socket = sockets[key];
+                    if (!socket) {
+                        std::unique_ptr<UdpSocket> created = UdpSocket::create(address->sa_family, interfaceIndex, createError);
+                        if (created) {
+                            socket = [[FlowUDPSocket alloc] init];
+                            socket->socket = std::move(created);
+                            if (!sockets) {
+                                sockets = [NSMutableDictionary dictionary];
+                                [flowSockets_ setObject:sockets forKey:flow];
+                            }
+                            sockets[key] = socket;
+                            [self startReadingSocket:socket forFlow:flow];
+                        }
                     }
-                    connections[key] = connection;
-                    nw_connection_start(connection); // UDP is connectionless but this is needed for the inbound handler
-                    [self handleUDPInboundFlow:connection key:key flow:flow interface:interface];
                 }
             }
-            if (!connection) {
+            if (stopped) {
                 // Proxy stopped (checked under the lock): close the flow outside the lock so its read
                 // loop is not re-armed.
                 [self cleanupFlow:flow withError:nil];
                 return;
             }
+            if (!socket) {
+                spdlog::error("[UDP] failed to create socket ({}), dropping datagram", createError);
+                continue;
+            }
 
             spdlog::debug("[UDP] sending {} bytes to {} on {}", datagram.length, (nw_endpoint_get_hostname(endpoint) == NULL) ? "<null>" : nw_endpoint_get_hostname(endpoint), targetInterface ? nw_interface_get_name(targetInterface) : "<null>");
 
-            nw_connection_send(
-                connection,
-                dispatch_data_create(datagram.bytes, datagram.length, dispatch_get_main_queue(), DISPATCH_DATA_DESTRUCTOR_DEFAULT),
-                NW_CONNECTION_DEFAULT_MESSAGE_CONTEXT,
-                true,
-                ^(nw_error_t  _Nullable sendError) {
-                    if (sendError) {
-                        // The send failed for this destination only.  Drop its connection so the next
-                        // datagram to it starts a fresh one, and leave the flow's other destinations
-                        // (and the flow itself) alone.
-                        spdlog::error("[UDP] write error, dropping connection");
-                        [self removeConnection:connection key:key forFlow:flow];
-                        return;
-                    }
-                });
+            const int sendError = socket->socket->sendTo(datagram.bytes, datagram.length, address, address->sa_len);
+            if (sendError != 0) {
+                spdlog::debug("[UDP] send error ({}), dropping datagram", sendError);
+            }
         }
 
         [self handleUDPOutboundFlow:flow interface:interface onTunnel:onTunnel];
     }];
 }
 
-- (void)handleUDPInboundFlow:(nw_connection_t)connection
-                         key:(NSString *)key
-                        flow:(NEAppProxyUDPFlow *)flow
-                   interface:(nw_interface_t)interface {
-    nw_connection_receive_message(connection,
-        ^(dispatch_data_t content, nw_content_context_t context, bool is_complete, nw_error_t receive_error) {
-            // Everything below is per connection: a UDP flow is one socket talking to many
-            // destinations, so a destination that errors, goes quiet or is cancelled must cost the app
-            // that destination and nothing else.  Closing the flow here used to take every other
-            // destination with it, and it also made cancelling a single connection impossible.
-            if (receive_error) {
-                spdlog::error("[UDP] Receive error: code={}, dropping connection", nw_error_get_error_code(receive_error));
-                [self removeConnection:connection key:key forFlow:flow];
-                return;
-            }
-
-            if (!content) {
-                spdlog::debug("[UDP] connection ended, removing it");
-                [self removeConnection:connection key:key forFlow:flow];
-                return;
-            }
-
-            const void *buffer;
-            size_t buffer_length;
-            dispatch_data_t __unused contiguous = dispatch_data_create_map(content, &buffer, &buffer_length);
-            NSData *data = [NSData dataWithBytes:buffer length:buffer_length];
-
-            // Get the remote endpoint from the connection for writing back
-            nw_endpoint_t remoteEndpoint = nw_connection_copy_endpoint(connection);
-            NWEndpoint *endpoint = [Utils convertToOldEndpoint:remoteEndpoint];
-
-            if (!endpoint) {
-                spdlog::error("[UDP] failed to create endpoint, dropping connection");
-                [self removeConnection:connection key:key forFlow:flow];
-                return;
-            }
-
-            spdlog::debug("[UDP] received {} bytes from {}", data.length, (nw_endpoint_get_hostname(remoteEndpoint) == NULL) ? "<null>" : nw_endpoint_get_hostname(remoteEndpoint));
-
-            [flow writeDatagrams:@[data] sentByEndpoints:@[endpoint] completionHandler:^(NSError * _Nullable error) {
-                if (error) {
-                    spdlog::error("[UDP] write error to flow: {}", [[error localizedDescription] UTF8String]);
-                    [self cleanupFlow:flow withError:error];
-                    return;
-                }
-
-                // Continue receiving on this connection
-                [self handleUDPInboundFlow:connection key:key flow:flow interface:interface];
-            }];
-        });
-}
-
 - (void)cleanup {
-    // Block new connections, then close each flow once; cleanupFlow cancels that flow's connections.
-    NSArray<NEAppProxyUDPFlow *> *flows = nil;
+    // Block new sockets, then close each flow once; cleanupFlow closes that flow's sockets.
+    NSArray<id<SplitTunnelUDPFlow>> *flows = nil;
     @synchronized (self) {
         stopped_ = YES;
-        flows = [[flowConnections_ keyEnumerator] allObjects];
+        flows = [[flowSockets_ keyEnumerator] allObjects];
     }
-    for (NEAppProxyUDPFlow *flow in flows) {
+    for (id<SplitTunnelUDPFlow> flow in flows) {
         [self cleanupFlow:flow withError:nil];
     }
 }

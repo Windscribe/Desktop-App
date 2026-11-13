@@ -1,3 +1,17 @@
+2.26.2 (13/11/2026)
+All:
+   * Fixed the app treating a failed hydra connection as a manual connection and showing the manual connection prompt. #2072
+   * Fixed the hydra profile settings in Preferences > Connection missing the link to the feature page. #2072
+   * Fixed windscribe-cli reporting "Not logged in" and not connecting when it starts the app, even though the app is logged in. #2090
+   * Fixed the "Set as preferred protocol" prompt appearing in the app for connections started from windscribe-cli. #2088
+Windows:
+   * Improved OpenVPN connection establishment speed. #2086
+   * Improved connection speed by removing the check for apps using a lot of CPU, which ran while connecting when Terminate Sockets was on. #2089
+macOS:
+   * Fixed CIDR ranges in Split Tunneling > IPs & Hostnames never matching any traffic. #2085
+   * Fixed apps that are not in the Inclusive split tunneling list going through the VPN when another app opens many UDP connections at once, for example a torrent client. #2087
+
+
 2.26.1 (10/11/2026)
 All:
    * Added support for hydra profiles. Import a hydra profile in Preferences > Connection > Hydra Profile, or with windscribe-cli hydra, to connect to the profile's locations through your own self-hosted hydra WireGuard server. #2072

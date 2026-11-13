@@ -105,9 +105,6 @@ Engine::Engine() : QObject(nullptr),
     keepAliveManager_(nullptr),
     packetSizeController_(nullptr),
     myIpManager_(nullptr),
-#ifdef Q_OS_WIN
-    measurementCpuUsage_(nullptr),
-#endif
     inititalizeHelper_(nullptr),
     bInitialized_(false),
     locationsModel_(nullptr),
@@ -357,6 +354,7 @@ void Engine::connectClick(const LocationID &locationId, const types::ConnectionS
     if (bInitialized_)
     {
         locationId_ = locationId;
+        WS_DEBUG_TRACE_EVENT("Engine::connectClick request");
         connectStateController_->setConnectingState(locationId_);
         // Use typedef to avoid comma issue in Q_ARG macro
         typedef QPair<QString, QString> StringPair;
@@ -817,12 +815,6 @@ void Engine::initPart2()
     }, Qt::QueuedConnection);
 #endif
 
-#ifdef Q_OS_WIN
-    measurementCpuUsage_ = new MeasurementCpuUsage(this, helper_, connectStateController_);
-    connect(measurementCpuUsage_, &MeasurementCpuUsage::detectionCpuUsageAfterConnected, this, &Engine::detectionCpuUsageAfterConnected);
-    measurementCpuUsage_->setEnabled(engineSettings_.isTerminateSockets());
-#endif
-
     updateProxySettings();
     updateAdvancedParamsImpl();
 
@@ -995,9 +987,6 @@ void Engine::cleanupImpl(bool isUpdating)
     SAFE_DELETE(firewallController_);
     SAFE_DELETE(keepAliveManager_);
     SAFE_DELETE(inititalizeHelper_);
-#ifdef Q_OS_WIN
-    SAFE_DELETE(measurementCpuUsage_);
-#endif
     SAFE_DELETE(helper_);
     SAFE_DELETE(myIpManager_);
     SAFE_DELETE(locationsModel_);
@@ -1050,6 +1039,7 @@ void Engine::sendConfirmEmailImpl()
 
 void Engine::connectClickImpl(const LocationID &locationId, const types::ConnectionSettings &connectionSettings, const QPair<QString, QString> &pinnedNode)
 {
+    WS_DEBUG_TRACE_SCOPE("Engine::connectClickImpl");
     locationId_ = locationId;
     connectionSettingsOverride_ = connectionSettings;
     pinnedNode_ = pinnedNode;
@@ -1321,7 +1311,6 @@ void Engine::setSettingsImpl(const types::EngineSettings &engineSettings)
 
     bool isAllowLanTrafficChanged = engineSettings_.isAllowLanTraffic() != engineSettings.isAllowLanTraffic();
     bool isUpdateChannelChanged = engineSettings_.updateChannel() != engineSettings.updateChannel();
-    bool isTerminateSocketsChanged = engineSettings_.isTerminateSockets() != engineSettings.isTerminateSockets();
     bool isDnsPolicyChanged = engineSettings_.dnsPolicy() != engineSettings.dnsPolicy();
     bool isCustomOvpnConfigsPathChanged = engineSettings_.customOvpnConfigsPath() != engineSettings.customOvpnConfigsPath();
     bool isMACSpoofingChanged = engineSettings_.macAddrSpoofing() != engineSettings.macAddrSpoofing();
@@ -1383,12 +1372,6 @@ void Engine::setSettingsImpl(const types::EngineSettings &engineSettings)
 
     if (isUpdateChannelChanged)
         doCheckUpdate();
-
-    if (isTerminateSocketsChanged) {
-    #ifdef Q_OS_WIN
-        measurementCpuUsage_->setEnabled(engineSettings_.isTerminateSockets());
-    #endif
-    }
 
 #ifndef Q_OS_MACOS
     if (isMACSpoofingChanged) {
@@ -3087,6 +3070,7 @@ void Engine::stopPacketDetectionImpl()
 
 void Engine::onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON /*reason*/, ConnectError /*err*/, const QString & /*errorDetail*/, const LocationID &lid)
 {
+    WS_DEBUG_TRACE_SCOPE("Engine::onConnectStateChanged");
     // The rotated address is only worth waiting for while the connection that produced it lasts. This
     // also covers the tunnel test failing into a reconnect, which reports no result at all.
     if (state != CONNECT_STATE_CONNECTED) {

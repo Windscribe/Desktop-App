@@ -18,6 +18,7 @@
 
 #include "types/global_consts.h"
 #include "../utils.h"
+#include "utils/log/debug_trace.h"
 
 #if defined(USE_SIGNATURE_CHECK)
 #include "utils/executable_signature/executable_signature.h"
@@ -84,6 +85,7 @@ bool isManagementListener(const MIB_TCPROW2 *entry, DWORD loopbackAddr)
 } // namespace
 
 OpenVPNController::OpenVPNController()
+    : dcoAdapter_(kOpenVPNAdapterIdentifier, L"ovpn-dco", L"OpenVPN Data Channel Offload")
 {
 }
 
@@ -105,14 +107,53 @@ void OpenVPNController::release()
 
 bool OpenVPNController::createAdapter(bool useDCODriver)
 {
+    WS_DEBUG_TRACE_SCOPE("OpenVPNController::createAdapter");
     openVpnProcess_.closeHandle();
+
+    // The engine removes the adapter after every connection, so this only matters if that IPC
+    // never arrived.
+    dcoAdapter_.remove();
+    // A DCO adapter a crashed or killed helper left behind. It outlives the helper, as the tapctl
+    // adapter does, and still carries our name, so it would also collide with a tapctl create.
+    dcoAdapter_.removeOrphans();
+
+    useDCODriver_ = useDCODriver;
+
+    if (useDCODriver) {
+        if (createDcoAdapter()) {
+            return true;
+        }
+        spdlog::warn("createAdapter: could not create the DCO adapter as a software device, falling back to tapctl");
+    }
+
+    return createAdapterWithTapctl(useDCODriver);
+}
+
+bool OpenVPNController::createDcoAdapter()
+{
+    WS_DEBUG_TRACE_SCOPE("OpenVPNController::createDcoAdapter");
+
+    // A tapctl adapter with our name (from a TAP connection, a crashed helper or an older version)
+    // would block the rename, and --dev-node could bind it instead. That is rare, and checking for
+    // it costs nothing, unlike the tapctl delete that has to run in that case.
+    NET_LUID luid;
+    if (::ConvertInterfaceAliasToLuid(kOpenVPNAdapterIdentifier, &luid) == NO_ERROR) {
+        spdlog::info(L"createDcoAdapter: removing an existing {} adapter", kOpenVPNAdapterIdentifier);
+        deleteAdapter(true);
+    }
+
+    return dcoAdapter_.create(kOpenVPNAdapterIdentifier);
+}
+
+bool OpenVPNController::createAdapterWithTapctl(bool useDCODriver)
+{
+    WS_DEBUG_TRACE_SCOPE("OpenVPNController::createAdapterWithTapctl");
 
     // Adapter state does not survive helper restarts, so don't trust adapterCreated_ here: always
     // delete any leftover adapter by name, or the create below can collide with it and OpenVPN may
     // bind an adapter from the wrong driver via dev-node.
     deleteAdapter(true);
 
-    useDCODriver_ = useDCODriver;
     adapterCreated_ = true;
 
     std::wstringstream stream;
@@ -120,7 +161,11 @@ bool OpenVPNController::createAdapter(bool useDCODriver)
            << L" --hwid " << (useDCODriver ? L"ovpn-dco" : L"root\\tap0901");
 
     spdlog::info(L"createAdapter cmd = {}", stream.str());
-    auto result = ExecuteCmd::instance().executeBlockingCmd(stream.str());
+    ExecuteCmdResult result;
+    {
+        WS_DEBUG_TRACE_SCOPE("OpenVPNController::createAdapter tapctl create");
+        result = ExecuteCmd::instance().executeBlockingCmd(stream.str());
+    }
 
     if (result.success) {
         if (result.exitCode != 0) {
@@ -142,6 +187,7 @@ void OpenVPNController::removeAdapter()
     // The OpenVPN process has been (or is being) torn down; release the retained handle.
     openVpnProcess_.closeHandle();
 
+    dcoAdapter_.remove();
     if (adapterCreated_) {
         adapterCreated_ = false;
         deleteAdapter();
@@ -174,6 +220,7 @@ bool OpenVPNController::terminateProcess()
 
 void OpenVPNController::deleteAdapter(bool bestEffort)
 {
+    WS_DEBUG_TRACE_SCOPE("OpenVPNController::deleteAdapter");
     std::wstringstream stream;
     stream << L"\"" << tapctlPath() << L"\"" << L" delete " << kOpenVPNAdapterIdentifier;
 
@@ -190,6 +237,7 @@ ExecuteCmdResult OpenVPNController::runOpenvpn(std::wstring &config, const std::
                                                unsigned int httpPort, const std::wstring &socksProxy, unsigned int socksPort,
                                                HANDLE clientPipe, unsigned int &outPort, std::string &outDetail)
 {
+    WS_DEBUG_TRACE_SCOPE("OpenVPNController::runOpenvpn");
     outPort = 0;
     outDetail.clear();
 
@@ -221,6 +269,7 @@ ExecuteCmdResult OpenVPNController::runOpenvpn(std::wstring &config, const std::
     const std::wstring ovpnExe = exePath();
 
 #if defined(USE_SIGNATURE_CHECK)
+    WS_DEBUG_TRACE_EVENT("OpenVPNController::runOpenvpn signature check start");
     ExecutableSignature sigCheck;
     if (!sigCheck.verify(ovpnExe)) {
         spdlog::error("OpenVPN service signature incorrect: {}", sigCheck.lastError());
@@ -246,6 +295,7 @@ ExecuteCmdResult OpenVPNController::runOpenvpn(std::wstring &config, const std::
                                 + std::to_wstring(static_cast<unsigned long long>(reinterpret_cast<uintptr_t>(msgClient)));
 
     HANDLE processHandle = NULL;
+    WS_DEBUG_TRACE_EVENT("OpenVPNController::runOpenvpn spawn");
     ExecuteCmdResult res = ExecuteCmd::instance().executeNonblockingCmdAsUser(
         ovpnExe, strCmd, cwd, userToken.getHandle(), msgClient, &processHandle);
     msgChannel_.closeClientHandle();
@@ -286,18 +336,23 @@ ExecuteCmdResult OpenVPNController::runOpenvpn(std::wstring &config, const std::
 
 bool OpenVPNController::resolveManagementPort(unsigned long pid, unsigned int &outPort, std::string &outDetail)
 {
+    WS_DEBUG_TRACE_SCOPE("OpenVPNController::resolveManagementPort");
     outPort = 0;
     outDetail.clear();
 
     // OpenVPN starts in "management-hold", so it binds the management listener early. Poll for the
     // single loopback (127.0.0.1) TCP listener owned by the OpenVPN process. OpenVPN connects out
     // to its server, so the management socket is the only socket it listens on.
-    // The window is generous (~10s): the socket itself binds in milliseconds, but on a slow/busy
+    // The window is generous (10 s or more): the socket itself binds in milliseconds, but on a slow/busy
     // machine — or with AV/EDR scanning the binary on first launch — the process can take seconds
     // just to start. The engine blocks on this IPC reply with no timeout, so a longer wait is safe.
     const DWORD kLoopbackAddr = htonl(INADDR_LOOPBACK);
-    // 200 x 50ms. Shared with the timeout log so the reported attempt count cannot drift.
-    constexpr int kResolveAttempts = 200;
+    // The listener is rarely bound on the first read, which comes right after the spawn, so the
+    // poll interval is added to every connect: keep it short. Sleep rounds up to the system timer
+    // resolution (often 15.6 ms), so the window is 10-16 s. kResolveAttempts is shared with the
+    // timeout log so the reported attempt count cannot drift.
+    constexpr DWORD kResolvePollMs = 10;
+    constexpr int kResolveAttempts = 1000;
     constexpr std::size_t kMaxLoggedRows = 8;
 
     DWORD lastStatus = ERROR_INVALID_FUNCTION;
@@ -366,7 +421,7 @@ bool OpenVPNController::resolveManagementPort(unsigned long pid, unsigned int &o
             return false;
         }
 
-        Sleep(50);
+        Sleep(kResolvePollMs);
     }
 
     // The caller only records that resolution failed. Without this, a live daemon whose listener

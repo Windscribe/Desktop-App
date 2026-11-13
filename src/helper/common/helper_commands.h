@@ -54,7 +54,7 @@ enum class HelperCommand {
     addHosts,
     removeHosts,
     closeAllTcpConnections,
-    getProcessesList,
+    getProcessesList,  // deprecated: unused since the CPU usage measurement was removed
     whitelistPorts,
     deleteWhitelistPorts,
     enableDnsLeaksProtection,

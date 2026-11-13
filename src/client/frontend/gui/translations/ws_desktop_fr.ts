@@ -843,14 +843,6 @@ Si vous perdez le hachage de votre compte, il disparaît à jamais et le support
         <translation>Erreur de service</translation>
     </message>
     <message>
-        <source>Windscribe has detected that %1 is using a high amount of CPU due to a potential conflict with the VPN connection. Do you want to disable the Windscribe TCP socket termination feature that may be causing this issue?</source>
-        <translation>Windscribe a détecté que %1 utilise une grande quantité de CPU en raison d’un conflit potentiel avec la connexion VPN. Voulez-vous désactiver la fonction de terminaison de socket TCP de Windscribe qui peut être à l’origine de ce problème ?</translation>
-    </message>
-    <message>
-        <source>High CPU Usage</source>
-        <translation>Utilisation élevée du processeur</translation>
-    </message>
-    <message>
         <source>MAC Spoofing Failed</source>
         <translation>Echec de l’usurpation d’identité MAC</translation>
     </message>

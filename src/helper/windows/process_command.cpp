@@ -14,7 +14,6 @@
 #include <ws2tcpip.h>
 #include <iphlpapi.h>
 
-#include "active_processes.h"
 #include "changeics/icsmanager.h"
 #include "clear_wifi_history/clear_wifi_history.h"
 #include "close_tcp_connections.h"
@@ -666,13 +665,6 @@ std::string closeAllTcpConnections(const std::string &pars)
         CloseTcpConnections::closeAllTcpConnections(isKeepLocalSockets);
     }
     return std::string();
-}
-
-std::string getProcessesList(const std::string &pars)
-{
-    WS_DEBUG_TRACE_SCOPE("getProcessesList");
-    std::vector<std::wstring> list = ActiveProcesses::instance().getList();
-    return serializeResult(list);
 }
 
 std::string whitelistPorts(const std::string &pars)

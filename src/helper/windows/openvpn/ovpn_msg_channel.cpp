@@ -15,6 +15,7 @@
 
 #include "../executecmd.h"
 #include "../utils.h"
+#include "types/global_consts.h"
 #include "utils/crashhandler.h"
 #include "utils/systemlibloader.h"
 #include "utils/wsscopeguard.h"
@@ -61,6 +62,47 @@ DWORD resolveIface(const interface_t &iface, NET_IFINDEX &index, NET_LUID &luid)
         return err;
     }
     return ::ConvertInterfaceLuidToIndex(&luid, &index);
+}
+
+// Windows runs duplicate address detection on each new address, which leaves it Tentative (and
+// the engine's connected() wait blocked) for up to several seconds. On a point-to-point tunnel
+// there is no other host to collide with. wireguard-windows sets DadTransmits = 0 for the same
+// reason. This must run before the address is added, because the setting applies to addresses
+// added later. Only the Windscribe OpenVPN adapter is changed: resolveIface accepts any
+// interface, and this must never touch a physical adapter. Failure is logged but not fatal.
+void disableDuplicateAddressDetection(const NET_LUID &luid, short family)
+{
+    NET_LUID adapterLuid{};
+    if (::ConvertInterfaceAliasToLuid(kOpenVPNAdapterIdentifier, &adapterLuid) != NO_ERROR
+        || adapterLuid.Value != luid.Value) {
+        spdlog::debug("OvpnMsgChannel: address target is not the OpenVPN adapter, leaving DAD unchanged");
+        return;
+    }
+
+    MIB_IPINTERFACE_ROW row{};
+    ::InitializeIpInterfaceEntry(&row);
+    row.Family = static_cast<ADDRESS_FAMILY>(family);
+    row.InterfaceLuid = luid;
+    DWORD err = ::GetIpInterfaceEntry(&row);
+    if (err != NO_ERROR) {
+        spdlog::warn("OvpnMsgChannel disableDuplicateAddressDetection: GetIpInterfaceEntry failed (family {}): {}", family, err);
+        return;
+    }
+    if (row.DadTransmits == 0) {
+        return;
+    }
+
+    // SetIpInterfaceEntry rejects a non-zero SitePrefixLength for IPv4.
+    if (family == AF_INET) {
+        row.SitePrefixLength = 0;
+    }
+    row.DadTransmits = 0;
+    err = ::SetIpInterfaceEntry(&row);
+    if (err != NO_ERROR) {
+        spdlog::warn("OvpnMsgChannel disableDuplicateAddressDetection: SetIpInterfaceEntry failed (family {}): {}", family, err);
+        return;
+    }
+    spdlog::debug("OvpnMsgChannel: disabled duplicate address detection on the OpenVPN adapter (family {})", family);
 }
 
 bool appendNameServer(std::vector<std::wstring> &servers, short family, const void *addr)
@@ -483,6 +525,7 @@ DWORD OvpnMsgChannel::handleAddress(const address_message_t &msg)
     row.InterfaceLuid = luid;
 
     if (msg.header.type == msg_add_address) {
+        disableDuplicateAddressDetection(luid, msg.family);
         const DWORD addErr = ::CreateUnicastIpAddressEntry(&row);
         if (addErr != NO_ERROR && addErr != ERROR_OBJECT_ALREADY_EXISTS) {
             spdlog::error("OvpnMsgChannel CreateUnicastIpAddressEntry failed ({})", addErr);

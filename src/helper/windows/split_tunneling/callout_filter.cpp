@@ -989,6 +989,22 @@ bool CalloutFilter::addFilters(HANDLE engineHandle, bool withTcpFilters, bool wi
 
 bool CalloutFilter::deleteSublayer(HANDLE engineHandle)
 {
+    // Each pass below enumerates every filter on a whole layer, including those of Windows and
+    // other software, which costs ~60 ms in total. Skip them when the sublayer is absent, as it is
+    // on every update while split tunneling is off: WFP rejects a filter whose sublayer does not
+    // exist, and rejects deleting a sublayer that filters still reference, so none can be left.
+    FWPM_SUBLAYER0 *subLayer = nullptr;
+    const DWORD getRet = FwpmSubLayerGetByKey0(engineHandle, &SUBLAYER_CALLOUT_GUID, &subLayer);
+    if (getRet == FWP_E_SUBLAYER_NOT_FOUND) {
+        return true;
+    }
+    if (getRet == ERROR_SUCCESS) {
+        FwpmFreeMemory0((void **)&subLayer);
+    } else {
+        // Fall through to the full cleanup rather than risk leaving filters behind.
+        spdlog::error("CalloutFilter::deleteSublayer(), FwpmSubLayerGetByKey0 failed: {}", getRet);
+    }
+
     bool b1 = Utils::deleteAllFiltersForSublayer(engineHandle, &SUBLAYER_CALLOUT_GUID, FWPM_LAYER_ALE_BIND_REDIRECT_V4);
     bool b2 = Utils::deleteAllFiltersForSublayer(engineHandle, &SUBLAYER_CALLOUT_GUID, FWPM_LAYER_ALE_CONNECT_REDIRECT_V4);
     bool b3 = Utils::deleteAllFiltersForSublayer(engineHandle, &SUBLAYER_CALLOUT_GUID, FWPM_LAYER_ALE_BIND_REDIRECT_V6);

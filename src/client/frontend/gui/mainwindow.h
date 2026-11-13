@@ -221,7 +221,6 @@ private slots:
     void onBackendSessionDeleted();
     void onBackendTestTunnelResult(bool success);
     void onBackendLostConnectionToHelper();
-    void onBackendHighCpuUsage(const QStringList &processesList);
     void onBackendUserWarning(USER_WARNING_TYPE userWarningType);
     void onBackendInternetConnectivityChanged(bool connectivity);
     void onBackendProtocolPortChanged(const types::Protocol &protocol, const uint port);
@@ -416,6 +415,7 @@ private:
     types::Protocol getDefaultProtocolForNetwork(const QString &network);
     bool userProtocolOverride_;
     bool askedAboutPreferredProtocol_;
+    bool isCliInitiatedConnection_;
 
     bool sendDebugLogOnDisconnect_;
     bool receivedInitialIpAfterConnect_;

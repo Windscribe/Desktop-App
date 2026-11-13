@@ -5,6 +5,17 @@ if(IS_BUILD_TESTS)
         find_package(skyr-url CONFIG REQUIRED)
     endif()
 
+    add_executable(ipaddressrange.test
+        ipaddressrange.test.cpp
+        ../../../client/client-common/types/ipaddress.cpp
+    )
+    target_include_directories(ipaddressrange.test PRIVATE ../../../client/client-common)
+    if(WIN32)
+        target_link_libraries(ipaddressrange.test PRIVATE Ws2_32)
+    endif()
+    set_target_properties(ipaddressrange.test PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
+    ws_add_test(ipaddressrange)
+
     add_executable(ovpn_early_exit_log.test
         ovpn_early_exit_log.test.cpp
         ../ovpn_early_exit_log.cpp

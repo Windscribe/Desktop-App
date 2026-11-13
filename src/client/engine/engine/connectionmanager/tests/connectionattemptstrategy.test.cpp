@@ -884,6 +884,7 @@ void TestConnectionAttemptStrategy::testHydraRetryDialsTheNextNodeThroughTheEntr
     QScopedPointer<IConnectionAttemptStrategy> strategy(factory.createStrategy(
         li, types::ConnectionSettings(types::Protocol::WIREGUARD, 443, false), makePortMap({types::Protocol::WIREGUARD}),
         types::ProxySettings(), {}, false, true, false));
+    QSignalSpy spy(strategy.data(), &IConnectionAttemptStrategy::protocolStatusChanged);
 
     QStringList dialled;
     while (!strategy->isFailed()) {
@@ -895,6 +896,7 @@ void TestConnectionAttemptStrategy::testHydraRetryDialsTheNextNodeThroughTheEntr
     }
     QCOMPARE(dialled, QStringList({"yyz-121.example.com", "yyz-122.example.com"}));
     QCOMPARE(strategy->giveUpError(), ConnectError::kHydraUnreachable);
+    QCOMPARE(spy.count(), 0);
 }
 
 void TestConnectionAttemptStrategy::testHydraKeepsPreferredNode()
@@ -993,6 +995,7 @@ void TestConnectionAttemptStrategy::testHydraFrontedAutoModeOnlyDialsTheFront()
 
     QVERIFY(!strategy->isAutomaticMode());
     QCOMPARE(strategy->giveUpError(), ConnectError::kHydraUnreachable);
+    QSignalSpy spy(strategy.data(), &IConnectionAttemptStrategy::protocolStatusChanged);
     int attempts = 0;
     while (!strategy->isFailed()) {
         const CurrentConnectionDescr descr = strategy->getCurrentConnectionSettings();
@@ -1003,6 +1006,7 @@ void TestConnectionAttemptStrategy::testHydraFrontedAutoModeOnlyDialsTheFront()
         ++attempts;
     }
     QCOMPARE(attempts, 2);
+    QCOMPARE(spy.count(), 0);
 }
 
 void TestConnectionAttemptStrategy::testHydraFrontedManualOpenVpnIsRefused()

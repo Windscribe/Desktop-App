@@ -484,10 +484,11 @@ void ConnectionWindowItem::updateHydraProfileDescription()
         }
     }
 
+    const QString url = QString("https://%1/features/hydra").arg(HardcodedSettings::instance().windscribeServerUrl());
     if (!hydraImported_) {
-        hydraProfileGroup_->setDescription(tr("Connect to Windscribe through a private hydra server you run. Applies to WireGuard."));
+        hydraProfileGroup_->setDescription(tr("Connect to Windscribe through a private hydra server you run. Applies to WireGuard."), url);
     } else if (!hydraProblem_.isEmpty()) {
-        hydraProfileGroup_->setDescription(hydraProblem_);
+        hydraProfileGroup_->setDescription(hydraProblem_, url);
     } else if (hydraLocations_.all) {
         hydraProfileGroup_->setDescription(QString());
     } else {
@@ -500,7 +501,7 @@ void ConnectionWindowItem::updateHydraProfileDescription()
         lines << (hydraLocations_.shown.size() + hydraLocations_.more == 1
                       ? tr("Select this location to connect through your hydra server.")
                       : tr("Select one of these locations to connect through your hydra server."));
-        hydraProfileGroup_->setDescription(lines.join("\n"));
+        hydraProfileGroup_->setDescription(lines.join("\n"), url);
     }
 }
 

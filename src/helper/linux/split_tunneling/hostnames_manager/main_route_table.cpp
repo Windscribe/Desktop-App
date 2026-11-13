@@ -72,31 +72,10 @@ bool isBootProtocol(const std::string &protocol)
     return protocol == "3" || protocol == "boot";
 }
 
-// True when the first `range.prefixLength()` bits of `addr` match those of `range`'s address.
-bool rangeContains(const types::IpAddressRange &range, const types::IpAddress &addr)
-{
-    if (range.family() != addr.family()) {
-        return false;
-    }
-    const uint8_t *a = range.address().bytes();
-    const uint8_t *b = addr.bytes();
-    const uint8_t prefix = range.prefixLength();
-    const std::size_t fullBytes = prefix / 8;
-    if (!std::equal(a, a + fullBytes, b)) {
-        return false;
-    }
-    const uint8_t restBits = prefix % 8;
-    if (restBits == 0) {
-        return true;
-    }
-    const uint8_t mask = static_cast<uint8_t>(0xFF << (8 - restBits));
-    return (a[fullBytes] & mask) == (b[fullBytes] & mask);
-}
-
 // True when `outer` contains every address of `inner`.
 bool covers(const types::IpAddressRange &outer, const types::IpAddressRange &inner)
 {
-    return outer.prefixLength() <= inner.prefixLength() && rangeContains(outer, inner.address());
+    return outer.prefixLength() <= inner.prefixLength() && outer.contains(inner.address());
 }
 
 // A pin we installed for exactly `dst`: proto ownProtocol on any device, or a legacy proto-boot

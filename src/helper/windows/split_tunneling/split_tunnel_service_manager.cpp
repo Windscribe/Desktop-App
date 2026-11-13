@@ -13,9 +13,12 @@ SplitTunnelServiceManager::SplitTunnelServiceManager()
 {
 }
 
-bool SplitTunnelServiceManager::start() const
+bool SplitTunnelServiceManager::start()
 {
     spdlog::info("SplitTunnelServiceManager::start()");
+
+    // Cleared even if the start fails: the driver may have started anyway.
+    isKnownStopped_ = false;
 
     bool result = true;
     try {
@@ -32,8 +35,14 @@ bool SplitTunnelServiceManager::start() const
     return result;
 }
 
-void SplitTunnelServiceManager::stop() const
+void SplitTunnelServiceManager::stop()
 {
+    // Every connect status update with split tunneling off lands here. Asking the SCM to stop a
+    // driver that is already stopped costs ~20 ms each time, so skip it once a stop has succeeded.
+    if (isKnownStopped_) {
+        return;
+    }
+
     spdlog::info("SplitTunnelServiceManager::stop()");
 
     try {
@@ -41,6 +50,7 @@ void SplitTunnelServiceManager::stop() const
         scm.openSCM(SC_MANAGER_CONNECT);
         scm.openService(kServiceName, SERVICE_QUERY_STATUS | SERVICE_STOP);
         scm.stopService();
+        isKnownStopped_ = true;
     }
     catch (std::system_error& ex) {
         spdlog::error("SplitTunnelServiceManager::stop - {}", ex.what());

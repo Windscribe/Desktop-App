@@ -7,24 +7,17 @@
 #import <Security/Security.h>
 #include "../../client/client-common/utils/wsscopeguard.h"
 
-// Build the resolver's IP set from the family-split lists.  The IpHostnamesManager keys its lookup on
-// inet_ntop output, so v6 literals must be canonicalised (e.g. "2001:0db8::0001" -> "2001:db8::1") to
-// match; v4 dotted-decimal already matches and is passed through unchanged.
-static std::vector<std::string> ipsVectorFromLists(NSArray *ipsV4, NSArray *ipsV6)
+static std::vector<types::IpAddressRange> ipsVectorFromLists(NSArray *ipsV4, NSArray *ipsV6)
 {
-    std::vector<std::string> ips;
-    for (NSString *ip in ipsV4) {
-        ips.push_back([ip UTF8String]);
-    }
-    for (NSString *ip in ipsV6) {
-        const char *raw = [ip UTF8String];
-        struct in6_addr addr6;
-        char canonical[INET6_ADDRSTRLEN];
-        if (inet_pton(AF_INET6, raw, &addr6) == 1
-            && inet_ntop(AF_INET6, &addr6, canonical, sizeof(canonical)) != nullptr) {
-            ips.push_back(canonical);
-        } else {
-            spdlog::warn("Skipping invalid IPv6 literal in split tunnel IP list: {}", raw);
+    std::vector<types::IpAddressRange> ips;
+    for (NSArray *list in @[ipsV4 ?: @[], ipsV6 ?: @[]]) {
+        for (NSString *ip in list) {
+            const types::IpAddressRange range([ip UTF8String]);
+            if (range.isValid()) {
+                ips.push_back(range);
+            } else {
+                spdlog::warn("Skipping invalid entry in split tunnel IP list: {}", [ip UTF8String]);
+            }
         }
     }
     return ips;

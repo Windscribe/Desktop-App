@@ -799,14 +799,6 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
         <translation>サービスエラー</translation>
     </message>
     <message>
-        <source>Windscribe has detected that %1 is using a high amount of CPU due to a potential conflict with the VPN connection. Do you want to disable the Windscribe TCP socket termination feature that may be causing this issue?</source>
-        <translation>Windscribe は、VPN 接続との競合の可能性があるため、%1 が大量の CPU を使用していることを検出しました。この問題の原因となっている可能性のある Windscribe TCP ソケット終端機能を無効にしますか?</translation>
-    </message>
-    <message>
-        <source>High CPU Usage</source>
-        <translation>高い CPU 使用率</translation>
-    </message>
-    <message>
         <source>MAC Spoofing Failed</source>
         <translation>MAC スプーフィングに失敗しました</translation>
     </message>

@@ -903,14 +903,6 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
         <translation>Επικοινωνήστε με την Υποστήριξη</translation>
     </message>
     <message>
-        <source>Windscribe has detected that %1 is using a high amount of CPU due to a potential conflict with the VPN connection. Do you want to disable the Windscribe TCP socket termination feature that may be causing this issue?</source>
-        <translation>Το Windscribe εντόπισε ότι το %1 χρησιμοποιεί μεγάλη ποσότητα CPU λόγω πιθανής διένεξης με τη σύνδεση VPN. Θέλετε να απενεργοποιήσετε τη δυνατότητα τερματισμού υποδοχής TCP Windscrib που μπορεί να προκαλεί αυτό το πρόβλημα;</translation>
-    </message>
-    <message>
-        <source>High CPU Usage</source>
-        <translation>Υψηλή χρήση CPU</translation>
-    </message>
-    <message>
         <source>MAC Spoofing Failed</source>
         <translation>Η πλαστογράφηση MAC απέτυχε</translation>
     </message>

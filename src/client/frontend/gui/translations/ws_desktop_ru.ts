@@ -843,14 +843,6 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
         <translation>Ошибка службы</translation>
     </message>
     <message>
-        <source>Windscribe has detected that %1 is using a high amount of CPU due to a potential conflict with the VPN connection. Do you want to disable the Windscribe TCP socket termination feature that may be causing this issue?</source>
-        <translation>Windscribe обнаружил, что %1 нагружает процессор из-за потенциального конфликта с VPN-подключением. Хотите отключить функцию закрытия TCP-соединений Windscribe, которая может вызывать эту проблему?</translation>
-    </message>
-    <message>
-        <source>High CPU Usage</source>
-        <translation>Высокая загрузка ЦП</translation>
-    </message>
-    <message>
         <source>MAC Spoofing Failed</source>
         <translation>Подделка MAC-адреса неуспешна</translation>
     </message>

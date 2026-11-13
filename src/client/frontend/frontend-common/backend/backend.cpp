@@ -108,7 +108,6 @@ void Backend::init()
     connect(engine_, &Engine::proxySharingFailed, this, &Backend::proxySharingFailed);
     connect(engine_, &Engine::logoutFinished, this, &Backend::onEngineLogoutFinished);
     connect(engine_, &Engine::gotoCustomOvpnConfigModeFinished, this, &Backend::onEngineGotoCustomOvpnConfigModeFinished);
-    connect(engine_, &Engine::detectionCpuUsageAfterConnected, this, &Backend::onEngineDetectionCpuUsageAfterConnected);
     connect(engine_, &Engine::requestUsernameAndPassword, this, &Backend::onEngineRequestUsernameAndPassword);
     connect(engine_, &Engine::requestPrivKeyPassword, this, &Backend::onEngineRequestPrivKeyPassword);
     connect(engine_, &Engine::networkChanged, this, &Backend::onEngineNetworkChanged);
@@ -727,11 +726,6 @@ void Backend::onEngineGotoCustomOvpnConfigModeFinished()
 void Backend::onEngineNetworkChanged(types::NetworkInterface networkInterface)
 {
     handleNetworkChange(networkInterface);
-}
-
-void Backend::onEngineDetectionCpuUsageAfterConnected(QStringList list)
-{
-    emit highCpuUsage(list);
 }
 
 void Backend::onEngineRequestUsernameAndPassword(const QString &username)

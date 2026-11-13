@@ -799,14 +799,6 @@ Jeśli stracisz hash konta, znika na zawsze i wsparcie nie pomoże ci go odzyska
         <translation>Błąd usługi</translation>
     </message>
     <message>
-        <source>Windscribe has detected that %1 is using a high amount of CPU due to a potential conflict with the VPN connection. Do you want to disable the Windscribe TCP socket termination feature that may be causing this issue?</source>
-        <translation>Windscribe wykrył, że %1 używa dużej ilości procesora z powodu potencjalnego konfliktu z połączeniem VPN. Czy chcesz wyłączyć funkcję zakończenia gniazda TCP Windscribe, która może być przyczyną tego problemu?</translation>
-    </message>
-    <message>
-        <source>High CPU Usage</source>
-        <translation>Wysokie użycie procesora</translation>
-    </message>
-    <message>
         <source>MAC Spoofing Failed</source>
         <translation>Niepowodzenie fałszowania adresu MAC</translation>
     </message>

@@ -1,4 +1,6 @@
 #include "ip_hostnames_manager.h"
+
+#include <algorithm>
 #include <spdlog/spdlog.h>
 
 IpHostnamesManager::IpHostnamesManager(): isEnabled_(false)
@@ -17,7 +19,7 @@ void IpHostnamesManager::enable()
     {
         std::lock_guard<std::mutex> guard(mutex_);
         addressesList_.clear();
-        addressesList_.insert(ipsLatest_.begin(), ipsLatest_.end());
+        ipRanges_ = ipsLatest_;
         isEnabled_ = true;
     }
 
@@ -43,7 +45,7 @@ void IpHostnamesManager::disable()
     spdlog::debug("IpHostnamesManager::disable(), end");
 }
 
-void IpHostnamesManager::setSettings(const std::vector<std::string> &ips, const std::vector<std::string> &hosts)
+void IpHostnamesManager::setSettings(const std::vector<types::IpAddressRange> &ips, const std::vector<std::string> &hosts)
 {
     std::lock_guard<std::mutex> guard(mutex_);
     ipsLatest_ = ips;
@@ -76,5 +78,10 @@ void IpHostnamesManager::dnsResolverCallback(std::map<std::string, DnsResolver::
 bool IpHostnamesManager::isIpInList(const std::string &ip)
 {
     std::lock_guard<std::mutex> guard(mutex_);
-    return addressesList_.count(ip) == 1;
+    if (addressesList_.count(ip) == 1) {
+        return true;
+    }
+    const types::IpAddress addr(ip);
+    return std::any_of(ipRanges_.begin(), ipRanges_.end(),
+                       [&addr](const types::IpAddressRange &range) { return range.contains(addr); });
 }

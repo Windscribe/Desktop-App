@@ -36,7 +36,6 @@
 #include "api_responses/serverlist.h"
 
 #if defined(Q_OS_WIN)
-    #include "measurementcpuusage.h"
     #include "utils/crashhandler.h"
 #elif defined(Q_OS_MACOS)
     #include "autoupdater/autoupdaterhelper_mac.h"
@@ -190,8 +189,6 @@ signals:
     void logoutFinished();
 
     void gotoCustomOvpnConfigModeFinished();
-
-    void detectionCpuUsageAfterConnected(const QStringList processesList);
 
     void networkChanged(types::NetworkInterface networkInterface);
 
@@ -389,7 +386,6 @@ private:
     int rotateResampleAttempts_ = 0;
 
 #ifdef Q_OS_WIN
-    MeasurementCpuUsage *measurementCpuUsage_;
     QScopedPointer<Debug::CrashHandlerForThread> crashHandler_;
 #endif
 

@@ -799,14 +799,6 @@ Nếu bạn mất hàm băm tài khoản của mình, nó sẽ biến mất vĩn
         <translation>Lỗi dịch vụ</translation>
     </message>
     <message>
-        <source>Windscribe has detected that %1 is using a high amount of CPU due to a potential conflict with the VPN connection. Do you want to disable the Windscribe TCP socket termination feature that may be causing this issue?</source>
-        <translation>Windscribe đã phát hiện ra rằng %1 đang sử dụng dung lượng CPU cao do xung đột tiềm ẩn với kết nối VPN. Bạn có muốn tắt tính năng chấm dứt ổ cắm TCP Windscribe có thể gây ra sự cố này không?</translation>
-    </message>
-    <message>
-        <source>High CPU Usage</source>
-        <translation>Sử dụng CPU cao</translation>
-    </message>
-    <message>
         <source>MAC Spoofing Failed</source>
         <translation>Giả mạo MAC không thành công</translation>
     </message>

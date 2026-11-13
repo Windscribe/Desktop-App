@@ -3,6 +3,7 @@
 #include <assert.h>
 #include <cstring>
 #include <netdb.h>
+#include <poll.h>
 #include <unistd.h>
 #include <spdlog/spdlog.h>
 
@@ -197,19 +198,52 @@ void DnsResolver::threadFunc(void *arg)
 
 bool DnsResolver::processChannel(ares_channel channel)
 {
-    fd_set read_fds, write_fds;
-    int res;
-    int nfds;
+    ares_socket_t sockets[ARES_GETSOCK_MAXNUM];
+    const int bitmask = ares_getsock(channel, sockets, ARES_GETSOCK_MAXNUM);
 
-    FD_ZERO(&read_fds);
-    FD_ZERO(&write_fds);
-    nfds = ares_fds(channel, &read_fds, &write_fds);
-    if (nfds == 0) {
+    struct pollfd pollFds[ARES_GETSOCK_MAXNUM];
+    nfds_t count = 0;
+    for (int i = 0; i < ARES_GETSOCK_MAXNUM; ++i) {
+        short events = 0;
+        if (ARES_GETSOCK_READABLE(bitmask, i)) {
+            events |= POLLIN;
+        }
+        if (ARES_GETSOCK_WRITABLE(bitmask, i)) {
+            events |= POLLOUT;
+        }
+        if (events == 0) {
+            continue;
+        }
+        pollFds[count].fd = sockets[i];
+        pollFds[count].events = events;
+        pollFds[count].revents = 0;
+        ++count;
+    }
+    if (count == 0) {
         return false;
     }
+
     timeval tv;
     timeval *tvp = ares_timeout(channel, NULL, &tv);
-    (void)select(nfds, &read_fds, &write_fds, NULL, tvp);
-    ares_process(channel, &read_fds, &write_fds);
+    const int timeoutMs = tvp ? static_cast<int>(tvp->tv_sec * 1000 + (tvp->tv_usec + 999) / 1000) : -1;
+    (void)poll(pollFds, count, timeoutMs);
+
+    ares_fd_events_t events[ARES_GETSOCK_MAXNUM];
+    size_t eventCount = 0;
+    for (nfds_t i = 0; i < count; ++i) {
+        unsigned int flags = ARES_FD_EVENT_NONE;
+        if (pollFds[i].revents & (POLLIN | POLLERR | POLLHUP)) {
+            flags |= ARES_FD_EVENT_READ;
+        }
+        if (pollFds[i].revents & POLLOUT) {
+            flags |= ARES_FD_EVENT_WRITE;
+        }
+        if (flags != ARES_FD_EVENT_NONE) {
+            events[eventCount].fd = pollFds[i].fd;
+            events[eventCount].events = flags;
+            ++eventCount;
+        }
+    }
+    ares_process_fds(channel, events, eventCount, ARES_PROCESS_FLAG_NONE);
     return true;
 }

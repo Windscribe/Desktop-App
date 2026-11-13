@@ -35,7 +35,6 @@ std::string clearWifiHistoryData(const std::string &pars);
 std::string addHosts(const std::string &pars);
 std::string removeHosts(const std::string &pars);
 std::string closeAllTcpConnections(const std::string &pars);
-std::string getProcessesList(const std::string &pars);
 std::string whitelistPorts(const std::string &pars);
 std::string deleteWhitelistPorts(const std::string &pars);
 std::string enableDnsLeaksProtection(const std::string &pars);
@@ -86,7 +85,6 @@ static const std::map<const HelperCommand, std::function<std::string(const std::
     { HelperCommand::addHosts, addHosts },
     { HelperCommand::removeHosts, removeHosts },
     { HelperCommand::closeAllTcpConnections, closeAllTcpConnections },
-    { HelperCommand::getProcessesList, getProcessesList },
     { HelperCommand::whitelistPorts, whitelistPorts },
     { HelperCommand::deleteWhitelistPorts, deleteWhitelistPorts },
     { HelperCommand::enableDnsLeaksProtection, enableDnsLeaksProtection },

@@ -10,7 +10,6 @@ find_package(spdlog CONFIG REQUIRED)
 find_path(WINREG_INCLUDE_DIRS "winreg/WinReg.hpp")
 
 set(SOURCES
-    active_processes.cpp
     adapters_info.cpp
     apps_ids.cpp
     clear_wifi_history/clear_wifi_history.cpp
@@ -33,6 +32,7 @@ set(SOURCES
     openvpn/openvpncontroller.cpp
     openvpn/ovpn_msg_channel.cpp
     openvpn/ovpn_msg_parse.cpp
+    openvpn/sw_net_adapter.cpp
     process_command.cpp
     reinstall_wan_ikev2.cpp
     remove_app_network_profiles.cpp

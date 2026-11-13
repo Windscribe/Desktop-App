@@ -2,6 +2,7 @@
 
 #include "../executecmd.h"
 #include "ovpn_msg_channel.h"
+#include "sw_net_adapter.h"
 #include "utils/win32handle.h"
 
 class OpenVPNController final
@@ -37,13 +38,17 @@ private:
     explicit OpenVPNController();
 
     bool useDCODriver_ = false;
+    // True while a tapctl-created adapter may exist. The DCO adapter is tracked by dcoAdapter_.
     bool adapterCreated_ = false;
     std::wstring logPath_;
 
     // Kept open for the lifetime of the OpenVPN process so its PID cannot be reused while it runs.
     wsl::Win32Handle openVpnProcess_;
     OvpnMsgChannel msgChannel_;
+    SwNetAdapter dcoAdapter_;
 
+    bool createDcoAdapter();
+    bool createAdapterWithTapctl(bool useDCODriver);
     void deleteAdapter(bool bestEffort = false);
     static std::wstring tapctlPath();
 

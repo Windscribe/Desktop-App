@@ -6,8 +6,10 @@
 #import <os/lock.h>
 
 #include <memory>
-#include <vector>
 #include <string>
+#include <vector>
+
+#import "FlowUDP.h"
 #include "ip_hostnames/ip_hostnames_manager.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -21,7 +23,7 @@ typedef NS_ENUM(NSInteger, SplitTunnelAppMatch) {
     SplitTunnelAppMatchUnknown,
 };
 
-@interface Settings : NSObject {
+@interface Settings : NSObject <SplitTunnelUDPRouting> {
     NSArray *appPaths_;
     NSArray *ips_;
     NSArray *ipsV6_;

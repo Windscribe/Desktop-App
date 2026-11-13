@@ -5,7 +5,6 @@
 
 #include <spdlog/spdlog.h>
 
-#include "active_processes.h"
 #include "changeics/icsmanager.h"
 #include "dns_firewall.h"
 #include "firewallfilter.h"
@@ -103,7 +102,6 @@ void Helper::runService()
     Ipv6Firewall::instance().release();
     SplitTunneling::instance().release();
 
-    ActiveProcesses::instance().release();
     ExecuteCmd::instance().release();
 
     setStatus(SERVICE_STOP_PENDING, 1000);

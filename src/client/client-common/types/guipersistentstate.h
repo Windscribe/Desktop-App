@@ -17,7 +17,7 @@ struct GuiPersistentState
     qint32 windowOffsY = INT_MAX; // deprecated
     qint32 locationsViewportHeight = 280; // 7 * 40
     bool isFirstLogin = true;
-    bool isIgnoreCpuUsageWarnings = false;
+    bool isIgnoreCpuUsageWarnings = false; // deprecated: kept only so the serialized format is unchanged
     LocationID lastLocation;
     QString lastExternalIp = "---.---.---.---";
     QVector<types::NetworkInterface> networkWhiteList;

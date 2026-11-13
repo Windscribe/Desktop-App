@@ -1,10 +1,12 @@
 #import <Foundation/Foundation.h>
 #import <NetworkExtension/NetworkExtension.h>
 
+#include <cerrno>
 #import <grp.h>
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/rotating_file_sink.h>
 
+#include "OpenFileLimit.h"
 #import "TransparentProxyProvider.h"
 
 int main(int argc, char *argv[]) {
@@ -25,6 +27,11 @@ int main(int argc, char *argv[]) {
         catch (const spdlog::spdlog_ex &ex) {
             printf("spdlog init failed: %s\n", ex.what());
             return 1;
+        }
+
+        rlim_t openFileLimit = 0;
+        if (!raiseOpenFileLimit(10240, openFileLimit)) {
+            spdlog::error("Failed to raise the open file limit: {}", errno);
         }
 
         // Create and start the provider

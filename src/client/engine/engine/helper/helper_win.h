@@ -76,7 +76,6 @@ public:
     bool removeHosts();
 
     void closeAllTcpConnections(bool isKeepLocalSockets);
-    QStringList getProcessesList();
 
     bool whitelistPorts(const QString &ports);
     bool deleteWhitelistPorts();

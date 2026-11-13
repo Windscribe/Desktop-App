@@ -17,9 +17,12 @@ add_executable(${WS_MAC_SPLIT_TUNNEL_BUNDLE_ID} MACOSX_BUNDLE
     ip_hostnames/ares_library_init.cpp
     ip_hostnames/dns_resolver.cpp
     ip_hostnames/ip_hostnames_manager.cpp
+    ../../client/client-common/types/ipaddress.cpp
     main.mm
+    OpenFileLimit.cpp
     Settings.mm
     TransparentProxyProvider.mm
+    UdpSocket.mm
     Utils.mm
 )
 
@@ -71,3 +74,7 @@ add_custom_command(TARGET ${WS_MAC_SPLIT_TUNNEL_BUNDLE_ID} POST_BUILD
             $<TARGET_BUNDLE_DIR:${WS_MAC_SPLIT_TUNNEL_BUNDLE_ID}>
     COMMAND ${CODESIGN_EXECUTABLE} -v $<TARGET_BUNDLE_DIR:${WS_MAC_SPLIT_TUNNEL_BUNDLE_ID}>
 )
+
+if(IS_BUILD_TESTS)
+    add_subdirectory(tests)
+endif()

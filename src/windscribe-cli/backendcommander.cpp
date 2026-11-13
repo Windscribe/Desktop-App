@@ -153,6 +153,24 @@ void BackendCommander::onConnectionStateChanged(int state, IPC::Connection * /*c
 
 void BackendCommander::sendCommand(IPC::CliCommands::State *state)
 {
+#ifndef CLI_ONLY
+    // The app may still be restoring its saved session, e.g. when this CLI has just launched it. Wait for that to
+    // finish rather than report "Not logged in". Logged out and login errors still fail at once below.
+    if (isLoginRequired() && state->loginState_ == LOGIN_STATE_LOGGING_IN) {
+        if (loggedInTimer_.elapsed() > MAX_LOGIN_TIME_MS) {
+            emit finished(1, QString("Aborting: the app did not finish logging in within %1 seconds").arg(MAX_LOGIN_TIME_MS / 1000));
+            return;
+        }
+        if (!bLoggingInMessageShown_) {
+            bLoggingInMessageShown_ = true;
+            emit report(QString("Waiting for the app to log in..."));
+        }
+        // Return before bCommandSent_ is set, so the next state reply comes back here.
+        QTimer::singleShot(100, this, &BackendCommander::sendStateCommand);
+        return;
+    }
+#endif
+
     if (cliArgs_.cliCommand() == CLI_COMMAND_CONNECT || cliArgs_.cliCommand() == CLI_COMMAND_CONNECT_BEST
             || cliArgs_.cliCommand() == CLI_COMMAND_CONNECT_LOCATION || cliArgs_.cliCommand() == CLI_COMMAND_CONNECT_STATIC) {
 #ifdef CLI_ONLY
@@ -420,6 +438,31 @@ void BackendCommander::sendCommand(IPC::CliCommands::State *state)
 
     bCommandSent_ = true;
 }
+
+#ifndef CLI_ONLY
+// The commands that sendCommand() refuses unless the app is logged in.
+bool BackendCommander::isLoginRequired() const
+{
+    switch (cliArgs_.cliCommand()) {
+    case CLI_COMMAND_CONNECT:
+    case CLI_COMMAND_CONNECT_BEST:
+    case CLI_COMMAND_CONNECT_LOCATION:
+    case CLI_COMMAND_CONNECT_STATIC:
+    case CLI_COMMAND_DISCONNECT:
+    case CLI_COMMAND_LOCATIONS:
+    case CLI_COMMAND_LOCATIONS_STATIC:
+    case CLI_COMMAND_LOCATIONS_FAV:
+    case CLI_COMMAND_PORTS:
+    case CLI_COMMAND_UPDATE:
+    case CLI_COMMAND_IP_ROTATE:
+    case CLI_COMMAND_IP_FAV:
+    case CLI_COMMAND_IP_UNFAV:
+        return true;
+    default:
+        return false;
+    }
+}
+#endif
 
 void BackendCommander::sendStateCommand()
 {

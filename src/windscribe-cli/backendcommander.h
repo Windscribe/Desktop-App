@@ -53,4 +53,7 @@ private:
     void onStateResponse(IPC::Command *command);
     void onUpdateStateResponse(IPC::Command *command);
     void onAcknowledge(IPC::CliCommands::Acknowledge *ackCmd);
+#ifndef CLI_ONLY
+    bool isLoginRequired() const;
+#endif
 };

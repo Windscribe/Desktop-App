@@ -21,8 +21,6 @@ if (WIN32)
         adapterutils_win.h
         dnsinfo_win.cpp
         dnsinfo_win.h
-        measurementcpuusage.cpp
-        measurementcpuusage.h
     )
 endif()
 

@@ -37,6 +37,22 @@ inline void debugTraceLog(const std::string &message)
 void debugTraceLog(const std::string &message);
 #endif
 
+// Milliseconds on the steady clock; scopes and events share it so their t= values line up.
+inline std::int64_t debugTraceNowMs()
+{
+    return std::chrono::duration_cast<std::chrono::milliseconds>(
+        std::chrono::steady_clock::now().time_since_epoch()).count();
+}
+
+// A single timestamped point, for moments with no enclosing scope (e.g. a state change arriving).
+inline void debugTraceEvent(const std::string &name)
+{
+    if (!debugTraceEnabled()) {
+        return;
+    }
+    debugTraceLog(name + " event t=" + std::to_string(debugTraceNowMs()) + " tid=" + debugTraceThreadId());
+}
+
 class DebugTraceScope
 {
 public:
@@ -47,7 +63,7 @@ public:
             return;
         }
         start_ = std::chrono::steady_clock::now();
-        debugTraceLog(std::string(name_) + " enter t=" + std::to_string(nowMs())
+        debugTraceLog(std::string(name_) + " enter t=" + std::to_string(debugTraceNowMs())
                       + " tid=" + debugTraceThreadId());
     }
 
@@ -59,19 +75,13 @@ public:
         const auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(
             std::chrono::steady_clock::now() - start_).count();
         debugTraceLog(std::string(name_) + " exit " + std::to_string(elapsed) + "ms t="
-                      + std::to_string(nowMs()) + " tid=" + debugTraceThreadId());
+                      + std::to_string(debugTraceNowMs()) + " tid=" + debugTraceThreadId());
     }
 
     DebugTraceScope(const DebugTraceScope &) = delete;
     DebugTraceScope &operator=(const DebugTraceScope &) = delete;
 
 private:
-    static std::int64_t nowMs()
-    {
-        return std::chrono::duration_cast<std::chrono::milliseconds>(
-            std::chrono::steady_clock::now().time_since_epoch()).count();
-    }
-
     bool enabled_;
     const char *name_;
     std::chrono::steady_clock::time_point start_{};
@@ -80,3 +90,4 @@ private:
 }  // namespace log_utils
 
 #define WS_DEBUG_TRACE_SCOPE(name) log_utils::DebugTraceScope _wsDebugTraceScope(name)
+#define WS_DEBUG_TRACE_EVENT(name) log_utils::debugTraceEvent(name)

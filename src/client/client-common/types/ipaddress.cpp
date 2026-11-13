@@ -242,6 +242,25 @@ uint32_t IpAddressRange::ipv4MaskNetworkOrder() const
     return htonl(prefixToMask(prefixLen_));
 }
 
+bool IpAddressRange::contains(const IpAddress &addr) const
+{
+    if (!isValid() || !addr.isValid() || family() != addr.family()) {
+        return false;
+    }
+    const uint8_t *a = address_.bytes();
+    const uint8_t *b = addr.bytes();
+    const std::size_t fullBytes = prefixLen_ / 8;
+    if (!std::equal(a, a + fullBytes, b)) {
+        return false;
+    }
+    const uint8_t restBits = prefixLen_ % 8;
+    if (restBits == 0) {
+        return true;
+    }
+    const uint8_t mask = static_cast<uint8_t>(0xFF << (8 - restBits));
+    return (a[fullBytes] & mask) == (b[fullBytes] & mask);
+}
+
 uint32_t IpAddressRange::ipv4MaskHostOrder() const
 {
     if (!isV4())

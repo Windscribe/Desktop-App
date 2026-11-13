@@ -48,7 +48,6 @@ if (WIN32)
          iphlpapi.lib
          dnsapi.lib
          rasapi32.lib
-         pdh.lib
          Crypt32.lib
          Version.lib
     )

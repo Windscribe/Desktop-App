@@ -90,6 +90,7 @@ MainWindow::MainWindow() :
     ignoreUpdateUntilNextRun_(false),
     userProtocolOverride_(false),
     askedAboutPreferredProtocol_(false),
+    isCliInitiatedConnection_(false),
     sendDebugLogOnDisconnect_(false),
     receivedInitialIpAfterConnect_(false)
 {
@@ -144,7 +145,6 @@ MainWindow::MainWindow() :
     connect(backend_, &Backend::sessionDeleted, this, &MainWindow::onBackendSessionDeleted);
     connect(backend_, &Backend::testTunnelResult, this, &MainWindow::onBackendTestTunnelResult);
     connect(backend_, &Backend::lostConnectionToHelper, this, &MainWindow::onBackendLostConnectionToHelper);
-    connect(backend_, &Backend::highCpuUsage, this, &MainWindow::onBackendHighCpuUsage);
     connect(backend_, &Backend::userWarning, this, &MainWindow::onBackendUserWarning);
     connect(backend_, &Backend::internetConnectivityChanged, this, &MainWindow::onBackendInternetConnectivityChanged);
     connect(backend_, &Backend::protocolPortChanged, this, &MainWindow::onBackendProtocolPortChanged);
@@ -972,6 +972,7 @@ void MainWindow::onLoginTwoFactorAuthWindowClick(const QString &username, const 
 void MainWindow::onConnectWindowConnectClick()
 {
     if (backend_->isDisconnected()) {
+        isCliInitiatedConnection_ = false;
         mainWindowController_->collapseLocations();
         if (!selectedLocation_->isValid()) {
             LocationID bestLocation = backend_->locationsModelManager()->getBestLocationId();
@@ -1117,6 +1118,7 @@ void MainWindow::onProtocolWindowProtocolClick(const types::Protocol &protocol, 
     mainWindowController_->getConnectWindow()->setProtocolPort(protocol, port);
     backend_->sendConnect(PersistentState::instance().lastLocation(), types::ConnectionSettings(protocol, port, false));
     userProtocolOverride_ = true;
+    isCliInitiatedConnection_ = false;
 }
 
 void MainWindow::onProtocolWindowDisconnect()
@@ -1603,6 +1605,7 @@ void MainWindow::onExitWindowReject()
 
 void MainWindow::onLocationSelected(const LocationID &lid)
 {
+    isCliInitiatedConnection_ = false;
     selectLocation(lid, types::Protocol());
 }
 
@@ -2289,6 +2292,7 @@ void MainWindow::onBackendConnectStateChanged(const types::ConnectState &connect
         mainWindowController_->getProtocolWindow()->resetProtocolStatus();
         userProtocolOverride_ = false;
         askedAboutPreferredProtocol_ = false;
+        isCliInitiatedConnection_ = false;
 
         if (sendDebugLogOnDisconnect_) {
             sendDebugLogOnDisconnect_ = false;
@@ -2648,8 +2652,9 @@ void MainWindow::onBackendTestTunnelResult(bool success)
         bool isFailover = defaultProtocol != ps.protocol && isAutoMode;
 
         // User manually selected a protocol or we failed over to a different protocol for the first time.
-        // Ask if they want to save (but only ask once per connection)
-        if (userProtocolOverride_ || (isFailover && !askedAboutPreferredProtocol_)) {
+        // Ask if they want to save (but only ask once per connection). Never ask for a connection the
+        // CLI started.
+        if (!isCliInitiatedConnection_ && (userProtocolOverride_ || (isFailover && !askedAboutPreferredProtocol_))) {
             if (!backend_->getPreferences()->hasNetworkPreferredProtocol(curNetwork_.networkOrSsid) ||
                 backend_->getPreferences()->networkPreferredProtocol(curNetwork_.networkOrSsid).protocol() != ps.protocol ||
                 backend_->getPreferences()->networkPreferredProtocol(curNetwork_.networkOrSsid).port() != ps.port)
@@ -2716,41 +2721,6 @@ void MainWindow::onBackendLostConnectionToHelper()
             doClose();
             qApp->quit();
         });
-}
-
-void MainWindow::onBackendHighCpuUsage(const QStringList &processesList)
-{
-    if (!PersistentState::instance().isIgnoreCpuUsageWarnings())
-    {
-        QString processesListString;
-        for (const QString &processName : processesList) {
-            if (!processesListString.isEmpty()) {
-                processesListString += ", ";
-            }
-            processesListString += processName;
-        }
-
-        qCInfo(LOG_BASIC) << "Detected high CPU usage in processes:" << processesListString;
-
-        QString msg = QString(tr("Windscribe has detected that %1 is using a high amount of CPU due to a potential conflict with the VPN connection. Do you want to disable the Windscribe TCP socket termination feature that may be causing this issue?").arg(processesListString));
-
-        GeneralMessageController::instance().showMessage(
-            "WARNING_YELLOW",
-            tr("High CPU Usage"),
-            msg,
-            GeneralMessageController::tr(GeneralMessageController::kYes),
-            GeneralMessageController::tr(GeneralMessageController::kNo),
-            "",
-#if defined(Q_OS_WIN)
-            [this](bool b) { backend_->getPreferences()->setTerminateSockets(false); },
-#else
-            std::function<void(bool)>(nullptr),
-#endif
-            [this](bool b) { if (b) PersistentState::instance().setIgnoreCpuUsageWarnings(true); },
-            std::function<void(bool)>(nullptr),
-            GeneralMessage::kShowBottomPanel,
-            QString("https://%1/support/article/20/tcp-socket-termination").arg(HardcodedSettings::instance().windscribeServerUrl()));
-    }
 }
 
 void MainWindow::showUserWarning(USER_WARNING_TYPE userWarningType)
@@ -3327,7 +3297,11 @@ void MainWindow::onAppShouldTerminate()
 
 void MainWindow::onIpcConnect(const LocationID &id, const types::Protocol &protocol, uint port)
 {
+    isCliInitiatedConnection_ = true;
     selectLocation(id, protocol, port);
+    // selectLocation() marks a protocol given with the location as a manual GUI choice. Clear it
+    // so it cannot carry over to a later GUI reconnect of this same connection.
+    userProtocolOverride_ = false;
 }
 
 void MainWindow::onAppCloseRequest()
