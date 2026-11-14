@@ -13,7 +13,7 @@
     </message>
     <message>
         <source>Clear</source>
-        <translation>Chiaro</translation>
+        <translation>Elimina</translation>
     </message>
     <message>
         <source>Ok</source>
@@ -47,7 +47,7 @@
     </message>
     <message>
         <source> transferred</source>
-        <translation> Trasferito</translation>
+        <translation> trasferiti</translation>
     </message>
     <message>
         <source>Firewall</source>
@@ -78,7 +78,7 @@
     <name>ConnectWindow::LocationsButton</name>
     <message>
         <source>Locations</source>
-        <translation>Luoghi</translation>
+        <translation>Località</translation>
     </message>
 </context>
 <context>
@@ -108,27 +108,27 @@
     <name>CustomMenuWidget</name>
     <message>
         <source>Undo</source>
-        <translation>Disfare</translation>
+        <translation>Annulla</translation>
     </message>
     <message>
         <source>Redo</source>
-        <translation>Rifare</translation>
+        <translation>Ripeti</translation>
     </message>
     <message>
         <source>Cut</source>
-        <translation>Tagliare</translation>
+        <translation>Taglia</translation>
     </message>
     <message>
         <source>Copy</source>
-        <translation>Copiare</translation>
+        <translation>Copia</translation>
     </message>
     <message>
         <source>Paste</source>
-        <translation>Incollare</translation>
+        <translation>Incolla</translation>
     </message>
     <message>
         <source>Delete</source>
-        <translation>Cancellare</translation>
+        <translation>Elimina</translation>
     </message>
     <message>
         <source>Select All</source>
@@ -151,19 +151,19 @@
     </message>
     <message>
         <source>Connecting...</source>
-        <translation>Connettivo...</translation>
+        <translation>Connettendo...</translation>
     </message>
     <message>
         <source>Disconnecting...</source>
-        <translation>Scollegare...</translation>
+        <translation>Disconnettendo...</translation>
     </message>
     <message>
         <source>Connect</source>
-        <translation>Connettersi</translation>
+        <translation>Connetti</translation>
     </message>
     <message>
         <source>Disconnect</source>
-        <translation>Disconnettere</translation>
+        <translation>Disconnetti</translation>
     </message>
 </context>
 <context>
@@ -230,11 +230,11 @@
     </message>
     <message>
         <source>Password</source>
-        <translation>Parola d’ordine</translation>
+        <translation>Password</translation>
     </message>
     <message>
         <source>Remember</source>
-        <translation>Ricordare</translation>
+        <translation>Ricorda</translation>
     </message>
 </context>
 <context>
@@ -245,7 +245,7 @@
     </message>
     <message>
         <source>Choose</source>
-        <translation>Scegliere</translation>
+        <translation>Scegli</translation>
     </message>
     <message>
         <source>The selected directory contains no custom configs</source>
@@ -253,7 +253,7 @@
     </message>
     <message>
         <source>No locations found</source>
-        <translation>Nessuna posizione trovata</translation>
+        <translation>Nessuna località trovata</translation>
     </message>
     <message>
         <source>Nothing to see here...</source>
@@ -265,7 +265,7 @@
     </message>
     <message>
         <source>No locations</source>
-        <translation>Nessuna posizione</translation>
+        <translation>Nessuna località</translation>
     </message>
     <message>
         <source>ALL LOCATIONS</source>
@@ -273,7 +273,7 @@
     </message>
     <message>
         <source>FAVOURITES</source>
-        <translation>FAVORITI</translation>
+        <translation>PREFERITI</translation>
     </message>
     <message>
         <source>STATIC IPs</source>
@@ -289,14 +289,14 @@
     </message>
     <message>
         <source>Add</source>
-        <translation>Aggiungere</translation>
+        <translation>Aggiungi</translation>
     </message>
 </context>
 <context>
     <name>GuiLocations::StaticIPDeviceInfo</name>
     <message>
         <source>Add</source>
-        <translation>Aggiungere</translation>
+        <translation>Aggiungi</translation>
     </message>
 </context>
 <context>
@@ -331,18 +331,18 @@
     </message>
     <message>
         <source>It maps every location: all of them connect through your hydra server.</source>
-        <translation>Copre tutte le posizioni: tutte si connettono tramite il tuo server hydra.</translation>
+        <translation>Copre tutte le località: tutte si connettono tramite il tuo server hydra.</translation>
     </message>
     <message>
         <source>Connect to one of these locations to go through your hydra server; the others connect directly.</source>
-        <translation>Connettiti a una di queste posizioni per passare dal tuo server hydra; le altre si connettono direttamente.</translation>
+        <translation>Connettiti a una di queste località per passare dal tuo server hydra; le altre si connettono direttamente.</translation>
     </message>
 </context>
 <context>
     <name>LogViewer::LogViewerWindow</name>
     <message>
         <source>Word Wrap</source>
-        <translation>Contorna a capo automatico</translation>
+        <translation>A capo automatico</translation>
     </message>
     <message>
         <source>Colour highlighting</source>
@@ -439,7 +439,7 @@
     </message>
     <message>
         <source>Account Hash or upload file</source>
-        <translation>Hash dell&apos;account o file di caricamento</translation>
+        <translation>Hash dell&apos;account o caricamento file</translation>
     </message>
     <message>
         <source>Select file for hash</source>
@@ -483,7 +483,7 @@
     </message>
     <message>
         <source>Rate limited. Please wait before trying to login again.</source>
-        <translation>Tariffa limitata. Attendi prima di provare di nuovo ad accedere.</translation>
+        <translation>Limite temporaneo. Attendi prima di provare di nuovo ad accedere.</translation>
     </message>
     <message>
         <source>Session is expired. Please login again</source>
@@ -526,7 +526,7 @@
     </message>
     <message>
         <source>8 or more characters with at least one uppercase and lowercase(ie. &quot;Hello1234&quot;, &quot;Solyanka&quot;).</source>
-        <translation>8 o più caratteri con almeno una maiuscola e una minuscola (cioè &quot;Hello1234&quot;, &quot;Solyanka&quot;).</translation>
+        <translation>8 o più caratteri con almeno una maiuscola e una minuscola (es. &quot;Hello1234&quot;, &quot;Solyanka&quot;).</translation>
     </message>
     <message>
         <source>Email (Optional)</source>
@@ -638,7 +638,7 @@ Se perdi l&apos;hash dell&apos;account, è sparito per sempre e il supporto non 
     </message>
     <message>
         <source>Logging you in...</source>
-        <translation>Accedendo all&apos;accesso...</translation>
+        <translation>Accesso in corso...</translation>
     </message>
     <message>
         <source>VPN is active</source>
@@ -650,11 +650,11 @@ Se perdi l&apos;hash dell&apos;account, è sparito per sempre e il supporto non 
     </message>
     <message>
         <source>Cannot detect appropriate packet size while connected. Please disconnect first.</source>
-        <translation>Impossibile rilevare la dimensione del pacchetto appropriata durante la connessione. Si prega di disconnettere prima.</translation>
+        <translation>Impossibile rilevare la dimensione del pacchetto appropriata durante la connessione. Si prega di disconnettersi prima.</translation>
     </message>
     <message>
         <source>No Internet</source>
-        <translation>No Internet</translation>
+        <translation>Internet assente</translation>
     </message>
     <message>
         <source>Cannot detect appropriate packet size without internet. Check your connection.</source>
@@ -694,7 +694,7 @@ Se perdi l&apos;hash dell&apos;account, è sparito per sempre e il supporto non 
     </message>
     <message>
         <source>Disconnected</source>
-        <translation>Sconnesso</translation>
+        <translation>Disconnesso</translation>
     </message>
     <message>
         <source>Import Hydra Profile</source>
@@ -726,7 +726,7 @@ Se perdi l&apos;hash dell&apos;account, è sparito per sempre e il supporto non 
     </message>
     <message>
         <source>Your Proxy Gateway is enabled without authentication. Anyone on your local network, including untrusted networks like coffee-shop Wi-Fi, can route their traffic through your VPN. We strongly recommend setting credentials.</source>
-        <translation>Il tuo Proxy Gateway è abilitato senza autenticazione. Chiunque sia sulla tua rete locale, incluse reti non affidabili come il Wi-Fi di un bar, può instradare il proprio traffico attraverso la tua VPN. Raccomandiamo vivamente di stabilire le credenziali.</translation>
+        <translation>Il tuo Proxy Gateway è abilitato senza autenticazione. Chiunque sia sulla tua rete locale, incluse reti non affidabili come il Wi-Fi di un bar, può instradare il proprio traffico attraverso la tua VPN. Raccomandiamo vivamente di impostare le credenziali.</translation>
     </message>
     <message>
         <source>Go to Preferences</source>
@@ -746,7 +746,7 @@ Se perdi l&apos;hash dell&apos;account, è sparito per sempre e il supporto non 
     </message>
     <message>
         <source>Connected to </source>
-        <translation>Collegato a </translation>
+        <translation>Connesso a </translation>
     </message>
     <message>
         <source>You are now connected to Windscribe (%1).</source>
@@ -760,11 +760,11 @@ Se perdi l&apos;hash dell&apos;account, è sparito per sempre e il supporto non 
     </message>
     <message>
         <source>Could not start Proxy Gateway</source>
-        <translation>Non sono riuscito ad avviare il Proxy Gateway</translation>
+        <translation>Impossibile avviare il Proxy Gateway</translation>
     </message>
     <message>
         <source>The configured port is in use. Please try a different port.</source>
-        <translation>La porta configurata è in uso. Per favore, prova un porteggio diverso.</translation>
+        <translation>La porta configurata è in uso. Per favore, prova una porta diversa.</translation>
     </message>
     <message>
         <source>An unknown error occurred.</source>
@@ -874,7 +874,7 @@ Se il problema persiste dopo un riavvio, inviare un registro di debug e aprire u
     </message>
     <message>
         <source>Windscribe could not generate the connection configuration. If this error persists, please send a debug log and open a support ticket.</source>
-        <translation>Windscribe non riusciva a generare la configurazione della connessione. Se questo errore persiste, invia un registro di debug e apri un ticket di supporto.</translation>
+        <translation>Windscribe non è riuscito a generare la configurazione della connessione. Se questo errore persiste, invia un registro di debug e apri un ticket di supporto.</translation>
     </message>
     <message>
         <source>Can&apos;t reach your hydra server</source>
@@ -890,7 +890,7 @@ Se il problema persiste dopo un riavvio, inviare un registro di debug e aprire u
     </message>
     <message>
         <source>This location is set to connect through your hydra server, which works with WireGuard only. Choose WireGuard or Auto, or remove the hydra profile in Preferences &gt; Connection.</source>
-        <translation>Questa posizione è impostata per connettersi tramite il tuo server hydra, che funziona solo con WireGuard. Scegli WireGuard o Auto, oppure rimuovi il profilo hydra in Preferenze &gt; Connessione.</translation>
+        <translation>Questa località è impostata per connettersi tramite il tuo server hydra, che funziona solo con WireGuard. Scegli WireGuard o Auto, oppure rimuovi il profilo hydra in Preferenze &gt; Connessione.</translation>
     </message>
     <message>
         <source>The Remote Access Connection Manager (RasMan) service is not running and could not be started. This prevents IKEv2 from being used on this PC. Please try another connection mode or investigate why this core Windows service is unable to start.</source>
@@ -914,7 +914,7 @@ Se il problema persiste dopo un riavvio, inviare un registro di debug e aprire u
     </message>
     <message>
         <source>The split tunneling feature could not be started, and has been disabled in Preferences.</source>
-        <translation>Impossibile avviare la funzione di split tunneling ed è stata disabilitata in Preferenze.</translation>
+        <translation>La funzione di split tunneling non è riuscita ad avviarsi, ed è stata disabilitata in Preferenze.</translation>
     </message>
     <message>
         <source>Unable to start custom DNS service.  Please ensure you don&apos;t have any other local DNS services running, or contact support.</source>
@@ -966,11 +966,11 @@ Se il problema persiste dopo un riavvio, inviare un registro di debug e aprire u
     </message>
     <message>
         <source>Windscribe could not retrieve server configuration. Please try another protocol.</source>
-        <translation>Windscribe non è stato in grado di recuperare la configurazione del server. Prova un altro protocollo.</translation>
+        <translation>Windscribe non è riuscito a recuperare la configurazione del server. Prova un altro protocollo.</translation>
     </message>
     <message>
         <source>IKEv2 connectivity is not available in MacOS Lockdown Mode. Please disable Lockdown Mode in System Settings or change your connection settings.</source>
-        <translation>La connettività IKEv2 non è disponibile in modalità di blocco di MacOS. Disabilita la modalità di blocco in Impostazioni di sistema o modifica le impostazioni di connessione.</translation>
+        <translation>La connettività IKEv2 non è disponibile in modalità di isolamento di MacOS. Disabilita la modalità di isolamento in Impostazioni di sistema o modifica le impostazioni di connessione.</translation>
     </message>
     <message>
         <source>Rotating MAC Address</source>
@@ -982,11 +982,11 @@ Se il problema persiste dopo un riavvio, inviare un registro di debug e aprire u
     </message>
     <message>
         <source>Could not start Secure Hotspot</source>
-        <translation>Impossibile avviare Secure Hotspot</translation>
+        <translation>Impossibile avviare Hotspot sicuro</translation>
     </message>
     <message>
         <source>Your network adapter may not support this feature. It has been disabled in preferences.</source>
-        <translation>La scheda di rete potrebbe non supportare questa funzione. È stato disabilitato nelle preferenze.</translation>
+        <translation>La scheda di rete potrebbe non supportare questa funzione. È stata disabilitata nelle preferenze.</translation>
     </message>
     <message>
         <source>...hmm are you sure this is correct?</source>
@@ -994,7 +994,7 @@ Se il problema persiste dopo un riavvio, inviare un registro di debug e aprire u
     </message>
     <message>
         <source>Windscribe has detected that Wi-Fi is currently turned off. To use Secure Hotspot, Wi-Fi must be turned on.</source>
-        <translation>Windscribe ha rilevato che il Wi-Fi è attualmente disattivato. Per utilizzare Secure Hotspot, il Wi-Fi deve essere attivato.</translation>
+        <translation>Windscribe ha rilevato che il Wi-Fi è attualmente disattivato. Per utilizzare Hotspot sicuro, il Wi-Fi deve essere attivato.</translation>
     </message>
     <message>
         <source>Location Services is disabled</source>
@@ -1002,11 +1002,11 @@ Se il problema persiste dopo un riavvio, inviare un registro di debug e aprire u
     </message>
     <message>
         <source>Windscribe requires Location Services to determine your Wi-Fi SSID. If it is not enabled, per-network settings will apply to all Wi-Fi networks. Please enable Location Services and grant the permission to Windscribe in your System Settings.</source>
-        <translation>Windscribe richiede i servizi di localizzazione per determinare l&apos;SSID Wi-Fi. Se non è abilitato, le impostazioni per rete verranno applicate a tutte le reti Wi-Fi. Abilita i servizi di localizzazione e concedi l&apos;autorizzazione a Windscribe nelle Impostazioni di sistema.</translation>
+        <translation>Windscribe richiede i servizi di localizzazione per determinare l&apos;SSID Wi-Fi. Se non è abilitato, le impostazioni per singola rete verranno applicate a tutte le reti Wi-Fi. Abilita i servizi di localizzazione e concedi l&apos;autorizzazione a Windscribe nelle Impostazioni di sistema.</translation>
     </message>
     <message>
         <source>Windscribe requires Location Services to determine your Wi-Fi SSID. If it is not enabled, per-network settings will apply to all Wi-Fi networks. Please enable Location Services in your System Settings.</source>
-        <translation>Windscribe richiede i servizi di localizzazione per determinare l&apos;SSID Wi-Fi. Se non è abilitato, le impostazioni per rete verranno applicate a tutte le reti Wi-Fi. Abilita i servizi di localizzazione nelle Impostazioni di sistema.</translation>
+        <translation>Windscribe richiede i servizi di localizzazione per determinare l&apos;SSID Wi-Fi. Se non è abilitato, le impostazioni per singola rete verranno applicate a tutte le reti Wi-Fi. Abilita i servizi di localizzazione nelle Impostazioni di sistema.</translation>
     </message>
     <message>
         <source>  If you are on a restrictive network, please connect the VPN before trying the download again.</source>
@@ -1014,7 +1014,7 @@ Se il problema persiste dopo un riavvio, inviare un registro di debug e aprire u
     </message>
     <message>
         <source>Your &quot;Connected DNS&quot; server is set to an OS default DNS server, which would result in a DNS leak.  It has been changed to Auto.</source>
-        <translation>Il server &quot;DNS connesso&quot; è impostato su un server DNS predefinito del sistema operativo, il che comporterebbe una perdita DNS.  È stato cambiato in Auto.</translation>
+        <translation>Il server &quot;DNS connesso&quot; è impostato su un server DNS predefinito del sistema operativo, il che comporterebbe una fuga DNS.  È stato cambiato in Auto.</translation>
     </message>
     <message>
         <source>Invalid DNS Settings</source>
@@ -1034,19 +1034,19 @@ Se il problema persiste dopo un riavvio, inviare un registro di debug e aprire u
     </message>
     <message>
         <source>Export Location Names To</source>
-        <translation>Esporta i nomi delle posizioni in</translation>
+        <translation>Esporta i nomi delle località in</translation>
     </message>
     <message>
         <source>Unable to export location names</source>
-        <translation>Impossibile esportare i nomi delle posizioni</translation>
+        <translation>Impossibile esportare i nomi delle località</translation>
     </message>
     <message>
         <source>Import Location Names From</source>
-        <translation>Importa i nomi delle posizioni da</translation>
+        <translation>Importa i nomi delle località da</translation>
     </message>
     <message>
         <source>Unable to import location names</source>
-        <translation>Impossibile importare i nomi delle posizioni</translation>
+        <translation>Impossibile importare i nomi delle località</translation>
     </message>
     <message>
         <source>The split tunneling feature has been disabled because the Windscribe split tunnel extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again.</source>
@@ -1082,11 +1082,11 @@ Se il problema persiste dopo un riavvio, inviare un registro di debug e aprire u
     </message>
     <message>
         <source>Could not pin IP</source>
-        <translation>Impossibile bloccare l&apos;IP</translation>
+        <translation>Impossibile fissare l&apos;IP</translation>
     </message>
     <message>
         <source>We could not set your favourite IP for this location.  Try again later.</source>
-        <translation>Non siamo riusciti a impostare il tuo IP preferito per questa posizione.  Riprova più tardi.</translation>
+        <translation>Non siamo riusciti a impostare il tuo IP preferito per questa località.  Riprova più tardi.</translation>
     </message>
     <message>
         <source>Could not rotate IP</source>
@@ -1098,7 +1098,7 @@ Se il problema persiste dopo un riavvio, inviare un registro di debug e aprire u
     </message>
     <message>
         <source>Check Location Status</source>
-        <translation>Controlla lo stato della posizione</translation>
+        <translation>Controlla lo stato della località</translation>
     </message>
     <message>
         <source>Back</source>
@@ -1118,26 +1118,26 @@ Se il problema persiste dopo un riavvio, inviare un registro di debug e aprire u
     </message>
     <message>
         <source>Creating your account...</source>
-        <translation>Creare il tuo account...</translation>
+        <translation>Creando il tuo account...</translation>
     </message>
     <message>
         <source>Cannot rotate MAC address while connected to VPN. Please disconnect first.</source>
-        <translation>Non è possibile ruotare l&apos;indirizzo MAC mentre è connesso alla VPN. Per favore, disconnettiti prima.</translation>
+        <translation>Non è possibile ruotare l&apos;indirizzo MAC mentre si è connessi alla VPN. Per favore, disconnettiti prima.</translation>
     </message>
 </context>
 <context>
     <name>MainWindowController</name>
     <message>
         <source>Quit Windscribe?</source>
-        <translation>Uscire da Windscribe?</translation>
+        <translation>Chiudere Windscribe?</translation>
     </message>
     <message>
         <source>Log Out of Windscribe?</source>
-        <translation>Esci da Windscribe?</translation>
+        <translation>Uscire dall&apos;account Windscribe?</translation>
     </message>
     <message>
         <source>Quit</source>
-        <translation>Esci</translation>
+        <translation>Chiudi</translation>
     </message>
     <message>
         <source>Log Out</source>
@@ -1178,14 +1178,14 @@ Se il problema persiste dopo un riavvio, inviare un registro di debug e aprire u
     </message>
     <message>
         <source>&apos;Connected DNS&apos; was not configured with a valid Upstream 2 (IP/DNS-over-HTTPS/TLS). DNS was reverted to ROBERT (default).</source>
-        <translation>&apos;Connected DNS&apos; non è stato configurato con un Upstream 2 valido (IP/DNS-over-HTTPS/TLS). DNS è stato ripristinato a ROBERT (impostazione predefinita).</translation>
+        <translation>&apos;DNS connesso&apos; non è stato configurato con un Upstream 2 valido (IP/DNS-over-HTTPS/TLS). DNS è stato ripristinato a ROBERT (impostazione predefinita).</translation>
     </message>
 </context>
 <context>
     <name>PreferencesWindow::AboutWindowItem</name>
     <message>
         <source>About</source>
-        <translation>Circa</translation>
+        <translation>Informazioni</translation>
     </message>
     <message>
         <source>Status</source>
@@ -1232,7 +1232,7 @@ Se il problema persiste dopo un riavvio, inviare un registro di debug e aprire u
     </message>
     <message>
         <source>Account</source>
-        <translation>Conto</translation>
+        <translation>Account</translation>
     </message>
     <message>
         <source>Username</source>
@@ -1295,7 +1295,7 @@ Se il problema persiste dopo un riavvio, inviare un registro di debug e aprire u
     </message>
     <message>
         <source>Warning: Using &quot;OS Default&quot; may sometimes cause DNS leaks during reconnects.</source>
-        <translation>Attenzione: l&apos;utilizzo di &quot;OS Default&quot; può talvolta causare perdite DNS durante le riconnessioni.</translation>
+        <translation>Attenzione: l&apos;utilizzo di &quot;Predefinito del sistema operativo&quot; può talvolta causare fughe DNS durante le riconnessioni.</translation>
     </message>
     <message>
         <source>App Internal DNS</source>
@@ -1303,7 +1303,7 @@ Se il problema persiste dopo un riavvio, inviare un registro di debug e aprire u
     </message>
     <message>
         <source>Select the DNS system service Windscribe enforces. Experienced users only.</source>
-        <translation>Seleziona il servizio di sistema DNS applicato da Windscribe. Solo utenti esperti.</translation>
+        <translation>Seleziona il servizio di sistema DNS applicato da Windscribe. Solo per utenti esperti.</translation>
     </message>
     <message>
         <source>DNS Manager</source>
@@ -1326,11 +1326,11 @@ Se il problema persiste dopo un riavvio, inviare un registro di debug e aprire u
     <name>PreferencesWindow::AntiCensorshipWindowItem</name>
     <message>
         <source>Anti-Censorship</source>
-        <translation>Anticensura</translation>
+        <translation>Anti-censura</translation>
     </message>
     <message>
         <source>These degrade performance, enable only if Windscribe doesn&apos;t connect normally.</source>
-        <translation>Questi degradano le prestazioni, si attivano solo se Windscribe non si connette normalmente.</translation>
+        <translation>Queste impostazioni degradano le prestazioni, attivale solo se Windscribe non si connette normalmente.</translation>
     </message>
     <message>
         <source>Protocol-level changes made to WireGuard, OpenVPN, and Stealth protocols.</source>
@@ -1338,7 +1338,7 @@ Se il problema persiste dopo un riavvio, inviare un registro di debug e aprire u
     </message>
     <message>
         <source>Increases latency, but improves chances of being able to connect.</source>
-        <translation>Aumenta la latenza, ma aumenta le possibilità di connettersi.</translation>
+        <translation>Aumenta la latenza, ma aumenta le possibilità di riuscire a connettersi.</translation>
     </message>
     <message>
         <source>Server Routing</source>
@@ -1350,7 +1350,7 @@ Se il problema persiste dopo un riavvio, inviare un registro di debug e aprire u
     </message>
     <message>
         <source>Artificially enlarge TLS packets, helps to circumvent censorship in some cases. Adds extra TLS padding to all API requests.</source>
-        <translation>Ingrandire artificialmente i pacchetti TLS aiuta a aggirare la censura in alcuni casi. Aggiunge ulteriore TLS padding a tutte le richieste API.</translation>
+        <translation>Ingrandire artificialmente i pacchetti TLS aiuta a aggirare la censura in alcuni casi. Aggiunge ulteriore padding TLS a tutte le richieste API.</translation>
     </message>
     <message>
         <source>Custom SNI Domain</source>
@@ -1369,7 +1369,7 @@ Se il problema persiste dopo un riavvio, inviare un registro di debug e aprire u
     </message>
     <message>
         <source>Aspect Ratio Mode</source>
-        <translation>Modalità rapporto d&apos;aspetto</translation>
+        <translation>Modalità riempimento</translation>
     </message>
     <message>
         <source>When Disconnected</source>
@@ -1381,7 +1381,7 @@ Se il problema persiste dopo un riavvio, inviare un registro di debug e aprire u
     </message>
     <message>
         <source>Bundled</source>
-        <translation>Affastellato</translation>
+        <translation>Predefiniti</translation>
     </message>
     <message>
         <source>None</source>
@@ -1389,7 +1389,7 @@ Se il problema persiste dopo un riavvio, inviare un registro di debug e aprire u
     </message>
     <message>
         <source>Custom</source>
-        <translation>Costume</translation>
+        <translation>Personalizzato</translation>
     </message>
     <message>
         <source>When Connected</source>
@@ -1409,7 +1409,7 @@ Se il problema persiste dopo un riavvio, inviare un registro di debug e aprire u
     </message>
     <message>
         <source>Drip</source>
-        <translation>Gocciolare</translation>
+        <translation>Pioggia</translation>
     </message>
     <message>
         <source>Snow</source>
@@ -1428,7 +1428,7 @@ Se il problema persiste dopo un riavvio, inviare un registro di debug e aprire u
     </message>
     <message>
         <source>Upstream 1</source>
-        <translation>A monte 1</translation>
+        <translation>Upstream 1</translation>
     </message>
     <message>
         <source>IP/DNS-over-HTTPS/TLS</source>
@@ -1436,7 +1436,7 @@ Se il problema persiste dopo un riavvio, inviare un registro di debug e aprire u
     </message>
     <message>
         <source>Upstream 2</source>
-        <translation>A monte 2</translation>
+        <translation>Upstream 2</translation>
     </message>
     <message>
         <source>Split DNS</source>
@@ -1448,11 +1448,11 @@ Se il problema persiste dopo un riavvio, inviare un registro di debug e aprire u
     </message>
     <message>
         <source>DNS leak detected</source>
-        <translation>Rilevata perdita DNS</translation>
+        <translation>Rilevata fuga DNS</translation>
     </message>
     <message>
         <source>Using a LAN or local IP address for connected DNS will result in a DNS leak.  We strongly recommend using ROBERT or a public DNS server.</source>
-        <translation>L&apos;utilizzo di una LAN o di un indirizzo IP locale per il DNS connesso comporterà una perdita DNS.  Si consiglia vivamente di utilizzare ROBERT o un server DNS pubblico.</translation>
+        <translation>L&apos;utilizzo di una LAN o di un indirizzo IP locale per il DNS connesso comporterà una fuga DNS.  Si consiglia vivamente di utilizzare ROBERT o un server DNS pubblico.</translation>
     </message>
     <message>
         <source>API Key</source>
@@ -1460,7 +1460,7 @@ Se il problema persiste dopo un riavvio, inviare un registro di debug e aprire u
     </message>
     <message>
         <source>Failed to reach Control D API.</source>
-        <translation>Impossibile raggiungere l&apos;API di controllo D.</translation>
+        <translation>Impossibile raggiungere l&apos;API di Control D.</translation>
     </message>
     <message>
         <source>Please provide a valid Control D API Key.</source>
@@ -1499,7 +1499,7 @@ Se il problema persiste dopo un riavvio, inviare un registro di debug e aprire u
     </message>
     <message>
         <source>Split Tunneling</source>
-        <translation>Tunneling diviso</translation>
+        <translation>Split Tunneling</translation>
     </message>
     <message>
         <source>Proxy Settings</source>
@@ -1507,7 +1507,7 @@ Se il problema persiste dopo un riavvio, inviare un registro di debug e aprire u
     </message>
     <message>
         <source>Connects to last used location when the app launches or joins a network.</source>
-        <translation>Si connette all&apos;ultima posizione utilizzata quando l&apos;app viene avviata o si unisce a una rete.</translation>
+        <translation>Si connette all&apos;ultima località utilizzata quando l&apos;app viene avviata o si unisce a una rete.</translation>
     </message>
     <message>
         <source>Auto-Connect</source>
@@ -1523,15 +1523,15 @@ Se il problema persiste dopo un riavvio, inviare un registro di debug e aprire u
     </message>
     <message>
         <source>IP Stack</source>
-        <translation>Pila IP</translation>
+        <translation>Stack IP</translation>
     </message>
     <message>
         <source>Select the DNS server while connected to Windscribe.</source>
-        <translation>Selezionare il server DNS mentre si è connessi a Windscribe.</translation>
+        <translation>Selezionare il server DNS da usare mentre si è connessi a Windscribe.</translation>
     </message>
     <message>
         <source>Allow access to local services and printers while connected to Windscribe.</source>
-        <translation>Consenti l&apos;accesso ai servizi e alle stampanti locali mentre sei connesso a Windscribe.</translation>
+        <translation>Consenti l&apos;accesso ai servizi locali e alle stampanti mentre sei connesso a Windscribe.</translation>
     </message>
     <message>
         <source>Hydra Profile</source>
@@ -1547,7 +1547,7 @@ Se il problema persiste dopo un riavvio, inviare un registro di debug e aprire u
     </message>
     <message>
         <source>All locations</source>
-        <translation>Tutte le posizioni</translation>
+        <translation>Tutte le località</translation>
     </message>
     <message>
         <source>Connect to Windscribe through a private hydra server you run. Applies to WireGuard.</source>
@@ -1555,19 +1555,19 @@ Se il problema persiste dopo un riavvio, inviare un registro di debug e aprire u
     </message>
     <message>
         <source>+1 more location</source>
-        <translation>+1 altra posizione</translation>
+        <translation>+1 altra località</translation>
     </message>
     <message>
         <source>+%1 more locations</source>
-        <translation>+%1 altre posizioni</translation>
+        <translation>+%1 altre località</translation>
     </message>
     <message>
         <source>Select this location to connect through your hydra server.</source>
-        <translation>Seleziona questa posizione per connetterti tramite il tuo server hydra.</translation>
+        <translation>Seleziona questa località per connetterti tramite il tuo server hydra.</translation>
     </message>
     <message>
         <source>Select one of these locations to connect through your hydra server.</source>
-        <translation>Seleziona una di queste posizioni per connetterti tramite il tuo server hydra.</translation>
+        <translation>Seleziona una di queste località per connetterti tramite il tuo server hydra.</translation>
     </message>
     <message>
         <source>Spoof your device&apos;s physical address (MAC address).</source>
@@ -1575,7 +1575,7 @@ Se il problema persiste dopo un riavvio, inviare un registro di debug e aprire u
     </message>
     <message>
         <source>MAC spoofing requires NetworkManager to be installed and running.</source>
-        <translation>Lo spoofing MAC richiede che NetworkManager sia installato ed eseguito.</translation>
+        <translation>Lo spoofing MAC richiede che NetworkManager sia installato e in esecuzione.</translation>
     </message>
     <message>
         <source>Close all active TCP sockets when the VPN tunnel is established.</source>
@@ -1587,7 +1587,7 @@ Se il problema persiste dopo un riavvio, inviare un registro di debug e aprire u
     </message>
     <message>
         <source>The firewall is in an Always On mode. Allowing LAN traffic can leak your DNS and other traffic to your local network while you are disconnected. Are you sure you want to enable it?</source>
-        <translation>Il firewall è in modalità Always On. Consentire il traffico LAN può far fuoriuscire il tuo DNS e altro traffico alla rete locale mentre sei disconnesso. Sei sicuro di volerlo attivare?</translation>
+        <translation>Il firewall è in modalità Always On. Consentire il traffico LAN può far trapelare il tuo DNS e altro traffico alla rete locale mentre sei disconnesso. Sei sicuro di volerlo attivare?</translation>
     </message>
     <message>
         <source>Settings Conflict</source>
@@ -1611,15 +1611,15 @@ Se il problema persiste dopo un riavvio, inviare un registro di debug e aprire u
     </message>
     <message>
         <source>Caution</source>
-        <translation>Cautela</translation>
+        <translation>Attenzione</translation>
     </message>
     <message>
         <source>In this firewall mode, the Windscribe API will not be available while disconnected, this could have unintended consequences. Use at own risk.</source>
-        <translation>In questa modalità firewall, l&apos;API Windscribe non sarà disponibile mentre è disconnessa, ciò potrebbe avere conseguenze indesiderate. Utilizzare a proprio rischio.</translation>
+        <translation>In questa modalità firewall, l&apos;API Windscribe non sarà disponibile mentre si è disconnessi, ciò potrebbe avere conseguenze indesiderate. Utilizzare a proprio rischio.</translation>
     </message>
     <message>
         <source>Control the mode of behaviour of the Windscribe firewall. Always On modes disable Allow LAN Traffic to prevent DNS leaks.</source>
-        <translation>Controlla il modo di comportamento del firewall Windscribe. Le modalità Always On disabilitano Consentire traffico LAN per prevenire perdite DNS.</translation>
+        <translation>Controlla il modo di comportamento del firewall Windscribe. Le modalità Always On disabilitano Consenti traffico LAN per prevenire fughe DNS.</translation>
     </message>
     <message>
         <source>Configure egress IP stack for VPN connections (WireGuard only).</source>
@@ -1627,7 +1627,7 @@ Se il problema persiste dopo un riavvio, inviare un registro di debug e aprire u
     </message>
     <message>
         <source>Clear Wi-Fi History</source>
-        <translation>Storia Wi-Fi Clear</translation>
+        <translation>Cancella cronologia Wi-Fi</translation>
     </message>
     <message>
         <source>Are you sure?</source>
@@ -1707,7 +1707,7 @@ Se il problema persiste dopo un riavvio, inviare un registro di debug e aprire u
     </message>
     <message>
         <source>Enter the IP and/or wildcards you wish to use for DNS split feature.</source>
-        <translation>Immettere l&apos;IP e/o i caratteri jolly che si desidera utilizzare per la funzione di divisione DNS.</translation>
+        <translation>Immettere l&apos;IP e/o le wildcard che si desidera utilizzare per la funzione di divisione DNS.</translation>
     </message>
     <message>
         <source>Please log in to modify domains.</source>
@@ -1722,11 +1722,11 @@ Se il problema persiste dopo un riavvio, inviare un registro di debug e aprire u
     </message>
     <message>
         <source>Resend</source>
-        <translation>Inviare</translation>
+        <translation>Inviare di nuovo</translation>
     </message>
     <message>
         <source>Sending</source>
-        <translation>Invio</translation>
+        <translation>Invio in corso</translation>
     </message>
     <message>
         <source>Failed</source>
@@ -1772,7 +1772,7 @@ Se il problema persiste dopo un riavvio, inviare un registro di debug e aprire u
     </message>
     <message>
         <source>Launch on Startup</source>
-        <translation>Avvio all&apos;avvio</translation>
+        <translation>Esegui all&apos;avvio</translation>
     </message>
     <message>
         <source>Launch Windscribe in a minimized state.</source>
@@ -1780,19 +1780,19 @@ Se il problema persiste dopo un riavvio, inviare un registro di debug e aprire u
     </message>
     <message>
         <source>Start Minimized</source>
-        <translation>Avvio ridotto a icona</translation>
+        <translation>Avvia ridotto a icona</translation>
     </message>
     <message>
         <source>Windscribe minimizes to system tray and no longer appears in the task bar.</source>
-        <translation>Windscribe riduce a icona la barra delle applicazioni e non viene più visualizzato nella barra delle applicazioni.</translation>
+        <translation>Windscribe si riduce nel vassoio di sistema e non viene più visualizzato nella barra delle applicazioni.</translation>
     </message>
     <message>
         <source>Windscribe minimizes to menubar and no longer appears in the dock.</source>
-        <translation>Windscribe si riduce a icona la barra dei menu e non viene più visualizzato nel dock.</translation>
+        <translation>Windscribe si riduce nella barra dei menu e non viene più visualizzato nel dock.</translation>
     </message>
     <message>
         <source>Close to Tray</source>
-        <translation>Vicino al vassoio</translation>
+        <translation>Minimizza nel vassoio</translation>
     </message>
     <message>
         <source>Don&apos;t show the Windscribe icon in dock.</source>
@@ -1820,23 +1820,23 @@ Se il problema persiste dopo un riavvio, inviare un registro di debug e aprire u
     </message>
     <message>
         <source>Display a location&apos;s load. Shorter bars mean lesser load (usage).</source>
-        <translation>Visualizzare il carico di una posizione. Barre più corte significano meno carico (utilizzo).</translation>
+        <translation>Visualizzare il carico di una località. Barre più corte significano meno carico (utilizzo).</translation>
     </message>
     <message>
         <source>Show Location Load</source>
-        <translation>Mostra posizione Carico</translation>
+        <translation>Mostra carico località</translation>
     </message>
     <message>
         <source>Arrange locations alphabetically, geographically, or by latency.</source>
-        <translation>Disporre le posizioni in ordine alfabetico, geografico o in base alla latenza.</translation>
+        <translation>Disporre le località in ordine alfabetico, geografico o in base alla latenza.</translation>
     </message>
     <message>
         <source>Location Order</source>
-        <translation>Ordine di posizione</translation>
+        <translation>Ordine località</translation>
     </message>
     <message>
         <source>Localize Windscribe to supported languages.</source>
-        <translation>Localizzare Windscribe nelle lingue supportate.</translation>
+        <translation>Tradurre Windscribe nelle lingue supportate.</translation>
     </message>
     <message>
         <source>Language</source>
@@ -1922,11 +1922,11 @@ Se il problema persiste dopo un riavvio, inviare un registro di debug e aprire u
     </message>
     <message>
         <source>Choose between the classic GUI or the &quot;earless&quot; alternative GUI.</source>
-        <translation>Scegli tra la GUI classica o la GUI alternativa &quot;earless&quot;.</translation>
+        <translation>Scegli tra l&quot;interfaccia grafica classica o quella alternativa &quot;senza orecchie&quot;.</translation>
     </message>
     <message>
         <source>App Skin</source>
-        <translation>Skin dell&apos;app</translation>
+        <translation>Tema dell&apos;app</translation>
     </message>
     <message>
         <source>Customize the background of the main app screen.</source>
@@ -1942,7 +1942,7 @@ Se il problema persiste dopo un riavvio, inviare un registro di debug e aprire u
     </message>
     <message>
         <source>Rename Locations</source>
-        <translation>Rinomina le posizioni</translation>
+        <translation>Rinomina le località</translation>
     </message>
     <message>
         <source>Export</source>
@@ -1958,11 +1958,11 @@ Se il problema persiste dopo un riavvio, inviare un registro di debug e aprire u
     </message>
     <message>
         <source>Choose between white and black tray icon.</source>
-        <translation>Scegli tra l&apos;icona bianca e nera nella barra delle applicazioni.</translation>
+        <translation>Scegli tra l&apos;icona bianca e nera nel vassoio di sistema.</translation>
     </message>
     <message>
         <source>Tray Icon Colour</source>
-        <translation>Colore dell&apos;icona del vassoio</translation>
+        <translation>Colore icona del vassoio</translation>
     </message>
 </context>
 <context>
@@ -2039,7 +2039,7 @@ Se il problema persiste dopo un riavvio, inviare un registro di debug e aprire u
     </message>
     <message>
         <source>Auto-Secure Networks</source>
-        <translation>Reti auto-sicure</translation>
+        <translation>Protezione automatica reti</translation>
     </message>
     <message>
         <source>No Network Detected</source>
@@ -2055,11 +2055,11 @@ Se il problema persiste dopo un riavvio, inviare un registro di debug e aprire u
     </message>
     <message>
         <source>Secured</source>
-        <translation>Protetto</translation>
+        <translation>Protetta</translation>
     </message>
     <message>
         <source>Unsecured</source>
-        <translation>Non protetto</translation>
+        <translation>Non protetta</translation>
     </message>
     <message>
         <source>No Networks Detected.
@@ -2069,7 +2069,7 @@ Connettersi prima a una rete</translation>
     </message>
     <message>
         <source>New networks are automatically &quot;Secured&quot;. If you tag a network as &quot;Unsecured&quot;, Windscribe will disconnect when the device joins it. Setting a network as &quot;Unsecured&quot; is NOT recommended.</source>
-        <translation>Le nuove reti sono automaticamente &quot;Sicure&quot;. Se taggi una rete come &quot;Non sicura&quot;, Windscribe si disconnetterà quando il dispositivo si unisce. Impostare una rete come &quot;Non sicura&quot; NON è consigliato.</translation>
+        <translation>Le nuove reti sono automaticamente &quot;Protette&quot;. Se marchi una rete come &quot;Non protetta&quot;, Windscribe si disconnetterà quando il dispositivo vi si unisce. Impostare una rete come &quot;Non protetta&quot; NON è consigliato.</translation>
     </message>
 </context>
 <context>
@@ -2118,7 +2118,7 @@ Connettersi prima a una rete</translation>
     </message>
     <message>
         <source>Custom</source>
-        <translation>Costume</translation>
+        <translation>Personalizzato</translation>
     </message>
 </context>
 <context>
@@ -2129,7 +2129,7 @@ Connettersi prima a una rete</translation>
     </message>
     <message>
         <source>Account</source>
-        <translation>Conto</translation>
+        <translation>Account</translation>
     </message>
     <message>
         <source>Connection</source>
@@ -2149,7 +2149,7 @@ Connettersi prima a una rete</translation>
     </message>
     <message>
         <source>About</source>
-        <translation>Circa</translation>
+        <translation>Informazioni</translation>
     </message>
     <message>
         <source>Login</source>
@@ -2161,7 +2161,7 @@ Connettersi prima a una rete</translation>
     </message>
     <message>
         <source>Quit</source>
-        <translation>Esci</translation>
+        <translation>Chiudi</translation>
     </message>
     <message>
         <source>Look &amp; Feel</source>
@@ -2176,11 +2176,11 @@ Connettersi prima a una rete</translation>
     </message>
     <message>
         <source>Discard</source>
-        <translation>Scartamento</translation>
+        <translation>Scarta</translation>
     </message>
     <message>
         <source>You have unsaved changes in edit fields. Do you want to save them?</source>
-        <translation>Hai le modifiche non salvate nei campi di modifica. Vuoi salvarli?</translation>
+        <translation>Hai delle modifiche non salvate nei campi di modifica. Vuoi salvarle?</translation>
     </message>
     <message>
         <source>Save</source>
@@ -2203,7 +2203,7 @@ Connettersi prima a una rete</translation>
     </message>
     <message>
         <source>Port</source>
-        <translation>Porto</translation>
+        <translation>Porta</translation>
     </message>
 </context>
 <context>
@@ -2214,7 +2214,7 @@ Connettersi prima a una rete</translation>
     </message>
     <message>
         <source>Amnezia Config</source>
-        <translation>Amnezia Config</translation>
+        <translation>Configurazione Amnezia</translation>
     </message>
 </context>
 <context>
@@ -2229,7 +2229,7 @@ Connettersi prima a una rete</translation>
     </message>
     <message>
         <source>Port</source>
-        <translation>Porto</translation>
+        <translation>Porta</translation>
     </message>
     <message>
         <source>Require Authentication</source>
@@ -2237,7 +2237,7 @@ Connettersi prima a una rete</translation>
     </message>
     <message>
         <source>Without authentication, anyone on your network (e.g. coffee shop Wi-Fi) can use this proxy. Leave this on unless you know what you&apos;re doing.</source>
-        <translation>Senza autenticazione, chiunque sia sulla tua rete (ad esempio Wi-Fi di un bar) può usare questo proxy. Lascialo acceso a meno che tu non sappia cosa stai facendo.</translation>
+        <translation>Senza autenticazione, chiunque sia sulla tua rete (ad esempio Wi-Fi di un bar) può usare questo proxy. Lasciala attivata a meno che tu sappia cosa stai facendo.</translation>
     </message>
     <message>
         <source>IP</source>
@@ -2268,7 +2268,7 @@ Connettersi prima a una rete</translation>
     <name>PreferencesWindow::ProxySettingsGroup</name>
     <message>
         <source>Proxy</source>
-        <translation>Procura</translation>
+        <translation>Proxy</translation>
     </message>
     <message>
         <source>Address</source>
@@ -2276,7 +2276,7 @@ Connettersi prima a una rete</translation>
     </message>
     <message>
         <source>Port</source>
-        <translation>Porto</translation>
+        <translation>Porta</translation>
     </message>
     <message>
         <source>Username</source>
@@ -2284,7 +2284,7 @@ Connettersi prima a una rete</translation>
     </message>
     <message>
         <source>Password</source>
-        <translation>Parola d’ordine</translation>
+        <translation>Password</translation>
     </message>
     <message>
         <source>Invalid proxy address</source>
@@ -2318,11 +2318,11 @@ Connettersi prima a una rete</translation>
     <name>PreferencesWindow::RobertItem</name>
     <message>
         <source>Blocking</source>
-        <translation>Inceppamento</translation>
+        <translation>Bloccati</translation>
     </message>
     <message>
         <source>Allowing</source>
-        <translation>Permettendo</translation>
+        <translation>Permessi</translation>
     </message>
 </context>
 <context>
@@ -2333,7 +2333,7 @@ Connettersi prima a una rete</translation>
     </message>
     <message>
         <source>R.O.B.E.R.T. is a customizable server-side domain and IP blocking tool. Select the block lists you wish to apply on all your devices by toggling the switch.</source>
-        <translation>R.O.B.E.R.T. è uno strumento personalizzabile di dominio lato server e blocco IP. Seleziona gli elenchi di elementi bloccati che desideri applicare su tutti i tuoi dispositivi attivando l&apos;interruttore.</translation>
+        <translation>R.O.B.E.R.T. è uno strumento lato server personalizzabile per bloccare domini e IP. Seleziona gli elenchi di elementi bloccati che desideri applicare su tutti i tuoi dispositivi attivando l&apos;interruttore.</translation>
     </message>
     <message>
         <source>Could not retrieve R.O.B.E.R.T. preferences from server. Try again later.</source>
@@ -2367,7 +2367,7 @@ Connettersi prima a una rete</translation>
     </message>
     <message>
         <source>Secure hotspot is not supported by your network adapter.</source>
-        <translation>L&apos;hotspot protetto non è supportato dalla scheda di rete.</translation>
+        <translation>L&apos;hotspot sicuro non è supportato dalla scheda di rete.</translation>
     </message>
     <message>
         <source>Secure hotspot is not supported for IKEv2 protocol.</source>
@@ -2383,7 +2383,7 @@ Connettersi prima a una rete</translation>
     </message>
     <message>
         <source>Password</source>
-        <translation>Parola d’ordine</translation>
+        <translation>Password</translation>
     </message>
     <message>
         <source>At least 8 characters</source>
@@ -2391,7 +2391,7 @@ Connettersi prima a una rete</translation>
     </message>
     <message>
         <source>To turn on Secure Hotspot, please turn off split tunneling or use exclusive mode.</source>
-        <translation>Per attivare Secure Hotspot, disattiva lo split tunneling o utilizza la modalità esclusiva.</translation>
+        <translation>Per attivare Hotspot sicuro, disattiva lo split tunneling o utilizza la modalità esclusiva.</translation>
     </message>
 </context>
 <context>
@@ -2417,11 +2417,11 @@ Connettersi prima a una rete</translation>
     </message>
     <message>
         <source>Bundled</source>
-        <translation>Affastellato</translation>
+        <translation>Predefiniti</translation>
     </message>
     <message>
         <source>Custom</source>
-        <translation>Costume</translation>
+        <translation>Personalizzato</translation>
     </message>
     <message>
         <source>Select a sound</source>
@@ -2436,7 +2436,7 @@ Connettersi prima a una rete</translation>
     <name>PreferencesWindow::SplitTunnelingAddressesGroup</name>
     <message>
         <source>There are too many IPs/CIDR ranges in the list. Please remove some before adding more.</source>
-        <translation>Ci sono troppi intervalli di IP/CIDR nella lista. Per favore, rimuovi alcune cose prima di aggiungerne altre.</translation>
+        <translation>Ci sono troppi intervalli di IP/CIDR nella lista. Per favore, rimuovine alcuni prima di aggiungerne altri.</translation>
     </message>
     <message>
         <source>IP or hostname already exists. Please enter a new IP or hostname.</source>
@@ -2478,7 +2478,7 @@ Connettersi prima a una rete</translation>
     </message>
     <message>
         <source>There are too many apps in the list. Please remove some before adding more.</source>
-        <translation>Ci sono troppe app nell&apos;elenco. Si prega di rimuoverne alcuni prima di aggiungerne altri.</translation>
+        <translation>Ci sono troppe app nell&apos;elenco. Si prega di rimuoverne alcune prima di aggiungerne altre.</translation>
     </message>
 </context>
 <context>
@@ -2519,7 +2519,7 @@ Se la reinstallazione non risolve il problema, contattare il supporto Windscribe
     </message>
     <message>
         <source>Split Tunneling</source>
-        <translation>Tunneling diviso</translation>
+        <translation>Split Tunneling</translation>
     </message>
     <message>
         <source>Mode</source>
@@ -2547,14 +2547,14 @@ Se la reinstallazione non risolve il problema, contattare il supporto Windscribe
     </message>
     <message>
         <source>When enabled, only selected apps, IPs, and hostnames will go through Windscribe when connected.</source>
-        <translation>Se abilitato, solo le app, gli IP e i nomi host selezionati passeranno attraverso Windscribe quando sono connessi.</translation>
+        <translation>Se abilitato, solo le app, gli IP e i nomi host selezionati passeranno attraverso Windscribe una volta connessi.</translation>
     </message>
 </context>
 <context>
     <name>PreferencesWindow::SplitTunnelingWindowItem</name>
     <message>
         <source>Split Tunneling</source>
-        <translation>Tunneling diviso</translation>
+        <translation>Split Tunneling</translation>
     </message>
     <message>
         <source>Include or exclude apps and hostnames from the VPN tunnel.</source>
@@ -2562,14 +2562,14 @@ Se la reinstallazione non risolve il problema, contattare il supporto Windscribe
     </message>
     <message>
         <source>The Windscribe split tunneling system extension must be enabled for this feature to function. Please enable it in System Settings.</source>
-        <translation>L&apos;estensione del sistema di tunneling diviso Windscribe deve essere abilitata affinché questa funzione funzioni. Per favore, attivalo nelle Impostazioni di sistema.</translation>
+        <translation>L&apos;estensione di sistema dello split tunneling Windscribe deve essere abilitata affinché questo funzioni. Per favore, attivala nelle Impostazioni di sistema.</translation>
     </message>
 </context>
 <context>
     <name>ProtocolWindow::ProtocolLineItem</name>
     <message>
         <source>NEXT UP IN %1s</source>
-        <translation>AVANTI IN %1s</translation>
+        <translation>PROSSIMO IN %1s</translation>
     </message>
     <message>
         <source>Connected to</source>
@@ -2631,7 +2631,7 @@ Se la reinstallazione non risolve il problema, contattare il supporto Windscribe
     <name>QObject</name>
     <message>
         <source>Custom</source>
-        <translation>Costume</translation>
+        <translation>Personalizzato</translation>
     </message>
     <message>
         <source>OS Default</source>
@@ -2723,7 +2723,7 @@ Se la reinstallazione non risolve il problema, contattare il supporto Windscribe
     </message>
     <message>
         <source>Disabled</source>
-        <translation>Disabili</translation>
+        <translation>Disabilitato</translation>
     </message>
     <message>
         <source>Config file too large</source>
@@ -2767,7 +2767,7 @@ Se la reinstallazione non risolve il problema, contattare il supporto Windscribe
     </message>
     <message>
         <source>Invalid &quot;PrivateKey&quot; format</source>
-        <translation>Formato &quot;PrivateKey&quot; invalido</translation>
+        <translation>Formato &quot;PrivateKey&quot; non valido</translation>
     </message>
     <message>
         <source>Invalid &quot;PublicKey&quot; format</source>
@@ -2795,7 +2795,7 @@ Se la reinstallazione non risolve il problema, contattare il supporto Windscribe
     </message>
     <message>
         <source>Invalid AmneziaWG header parameter</source>
-        <translation>Parametro di testata AmneziaWG invalido</translation>
+        <translation>Parametro header AmneziaWG invalido</translation>
     </message>
     <message>
         <source>AmneziaWG init parameter too large</source>
@@ -2875,15 +2875,15 @@ Se la reinstallazione non risolve il problema, contattare il supporto Windscribe
     </message>
     <message>
         <source>Stretch</source>
-        <translation>Stendere</translation>
+        <translation>Allarga</translation>
     </message>
     <message>
         <source>Fill</source>
-        <translation>Riempire</translation>
+        <translation>Riempi</translation>
     </message>
     <message>
         <source>Tile</source>
-        <translation>Tegola</translation>
+        <translation>Ripeti</translation>
     </message>
     <message>
         <source>Always On+</source>
@@ -3044,15 +3044,15 @@ Se la reinstallazione non risolve il problema, contattare il supporto Windscribe
     <name>TrayIcon</name>
     <message>
         <source>Connect</source>
-        <translation>Connettersi</translation>
+        <translation>Connetti</translation>
     </message>
     <message>
         <source>Disconnect</source>
-        <translation>Disconnettere</translation>
+        <translation>Disconnetti</translation>
     </message>
     <message>
         <source>Locations</source>
-        <translation>Luoghi</translation>
+        <translation>Località</translation>
     </message>
     <message>
         <source>Static IPs</source>
@@ -3072,7 +3072,7 @@ Se la reinstallazione non risolve il problema, contattare il supporto Windscribe
     </message>
     <message>
         <source>Quit Windscribe</source>
-        <translation>Lascia Windscribe</translation>
+        <translation>Chiudi Windscribe</translation>
     </message>
     <message>
         <source>Favourites</source>
@@ -3080,7 +3080,7 @@ Se la reinstallazione non risolve il problema, contattare il supporto Windscribe
     </message>
     <message>
         <source>Show app</source>
-        <translation>App Show</translation>
+        <translation>Mostra app</translation>
     </message>
 </context>
 <context>
@@ -3102,7 +3102,7 @@ Se la reinstallazione non risolve il problema, contattare il supporto Windscribe
     </message>
     <message>
         <source>Use your app to get an authentication code, and enter it below</source>
-        <translation>Usa la tua app per ottenere un codice di autenticazione e immettilo di seguito</translation>
+        <translation>Usa la tua app per ottenere un codice di autenticazione e immettilo qui</translation>
     </message>
     <message>
         <source>Please provide a 2FA code</source>
@@ -3163,7 +3163,7 @@ Se la reinstallazione non risolve il problema, contattare il supporto Windscribe
     </message>
     <message>
         <source>Go Pro for unlimited everything</source>
-        <translation>Passa a Pro per tutto illimitato</translation>
+        <translation>Passa a Pro per avere tutto illimitato</translation>
     </message>
 </context>
 <context>
@@ -3202,7 +3202,7 @@ Se la reinstallazione non risolve il problema, contattare il supporto Windscribe
     </message>
     <message>
         <source>%1 days left</source>
-        <translation>%1 giorni rimanenti</translation>
+        <translation>%1 giorni rimasti</translation>
     </message>
     <message>
         <source>Login</source>
@@ -3240,3 +3240,4 @@ Se la reinstallazione non risolve il problema, contattare il supporto Windscribe
     </message>
 </context>
 </TS>
+
