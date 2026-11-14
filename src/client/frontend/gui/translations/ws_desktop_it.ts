@@ -3240,4 +3240,3 @@ Se la reinstallazione non risolve il problema, contattare il supporto Windscribe
     </message>
 </context>
 </TS>
-
