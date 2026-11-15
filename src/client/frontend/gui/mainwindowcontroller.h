@@ -64,7 +64,10 @@ public:
 
     void updateScaling();
     void updateMaskForGraphicsView();
-    void updateMainAndViewGeometry(bool updateShadow);
+    void updateMainAndViewGeometry(bool updateShadow, bool lockFixedSizeOnLinux = false);
+#ifdef Q_OS_LINUX
+    void onMainWindowExternalResize(const QSize &actualSize);
+#endif
 
     void setWindowPosFromPersistent();
     void setIsDockedToTray(bool isDocked);
@@ -145,6 +148,9 @@ private slots:
     void onCollapseBottomInfoWindowAnimationValueChanged(const QVariant &value);
 
     void onLocationsWindowHeightChanged();
+#ifdef Q_OS_LINUX
+    void onLocationsWindowResizeFinished();
+#endif
 
     void onWindowResize(ResizableWindow *window);
     void onWindowResizeFinished(ResizableWindow *window);
@@ -268,6 +274,7 @@ private:
     void updateCursorInViewport();
 
     void centerMainGeometryAndUpdateView();
+    void applyMainWindowGeometry(const QRect &geo, bool lockFixedSize);
     void updateViewAndScene(int width, int height, int shadowSize, bool updateShadow);
     void updateLocationsWindowAndTabGeometryStatic();
 
@@ -308,4 +315,11 @@ private:
     void collapseWindow(ResizableWindow *window, bool bSkipBottomInfoWindowAnimate = false, bool bSkipSetClickable = false);
 
     int getUpdateWidgetOffset() const;
+
+#ifdef Q_OS_LINUX
+    QSize expectedMainWindowSize_;
+    QSize lastRejectedExternalSize_;
+    bool updatingMainWindowGeometry_ = false;
+    bool pendingGeometryResync_ = false;
+#endif
 };
