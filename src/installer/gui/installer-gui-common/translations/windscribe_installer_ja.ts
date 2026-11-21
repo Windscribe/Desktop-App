@@ -5,7 +5,7 @@
     <name>AlertWindow</name>
     <message>
         <source>ESC</source>
-        <translation>Esc キー</translation>
+        <translation>Esc</translation>
     </message>
 </context>
 <context>
@@ -19,7 +19,7 @@
     <name>InstallButton</name>
     <message>
         <source>Install</source>
-        <translation>取り付ける</translation>
+        <translation>インストール</translation>
     </message>
 </context>
 <context>
@@ -30,67 +30,67 @@
     </message>
     <message>
         <source>The installation was cancelled. Administrator privileges are required to install the application.</source>
-        <translation>インストールはキャンセルされました。本製品のインストールには管理者権限が必要です。</translation>
+        <translation>インストールがキャンセルされました。アプリケーションをインストールするには管理者権限が必要です。</translation>
     </message>
     <message>
         <source>Windscribe is running and could not be closed. Please close the application manually and try again.</source>
-        <translation>Windscribe は実行中で、閉じることができませんでした。アプリケーションを手動で閉じて、もう一度やり直してください。</translation>
+        <translation>Windscribeが実行中で終了できませんでした。アプリケーションを手動で終了してから、もう一度お試しください。</translation>
     </message>
     <message>
         <source>The installer could not connect to the privileged helper tool. Please try again.</source>
-        <translation>インストーラーは特権ヘルパー ツールに接続できませんでした。もう一度やり直してください。</translation>
+        <translation>インストーラーが特権ヘルパーツールに接続できませんでした。もう一度お試しください。</translation>
     </message>
     <message>
         <source>An existing installation of Windscribe could not be removed. Please uninstall the application manually and try again.</source>
-        <translation>Windscribe の既存のインストールを削除できませんでした。アプリケーションを手動でアンインストールして、もう一度やり直してください。</translation>
+        <translation>既存のWindscribeを削除できませんでした。アプリケーションを手動でアンインストールしてから、もう一度お試しください。</translation>
     </message>
     <message>
         <source>The Windows Base Filtering Engine service is not running and could not be started. This core Windows service must be running to install Windscribe. Third-party security/firewall software is most often the cause of this issue.</source>
-        <translation>Windowsの基本フィルタリングエンジンサービスは動作しておらず、起動もできませんでした。Windscribeをインストールするには、このコアとなるWindowsサービスが実行されている必要があります。この問題の原因はサードパーティのセキュリティやファイアウォールソフトウェアが最も多いです。</translation>
+        <translation>Windows Base Filtering Engineサービスが実行されておらず、開始できませんでした。Windscribeをインストールするには、この重要なWindowsサービスが実行されている必要があります。この問題は、サードパーティ製のセキュリティソフトやファイアウォールが原因であることがほとんどです。</translation>
     </message>
     <message>
         <source>Windscribe is unable to connect to the Windows Base Filtering Engine service. Connecting to this core Windows service is required to install Windscribe. Third-party security/firewall software is most often the cause of this issue.</source>
-        <translation>WindscribeはWindowsのBase Filtering Engineサービスに接続できません。Windscribeをインストールするには、このコアWindowsサービスへの接続が必要です。この問題の原因はサードパーティのセキュリティやファイアウォールソフトウェアが最も多いです。</translation>
+        <translation>WindscribeがWindows Base Filtering Engineサービスに接続できません。Windscribeをインストールするには、この重要なWindowsサービスへの接続が必要です。この問題は、サードパーティ製のセキュリティソフトやファイアウォールが原因であることがほとんどです。</translation>
     </message>
     <message>
         <source>Windscribe is unable to install its helper service. Please manually uninstall Windscribe and try again. If this issue persists, please contact our Technical Support.</source>
-        <translation>Windscribeはヘルパーサービスをインストールできません。Windscribeを手動でアンインストールしてからもう一度お試しください。この問題が続く場合は、技術サポートまでご連絡ください。</translation>
+        <translation>Windscribeのヘルパーサービスをインストールできません。Windscribeを手動でアンインストールしてから、もう一度お試しください。問題が解決しない場合は、テクニカルサポートまでお問い合わせください。</translation>
     </message>
     <message>
         <source>Windscribe is unable to start its helper service. Third-party security/firewall software may be the cause. If this is not the case, please contact our Technical Support.</source>
-        <translation>Windscribeはヘルパーサービスを開始できません。サードパーティのセキュリティやファイアウォールソフトウェアが原因かもしれません。もしそうでない場合は、当社のテクニカルサポートまでご連絡ください。</translation>
+        <translation>Windscribeのヘルパーサービスを開始できません。サードパーティ製のセキュリティソフトやファイアウォールが原因の可能性があります。該当しない場合は、テクニカルサポートまでお問い合わせください。</translation>
     </message>
     <message>
         <source>The application files could not be extracted to the installation folder. A file may be locked by another program, the disk may be full, or the downloaded installer may be damaged. If this issue persists, download the installer again and retry.</source>
-        <translation>アプリケーションファイルはインストールフォルダに解凍できませんでした。ファイルが他のプログラムによってロックされたり、ディスクがいっぱいになったり、ダウンロードしたインストーラーが損傷している場合があります。この問題が続く場合は、インストーラーを再度ダウンロードして再試行してください。</translation>
+        <translation>アプリケーションファイルをインストールフォルダに展開できませんでした。ファイルが他のプログラムによってロックされているか、ディスクの空き容量が不足しているか、ダウンロードしたインストーラーが破損している可能性があります。問題が解決しない場合は、インストーラーを再度ダウンロードしてやり直してください。</translation>
     </message>
     <message>
         <source>The installation could not be completed successfully. Please contact our Technical Support.</source>
-        <translation>インストールを正常に完了できませんでした。テクニカルサポートにお問い合わせください。</translation>
+        <translation>インストールを正常に完了できませんでした。テクニカルサポートまでお問い合わせください。</translation>
     </message>
     <message>
         <source>Error code: %1</source>
-        <translation>エラーコード:%1</translation>
+        <translation>エラーコード：%1</translation>
     </message>
     <message>
         <source>Log: %1</source>
-        <translation>ログ:%1</translation>
+        <translation>ログ：%1</translation>
     </message>
     <message>
         <source>Select a folder in the list below and click OK.</source>
-        <translation>下のリストからフォルダを選択し、[OK]をクリックします。</translation>
+        <translation>下のリストからフォルダを選択し、「OK」をクリックしてください。</translation>
     </message>
     <message>
         <source>OK</source>
-        <translation>わかりました</translation>
+        <translation>OK</translation>
     </message>
     <message>
         <source>Quit Windscribe Installer?</source>
-        <translation>Windscribeインストーラを終了しますか?</translation>
+        <translation>Windscribeインストーラーを終了しますか？</translation>
     </message>
     <message>
         <source>Quit</source>
-        <translation>辞める</translation>
+        <translation>終了</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -102,15 +102,15 @@
     </message>
     <message>
         <source>The specified installation path is not on the system drive. To ensure the security of the application, and your system, it must be installed on the same drive as Windows. The installation folder has been reset to the default.</source>
-        <translation>指定されたインストール パスがシステム ドライブ上にありません。アプリケーションとシステムのセキュリティを確保するには、Windowsと同じドライブにインストールする必要があります。インストールフォルダがデフォルトにリセットされました。</translation>
+        <translation>指定されたインストールパスがシステムドライブ上にありません。アプリケーションおよびシステムのセキュリティを確保するため、Windowsと同じドライブにインストールする必要があります。インストールフォルダをデフォルトにリセットしました。</translation>
     </message>
     <message>
         <source>You don&apos;t have sufficient permissions to run this application. Administrative privileges are required to install Windscribe.</source>
-        <translation>このアプリケーションを実行するための十分なアクセス許可がありません。Windscribeをインストールするには管理者権限が必要です。</translation>
+        <translation>このアプリケーションを実行するための十分な権限がありません。Windscribeをインストールするには管理者権限が必要です。</translation>
     </message>
     <message>
         <source>The uninstaller for the existing installation of Windscribe could not be found. Please uninstall the application manually and try again.</source>
-        <translation>Windscribeの既存のインストールのアンインストーラーが見つかりませんでした。アプリケーションを手動でアンインストールして、もう一度やり直してください。</translation>
+        <translation>既存のWindscribeのアンインストーラーが見つかりませんでした。アプリケーションを手動でアンインストールしてから、もう一度お試しください。</translation>
     </message>
     <message>
         <source>Security Warning</source>
@@ -118,23 +118,23 @@
     </message>
     <message>
         <source>Installation to a custom folder may allow an attacker to tamper with the Windscribe application. To ensure the security of the application, and your system, we strongly recommend you install to the default location in the &apos;Program Files&apos; folder. Click OK to continue with the custom folder or Cancel to use the default location.</source>
-        <translation>カスタムフォルダにインストールすると、攻撃者が Windscribe アプリケーションを改ざんする可能性があります。アプリケーションとシステムのセキュリティを確保するために、「Program Files」フォルダーのデフォルトの場所にインストールすることを強くお勧めします。「OK」をクリックしてカスタム・フォルダを続行するか、「キャンセル」をクリックしてデフォルトの場所を使用します。</translation>
+        <translation>カスタムフォルダにインストールすると、攻撃者によってWindscribeアプリケーションが改ざんされる恐れがあります。アプリケーションおよびシステムのセキュリティを確保するため、「Program Files」フォルダ内のデフォルトの場所にインストールすることを強くお勧めします。カスタムフォルダのまま続行する場合は「OK」を、デフォルトの場所を使用する場合は「キャンセル」をクリックしてください。</translation>
     </message>
     <message>
         <source>Your current username is &apos;windscribe&apos;, which is needed by the Windscribe app. Windscribe can&apos;t be installed.</source>
-        <translation>現在のユーザー名は「windscribe」で、Windscribeアプリで必要です。Windscribeはインストールできません。</translation>
+        <translation>現在のユーザー名「windscribe」はWindscribeアプリで使用するため、Windscribeをインストールできません。</translation>
     </message>
     <message>
         <source>Installation to your custom folder was unsuccessful. Please uninstall the application manually, ensure no applications are accessing the custom folder, and try again.</source>
-        <translation>カスタムフォルダへのインストールに失敗しました。アプリケーションを手動でアンインストールし、カスタムフォルダにアクセスしているアプリケーションがないことを確認してから、再試行してください。</translation>
+        <translation>カスタムフォルダへのインストールに失敗しました。アプリケーションを手動でアンインストールし、カスタムフォルダにアクセスしているアプリケーションがないことを確認してから、もう一度お試しください。</translation>
     </message>
     <message>
         <source>The custom installation folder could not be deleted. Please uninstall the application manually, ensure no applications are accessing the custom folder, and try again.</source>
-        <translation>カスタム インストール フォルダを削除できませんでした。アプリケーションを手動でアンインストールし、カスタムフォルダにアクセスしているアプリケーションがないことを確認してから、再試行してください。</translation>
+        <translation>カスタムインストールフォルダを削除できませんでした。アプリケーションを手動でアンインストールし、カスタムフォルダにアクセスしているアプリケーションがないことを確認してから、もう一度お試しください。</translation>
     </message>
     <message>
         <source>The custom installation folder is not empty. As a security precaution, Windscribe can only be installed to an empty folder. Please delete all files from the folder and try again.</source>
-        <translation>カスタムインストールフォルダが空ではありません。セキュリティ上の理由から、Windscribeは空のフォルダにのみインストールできます。フォルダからすべてのファイルを削除して、もう一度やり直してください。</translation>
+        <translation>カスタムインストールフォルダが空ではありません。セキュリティ対策のため、Windscribeは空のフォルダにのみインストールできます。フォルダ内のすべてのファイルを削除してから、もう一度お試しください。</translation>
     </message>
 </context>
 <context>
@@ -148,19 +148,19 @@
     <name>QObject</name>
     <message>
         <source>Windscribe Installer</source>
-        <translation>ウィンドスクライブインストーラ</translation>
+        <translation>Windscribeインストーラー</translation>
     </message>
     <message>
         <source>This version of the Windscribe app will not operate correctly on your PC.  Please download the &apos;ARM64&apos; version from the Windscribe website to ensure optimal compatibility and performance.</source>
-        <translation>このバージョンの Windscribe アプリは、お使いの PC では正しく動作しません。 最適な互換性とパフォーマンスを確保するために、WindscribeのWebサイトから「ARM64」バージョンをダウンロードしてください。</translation>
+        <translation>このバージョンのWindscribeアプリは、お使いのPCでは正しく動作しません。最適な互換性とパフォーマンスを確保するため、WindscribeのWebサイトから「ARM64」版をダウンロードしてください。</translation>
     </message>
     <message>
         <source>Windscribe Install Options</source>
-        <translation>ウインドスクライブのインストールオプション</translation>
+        <translation>Windscribeインストールオプション</translation>
     </message>
     <message>
         <source>The Windscribe installer accepts the following optional commmand-line parameters: </source>
-        <translation>Windscribe インストーラは、次のオプションのコマンド行パラメータを受け入れます。</translation>
+        <translation>Windscribeインストーラーでは、以下のコマンドラインパラメータをオプションとして指定できます：</translation>
     </message>
     <message>
         <source>Show this information.</source>
@@ -168,39 +168,39 @@
     </message>
     <message>
         <source>Do not launch the application after installation.</source>
-        <translation>インストール後にアプリケーションを起動しないでください。</translation>
+        <translation>インストール後にアプリケーションを起動しません。</translation>
     </message>
     <message>
         <source>Delete existing preferences, logs, and other data, if they exist.</source>
-        <translation>既存の設定、ログ、およびその他のデータが存在する場合は削除します。</translation>
+        <translation>既存の設定、ログ、その他のデータが存在する場合は削除します。</translation>
     </message>
     <message>
         <source>Overrides the default installation directory. Installation directory must be on the system drive.</source>
-        <translation>デフォルトのインストールディレクトリを上書きします。インストールディレクトリはシステムドライブ上にある必要があります。</translation>
+        <translation>デフォルトのインストールディレクトリを変更します。インストールディレクトリはシステムドライブ上にある必要があります。</translation>
     </message>
     <message>
         <source>Sets the username the application will use to automatically log in when first launched.</source>
-        <translation>アプリケーションが最初に起動したときに自動的にログインするために使用するユーザー名を設定します。</translation>
+        <translation>アプリケーションの初回起動時に自動ログインする際のユーザー名を設定します。</translation>
     </message>
     <message>
         <source>Sets the password the application will use to automatically log in when first launched.</source>
-        <translation>アプリケーションの初回起動時に自動的にログインするために使用するパスワードを設定します。</translation>
+        <translation>アプリケーションの初回起動時に自動ログインする際のパスワードを設定します。</translation>
     </message>
     <message>
         <source>Windscribe Install Error</source>
-        <translation>ウィンドスクライブインストールエラー</translation>
+        <translation>Windscribeインストールエラー</translation>
     </message>
     <message>
         <source>The -dir parameter was specified but the directory path was not.</source>
-        <translation>-dir パラメーターが指定されましたが、ディレクトリー・パスが指定されませんでした。</translation>
+        <translation>-dirパラメータが指定されましたが、ディレクトリパスが指定されていません。</translation>
     </message>
     <message>
         <source>The -username parameter was specified but the username was not.</source>
-        <translation>-username パラメーターが指定されましたが、ユーザー名が指定されませんでした。</translation>
+        <translation>-usernameパラメータが指定されましたが、ユーザー名が指定されていません。</translation>
     </message>
     <message>
         <source>The -password parameter was specified but the password was not.</source>
-        <translation>-password パラメーターが指定されましたが、パスワードが指定されませんでした。</translation>
+        <translation>-passwordパラメータが指定されましたが、パスワードが指定されていません。</translation>
     </message>
     <message>
         <source>Incorrect number of arguments passed to installer.</source>
@@ -208,11 +208,11 @@
     </message>
     <message>
         <source>Use the -help argument to see available arguments and their format.</source>
-        <translation>-help 引数を使用して、使用可能な引数とその形式を確認します。</translation>
+        <translation>使用可能な引数とその形式を確認するには、-help引数を指定してください。</translation>
     </message>
     <message>
         <source>The specified installation path is not on the system drive.  To ensure the security of the application, and your system, it must be installed on the same drive as Windows.</source>
-        <translation>指定されたインストール パスがシステム ドライブ上にありません。 アプリケーションとシステムのセキュリティを確保するには、Windowsと同じドライブにインストールする必要があります。</translation>
+        <translation>指定されたインストールパスがシステムドライブ上にありません。アプリケーションおよびシステムのセキュリティを確保するため、Windowsと同じドライブにインストールする必要があります。</translation>
     </message>
     <message>
         <source>A username was specified but its corresponding password was not provided.</source>
@@ -220,7 +220,7 @@
     </message>
     <message>
         <source>Your username should not be an email address. Please try again.</source>
-        <translation>ユーザー名はメールアドレスであってはなりません。もう一度やり直してください。</translation>
+        <translation>ユーザー名にメールアドレスは指定できません。もう一度お試しください。</translation>
     </message>
     <message>
         <source>A password was specified but its corresponding username was not provided.</source>
@@ -228,15 +228,15 @@
     </message>
     <message>
         <source>The installer was unable to determine if it is running with administrator rights.  Please report this failure to Windscribe support.</source>
-        <translation>インストーラーは、管理者権限で実行されているかどうかを判断できませんでした。 このエラーを Windscribe サポートに報告してください。</translation>
+        <translation>インストーラーが管理者権限で実行されているかどうかを確認できませんでした。このエラーをWindscribeサポートまでご報告ください。</translation>
     </message>
     <message>
         <source>Instructs the installer to hide its user interface.</source>
-        <translation>ユーザー インターフェイスを非表示にするようにインストーラーに指示します。</translation>
+        <translation>インストーラーのユーザーインターフェースを非表示にします。</translation>
     </message>
     <message>
         <source>You don&apos;t have sufficient permissions to run this application. Administrative privileges are required to install Windscribe.</source>
-        <translation>このアプリケーションを実行するための十分なアクセス許可がありません。Windscribeをインストールするには管理者権限が必要です。</translation>
+        <translation>このアプリケーションを実行するための十分な権限がありません。Windscribeをインストールするには管理者権限が必要です。</translation>
     </message>
 </context>
 <context>
@@ -247,15 +247,15 @@
     </message>
     <message>
         <source>OK</source>
-        <translation>わかりました</translation>
+        <translation>OK</translation>
     </message>
     <message>
         <source>Factory Reset</source>
-        <translation>工場リセット</translation>
+        <translation>初期設定にリセット</translation>
     </message>
     <message>
         <source>Create shortcut</source>
-        <translation>ショートカットの作成</translation>
+        <translation>ショートカットを作成</translation>
     </message>
 </context>
 </TS>
