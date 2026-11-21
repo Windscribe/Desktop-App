@@ -9,7 +9,7 @@
     </message>
     <message>
         <source>Write your parameters here</source>
-        <translation>ここにパラメータを入力してください</translation>
+        <translation>ここにパラメータを入力</translation>
     </message>
     <message>
         <source>Clear</source>
@@ -35,19 +35,19 @@
     <name>ConnectWindow::ConnectWindowItem</name>
     <message>
         <source>Connection to Windscribe has been terminated. </source>
-        <translation>Windscribeへの接続が終了しました。 </translation>
+        <translation>Windscribeへの接続が終了しました。</translation>
     </message>
     <message>
         <source> transferred in </source>
-        <translation> 転送 / 接続時間: </translation>
+        <translation>転送 / 接続時間：</translation>
     </message>
     <message>
         <source>Connected for </source>
-        <translation>接続時間: </translation>
+        <translation>接続時間：</translation>
     </message>
     <message>
         <source> transferred</source>
-        <translation> 転送済み</translation>
+        <translation>転送済み</translation>
     </message>
     <message>
         <source>Firewall</source>
@@ -55,11 +55,11 @@
     </message>
     <message>
         <source>Blocks all connectivity in the event of a sudden disconnect</source>
-        <translation>予期せぬ切断が発生した際、すべての通信をブロックします</translation>
+        <translation>突然の切断時にすべての通信をブロックします</translation>
     </message>
     <message>
         <source>Keeping the firewall on while disconnected may break internet connectivity</source>
-        <translation>切断中にファイアウォールをオンのままにすると、インターネットに接続できなくなる場合があります</translation>
+        <translation>未接続時にファイアウォールをオンのままにすると、インターネットに接続できなくなる場合があります</translation>
     </message>
     <message>
         <source>Favourite IP</source>
@@ -143,19 +143,19 @@
     </message>
     <message>
         <source>Emergency connection failure. Try again?</source>
-        <translation>緊急接続に失敗しました。もう一度試しますか？</translation>
+        <translation>緊急接続に失敗しました。再試行しますか？</translation>
     </message>
     <message>
         <source>Can&apos;t access Windscribe.com or login into the app on your restrictive network? Connect to the emergency server that unblocks all of Windscribe.</source>
-        <translation>制限のあるネットワーク環境でWindscribe.comへのアクセスやアプリへのログインができませんか？Windscribeのブロックをすべて解除する緊急サーバーに接続します。</translation>
+        <translation>制限されたネットワーク環境でWindscribe.comへのアクセスやログインができない場合は、Windscribeへのブロックを回避する緊急サーバーに接続してください。</translation>
     </message>
     <message>
         <source>Connecting...</source>
-        <translation>接続中...</translation>
+        <translation>接続中…</translation>
     </message>
     <message>
         <source>Disconnecting...</source>
-        <translation>切断中...</translation>
+        <translation>切断中…</translation>
     </message>
     <message>
         <source>Connect</source>
@@ -170,7 +170,7 @@
     <name>EmergencyConnectWindow::TextLinkItem</name>
     <message>
         <source>Access for %1 Only</source>
-        <translation>%1 のみアクセス可能</translation>
+        <translation>%1のみアクセス可能</translation>
     </message>
 </context>
 <context>
@@ -181,7 +181,7 @@
     </message>
     <message>
         <source>Use the Windscribe app without an account to connect to any OpenVPN or WireGuard server.</source>
-        <translation>アカウントを使用せずに、Windscribeアプリから任意のOpenVPNまたはWireGuardサーバーへ接続できます。</translation>
+        <translation>アカウントなしで、Windscribeアプリから任意のOpenVPNやWireGuardサーバーに接続できます。</translation>
     </message>
     <message>
         <source>Ok, got it!</source>
@@ -192,7 +192,7 @@
     <name>FreeTrafficNotificationController</name>
     <message>
         <source>You reached %1% of your free bandwidth allowance</source>
-        <translation>無料データ通信量の %1% に達しました</translation>
+        <translation>無料データ通信量の%1%に達しました</translation>
     </message>
 </context>
 <context>
@@ -241,7 +241,7 @@
     <name>GuiLocations::LocationsTab</name>
     <message>
         <source>Choose the directory that contains custom configs you wish to display here</source>
-        <translation>ここに表示するカスタム設定が含まれるディレクトリを選択してください</translation>
+        <translation>ここに表示したいカスタム設定のディレクトリを選択してください</translation>
     </message>
     <message>
         <source>Choose</source>
@@ -257,7 +257,7 @@
     </message>
     <message>
         <source>Nothing to see here...</source>
-        <translation>ここには何もありません...</translation>
+        <translation>ここには何もありません…</translation>
     </message>
     <message>
         <source>You don&apos;t have any Static IPs</source>
@@ -323,7 +323,7 @@
     </message>
     <message>
         <source>Hydra profile %1:</source>
-        <translation>Hydraプロファイル %1:</translation>
+        <translation>Hydraプロファイル%1：</translation>
     </message>
     <message>
         <source>(unnamed)</source>
@@ -331,11 +331,11 @@
     </message>
     <message>
         <source>It maps every location: all of them connect through your hydra server.</source>
-        <translation>すべてのロケーションにマッピングされています。全ロケーションがHydraサーバー経由で接続されます。</translation>
+        <translation>すべてのロケーションに割り当てられており、全ロケーションがHydraサーバー経由で接続されます。</translation>
     </message>
     <message>
         <source>Connect to one of these locations to go through your hydra server; the others connect directly.</source>
-        <translation>Hydraサーバーを経由するには、これらのロケーションのいずれかに接続してください。その他のロケーションには直接接続されます。</translation>
+        <translation>Hydraサーバーを経由するには、これらのロケーションのいずれかに接続してください。その他のロケーションは直接接続されます。</translation>
     </message>
 </context>
 <context>
@@ -350,7 +350,7 @@
     </message>
     <message>
         <source>Export to file...</source>
-        <translation>ファイルにエクスポート...</translation>
+        <translation>ファイルにエクスポート…</translation>
     </message>
     <message>
         <source>Save log</source>
@@ -366,14 +366,14 @@
     </message>
     <message>
         <source>Failed to export log.  Make sure you have the correct permissions.</source>
-        <translation>ログのエクスポートに失敗しました。適切なアクセス権限があるか確認してください。</translation>
+        <translation>ログのエクスポートに失敗しました。アクセス権限を確認してください。</translation>
     </message>
 </context>
 <context>
     <name>LoginWindow::CaptchaItem</name>
     <message>
         <source>Slide puzzle piece into place</source>
-        <translation>パズルのピースを正しい位置にスライドしてください</translation>
+        <translation>ピースを正しい位置にスライドしてください</translation>
     </message>
 </context>
 <context>
@@ -483,7 +483,7 @@
     </message>
     <message>
         <source>Rate limited. Please wait before trying to login again.</source>
-        <translation>レート制限中です。しばらく待ってから再度ログインしてください。</translation>
+        <translation>試行回数の制限に達しました。しばらく待ってから再度ログインしてください。</translation>
     </message>
     <message>
         <source>Session is expired. Please login again</source>
@@ -526,7 +526,7 @@
     </message>
     <message>
         <source>8 or more characters with at least one uppercase and lowercase(ie. &quot;Hello1234&quot;, &quot;Solyanka&quot;).</source>
-        <translation>大文字と小文字をそれぞれ1文字以上含む8文字以上（例: 「Hello1234」「Solyanka」）。</translation>
+        <translation>大文字と小文字をそれぞれ1文字以上含む8文字以上（例：「Hello1234」「Solyanka」）。</translation>
     </message>
     <message>
         <source>Email (Optional)</source>
@@ -567,8 +567,8 @@
     <message>
         <source>No personal info required. Account recovery is impossible.
 If you lose your account hash, it&apos;s gone forever and support cannot help you recover it.</source>
-        <translation>個人情報は不要ですが、アカウントの復旧は一切できません。
-アカウントハッシュを紛失すると永久に復元できず、サポートでも復旧することはできません。</translation>
+        <translation>個人情報は不要ですが、アカウントの復旧はできません。
+アカウントハッシュを紛失すると永久に失われ、サポートでも復元できません。</translation>
     </message>
     <message>
         <source>Select file for hash</source>
@@ -580,7 +580,7 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
     </message>
     <message>
         <source>Username must be at least 3 characters</source>
-        <translation>ユーザー名は3文字以上である必要があります</translation>
+        <translation>ユーザー名は3文字以上で入力してください</translation>
     </message>
     <message>
         <source>Your username should not be an email address.</source>
@@ -626,7 +626,7 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
     <name>MainWindow</name>
     <message>
         <source>Windscribe could not update your hosts file, which IKEv2 requires. Another program, such as antivirus or endpoint security software, may be blocking changes to it. Please try again, or use a different connection mode.</source>
-        <translation>WindscribeはIKEv2に必要なhostsファイルを更新できませんでした。ウイルス対策ソフトやエンドポイントセキュリティソフトなど、他のプログラムが変更をブロックしている可能性があります。もう一度お試しいただくか、別の接続モードを使用してください。</translation>
+        <translation>IKEv2に必要なhostsファイルを更新できませんでした。ウイルス対策ソフトやエンドポイントセキュリティソフトなど、他のプログラムが変更をブロックしている可能性があります。再試行するか、別の接続モードを使用してください。</translation>
     </message>
     <message>
         <source>Split Tunneling Stopped</source>
@@ -634,11 +634,11 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
     </message>
     <message>
         <source>The split tunneling session ended unexpectedly. Please reconnect to retry. If this persists, please contact support.</source>
-        <translation>スプリットトンネリングのセッションが予期せず終了しました。再接続してもう一度お試しください。問題が解決しない場合は、サポートまでお問い合わせください。</translation>
+        <translation>スプリットトンネリングのセッションが予期せず終了しました。再接続してもう一度お試しください。解決しない場合は、サポートまでお問い合わせください。</translation>
     </message>
     <message>
         <source>Logging you in...</source>
-        <translation>ログイン中...</translation>
+        <translation>ログイン中…</translation>
     </message>
     <message>
         <source>VPN is active</source>
@@ -674,7 +674,7 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
     </message>
     <message>
         <source>Enable &quot;Base Filtering Engine&quot; service? This is required for Windscribe to function.</source>
-        <translation>「Base Filtering Engine」サービスを有効にしますか？Windscribeの動作に必須のサービスです。</translation>
+        <translation>「Base Filtering Engine」サービスを有効にしますか？Windscribeの動作に必要です。</translation>
     </message>
     <message>
         <source>Failed to Enable Service</source>
@@ -682,7 +682,7 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
     </message>
     <message>
         <source>Could not start &apos;Base Filtering Engine&apos; service.  Please enable this service manually in Windows Services.</source>
-        <translation>「Base Filtering Engine」サービスを開始できませんでした。Windowsの「サービス」から手動でこのサービスを有効にしてください。</translation>
+        <translation>「Base Filtering Engine」サービスを開始できませんでした。Windowsの「サービス」から手動で有効にしてください。</translation>
     </message>
     <message>
         <source>Failed to Start</source>
@@ -718,7 +718,7 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
     </message>
     <message>
         <source>Part of the Windscribe installation is missing.  Please download Windscribe and install it again.</source>
-        <translation>Windscribeのインストールファイルの一部が不足しています。Windscribeを再度ダウンロードしてインストールしてください。</translation>
+        <translation>Windscribeのインストールファイルの一部が不足しています。Windscribeを再ダウンロードしてインストールしてください。</translation>
     </message>
     <message>
         <source>Proxy Gateway is unauthenticated</source>
@@ -726,7 +726,7 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
     </message>
     <message>
         <source>Your Proxy Gateway is enabled without authentication. Anyone on your local network, including untrusted networks like coffee-shop Wi-Fi, can route their traffic through your VPN. We strongly recommend setting credentials.</source>
-        <translation>プロキシゲートウェイが認証なしで有効になっています。カフェのWi-Fiなどの信頼できないネットワークを含め、同じローカルネットワーク上の誰でもあなたのVPN経由で通信できるようになります。認証情報を設定することを強くお勧めします。</translation>
+        <translation>プロキシゲートウェイが認証なしで有効になっています。カフェのWi-Fiなどの信頼できないネットワークを含め、同じローカルネットワーク上の誰でもこのVPN経由で通信できてしまいます。認証情報を設定することを強くお勧めします。</translation>
     </message>
     <message>
         <source>Go to Preferences</source>
@@ -738,25 +738,25 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
     </message>
     <message>
         <source>Trying Backup Endpoints...</source>
-        <translation>バックアップエンドポイントを試行中...</translation>
+        <translation>バックアップエンドポイントを試行中…</translation>
     </message>
     <message>
         <source>SSL requests may be intercepted on your network. Ignoring SSL errors disables TLS certificate validation for this session: anyone able to intercept your traffic can then impersonate Windscribe and read or alter your data, and we can&apos;t guarantee your security while it&apos;s on. Ignore SSL errors?</source>
-        <translation>お使いのネットワーク上でSSLリクエストが傍受されている可能性があります。SSLエラーを無視すると、このセッション中はTLS証明書の検証が無効になります。これにより、通信を傍受できる攻撃者がWindscribeになりすましてデータを読み取ったり改ざんしたりすることが可能となり、この設定がオンの間はセキュリティを保証できません。SSLエラーを無視しますか？</translation>
+        <translation>ネットワーク上でSSLリクエストが傍受されている可能性があります。SSLエラーを無視すると、このセッション中のTLS証明書検証が無効になります。通信を傍受できる第三者がWindscribeになりすましてデータを読み取ったり改ざんしたりできるようになるため、有効な間はセキュリティを保証できません。SSLエラーを無視しますか？</translation>
     </message>
     <message>
         <source>Connected to </source>
-        <translation>接続先: </translation>
+        <translation>接続先：</translation>
     </message>
     <message>
         <source>You are now connected to Windscribe (%1).</source>
-        <translation>Windscribe (%1) に接続しました。</translation>
+        <translation>Windscribe（%1）に接続しました。</translation>
     </message>
     <message>
         <source>Connection to Windscribe has been terminated.
 %1 transferred in %2</source>
         <translation>Windscribeへの接続が終了しました。
-%1 を転送（接続時間: %2）</translation>
+%1を転送（接続時間：%2）</translation>
     </message>
     <message>
         <source>Could not start Proxy Gateway</source>
@@ -828,7 +828,7 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
     </message>
     <message>
         <source>Your debug log has been received. Please contact support if you want assistance with this issue.</source>
-        <translation>デバッグログを受け付けました。この問題についてサポートが必要な場合は、サポートまでお問い合わせください。</translation>
+        <translation>デバッグログを受信しました。この問題についてサポートが必要な場合はお問い合わせください。</translation>
     </message>
     <message>
         <source>Contact Support</source>
@@ -840,17 +840,17 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
     </message>
     <message>
         <source>Could not download update.  Please try again or use a different network.</source>
-        <translation>アップデートをダウンロードできませんでした。もう一度お試しいただくか、別のネットワークをお試しください。</translation>
+        <translation>アップデートをダウンロードできませんでした。再試行するか、別のネットワークをお試しください。</translation>
     </message>
     <message>
         <source>Could not run updater (Error %1).  Please contact support</source>
-        <translation>アップデーターを実行できませんでした（エラー %1）。サポートまでお問い合わせください</translation>
+        <translation>アップデーターを実行できませんでした（エラー%1）。サポートまでお問い合わせください</translation>
     </message>
     <message>
         <source>Lost connection to the backend process.
 Recovering...</source>
         <translation>バックエンドプロセスへの接続が失われました。
-復旧しています...</translation>
+復旧しています…</translation>
     </message>
     <message>
         <source>Select an application</source>
@@ -864,17 +864,17 @@ Recovering...</source>
         <source>WireGuard adapter setup failed. Please wait one minute and try the connection again. If adapter setup fails again, please try restarting your computer.
 
 If the problem persists after a restart, please send a debug log and open a support ticket, then switch to a different connection mode.</source>
-        <translation>WireGuardアダプターのセットアップに失敗しました。1分ほど待ってから再度接続をお試しください。それでもアダプターのセットアップに失敗する場合は、コンピューターを再起動してみてください。
+        <translation>WireGuardアダプターのセットアップに失敗しました。1分ほど待ってから再度接続してください。それでも失敗する場合は、コンピューターを再起動してください。
 
-再起動後も問題が解決しない場合は、デバッグログを送信してサポートチケットを作成し、別の接続モードに切り替えてください。</translation>
+再起動後も解決しない場合は、デバッグログを送信してサポートチケットを作成し、別の接続モードに切り替えてください。</translation>
     </message>
     <message>
         <source>VPN adapter setup failed. Please wait one minute and try the connection again. If the problem persists, please send a debug log and open a support ticket, then switch to a different connection mode.</source>
-        <translation>VPNアダプターのセットアップに失敗しました。1分ほど待ってから再度接続をお試しください。問題が解決しない場合は、デバッグログを送信してサポートチケットを作成し、別の接続モードに切り替えてください。</translation>
+        <translation>VPNアダプターのセットアップに失敗しました。1分ほど待ってから再度接続してください。問題が解決しない場合は、デバッグログを送信してサポートチケットを作成し、別の接続モードに切り替えてください。</translation>
     </message>
     <message>
         <source>Windscribe could not generate the connection configuration. If this error persists, please send a debug log and open a support ticket.</source>
-        <translation>Windscribeは接続設定を生成できませんでした。このエラーが解決しない場合は、デバッグログを送信してサポートチケットを作成してください。</translation>
+        <translation>接続設定を生成できませんでした。このエラーが解決しない場合は、デバッグログを送信してサポートチケットを作成してください。</translation>
     </message>
     <message>
         <source>Can&apos;t reach your hydra server</source>
@@ -882,7 +882,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Windscribe couldn&apos;t connect through the hydra server at %1. Check that it&apos;s running (hydra doctor), or remove the hydra profile in Preferences &gt; Connection to connect without it.</source>
-        <translation>Windscribeは %1 のHydraサーバー経由で接続できませんでした。サーバーが動作しているか確認するか（hydra doctor）、環境設定 &gt; 接続 でHydraプロファイルを削除して、Hydraを使用せずに接続してください。</translation>
+        <translation>%1のHydraサーバー経由で接続できませんでした。サーバーが稼働しているか確認するか（hydra doctor）、「環境設定 &gt; 接続」でHydraプロファイルを削除して、Hydraを使用せずに接続してください。</translation>
     </message>
     <message>
         <source>Hydra needs WireGuard</source>
@@ -890,15 +890,15 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>This location is set to connect through your hydra server, which works with WireGuard only. Choose WireGuard or Auto, or remove the hydra profile in Preferences &gt; Connection.</source>
-        <translation>このロケーションはHydraサーバー経由で接続するよう設定されていますが、HydraサーバーはWireGuardでのみ動作します。プロトコルで「WireGuard」または「自動」を選択するか、環境設定 &gt; 接続 でHydraプロファイルを削除してください。</translation>
+        <translation>このロケーションはHydraサーバー経由で接続するよう設定されていますが、HydraはWireGuardでのみ動作します。プロトコルで「WireGuard」または「自動」を選択するか、「環境設定 &gt; 接続」でHydraプロファイルを削除してください。</translation>
     </message>
     <message>
         <source>The Remote Access Connection Manager (RasMan) service is not running and could not be started. This prevents IKEv2 from being used on this PC. Please try another connection mode or investigate why this core Windows service is unable to start.</source>
-        <translation>Remote Access Connection Manager (RasMan) サービスが実行されておらず、開始できませんでした。そのため、このPCではIKEv2を使用できません。別の接続モードをお試しいただくか、この重要なWindowsサービスが開始できない原因をご確認ください。</translation>
+        <translation>Remote Access Connection Manager (RasMan)サービスが実行されておらず、開始できませんでした。そのため、このPCではIKEv2を使用できません。別の接続モードをお試しいただくか、この重要なWindowsサービスを開始できない原因をご確認ください。</translation>
     </message>
     <message>
         <source>An unexpected error occurred establishing the VPN connection (Error %1).  If this error persists, try using a different protocol or contact support.</source>
-        <translation>VPN接続の確立中に予期しないエラーが発生しました（エラー %1）。このエラーが解決しない場合は、別のプロトコルをお試しいただくか、サポートまでお問い合わせください。</translation>
+        <translation>VPN接続の確立中に予期しないエラーが発生しました（エラー%1）。解決しない場合は、別のプロトコルをお試しいただくか、サポートまでお問い合わせください。</translation>
     </message>
     <message>
         <source>Connection Error</source>
@@ -954,7 +954,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Could not open file for writing.  Check your permissions and try again.</source>
-        <translation>書き込み用にファイルを開けませんでした。アクセス権限を確認してからもう一度お試しください。</translation>
+        <translation>書き込み用にファイルを開けませんでした。アクセス権限を確認してもう一度お試しください。</translation>
     </message>
     <message>
         <source>Enter Connection Credentials</source>
@@ -966,7 +966,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Windscribe could not retrieve server configuration. Please try another protocol.</source>
-        <translation>Windscribeはサーバー設定を取得できませんでした。別のプロトコルをお試しください。</translation>
+        <translation>サーバー設定を取得できませんでした。別のプロトコルをお試しください。</translation>
     </message>
     <message>
         <source>IKEv2 connectivity is not available in MacOS Lockdown Mode. Please disable Lockdown Mode in System Settings or change your connection settings.</source>
@@ -1050,7 +1050,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>The split tunneling feature has been disabled because the Windscribe split tunnel extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again.</source>
-        <translation>Windscribeのスプリットトンネリング拡張機能がシステム設定で有効になっていないため、スプリットトンネリング機能を無効にしました。この機能を使用するには、システム設定で拡張機能を有効にしてから、再度オンにしてください。</translation>
+        <translation>システム設定でWindscribeのスプリットトンネリング機能拡張が有効になっていないため、スプリットトンネリングを無効にしました。この機能を使用するには、システム設定で機能拡張を有効にしてから再度オンにしてください。</translation>
     </message>
     <message>
         <source>Debug Log Sent!</source>
@@ -1106,7 +1106,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Manual connection mode failed</source>
-        <translation>手動接続モードでの接続に失敗しました</translation>
+        <translation>手動モードでの接続に失敗しました</translation>
     </message>
     <message>
         <source>We couldn’t connect you on this network. Automatic connection mode recommended for best results. Switch connection mode to Auto?</source>
@@ -1118,7 +1118,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Creating your account...</source>
-        <translation>アカウントを作成中...</translation>
+        <translation>アカウントを作成中…</translation>
     </message>
     <message>
         <source>Cannot rotate MAC address while connected to VPN. Please disconnect first.</source>
@@ -1174,11 +1174,11 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>&apos;Connected DNS&apos; was not configured with a valid Upstream 1 (IP/DNS-over-HTTPS/TLS). DNS was reverted to ROBERT (default).</source>
-        <translation>「接続時DNS」のアップストリーム 1 に有効な値（IP/DNS-over-HTTPS/TLS）が設定されていなかったため、DNS設定をR.O.B.E.R.T.（デフォルト）に戻しました。</translation>
+        <translation>「接続時DNS」のアップストリーム1に有効な値（IP/DNS-over-HTTPS/TLS）が設定されていなかったため、DNS設定をR.O.B.E.R.T.（デフォルト）に戻しました。</translation>
     </message>
     <message>
         <source>&apos;Connected DNS&apos; was not configured with a valid Upstream 2 (IP/DNS-over-HTTPS/TLS). DNS was reverted to ROBERT (default).</source>
-        <translation>「接続時DNS」のアップストリーム 2 に有効な値（IP/DNS-over-HTTPS/TLS）が設定されていなかったため、DNS設定をR.O.B.E.R.T.（デフォルト）に戻しました。</translation>
+        <translation>「接続時DNS」のアップストリーム2に有効な値（IP/DNS-over-HTTPS/TLS）が設定されていなかったため、DNS設定をR.O.B.E.R.T.（デフォルト）に戻しました。</translation>
     </message>
 </context>
 <context>
@@ -1295,7 +1295,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Warning: Using &quot;OS Default&quot; may sometimes cause DNS leaks during reconnects.</source>
-        <translation>警告: 「OSのデフォルト」を使用すると、再接続中にDNSリークが発生する場合があります。</translation>
+        <translation>警告：「OSのデフォルト」を使用すると、再接続中にDNSリークが発生する場合があります。</translation>
     </message>
     <message>
         <source>App Internal DNS</source>
@@ -1303,7 +1303,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Select the DNS system service Windscribe enforces. Experienced users only.</source>
-        <translation>Windscribeが使用するDNSシステムサービスを選択します（上級者向け）。</translation>
+        <translation>Windscribeが適用するDNSシステムサービスを選択します（上級者向け）。</translation>
     </message>
     <message>
         <source>DNS Manager</source>
@@ -1334,7 +1334,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Protocol-level changes made to WireGuard, OpenVPN, and Stealth protocols.</source>
-        <translation>WireGuard、OpenVPN、Stealthプロトコルに対するプロトコルレベルの変更を行います。</translation>
+        <translation>WireGuard、OpenVPN、Stealthにプロトコルレベルの調整を行います。</translation>
     </message>
     <message>
         <source>Increases latency, but improves chances of being able to connect.</source>
@@ -1428,7 +1428,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Upstream 1</source>
-        <translation>アップストリーム 1</translation>
+        <translation>アップストリーム1</translation>
     </message>
     <message>
         <source>IP/DNS-over-HTTPS/TLS</source>
@@ -1436,7 +1436,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Upstream 2</source>
-        <translation>アップストリーム 2</translation>
+        <translation>アップストリーム2</translation>
     </message>
     <message>
         <source>Split DNS</source>
@@ -1519,7 +1519,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Automatically choose the VPN protocol, or select one manually. NOTE: &quot;Preferred Protocol&quot; will override this setting.</source>
-        <translation>VPNプロトコルを自動選択するか、手動で指定します。注: 「優先プロトコル」が設定されている場合はそちらが優先されます。</translation>
+        <translation>VPNプロトコルを自動選択するか、手動で指定します。注：「優先プロトコル」が設定されている場合はそちらが優先されます。</translation>
     </message>
     <message>
         <source>IP Stack</source>
@@ -1551,15 +1551,15 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Connect to Windscribe through a private hydra server you run. Applies to WireGuard.</source>
-        <translation>ご自身で運用するプライベートHydraサーバー経由でWindscribeに接続します（WireGuardのみ対応）。</translation>
+        <translation>ご自身で運用するプライベートHydraサーバー経由でWindscribeに接続します（WireGuardのみ）。</translation>
     </message>
     <message>
         <source>+1 more location</source>
-        <translation>他 1 件のロケーション</translation>
+        <translation>他1件のロケーション</translation>
     </message>
     <message>
         <source>+%1 more locations</source>
-        <translation>他 %1 件のロケーション</translation>
+        <translation>他%1件のロケーション</translation>
     </message>
     <message>
         <source>Select this location to connect through your hydra server.</source>
@@ -1571,7 +1571,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Spoof your device&apos;s physical address (MAC address).</source>
-        <translation>デバイスの物理アドレス（MACアドレス）を偽装（スプーフィング）します。</translation>
+        <translation>デバイスの物理アドレス（MACアドレス）を偽装します。</translation>
     </message>
     <message>
         <source>MAC spoofing requires NetworkManager to be installed and running.</source>
@@ -1587,7 +1587,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>The firewall is in an Always On mode. Allowing LAN traffic can leak your DNS and other traffic to your local network while you are disconnected. Are you sure you want to enable it?</source>
-        <translation>ファイアウォールが「常時オン」モードになっています。LANトラフィックを許可すると、未接続時にDNSやその他の通信がローカルネットワークへ漏洩する恐れがあります。有効にしてもよろしいですか？</translation>
+        <translation>ファイアウォールが「常時オン」モードになっています。LANトラフィックを許可すると、未接続時にDNSなどの通信がローカルネットワークへ漏洩する恐れがあります。有効にしますか？</translation>
     </message>
     <message>
         <source>Settings Conflict</source>
@@ -1599,7 +1599,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>LAN traffic is currently blocked by the Windscribe firewall.  Do you want to allow LAN traffic to bypass the firewall in order for this feature to work?</source>
-        <translation>現在、LANトラフィックはWindscribeファイアウォールによってブロックされています。この機能を利用するために、LANトラフィックがファイアウォールを通過することを許可しますか？</translation>
+        <translation>現在、LANトラフィックはWindscribeファイアウォールでブロックされています。この機能を利用するため、LANトラフィックのファイアウォール通過を許可しますか？</translation>
     </message>
     <message>
         <source>Disabling Allow LAN Traffic will cause your secure hotspot to stop working.  Do you want to disable the hotspot?</source>
@@ -1623,7 +1623,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Configure egress IP stack for VPN connections (WireGuard only).</source>
-        <translation>VPN接続時の出力（Egress）IPスタックを設定します（WireGuardのみ）。</translation>
+        <translation>VPN接続の出力（Egress）IPスタックを設定します（WireGuardのみ）。</translation>
     </message>
     <message>
         <source>Clear Wi-Fi History</source>
@@ -1635,11 +1635,11 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Are you sure you want to clear all your Wi-Fi history? This will also clear all Wi-Fi passwords except for the one you&apos;re currently connected to. This may also temporarily disable your Wi-Fi.</source>
-        <translation>Wi-Fi履歴をすべて削除してもよろしいですか？現在接続中のWi-Fiを除く、保存されたすべてのWi-Fiパスワードも削除されます。また、一時的にWi-Fiが無効になる場合があります。</translation>
+        <translation>Wi-Fi履歴をすべて削除しますか？現在接続中のWi-Fi以外の保存済みパスワードもすべて削除され、一時的にWi-Fiが無効になる場合があります。</translation>
     </message>
     <message>
         <source>Remove Wi-Fi SSID and MAC information from your operating system to prevent location history tracking.</source>
-        <translation>位置情報の履歴追跡を防ぐため、OSからWi-FiのSSIDとMACアドレスの履歴を削除します。</translation>
+        <translation>位置情報の履歴追跡を防ぐため、OSからWi-FiのSSIDとMACアドレス情報を削除します。</translation>
     </message>
     <message>
         <source>Anti-Censorship Settings</source>
@@ -1661,7 +1661,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>This is an experimental feature that attempts to combat traffic correlation attacks on adversarial networks. When enabled, the app will generate random activity over the tunnel, and upload and download random data at chosen intervals.</source>
-        <translation>監視されたネットワークにおけるトラフィック相関攻撃への対抗を目的とした実験的機能です。有効にすると、VPNトンネル上で選択した間隔ごとにランダムな通信（アップロードおよびダウンロード）を発生させます。</translation>
+        <translation>監視されたネットワークにおけるトラフィック相関攻撃への対抗を目的とした実験的機能です。有効にすると、選択した間隔ごとにVPNトンネル上でランダムな通信（アップロードおよびダウンロード）を発生させます。</translation>
     </message>
     <message>
         <source>Fake Traffic Volume</source>
@@ -1734,7 +1734,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Get 10GB/Month of data and gain the ability to reset your password.</source>
-        <translation>月間10GBのデータ容量を獲得し、パスワードのリセット機能も有効になります。</translation>
+        <translation>月間10GBのデータ容量を獲得でき、パスワードのリセットも可能になります。</translation>
     </message>
     <message>
         <source>Please confirm your email</source>
@@ -1899,7 +1899,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Sending log...</source>
-        <translation>ログを送信中...</translation>
+        <translation>ログを送信中…</translation>
     </message>
     <message>
         <source>Sent, thanks!</source>
@@ -1922,7 +1922,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Choose between the classic GUI or the &quot;earless&quot; alternative GUI.</source>
-        <translation>クラシックデザインのGUI、またはフラット（「耳なし」）デザインの代替GUIを選択します。</translation>
+        <translation>クラシックGUI、またはフラット（「耳なし」）な代替GUIを選択します。</translation>
     </message>
     <message>
         <source>App Skin</source>
@@ -1981,7 +1981,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>The current primary interface must match the selected interface to spoof.</source>
-        <translation>スプーフィングを行うには、現在のプライマリインターフェースが選択したインターフェースと一致している必要があります。</translation>
+        <translation>スプーフィングするには、現在のプライマリインターフェースと選択したインターフェースが一致している必要があります。</translation>
     </message>
     <message>
         <source>No Interface</source>
@@ -2558,18 +2558,18 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>Include or exclude apps and hostnames from the VPN tunnel.</source>
-        <translation>アプリやホスト名をVPNトンネルに含めるか、除外するかを設定します。</translation>
+        <translation>アプリやホスト名をVPNトンネルに含めるか除外するかを設定します。</translation>
     </message>
     <message>
         <source>The Windscribe split tunneling system extension must be enabled for this feature to function. Please enable it in System Settings.</source>
-        <translation>この機能を使用するには、システム設定でWindscribeのスプリットトンネリングシステム機能拡張を有効にする必要があります。</translation>
+        <translation>この機能を使用するには、システム設定でWindscribeのスプリットトンネリング機能拡張を有効にする必要があります。</translation>
     </message>
 </context>
 <context>
     <name>ProtocolWindow::ProtocolLineItem</name>
     <message>
         <source>NEXT UP IN %1s</source>
-        <translation>あと %1 秒で次へ</translation>
+        <translation>あと%1秒で次へ</translation>
     </message>
     <message>
         <source>Connected to</source>
@@ -2779,15 +2779,15 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>Invalid &quot;Address&quot; value: %1</source>
-        <translation>「Address」の値が無効です: %1</translation>
+        <translation>「Address」の値が無効です：%1</translation>
     </message>
     <message>
         <source>Invalid &quot;AllowedIPs&quot; value: %1</source>
-        <translation>「AllowedIPs」の値が無効です: %1</translation>
+        <translation>「AllowedIPs」の値が無効です：%1</translation>
     </message>
     <message>
         <source>Invalid &quot;DNS&quot; value: %1</source>
-        <translation>「DNS」の値が無効です: %1</translation>
+        <translation>「DNS」の値が無効です：%1</translation>
     </message>
     <message>
         <source>Invalid endpoint port</source>
@@ -2807,7 +2807,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>Invalid AmneziaWG parameter: %1</source>
-        <translation>AmneziaWGパラメータが無効です: %1</translation>
+        <translation>AmneziaWGパラメータが無効です：%1</translation>
     </message>
     <message>
         <source>Invalid &quot;PersistentKeepalive&quot; value</source>
@@ -2819,7 +2819,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>Your original account %1 has expired. Creating multiple accounts to bypass free tier limitations is prohibited. Please login into the original account and wait until the bandwidth is reset. You can also upgrade to Pro.</source>
-        <translation>元のアカウント %1 の利用期限が切れています。無料枠の制限を回避する目的で複数のアカウントを作成することは禁止されています。元のアカウントにログインし、データ通信量がリセットされるまでお待ちいただくか、Proプランへアップグレードしてください。</translation>
+        <translation>元のアカウント「%1」の利用期限が切れています。無料枠の制限を回避するために複数のアカウントを作成することは禁止されています。元のアカウントにログインし、データ通信量がリセットされるまでお待ちいただくか、Proプランへアップグレードしてください。</translation>
     </message>
     <message>
         <source>Your account is disabled for abuse.</source>
@@ -2919,27 +2919,27 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>%1 is required</source>
-        <translation>%1 は必須です</translation>
+        <translation>%1は必須です</translation>
     </message>
     <message>
         <source>%1 must be a string</source>
-        <translation>%1 は文字列である必要があります</translation>
+        <translation>%1は文字列である必要があります</translation>
     </message>
     <message>
         <source>%1 must be 1-65535</source>
-        <translation>%1 は 1〜65535 の範囲である必要があります</translation>
+        <translation>%1は1〜65535の範囲である必要があります</translation>
     </message>
     <message>
         <source>%1 must be a positive whole number</source>
-        <translation>%1 は正の整数である必要があります</translation>
+        <translation>%1は正の整数である必要があります</translation>
     </message>
     <message>
         <source>%1 must be a hostname</source>
-        <translation>%1 はホスト名である必要があります</translation>
+        <translation>%1はホスト名である必要があります</translation>
     </message>
     <message>
         <source>%1 must be an IPv4 address</source>
-        <translation>%1 はIPv4アドレスである必要があります</translation>
+        <translation>%1はIPv4アドレスである必要があります</translation>
     </message>
     <message>
         <source>must be an object</source>
@@ -2947,11 +2947,11 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>unknown field %1</source>
-        <translation>不明なフィールド %1</translation>
+        <translation>不明なフィールド%1</translation>
     </message>
     <message>
         <source>unsupported protocol %1</source>
-        <translation>サポートされていないプロトコル %1</translation>
+        <translation>サポートされていないプロトコル%1</translation>
     </message>
     <message>
         <source>The file is too large to be a hydra profile.</source>
@@ -2959,11 +2959,11 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>Not a hydra profile: the file is not a JSON object.</source>
-        <translation>Hydraプロファイルではありません: ファイルがJSONオブジェクトではありません。</translation>
+        <translation>Hydraプロファイルではありません：ファイルがJSONオブジェクトではありません。</translation>
     </message>
     <message>
         <source>Not a hydra profile: kind must be %1.</source>
-        <translation>Hydraプロファイルではありません: kind は %1 である必要があります。</translation>
+        <translation>Hydraプロファイルではありません：kindは%1である必要があります。</translation>
     </message>
     <message>
         <source>This hydra profile is from an older hydra and names one server; ask for a new one.</source>
@@ -2975,43 +2975,43 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>Invalid hydra profile: unknown field %1.</source>
-        <translation>無効なHydraプロファイル: 不明なフィールド %1。</translation>
+        <translation>無効なHydraプロファイル：不明なフィールド%1。</translation>
     </message>
     <message>
         <source>Invalid hydra profile: %1.</source>
-        <translation>無効なHydraプロファイル: %1。</translation>
+        <translation>無効なHydraプロファイル：%1。</translation>
     </message>
     <message>
         <source>Invalid hydra profile: all must be true or false.</source>
-        <translation>無効なHydraプロファイル: all は true または false である必要があります。</translation>
+        <translation>無効なHydraプロファイル：allはtrueまたはfalseである必要があります。</translation>
     </message>
     <message>
         <source>Invalid hydra profile: it has no fronts.</source>
-        <translation>無効なHydraプロファイル: fronts（フロント）がありません。</translation>
+        <translation>無効なHydraプロファイル：fronts（フロント）がありません。</translation>
     </message>
     <message>
         <source>Invalid hydra profile: front %1: %2.</source>
-        <translation>無効なHydraプロファイル: フロント %1: %2。</translation>
+        <translation>無効なHydraプロファイル：フロント%1：%2。</translation>
     </message>
     <message>
         <source>Invalid hydra profile: front %1: entry %2 is listed twice.</source>
-        <translation>無効なHydraプロファイル: フロント %1: エントリ %2 が重複しています。</translation>
+        <translation>無効なHydraプロファイル：フロント%1：エントリ%2が重複しています。</translation>
     </message>
     <message>
         <source>%1 via %2</source>
-        <translation>%1（%2 経由）</translation>
+        <translation>%1（%2経由）</translation>
     </message>
     <message>
         <source>%1 via %2 (not in the server list)</source>
-        <translation>%1（%2 経由、サーバーリストにありません）</translation>
+        <translation>%1（%2経由、サーバーリストにありません）</translation>
     </message>
     <message>
         <source>Could not read the hydra profile: %1</source>
-        <translation>Hydraプロファイルを読み込めませんでした: %1</translation>
+        <translation>Hydraプロファイルを読み込めませんでした：%1</translation>
     </message>
     <message>
         <source>Could not save the hydra profile: %1</source>
-        <translation>Hydraプロファイルを保存できませんでした: %1</translation>
+        <translation>Hydraプロファイルを保存できませんでした：%1</translation>
     </message>
     <message>
         <source>%1 (not in the server list)</source>
@@ -3128,11 +3128,11 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <name>UpdateWindowItem</name>
     <message>
         <source>Updating </source>
-        <translation>アップデート中 </translation>
+        <translation>アップデート中</translation>
     </message>
     <message>
         <source>Your update is in progress, hang in there...</source>
-        <translation>アップデートを実行中です。しばらくお待ちください...</translation>
+        <translation>アップデートを実行中です。しばらくお待ちください…</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -3174,35 +3174,35 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>%1 left</source>
-        <translation>残り %1</translation>
+        <translation>残り%1</translation>
     </message>
     <message>
         <source>0 days left</source>
-        <translation>残り 0 日</translation>
+        <translation>残り0日</translation>
     </message>
     <message>
         <source>1 day left</source>
-        <translation>残り 1 日</translation>
+        <translation>残り1日</translation>
     </message>
     <message>
         <source>2 days left</source>
-        <translation>残り 2 日</translation>
+        <translation>残り2日</translation>
     </message>
     <message>
         <source>3 days left</source>
-        <translation>残り 3 日</translation>
+        <translation>残り3日</translation>
     </message>
     <message>
         <source>4 days left</source>
-        <translation>残り 4 日</translation>
+        <translation>残り4日</translation>
     </message>
     <message>
         <source>5 days left</source>
-        <translation>残り 5 日</translation>
+        <translation>残り5日</translation>
     </message>
     <message>
         <source>%1 days left</source>
-        <translation>残り %1 日</translation>
+        <translation>残り%1日</translation>
     </message>
     <message>
         <source>Login</source>
@@ -3221,7 +3221,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>Don&apos;t leave your front door open. Upgrade or wait until next month to get your monthly data allowance back.</source>
-        <translation>無防備なままにしないでください。アップグレードするか、来月になって毎月のデータ容量が回復するまでお待ちください。</translation>
+        <translation>無防備なままにしないでください。アップグレードするか、来月になってデータ容量が回復するまでお待ちください。</translation>
     </message>
     <message>
         <source>Get more data</source>
