@@ -34,7 +34,7 @@
     </message>
     <message>
         <source>Windscribe is running and could not be closed. Please close the application manually and try again.</source>
-        <translation>Windscribeが実行中のため、終了できませんでした。アプリケーションを手動で終了してから、もう一度お試しください。</translation>
+        <translation>Windscribeが実行中で終了できませんでした。アプリケーションを手動で終了してから、もう一度お試しください。</translation>
     </message>
     <message>
         <source>The installer could not connect to the privileged helper tool. Please try again.</source>
@@ -46,11 +46,11 @@
     </message>
     <message>
         <source>The Windows Base Filtering Engine service is not running and could not be started. This core Windows service must be running to install Windscribe. Third-party security/firewall software is most often the cause of this issue.</source>
-        <translation>Windows Base Filtering Engineサービスが実行されておらず、開始できませんでした。Windscribeをインストールするには、この重要なWindowsサービスが実行されている必要があります。この問題は、サードパーティ製のセキュリティソフトウェアやファイアウォールが原因であることがほとんどです。</translation>
+        <translation>Windows Base Filtering Engineサービスが実行されておらず、開始できませんでした。Windscribeをインストールするには、この重要なWindowsサービスが実行されている必要があります。この問題は、サードパーティ製のセキュリティソフトやファイアウォールが原因であることがほとんどです。</translation>
     </message>
     <message>
         <source>Windscribe is unable to connect to the Windows Base Filtering Engine service. Connecting to this core Windows service is required to install Windscribe. Third-party security/firewall software is most often the cause of this issue.</source>
-        <translation>WindscribeがWindows Base Filtering Engineサービスに接続できません。Windscribeをインストールするには、この重要なWindowsサービスへの接続が必要です。この問題は、サードパーティ製のセキュリティソフトウェアやファイアウォールが原因であることがほとんどです。</translation>
+        <translation>WindscribeがWindows Base Filtering Engineサービスに接続できません。Windscribeをインストールするには、この重要なWindowsサービスへの接続が必要です。この問題は、サードパーティ製のセキュリティソフトやファイアウォールが原因であることがほとんどです。</translation>
     </message>
     <message>
         <source>Windscribe is unable to install its helper service. Please manually uninstall Windscribe and try again. If this issue persists, please contact our Technical Support.</source>
@@ -58,7 +58,7 @@
     </message>
     <message>
         <source>Windscribe is unable to start its helper service. Third-party security/firewall software may be the cause. If this is not the case, please contact our Technical Support.</source>
-        <translation>Windscribeのヘルパーサービスを開始できません。サードパーティ製のセキュリティソフトウェアやファイアウォールが原因の可能性があります。該当しない場合は、テクニカルサポートまでお問い合わせください。</translation>
+        <translation>Windscribeのヘルパーサービスを開始できません。サードパーティ製のセキュリティソフトやファイアウォールが原因の可能性があります。該当しない場合は、テクニカルサポートまでお問い合わせください。</translation>
     </message>
     <message>
         <source>The application files could not be extracted to the installation folder. A file may be locked by another program, the disk may be full, or the downloaded installer may be damaged. If this issue persists, download the installer again and retry.</source>
@@ -70,11 +70,11 @@
     </message>
     <message>
         <source>Error code: %1</source>
-        <translation>エラーコード: %1</translation>
+        <translation>エラーコード：%1</translation>
     </message>
     <message>
         <source>Log: %1</source>
-        <translation>ログ: %1</translation>
+        <translation>ログ：%1</translation>
     </message>
     <message>
         <source>Select a folder in the list below and click OK.</source>
@@ -156,11 +156,11 @@
     </message>
     <message>
         <source>Windscribe Install Options</source>
-        <translation>Windscribe インストールオプション</translation>
+        <translation>Windscribeインストールオプション</translation>
     </message>
     <message>
         <source>The Windscribe installer accepts the following optional commmand-line parameters: </source>
-        <translation>Windscribeインストーラーでは、以下のコマンドラインパラメータをオプションとして指定できます:</translation>
+        <translation>Windscribeインストーラーでは、以下のコマンドラインパラメータをオプションとして指定できます：</translation>
     </message>
     <message>
         <source>Show this information.</source>
@@ -188,19 +188,19 @@
     </message>
     <message>
         <source>Windscribe Install Error</source>
-        <translation>Windscribe インストールエラー</translation>
+        <translation>Windscribeインストールエラー</translation>
     </message>
     <message>
         <source>The -dir parameter was specified but the directory path was not.</source>
-        <translation>-dir パラメータが指定されましたが、ディレクトリパスが指定されていません。</translation>
+        <translation>-dirパラメータが指定されましたが、ディレクトリパスが指定されていません。</translation>
     </message>
     <message>
         <source>The -username parameter was specified but the username was not.</source>
-        <translation>-username パラメータが指定されましたが、ユーザー名が指定されていません。</translation>
+        <translation>-usernameパラメータが指定されましたが、ユーザー名が指定されていません。</translation>
     </message>
     <message>
         <source>The -password parameter was specified but the password was not.</source>
-        <translation>-password パラメータが指定されましたが、パスワードが指定されていません。</translation>
+        <translation>-passwordパラメータが指定されましたが、パスワードが指定されていません。</translation>
     </message>
     <message>
         <source>Incorrect number of arguments passed to installer.</source>
@@ -208,7 +208,7 @@
     </message>
     <message>
         <source>Use the -help argument to see available arguments and their format.</source>
-        <translation>使用可能な引数とその形式を確認するには、-help 引数を指定してください。</translation>
+        <translation>使用可能な引数とその形式を確認するには、-help引数を指定してください。</translation>
     </message>
     <message>
         <source>The specified installation path is not on the system drive.  To ensure the security of the application, and your system, it must be installed on the same drive as Windows.</source>
