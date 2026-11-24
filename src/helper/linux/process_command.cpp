@@ -443,8 +443,9 @@ std::string startWstunnel(const std::string &pars)
     WS_DEBUG_TRACE_SCOPE("startWstunnel");
     std::string hostname;
     unsigned int port, localPort;
+    bool extraPadding;
     std::string customSniDomain;
-    deserializePars(pars, hostname, port, localPort, customSniDomain);
+    deserializePars(pars, hostname, port, localPort, extraPadding, customSniDomain);
 
     spdlog::debug("Starting wstunnel");
 
@@ -465,6 +466,9 @@ std::string startWstunnel(const std::string &pars)
     if (!customSniDomain.empty()) {
         args.push_back("-s");
         args.push_back(customSniDomain);
+    }
+    if (extraPadding) {
+        args.push_back("--extraTlsPadding");
     }
 
     Spawn::Options opts;

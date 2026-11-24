@@ -125,16 +125,16 @@ void OpenVPNConnection::prepareImpl()
     }
     config_ = makeOVPNFile.config();
 
+    const bool isTlsAntiCensorship = ExtraConfig::instance().getStealthExtraTLSPadding() ||
+        !sessionParams_.amneziawgPreset.isEmpty() ||
+        sessionParams_.isAntiCensorship;
     if (descr_.protocol == types::Protocol::STUNNEL) {
-        if (!stunnelManager_->runProcess(descr_.ip, descr_.port,
-                                         ExtraConfig::instance().getStealthExtraTLSPadding() || !sessionParams_.amneziawgPreset.isEmpty(),
-                                         sessionParams_.customSni)) {
+        if (!stunnelManager_->runProcess(descr_.ip, descr_.port, isTlsAntiCensorship, sessionParams_.customSni)) {
             emit prepareFailed(ConnectError::kLocalProcessLaunchFailure);
         }
-        // prepared() is emitted from onWrapperStarted once the wrapper is up.
         return;
     } else if (descr_.protocol == types::Protocol::WSTUNNEL) {
-        if (!wstunnelManager_->runProcess(descr_.ip, descr_.port, sessionParams_.customSni)) {
+        if (!wstunnelManager_->runProcess(descr_.ip, descr_.port, isTlsAntiCensorship, sessionParams_.customSni)) {
             emit prepareFailed(ConnectError::kLocalProcessLaunchFailure);
         }
         return;

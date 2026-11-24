@@ -30,7 +30,7 @@ WstunnelManager::~WstunnelManager()
     killProcess();
 }
 
-bool WstunnelManager::runProcess(const QString &hostname, unsigned int port, const QString &customSni)
+bool WstunnelManager::runProcess(const QString &hostname, unsigned int port, bool isExtraPadding, const QString &customSni)
 {
     bool ret = false;
 #if defined(Q_OS_WIN)
@@ -49,13 +49,16 @@ bool WstunnelManager::runProcess(const QString &hostname, unsigned int port, con
     if (!customSni.isEmpty()) {
         args << "-s" << customSni;
     }
+    if (isExtraPadding) {
+        args << "--extraTlsPadding";
+    }
     args << "--logFilePath" << "";
     
     process_->start(wstunnelExePath_, args);
     ret = true;
 #else
     Helper_posix *helper_posix = dynamic_cast<Helper_posix *>(helper_);
-    ret = helper_posix->startWstunnel(hostname, port, port_, customSni);
+    ret = helper_posix->startWstunnel(hostname, port, port_, isExtraPadding, customSni);
     if (ret) {
         emit wstunnelStarted();
     }
