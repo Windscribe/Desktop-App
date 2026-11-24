@@ -280,9 +280,9 @@ bool Helper_posix::startStunnel(const QString &hostname, unsigned int port, unsi
     return success;
 }
 
-bool Helper_posix::startWstunnel(const QString &hostname, unsigned int port, unsigned int localPort, const QString &customSni)
+bool Helper_posix::startWstunnel(const QString &hostname, unsigned int port, unsigned int localPort, bool extraPadding, const QString &customSni)
 {
-    auto result = sendCommand(HelperCommand::startWstunnel, hostname.toStdString(), port, localPort, customSni.toStdString());
+    auto result = sendCommand(HelperCommand::startWstunnel, hostname.toStdString(), port, localPort, extraPadding, customSni.toStdString());
     bool success = false;
     deserializeAnswer(result, success);
     return success;
