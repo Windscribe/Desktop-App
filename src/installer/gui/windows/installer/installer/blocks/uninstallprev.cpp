@@ -9,17 +9,18 @@
 #include <windows.h>
 #include <spdlog/spdlog.h>
 
-#include "installerenums.h"
-#include "uninstall_info.h"
 #include "../../../utils/applicationinfo.h"
 #include "../../../utils/path.h"
 #include "../../../utils/payloadextractor.h"
 #include "../../../utils/utils.h"
 #include "../../../utils/wide_string.h"
+#include "../installer_utils.h"
 #include "executable_signature/executable_signature.h"
 #include "global_consts.h"
+#include "icons.h"
+#include "installerenums.h"
 #include "servicecontrolmanager.h"
-#include "../installer_utils.h"
+#include "uninstall_info.h"
 #include "win32handle.h"
 
 using namespace std;
@@ -178,6 +179,7 @@ int UninstallPrev::executeStep()
                 spdlog::info(L"UninstallPrev::executeStep: successfully extracted uninstaller, trying again.");
                 return 65;
             }
+            ranUninstaller_ = true;
         } else {
             spdlog::info(L"UninstallPrev did not find a previous install and is skipping the uninstall step.");
         }
@@ -306,6 +308,15 @@ bool UninstallPrev::uninstallOldVersion(const wstring &uninstallString, DWORD &l
             lastError = ERROR_INVALID_IMAGE_HASH;
             return false;
         }
+    }
+
+    // Uninstallers delete the desktop shortcut, and Windows forgets the icon's position once the file is gone.
+    // Holding the file open without delete sharing makes that delete fail, so the user's placement survives the update.
+    wsl::Win32Handle desktopShortcut;
+    const wstring link = Icons::desktopShortcutPath();
+    if (!link.empty()) {
+        desktopShortcut.setHandle(::CreateFile(link.c_str(), GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr,
+                                               OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr));
     }
 
     DWORD error = 0;

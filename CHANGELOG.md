@@ -1,3 +1,36 @@
+2.26.4 (24/11/2026)
+All:
+   * Fixed the Allow LAN Traffic setting, and other non-default settings, being silently turned off after upgrading to 2.26.3, while the app still showed them as on. #2122
+   * Fixed windscribe-cli connecting on the default port (443) when given a port the protocol doesn't offer. It now shows an error and exits instead. #2116
+   * Fixed windscribe-cli waiting silently with no time limit when the app showed a CAPTCHA at login or the WireGuard key limit prompt. windscribe-cli now says which prompt is waiting in the app and stops waiting after 2 minutes. #2115
+Windows:
+   * Added an option to the uninstaller to also delete your settings and data, for when you don't plan to reinstall Windscribe. The checkbox is off by default. You can also turn it on with the /DELETEALLDATA command-line flag. Upgrades never delete settings. #2117
+   * Fixed IPv6 staying blocked after the app crashed while connected, even with the firewall off. #2112
+Linux:
+   * Fixed WireGuard failing to connect after a disconnect, or after switching protocols while connected, when Inclusive split tunneling was on and the firewall stayed on. #2123
+
+
+2.26.3 (20/11/2026)
+All:
+   * Improved login and signup to check the username and password before sending them, and to show what is wrong next to the field. #2103
+   * Fixed a username with a disallowed character, for example a trailing "!", showing "Invalid API response, check your network" at login instead of a credentials error. windscribe-cli now shows the same messages. #2103
+   * Fixed a stray help link icon showing in Preferences for settings that have no description. #2072
+   * Removed the MAC Spoofing feature. MAC address randomization is now built into Windows, macOS and Linux. If you had MAC Spoofing turned on, the app shows a one-time alert that explains how to use your system's MAC randomization instead. #2104
+Windows:
+   * Improved connection and disconnection speed by making firewall updates faster. #2094
+   * Fixed app update moving the existing Windscribe desktop shortcut to a new position. #2095
+   * Fixed a possible app crash in the RAS API during connection initiation with IKEv2. #2109
+macOS:
+   * Added optional detailed app and helper debug tracing to help pinpoint connection delays. #2106
+   * Improved connection and disconnection speed for WireGuard and OpenVPN, including faster firewall updates. #2106
+   * Fixed the firewall state table filling up when there are a very large number of open connections. #2102
+Linux:
+   * Added optional detailed app and helper debug tracing to help pinpoint connection delays. #2106
+   * Improved connection and disconnection speed for WireGuard, AmneziaWG and OpenVPN, including faster firewall updates. #2106
+   * Fixed Inclusive split tunneling with WireGuard sending all traffic through the VPN when the system already has its own routing policy rules. #2096
+   * Fixed connection delays on systems with native IPv6, caused by NetworkManager stalling while it checked the new VPN interface. #2110
+
+
 2.26.2 (13/11/2026)
 All:
    * Fixed the app treating a failed hydra connection as a manual connection and showing the manual connection prompt. #2072

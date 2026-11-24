@@ -5,6 +5,8 @@
 #include <string>
 #include <vector>
 
+#include "../common/utils_posix.h"
+
 namespace Utils
 {
     // Scope-local umask override. Restores the previous umask in the destructor so an exception during the guarded
@@ -40,16 +42,6 @@ namespace Utils
     // parent can be renamed, so every path that creates one calls this first. Idempotent.
     bool ensureVendorDir();
 
-    // execute cmd with args and return output from stdout and stderror to pOutputStr (if pOutputStr != NULL)
-    // When appendFromStdErr is true, stderr is merged into stdout via a subshell redirect, so error
-    // lines are interleaved with stdout in arrival order rather than appended after it. Callers must
-    // not assume stdout precedes stderr in pOutputStr (e.g. do not treat the first line as data);
-    // parse by matching an expected marker/pattern instead.
-    int executeCommand(const std::string &cmd,
-                       const std::vector<std::string> &args = std::vector<std::string>(),
-                       std::string *pOutputStr = nullptr,
-                       bool appendFromStdErr = true);
-
     // find case insensitive sub string in a given substring
     size_t findCaseInsensitive(std::string data, std::string toSearch, size_t pos = 0);
 
@@ -66,9 +58,6 @@ namespace Utils
 
     // check if string has whitespace
     bool hasWhitespaceInString(const std::string &str);
-
-    // Root-only directory holding everything the helper executes as root.
-    std::string getExePath();
 
     // check if a string is a canonical SCDynamicStore DNS entry of the form
     // (State|Setup):/Network/Service/<id>/DNS, where <id> is alphanumeric/._-

@@ -99,6 +99,7 @@ private:
         bool isAcceptSigTermCommand_;
         bool bSigTermSent;
         bool bNeedSendSigTerm;
+        bool bRouteUpFailed;
 
         bool bFirstCalcStat;
         quint64 prevBytesRcved;
@@ -130,6 +131,7 @@ private:
             openVpnPid = 0;
             bWasSocketConnected = false;
             bNeedSendSigTerm = false;
+            bRouteUpFailed = false;
             isAcceptSigTermCommand_ = false;
         }
     };

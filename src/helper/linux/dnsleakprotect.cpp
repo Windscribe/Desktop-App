@@ -11,6 +11,7 @@
 #include "types/ipaddress.h"
 #include "utils.h"
 #include "utils/dns_utils/dnsleakparse.h"
+#include "utils/log/debug_trace.h"
 
 namespace {
 
@@ -67,6 +68,7 @@ namespace DnsLeakProtect {
 bool enable(const std::string &vpnInterfaceName, const std::vector<std::string> &allowedDnsServers,
             const std::string &defaultGatewayV4)
 {
+    WS_DEBUG_TRACE_SCOPE("DnsLeakProtect::enable");
     std::string iface = vpnInterfaceName;
     if (!iface.empty() && !Validation::isValidInterfaceName(iface)) {
         spdlog::warn("DnsLeakProtect: invalid tunnel interface name \"{}\"; ignoring it", iface);
@@ -116,11 +118,9 @@ bool enable(const std::string &vpnInterfaceName, const std::vector<std::string> 
     // tunnel header and its continuation would clear the exemption and snapshot the tunnel's resolvers.
     std::string out;
     const int resolvectlRc = Utils::executeCommand("timeout", {"2", "resolvectl", "dns"}, &out, false);
-    // Discard only when the text was cut mid-line: 124 is timeout's own kill, and >=128 is a signalled
-    // child — executeCommand waits on the enclosing shell, so a signalled resolvectl arrives as 128+sig
-    // rather than as the -1 that only a signalled shell produces. Any other non-zero is resolvectl's own:
-    // status_all prints every link it read and returns the first error, so that output is complete for
-    // the links it covers and is worth parsing rather than discarding wholesale.
+    // Discard only when the text was cut mid-line: 124 is timeout's own kill, and a killed resolvectl makes timeout
+    // re-raise the signal (-1 here) or exit 128+sig. Any other non-zero is resolvectl's own: it prints every link it
+    // read and returns the first error, so its output is complete for the links it covers.
     if (resolvectlRc == 124 || resolvectlRc < 0 || resolvectlRc >= 128) {
         spdlog::warn("DnsLeakProtect: resolvectl dns was killed (exit {}); ignoring its output", resolvectlRc);
         snapshotNmcli();
@@ -218,6 +218,7 @@ bool enable(const std::string &vpnInterfaceName, const std::vector<std::string> 
 
 bool disable()
 {
+    WS_DEBUG_TRACE_SCOPE("DnsLeakProtect::disable");
     return NftablesController::instance().run(nft::addTable() + nft::deleteChain("dnsleaks"));
 }
 

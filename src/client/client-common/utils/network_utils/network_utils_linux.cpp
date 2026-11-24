@@ -19,6 +19,7 @@
 
 #include "../linuxutils.h"
 #include "../log/categories.h"
+#include "../log/debug_trace.h"
 #include "../utils.h"
 
 namespace NetworkUtils_linux
@@ -220,6 +221,7 @@ static bool isPointToPoint(const QString &interface)
 
 void getDefaultRoute(QString &outGatewayIp, QString &outInterfaceName, QString &outAdapterIp, bool ignoreTun)
 {
+    WS_DEBUG_TRACE_SCOPE("NetworkUtils_linux::getDefaultRoute");
     outInterfaceName.clear();
     outGatewayIp.clear();
     outAdapterIp.clear();
@@ -270,6 +272,7 @@ static QString hexToIpV6String(const QString &hex32)
 
 void getDefaultRouteV6(QString &outGatewayIp, QString &outInterfaceName, QString &outAdapterIp, bool ignoreTun)
 {
+    WS_DEBUG_TRACE_SCOPE("NetworkUtils_linux::getDefaultRouteV6");
     outInterfaceName.clear();
     outGatewayIp.clear();
     outAdapterIp.clear();
@@ -519,6 +522,7 @@ static void populateInterface(const QString &ifname, types::NetworkInterface &in
 
 QList<types::NetworkInterface> currentNetworkInterfaces(bool includeNoInterface)
 {
+    WS_DEBUG_TRACE_SCOPE("NetworkUtils_linux::currentNetworkInterfaces");
     QList<types::NetworkInterface> interfaces;
     QStringList names;
 
@@ -546,6 +550,7 @@ QList<types::NetworkInterface> currentNetworkInterfaces(bool includeNoInterface)
 
 types::NetworkInterface networkInterfaceByName(const QString &name)
 {
+    WS_DEBUG_TRACE_SCOPE("NetworkUtils_linux::networkInterfaceByName");
     types::NetworkInterface interface = types::NetworkInterface::noNetworkInterface();
 
     // Exclude loopback type

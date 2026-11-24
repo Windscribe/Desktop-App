@@ -26,7 +26,7 @@ QString loginStateString(LOGIN_STATE state, wsnet::LoginResult loginError, const
         case LoginResult::kNoApiConnectivity:
             return error.arg(QString("No API connectivity"));
         case LoginResult::kBadUsername:
-            return error.arg(QString("Incorrect username, password, or 2FA code"));
+            return error.arg(QString("The username or password is incorrect."));
         case LoginResult::kMissingCode2fa:
             return error.arg(QString("Need 2FA code"));
         case LoginResult::kAccountDisabled:

@@ -11,6 +11,8 @@ public:
 
     virtual int executeStep();
 
+    static std::wstring desktopShortcutPath();
+
 private:
     const bool isCreateShortcut_;
 

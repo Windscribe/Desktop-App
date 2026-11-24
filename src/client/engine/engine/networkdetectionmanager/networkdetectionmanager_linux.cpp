@@ -9,13 +9,21 @@
 #include <linux/wireless.h>
 
 #include "utils/log/categories.h"
+#include "utils/log/debug_trace.h"
 #include "utils/network_utils/network_utils_linux.h"
 #include "utils/utils.h"
 
 const int typeIdNetworkInterface = qRegisterMetaType<types::NetworkInterface>("types::NetworkInterface");
 
-NetworkDetectionManager_linux::NetworkDetectionManager_linux(QObject *parent, Helper *helper) : INetworkDetectionManager(parent)
+NetworkDetectionManager_linux::NetworkDetectionManager_linux(QObject *parent, Helper *helper) : INetworkDetectionManager(parent),
+    defaultRoute_([] {
+        DefaultRoute_linux route;
+        QString adapterIp;
+        NetworkUtils_linux::getDefaultRoute(route.gateway, route.interface, adapterIp, true);
+        return route;
+    })
 {
+    WS_DEBUG_TRACE_SCOPE("NetworkDetectionManager_linux::ctor");
     Q_UNUSED(helper);
 
     networkInterface_ = types::NetworkInterface::noNetworkInterface();
@@ -26,6 +34,7 @@ NetworkDetectionManager_linux::NetworkDetectionManager_linux(QObject *parent, He
     routeMonitorThread_ = new QThread;
     routeMonitor_ = new RouteMonitor_linux;
     connect(routeMonitor_, &RouteMonitor_linux::routesChanged, this, &NetworkDetectionManager_linux::onRoutesChanged);
+    connect(routeMonitor_, &RouteMonitor_linux::tunnelRoutesChanged, this, &NetworkDetectionManager_linux::onTunnelRoutesChanged);
     connect(routeMonitorThread_, &QThread::started, routeMonitor_, &RouteMonitor_linux::init);
     connect(routeMonitorThread_, &QThread::finished, routeMonitor_, &RouteMonitor_linux::finish);
     connect(routeMonitorThread_, &QThread::finished, routeMonitor_, &RouteMonitor_linux::deleteLater);
@@ -60,8 +69,16 @@ void NetworkDetectionManager_linux::onRoutesChanged()
     emit networkListChanged(NetworkUtils_linux::currentNetworkInterfaces(true));
 }
 
+void NetworkDetectionManager_linux::onTunnelRoutesChanged()
+{
+    if (defaultRoute_.differsFromLastRead()) {
+        onRoutesChanged();
+    }
+}
+
 void NetworkDetectionManager_linux::updateNetworkInfo(bool bWithEmitSignal)
 {
+    WS_DEBUG_TRACE_SCOPE("NetworkDetectionManager_linux::updateNetworkInfo");
     bool newIsOnline;
     QString ifname = getDefaultRouteInterface(newIsOnline);
 
@@ -91,17 +108,13 @@ void NetworkDetectionManager_linux::updateNetworkInfo(bool bWithEmitSignal)
 
 QString NetworkDetectionManager_linux::getDefaultRouteInterface(bool &isOnline)
 {
-    QString gateway;
-    QString interface;
-    QString adapterIp;
-
-    NetworkUtils_linux::getDefaultRoute(gateway, interface, adapterIp, true);
-    if (gateway.isEmpty() || interface.isEmpty()) {
+    const DefaultRoute_linux route = defaultRoute_.read();
+    if (route.gateway.isEmpty() || route.interface.isEmpty()) {
         isOnline = false;
         return QString();
     }
     isOnline = true;
-    return interface;
+    return route.interface;
 }
 
 

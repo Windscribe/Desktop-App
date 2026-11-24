@@ -158,7 +158,7 @@ bool FirewallOnBootManager::enable(bool allowLanTraffic)
 
     // open()'s mode is ignored on pre-existing files; unlink first to force the intended perms.
     unlink(kBootRulesPath);
-    int fd = open(kBootRulesPath, O_CREAT | O_WRONLY | O_TRUNC, S_IRUSR | S_IWUSR);
+    int fd = open(kBootRulesPath, O_CREAT | O_WRONLY | O_TRUNC | O_CLOEXEC, S_IRUSR | S_IWUSR);
     if (fd < 0) {
         spdlog::error("Could not open boot firewall rules for writing");
         return false;

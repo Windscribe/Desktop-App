@@ -733,7 +733,7 @@ void OpenVPNConnection::handleRead(const boost::system::error_code &err, size_t 
         }
         else if (serverReply.startsWith(">STATE:", Qt::CaseInsensitive))
         {
-            if (serverReply.contains("CONNECTED,SUCCESS", Qt::CaseInsensitive))
+            if (serverReply.contains("CONNECTED,SUCCESS", Qt::CaseInsensitive) && !stateVariables_.bRouteUpFailed)
             {
 #ifdef Q_OS_WIN
                 AdapterGatewayInfo vpnAdapter = AdapterUtils_win::getConnectedAdapterInfo(QString::fromWCharArray(kOpenVPNAdapterIdentifier));
@@ -791,7 +791,19 @@ void OpenVPNConnection::handleRead(const boost::system::error_code &err, size_t 
         else if (serverReply.startsWith(">LOG:", Qt::CaseInsensitive))
         {
             bool bContainsUDPWord = serverReply.contains("UDP", Qt::CaseInsensitive);
-            if (bContainsUDPWord && serverReply.contains("No buffer space available (WSAENOBUFS) (code=10055)", Qt::CaseInsensitive))
+            if (serverReply.contains("Failed running command (--route-up)", Qt::CaseInsensitive))
+            {
+                // OpenVPN only warns when the DNS script fails, and would otherwise report the tunnel as connected.
+                qCCritical(LOG_CONNECTION) << "Setting up DNS failed, stopping OpenVPN";
+                stateVariables_.bRouteUpFailed = true;
+                if (!stateVariables_.bSigTermSent)
+                {
+                    boost::asio::write(*stateVariables_.socket, boost::asio::buffer("signal SIGTERM\n"), boost::asio::transfer_all(),
+                                       write_error);
+                    stateVariables_.bSigTermSent = true;
+                }
+            }
+            else if (bContainsUDPWord && serverReply.contains("No buffer space available (WSAENOBUFS) (code=10055)", Qt::CaseInsensitive))
             {
                 emit error(ConnectError::kTransientTunnelFailure);
             }

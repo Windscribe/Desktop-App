@@ -245,9 +245,9 @@ IKEv2Connection_win::DialResult IKEv2Connection_win::startDial()
         return DialResult::Stopped;
     }
 
-    // Clean up any stale connections left over from a previous crash or abnormal termination.  If a
-    // stale "Windscribe IKEv2" RAS connection exists, RasSetEntryProperties can crash with an access
-    // violation inside the RAS API due to orphaned internal state.
+    // Hang up any live "Windscribe IKEv2" connection left over from a previous crash or abnormal
+    // termination, so its tunnel (routes, DNS, interface) does not coexist with the one we are about to
+    // dial.  The phonebook entry itself is recreated unconditionally further below.
     const QVector<HRASCONN> staleConns = getActiveIkev2Connections(helper_);
     for (HRASCONN h : staleConns) {
         if (stopRequested()) {
@@ -255,9 +255,6 @@ IKEv2Connection_win::DialResult IKEv2Connection_win::startDial()
         }
         qCInfo(LOG_IKEV2) << "Hanging up stale IKEv2 connection";
         blockingDisconnect(h, true);
-    }
-    if (!staleConns.isEmpty()) {
-        removeIkev2ConnectionFromOS(helper_);
     }
 
     bool ikev2DeviceInitialized = false;
@@ -284,6 +281,14 @@ IKEv2Connection_win::DialResult IKEv2Connection_win::startDial()
     if (stopRequested()) {
         return DialResult::Stopped;
     }
+
+    // Always delete the existing phonebook entry so RasSetEntryProperties creates it fresh rather than
+    // merging into it.  An existing entry with no device/link data (e.g. a damaged rasphone.pbk section)
+    // makes RasSetEntryProperties dereference a NULL link node inside rasapi32 and crash the process,
+    // and since the bad entry persists on disk, every subsequent IKEv2 connect crashes too.  Every
+    // field we need is set below, and the custom IPsec policy is rewritten after the entry is created.
+    // A missing entry is not an error; any other failure is logged and the dial proceeds.
+    removeIkev2ConnectionFromOS(helper_);
 
     RASENTRY rasEntry;
     memset(&rasEntry, 0, sizeof(rasEntry));

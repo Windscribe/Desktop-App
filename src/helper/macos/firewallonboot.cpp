@@ -53,6 +53,7 @@ bool FirewallOnBootManager::enable(bool allowLanTraffic) {
     }
 
     rules << "set block-policy return\n";
+    rules << "set limit states 100000\n";
     rules << "set skip on { lo0 }\n";
     rules << "scrub in all fragment reassemble\n";
     rules << "block all\n";

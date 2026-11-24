@@ -405,7 +405,7 @@ public:
             >> connectState_ >> isCaptchaRequired_ >> asciiArt_ >> connectId_ >> protocol_ >> port_ >> tunnelTestState_ >> location_
            >> isFirewallOn_ >> isFirewallAlwaysOn_
            >> updateState_ >> updateError_ >> updateProgress_ >> updatePath_ >> updateAvailable_
-           >> trafficUsed_ >> trafficMax_ >> myIp_ >> connectRequestCount_;
+           >> trafficUsed_ >> trafficMax_ >> myIp_ >> connectRequestCount_ >> isKeyLimitPromptPending_;
     }
 
     std::vector<char> getData() const override
@@ -416,7 +416,7 @@ public:
            << connectState_ << isCaptchaRequired_ << asciiArt_ << connectId_ << protocol_ << port_ << tunnelTestState_ << location_
            << isFirewallOn_ << isFirewallAlwaysOn_
            << updateState_ << updateError_ << updateProgress_ << updatePath_ << updateAvailable_
-           << trafficUsed_ << trafficMax_ << myIp_ << connectRequestCount_;
+           << trafficUsed_ << trafficMax_ << myIp_ << connectRequestCount_ << isKeyLimitPromptPending_;
         return std::vector<char>(arr.begin(), arr.end());
     }
 
@@ -452,6 +452,8 @@ public:
     QString myIp_;
     // Changes whenever anything starts a connection, so a connect command can tell it was replaced by another.
     uint connectRequestCount_ = 0;
+    // The GUI is asking the user whether to delete the oldest WireGuard key; the connection waits for the answer.
+    bool isKeyLimitPromptPending_ = false;
 };
 
 class Update : public Command

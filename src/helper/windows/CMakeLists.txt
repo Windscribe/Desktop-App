@@ -25,7 +25,6 @@ set(SOURCES
     hostsedit.cpp
     ikev2route.cpp
     ipv6_firewall.cpp
-    macaddressspoof.cpp
     main.cpp
     network_validation.cpp
     ../common/ovpn_early_exit_log.cpp
@@ -47,6 +46,7 @@ set(SOURCES
     split_tunneling/split_tunneling.cpp
     split_tunneling/split_tunnel_service_manager.cpp
     utils.cpp
+    wfp_utils.cpp
     win32service.cpp
     wireguard/phantom_wireguard_devices.cpp
     wireguard/wireguardconfigwriter.cpp

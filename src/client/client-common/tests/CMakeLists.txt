@@ -38,6 +38,30 @@ if(IS_BUILD_TESTS)
     set_target_properties(clicommands.test PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
     ws_add_test(clicommands)
 
+    add_executable(authtoken.test
+        authtoken.test.cpp
+        authtoken.test.h
+    )
+    target_link_libraries(authtoken.test PRIVATE
+        Qt6::Test engine client-common spdlog::spdlog ${OS_SPECIFIC_LIBRARIES})
+    target_include_directories(authtoken.test PRIVATE
+        ${PROJECT_DIRECTORY}/client-common
+    )
+    set_target_properties(authtoken.test PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
+    ws_add_test(authtoken)
+
+    add_executable(credentialsvalidation.test
+        credentialsvalidation.test.cpp
+        credentialsvalidation.test.h
+    )
+    target_link_libraries(credentialsvalidation.test PRIVATE
+        Qt6::Test engine client-common spdlog::spdlog ${OS_SPECIFIC_LIBRARIES})
+    target_include_directories(credentialsvalidation.test PRIVATE
+        ${PROJECT_DIRECTORY}/client-common
+    )
+    set_target_properties(credentialsvalidation.test PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
+    ws_add_test(credentialsvalidation)
+
     add_executable(networkingvalidation.test
         networkingvalidation.test.cpp
         networkingvalidation.test.h

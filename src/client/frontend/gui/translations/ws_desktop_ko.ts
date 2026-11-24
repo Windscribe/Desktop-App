@@ -493,6 +493,22 @@
         <source>Your username should not be an email address. Please try again.</source>
         <translation>사용자 이름은 이메일 주소가 되어서는 안 됩니다. 다시 시도해 주세요.</translation>
     </message>
+    <message>
+        <source>Username must be 3 to 255 characters</source>
+        <translation>사용자 이름은 3~255자여야 합니다</translation>
+    </message>
+    <message>
+        <source>Use only A–Z, a–z, 0–9, _ and -</source>
+        <translation>A–Z, a–z, 0–9, _, -만 사용할 수 있습니다</translation>
+    </message>
+    <message>
+        <source>Password must be 8 to 255 characters</source>
+        <translation>비밀번호는 8~255자여야 합니다</translation>
+    </message>
+    <message>
+        <source>An unknown error occurred.</source>
+        <translation>알 수 없는 오류가 발생했습니다.</translation>
+    </message>
 </context>
 <context>
     <name>LoginWindow::SignupWindowItem</name>
@@ -523,10 +539,6 @@
     <message>
         <source>Enter password</source>
         <translation>비밀번호 입력</translation>
-    </message>
-    <message>
-        <source>8 or more characters with at least one uppercase and lowercase(ie. &quot;Hello1234&quot;, &quot;Solyanka&quot;).</source>
-        <translation>대문자와 소문자가 최소 하나씩 포함된 8자 이상(예: &quot;헬로1234&quot;, &quot;솔얀카&quot;).</translation>
     </message>
     <message>
         <source>Email (Optional)</source>
@@ -579,10 +591,6 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
         <translation>모든 파일 (*.*)</translation>
     </message>
     <message>
-        <source>Username must be at least 3 characters</source>
-        <translation>사용자 이름은 최소 3자 이상이어야 합니다</translation>
-    </message>
-    <message>
         <source>Your username should not be an email address.</source>
         <translation>사용자 이름은 이메일 주소가 되어서는 안 됩니다.</translation>
     </message>
@@ -593,6 +601,18 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
     <message>
         <source>Invalid hash</source>
         <translation>무효 해시</translation>
+    </message>
+    <message>
+        <source>Username must be 3 to 255 characters</source>
+        <translation>사용자 이름은 3~255자여야 합니다</translation>
+    </message>
+    <message>
+        <source>Use only A–Z, a–z, 0–9, _ and -</source>
+        <translation>A–Z, a–z, 0–9, _, -만 사용할 수 있습니다</translation>
+    </message>
+    <message>
+        <source>Password must be 8 to 255 characters</source>
+        <translation>비밀번호는 8~255자여야 합니다</translation>
     </message>
 </context>
 <context>
@@ -643,10 +663,6 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
     <message>
         <source>VPN is active</source>
         <translation>VPN이 활성화되어 있습니다.</translation>
-    </message>
-    <message>
-        <source>Rotating your MAC address will result in a disconnect event from the current network. Are you sure?</source>
-        <translation>MAC 주소를 바꾸면 현재 네트워크에서 순단이 발생합니다. 정말로 진행할까요?</translation>
     </message>
     <message>
         <source>Cannot detect appropriate packet size while connected. Please disconnect first.</source>
@@ -711,6 +727,34 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
     <message>
         <source>The selected directory is writeable for other users. Custom configs in this directory may pose a potential security risk.</source>
         <translation>선택된 디렉터리는 다른 사용자들을 위해 쓸 수 있습니다. 이 디렉터리의 사용자 지정 설정은 잠재적인 보안 위험을 초래할 수 있습니다.</translation>
+    </message>
+    <message>
+        <source>MAC Spoofing Removed</source>
+        <translation>MAC 스푸핑 제거됨</translation>
+    </message>
+    <message>
+        <source>MAC spoofing has been removed. Your spoofed MAC address stays active until you restart your computer or network adapter. To use a random address on Wi-Fi, turn on Random hardware addresses.</source>
+        <translation>MAC 스푸핑이 제거되었습니다. 스푸핑된 MAC 주소는 컴퓨터나 네트워크 어댑터를 다시 시작할 때까지 활성 상태로 유지됩니다. Wi-Fi에서 임의 주소를 사용하려면 &quot;임의 하드웨어 주소&quot;를 켜세요.</translation>
+    </message>
+    <message>
+        <source>Open Wi-Fi Settings</source>
+        <translation>Wi-Fi 설정 열기</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>닫기</translation>
+    </message>
+    <message>
+        <source>MAC spoofing is no longer available in Windscribe. To use a random MAC address on Wi-Fi, set Private Wi-Fi address to Rotating in System Settings &gt; Wi-Fi &gt; Details.</source>
+        <translation>Windscribe에서 더 이상 MAC 스푸핑을 사용할 수 없습니다. Wi-Fi에서 임의 MAC 주소를 사용하려면 시스템 설정 &gt; Wi-Fi &gt; 세부사항에서 &quot;비공개 Wi-Fi 주소&quot;를 &quot;순환식&quot;으로 설정하세요.</translation>
+    </message>
+    <message>
+        <source>MAC spoofing is no longer available in Windscribe. To use a random MAC address on Wi-Fi, update to macOS 15 or later, then set Private Wi-Fi address to Rotating in System Settings &gt; Wi-Fi &gt; Details.</source>
+        <translation>Windscribe에서 더 이상 MAC 스푸핑을 사용할 수 없습니다. Wi-Fi에서 임의 MAC 주소를 사용하려면 macOS 15 이상으로 업데이트한 다음 시스템 설정 &gt; Wi-Fi &gt; 세부사항에서 &quot;비공개 Wi-Fi 주소&quot;를 &quot;순환식&quot;으로 설정하세요.</translation>
+    </message>
+    <message>
+        <source>MAC spoofing has been removed. Your network connection may still use the spoofed MAC address. To change it, set its cloned MAC address to Random, or clear it, in your network settings.</source>
+        <translation>MAC 스푸핑이 제거되었습니다. 네트워크 연결에서 스푸핑된 MAC 주소를 계속 사용하고 있을 수 있습니다. 변경하려면 네트워크 설정에서 연결의 복제된 MAC 주소를 &quot;임의&quot;로 설정하거나 지우세요.</translation>
     </message>
     <message>
         <source>Installation Incomplete</source>
@@ -797,18 +841,6 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
     <message>
         <source>Service Error</source>
         <translation>서비스 오류</translation>
-    </message>
-    <message>
-        <source>MAC Spoofing Failed</source>
-        <translation>MAC 스푸핑 실패</translation>
-    </message>
-    <message>
-        <source>Your network adapter does not support MAC spoofing. Try a different adapter.</source>
-        <translation>네트워크 어댑터가 MAC 스푸핑을 지원하지 않습니다. 다른 어댑터를 사용해 보십시오.</translation>
-    </message>
-    <message>
-        <source>Could not spoof MAC address.  Please try a different network interface or contact support.</source>
-        <translation>MAC 주소를 스푸핑할 수 없습니다.  다른 네트워크 인터페이스를 시도하거나 지원 담당자에게 문의하세요.</translation>
     </message>
     <message>
         <source>Detection Error</source>
@@ -973,10 +1005,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>IKEv2 연결은 MacOS 차단모드 (Lockdown Mode)에서 사용할 수 없습니다. 시스템 설정에서 차단모드를 비활성화하거나 연결 설정을 변경하십시오.</translation>
     </message>
     <message>
-        <source>Rotating MAC Address</source>
-        <translation>MAC 주소 교체</translation>
-    </message>
-    <message>
         <source>Wi-Fi is off</source>
         <translation>Wi-Fi가 꺼져 있습니다.</translation>
     </message>
@@ -1119,10 +1147,6 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Creating your account...</source>
         <translation>계정 생성 중...</translation>
-    </message>
-    <message>
-        <source>Cannot rotate MAC address while connected to VPN. Please disconnect first.</source>
-        <translation>VPN에 연결된 상태에서는 MAC 주소를 변경할 수 없습니다. 먼저 끊어주세요.</translation>
     </message>
 </context>
 <context>
@@ -1570,14 +1594,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>hydra 서버를 통해 연결하려면 다음 위치 중 하나를 선택하세요.</translation>
     </message>
     <message>
-        <source>Spoof your device&apos;s physical address (MAC address).</source>
-        <translation>장치의 물리주소(MAC 주소)를 스푸핑합니다.</translation>
-    </message>
-    <message>
-        <source>MAC spoofing requires NetworkManager to be installed and running.</source>
-        <translation>MAC 스푸핑은 NetworkManager가 설치되어 실행되어야 합니다.</translation>
-    </message>
-    <message>
         <source>Close all active TCP sockets when the VPN tunnel is established.</source>
         <translation>VPN 터널이 설정되면 모든 활성 TCP 소켓을 닫습니다.</translation>
     </message>
@@ -1963,45 +1979,6 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Tray Icon Colour</source>
         <translation>트레이 아이콘 색상</translation>
-    </message>
-</context>
-<context>
-    <name>PreferencesWindow::MacSpoofingGroup</name>
-    <message>
-        <source>Cannot spoof on &apos;No Interface&apos;</source>
-        <translation>&apos;인터페이스 없음&apos;에서 스푸핑할 수 없습니다.</translation>
-    </message>
-    <message>
-        <source>You can only spoof an existing adapter.</source>
-        <translation>기존 어댑터만 스푸핑할 수 있습니다.</translation>
-    </message>
-    <message>
-        <source>Cannot spoof the current interface</source>
-        <translation>현재 인터페이스를 스푸핑할 수 없습니다.</translation>
-    </message>
-    <message>
-        <source>The current primary interface must match the selected interface to spoof.</source>
-        <translation>현재 기본 인터페이스는 스푸핑에 대해 선택한 인터페이스와 일치해야 합니다.</translation>
-    </message>
-    <message>
-        <source>No Interface</source>
-        <translation>인터페이스 없음</translation>
-    </message>
-    <message>
-        <source>MAC Spoofing</source>
-        <translation>MAC 스푸핑</translation>
-    </message>
-    <message>
-        <source>MAC Address</source>
-        <translation>MAC 주소</translation>
-    </message>
-    <message>
-        <source>Interface</source>
-        <translation>인터페이스</translation>
-    </message>
-    <message>
-        <source>Auto-Rotate MAC</source>
-        <translation>MAC 자동 변경</translation>
     </message>
 </context>
 <context>

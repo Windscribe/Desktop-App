@@ -11,7 +11,6 @@
 #include "types/connectionsettings.h"
 #include "types/enums.h"
 #include "types/firewallsettings.h"
-#include "types/macaddrspoofing.h"
 #include "types/packetsize.h"
 #include "types/proxysettings.h"
 #include "types/decoytrafficsettings.h"
@@ -32,7 +31,6 @@ struct EngineSettingsData : public QSharedData
     types::ConnectionSettings connectionSettings;
     types::ProxySettings proxySettings;
     types::PacketSize packetSize;
-    types::MacAddrSpoofing macAddrSpoofing;
     DNS_POLICY_TYPE dnsPolicy = DNS_TYPE_CLOUDFLARE;
     TAP_ADAPTER_TYPE tapAdapter = TAP_ADAPTER;
     QString customOvpnConfigsPath;
@@ -88,7 +86,6 @@ private:
     static const inline QString kJsonIsKeepAliveEnabledProp = "isKeepAliveEnabled";
     static const inline QString kJsonIsTerminateSocketsProp = "isTerminateSockets";
     static const inline QString kJsonLanguageProp = "language";
-    static const inline QString kJsonMacAddrSpoofingProp = "macAddrSpoofing";
     static const inline QString kJsonNetworkPreferredProtocolsProp = "networkPreferredProtocols";
     static const inline QString kJsonPacketSizeProp = "packetSize";
     static const inline QString kJsonProtocolProp = "protocol";
@@ -108,6 +105,10 @@ public:
 
     void saveToSettings();
     bool loadFromSettings();
+
+    // Set when loadFromSettings() finds MAC spoofing was on, which this version no longer has.
+    static bool isMacSpoofingRemovedMarked();
+    static void clearMacSpoofingRemoved();
 
     //bool isEqual(const ProtoTypes::EngineSettings &s) const;
 
@@ -137,8 +138,6 @@ public:
     void setDnsPolicy(DNS_POLICY_TYPE policy);
     DNS_MANAGER_TYPE dnsManager() const;
     void setDnsManager(DNS_MANAGER_TYPE dnsManager);
-    const types::MacAddrSpoofing &macAddrSpoofing() const;
-    void setMacAddrSpoofing(const types::MacAddrSpoofing &macAddrSpoofing);
     const types::PacketSize &packetSize() const;
     void setPacketSize(const types::PacketSize &packetSize);
     UPDATE_CHANNEL updateChannel() const;

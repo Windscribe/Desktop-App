@@ -37,7 +37,7 @@ static bool isRightInstallation(const std::wstring& uninstExeFile)
     return isRightInstallation;
 }
 
-// /SECONDPHASE="C:\Program Files\Windscribe\uninstall.exe" /VERYSILENT
+// /SECONDPHASE="C:\Program Files\Windscribe\uninstall.exe" /VERYSILENT /DELETEALLDATA
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdParam, int nCmdShow)
 {
     UNREFERENCED_PARAMETER(hPrevInstance);
@@ -50,6 +50,9 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
     const bool argsOk = argumentParser.parse();
 
     bool isSilent = argumentParser.getArg(L"/VERYSILENT", nullptr);
+    // The user will not be reinstalling: also delete their settings and data.  In an interactive
+    // uninstall this only pre-checks the confirmation dialog's checkbox; the user has the final say.
+    bool deleteAllData = argumentParser.getArg(L"/DELETEALLDATA", nullptr);
     std::wstring uninstExeFile;
     bool isSecondPhase = argumentParser.getArg(L"/SECONDPHASE", &uninstExeFile);
 
@@ -121,18 +124,17 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
     Uninstaller::setSilent(isSilent);
     Uninstaller::setUninstExeFile(uninstExeFile, false);
 
-    if (!isSilent) {
-        int result = Uninstaller::messageBox(IDS_CONFIRM_UNINSTALL, MB_ICONQUESTION | MB_YESNO | MB_SETFOREGROUND);
-        if (result == IDNO) {
-            return MAXDWORD;
-        }
+    if (!isSilent && !Uninstaller::confirmUninstall(deleteAllData)) {
+        return MAXDWORD;
     }
+    Uninstaller::setDeleteAllData(deleteAllData);
 
     const bool uninstallSucceeded = Uninstaller::RunSecondPhase();
 
     // On a successful interactive uninstall, remove the installer/uninstaller logs and the
     // %ProgramData%\Windscribe folder, so a full removal of the product leaves no leftovers.
-    // A silent uninstall is an upgrade driven by the installer -- the logs must survive it.
+    // A silent uninstall is normally an upgrade driven by the installer -- the logs must survive
+    // it -- unless /DELETEALLDATA explicitly asks for a full removal.
     // On failure the logs are kept: they are the diagnostics.
     // Only the known log files are deleted, never a recursive tree walk: a standard user
     // can pre-create this folder and own it, and could then swap a subfolder for a junction
@@ -143,7 +145,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
     // junction to \RPC Control and redirect even a fixed-name delete.  A successful open() means
     // the folder passed PersistentLog's owner/reparse checks and its DACL was reset, so a
     // standard user can no longer swap it.  Otherwise leave the folder alone.
-    if (uninstallSucceeded && !isSilent) {
+    if (uninstallSucceeded && (!isSilent || deleteAllData)) {
         const std::wstring logDir = wsl::PersistentLog::defaultDirectory();
         const bool logDirTrusted = persistentLog.isOpen();
         if (logDirTrusted) {

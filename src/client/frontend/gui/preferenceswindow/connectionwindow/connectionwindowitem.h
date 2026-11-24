@@ -9,7 +9,6 @@
 #include "preferenceswindow/protocolgroup.h"
 #include "connecteddnsgroup.h"
 #include "firewallgroup.h"
-#include "macspoofinggroup.h"
 #include "packetsizegroup.h"
 #include "proxygatewaygroup.h"
 #include "securehotspotgroup.h"
@@ -37,7 +36,6 @@ public:
 
     CONNECTION_SCREEN_TYPE getScreen();
     void setScreen(CONNECTION_SCREEN_TYPE subScreen);
-    void setCurrentNetwork(const types::NetworkInterface &networkInterface);
     void setPacketSizeDetectionState(bool on);
     void showPacketSizeDetectionError(const QString &title, const QString &message);
     void setClearWifiHistoryResult(bool success);
@@ -50,7 +48,6 @@ signals:
     void splitTunnelingPageClick();
     void antiCensorshipPageClick();
     void proxySettingsPageClick();
-    void cycleMacAddressClick();
     void detectPacketSize();
     void connectedDnsDomainsClick(const QStringList &domains);
     void fetchControldDevices(const QString &apiKey);
@@ -68,7 +65,6 @@ private slots:
     void onFirewallPreferencesChanged(const types::FirewallSettings &fm);
     void onConnectionModePreferencesChanged(const types::ConnectionSettings &cm);
     void onPacketSizePreferencesChanged(const types::PacketSize &ps);
-    void onMacAddrSpoofingPreferencesChanged(const types::MacAddrSpoofing &mas);
     void onIsAllowLanTrafficPreferencesChanged(bool b);
     void onAllowLanTrafficButtonHoverLeave();
     void onConnectedDnsPreferencesChanged(const types::ConnectedDnsInfo &dns);
@@ -87,7 +83,6 @@ private slots:
     void onFirewallPreferencesChangedByUser(const types::FirewallSettings &fm);
     void onConnectionModePreferencesChangedByUser(const types::ConnectionSettings &cm);
     void onPacketSizePreferencesChangedByUser(const types::PacketSize &ps);
-    void onMacAddrSpoofingPreferencesChangedByUser(const types::MacAddrSpoofing &mas);
     void onConnectedDnsPreferencesChangedByUser(const types::ConnectedDnsInfo &dns);
     void onDecoyTrafficSettingsChangedByUser(const types::DecoyTrafficSettings &decoyTrafficSettings);
     void onIsAllowLanTrafficPreferencesChangedByUser(bool b);
@@ -105,9 +100,6 @@ protected:
     void hideOpenPopups() override;
 
 private:
-    // Sets the MAC spoofing group's description for the current platform/support state, in the current
-    // language. Single source of truth shared by onLanguageChanged() and the show-time re-evaluation.
-    void updateMacSpoofingDescription();
     void updateHydraProfileDescription();
 
     Preferences *preferences_;
@@ -125,12 +117,6 @@ private:
     PreferenceGroup *ipStackGroup_;
     ComboBoxItem *comboBoxIpStack_;
 
-    MacSpoofingGroup *macSpoofingGroup_;
-#ifdef Q_OS_LINUX
-    // Whether MAC spoofing is usable, decided once at construction (needs NetworkManager running). Reused by
-    // onLanguageChanged() so it only re-translates the string and never re-probes NM state.
-    bool isMacSpoofingSupported_ = true;
-#endif
     PreferenceGroup *allowLanTrafficGroup_;
     PreferenceGroup *autoConnectGroup_;
     ToggleItem *checkBoxAutoConnect_;

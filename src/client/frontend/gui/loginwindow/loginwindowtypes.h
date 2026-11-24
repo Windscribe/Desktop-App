@@ -8,7 +8,8 @@ namespace LoginWindow {
 enum ERROR_MESSAGE_TYPE { ERR_MSG_EMPTY, ERR_MSG_NO_INTERNET_CONNECTIVITY, ERR_MSG_NO_API_CONNECTIVITY,
                           ERR_MSG_PROXY_REQUIRES_AUTH, ERR_MSG_INVALID_API_RESPONSE,
                           ERR_MSG_INVALID_API_ENDPOINT, ERR_MSG_INCORRECT_LOGIN1,
-                          ERR_MSG_INCORRECT_LOGIN2, ERR_MSG_INCORRECT_LOGIN3,
+                          ERR_MSG_INCORRECT_LOGIN2, ERR_MSG_INCORRECT_LOGIN3, ERR_MSG_USERNAME_LENGTH,
+                          ERR_MSG_USERNAME_CHARACTERS, ERR_MSG_PASSWORD_LENGTH,
                           ERR_MSG_SESSION_EXPIRED, ERR_MSG_INVALID_SECURITY_TOKEN, ERR_MSG_ACCOUNT_DISABLED, ERR_MSG_RATE_LIMITED,
                           ERR_MSG_USERNAME_IS_EMAIL, ERR_MSG_SOME_ERROR };
 
@@ -43,6 +44,14 @@ inline ErrorMessageInfo getErrorMessageInfo(ERROR_MESSAGE_TYPE errorMessageType,
             return ErrorMessageInfo(QCoreApplication::translate("LoginWindow::LoginWindowItem", "...Sorry, seems like it's wrong again"), true);
         case ERR_MSG_INCORRECT_LOGIN3:
             return ErrorMessageInfo(QCoreApplication::translate("LoginWindow::LoginWindowItem", "...hmm, try resetting your password!"), true);
+        case ERR_MSG_USERNAME_LENGTH:
+            return ErrorMessageInfo(
+                QCoreApplication::translate("LoginWindow::LoginWindowItem", "Username must be 3 to 255 characters"), true);
+        case ERR_MSG_USERNAME_CHARACTERS:
+            return ErrorMessageInfo(QCoreApplication::translate("LoginWindow::LoginWindowItem", "Use only A–Z, a–z, 0–9, _ and -"), true);
+        case ERR_MSG_PASSWORD_LENGTH:
+            return ErrorMessageInfo(
+                QCoreApplication::translate("LoginWindow::LoginWindowItem", "Password must be 8 to 255 characters"), true);
         case ERR_MSG_RATE_LIMITED:
             return ErrorMessageInfo(QCoreApplication::translate("LoginWindow::LoginWindowItem", "Rate limited. Please wait before trying to login again."), true);
         case ERR_MSG_SESSION_EXPIRED:
@@ -51,7 +60,11 @@ inline ErrorMessageInfo getErrorMessageInfo(ERROR_MESSAGE_TYPE errorMessageType,
             return ErrorMessageInfo(QCoreApplication::translate("LoginWindow::LoginWindowItem", "Your username should not be an email address. Please try again."), false);
         case ERR_MSG_ACCOUNT_DISABLED:
         case ERR_MSG_INVALID_SECURITY_TOKEN:
+            return ErrorMessageInfo(customMessage, false);
         case ERR_MSG_SOME_ERROR:
+            if (customMessage.isEmpty()) {
+                return ErrorMessageInfo(QCoreApplication::translate("LoginWindow::LoginWindowItem", "An unknown error occurred."), false);
+            }
             return ErrorMessageInfo(customMessage, false);
         default:
             return ErrorMessageInfo(QString(), false);

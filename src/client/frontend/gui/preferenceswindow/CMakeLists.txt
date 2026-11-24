@@ -23,10 +23,6 @@ target_sources(gui PRIVATE
     connectionwindow/decoytrafficgroup.h
     connectionwindow/firewallgroup.cpp
     connectionwindow/firewallgroup.h
-    connectionwindow/macaddressitem.cpp
-    connectionwindow/macaddressitem.h
-    connectionwindow/macspoofinggroup.cpp
-    connectionwindow/macspoofinggroup.h
     connectionwindow/packetsizeeditboxitem.cpp
     connectionwindow/packetsizeeditboxitem.h
     connectionwindow/packetsizegroup.cpp

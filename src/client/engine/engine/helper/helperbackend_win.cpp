@@ -91,6 +91,20 @@ std::string HelperBackend_win::sendCmd(int cmdId, const std::string &data)
         return std::string();
     }
 
+    std::string answer;
+    if (!exchange(cmdId, data, answer)) {
+        helperPipe_.closeHandle();
+        curState_ = State::kFailedConnect;
+        emit lostConnectionToHelper();
+        return std::string();
+    }
+    return answer;
+}
+
+bool HelperBackend_win::exchange(int cmdId, const std::string &data, std::string &answer)
+{
+    answer.clear();
+
     try {
         // first 4 bytes - cmdId
         if (!writeAllToPipe(helperPipe_.getHandle(), (char *)&cmdId, sizeof(cmdId))) {
@@ -110,11 +124,8 @@ std::string HelperBackend_win::sendCmd(int cmdId, const std::string &data)
             }
         }
     } catch (...) {
-        qCCritical(LOG_BASIC) << "HelperBackend_win::sendCmd, writeAllToPipe() call failed";
-        helperPipe_.closeHandle();
-        curState_ = State::kFailedConnect;
-        emit lostConnectionToHelper();
-        return std::string();
+        qCCritical(LOG_BASIC) << "HelperBackend_win::exchange, writeAllToPipe() call failed";
+        return false;
     }
 
     // read answer
@@ -127,7 +138,7 @@ std::string HelperBackend_win::sendCmd(int cmdId, const std::string &data)
         // Reject malformed or oversized lengths before allocation. Defends the engine
         // against a compromised/spoofed helper sending a bogus reply length.
         if (sizeOfBuf > kMaxHelperFrameSize) {
-            qCCritical(LOG_BASIC) << "HelperBackend_win::sendCmd, invalid length:" << sizeOfBuf;
+            qCCritical(LOG_BASIC) << "HelperBackend_win::exchange, invalid length:" << sizeOfBuf;
             throw 1;
         }
 
@@ -136,17 +147,13 @@ std::string HelperBackend_win::sendCmd(int cmdId, const std::string &data)
             if (!readAllFromPipe(helperPipe_.getHandle(), buf.data(), sizeOfBuf)) {
                 throw 1;
             }
-
-            return std::string(buf.data(), sizeOfBuf);
+            answer.assign(buf.data(), sizeOfBuf);
         }
     } catch (...) {
-        qCCritical(LOG_BASIC) << "HelperBackend_win::sendCmd, readAllFromPipe() call failed";
-        helperPipe_.closeHandle();
-        curState_ = State::kFailedConnect;
-        emit lostConnectionToHelper();
-        return std::string();
+        qCCritical(LOG_BASIC) << "HelperBackend_win::exchange, readAllFromPipe() call failed";
+        return false;
     }
-    return std::string();
+    return true;
 }
 
 void HelperBackend_win::initVariables()
@@ -218,6 +225,12 @@ bool HelperBackend_win::connectToHelper()
         }
 
         helperPipe_.setHandle(hPipe);
+
+        std::string answer;
+        if (connectCommand_ && !exchange(connectCommand_->first, connectCommand_->second, answer)) {
+            helperPipe_.closeHandle();
+            return false;
+        }
     }
 
     return true;

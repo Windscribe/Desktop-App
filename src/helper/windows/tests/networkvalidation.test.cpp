@@ -92,16 +92,6 @@ void testIsValidGuid()
     VERIFY(!NetworkValidation::isValidGuid(withNul(L"{4D36E972-E325-11CE-BFC1-08002BE10318}", L"")));
 }
 
-void testIsMacAddress()
-{
-    VERIFY(NetworkValidation::isMacAddress(L"AABBCCDDEEFF"));
-    VERIFY(NetworkValidation::isMacAddress(L"AA-BB-CC-DD-EE-FF"));
-    VERIFY(!NetworkValidation::isMacAddress(L"not-a-mac"));
-    // Keep the total length at the accepted 12 so the NUL is rejected as a non-hex-digit rather
-    // than by a length mismatch: "AABBCCDDE" (9) + NUL + "FF" (2) = 12.
-    VERIFY(!NetworkValidation::isMacAddress(withNul(L"AABBCCDDE", L"FF")));
-}
-
 } // namespace
 
 int main()
@@ -111,7 +101,6 @@ int main()
     testIsValidHostname();
     testIsValidPortList();
     testIsValidGuid();
-    testIsMacAddress();
 
     if (g_failures == 0) {
         printf("All NetworkValidation NUL-smuggling tests passed.\n");

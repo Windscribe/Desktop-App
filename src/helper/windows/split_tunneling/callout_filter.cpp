@@ -7,7 +7,7 @@
 #include <spdlog/spdlog.h>
 
 #include "callout_filter.h"
-#include "../utils.h"
+#include "../wfp_utils.h"
 #include "types/ipaddress.h"
 
 DEFINE_GUID(
@@ -651,7 +651,7 @@ bool CalloutFilter::addFilters(HANDLE engineHandle, bool withTcpFilters, bool wi
         filter.action.calloutKey = TCP_CALLOUT_GUID;
 
         UINT64 filterId;
-        DWORD ret = FwpmFilterAdd(engineHandle, &filter, NULL, &filterId);
+        DWORD ret = Utils::addFilterWithProvider(engineHandle, &filter, &filterId);
         retValue = (ret == ERROR_SUCCESS);
         if (!retValue) {
             spdlog::error("CalloutFilter::addFilter(), TCP redirect filter failed: {}", ret);
@@ -696,7 +696,7 @@ bool CalloutFilter::addFilters(HANDLE engineHandle, bool withTcpFilters, bool wi
         filter.action.calloutKey = BIND_CALLOUT_GUID;
 
         UINT64 filterId;
-        DWORD ret = FwpmFilterAdd(engineHandle, &filter, NULL, &filterId);
+        DWORD ret = Utils::addFilterWithProvider(engineHandle, &filter, &filterId);
         retValue = (ret == ERROR_SUCCESS);
         if (!retValue) {
             spdlog::error("CalloutFilter::addFilter(), bind filter failed: {}", ret);
@@ -733,7 +733,7 @@ bool CalloutFilter::addFilters(HANDLE engineHandle, bool withTcpFilters, bool wi
         filter.action.calloutKey = TCP_CALLOUT_GUID;
 
         UINT64 filterId;
-        DWORD ret = FwpmFilterAdd(engineHandle, &filter, NULL, &filterId);
+        DWORD ret = Utils::addFilterWithProvider(engineHandle, &filter, &filterId);
         retValue = (ret == ERROR_SUCCESS);
         if (!retValue) {
             spdlog::error("CalloutFilter::addFilter(), ctrld redirect filter failed: {}", ret);
@@ -780,7 +780,7 @@ bool CalloutFilter::addFilters(HANDLE engineHandle, bool withTcpFilters, bool wi
             filter.action.calloutKey = TCP_CALLOUT_V6_GUID;
 
             UINT64 filterId;
-            DWORD ret = FwpmFilterAdd(engineHandle, &filter, NULL, &filterId);
+            DWORD ret = Utils::addFilterWithProvider(engineHandle, &filter, &filterId);
             retValue = (ret == ERROR_SUCCESS);
             if (!retValue) {
                 spdlog::error("CalloutFilter::addFilter(), TCP v6 redirect filter failed: {}", ret);
@@ -824,7 +824,7 @@ bool CalloutFilter::addFilters(HANDLE engineHandle, bool withTcpFilters, bool wi
             filter.action.calloutKey = BIND_CALLOUT_V6_GUID;
 
             UINT64 filterId;
-            DWORD ret = FwpmFilterAdd(engineHandle, &filter, NULL, &filterId);
+            DWORD ret = Utils::addFilterWithProvider(engineHandle, &filter, &filterId);
             retValue = (ret == ERROR_SUCCESS);
             if (!retValue) {
                 spdlog::error("CalloutFilter::addFilter(), bind v6 filter failed: {}", ret);
@@ -860,7 +860,7 @@ bool CalloutFilter::addFilters(HANDLE engineHandle, bool withTcpFilters, bool wi
             filter.action.calloutKey = TCP_CALLOUT_V6_GUID;
 
             UINT64 filterId;
-            DWORD ret = FwpmFilterAdd(engineHandle, &filter, NULL, &filterId);
+            DWORD ret = Utils::addFilterWithProvider(engineHandle, &filter, &filterId);
             retValue = (ret == ERROR_SUCCESS);
             if (!retValue) {
                 spdlog::error("CalloutFilter::addFilter(), ctrld v6 redirect filter failed: {}", ret);
@@ -989,38 +989,19 @@ bool CalloutFilter::addFilters(HANDLE engineHandle, bool withTcpFilters, bool wi
 
 bool CalloutFilter::deleteSublayer(HANDLE engineHandle)
 {
-    // Each pass below enumerates every filter on a whole layer, including those of Windows and
-    // other software, which costs ~60 ms in total. Skip them when the sublayer is absent, as it is
-    // on every update while split tunneling is off: WFP rejects a filter whose sublayer does not
-    // exist, and rejects deleting a sublayer that filters still reference, so none can be left.
-    FWPM_SUBLAYER0 *subLayer = nullptr;
-    const DWORD getRet = FwpmSubLayerGetByKey0(engineHandle, &SUBLAYER_CALLOUT_GUID, &subLayer);
-    if (getRet == FWP_E_SUBLAYER_NOT_FOUND) {
-        return true;
+    // The redirect filters live on the ALE redirect layers; the anti-leak filters (added by
+    // Utils::addFilterV4/V6) live on ALE_AUTH_CONNECT_V4/V6 / ALE_AUTH_RECV_ACCEPT_V4/V6. All of
+    // them must go, or FwpmSubLayerDeleteByKey0 fails with FWP_E_IN_USE.
+    static const std::vector<GUID> layers = {
+        FWPM_LAYER_ALE_BIND_REDIRECT_V4, FWPM_LAYER_ALE_CONNECT_REDIRECT_V4,
+        FWPM_LAYER_ALE_BIND_REDIRECT_V6, FWPM_LAYER_ALE_CONNECT_REDIRECT_V6,
+        FWPM_LAYER_ALE_AUTH_CONNECT_V6, FWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V6,
+        FWPM_LAYER_ALE_AUTH_CONNECT_V4, FWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V4 };
+    const bool ret = Utils::deleteSublayerAndAllFilters(engineHandle, &SUBLAYER_CALLOUT_GUID, layers);
+    if (!ret) {
+        spdlog::error("CalloutFilter::deleteSublayer(), failed to delete the sublayer");
     }
-    if (getRet == ERROR_SUCCESS) {
-        FwpmFreeMemory0((void **)&subLayer);
-    } else {
-        // Fall through to the full cleanup rather than risk leaving filters behind.
-        spdlog::error("CalloutFilter::deleteSublayer(), FwpmSubLayerGetByKey0 failed: {}", getRet);
-    }
-
-    bool b1 = Utils::deleteAllFiltersForSublayer(engineHandle, &SUBLAYER_CALLOUT_GUID, FWPM_LAYER_ALE_BIND_REDIRECT_V4);
-    bool b2 = Utils::deleteAllFiltersForSublayer(engineHandle, &SUBLAYER_CALLOUT_GUID, FWPM_LAYER_ALE_CONNECT_REDIRECT_V4);
-    bool b3 = Utils::deleteAllFiltersForSublayer(engineHandle, &SUBLAYER_CALLOUT_GUID, FWPM_LAYER_ALE_BIND_REDIRECT_V6);
-    bool b4 = Utils::deleteAllFiltersForSublayer(engineHandle, &SUBLAYER_CALLOUT_GUID, FWPM_LAYER_ALE_CONNECT_REDIRECT_V6);
-    // Anti-leak filters live on ALE_AUTH_CONNECT_V4/V6 / ALE_AUTH_RECV_ACCEPT_V4/V6 (added by
-    // Utils::addFilterV4/V6). Without explicit cleanup here FwpmSubLayerDeleteByKey0 would fail
-    // with FWP_E_IN_USE on the next disable()/enable() cycle.
-    bool b5 = Utils::deleteAllFiltersForSublayer(engineHandle, &SUBLAYER_CALLOUT_GUID, FWPM_LAYER_ALE_AUTH_CONNECT_V6);
-    bool b6 = Utils::deleteAllFiltersForSublayer(engineHandle, &SUBLAYER_CALLOUT_GUID, FWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V6);
-    bool b7 = Utils::deleteAllFiltersForSublayer(engineHandle, &SUBLAYER_CALLOUT_GUID, FWPM_LAYER_ALE_AUTH_CONNECT_V4);
-    bool b8 = Utils::deleteAllFiltersForSublayer(engineHandle, &SUBLAYER_CALLOUT_GUID, FWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V4);
-    DWORD dwRet = FwpmSubLayerDeleteByKey0(engineHandle, &SUBLAYER_CALLOUT_GUID);
-    if (dwRet != NO_ERROR && dwRet != FWP_E_SUBLAYER_NOT_FOUND) {
-        spdlog::error("CalloutFilter::deleteSublayer(), FwpmSubLayerDeleteByKey0 failed: {}", dwRet);
-    }
-    return b1 && b2 && b3 && b4 && b5 && b6 && b7 && b8 && dwRet == NO_ERROR;
+    return ret;
 }
 
 bool CalloutFilter::removeAllFilters(FwpmWrapper &fwmpWrapper)

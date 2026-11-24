@@ -30,7 +30,7 @@ bool writeAll(int fd, const std::string &content)
 bool writeFile(const std::string &path, const std::string &content, int mode)
 {
     unlink(path.c_str());
-    int fd = open(path.c_str(), O_CREAT | O_WRONLY | O_TRUNC, mode);
+    int fd = open(path.c_str(), O_CREAT | O_WRONLY | O_TRUNC | O_CLOEXEC, mode);
     if (fd < 0) {
         return false;
     }

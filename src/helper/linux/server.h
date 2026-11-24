@@ -2,15 +2,14 @@
 
 #define BOOST_BIND_GLOBAL_PLACEHOLDERS 1
 
-#include <stdio.h>
-#include <vector>
-#include <thread>
 #include <boost/asio.hpp>
 #include <boost/thread.hpp>
 #include <list>
+#include <stdio.h>
+#include <thread>
+#include <vector>
 
 #include "routes_manager/routes_manager.h"
-#include "wireguard/defaultroutemonitor.h"
 #include "wireguard/wireguardadapter.h"
 #include "wireguard/wireguardcontroller.h"
 

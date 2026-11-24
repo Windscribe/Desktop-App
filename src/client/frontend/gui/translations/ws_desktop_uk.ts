@@ -493,6 +493,22 @@
         <source>Your username should not be an email address. Please try again.</source>
         <translation>Ваше ім&apos;я користувача не повинно бути електронною адресою. Будь ласка, спробуйте ще раз.</translation>
     </message>
+    <message>
+        <source>Username must be 3 to 255 characters</source>
+        <translation>Ім&apos;я користувача має містити від 3 до 255 символів</translation>
+    </message>
+    <message>
+        <source>Use only A–Z, a–z, 0–9, _ and -</source>
+        <translation>Лише A–Z, a–z, 0–9, _ і -</translation>
+    </message>
+    <message>
+        <source>Password must be 8 to 255 characters</source>
+        <translation>Пароль має містити від 8 до 255 символів</translation>
+    </message>
+    <message>
+        <source>An unknown error occurred.</source>
+        <translation>Сталася невідома помилка.</translation>
+    </message>
 </context>
 <context>
     <name>LoginWindow::SignupWindowItem</name>
@@ -523,10 +539,6 @@
     <message>
         <source>Enter password</source>
         <translation>Введіть пароль</translation>
-    </message>
-    <message>
-        <source>8 or more characters with at least one uppercase and lowercase(ie. &quot;Hello1234&quot;, &quot;Solyanka&quot;).</source>
-        <translation>8 або більше символів з принаймні однією великою та малою літерою (тобто &quot;Hello1234&quot;, &quot;Solyanka&quot;).</translation>
     </message>
     <message>
         <source>Email (Optional)</source>
@@ -579,10 +591,6 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
         <translation>Всі файли (*.*)</translation>
     </message>
     <message>
-        <source>Username must be at least 3 characters</source>
-        <translation>Ім&apos;я користувача має містити щонайменше 3 символи</translation>
-    </message>
-    <message>
         <source>Your username should not be an email address.</source>
         <translation>Ваше ім&apos;я користувача не повинно бути електронною адресою.</translation>
     </message>
@@ -593,6 +601,18 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
     <message>
         <source>Invalid hash</source>
         <translation>Некоректний хеш</translation>
+    </message>
+    <message>
+        <source>Username must be 3 to 255 characters</source>
+        <translation>Ім&apos;я користувача має містити від 3 до 255 символів</translation>
+    </message>
+    <message>
+        <source>Use only A–Z, a–z, 0–9, _ and -</source>
+        <translation>Лише A–Z, a–z, 0–9, _ і -</translation>
+    </message>
+    <message>
+        <source>Password must be 8 to 255 characters</source>
+        <translation>Пароль має містити від 8 до 255 символів</translation>
     </message>
 </context>
 <context>
@@ -643,10 +663,6 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
     <message>
         <source>VPN is active</source>
         <translation>VPN активний</translation>
-    </message>
-    <message>
-        <source>Rotating your MAC address will result in a disconnect event from the current network. Are you sure?</source>
-        <translation>Зміна MAC-адреси призведе до відключення від поточної мережі. Ви впевнені?</translation>
     </message>
     <message>
         <source>Cannot detect appropriate packet size while connected. Please disconnect first.</source>
@@ -711,6 +727,34 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
     <message>
         <source>The selected directory is writeable for other users. Custom configs in this directory may pose a potential security risk.</source>
         <translation>Вибраний каталог можна писати для інших користувачів. Власні налаштування в цьому каталозі можуть становити потенційну загрозу безпеці.</translation>
+    </message>
+    <message>
+        <source>MAC Spoofing Removed</source>
+        <translation>Підміну MAC видалено</translation>
+    </message>
+    <message>
+        <source>MAC spoofing has been removed. Your spoofed MAC address stays active until you restart your computer or network adapter. To use a random address on Wi-Fi, turn on Random hardware addresses.</source>
+        <translation>Функцію підміни MAC видалено. Підмінена MAC-адреса залишатиметься активною до перезапуску комп&apos;ютера або мережевого адаптера. Щоб використовувати випадкову адресу в мережі Wi-Fi, увімкніть параметр «Випадкові адреси обладнання».</translation>
+    </message>
+    <message>
+        <source>Open Wi-Fi Settings</source>
+        <translation>Відкрити налаштування Wi-Fi</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>Закрити</translation>
+    </message>
+    <message>
+        <source>MAC spoofing is no longer available in Windscribe. To use a random MAC address on Wi-Fi, set Private Wi-Fi address to Rotating in System Settings &gt; Wi-Fi &gt; Details.</source>
+        <translation>Підміна MAC більше не доступна у Windscribe. Щоб використовувати випадкову MAC-адресу в мережі Wi-Fi, установіть для параметра «Приватна адреса Wi-Fi» значення «Змінювана» в розділі Системні параметри &gt; Wi-Fi &gt; Докладніше.</translation>
+    </message>
+    <message>
+        <source>MAC spoofing is no longer available in Windscribe. To use a random MAC address on Wi-Fi, update to macOS 15 or later, then set Private Wi-Fi address to Rotating in System Settings &gt; Wi-Fi &gt; Details.</source>
+        <translation>Підміна MAC більше не доступна у Windscribe. Щоб використовувати випадкову MAC-адресу в мережі Wi-Fi, оновіть систему до macOS 15 або новішої версії, а потім установіть для параметра «Приватна адреса Wi-Fi» значення «Змінювана» в розділі Системні параметри &gt; Wi-Fi &gt; Докладніше.</translation>
+    </message>
+    <message>
+        <source>MAC spoofing has been removed. Your network connection may still use the spoofed MAC address. To change it, set its cloned MAC address to Random, or clear it, in your network settings.</source>
+        <translation>Функцію підміни MAC видалено. Мережеве підключення може й надалі використовувати підмінену MAC-адресу. Щоб змінити це, установіть для клонованої MAC-адреси підключення значення «Випадкова» або очистьте її в налаштуваннях мережі.</translation>
     </message>
     <message>
         <source>Installation Incomplete</source>
@@ -797,18 +841,6 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
     <message>
         <source>Service Error</source>
         <translation>Помилка сервісу</translation>
-    </message>
-    <message>
-        <source>MAC Spoofing Failed</source>
-        <translation>Підміна MAC не вдалася</translation>
-    </message>
-    <message>
-        <source>Your network adapter does not support MAC spoofing. Try a different adapter.</source>
-        <translation>Мережний адаптер не підтримує підміну MAC-адрес. Спробуйте інший адаптер.</translation>
-    </message>
-    <message>
-        <source>Could not spoof MAC address.  Please try a different network interface or contact support.</source>
-        <translation>Не вдалося підробити MAC-адресу.  Будь ласка, спробуйте інший мережевий інтерфейс або зверніться до служби підтримки.</translation>
     </message>
     <message>
         <source>Detection Error</source>
@@ -973,10 +1005,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Підключення IKEv2 недоступне в режимі блокування MacOS. Будь ласка, вимкніть режим блокування у Системних параметрах або змініть параметри з&apos;єднання.</translation>
     </message>
     <message>
-        <source>Rotating MAC Address</source>
-        <translation>Зміна MAC-адреси</translation>
-    </message>
-    <message>
         <source>Wi-Fi is off</source>
         <translation>Вимкнено Wi-Fi</translation>
     </message>
@@ -1119,10 +1147,6 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Creating your account...</source>
         <translation>Створення акаунта...</translation>
-    </message>
-    <message>
-        <source>Cannot rotate MAC address while connected to VPN. Please disconnect first.</source>
-        <translation>Неможливо повернути MAC-адресу під час підключення до VPN. Будь ласка, спочатку від&apos;єднайтеся.</translation>
     </message>
 </context>
 <context>
@@ -1570,14 +1594,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Виберіть одну з цих локацій, щоб підключитися через ваш сервер hydra.</translation>
     </message>
     <message>
-        <source>Spoof your device&apos;s physical address (MAC address).</source>
-        <translation>Підмініть фізичну адресу пристрою (MAC-адресу).</translation>
-    </message>
-    <message>
-        <source>MAC spoofing requires NetworkManager to be installed and running.</source>
-        <translation>Підробка MAC вимагає встановлення та запуску NetworkManager.</translation>
-    </message>
-    <message>
         <source>Close all active TCP sockets when the VPN tunnel is established.</source>
         <translation>Закрити всі активні TCP-сокети після встановлення VPN-тунелю.</translation>
     </message>
@@ -1963,45 +1979,6 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Tray Icon Colour</source>
         <translation>Колір піктограми лотка</translation>
-    </message>
-</context>
-<context>
-    <name>PreferencesWindow::MacSpoofingGroup</name>
-    <message>
-        <source>Cannot spoof on &apos;No Interface&apos;</source>
-        <translation>Неможливо підробити «Немає інтерфейсу»</translation>
-    </message>
-    <message>
-        <source>You can only spoof an existing adapter.</source>
-        <translation>Ви можете підробити лише наявний адаптер.</translation>
-    </message>
-    <message>
-        <source>Cannot spoof the current interface</source>
-        <translation>Неможливо підробити поточний інтерфейс</translation>
-    </message>
-    <message>
-        <source>The current primary interface must match the selected interface to spoof.</source>
-        <translation>Поточний основний інтерфейс повинен збігатися з вибраним інтерфейсом для підробки.</translation>
-    </message>
-    <message>
-        <source>No Interface</source>
-        <translation>Немає інтерфейсу</translation>
-    </message>
-    <message>
-        <source>MAC Spoofing</source>
-        <translation>Підміна MAC</translation>
-    </message>
-    <message>
-        <source>MAC Address</source>
-        <translation>MAC-адреса</translation>
-    </message>
-    <message>
-        <source>Interface</source>
-        <translation>Інтерфейс</translation>
-    </message>
-    <message>
-        <source>Auto-Rotate MAC</source>
-        <translation>Автоматична ротація MAC</translation>
     </message>
 </context>
 <context>

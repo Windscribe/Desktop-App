@@ -44,14 +44,6 @@ AdapterGatewayInfo AdapterGatewayInfo::detectAndCreateDefaultAdapterInfo()
             cai.adapterName_ = adapterNameV6;
         }
     }
-
-    // DNS pulls from scutil --dns, which on a dual-stack host returns both v4 and v6 nameservers
-    // verbatim. types::IpAddress::IpAddress(const std::string &) rejects scope-suffixed
-    // link-local DNS (`fe80::1%en0`) by yielding an invalid address, which addDnsServer drops; no
-    // explicit filter needed here.
-    const QStringList dnsStrings = NetworkUtils_mac::getDnsServersForInterface(cai.adapterName_);
-    for (const QString &s : dnsStrings)
-        cai.addDnsServer(types::IpAddress(s.toStdString()));
 #elif defined Q_OS_LINUX
     QString gateway, adapterIp;
     NetworkUtils_linux::getDefaultRoute(gateway, cai.adapterName_, adapterIp);
@@ -73,11 +65,8 @@ AdapterGatewayInfo AdapterGatewayInfo::detectAndCreateDefaultAdapterInfo()
         cai.setAdapterNameV6(adapterNameV6);
     }
 
-    // DNS servers intentionally not populated on Linux: the current helper does not consume
-    // defaultAdapter.dnsServers (no read sites under src/helper/linux), so reading /etc/resolv.conf
-    // here would be dead data. macOS keeps its own getDnsServersForInterface path because IKEv2
-    // and other macOS-specific helper code consumes that field. If a future Linux helper feature
-    // needs system DNS, parse /etc/resolv.conf here at the same time it gains a consumer.
+    // DNS servers intentionally not populated on macOS or Linux: nothing reads defaultAdapter.dnsServers there,
+    // so collecting them would be dead data. Populate them here when a consumer appears.
 #endif
 
     return cai;

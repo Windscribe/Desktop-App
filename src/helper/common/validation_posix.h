@@ -59,13 +59,6 @@ bool isValidDomain(const std::string &address);
 // rule text the privileged helper applies.
 bool isValidInterfaceName(const std::string &interfaceName);
 
-// Returns true if the string is acceptable as a NetworkManager connection name to pass to
-// `nmcli connection modify/up <name>`. NM names may legally contain spaces and UTF-8, so this
-// is intentionally permissive: it rejects empty, names >= 256 bytes, a leading '-' (which nmcli
-// would parse as an option), and control bytes (< 0x20 or 0x7F, covering NUL/newline/tab).
-// Shell injection is already precluded by the argv-style executeCommand.
-bool isValidNetworkManagerConnectionName(const std::string &name);
-
 // Sanitizes the tokens of a FirewallConfig that the privileged helper will interpolate into
 // iptables/pf rule text, in place. connectingIp and each allowedIps entry must be a valid IPv4
 // literal (the helper only emits these as v4 allow-rules and appends /32); vpnInterfaceName must
@@ -74,11 +67,6 @@ bool isValidNetworkManagerConnectionName(const std::string &name);
 // from the valid remainder instead of leaving the firewall off and leaking. Shared by the Linux and
 // macOS setFirewallRules handlers.
 void sanitizeFirewallConfig(FirewallConfig &config);
-
-// Returns true if the string is a valid MAC address in either
-// 12-hex-digit form (e.g. "001122aabbcc") or 17-char form with ':' or '-'
-// separators (e.g. "00:11:22:aa:bb:cc").
-bool isValidMacAddress(const std::string &macAddress);
 
 // Returns true if the string is a plausible system username: non-empty and free of
 // whitespace and control characters. Intended for values that are interpolated into

@@ -7,4 +7,5 @@ BEGIN
     IDS_CONFIRM_UNINSTALL "Möchten Sie Windscribe und sämtliche Komponenten wirklich vollständig entfernen?"
     IDS_UNINSTALL_SUCCESS "Windscribe wurde erfolgreich von Ihrem Computer entfernt."
     IDS_CLOSE_APP "Beenden Sie die Windscribe App, um die Deinstallation fortzusetzen. Nach dem Verlassen der Anwendung wird Ihre Verbindung nicht mehr geschützt."
+    IDS_DELETE_ALL_DATA "Auch meine Einstellungen und Daten löschen (wählen Sie dies, wenn Sie Windscribe nicht erneut installieren werden)"
 END

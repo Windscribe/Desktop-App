@@ -31,7 +31,8 @@ Installer::~Installer()
 
 void Installer::startImpl()
 {
-    blocks_.push_back(new UninstallPrev(Settings::instance().getFactoryReset(), 10));
+    uninstallPrev_ = new UninstallPrev(Settings::instance().getFactoryReset(), 10);
+    blocks_.push_back(uninstallPrev_);
     blocks_.push_back(new Files(40));
     blocks_.push_back(new Service(10));
     blocks_.push_back(new InstallOpenVPNDCO(10));
@@ -76,6 +77,13 @@ void Installer::executeBlocks()
     vector<DWORD> ticks;
 
     auto exitGuard = wsl::wsScopeGuard([&] {
+        // The previous version's uninstaller was kept from deleting the desktop shortcut, and an unfinished install leaves it broken.
+        if (uninstallPrev_ != nullptr && uninstallPrev_->hasRunUninstaller()) {
+            const wstring desktopLink = Icons::desktopShortcutPath();
+            if (!desktopLink.empty()) {
+                DeleteFile(desktopLink.c_str());
+            }
+        }
         deleteBlocks();
     });
 
@@ -183,4 +191,5 @@ void Installer::deleteBlocks()
         }
         it = blocks_.erase(it);
     }
+    uninstallPrev_ = nullptr;
 }

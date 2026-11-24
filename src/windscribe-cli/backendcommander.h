@@ -36,9 +36,15 @@ private:
 
     static constexpr int MAX_WAIT_TIME_MS = 10000;   // 10 sec - maximum waiting time for connection to the GUI
     static constexpr int MAX_LOGIN_TIME_MS = 10000;   // 10 sec - maximum waiting time for login in the GUI
+#ifndef CLI_ONLY
+    static constexpr int MAX_GUI_PROMPT_TIME_MS = 120000;   // 2 min - maximum waiting time for the user to answer a GUI prompt
+#endif
     IPC::Connection *connection_ = nullptr;
     QElapsedTimer connectingTimer_;
     QElapsedTimer loggedInTimer_;
+#ifndef CLI_ONLY
+    QElapsedTimer guiPromptTimer_;   // Runs while a prompt that only the GUI can answer is pending.
+#endif
     bool bCommandSent_ = false;
     bool isUpdateInstallerRunning_ = false;
     bool bLoggingInMessageShown_ = false;
@@ -55,5 +61,8 @@ private:
     void onAcknowledge(IPC::CliCommands::Acknowledge *ackCmd);
 #ifndef CLI_ONLY
     bool isLoginRequired() const;
+    // Tells the user once that the GUI is waiting on them, and gives up if they do not answer in time.
+    // Returns true when it has given up, i.e. emitted finished().
+    bool checkGuiPrompt(bool isPending, const QString &hint, const QString &timeoutMsg);
 #endif
 };

@@ -36,4 +36,8 @@ bool spawnDetached(const std::string &exePath,
                    const Options &opts = {},
                    pid_t *outDaemonPid = nullptr);
 
+int runCommand(const std::string &program, const std::vector<std::string> &args, std::string *output,
+               bool mergeStderr, const std::vector<std::pair<std::string, std::string>> &extraEnv = {},
+               const std::vector<std::string> &unsetEnv = {});
+
 } // namespace Spawn

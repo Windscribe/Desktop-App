@@ -110,6 +110,7 @@ priority="`ip rule show | grep -i "$wg_fwmark" | cut -d ":" -f1 | head -n1`" # p
 if [ -n "$priority" ]; then
     # WG uses the same ip rule mechanism, just adjust the WG rule
     ip rule add priority $((priority - 1)) table main suppress_prefixlength 0
+    ip rule add priority $((priority - 1)) fwmark "$mark" table windscribe
 else
     # For non-WG protocols, remove rule forcing other traffic into the tunnel
     ip rule del priority 16385 table windscribe_include
@@ -121,6 +122,7 @@ if [ -n "$def_gateway_v6" ] || [ -n "$def_ip_v6" ] || [ -n "$vpn_gateway_v6" ]; 
     priority_v6="`ip -6 rule show | grep -i "$wg_fwmark" | cut -d ":" -f1 | head -n1`"
     if [ -n "$priority_v6" ]; then
         ip -6 rule add priority $((priority_v6 - 1)) table main suppress_prefixlength 0
+        ip -6 rule add priority $((priority_v6 - 1)) fwmark "$mark" table windscribe
     else
         ip -6 rule del priority 16385 table windscribe_include
     fi

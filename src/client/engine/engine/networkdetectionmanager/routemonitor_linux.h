@@ -3,6 +3,8 @@
 #include <QObject>
 #include <QSocketNotifier>
 
+#include "routeeventfilter_linux.h"
+
 class RouteMonitor_linux : public QObject
 {
     Q_OBJECT
@@ -12,6 +14,7 @@ public:
 
 signals:
     void routesChanged();
+    void tunnelRoutesChanged();
 
 public slots:
     void init();
@@ -23,4 +26,5 @@ private slots:
 private:
     int fd_ = -1;
     QSocketNotifier *notifier_ = nullptr;
+    RouteEventFilter_linux filter_;
 };

@@ -25,12 +25,16 @@ public:
     bool isCaptchaRequired() const { return isCaptchaRequired_; }
     CaptchaData captchaData() const { return captchaData_; }
     bool isRateLimitError() const { return isRateLimitError_; }
+    bool isBadUsernameError() const { return isBadUsernameError_; }
+    bool isUnknownError() const { return isUnknownError_; }
 
 private:
     bool isValid_ = false;
     bool isRateLimitError_ = false;
+    bool isBadUsernameError_ = false;
+    bool isUnknownError_ = false;
     QString token_;
-    bool isCaptchaRequired_;
+    bool isCaptchaRequired_ = false;
     CaptchaData captchaData_;
 
 };

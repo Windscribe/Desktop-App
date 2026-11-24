@@ -4,11 +4,11 @@
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/algorithm/string/split.hpp>
-#include <spdlog/spdlog.h>
-
 #include <filesystem>
+#include <spdlog/spdlog.h>
 #include <sstream>
 
+#include "../../common/wg_dns_routes.h"
 #include "../utils.h"
 #include "types/ipaddress.h"
 
@@ -138,6 +138,32 @@ bool WireGuardAdapter::setIpAddress(const std::string &address)
     }
     cmdlist.push_back({"ifconfig", {getName(), "up"}});
     return RunBlockingCommands(cmdlist);
+}
+
+void WireGuardAdapter::addDnsServerRoutes(const std::string &addressList, const std::vector<std::string> &allowedIps,
+                                          const std::string &peerEndpoint)
+{
+    for (const auto &server : WgDnsRoutes::serversNeedingTunnelRoute(addressList, allowedIps, peerEndpoint)) {
+        const char *family = server.isV6() ? "-inet6" : "-inet";
+        std::string lookup;
+        if (Utils::executeCommand("route", {"-n", "get", family, server.toString()}, &lookup, false) != 0 ||
+            !WgDnsRoutes::isDefaultRouteInMacRouteGet(lookup)) {
+            continue;
+        }
+        if (!RunBlockingCommands({{"route", {"-q", "-n", "add", family, "-host", server.toString(), "-interface", getName()}}})) {
+            continue;
+        }
+        dnsServerRoutes_.push_back(server);
+    }
+}
+
+void WireGuardAdapter::removeDnsServerRoutes()
+{
+    for (const auto &server : dnsServerRoutes_) {
+        Utils::executeCommand("route", {"-q", "-n", "delete", server.isV6() ? "-inet6" : "-inet", "-host", server.toString(),
+                                        "-interface", getName()});
+    }
+    dnsServerRoutes_.clear();
 }
 
 bool WireGuardAdapter::setDnsServers(const std::string &addressList, const std::string &scriptName)

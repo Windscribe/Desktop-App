@@ -15,7 +15,7 @@ namespace WinUtils
     bool isOSCompatible();
     bool isDohSupported();
     bool isNotificationEnabled();
-    void openNotificationSettings();
+    void openSettingsPage(const wchar_t *page);
     QString getSystemDir();
     QString getWinVersionString();
     void getOSVersionAndBuild(QString &osVersion, QString &build);
@@ -30,8 +30,6 @@ namespace WinUtils
     bool isAppAlreadyRunning();
 
     // Registry Adapters
-    bool regHasLocalMachineSubkeyProperty(QString keyPath, QString propertyName);
-    QString regGetLocalMachineRegistryValueSz(QString keyPath, QString propertyName);
     bool regGetCurrentUserRegistryDword(QString keyPath, QString propertyName, int &dwordValue);
 
     unsigned long Win32GetErrorString(unsigned long errorCode, wchar_t *buffer, unsigned long bufferSize);

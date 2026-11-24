@@ -12,9 +12,6 @@
 #include "languagecontroller.h"
 #include "tooltips/tooltipcontroller.h"
 #include "utils/hardcodedsettings.h"
-#ifdef Q_OS_LINUX
-#include "utils/linuxutils.h"
-#endif
 
 extern QWidget *g_mainWindow;
 
@@ -32,7 +29,6 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
     connect(preferences, &Preferences::connectionSettingsChanged, this, &ConnectionWindowItem::onConnectionModePreferencesChanged);
     connect(preferences, &Preferences::packetSizeChanged, this, &ConnectionWindowItem::onPacketSizePreferencesChanged);
     connect(preferences, &Preferences::isAllowLanTrafficChanged, this, &ConnectionWindowItem::onIsAllowLanTrafficPreferencesChanged);
-    connect(preferences, &Preferences::macAddrSpoofingChanged, this, &ConnectionWindowItem::onMacAddrSpoofingPreferencesChanged);
     connect(preferences, &Preferences::connectedDnsInfoChanged, this, &ConnectionWindowItem::onConnectedDnsPreferencesChanged);
     connect(preferences, &Preferences::decoyTrafficSettingsChanged, this, &ConnectionWindowItem::onDecoyTrafficPreferencesChanged);
     connect(preferences_, &Preferences::shareSecureHotspotChanged, this, &ConnectionWindowItem::onSecureHotspotPreferencesChanged);
@@ -116,22 +112,6 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
     allowLanTrafficGroup_->addItem(checkBoxAllowLanTraffic_);
     addItem(allowLanTrafficGroup_);
 
-    macSpoofingGroup_ = new MacSpoofingGroup(this);
-    connect(macSpoofingGroup_, &MacSpoofingGroup::macAddrSpoofingChanged, this, &ConnectionWindowItem::onMacAddrSpoofingPreferencesChangedByUser);
-    connect(macSpoofingGroup_, &MacSpoofingGroup::cycleMacAddressClick, this, &ConnectionWindowItem::cycleMacAddressClick);
-    macSpoofingGroup_->setMacSpoofingSettings(preferences->macAddrSpoofing());
-    addItem(macSpoofingGroup_);
-#ifdef Q_OS_MACOS
-    macSpoofingGroup_->setVisible(false);
-#elif defined(Q_OS_LINUX)
-    // Spoofing is applied through live nmcli calls, so it needs NetworkManager actually running, not just
-    // installed/enabled. Decide once here; onLanguageChanged() reuses this so it only swaps the string.
-    isMacSpoofingSupported_ = LinuxUtils::isNetworkManagerActive();
-    if (!isMacSpoofingSupported_) {
-        macSpoofingGroup_->setEnabled(false);
-    }
-#endif
-
 #if defined(Q_OS_WIN)
     terminateSocketsGroup_ = new PreferenceGroup(this);
     terminateSocketsItem_ = new ToggleItem(terminateSocketsGroup_, tr("Terminate Sockets"));
@@ -211,16 +191,6 @@ void ConnectionWindowItem::setScreen(CONNECTION_SCREEN_TYPE subScreen)
     currentScreen_ = subScreen;
     if (subScreen == CONNECTION_SCREEN_HOME) {
         checkLocalDns();
-#ifdef Q_OS_LINUX
-        // Re-evaluate NetworkManager availability every time the connection page is shown, so a mid-session
-        // NM stop/start is reflected here instead of being frozen at the value sampled at GUI startup.
-        const bool supported = LinuxUtils::isNetworkManagerActive();
-        if (supported != isMacSpoofingSupported_) {
-            isMacSpoofingSupported_ = supported;
-            macSpoofingGroup_->setEnabled(isMacSpoofingSupported_);
-            updateMacSpoofingDescription();
-        }
-#endif
     }
 }
 
@@ -232,11 +202,6 @@ void ConnectionWindowItem::checkLocalDns()
 void ConnectionWindowItem::onControldDevicesFetched(CONTROLD_FETCH_RESULT result, const QList<QPair<QString, QString>> &devices)
 {
     connectedDnsGroup_->onControldDevicesFetched(result, devices);
-}
-
-void ConnectionWindowItem::setCurrentNetwork(const types::NetworkInterface &networkInterface)
-{
-    macSpoofingGroup_->setCurrentNetwork(networkInterface);
 }
 
 void ConnectionWindowItem::setPacketSizeDetectionState(bool on)
@@ -297,11 +262,6 @@ void ConnectionWindowItem::onPacketSizePreferencesChangedByUser(const types::Pac
     preferences_->setPacketSize(ps);
 }
 
-void ConnectionWindowItem::onMacAddrSpoofingPreferencesChangedByUser(const types::MacAddrSpoofing &mas)
-{
-    preferences_->setMacAddrSpoofing(mas);
-}
-
 void ConnectionWindowItem::onTerminateSocketsPreferencesChangedByUser(bool isChecked)
 {
 #if defined(Q_OS_WIN)
@@ -345,11 +305,6 @@ void ConnectionWindowItem::onConnectionModePreferencesChanged(const types::Conne
 void ConnectionWindowItem::onPacketSizePreferencesChanged(const types::PacketSize &ps)
 {
     packetSizeGroup_->setPacketSizeSettings(ps);
-}
-
-void ConnectionWindowItem::onMacAddrSpoofingPreferencesChanged(const types::MacAddrSpoofing &mas)
-{
-    macSpoofingGroup_->setMacSpoofingSettings(mas);
 }
 
 void ConnectionWindowItem::onTerminateSocketsPreferencesChanged(bool b)
@@ -420,8 +375,6 @@ void ConnectionWindowItem::onLanguageChanged()
     checkBoxAllowLanTraffic_->setDescription(tr("Allow access to local services and printers while connected to Windscribe."),
                                              QString("https://%1/features/lan-traffic").arg(HardcodedSettings::instance().windscribeServerUrl()));
     checkBoxAllowLanTraffic_->setCaption(tr("Allow LAN Traffic"));
-
-    updateMacSpoofingDescription();
 
 #if defined(Q_OS_WIN)
     terminateSocketsItem_->setCaption(tr("Terminate Sockets"));
@@ -503,18 +456,6 @@ void ConnectionWindowItem::updateHydraProfileDescription()
                       : tr("Select one of these locations to connect through your hydra server."));
         hydraProfileGroup_->setDescription(lines.join("\n"), url);
     }
-}
-
-void ConnectionWindowItem::updateMacSpoofingDescription()
-{
-    const QString url = QString("https://%1/features/mac-spoofing").arg(HardcodedSettings::instance().windscribeServerUrl());
-    QString description = tr("Spoof your device's physical address (MAC address).");
-#ifdef Q_OS_LINUX
-    if (!isMacSpoofingSupported_) {
-        description = tr("MAC spoofing requires NetworkManager to be installed and running.");
-    }
-#endif
-    macSpoofingGroup_->setDescription(description, url);
 }
 
 void ConnectionWindowItem::onIsAllowLanTrafficPreferencesChangedByUser(bool b)

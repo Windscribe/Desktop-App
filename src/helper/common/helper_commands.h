@@ -61,9 +61,6 @@ enum class HelperCommand {
     disableDnsLeaksProtection,
     reinstallWanIkev2,
     enableWanIkev2,
-    setMacAddressRegistryValueSz,
-    removeMacAddressRegistryProperty,
-    resetNetworkAdapter,
     addIKEv2DefaultRoute,
     removeAppNetworkProfiles,
     disableIKEv2MODP2048Support,
@@ -101,11 +98,12 @@ enum class HelperCommand {
     // Linux
     setDnsLeakProtectEnabled,
     setGaiIpv4PriorityEnabled,
-    setMacAddress,
-    resetMacAddresses,
     setOpenVpnDcoMode,
     installerStageAndVerify,
-    installerCleanupStaged
+    installerCleanupStaged,
+
+    // Common
+    setDebugTrace
 };
 
 

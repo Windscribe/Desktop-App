@@ -15,7 +15,6 @@
 #include "split_tunneling/split_tunneling.h"
 #include "utils.h"
 #include "utils/crashhandler.h"
-#include "utils/log/debug_trace.h"
 #include "utils/wsscopeguard.h"
 
 namespace wsl
@@ -183,33 +182,6 @@ void Helper::processClientRequests()
         return;
     }
 #endif
-
-    // The service runs as SYSTEM, so the advanced parameters file is in the connected user's app data folder.
-    // Resolved per connection: a different user may connect next, and the check is cached until then.
-    // That folder is user-writable, so read it as the user: SYSTEM must not follow a junction planted there.
-    wsl::Win32Handle clientToken;
-    std::wstring traceFolder;
-    if (Utils::getPipeClientPrimaryToken(clientPipe_.getHandle(), clientToken.data())) {
-        traceFolder = Utils::getClientLogFolder(clientToken.getHandle());
-    }
-    log_utils::loadDebugTraceSetting(std::wstring());
-    if (!traceFolder.empty()) {
-        if (::ImpersonateLoggedOnUser(clientToken.getHandle())) {
-            log_utils::loadDebugTraceSetting(traceFolder);
-            if (!::RevertToSelf()) {
-                spdlog::critical("RevertToSelf after reading debug trace setting failed: {}", ::GetLastError());
-                return;
-            }
-        } else {
-            spdlog::warn("ImpersonateLoggedOnUser failed, debug trace setting not read: {}", ::GetLastError());
-        }
-    }
-    if (log_utils::debugTraceEnabled()) {
-        spdlog::set_level(spdlog::level::debug);
-        spdlog::info(L"Debug trace enabled from {}", traceFolder);
-    } else {
-        spdlog::set_level(spdlog::level::info);
-    }
 
     Win32Handle ioCompletedEvent(::CreateEvent(NULL, TRUE, TRUE, NULL));
     if (!ioCompletedEvent.isValid()) {

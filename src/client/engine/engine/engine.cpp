@@ -52,7 +52,6 @@
     #include "engine/dnsinfo_win.h"
     #include "utils/bfe_service_win.h"
     #include "utils/executable_signature/executable_signature.h"
-    #include "utils/network_utils/network_utils_win.h"
     #include "utils/network_utils/wlan_utils_win.h"
     #include "utils/winutils.h"
 #elif defined Q_OS_MACOS
@@ -66,10 +65,20 @@
     #include "utils/dnsscripts_linux.h"
     #include "utils/executable_signature/executablesignature_linux.h"
     #include "utils/linuxutils.h"
-    #include "utils/network_utils/network_utils_linux.h"
 #endif
 
 using namespace wsnet;
+
+namespace {
+AdapterGatewayInfo defaultAdapterForDisconnectedStatus()
+{
+#ifdef Q_OS_WIN
+    return AdapterGatewayInfo::detectAndCreateDefaultAdapterInfo();
+#else
+    return AdapterGatewayInfo();
+#endif
+}
+} // namespace
 
 #if defined(Q_OS_MACOS) && !defined(WINDSCRIBE_DEV_MODE)
 namespace {
@@ -101,7 +110,6 @@ Engine::Engine() : QObject(nullptr),
     customConfigs_(nullptr),
     customOvpnAuthCredentialsStorage_(nullptr),
     networkDetectionManager_(nullptr),
-    macAddressController_(nullptr),
     keepAliveManager_(nullptr),
     packetSizeController_(nullptr),
     myIpManager_(nullptr),
@@ -130,6 +138,10 @@ Engine::Engine() : QObject(nullptr),
 
     if (!engineSettings_.loadFromSettings()) {
         qCInfo(LOG_BASIC) << "Use default engine settings since the previous ones were not loaded";
+    }
+    if (types::EngineSettings::isMacSpoofingRemovedMarked()) {
+        qCInfo(LOG_BASIC) << "MAC spoofing was on before this version removed it";
+        engineSettings_.saveToSettings();
     }
     qCInfo(LOG_BASIC) << "Engine settings" << engineSettings_;
 
@@ -534,11 +546,6 @@ void Engine::detectAppropriatePacketSize()
     QMetaObject::invokeMethod(this, "detectAppropriatePacketSizeImpl");
 }
 
-void Engine::setSettingsMacAddressSpoofing(const types::MacAddrSpoofing &macAddrSpoofing)
-{
-    QMetaObject::invokeMethod(this, "setSettingsMacAddressSpoofingImpl", Q_ARG(types::MacAddrSpoofing, macAddrSpoofing));
-}
-
 void Engine::setSplitTunnelingSettings(bool isActive, bool isExclude, const QStringList &files,
                                        const QStringList &ips, const QStringList &hosts)
 {
@@ -590,6 +597,7 @@ void Engine::init()
 
     helper_ = CrossPlatformObjectFactory::createHelper(this);
     connect(helper_->backend(), &IHelperBackend::lostConnectionToHelper, this, &Engine::onLostConnectionToHelper);
+    helper_->setDebugTraceOnConnect(log_utils::debugTraceEnabled());
 
 #if defined(Q_OS_MACOS) && !defined(WINDSCRIBE_DEV_MODE)
     // Before startInstallHelper(): blessing the helper prompts for admin credentials, and a new helper
@@ -634,26 +642,8 @@ void Engine::initPart2()
 
     firewallExceptions_.setDnsPolicy(engineSettings_.dnsPolicy());
 
-    types::MacAddrSpoofing macAddrSpoofing = engineSettings_.macAddrSpoofing();
-    //todo refactor
-#if defined Q_OS_WIN
-    macAddrSpoofing.networkInterfaces = NetworkUtils_win::spoofableNetworkInterfaces(NetworkUtils_win::currentNetworkInterfaces(true));
-#elif defined Q_OS_LINUX
-    macAddrSpoofing.networkInterfaces = NetworkUtils_linux::currentNetworkInterfaces(true);
-#endif
-    setSettingsMacAddressSpoofing(macAddrSpoofing);
-
     connect(networkDetectionManager_, &INetworkDetectionManager::onlineStateChanged, this, &Engine::onNetworkOnlineStateChange);
     connect(networkDetectionManager_, &INetworkDetectionManager::networkChanged, this, &Engine::onNetworkChange);
-
-#ifndef Q_OS_MACOS
-    macAddressController_ = CrossPlatformObjectFactory::createMacAddressController(this, networkDetectionManager_, helper_);
-    connect(macAddressController_, &IMacAddressController::macAddrSpoofingChanged, this, &Engine::onMacAddressSpoofingChanged);
-    connect(macAddressController_, &IMacAddressController::sendUserWarning, this, &Engine::onMacAddressControllerSendUserWarning);
-    // Init after the connects: initMacAddrSpoofing applies the spoof synchronously and can emit
-    // (e.g. an init-time hard-disable on failure).
-    macAddressController_->initMacAddrSpoofing(macAddrSpoofing);
-#endif
 
     packetSizeControllerThread_ = new QThread(this);
 
@@ -863,11 +853,18 @@ void Engine::onInitializeHelper(INIT_HELPER_RET ret)
         initPart2();
 
         // turn off split tunneling (for case the state remains from the last launch)
-        helper_->sendConnectStatus(false, engineSettings_.isTerminateSockets(), engineSettings_.isAllowLanTraffic(), AdapterGatewayInfo::detectAndCreateDefaultAdapterInfo(), AdapterGatewayInfo(), QString(), types::Protocol());
+        helper_->sendConnectStatus(false, engineSettings_.isTerminateSockets(), engineSettings_.isAllowLanTraffic(),
+                                   defaultAdapterForDisconnectedStatus(), AdapterGatewayInfo(), QString(), types::Protocol());
 
         helper_->setSplitTunnelingSettings(false, false, false, QStringList(), QStringList(), QStringList());
 
     #ifdef Q_OS_WIN
+        // Remove the IPv6 block left over if the previous run crashed while connected. The helper keeps
+        // running across a client crash, and the block is persistent and otherwise only removed on
+        // disconnect or engine cleanup, so IPv6 would stay blocked (even with the firewall off) until the
+        // next connect/disconnect cycle. Must run before initFinished, which may trigger an auto-connect.
+        helper_->setIPv6EnabledInFirewall(true);
+
         // check BFE service status
         if (!BFEService::isRunning(helper_))
         {
@@ -940,7 +937,8 @@ void Engine::cleanupImpl(bool isUpdating)
 
     // turn off split tunneling
     if (helper_) {
-        helper_->sendConnectStatus(false, engineSettings_.isTerminateSockets(), engineSettings_.isAllowLanTraffic(), AdapterGatewayInfo::detectAndCreateDefaultAdapterInfo(), AdapterGatewayInfo(), QString(), types::Protocol());
+        helper_->sendConnectStatus(false, engineSettings_.isTerminateSockets(), engineSettings_.isAllowLanTraffic(),
+                                   defaultAdapterForDisconnectedStatus(), AdapterGatewayInfo(), QString(), types::Protocol());
         helper_->setSplitTunnelingSettings(false, false, false, QStringList(), QStringList(), QStringList());
     }
 
@@ -1276,7 +1274,7 @@ void Engine::updateCurrentNetworkInterfaceImpl()
             helper_->sendConnectStatus(false,
                                        engineSettings_.isTerminateSockets(),
                                        engineSettings_.isAllowLanTraffic(),
-                                       AdapterGatewayInfo::detectAndCreateDefaultAdapterInfo(),
+                                       defaultAdapterForDisconnectedStatus(),
                                        AdapterGatewayInfo(),
                                        QString(),
                                        types::Protocol());
@@ -1300,6 +1298,15 @@ void Engine::firewallOnImpl()
 void Engine::firewallOffImpl()
 {
     firewallController_->firewallOff();
+#ifdef Q_OS_WIN
+    // The IPv6 block sublayer is independent of the main firewall and only belongs in place while
+    // connected. While disconnected, make sure turning the firewall off leaves none of it behind (e.g. if
+    // removing it on disconnect failed). Not done while connecting/disconnecting/connected, where the
+    // block is deliberately kept to avoid leaking IPv6 around the tunnel.
+    if (connectStateController_->currentState() == CONNECT_STATE_DISCONNECTED) {
+        helper_->setIPv6EnabledInFirewall(true);
+    }
+#endif
     emit firewallStateChanged(false);
     updateFirewallOnBoot();
 }
@@ -1313,7 +1320,6 @@ void Engine::setSettingsImpl(const types::EngineSettings &engineSettings)
     bool isUpdateChannelChanged = engineSettings_.updateChannel() != engineSettings.updateChannel();
     bool isDnsPolicyChanged = engineSettings_.dnsPolicy() != engineSettings.dnsPolicy();
     bool isCustomOvpnConfigsPathChanged = engineSettings_.customOvpnConfigsPath() != engineSettings.customOvpnConfigsPath();
-    bool isMACSpoofingChanged = engineSettings_.macAddrSpoofing() != engineSettings.macAddrSpoofing();
     bool isPacketSizeChanged =  engineSettings_.packetSize() != engineSettings.packetSize();
     bool isDnsWhileConnectedChanged = engineSettings_.connectedDnsInfo() != engineSettings.connectedDnsInfo();
     bool isDecoyTrafficSettingsChanged = engineSettings_.decoyTrafficSettings() != engineSettings.decoyTrafficSettings();
@@ -1372,13 +1378,6 @@ void Engine::setSettingsImpl(const types::EngineSettings &engineSettings)
 
     if (isUpdateChannelChanged)
         doCheckUpdate();
-
-#ifndef Q_OS_MACOS
-    if (isMACSpoofingChanged) {
-        qCDebug(LOG_BASIC) << "Set MAC Spoofing (Engine)";
-        macAddressController_->setMacAddrSpoofing(engineSettings_.macAddrSpoofing());
-    }
-#endif
 
     if (isPacketSizeChanged) {
         qCDebug(LOG_BASIC) << "Engine updating packet size controller";
@@ -1672,6 +1671,17 @@ void Engine::onConnectionManagerDisconnected(DISCONNECT_REASON reason)
         connectionManager_->setProperty("senderSource", QVariant());
     }
 
+    // In automatic mode a plain user disconnect turns the firewall off.  Do it before doDisconnectRestoreStuff()
+    // so that it does not rebuild the firewall rules only for them to be deleted right after.
+    const bool isPlainDisconnect = senderSource != "logoutImpl" && senderSource != "logoutImplKeepFirewallOn" &&
+                                   senderSource != "reconnect";
+    if (isPlainDisconnect && reason == DISCONNECTED_BY_USER &&
+        engineSettings_.firewallSettings().mode == FIREWALL_MODE_AUTOMATIC && firewallController_->firewallActualState())
+    {
+        firewallController_->firewallOff();
+        emit firewallStateChanged(false);
+    }
+
     doDisconnectRestoreStuff();
     WSNet::instance()->decoyTraffic()->stop();
 
@@ -1702,12 +1712,6 @@ void Engine::onConnectionManagerDisconnected(DISCONNECT_REASON reason)
     else
     {
         myIpManager_->getIP(1);
-        if (reason == DISCONNECTED_BY_USER && engineSettings_.firewallSettings().mode == FIREWALL_MODE_AUTOMATIC &&
-            firewallController_->firewallActualState())
-        {
-            firewallController_->firewallOff();
-            emit firewallStateChanged(false);
-        }
     }
 
     // Connection Settings override is one-time only, reset it
@@ -2428,7 +2432,7 @@ void Engine::onNetworkChange(const types::NetworkInterface &networkInterface)
             helper_->sendConnectStatus(false,
                                        engineSettings_.isTerminateSockets(),
                                        engineSettings_.isAllowLanTraffic(),
-                                       AdapterGatewayInfo::detectAndCreateDefaultAdapterInfo(),
+                                       defaultAdapterForDisconnectedStatus(),
                                        AdapterGatewayInfo(),
                                        QString(),
                                        types::Protocol());
@@ -2450,12 +2454,6 @@ void Engine::stopPacketDetection()
 void Engine::rotateIp()
 {
     QMetaObject::invokeMethod(this, "rotateIpImpl");
-}
-
-void Engine::onMacAddressSpoofingChanged(const types::MacAddrSpoofing &macAddrSpoofing)
-{
-    qCDebug(LOG_BASIC) << "Engine::onMacAddressSpoofingChanged";
-    setSettingsMacAddressSpoofing(macAddrSpoofing);
 }
 
 void Engine::onPacketSizeControllerPacketSizeChanged(bool isAuto, int mtu)
@@ -2488,11 +2486,6 @@ void Engine::onPacketSizeControllerFinishedSizeDetection(bool isError)
     emit packetSizeDetectionStateChanged(false, isError);
 }
 
-void Engine::onMacAddressControllerSendUserWarning(USER_WARNING_TYPE userWarningType)
-{
-    emit sendUserWarning(userWarningType);
-}
-
 
 
 void Engine::startProxySharingImpl(const types::ShareProxyGateway &settings)
@@ -2522,13 +2515,6 @@ void Engine::stopWifiSharingImpl()
     {
         emit wifiSharingStateChanged(false, "", 0);
     }
-}
-
-void Engine::setSettingsMacAddressSpoofingImpl(const types::MacAddrSpoofing &macAddrSpoofing)
-{
-    engineSettings_.setMacAddrSpoofing(macAddrSpoofing);
-    engineSettings_.saveToSettings();
-    emit macAddrSpoofingChanged(engineSettings_);
 }
 
 void Engine::setSplitTunnelingSettingsImpl(bool isActive, bool isExclude, const QStringList &files, const QStringList &ips, const QStringList &hosts)
@@ -2711,6 +2697,10 @@ void Engine::onApiResourcesManagerAuthTokenFinished(LoginResult loginResult)
         } else {
             if (authToken.isRateLimitError()) {
                 emit loginError(LoginResult::kRateLimited, QString());
+            } else if (authToken.isBadUsernameError()) {
+                emit loginError(LoginResult::kBadUsername, QString());
+            } else if (authToken.isUnknownError()) {
+                emit loginError(LoginResult::kSomeError, QString());
             } else {
                 if (authToken.isCaptchaRequired()) {
                     if (loginCredentials_) {
@@ -3090,7 +3080,8 @@ void Engine::onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON /*reas
         } else
 #endif
         if (state != CONNECT_STATE_CONNECTED) {
-            helper_->sendConnectStatus(false, engineSettings_.isTerminateSockets(), engineSettings_.isAllowLanTraffic(), AdapterGatewayInfo::detectAndCreateDefaultAdapterInfo(), AdapterGatewayInfo(), QString(), types::Protocol());
+            helper_->sendConnectStatus(false, engineSettings_.isTerminateSockets(), engineSettings_.isAllowLanTraffic(),
+                                   defaultAdapterForDisconnectedStatus(), AdapterGatewayInfo(), QString(), types::Protocol());
         }
     }
 

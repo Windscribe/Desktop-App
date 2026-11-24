@@ -493,6 +493,22 @@
         <source>Your username should not be an email address. Please try again.</source>
         <translation>يجب ألا يكون اسم المستخدم الخاص بك عنوان بريد إلكتروني. يرجى المحاولة مرة أخرى.</translation>
     </message>
+    <message>
+        <source>Username must be 3 to 255 characters</source>
+        <translation>يجب أن يتراوح اسم المستخدم بين 3 و255 حرفًا</translation>
+    </message>
+    <message>
+        <source>Use only A–Z, a–z, 0–9, _ and -</source>
+        <translation>استخدم A–Z, a–z, 0–9, _ و- فقط</translation>
+    </message>
+    <message>
+        <source>Password must be 8 to 255 characters</source>
+        <translation>يجب أن تتراوح كلمة المرور بين 8 و255 حرفًا</translation>
+    </message>
+    <message>
+        <source>An unknown error occurred.</source>
+        <translation>حدث خطأ مجهول.</translation>
+    </message>
 </context>
 <context>
     <name>LoginWindow::SignupWindowItem</name>
@@ -523,10 +539,6 @@
     <message>
         <source>Enter password</source>
         <translation>أدخل كلمة المرور</translation>
-    </message>
-    <message>
-        <source>8 or more characters with at least one uppercase and lowercase(ie. &quot;Hello1234&quot;, &quot;Solyanka&quot;).</source>
-        <translation>8 أو أكثر من الحروف التي تحتوي على الأقل بحرف كبير وصغير (أي. &quot;مرحبا1234&quot;، &quot;سوليانكا&quot;).</translation>
     </message>
     <message>
         <source>Email (Optional)</source>
@@ -579,10 +591,6 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
         <translation>جميع الملفات (*.*)</translation>
     </message>
     <message>
-        <source>Username must be at least 3 characters</source>
-        <translation>يجب أن يكون اسم المستخدم على الأقل 3 أحرف</translation>
-    </message>
-    <message>
         <source>Your username should not be an email address.</source>
         <translation>يجب ألا يكون اسم المستخدم الخاص بك عنوان بريد إلكتروني.</translation>
     </message>
@@ -593,6 +601,18 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
     <message>
         <source>Invalid hash</source>
         <translation>التجزئة غير الصالحة</translation>
+    </message>
+    <message>
+        <source>Username must be 3 to 255 characters</source>
+        <translation>يجب أن يتراوح اسم المستخدم بين 3 و255 حرفًا</translation>
+    </message>
+    <message>
+        <source>Use only A–Z, a–z, 0–9, _ and -</source>
+        <translation>استخدم A–Z, a–z, 0–9, _ و- فقط</translation>
+    </message>
+    <message>
+        <source>Password must be 8 to 255 characters</source>
+        <translation>يجب أن تتراوح كلمة المرور بين 8 و255 حرفًا</translation>
     </message>
 </context>
 <context>
@@ -645,10 +665,6 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
         <translation>VPN نشط</translation>
     </message>
     <message>
-        <source>Rotating your MAC address will result in a disconnect event from the current network. Are you sure?</source>
-        <translation>سيؤدي تدوير عنوان MAC الخاص بك إلى حدث قطع الاتصال بالشبكة الحالية. هل أنت متأكد؟</translation>
-    </message>
-    <message>
         <source>Cannot detect appropriate packet size while connected. Please disconnect first.</source>
         <translation>لا يمكن اكتشاف حجم الحزمة المناسب أثناء الاتصال. يرجى قطع الاتصال أولا.</translation>
     </message>
@@ -671,10 +687,6 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
     <message>
         <source>We&apos;ve detected that your network settings may interfere with Windscribe.  Please send us a debug log to troubleshoot.</source>
         <translation>لقد اكتشفنا أن إعدادات الشبكة الخاصة بك قد تتداخل مع Windscribe.  يرجى إرسال سجل تصحيح الأخطاء إلينا لاستكشاف الأخطاء وإصلاحها.</translation>
-    </message>
-    <message>
-        <source>Could not spoof MAC address.  Please try a different network interface or contact support.</source>
-        <translation>تعذر محاكاة عنوان MAC.  يرجى تجربة واجهة شبكة مختلفة أو الاتصال بالدعم.</translation>
     </message>
     <message>
         <source>Could not download update.  Please try again or use a different network.</source>
@@ -765,6 +777,34 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
         <translation>الدليل المختار قابل للكتابة للمستخدمين الآخرين. قد تشكل التكوينات المخصصة في هذا الدليل خطرا أمنيا محتملا.</translation>
     </message>
     <message>
+        <source>MAC Spoofing Removed</source>
+        <translation>تمت إزالة انتحال MAC</translation>
+    </message>
+    <message>
+        <source>MAC spoofing has been removed. Your spoofed MAC address stays active until you restart your computer or network adapter. To use a random address on Wi-Fi, turn on Random hardware addresses.</source>
+        <translation>تمت إزالة انتحال MAC. يظل عنوان MAC المنتحل نشطًا حتى تعيد تشغيل الكمبيوتر أو محول الشبكة. لاستخدام عنوان عشوائي على شبكة Wi-Fi، يُرجى تشغيل &quot;عناوين الأجهزة العشوائية&quot;.</translation>
+    </message>
+    <message>
+        <source>Open Wi-Fi Settings</source>
+        <translation>فتح إعدادات Wi-Fi</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>إغلاق</translation>
+    </message>
+    <message>
+        <source>MAC spoofing is no longer available in Windscribe. To use a random MAC address on Wi-Fi, set Private Wi-Fi address to Rotating in System Settings &gt; Wi-Fi &gt; Details.</source>
+        <translation>لم يعد انتحال MAC متاحًا في Windscribe. لاستخدام عنوان MAC عشوائي على شبكة Wi-Fi، يُرجى تعيين &quot;عنوان Wi-Fi خاص&quot; إلى &quot;متغير&quot; في إعدادات النظام &gt; Wi-Fi &gt; التفاصيل.</translation>
+    </message>
+    <message>
+        <source>MAC spoofing is no longer available in Windscribe. To use a random MAC address on Wi-Fi, update to macOS 15 or later, then set Private Wi-Fi address to Rotating in System Settings &gt; Wi-Fi &gt; Details.</source>
+        <translation>لم يعد انتحال MAC متاحًا في Windscribe. لاستخدام عنوان MAC عشوائي على شبكة Wi-Fi، يُرجى التحديث إلى macOS 15 أو إصدار أحدث، ثم تعيين &quot;عنوان Wi-Fi خاص&quot; إلى &quot;متغير&quot; في إعدادات النظام &gt; Wi-Fi &gt; التفاصيل.</translation>
+    </message>
+    <message>
+        <source>MAC spoofing has been removed. Your network connection may still use the spoofed MAC address. To change it, set its cloned MAC address to Random, or clear it, in your network settings.</source>
+        <translation>تمت إزالة انتحال MAC. قد يظل اتصال الشبكة يستخدم عنوان MAC المنتحل. لتغيير ذلك، يُرجى تعيين عنوان MAC المستنسخ للاتصال إلى &quot;عشوائي&quot; أو مسحه في إعدادات الشبكة.</translation>
+    </message>
+    <message>
         <source>Installation Incomplete</source>
         <translation>التركيب غير المكتمل</translation>
     </message>
@@ -841,14 +881,6 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
     <message>
         <source>Service Error</source>
         <translation>خطأ في الخدمة</translation>
-    </message>
-    <message>
-        <source>MAC Spoofing Failed</source>
-        <translation>فشل انتحال MAC</translation>
-    </message>
-    <message>
-        <source>Your network adapter does not support MAC spoofing. Try a different adapter.</source>
-        <translation>لا يدعم محول الشبكة انتحال MAC. جرب محولا مختلفا.</translation>
     </message>
     <message>
         <source>Detection Error</source>
@@ -971,10 +1003,6 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>IKEv2 connectivity is not available in MacOS Lockdown Mode. Please disable Lockdown Mode in System Settings or change your connection settings.</source>
         <translation>لا يتوفر اتصال IKEv2 في وضع تأمين MacOS. يرجى تعطيل وضع القفل في إعدادات النظام أو تغيير إعدادات الاتصال الخاصة بك.</translation>
-    </message>
-    <message>
-        <source>Rotating MAC Address</source>
-        <translation>تدوير عنوان MAC</translation>
     </message>
     <message>
         <source>Wi-Fi is off</source>
@@ -1119,10 +1147,6 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Creating your account...</source>
         <translation>إنشاء حسابك...</translation>
-    </message>
-    <message>
-        <source>Cannot rotate MAC address while connected to VPN. Please disconnect first.</source>
-        <translation>لا يمكن تدوير عنوان MAC أثناء الاتصال ب VPN. يرجى قطع الاتصال أولا.</translation>
     </message>
 </context>
 <context>
@@ -1566,14 +1590,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>اختر أحد هذه المواقع للاتصال عبر خادم hydra الخاص بك.</translation>
     </message>
     <message>
-        <source>Spoof your device&apos;s physical address (MAC address).</source>
-        <translation>انتحال العنوان الفعلي لجهازك (عنوان MAC).</translation>
-    </message>
-    <message>
-        <source>MAC spoofing requires NetworkManager to be installed and running.</source>
-        <translation>يتطلب انتحال MAC تثبيت NetworkManager وتشغيله.</translation>
-    </message>
-    <message>
         <source>Close all active TCP sockets when the VPN tunnel is established.</source>
         <translation>أغلق كافة مآخذ توصيل TCP النشطة عند إنشاء نفق VPN.</translation>
     </message>
@@ -1963,45 +1979,6 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Tray Icon Colour</source>
         <translation>لون أيقونة الدرج</translation>
-    </message>
-</context>
-<context>
-    <name>PreferencesWindow::MacSpoofingGroup</name>
-    <message>
-        <source>You can only spoof an existing adapter.</source>
-        <translation>يمكنك فقط انتحال محول موجود.</translation>
-    </message>
-    <message>
-        <source>Cannot spoof on &apos;No Interface&apos;</source>
-        <translation>لا يمكن محاكاة ساخرة على &quot;لا واجهة&quot;</translation>
-    </message>
-    <message>
-        <source>Cannot spoof the current interface</source>
-        <translation>لا يمكن انتحال الواجهة الحالية</translation>
-    </message>
-    <message>
-        <source>The current primary interface must match the selected interface to spoof.</source>
-        <translation>يجب أن تتطابق الواجهة الأساسية الحالية مع الواجهة المحددة للانتحال.</translation>
-    </message>
-    <message>
-        <source>No Interface</source>
-        <translation>لا توجد واجهة</translation>
-    </message>
-    <message>
-        <source>MAC Spoofing</source>
-        <translation>انتحال ماك</translation>
-    </message>
-    <message>
-        <source>MAC Address</source>
-        <translation>عنوان MAC</translation>
-    </message>
-    <message>
-        <source>Interface</source>
-        <translation>واجهه</translation>
-    </message>
-    <message>
-        <source>Auto-Rotate MAC</source>
-        <translation>التدوير التلقائي لنظام MAC</translation>
     </message>
 </context>
 <context>

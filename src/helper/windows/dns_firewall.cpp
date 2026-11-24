@@ -7,7 +7,7 @@
 #include <iphlpapi.h>
 
 #include "dns_firewall.h"
-#include "utils.h"
+#include "wfp_utils.h"
 #include "utils/log/debug_trace.h"
 
 #define FIREWALL_SUBLAYER_DNS_NAMEW WS_APP_IDENTIFIER_W L"DnsFirewallSublayer"

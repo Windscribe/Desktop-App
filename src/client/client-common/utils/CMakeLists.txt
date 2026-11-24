@@ -1,4 +1,6 @@
 target_sources(client-common PRIVATE
+    credentialsvalidation.cpp
+    credentialsvalidation.h
     dns_utils/dnsserversconfiguration.cpp
     dns_utils/dnsserversconfiguration.h
     dns_utils/dnsutils.h

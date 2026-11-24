@@ -135,7 +135,6 @@ private slots:
     void onPreferencesManageRobertRulesClick();
     void onPreferencesQuitAppClick();
     void onPreferencesAccountLoginClick();
-    void onPreferencesCycleMacAddressClick();
     void onPreferencesWindowDetectPacketSizeClick();
     void onPreferencesAdvancedParametersClicked();
     void onPreferencesCustomConfigsPathChanged(QString path);
@@ -221,7 +220,6 @@ private slots:
     void onBackendSessionDeleted();
     void onBackendTestTunnelResult(bool success);
     void onBackendLostConnectionToHelper();
-    void onBackendUserWarning(USER_WARNING_TYPE userWarningType);
     void onBackendInternetConnectivityChanged(bool connectivity);
     void onBackendProtocolPortChanged(const types::Protocol &protocol, const uint port);
     void onBackendPacketSizeDetectionStateChanged(bool on, bool isError);
@@ -315,6 +313,7 @@ private:
     QModelIndex selectedApiLocationIndex() const;
     void gotoWelcomeWindow();
     void gotoLoginWindow();
+    void showMacSpoofingRemoved();
     void gotoLogoutWindow();
     void gotoExitWindow();
     void collapsePreferences();
@@ -375,7 +374,6 @@ private:
     bool revealingConnectWindow_;
     bool internetConnected_;
 
-    QSet<USER_WARNING_TYPE> alreadyShownWarnings_;
 
     types::NetworkInterface curNetwork_;
 
@@ -408,7 +406,6 @@ private:
     void cleanupAdvParametersWindow();
     void cleanupLogViewerWindow();
 
-    void showUserWarning(USER_WARNING_TYPE userWarningType);
     void openBrowserToMyAccountWithToken(const QString &tempSessionToken);
     void updateConnectWindowStateProtocolPortDisplay();
 

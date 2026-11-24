@@ -171,33 +171,6 @@ static QList<IfTable2Row> getIfTable2()
     return if2Table;
 }
 
-static QString interfaceSubkeyPath(int interfaceIndex)
-{
-    IfTableRow row = tableRowByIndex(getIfTable(), interfaceIndex);
-
-    const QString keyPath("SYSTEM\\CurrentControlSet\\Control\\Class\\{4D36E972-E325-11CE-BFC1-08002BE10318}");
-    const QStringList ifSubkeys = WinUtils::enumerateSubkeyNames(HKEY_LOCAL_MACHINE, keyPath);
-
-    QString foundSubkey = "";
-    for (const QString &subkey : ifSubkeys) {
-        QString subkeyPath = keyPath + "\\" + subkey;
-        QString subkeyInterfaceGuid = WinUtils::regGetLocalMachineRegistryValueSz(subkeyPath, "NetCfgInstanceId");
-
-        if (subkeyInterfaceGuid == row.guidName) {
-            foundSubkey = subkeyPath; // whole key path
-            break;
-        }
-    }
-
-    return foundSubkey;
-}
-
-static bool interfaceSubkeyHasProperty(int interfaceIndex, QString propertyName)
-{
-    QString interfaceSubkeyP = interfaceSubkeyPath(interfaceIndex);
-    return WinUtils::regHasLocalMachineSubkeyProperty(interfaceSubkeyP, propertyName);
-}
-
 static QList<IpAdapter> getIpAdapterTable()
 {
     WS_DEBUG_TRACE_SCOPE("NetworkUtils_win::getIpAdapterTable");
@@ -389,23 +362,6 @@ static bool isRowUsableForAppVpn(const IfTable2Row &row)
            && (row.connectorPresent || row.sharesAddressWithConnectorAdapter);
 }
 
-bool NetworkUtils_win::hasPhysicalConnector(int interfaceIndex)
-{
-    return tableRowByIndex(getIfTable2(), interfaceIndex).connectorPresent;
-}
-
-QVector<types::NetworkInterface> NetworkUtils_win::spoofableNetworkInterfaces(const QVector<types::NetworkInterface> &networkInterfaces)
-{
-    QVector<types::NetworkInterface> result;
-    for (const auto &networkInterface : networkInterfaces) {
-        if (types::NetworkInterface::isNoNetworkInterface(networkInterface.interfaceIndex)
-            || hasPhysicalConnector(networkInterface.interfaceIndex)) {
-            result << networkInterface;
-        }
-    }
-    return result;
-}
-
 static IfTable2Row lowestMetricNonVpnIfTableRow()
 {
     IfTable2Row lowestMetricIfRow;
@@ -472,11 +428,6 @@ static QList<AdapterAddress> getAdapterAddressesTable()
     }
 
     return adapters;
-}
-
-bool NetworkUtils_win::isInterfaceSpoofed(int interfaceIndex)
-{
-    return interfaceSubkeyHasProperty(interfaceIndex, WS_APP_IDENTIFIER "MACSpoofed");
 }
 
 bool NetworkUtils_win::pingWithMtu(const QString &url, int mtu)
@@ -713,47 +664,6 @@ QVector<types::NetworkInterface> NetworkUtils_win::currentNetworkInterfaces(bool
     }
 
     return addNoInterface(includeNoInterface, networkInterfaces);
-}
-
-QString NetworkUtils_win::interfaceSubkeyName(int interfaceIndex)
-{
-    IfTableRow row = tableRowByIndex(getIfTable(), interfaceIndex);
-
-    const QString keyPath("SYSTEM\\CurrentControlSet\\Control\\Class\\{4D36E972-E325-11CE-BFC1-08002BE10318}");
-    const QStringList ifSubkeys = WinUtils::enumerateSubkeyNames(HKEY_LOCAL_MACHINE, keyPath);
-
-    QString foundSubkeyName = "";
-    for (const QString &subkey : ifSubkeys) {
-        QString subkeyPath = keyPath + "\\" + subkey;
-        QString subkeyInterfaceGuid = WinUtils::regGetLocalMachineRegistryValueSz(subkeyPath, "NetCfgInstanceId");
-
-        if (subkeyInterfaceGuid == row.guidName) {
-            foundSubkeyName = subkey; // just name -- not path
-            break;
-        }
-    }
-
-    return foundSubkeyName;
-}
-
-types::NetworkInterface NetworkUtils_win::interfaceByIndex(int index, bool &success)
-{
-    types::NetworkInterface result;
-    success = false;
-
-    QVector<types::NetworkInterface> nis = currentNetworkInterfaces(true);
-
-    for (int i = 0; i < nis.size(); i++) {
-        types::NetworkInterface ni = nis[i];
-
-        if (ni.interfaceIndex == index) {
-            result = ni;
-            success = true;
-            break;
-        }
-    }
-
-    return result;
 }
 
 std::optional<bool> NetworkUtils_win::haveInternetConnectivity()

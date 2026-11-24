@@ -22,7 +22,10 @@
 | "Disconnected due to reaching WireGuard key limit" | Too many WireGuard keys | Use `keylimit delete` (CLI-only) to auto-remove oldest key, then reconnect |
 | "Connection has been overridden by another command" | Another connect/disconnect was issued | Retry your command |
 | "Internet connectivity is not available" | No network (CLI-only builds) | Check network connection and retry |
-| "Username too short" / "Password too short" | Credentials don't meet minimum length | Username: ≥3 chars, Password: ≥8 chars |
+| "Username must be 3 to 255 characters" / "Password must be 8 to 255 characters" | Credentials are too short or too long | Username: 3–255 chars after trimming spaces, Password: 8–255 chars |
+| "Username should not be an email address" | An email address was given as the username | Log in with the account's username |
+| "Use only A-Z, a-z, 0-9, _ and - in the username" | The username has a character no account can have | Check the username for typos |
+| "The username or password is incorrect." | The server rejected the credentials | Check them, or reset the password |
 | Unable to connect | Network or protocol blocked | Try multiple protocol + port combos: `wireguard:443`, `udp:443`, `tcp:443`, `stealth:143`, `wstunnel:443`. Stealth and WStunnel are designed for restrictive networks. Try non-standard ports like `stealth:587` or `tcp:8080`. |
 | Still plain WireGuard after setting `AmneziawgPreset` or `CircumventCensorship=true` | AmneziaWG is used only with `ProtocolTweaksMethod=1` (Auto uses a preset only when Windscribe suggests one); `CircumventCensorship` does not affect the VPN connection | Set `ProtocolTweaksMethod=1` and `AmneziawgPreset` to a name exactly as `windscribe-cli amneziawg` prints it. See "Anti-Censorship (AmneziaWG)" in config.md |
 | "No AmneziaWG configurations available." | The preset list has not been fetched from Windscribe yet | Log in, wait a moment, and run `windscribe-cli amneziawg` again |

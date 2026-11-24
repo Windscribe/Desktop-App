@@ -279,28 +279,6 @@ bool isValidInterfaceName(const std::string &interfaceName)
     return true;
 }
 
-bool isValidNetworkManagerConnectionName(const std::string &name)
-{
-    if (name.empty() || name.length() >= 256) {
-        return false;
-    }
-
-    // A leading '-' would be parsed by nmcli as an option rather than a connection name.
-    if (name.front() == '-') {
-        return false;
-    }
-
-    // Reject control bytes (NUL/newline/tab/etc). Spaces and high (UTF-8) bytes are allowed, since
-    // real NM connection names use them; argv-style execution prevents shell interpretation.
-    for (unsigned char c : name) {
-        if (c < 0x20 || c == 0x7f) {
-            return false;
-        }
-    }
-
-    return true;
-}
-
 void sanitizeFirewallConfig(FirewallConfig &config)
 {
     if (!config.connectingIp.empty() && !isValidIpv4Address(config.connectingIp)) {
@@ -331,44 +309,6 @@ void sanitizeFirewallConfig(FirewallConfig &config)
         }
     }
     config.staticPorts = std::move(validPorts);
-}
-
-bool isValidMacAddress(const std::string &macAddress)
-{
-    if (macAddress.empty()) {
-        return false;
-    }
-
-    size_t len = macAddress.length();
-
-    if (len == 12) {
-        for (char c : macAddress) {
-            if (!std::isxdigit(c)) {
-                return false;
-            }
-        }
-        return true;
-    } else if (len == 17) {
-        char separator = macAddress[2];
-        if (separator != ':' && separator != '-') {
-            return false;
-        }
-
-        for (size_t i = 0; i < len; i++) {
-            if (i % 3 == 2) {
-                if (macAddress[i] != separator) {
-                    return false;
-                }
-            } else {
-                if (!std::isxdigit(macAddress[i])) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
-    return false;
 }
 
 std::string normalizeAddress(const std::string &address)

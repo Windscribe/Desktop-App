@@ -372,21 +372,6 @@ void Preferences::setPacketSize(const types::PacketSize &ps)
     }
 }
 
-const types::MacAddrSpoofing &Preferences::macAddrSpoofing() const
-{
-    return engineSettings_.macAddrSpoofing();
-}
-
-void Preferences::setMacAddrSpoofing(const types::MacAddrSpoofing &mas)
-{
-    if (engineSettings_.macAddrSpoofing() != mas)
-    {
-        engineSettings_.setMacAddrSpoofing(mas);
-        emitEngineSettingsChanged();
-        emit macAddrSpoofingChanged(engineSettings_.macAddrSpoofing());
-    }
-}
-
 #if defined(Q_OS_WIN)
 bool Preferences::isTerminateSockets() const
 {
@@ -766,6 +751,12 @@ void Preferences::setMultiDesktopBehavior(MULTI_DESKTOP_BEHAVIOR m)
 
 void Preferences::emitEngineSettingsChanged()
 {
+    // Before the engine's settings arrive, engineSettings_ is mostly defaults. Sending it would replace
+    // the engine's loaded (and saved) settings with those defaults, e.g. silently turning Allow LAN off.
+    if (!isEngineSettingsReceived_) {
+        return;
+    }
+
     if (!isSettingEngineSettings_)
         emit engineSettingsChanged();
 
@@ -790,7 +781,6 @@ void Preferences::setEngineSettings(const types::EngineSettings &es, bool fromJs
     setConnectionSettings(es.connectionSettings());
     setProxySettings(es.proxySettings());
     setPacketSize(es.packetSize());
-    setMacAddrSpoofing(es.macAddrSpoofing());
     setDnsPolicy(es.dnsPolicy());
     setKeepAlive(es.isKeepAliveEnabled());
     if (fromJson) {
@@ -816,6 +806,19 @@ void Preferences::setEngineSettings(const types::EngineSettings &es, bool fromJs
     setProtocolTweaksMethod(es.protocolTweaksMethod());
     setIpStackEgress(es.ipStackEgress());
     isSettingEngineSettings_ = false;
+
+    if (!isEngineSettingsReceived_) {
+        isEngineSettingsReceived_ = true;
+#ifdef CLI_ONLY
+        saveIni();
+#endif
+        emit engineSettingsReceived();
+    }
+}
+
+bool Preferences::isEngineSettingsReceived() const
+{
+    return isEngineSettingsReceived_;
 }
 
 types::EngineSettings Preferences::getEngineSettings() const
@@ -1003,7 +1006,6 @@ void Preferences::loadIni()
     setConnectionSettings(es.connectionSettings());
     setProxySettings(es.proxySettings());
     setPacketSize(es.packetSize());
-    setMacAddrSpoofing(es.macAddrSpoofing());
     setDnsPolicy(es.dnsPolicy());
     setConnectedDnsInfo(es.connectedDnsInfo());
 #ifdef Q_OS_LINUX
@@ -1076,6 +1078,11 @@ void Preferences::setShowLocationLoad(bool b)
 #ifdef CLI_ONLY
 void Preferences::saveIni() const
 {
+    // Writing before the engine's settings arrive would put defaults in the ini, which the engine reads back.
+    if (!isEngineSettingsReceived_) {
+        return;
+    }
+
     QSettings settings(WS_SETTINGS_ORG, WS_SETTINGS_CLI);
 
     guiSettings_.toIni(settings);

@@ -1,6 +1,7 @@
 #include "../../../common/helper_commands.h"
 #include "kernelmodulecommunicator.h"
 #include "../../utils.h"
+#include "utils/log/debug_trace.h"
 #include "wireguard.h"
 #include <boost/asio.hpp>
 #include <boost/algorithm/hex.hpp>
@@ -28,13 +29,12 @@ bool KernelModuleCommunicator::stop()
 // static
 bool KernelModuleCommunicator::forceStop(const std::string &deviceName)
 {
-#ifndef CLI_ONLY
-    // Bring down utun420 via nmcli first, or NetworkManager/GNOME may throw up a scary looking "error".
-    // This is a workaround for #996; this is not really our bug but it's a bad user experience otherwise.
-    Utils::executeCommand("nmcli", {"con", "down", deviceName.c_str()});
-#endif
-
-    wg_del_device(deviceName.c_str());
+    // No "nmcli con down" first (the #996 workaround for GNOME's error on a vanishing device): the
+    // NetworkManager drop-in leaves this device unmanaged, so there is no connection to bring down.
+    {
+        WS_DEBUG_TRACE_SCOPE("KernelModuleCommunicator::forceStop wg_del_device");
+        wg_del_device(deviceName.c_str());
+    }
     return true;
 }
 

@@ -21,6 +21,10 @@ AntiCensorshipWindowItem::AntiCensorshipWindowItem(ScalableGraphicsObject *paren
     connect(preferences, &Preferences::isAPIAntiCensorshipChanged, this, &AntiCensorshipWindowItem::onIsAPIAntiCensorshipPreferencesChanged);
     connect(preferencesHelper, &PreferencesHelper::amneziawgPresetsChanged, this, &AntiCensorshipWindowItem::onAmneziawgPresetsChanged);
     connect(preferencesHelper, &PreferencesHelper::apiSuggestedCustomSniChanged, this, &AntiCensorshipWindowItem::onApiSuggestedCustomSniChanged);
+    // Presets can arrive before the engine's settings; check the saved preset against them once it is known.
+    connect(preferences, &Preferences::engineSettingsReceived, this, [this]() {
+        applyAmneziawgPresets(preferencesHelper_->amneziawgPresets());
+    });
 
     desc_ = new PreferenceGroup(this);
     addItem(desc_);
@@ -115,6 +119,12 @@ void AntiCensorshipWindowItem::onAmneziawgPresetsChanged(const QStringList &pres
 void AntiCensorshipWindowItem::applyAmneziawgPresets(const QStringList &presets)
 {
     protocolTweaksGroup_->setAmneziawgPresets(presets);
+
+    // Until the engine's settings arrive the saved preset is unknown (preferences hold the default), so it
+    // cannot be judged stale. engineSettingsReceived re-runs this.
+    if (!preferences_->isEngineSettingsReceived()) {
+        return;
+    }
 
     const QString saved = preferences_->amneziawgPreset();
     if (!presets.isEmpty() && !presets.contains(saved)) {

@@ -25,7 +25,6 @@
 #include "engine/customconfigs/customconfigs.h"
 #include "engine/customconfigs/customovpnauthcredentialsstorage.h"
 #include <atomic>
-#include "engine/macaddresscontroller/imacaddresscontroller.h"
 #include "engine/ping/keepalivemanager.h"
 #include "packetsizecontroller.h"
 #include "autoupdater/downloadhelper.h"
@@ -122,7 +121,6 @@ public:
     void applicationActivated();
 
     void detectAppropriatePacketSize();
-    void setSettingsMacAddressSpoofing(const types::MacAddrSpoofing &macAddrSpoofing);
     void setSplitTunnelingSettings(bool isActive, bool isExclude, const QStringList &files,
                                    const QStringList &ips, const QStringList &hosts);
     // Sets whether SSL certificate errors are ignored for wsnet API/bridge requests. This is a
@@ -192,8 +190,6 @@ signals:
 
     void networkChanged(types::NetworkInterface networkInterface);
 
-    void macAddrSpoofingChanged(const types::EngineSettings &engineSettings);
-    void sendUserWarning(USER_WARNING_TYPE userWarningType);
     void internetConnectivityChanged(bool connectivity);
     void packetSizeChanged(const types::EngineSettings &engineSettings);
     void packetSizeDetectionStateChanged(bool on, bool isError);
@@ -250,7 +246,6 @@ private slots:
     void startWifiSharingImpl(const QString &ssid, const QString &password);
     void stopWifiSharingImpl();
 
-    void setSettingsMacAddressSpoofingImpl(const types::MacAddrSpoofing &macAddrSpoofing);
     void setSplitTunnelingSettingsImpl(bool isActive, bool isExclude, const QStringList &files,
                                        const QStringList &ips, const QStringList &hosts);
 
@@ -325,8 +320,6 @@ private slots:
     void onPacketSizeControllerPacketSizeChanged(bool isAuto, int mtu);
     void onPacketSizeControllerFinishedSizeDetection(bool isError);
 
-    void onMacAddressSpoofingChanged(const types::MacAddrSpoofing &macAddrSpoofing);
-    void onMacAddressControllerSendUserWarning(USER_WARNING_TYPE userWarningType);
 
     void stopPacketDetectionImpl();
 
@@ -370,7 +363,6 @@ private:
     customconfigs::CustomConfigs *customConfigs_;
     CustomOvpnAuthCredentialsStorage *customOvpnAuthCredentialsStorage_;
     INetworkDetectionManager *networkDetectionManager_;
-    IMacAddressController *macAddressController_;
     KeepAliveManager *keepAliveManager_;
     PacketSizeController *packetSizeController_;
 

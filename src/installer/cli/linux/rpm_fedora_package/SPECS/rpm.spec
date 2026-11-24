@@ -64,6 +64,8 @@ id -u windscribe >/dev/null 2>&1 || useradd -r -g windscribe -s /bin/false winds
 ln -sf /opt/windscribe/windscribe-cli /usr/bin/windscribe-cli
 chgrp windscribe /opt/windscribe/Windscribe && chmod 2755 /opt/windscribe/Windscribe
 mkdir -p /etc/windscribe
+# Apply usr/lib/NetworkManager/conf.d/90-windscribe.conf (tunnel interfaces unmanaged) without restarting NetworkManager.
+if systemctl is-active --quiet NetworkManager; then nmcli general reload conf >/dev/null 2>&1 || true; fi
 if [ "`uname -m`" = "aarch64" ]; then
     echo linux_rpm_arm64_cli > /etc/windscribe/platform
 else
@@ -72,9 +74,6 @@ fi
 
 %preun
 if [ $1 -eq 0 ]; then
-    if [ -x /opt/windscribe/helper ]; then
-        /opt/windscribe/helper --reset-mac-addresses || true
-    fi
     systemctl disable windscribe-helper || true
 fi
 
@@ -97,5 +96,8 @@ fi
 %defattr(-,root,root,-)
 /opt/windscribe/*
 /usr/lib/systemd/system-preset/69-windscribe-helper.preset
+%dir /usr/lib/NetworkManager
+%dir /usr/lib/NetworkManager/conf.d
+/usr/lib/NetworkManager/conf.d/90-windscribe.conf
 /usr/lib/systemd/system/windscribe-helper.service
 /usr/lib/systemd/user/windscribe.service

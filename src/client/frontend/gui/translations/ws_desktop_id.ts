@@ -493,6 +493,22 @@
         <source>Your username should not be an email address. Please try again.</source>
         <translation>Nama pengguna Anda tidak boleh berupa alamat email. Silakan coba lagi.</translation>
     </message>
+    <message>
+        <source>Username must be 3 to 255 characters</source>
+        <translation>Nama pengguna harus 3 hingga 255 karakter</translation>
+    </message>
+    <message>
+        <source>Use only A–Z, a–z, 0–9, _ and -</source>
+        <translation>Hanya A–Z, a–z, 0–9, _, dan -</translation>
+    </message>
+    <message>
+        <source>Password must be 8 to 255 characters</source>
+        <translation>Kata sandi harus 8 hingga 255 karakter</translation>
+    </message>
+    <message>
+        <source>An unknown error occurred.</source>
+        <translation>Terjadi kesalahan yang tidak diketahui.</translation>
+    </message>
 </context>
 <context>
     <name>LoginWindow::SignupWindowItem</name>
@@ -523,10 +539,6 @@
     <message>
         <source>Enter password</source>
         <translation>Masukkan kata sandi</translation>
-    </message>
-    <message>
-        <source>8 or more characters with at least one uppercase and lowercase(ie. &quot;Hello1234&quot;, &quot;Solyanka&quot;).</source>
-        <translation>8 atau lebih karakter dengan setidaknya satu huruf besar dan huruf kecil (yaitu. &quot;Halo1234&quot;, &quot;Solyanka&quot;).</translation>
     </message>
     <message>
         <source>Email (Optional)</source>
@@ -579,10 +591,6 @@ Jika Anda kehilangan hash akun, itu akan hilang selamanya dan dukungan tidak dap
         <translation>Semua File (*.*)</translation>
     </message>
     <message>
-        <source>Username must be at least 3 characters</source>
-        <translation>Nama pengguna harus minimal 3 karakter</translation>
-    </message>
-    <message>
         <source>Your username should not be an email address.</source>
         <translation>Nama pengguna Anda tidak boleh berupa alamat email.</translation>
     </message>
@@ -593,6 +601,18 @@ Jika Anda kehilangan hash akun, itu akan hilang selamanya dan dukungan tidak dap
     <message>
         <source>Invalid hash</source>
         <translation>Hash tidak valid</translation>
+    </message>
+    <message>
+        <source>Username must be 3 to 255 characters</source>
+        <translation>Nama pengguna harus 3 hingga 255 karakter</translation>
+    </message>
+    <message>
+        <source>Use only A–Z, a–z, 0–9, _ and -</source>
+        <translation>Hanya A–Z, a–z, 0–9, _, dan -</translation>
+    </message>
+    <message>
+        <source>Password must be 8 to 255 characters</source>
+        <translation>Kata sandi harus 8 hingga 255 karakter</translation>
     </message>
 </context>
 <context>
@@ -643,10 +663,6 @@ Jika Anda kehilangan hash akun, itu akan hilang selamanya dan dukungan tidak dap
     <message>
         <source>VPN is active</source>
         <translation>VPN aktif</translation>
-    </message>
-    <message>
-        <source>Rotating your MAC address will result in a disconnect event from the current network. Are you sure?</source>
-        <translation>Memutar alamat MAC Anda akan menghasilkan peristiwa pemutusan dari jaringan saat ini. Kamu yakin?</translation>
     </message>
     <message>
         <source>Cannot detect appropriate packet size while connected. Please disconnect first.</source>
@@ -711,6 +727,34 @@ Jika Anda kehilangan hash akun, itu akan hilang selamanya dan dukungan tidak dap
     <message>
         <source>The selected directory is writeable for other users. Custom configs in this directory may pose a potential security risk.</source>
         <translation>Direktori yang dipilih dapat ditulis untuk pengguna lain. Konfigurasi kustom di direktori ini dapat menimbulkan potensi risiko keamanan.</translation>
+    </message>
+    <message>
+        <source>MAC Spoofing Removed</source>
+        <translation>Spoofing MAC Dihapus</translation>
+    </message>
+    <message>
+        <source>MAC spoofing has been removed. Your spoofed MAC address stays active until you restart your computer or network adapter. To use a random address on Wi-Fi, turn on Random hardware addresses.</source>
+        <translation>Spoofing MAC telah dihapus. Alamat MAC palsu tetap aktif hingga Anda memulai ulang komputer atau adaptor jaringan. Untuk menggunakan alamat acak di Wi-Fi, aktifkan &quot;Alamat perangkat keras acak&quot;.</translation>
+    </message>
+    <message>
+        <source>Open Wi-Fi Settings</source>
+        <translation>Buka Pengaturan Wi-Fi</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>Tutup</translation>
+    </message>
+    <message>
+        <source>MAC spoofing is no longer available in Windscribe. To use a random MAC address on Wi-Fi, set Private Wi-Fi address to Rotating in System Settings &gt; Wi-Fi &gt; Details.</source>
+        <translation>Spoofing MAC tidak lagi tersedia di Windscribe. Untuk menggunakan alamat MAC acak di Wi-Fi, atur &quot;Alamat Wi-Fi pribadi&quot; ke &quot;Dirotasi&quot; di Pengaturan Sistem &gt; Wi-Fi &gt; Detail.</translation>
+    </message>
+    <message>
+        <source>MAC spoofing is no longer available in Windscribe. To use a random MAC address on Wi-Fi, update to macOS 15 or later, then set Private Wi-Fi address to Rotating in System Settings &gt; Wi-Fi &gt; Details.</source>
+        <translation>Spoofing MAC tidak lagi tersedia di Windscribe. Untuk menggunakan alamat MAC acak di Wi-Fi, perbarui ke macOS 15 atau yang lebih baru, lalu atur &quot;Alamat Wi-Fi pribadi&quot; ke &quot;Dirotasi&quot; di Pengaturan Sistem &gt; Wi-Fi &gt; Detail.</translation>
+    </message>
+    <message>
+        <source>MAC spoofing has been removed. Your network connection may still use the spoofed MAC address. To change it, set its cloned MAC address to Random, or clear it, in your network settings.</source>
+        <translation>Spoofing MAC telah dihapus. Koneksi jaringan Anda mungkin masih menggunakan alamat MAC palsu. Untuk mengubahnya, atur alamat MAC kloning koneksi ke &quot;Acak&quot; atau kosongkan di pengaturan jaringan Anda.</translation>
     </message>
     <message>
         <source>Installation Incomplete</source>
@@ -797,18 +841,6 @@ Jika Anda kehilangan hash akun, itu akan hilang selamanya dan dukungan tidak dap
     <message>
         <source>Service Error</source>
         <translation>Kesalahan Layanan</translation>
-    </message>
-    <message>
-        <source>MAC Spoofing Failed</source>
-        <translation>Spoofing MAC Gagal</translation>
-    </message>
-    <message>
-        <source>Your network adapter does not support MAC spoofing. Try a different adapter.</source>
-        <translation>Adaptor jaringan Anda tidak mendukung spoofing MAC. Coba adaptor lain.</translation>
-    </message>
-    <message>
-        <source>Could not spoof MAC address.  Please try a different network interface or contact support.</source>
-        <translation>Tidak dapat menipu alamat MAC.  Silakan coba antarmuka jaringan lain atau hubungi dukungan.</translation>
     </message>
     <message>
         <source>Detection Error</source>
@@ -973,10 +1005,6 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
         <translation>Konektivitas IKEv2 tidak tersedia dalam Mode Penguncian MacOS. Harap nonaktifkan Mode Penguncian di Pengaturan Sistem atau ubah pengaturan koneksi Anda.</translation>
     </message>
     <message>
-        <source>Rotating MAC Address</source>
-        <translation>Memutar Alamat MAC</translation>
-    </message>
-    <message>
         <source>Wi-Fi is off</source>
         <translation>Wi-Fi mati</translation>
     </message>
@@ -1119,10 +1147,6 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
     <message>
         <source>Creating your account...</source>
         <translation>Membuat akun Anda...</translation>
-    </message>
-    <message>
-        <source>Cannot rotate MAC address while connected to VPN. Please disconnect first.</source>
-        <translation>Tidak dapat memutar alamat MAC saat terhubung ke VPN. Silakan putuskan sambungan terlebih dahulu.</translation>
     </message>
 </context>
 <context>
@@ -1570,14 +1594,6 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
         <translation>Pilih salah satu lokasi ini untuk terhubung melalui server hydra Anda.</translation>
     </message>
     <message>
-        <source>Spoof your device&apos;s physical address (MAC address).</source>
-        <translation>Memalsukan alamat fisik perangkat Anda (alamat MAC).</translation>
-    </message>
-    <message>
-        <source>MAC spoofing requires NetworkManager to be installed and running.</source>
-        <translation>Spoofing MAC mengharuskan NetworkManager diinstal dan dijalankan.</translation>
-    </message>
-    <message>
         <source>Close all active TCP sockets when the VPN tunnel is established.</source>
         <translation>Tutup semua soket TCP aktif saat terowongan VPN dibuat.</translation>
     </message>
@@ -1963,45 +1979,6 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
     <message>
         <source>Tray Icon Colour</source>
         <translation>Warna Ikon Baki</translation>
-    </message>
-</context>
-<context>
-    <name>PreferencesWindow::MacSpoofingGroup</name>
-    <message>
-        <source>Cannot spoof on &apos;No Interface&apos;</source>
-        <translation>Tidak dapat menipu pada &apos;Tidak Ada Antarmuka&apos;</translation>
-    </message>
-    <message>
-        <source>You can only spoof an existing adapter.</source>
-        <translation>Anda hanya dapat menipu adaptor yang ada.</translation>
-    </message>
-    <message>
-        <source>Cannot spoof the current interface</source>
-        <translation>Tidak dapat memalsukan antarmuka saat ini</translation>
-    </message>
-    <message>
-        <source>The current primary interface must match the selected interface to spoof.</source>
-        <translation>Antarmuka utama saat ini harus cocok dengan antarmuka yang dipilih untuk spoof.</translation>
-    </message>
-    <message>
-        <source>No Interface</source>
-        <translation>Tidak Ada Antarmuka</translation>
-    </message>
-    <message>
-        <source>MAC Spoofing</source>
-        <translation>MAC Spoofing</translation>
-    </message>
-    <message>
-        <source>MAC Address</source>
-        <translation>Alamat MAC</translation>
-    </message>
-    <message>
-        <source>Interface</source>
-        <translation>Antarmuka</translation>
-    </message>
-    <message>
-        <source>Auto-Rotate MAC</source>
-        <translation>Putar Otomatis MAC</translation>
     </message>
 </context>
 <context>

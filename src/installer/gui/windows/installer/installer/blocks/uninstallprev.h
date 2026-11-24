@@ -12,9 +12,12 @@ public:
     virtual int executeStep();
     UninstallPrev(bool isFactoryReset, double weight);
 
+    bool hasRunUninstaller() const { return ranUninstaller_; }
+
 private:
     int state_;
     bool isFactoryReset_;
+    bool ranUninstaller_ = false;
 
     std::wstring getUninstallString() const;
     bool uninstallOldVersion(const std::wstring &uninstallString, DWORD &lastError) const;

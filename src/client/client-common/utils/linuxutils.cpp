@@ -103,7 +103,7 @@ bool isNetworkManagerActive()
     // GUI autostarted at login and the engine it spawns -- starts long after that, so if NM is enabled it is
     // already active by the time we ask. The only ways this returns false are the genuine ones: NM is
     // stopped, disabled, masked, or not installed -- in every one of those cases the nmcli-backed paths
-    // (DNS read, network-name lookup, MAC spoofing) genuinely can't work and should fall back or skip.
+    // (DNS read, network-name lookup) genuinely can't work and should fall back or skip.
     //
     // systemctl answers from PID 1 and should never block; if it somehow does, err toward active so we
     // don't disable NetworkManager-backed features over a transient hiccup.

@@ -7,4 +7,5 @@ BEGIN
     IDS_CONFIRM_UNINSTALL "Windscribeとそのすべてのコンポーネントを完全に削除してもよろしいですか?"
     IDS_UNINSTALL_SUCCESS "Windscribeがコンピューターから正常に削除されました。"
     IDS_CLOSE_APP "アンインストールを続行するには、Windscribeアプリを終了してください。アプリケーションを終了すると、接続が保護されなくなることに注意してください。"
+    IDS_DELETE_ALL_DATA "設定とデータも削除する (Windscribe を再インストールしない場合に選択してください)"
 END

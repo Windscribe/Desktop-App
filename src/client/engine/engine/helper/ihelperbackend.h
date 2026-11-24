@@ -1,5 +1,9 @@
 #pragma once
 
+#include <optional>
+#include <string>
+#include <utility>
+
 #include <QThread>
 
 // Basic backend interface of the helper
@@ -19,6 +23,12 @@ public:
 
     virtual std::string sendCmd(int cmdId, const std::string &data) = 0;
 
+    // Sent ahead of any other command on each new connection to the helper. Set before startInstallHelper().
+    void setConnectCommand(int cmdId, const std::string &data) { connectCommand_ = std::make_pair(cmdId, data); }
+
 signals:
     void lostConnectionToHelper();
+
+protected:
+    std::optional<std::pair<int, std::string>> connectCommand_;
 };

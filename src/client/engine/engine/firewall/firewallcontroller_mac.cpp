@@ -33,12 +33,9 @@ void FirewallController_mac::firewallOn(const QString &connectingIp, const QSet<
 {
     Q_UNUSED(isVpnConnected);
     QMutexLocker locker(&mutex_);
-    FirewallState firewallState;
-
-    checkInternalVsPfctlState(&firewallState);
 
     if (!isAppFirewallEnabled_) {
-        setPfWasEnabledState(firewallState.isEnabled);
+        setPfWasEnabledState(helper_->checkFirewallState());
     }
 
     // Once the firewall is up, skip the push when none of our inputs changed: each push makes the
@@ -80,8 +77,6 @@ void FirewallController_mac::firewallOn(const QString &connectingIp, const QSet<
 void FirewallController_mac::firewallOff()
 {
     QMutexLocker locker(&mutex_);
-
-    checkInternalVsPfctlState();
     firewallOffImpl();
     isAppFirewallEnabled_ = false;
     allowedIps_.clear();
@@ -90,15 +85,12 @@ void FirewallController_mac::firewallOff()
 bool FirewallController_mac::firewallActualState()
 {
     QMutexLocker locker(&mutex_);
-
-    checkInternalVsPfctlState();
     return isAppFirewallEnabled_;
 }
 
 bool FirewallController_mac::whitelistPorts(const api_responses::StaticIpPortsVector &ports)
 {
     QMutexLocker locker(&mutex_);
-    checkInternalVsPfctlState();
 
     if (staticIpPorts_ == ports) {
         return true;
@@ -169,27 +161,6 @@ void FirewallController_mac::getFirewallStateFromPfctl(FirewallState &outState)
     }
 }
 
-bool FirewallController_mac::checkInternalVsPfctlState(FirewallState *outFirewallState /*= nullptr*/)
-{
-    FirewallState firewallState;
-    getFirewallStateFromPfctl(firewallState);
-
-    if (outFirewallState)
-        *outFirewallState = firewallState;
-
-    if (firewallState.isEnabled && firewallState.isBasicAppRulesCorrect) {
-        if (!isAppFirewallEnabled_) {
-            WS_ASSERT("Firewall state doesn't match");
-            return false;
-        }
-        if (allowedIps_ != firewallState.allowedIps) {
-            WS_ASSERT("Allowed IPs don't match");
-            return false;
-        }
-    }
-    return true;
-}
-
 FirewallConfig FirewallController_mac::makeConfig() const
 {
     FirewallConfig config;
@@ -222,7 +193,6 @@ void FirewallController_mac::setVpnInterface_posix(const QString &vpnInterface)
 {
     QMutexLocker locker(&mutex_);
     qCDebug(LOG_BASIC) << "FirewallController_mac::setVpnInterface_posix ->" << vpnInterface;
-    checkInternalVsPfctlState();
 
     // Not enabled yet: just remember the interface; the next firewallOn applies it. When enabled,
     // commit the cached interface only once the helper has applied it, so a failed push retries.

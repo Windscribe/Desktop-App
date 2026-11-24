@@ -493,6 +493,22 @@
         <source>Your username should not be an email address. Please try again.</source>
         <translation>Vaše uživatelské jméno by nemělo být e-mailová adresa. Zkuste to prosím znovu.</translation>
     </message>
+    <message>
+        <source>Username must be 3 to 255 characters</source>
+        <translation>Uživatelské jméno musí mít 3 až 255 znaků</translation>
+    </message>
+    <message>
+        <source>Use only A–Z, a–z, 0–9, _ and -</source>
+        <translation>Pouze A–Z, a–z, 0–9, _ a -</translation>
+    </message>
+    <message>
+        <source>Password must be 8 to 255 characters</source>
+        <translation>Heslo musí mít 8 až 255 znaků</translation>
+    </message>
+    <message>
+        <source>An unknown error occurred.</source>
+        <translation>Došlo k neznámé chybě.</translation>
+    </message>
 </context>
 <context>
     <name>LoginWindow::SignupWindowItem</name>
@@ -523,10 +539,6 @@
     <message>
         <source>Enter password</source>
         <translation>Zadejte heslo</translation>
-    </message>
-    <message>
-        <source>8 or more characters with at least one uppercase and lowercase(ie. &quot;Hello1234&quot;, &quot;Solyanka&quot;).</source>
-        <translation>8 nebo více znaků s alespoň jedním velkým a malým (např. &quot;Hello1234&quot;, &quot;Solyanka&quot;).</translation>
     </message>
     <message>
         <source>Email (Optional)</source>
@@ -579,10 +591,6 @@ Pokud ztratíte hash účtu, je navždy pryč a podpora vám nemůže pomoci ho 
         <translation>Všechny soubory (*.*)</translation>
     </message>
     <message>
-        <source>Username must be at least 3 characters</source>
-        <translation>Uživatelské jméno musí mít alespoň 3 znaky</translation>
-    </message>
-    <message>
         <source>Your username should not be an email address.</source>
         <translation>Vaše uživatelské jméno by nemělo být e-mailová adresa.</translation>
     </message>
@@ -593,6 +601,18 @@ Pokud ztratíte hash účtu, je navždy pryč a podpora vám nemůže pomoci ho 
     <message>
         <source>Invalid hash</source>
         <translation>Neplatný hash</translation>
+    </message>
+    <message>
+        <source>Username must be 3 to 255 characters</source>
+        <translation>Uživatelské jméno musí mít 3 až 255 znaků</translation>
+    </message>
+    <message>
+        <source>Use only A–Z, a–z, 0–9, _ and -</source>
+        <translation>Pouze A–Z, a–z, 0–9, _ a -</translation>
+    </message>
+    <message>
+        <source>Password must be 8 to 255 characters</source>
+        <translation>Heslo musí mít 8 až 255 znaků</translation>
     </message>
 </context>
 <context>
@@ -643,10 +663,6 @@ Pokud ztratíte hash účtu, je navždy pryč a podpora vám nemůže pomoci ho 
     <message>
         <source>VPN is active</source>
         <translation>VPN je aktivní</translation>
-    </message>
-    <message>
-        <source>Rotating your MAC address will result in a disconnect event from the current network. Are you sure?</source>
-        <translation>Střídání adresy MAC bude mít za následek událost odpojení od aktuální sítě. Opravdu?</translation>
     </message>
     <message>
         <source>Cannot detect appropriate packet size while connected. Please disconnect first.</source>
@@ -711,6 +727,34 @@ Pokud ztratíte hash účtu, je navždy pryč a podpora vám nemůže pomoci ho 
     <message>
         <source>The selected directory is writeable for other users. Custom configs in this directory may pose a potential security risk.</source>
         <translation>Vybraný adresář je zapisovatelný pro ostatní uživatele. Vlastní konfigurace v tomto adresáři mohou představovat potenciální bezpečnostní riziko.</translation>
+    </message>
+    <message>
+        <source>MAC Spoofing Removed</source>
+        <translation>Falšování adresy MAC odebráno</translation>
+    </message>
+    <message>
+        <source>MAC spoofing has been removed. Your spoofed MAC address stays active until you restart your computer or network adapter. To use a random address on Wi-Fi, turn on Random hardware addresses.</source>
+        <translation>Falšování adresy MAC bylo odebráno. Falešná adresa MAC zůstane aktivní, dokud nerestartujete počítač nebo síťový adaptér. Pokud chcete v síti Wi-Fi používat náhodnou adresu, zapněte „Náhodné hardwarové adresy“.</translation>
+    </message>
+    <message>
+        <source>Open Wi-Fi Settings</source>
+        <translation>Otevřít nastavení Wi-Fi</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>Zavřít</translation>
+    </message>
+    <message>
+        <source>MAC spoofing is no longer available in Windscribe. To use a random MAC address on Wi-Fi, set Private Wi-Fi address to Rotating in System Settings &gt; Wi-Fi &gt; Details.</source>
+        <translation>Falšování adresy MAC už ve Windscribe není k dispozici. Pokud chcete v síti Wi-Fi používat náhodnou adresu MAC, nastavte v části Nastavení systému &gt; Wi-Fi &gt; Podrobnosti položku „Soukromá Wi-Fi adresa“ na „Střídání adres“.</translation>
+    </message>
+    <message>
+        <source>MAC spoofing is no longer available in Windscribe. To use a random MAC address on Wi-Fi, update to macOS 15 or later, then set Private Wi-Fi address to Rotating in System Settings &gt; Wi-Fi &gt; Details.</source>
+        <translation>Falšování adresy MAC už ve Windscribe není k dispozici. Pokud chcete v síti Wi-Fi používat náhodnou adresu MAC, aktualizujte systém na macOS 15 nebo novější a potom nastavte v části Nastavení systému &gt; Wi-Fi &gt; Podrobnosti položku „Soukromá Wi-Fi adresa“ na „Střídání adres“.</translation>
+    </message>
+    <message>
+        <source>MAC spoofing has been removed. Your network connection may still use the spoofed MAC address. To change it, set its cloned MAC address to Random, or clear it, in your network settings.</source>
+        <translation>Falšování adresy MAC bylo odebráno. Síťové připojení může stále používat falešnou adresu MAC. Pokud to chcete změnit, nastavte v nastavení sítě klonovanou adresu MAC připojení na „Náhodná“ nebo ji vymažte.</translation>
     </message>
     <message>
         <source>Installation Incomplete</source>
@@ -797,18 +841,6 @@ Pokud ztratíte hash účtu, je navždy pryč a podpora vám nemůže pomoci ho 
     <message>
         <source>Service Error</source>
         <translation>Chyba služby</translation>
-    </message>
-    <message>
-        <source>MAC Spoofing Failed</source>
-        <translation>Falšování identity MAC se nezdařilo</translation>
-    </message>
-    <message>
-        <source>Your network adapter does not support MAC spoofing. Try a different adapter.</source>
-        <translation>Síťový adaptér nepodporuje falšování adres MAC. Vyzkoušejte jiný adaptér.</translation>
-    </message>
-    <message>
-        <source>Could not spoof MAC address.  Please try a different network interface or contact support.</source>
-        <translation>Nelze zfalšovat adresu MAC.  Zkuste použít jiné síťové rozhraní nebo kontaktujte podporu.</translation>
     </message>
     <message>
         <source>Detection Error</source>
@@ -973,10 +1005,6 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
         <translation>Připojení IKEv2 není v režimu uzamčení systému macOS k dispozici. Vypněte režim uzamčení v Nastavení systému nebo změňte nastavení připojení.</translation>
     </message>
     <message>
-        <source>Rotating MAC Address</source>
-        <translation>Rotace MAC adresy</translation>
-    </message>
-    <message>
         <source>Wi-Fi is off</source>
         <translation>Wi-Fi je vypnutá</translation>
     </message>
@@ -1119,10 +1147,6 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
     <message>
         <source>Creating your account...</source>
         <translation>Vytváření účtu...</translation>
-    </message>
-    <message>
-        <source>Cannot rotate MAC address while connected to VPN. Please disconnect first.</source>
-        <translation>Nelze otáčet MAC adresu, když jsem připojen k VPN. Nejprve se prosím odpoj.</translation>
     </message>
 </context>
 <context>
@@ -1566,14 +1590,6 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
         <translation>Vyberte jednu z těchto lokací pro připojení přes váš server hydra.</translation>
     </message>
     <message>
-        <source>Spoof your device&apos;s physical address (MAC address).</source>
-        <translation>Falšování fyzické adresy (MAC adresy) zařízení.</translation>
-    </message>
-    <message>
-        <source>MAC spoofing requires NetworkManager to be installed and running.</source>
-        <translation>MAC spoofing vyžaduje instalaci a spuštění NetworkManageru.</translation>
-    </message>
-    <message>
         <source>Close all active TCP sockets when the VPN tunnel is established.</source>
         <translation>Zavřete všechny aktivní sokety TCP při vytvoření tunelu VPN.</translation>
     </message>
@@ -1963,45 +1979,6 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
     <message>
         <source>Tray Icon Colour</source>
         <translation>Barva ikony na hlavním panelu</translation>
-    </message>
-</context>
-<context>
-    <name>PreferencesWindow::MacSpoofingGroup</name>
-    <message>
-        <source>Cannot spoof on &apos;No Interface&apos;</source>
-        <translation>Nelze falšovat na &quot;Žádné rozhraní&quot;</translation>
-    </message>
-    <message>
-        <source>You can only spoof an existing adapter.</source>
-        <translation>Můžete zfalšovat pouze existující adaptér.</translation>
-    </message>
-    <message>
-        <source>Cannot spoof the current interface</source>
-        <translation>Nelze zfalšovat aktuální rozhraní</translation>
-    </message>
-    <message>
-        <source>The current primary interface must match the selected interface to spoof.</source>
-        <translation>Aktuální primární rozhraní musí odpovídat vybranému rozhraní, které chcete falšovat.</translation>
-    </message>
-    <message>
-        <source>No Interface</source>
-        <translation>Žádné rozhraní</translation>
-    </message>
-    <message>
-        <source>MAC Spoofing</source>
-        <translation>Falšování obsahu MAC</translation>
-    </message>
-    <message>
-        <source>MAC Address</source>
-        <translation>Adresa MAC</translation>
-    </message>
-    <message>
-        <source>Interface</source>
-        <translation>Rozhraní</translation>
-    </message>
-    <message>
-        <source>Auto-Rotate MAC</source>
-        <translation>Automatické otáčení MAC</translation>
     </message>
 </context>
 <context>

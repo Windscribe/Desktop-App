@@ -21,7 +21,8 @@ namespace {
 
 // Build envp in the parent. extraEnv overrides existing entries with the same KEY,
 // otherwise the helper's environment is inherited.
-std::vector<std::string> buildEnvStorage(const std::vector<std::pair<std::string, std::string>> &extraEnv)
+std::vector<std::string> buildEnvStorage(const std::vector<std::pair<std::string, std::string>> &extraEnv,
+                                         const std::vector<std::string> &unsetEnv = {})
 {
     std::vector<std::string> envStorage;
     for (char **e = environ; e && *e; ++e) {
@@ -32,6 +33,12 @@ std::vector<std::string> buildEnvStorage(const std::vector<std::pair<std::string
             const std::string key = entry.substr(0, eq);
             for (const auto &kv : extraEnv) {
                 if (kv.first == key) {
+                    overridden = true;
+                    break;
+                }
+            }
+            for (const auto &name : unsetEnv) {
+                if (name == key) {
                     overridden = true;
                     break;
                 }
@@ -54,12 +61,12 @@ std::vector<std::string> buildEnvStorage(const std::vector<std::pair<std::string
 //
 // Why not posix_spawn the daemon directly? Because that makes the daemon the helper's
 // long-running child. Combined with `SIGCHLD = SIG_IGN | SA_NOCLDWAIT` (which we used to
-// rely on for auto-reaping), `waitpid(child_pid, 0)` in pstream's executeCommand blocks
+// rely on for auto-reaping), `waitpid(child_pid, 0)` in runCommand blocks
 // until *all* children terminate. Removing SA_NOCLDWAIT instead means daemon zombies
 // accumulate. The shell-wrapper restores the original master semantics.
 //
 // Why not fork() ourselves? fork() from a libxpc/libdispatch program corrupts atfork
-// state and any subsequent fork() (e.g. pstream's) hangs.
+// state and any subsequent fork() hangs.
 //
 // Shell injection: the script is the fixed string `"$@" &` — no caller data is
 // interpolated into it. The daemon path and args are passed as separate argv elements
@@ -153,6 +160,19 @@ bool spawnViaPosixSpawn(const std::string &exePath,
     if (capturePid) {
         posix_spawn_file_actions_adddup2(&fa, pidPipe[1], 3);
     }
+#if defined(__linux__)
+    // Linux has no POSIX_SPAWN_CLOEXEC_DEFAULT, and descriptors the helper opened without FD_CLOEXEC (Boost.Asio's
+    // listening socket and client connections, the log file) would otherwise reach the daemon, including one that
+    // later drops privileges. Keep only stdio and the pid pipe.
+    rc = posix_spawn_file_actions_addclosefrom_np(&fa, capturePid ? 4 : 3);
+    if (rc != 0) {
+        spdlog::error("spawnDetached: posix_spawn_file_actions_addclosefrom_np failed: {}", IO::strerror(rc));
+        posix_spawn_file_actions_destroy(&fa);
+        posix_spawnattr_destroy(&attr);
+        closePidPipe();
+        return false;
+    }
+#endif
 
     if (!cwd.empty()) {
         posix_spawn_file_actions_addchdir_np(&fa, cwd.c_str());
@@ -419,6 +439,128 @@ bool spawnDetached(const std::string &exePath,
     argv.push_back(nullptr);
     return spawnViaForkExec(exePath, argv, envp, opts.cwd,
                             opts.runAsUser, targetUid, targetGid);
+}
+
+int runCommand(const std::string &program, const std::vector<std::string> &args, std::string *output,
+               bool mergeStderr, const std::vector<std::pair<std::string, std::string>> &extraEnv,
+               const std::vector<std::string> &unsetEnv)
+{
+    if (output) {
+        output->clear();
+    }
+
+    int outPipe[2] = {-1, -1};
+#if defined(__linux__)
+    if (pipe2(outPipe, O_CLOEXEC) != 0) {
+#else
+    if (pipe(outPipe) != 0) {
+#endif
+        spdlog::error("runCommand: pipe() failed: {}", IO::strerror(errno));
+        return -1;
+    }
+#if !defined(__linux__)
+    fcntl(outPipe[0], F_SETFD, FD_CLOEXEC);
+    fcntl(outPipe[1], F_SETFD, FD_CLOEXEC);
+#endif
+
+    posix_spawnattr_t attr;
+    posix_spawnattr_init(&attr);
+    short flags = POSIX_SPAWN_SETSIGDEF | POSIX_SPAWN_SETSIGMASK;
+#if defined(__APPLE__)
+    flags |= POSIX_SPAWN_CLOEXEC_DEFAULT;
+#endif
+    posix_spawnattr_setflags(&attr, flags);
+    sigset_t sigdef;
+    sigemptyset(&sigdef);
+    sigaddset(&sigdef, SIGCHLD);
+    posix_spawnattr_setsigdefault(&attr, &sigdef);
+    sigset_t sigmask;
+    sigemptyset(&sigmask);
+    posix_spawnattr_setsigmask(&attr, &sigmask);
+
+    posix_spawn_file_actions_t fa;
+    posix_spawn_file_actions_init(&fa);
+    posix_spawn_file_actions_addopen(&fa, STDIN_FILENO, "/dev/null", O_RDONLY, 0);
+    posix_spawn_file_actions_adddup2(&fa, outPipe[1], STDOUT_FILENO);
+    if (mergeStderr) {
+        posix_spawn_file_actions_adddup2(&fa, outPipe[1], STDERR_FILENO);
+    } else {
+        posix_spawn_file_actions_addopen(&fa, STDERR_FILENO, "/dev/null", O_WRONLY, 0);
+    }
+#if defined(__linux__)
+    const int closeRc = posix_spawn_file_actions_addclosefrom_np(&fa, 3);
+    if (closeRc != 0) {
+        spdlog::error("runCommand: posix_spawn_file_actions_addclosefrom_np failed: {}", IO::strerror(closeRc));
+        posix_spawn_file_actions_destroy(&fa);
+        posix_spawnattr_destroy(&attr);
+        close(outPipe[0]);
+        close(outPipe[1]);
+        return -1;
+    }
+#endif
+
+    std::vector<const char *> argv;
+    argv.reserve(args.size() + 2);
+    argv.push_back(program.c_str());
+    for (const auto &a : args) {
+        argv.push_back(a.c_str());
+    }
+    argv.push_back(nullptr);
+
+    const std::vector<std::string> envStorage = buildEnvStorage(extraEnv, unsetEnv);
+    std::vector<const char *> envp;
+    envp.reserve(envStorage.size() + 1);
+    for (const auto &e : envStorage) {
+        envp.push_back(e.c_str());
+    }
+    envp.push_back(nullptr);
+
+    pid_t pid = 0;
+    const int rc = posix_spawnp(&pid, program.c_str(), &fa, &attr,
+                                const_cast<char *const *>(argv.data()),
+                                const_cast<char *const *>(envp.data()));
+    posix_spawn_file_actions_destroy(&fa);
+    posix_spawnattr_destroy(&attr);
+    close(outPipe[1]);
+
+    if (rc != 0) {
+        close(outPipe[0]);
+        if (output && mergeStderr) {
+            *output = program + ": " + IO::strerror(rc) + "\n";
+        }
+        return rc == ENOENT ? 127 : 126;
+    }
+
+    std::string captured;
+    char buffer[4096];
+    for (;;) {
+        const ssize_t n = read(outPipe[0], buffer, sizeof(buffer));
+        if (n > 0) {
+            captured.append(buffer, static_cast<size_t>(n));
+        } else if (n < 0 && errno == EINTR) {
+            continue;
+        } else {
+            break;
+        }
+    }
+    close(outPipe[0]);
+
+    int status = 0;
+    pid_t waited;
+    do {
+        waited = waitpid(pid, &status, 0);
+    } while (waited < 0 && errno == EINTR);
+
+    if (output) {
+        if (!captured.empty() && captured.back() != '\n') {
+            captured += '\n';
+        }
+        *output = std::move(captured);
+    }
+    if (waited != pid || !WIFEXITED(status)) {
+        return -1;
+    }
+    return WEXITSTATUS(status);
 }
 
 } // namespace Spawn

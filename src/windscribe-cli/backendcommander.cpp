@@ -13,6 +13,7 @@
 #include "ipc/connection.h"
 #include "strings.h"
 #include "utils.h"
+#include "utils/credentialsvalidation.h"
 #include "utils/hydraprofile.h"
 #include "utils/log/categories.h"
 #include "utils/networkingvalidation.h"
@@ -157,6 +158,11 @@ void BackendCommander::sendCommand(IPC::CliCommands::State *state)
     // The app may still be restoring its saved session, e.g. when this CLI has just launched it. Wait for that to
     // finish rather than report "Not logged in". Logged out and login errors still fail at once below.
     if (isLoginRequired() && state->loginState_ == LOGIN_STATE_LOGGING_IN) {
+        // That login will not finish until someone solves the CAPTCHA in the app, so do not wait for it.
+        if (state->isCaptchaRequired_) {
+            emit finished(1, QString("Not logged in: the app is waiting for a CAPTCHA. Solve it in the Windscribe window, then try again."));
+            return;
+        }
         if (loggedInTimer_.elapsed() > MAX_LOGIN_TIME_MS) {
             emit finished(1, QString("Aborting: the app did not finish logging in within %1 seconds").arg(MAX_LOGIN_TIME_MS / 1000));
             return;
@@ -294,6 +300,15 @@ void BackendCommander::sendCommand(IPC::CliCommands::State *state)
             emit finished(0, QString("Already logged in"));
             return;
         }
+#ifndef CLI_ONLY
+        // A login started in the app is already waiting on its CAPTCHA, and the app would ignore credentials sent now.
+        // Wait for that login instead, as if this command had started it.
+        if (state->loginState_ == LOGIN_STATE_LOGGING_IN && state->isCaptchaRequired_) {
+            bCommandSent_ = true;
+            onStateUpdated(state);
+            return;
+        }
+#endif
         // Get missing credentials only now that we know a login is needed.  Without a terminal they can only come
         // from input piped to stdin, one per line; never prompt there, or read /dev/tty as readpassphrase() would.
         if (!Utils::isInteractive()) {
@@ -320,23 +335,29 @@ void BackendCommander::sendCommand(IPC::CliCommands::State *state)
                 password_ = Utils::getInput("Password: ", true);
             }
         }
-        IPC::CliCommands::Login cmd;
-        cmd.username_ = username_;
-        if (cmd.username_.size() < 3) {
-            emit finished(1, QString("Username too short"));
-            return;
-        }
         // Checked here as well as in the GUI: the GUI refuses these without ever calling login, so the
         // only thing that reaches us is a state of LOGGED_OUT, which we would report as "Logged out".
-        if (cmd.username_.contains("@")) {
+        switch (CredentialsValidation::checkUsername(username_)) {
+        case CredentialsValidation::UsernameProblem::kNone:
+            break;
+        case CredentialsValidation::UsernameProblem::kTooShort:
+        case CredentialsValidation::UsernameProblem::kTooLong:
+            emit finished(1, QString("Username must be 3 to 255 characters"));
+            return;
+        case CredentialsValidation::UsernameProblem::kEmailAddress:
             emit finished(1, QString("Username should not be an email address"));
             return;
-        }
-        cmd.password_ = password_;
-        if (cmd.password_.size() < 8) {
-            emit finished(1, QString("Password too short"));
+        case CredentialsValidation::UsernameProblem::kDisallowedCharacter:
+            emit finished(1, QString("Use only A-Z, a-z, 0-9, _ and - in the username"));
             return;
         }
+        if (CredentialsValidation::checkPassword(password_) != CredentialsValidation::PasswordProblem::kNone) {
+            emit finished(1, QString("Password must be 8 to 255 characters"));
+            return;
+        }
+        IPC::CliCommands::Login cmd;
+        cmd.username_ = username_.trimmed();
+        cmd.password_ = password_;
         cmd.code2fa_ = code2fa_;
         cmd.captchaSolution_ = captchaSolution_;
         captchaSolution_.clear();
@@ -462,6 +483,25 @@ bool BackendCommander::isLoginRequired() const
         return false;
     }
 }
+
+bool BackendCommander::checkGuiPrompt(bool isPending, const QString &hint, const QString &timeoutMsg)
+{
+    if (!isPending) {
+        // Answered, or gone; a later prompt gets its own hint and full wait.
+        guiPromptTimer_.invalidate();
+        return false;
+    }
+    if (!guiPromptTimer_.isValid()) {
+        guiPromptTimer_.start();
+        emit report(hint);
+        return false;
+    }
+    if (guiPromptTimer_.elapsed() > MAX_GUI_PROMPT_TIME_MS) {
+        emit finished(1, timeoutMsg.arg(MAX_GUI_PROMPT_TIME_MS / 1000));
+        return true;
+    }
+    return false;
+}
 #endif
 
 void BackendCommander::sendStateCommand()
@@ -581,6 +621,13 @@ void BackendCommander::onAcknowledge(IPC::CliCommands::Acknowledge *ackCmd)
         return;
     }
 
+    // The app refused the connect, e.g. a port the protocol doesn't offer; there is no connection to wait for.
+    if (ackCmd->code_ != 0 && (cliArgs_.cliCommand() == CLI_COMMAND_CONNECT || cliArgs_.cliCommand() == CLI_COMMAND_CONNECT_BEST
+            || cliArgs_.cliCommand() == CLI_COMMAND_CONNECT_LOCATION || cliArgs_.cliCommand() == CLI_COMMAND_CONNECT_STATIC)) {
+        emit finished(ackCmd->code_, ackCmd->message_);
+        return;
+    }
+
     if (!cliArgs_.nonBlocking()) {
         sendStateCommand();
         return;
@@ -688,6 +735,16 @@ void BackendCommander::onStateUpdated(IPC::Command *command)
                 std::cout << str << std::endl;
                 prevStr = str;
             }
+#ifndef CLI_ONLY
+            // Only the GUI can answer this; "windscribe-cli keylimit" applies to the CLI-only build.
+            if (checkGuiPrompt(cmd->isKeyLimitPromptPending_,
+                               QString("You have reached your limit of WireGuard keys. Answer the app's question about deleting "
+                                       "your oldest key in the Windscribe window to continue."),
+                               QString("Aborting: the WireGuard key limit question was not answered in the app within %1 "
+                                       "seconds. The connection is still waiting for the answer there."))) {
+                return;
+            }
+#endif
             // In progress: wait a short period before requesting status again
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
             sendStateCommand();
@@ -758,6 +815,15 @@ void BackendCommander::onStateUpdated(IPC::Command *command)
                 std::cout << str << std::endl;
                 prevStr = str;
             }
+#ifndef CLI_ONLY
+            // The GUI shows its own CAPTCHA and takes the solution itself.
+            if (checkGuiPrompt(cmd->isCaptchaRequired_,
+                               QString("The app is asking for a CAPTCHA. Solve it in the Windscribe window to finish logging in."),
+                               QString("Aborting: the CAPTCHA was not solved in the app within %1 seconds. It is still open "
+                                       "there."))) {
+                return;
+            }
+#endif
             // In progress: wait a short period before requesting status again
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
             sendStateCommand();

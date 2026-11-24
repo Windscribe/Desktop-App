@@ -326,7 +326,7 @@ bool ProcessMonitor::prepareMonitoring()
     struct sockaddr_nl addr;
     char buf[BUFSIZE];
 
-    sock_ = socket(PF_NETLINK, SOCK_DGRAM, NETLINK_CONNECTOR);
+    sock_ = socket(PF_NETLINK, SOCK_DGRAM | SOCK_CLOEXEC, NETLINK_CONNECTOR);
     if (sock_ == -1) {
         spdlog::error("Could not open netlink socket");
         return false;

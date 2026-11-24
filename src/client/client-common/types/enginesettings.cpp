@@ -3,7 +3,10 @@
 #include <QFileInfo>
 #include <QJsonDocument>
 
+#include <atomic>
+
 #include "types/global_consts.h"
+#include "types/macaddrspoofing.h"
 #include "utils/languagesutil.h"
 #include "utils/log/categories.h"
 #include "utils/simplecrypt.h"
@@ -12,6 +15,10 @@
 const int typeIdEngineSettings = qRegisterMetaType<types::EngineSettings>("types::EngineSettings");
 
 namespace types {
+
+namespace {
+std::atomic<bool> g_isMacSpoofingRemoved = false;
+}
 
 EngineSettings::EngineSettings() : d(new EngineSettingsData)
 {
@@ -28,12 +35,13 @@ void EngineSettings::saveToSettings()
     QByteArray arr;
     {
         types::ApiResolutionSettings apiResolutionSettingsNotUsed;  // Left only for compatibility of reading settings
+        types::MacAddrSpoofing macAddrSpoofingNotUsed;              // Left only for compatibility of reading settings
         QDataStream ds(&arr, QIODevice::WriteOnly);
         ds << magic_;
         ds << versionForSerialization_;
         ds << d->language << d->updateChannel << d->isTerminateSockets << d->isAllowLanTraffic <<
               d->firewallSettings << d->connectionSettings << apiResolutionSettingsNotUsed << d->proxySettings << d->packetSize <<
-              d->macAddrSpoofing << d->dnsPolicy << d->tapAdapter << d->customOvpnConfigsPath << d->isKeepAliveEnabled <<
+              macAddrSpoofingNotUsed << d->dnsPolicy << d->tapAdapter << d->customOvpnConfigsPath << d->isKeepAliveEnabled <<
               d->connectedDnsInfo << d->dnsManager << d->networkPreferredProtocols <<
               d->isAPIAntiCensorship << d->decoyTrafficSettings << d->amneziawgPreset << d->serverRoutingMethod << d->protocolTweaksMethod <<
               static_cast<int>(d->IpStackEgress) << d->customSniDomain;
@@ -62,6 +70,7 @@ bool EngineSettings::loadFromSettings()
         ds.startTransaction();
 
         types::ApiResolutionSettings apiResolutionSettingsNotUsed;  // Left only for compatibility of reading settings
+        types::MacAddrSpoofing macAddrSpoofingNotUsed;              // Left only for compatibility of reading settings
         quint32 magic = 0, version = 0;
         ds >> magic >> version;
         if (magic != magic_ || version > versionForSerialization_) {
@@ -76,7 +85,7 @@ bool EngineSettings::loadFromSettings()
             }
             ds >> d->isTerminateSockets >> d->isAllowLanTraffic >>
                     d->firewallSettings >> d->connectionSettings >> apiResolutionSettingsNotUsed >> d->proxySettings >> d->packetSize >>
-                    d->macAddrSpoofing >> d->dnsPolicy >> d->tapAdapter >> d->customOvpnConfigsPath >> d->isKeepAliveEnabled >>
+                    macAddrSpoofingNotUsed >> d->dnsPolicy >> d->tapAdapter >> d->customOvpnConfigsPath >> d->isKeepAliveEnabled >>
                     d->connectedDnsInfo >> d->dnsManager;
             if (version >= 2) {
                 ds >> d->networkPreferredProtocols;
@@ -116,6 +125,9 @@ bool EngineSettings::loadFromSettings()
         if (ds.commitTransaction()) {
             d->validate();
             bLoaded = true;
+            if (macAddrSpoofingNotUsed.isEnabled) {
+                g_isMacSpoofingRemoved = true;
+            }
         }
     }
 
@@ -140,6 +152,16 @@ bool EngineSettings::loadFromSettings()
 #endif
 
     return bLoaded;
+}
+
+bool EngineSettings::isMacSpoofingRemovedMarked()
+{
+    return g_isMacSpoofingRemoved;
+}
+
+void EngineSettings::clearMacSpoofingRemoved()
+{
+    g_isMacSpoofingRemoved = false;
 }
 
 QString EngineSettings::language() const
@@ -264,11 +286,6 @@ void EngineSettings::setDnsManager(DNS_MANAGER_TYPE dnsManager)
     d->dnsManager = dnsManager;
 }
 
-const types::MacAddrSpoofing &EngineSettings::macAddrSpoofing() const
-{
-    return d->macAddrSpoofing;
-}
-
 const types::PacketSize &EngineSettings::packetSize() const
 {
     return d->packetSize;
@@ -354,11 +371,6 @@ void EngineSettings::setIpStackEgress(IpStack ipStackEgress)
     d->IpStackEgress = ipStackEgress;
 }
 
-void EngineSettings::setMacAddrSpoofing(const MacAddrSpoofing &macAddrSpoofing)
-{
-    d->macAddrSpoofing = macAddrSpoofing;
-}
-
 void EngineSettings::setPacketSize(const PacketSize &packetSize)
 {
     d->packetSize = packetSize;
@@ -385,7 +397,6 @@ bool EngineSettings::operator==(const EngineSettings &other) const
             other.d->connectionSettings == d->connectionSettings &&
             other.d->proxySettings == d->proxySettings &&
             other.d->packetSize == d->packetSize &&
-            other.d->macAddrSpoofing == d->macAddrSpoofing &&
             other.d->dnsPolicy == d->dnsPolicy &&
             other.d->tapAdapter == d->tapAdapter &&
             other.d->customOvpnConfigsPath == d->customOvpnConfigsPath &&
@@ -464,11 +475,6 @@ void EngineSettingsData::validate()
 
     proxySettings.validate();
     connectedDnsInfo.validate();
-#ifdef Q_OS_MACOS
-    // MAC spoofing is not supported on macOS, so no load or import may carry an enabled setting.
-    macAddrSpoofing = types::MacAddrSpoofing();
-#endif
-    macAddrSpoofing.validate();
     connectionSettings.validate();
     firewallSettings.validate();
     decoyTrafficSettings.validate();
@@ -573,10 +579,6 @@ void EngineSettingsData::fromJson(const QJsonObject &json)
         IpStackEgress = enumFromInt<IpStack>(json[kJsonIpStackEgressProp].toInt());
     }
 
-    if (json.contains(kJsonMacAddrSpoofingProp) && json[kJsonMacAddrSpoofingProp].isObject()) {
-        macAddrSpoofing = types::MacAddrSpoofing(json[kJsonMacAddrSpoofingProp].toObject());
-    }
-
     if (json.contains(kJsonPacketSizeProp) && json[kJsonPacketSizeProp].isObject()) {
         packetSize = types::PacketSize(json[kJsonPacketSizeProp].toObject());
     }
@@ -624,7 +626,6 @@ QJsonObject EngineSettingsData::toJson(bool isForDebugLog) const
     json[kJsonServerRoutingMethodProp] = static_cast<int>(serverRoutingMethod);
     json[kJsonProtocolTweaksMethodProp] = static_cast<int>(protocolTweaksMethod);
     json[kJsonIpStackEgressProp] = static_cast<int>(IpStackEgress);
-    json[kJsonMacAddrSpoofingProp] = macAddrSpoofing.toJson(isForDebugLog);
 
     QJsonObject networkPreferredProtocolsObj;
     for (const auto& key : networkPreferredProtocols.keys()) {
@@ -678,7 +679,6 @@ void EngineSettingsData::fromIni(QSettings &settings)
     firewallSettings.fromIni(settings);
     connectionSettings.fromIni(settings);
     packetSize.fromIni(settings);
-    macAddrSpoofing.fromIni(settings);
     connectedDnsInfo.fromIni(settings);
     isAllowLanTraffic = settings.value(kIniIsAllowLanTrafficProp, defaults.isAllowLanTraffic).toBool();
     decoyTrafficSettings.fromIni(settings);
@@ -717,7 +717,6 @@ void EngineSettingsData::toIni(QSettings &settings) const
     firewallSettings.toIni(settings);
     connectionSettings.toIni(settings);
     packetSize.toIni(settings);
-    macAddrSpoofing.toIni(settings);
     connectedDnsInfo.toIni(settings);
     settings.setValue(kIniIsAllowLanTrafficProp, isAllowLanTraffic);
     decoyTrafficSettings.toIni(settings);

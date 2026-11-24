@@ -4,6 +4,7 @@
 #include <spdlog/spdlog.h>
 
 #include "utils/log/debug_trace.h"
+#include "wfp_utils.h"
 
 FwpmWrapper::FwpmWrapper()
 {
@@ -21,9 +22,13 @@ bool FwpmWrapper::initialize()
     if (dwFwAPiRetCode != ERROR_SUCCESS) {
         spdlog::error("EngineHandleWrapper::EngineHandleWrapper(), FwpmEngineOpen0 failed, {}", dwFwAPiRetCode);
         engineHandle_ = nullptr;
+        return false;
     }
 
-    return engineHandle_ != nullptr;
+    // Tags our filters so their sublayers can be cleared without scanning every filter on a layer.
+    // A failure only costs speed: filters are then added untagged.
+    Utils::ensureWfpProvider(engineHandle_);
+    return true;
 }
 
 void FwpmWrapper::release()

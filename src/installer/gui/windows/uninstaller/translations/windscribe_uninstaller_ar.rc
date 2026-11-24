@@ -7,4 +7,5 @@ BEGIN
     IDS_CONFIRM_UNINSTALL "هل تريد بالتأكيد إزالة Windscribe وجميع مكوناته بالكامل؟"
     IDS_UNINSTALL_SUCCESS "تمت إزالة Windscribe بنجاح من جهاز الكمبيوتر الخاص بك."
     IDS_CLOSE_APP "يرجى الخروج من تطبيق Windscribe لمتابعة إزالة التثبيت. لاحظ أن الاتصال الخاص بك لن يكون محمياً بمجرد الخروج من التطبيق."
+    IDS_DELETE_ALL_DATA "احذف أيضًا إعداداتي وبياناتي (اختر هذا إذا كنت لن تعيد تثبيت Windscribe)"
 END

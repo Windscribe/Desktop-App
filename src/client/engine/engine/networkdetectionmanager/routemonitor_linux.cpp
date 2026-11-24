@@ -1,7 +1,9 @@
 #include "routemonitor_linux.h"
 
+#include <errno.h>
 #include <linux/netlink.h>
 #include <linux/rtnetlink.h>
+#include <net/if.h>
 #include <stdio.h>
 #include <sys/socket.h>
 #include <unistd.h>
@@ -9,7 +11,17 @@
 #include "utils/log/categories.h"
 #include "utils/ws_assert.h"
 
-RouteMonitor_linux::RouteMonitor_linux(QObject *parent) : QObject(parent)
+RouteMonitor_linux::RouteMonitor_linux(QObject *parent) : QObject(parent),
+    filter_(
+        [](int index, std::string &name) {
+            char buf[IF_NAMESIZE] = {};
+            if (if_indextoname(static_cast<unsigned int>(index), buf) == nullptr) {
+                return false;
+            }
+            name = buf;
+            return true;
+        },
+        [] { return std::chrono::steady_clock::now(); })
 {
 }
 
@@ -57,9 +69,12 @@ void RouteMonitor_linux::netlinkSocketReady(QSocketDescriptor socket, QSocketNot
     Q_UNUSED(socket)
     Q_UNUSED(activationEvent)
 
-    char buffer[4096];
-    ssize_t len = recv(fd_, buffer, sizeof(buffer), MSG_DONTWAIT);
-    if (len >= 0) {
-        emit routesChanged();
-    }
+    filter_.processWakeup(
+        [this](char *buffer, size_t size, int &error) {
+            const ssize_t len = recv(fd_, buffer, size, MSG_DONTWAIT | MSG_TRUNC);
+            error = errno;
+            return len;
+        },
+        [this] { emit routesChanged(); },
+        [this] { emit tunnelRoutesChanged(); });
 }

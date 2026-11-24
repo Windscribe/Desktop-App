@@ -2,12 +2,7 @@
 
 #include <ws2tcpip.h>
 #include <windns.h>
-#include <Mstcpip.h>
-#include <netiodef.h>
 #include <objbase.h>
-
-#include <algorithm>
-#include <cwctype>
 
 namespace NetworkValidation
 {
@@ -123,34 +118,6 @@ bool isValidGuid(const std::wstring &guid)
     }
     GUID parsed;
     return ::IIDFromString(guid.c_str(), &parsed) == S_OK;
-}
-
-bool isMacAddress(const std::wstring &value)
-{
-    bool valid = false;
-
-    if (value.find_first_of(L":-") == std::wstring::npos) {
-        if (value.size() == 12) {
-            const auto result = std::count_if(value.begin(), value.end(), [](wint_t c){ return std::iswxdigit(c); });
-            valid = (result == 12);
-        }
-    }
-    else {
-        // We expect the MAC address in AA-BB-CC-DD-EE-FF format, with the separator being a '-' or ':'.
-        if (value.size() == 17) {
-            // Convert to the non-DIX standard "-" notation required by the IP Helper API.
-            std::wstring mac(value);
-            std::replace(mac.begin(), mac.end(), L':', L'-');
-
-            // Let the Windows API do the validation for us.
-            PCWSTR terminator = NULL;
-            DL_EUI48 addr;
-            auto status = ::RtlEthernetStringToAddressW(mac.c_str(), &terminator, &addr);
-            valid = (status == ERROR_SUCCESS);
-        }
-    }
-
-    return valid;
 }
 
 }

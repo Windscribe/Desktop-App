@@ -493,6 +493,22 @@
         <source>Your username should not be an email address. Please try again.</source>
         <translation>نام کاربری شما نباید یک آدرس ایمیل باشد. لطفا دوباره تلاش کنید.</translation>
     </message>
+    <message>
+        <source>Username must be 3 to 255 characters</source>
+        <translation>نام کاربری باید بین 3 تا 255 کاراکتر باشد</translation>
+    </message>
+    <message>
+        <source>Use only A–Z, a–z, 0–9, _ and -</source>
+        <translation>فقط A–Z, a–z, 0–9, _ و -</translation>
+    </message>
+    <message>
+        <source>Password must be 8 to 255 characters</source>
+        <translation>رمز عبور باید بین 8 تا 255 کاراکتر باشد</translation>
+    </message>
+    <message>
+        <source>An unknown error occurred.</source>
+        <translation>یک خطای ناشناخته رخ داد.</translation>
+    </message>
 </context>
 <context>
     <name>LoginWindow::SignupWindowItem</name>
@@ -523,10 +539,6 @@
     <message>
         <source>Enter password</source>
         <translation>رمز عبور را وارد کنید</translation>
-    </message>
-    <message>
-        <source>8 or more characters with at least one uppercase and lowercase(ie. &quot;Hello1234&quot;, &quot;Solyanka&quot;).</source>
-        <translation>۸ یا بیشتر کاراکتر با حداقل یک حرف بزرگ و کوچک (مثلا «Hello1234»، «Solyanka»).</translation>
     </message>
     <message>
         <source>Email (Optional)</source>
@@ -579,10 +591,6 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
         <translation>تمام فایل ها (*.*)</translation>
     </message>
     <message>
-        <source>Username must be at least 3 characters</source>
-        <translation>نام کاربری باید حداقل ۳ کاراکتر باشد</translation>
-    </message>
-    <message>
         <source>Your username should not be an email address.</source>
         <translation>نام کاربری شما نباید یک آدرس ایمیل باشد.</translation>
     </message>
@@ -593,6 +601,18 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
     <message>
         <source>Invalid hash</source>
         <translation>هش نامعتبر</translation>
+    </message>
+    <message>
+        <source>Username must be 3 to 255 characters</source>
+        <translation>نام کاربری باید بین 3 تا 255 کاراکتر باشد</translation>
+    </message>
+    <message>
+        <source>Use only A–Z, a–z, 0–9, _ and -</source>
+        <translation>فقط A–Z, a–z, 0–9, _ و -</translation>
+    </message>
+    <message>
+        <source>Password must be 8 to 255 characters</source>
+        <translation>رمز عبور باید بین 8 تا 255 کاراکتر باشد</translation>
     </message>
 </context>
 <context>
@@ -643,10 +663,6 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
     <message>
         <source>VPN is active</source>
         <translation>VPN فعال است</translation>
-    </message>
-    <message>
-        <source>Rotating your MAC address will result in a disconnect event from the current network. Are you sure?</source>
-        <translation>چرخش ادرس MAC شما منجر به یک رویداد قطع ارتباط از شبکه فعلی می شود. مطمئنی?</translation>
     </message>
     <message>
         <source>Cannot detect appropriate packet size while connected. Please disconnect first.</source>
@@ -711,6 +727,34 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
     <message>
         <source>The selected directory is writeable for other users. Custom configs in this directory may pose a potential security risk.</source>
         <translation>دایرکتوری انتخاب شده برای سایر کاربران قابل نوشتن است. پیکربندی های سفارشی در این دایرکتوری ممکن است ریسک امنیتی بالقوه ای ایجاد کنند.</translation>
+    </message>
+    <message>
+        <source>MAC Spoofing Removed</source>
+        <translation>جعل MAC حذف شد</translation>
+    </message>
+    <message>
+        <source>MAC spoofing has been removed. Your spoofed MAC address stays active until you restart your computer or network adapter. To use a random address on Wi-Fi, turn on Random hardware addresses.</source>
+        <translation>جعل MAC حذف شده است. آدرس MAC جعلی تا زمانی که رایانه یا آداپتور شبکه را دوباره راه‌اندازی کنید فعال می‌ماند. برای استفاده از آدرس تصادفی در وای‌فای، «آدرس‌های سخت‌افزاری تصادفی» را روشن کنید.</translation>
+    </message>
+    <message>
+        <source>Open Wi-Fi Settings</source>
+        <translation>باز کردن تنظیمات وای‌فای</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>بستن</translation>
+    </message>
+    <message>
+        <source>MAC spoofing is no longer available in Windscribe. To use a random MAC address on Wi-Fi, set Private Wi-Fi address to Rotating in System Settings &gt; Wi-Fi &gt; Details.</source>
+        <translation>جعل MAC دیگر در Windscribe در دسترس نیست. برای استفاده از آدرس MAC تصادفی در وای‌فای، در مسیر System Settings &gt; Wi-Fi &gt; Details گزینه «Private Wi-Fi address» را روی «Rotating» تنظیم کنید.</translation>
+    </message>
+    <message>
+        <source>MAC spoofing is no longer available in Windscribe. To use a random MAC address on Wi-Fi, update to macOS 15 or later, then set Private Wi-Fi address to Rotating in System Settings &gt; Wi-Fi &gt; Details.</source>
+        <translation>جعل MAC دیگر در Windscribe در دسترس نیست. برای استفاده از آدرس MAC تصادفی در وای‌فای، سیستم را به macOS 15 یا جدیدتر به‌روزرسانی کنید و سپس در مسیر System Settings &gt; Wi-Fi &gt; Details گزینه «Private Wi-Fi address» را روی «Rotating» تنظیم کنید.</translation>
+    </message>
+    <message>
+        <source>MAC spoofing has been removed. Your network connection may still use the spoofed MAC address. To change it, set its cloned MAC address to Random, or clear it, in your network settings.</source>
+        <translation>جعل MAC حذف شده است. ممکن است اتصال شبکه شما همچنان از آدرس MAC جعلی استفاده کند. برای تغییر آن، در تنظیمات شبکه، آدرس MAC شبیه‌سازی‌شده اتصال را روی «تصادفی» تنظیم کنید یا آن را پاک کنید.</translation>
     </message>
     <message>
         <source>Installation Incomplete</source>
@@ -797,18 +841,6 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
     <message>
         <source>Service Error</source>
         <translation>خطای سرویس</translation>
-    </message>
-    <message>
-        <source>MAC Spoofing Failed</source>
-        <translation>MAC Spoofing شکست خورد</translation>
-    </message>
-    <message>
-        <source>Your network adapter does not support MAC spoofing. Try a different adapter.</source>
-        <translation>اداپتور شبکه شما از MAC spoofing پشتیبانی نمی کند. یک Adapter دیگر را امتحان کنید.</translation>
-    </message>
-    <message>
-        <source>Could not spoof MAC address.  Please try a different network interface or contact support.</source>
-        <translation>نتوانست ادرس MAC را جعل کند.  لطفا یک رابط شبکه دیگر یا پشتیبانی تماس را امتحان کنید.</translation>
     </message>
     <message>
         <source>Detection Error</source>
@@ -973,10 +1005,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>اتصال IKEv2 در حالت قفل MacOS در دسترس نیست. لطفا حالت قفل را در تنظیمات سیستم غیرفعال کنید یا تنظیمات اتصال خود را تغییر دهید.</translation>
     </message>
     <message>
-        <source>Rotating MAC Address</source>
-        <translation>چرخش آدرس MAC</translation>
-    </message>
-    <message>
         <source>Wi-Fi is off</source>
         <translation>Wi-Fi خاموش است</translation>
     </message>
@@ -1119,10 +1147,6 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Creating your account...</source>
         <translation>ایجاد حساب کاربری شما...</translation>
-    </message>
-    <message>
-        <source>Cannot rotate MAC address while connected to VPN. Please disconnect first.</source>
-        <translation>نمی توان آدرس MAC را هنگام اتصال به VPN چرخاند. لطفا اول قطع کنید.</translation>
     </message>
 </context>
 <context>
@@ -1570,14 +1594,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>یکی از این مکان‌ها را برای اتصال از طریق سرور hydra خود انتخاب کنید.</translation>
     </message>
     <message>
-        <source>Spoof your device&apos;s physical address (MAC address).</source>
-        <translation>ادرس فیزیکی دستگاه خود را جعل کنید (ادرس MAC).</translation>
-    </message>
-    <message>
-        <source>MAC spoofing requires NetworkManager to be installed and running.</source>
-        <translation>جعل MAC نیازمند نصب و اجرای NetworkManager است.</translation>
-    </message>
-    <message>
         <source>Close all active TCP sockets when the VPN tunnel is established.</source>
         <translation>تمام سوکت های فعال TCP را هنگامی که تونل VPN ایجاد شده است ببندید.</translation>
     </message>
@@ -1963,45 +1979,6 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Tray Icon Colour</source>
         <translation>رنگ شمایل سینی</translation>
-    </message>
-</context>
-<context>
-    <name>PreferencesWindow::MacSpoofingGroup</name>
-    <message>
-        <source>Cannot spoof on &apos;No Interface&apos;</source>
-        <translation>نمی توان در &quot;بدون رابط&quot; جعل کرد</translation>
-    </message>
-    <message>
-        <source>You can only spoof an existing adapter.</source>
-        <translation>شما فقط می توانید یک اداپتور موجود را جعل کنید.</translation>
-    </message>
-    <message>
-        <source>Cannot spoof the current interface</source>
-        <translation>نمیتوان واسط جاری را جعل کرد</translation>
-    </message>
-    <message>
-        <source>The current primary interface must match the selected interface to spoof.</source>
-        <translation>رابط اصلی فعلی باید رابط انتخاب شده را با spoof مطابقت دهد.</translation>
-    </message>
-    <message>
-        <source>No Interface</source>
-        <translation>بدون واسط</translation>
-    </message>
-    <message>
-        <source>MAC Spoofing</source>
-        <translation>کلاهبرداری MAC</translation>
-    </message>
-    <message>
-        <source>MAC Address</source>
-        <translation>ادرس MAC</translation>
-    </message>
-    <message>
-        <source>Interface</source>
-        <translation>رابط</translation>
-    </message>
-    <message>
-        <source>Auto-Rotate MAC</source>
-        <translation>چرخش خودکار MAC</translation>
     </message>
 </context>
 <context>

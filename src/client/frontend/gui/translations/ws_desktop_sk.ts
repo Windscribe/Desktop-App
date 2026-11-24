@@ -493,6 +493,22 @@
         <source>Your username should not be an email address. Please try again.</source>
         <translation>Vaše používateľské meno by nemalo byť e-mailová adresa. Prosím, skúste to znova.</translation>
     </message>
+    <message>
+        <source>Username must be 3 to 255 characters</source>
+        <translation>Používateľské meno musí mať 3 až 255 znakov</translation>
+    </message>
+    <message>
+        <source>Use only A–Z, a–z, 0–9, _ and -</source>
+        <translation>Len A–Z, a–z, 0–9, _ a -</translation>
+    </message>
+    <message>
+        <source>Password must be 8 to 255 characters</source>
+        <translation>Heslo musí mať 8 až 255 znakov</translation>
+    </message>
+    <message>
+        <source>An unknown error occurred.</source>
+        <translation>Vyskytla sa neznáma chyba.</translation>
+    </message>
 </context>
 <context>
     <name>LoginWindow::SignupWindowItem</name>
@@ -523,10 +539,6 @@
     <message>
         <source>Enter password</source>
         <translation>Zadajte heslo</translation>
-    </message>
-    <message>
-        <source>8 or more characters with at least one uppercase and lowercase(ie. &quot;Hello1234&quot;, &quot;Solyanka&quot;).</source>
-        <translation>8 alebo viac znakov s aspoň jedným veľkým a malým (napr. &quot;Hello1234&quot;, &quot;Solyanka&quot;).</translation>
     </message>
     <message>
         <source>Email (Optional)</source>
@@ -579,10 +591,6 @@ Ak stratíte hash účtu, je navždy preč a podpora vám ho nemôže pomôcť o
         <translation>Všetky súbory (*.*)</translation>
     </message>
     <message>
-        <source>Username must be at least 3 characters</source>
-        <translation>Používateľské meno musí mať aspoň 3 znaky</translation>
-    </message>
-    <message>
         <source>Your username should not be an email address.</source>
         <translation>Vaše používateľské meno by nemalo byť e-mailová adresa.</translation>
     </message>
@@ -593,6 +601,18 @@ Ak stratíte hash účtu, je navždy preč a podpora vám ho nemôže pomôcť o
     <message>
         <source>Invalid hash</source>
         <translation>Neplatný hash</translation>
+    </message>
+    <message>
+        <source>Username must be 3 to 255 characters</source>
+        <translation>Používateľské meno musí mať 3 až 255 znakov</translation>
+    </message>
+    <message>
+        <source>Use only A–Z, a–z, 0–9, _ and -</source>
+        <translation>Len A–Z, a–z, 0–9, _ a -</translation>
+    </message>
+    <message>
+        <source>Password must be 8 to 255 characters</source>
+        <translation>Heslo musí mať 8 až 255 znakov</translation>
     </message>
 </context>
 <context>
@@ -643,10 +663,6 @@ Ak stratíte hash účtu, je navždy preč a podpora vám ho nemôže pomôcť o
     <message>
         <source>VPN is active</source>
         <translation>VPN je aktívna</translation>
-    </message>
-    <message>
-        <source>Rotating your MAC address will result in a disconnect event from the current network. Are you sure?</source>
-        <translation>Rotácia vašej MAC adresy spôsobí odpojenie od aktuálnej siete. Naozaj?</translation>
     </message>
     <message>
         <source>Cannot detect appropriate packet size while connected. Please disconnect first.</source>
@@ -711,6 +727,34 @@ Ak stratíte hash účtu, je navždy preč a podpora vám ho nemôže pomôcť o
     <message>
         <source>The selected directory is writeable for other users. Custom configs in this directory may pose a potential security risk.</source>
         <translation>Vybraný adresár je zapisovateľný pre ostatných používateľov. Vlastné konfigurácie v tomto adresári môžu predstavovať potenciálne bezpečnostné riziko.</translation>
+    </message>
+    <message>
+        <source>MAC Spoofing Removed</source>
+        <translation>Podvrhnutie MAC adresy odstránené</translation>
+    </message>
+    <message>
+        <source>MAC spoofing has been removed. Your spoofed MAC address stays active until you restart your computer or network adapter. To use a random address on Wi-Fi, turn on Random hardware addresses.</source>
+        <translation>Podvrhnutie MAC adresy bolo odstránené. Podvrhnutá MAC adresa zostane aktívna, kým nereštartujete počítač alebo sieťový adaptér. Ak chcete v sieti Wi-Fi používať náhodnú adresu, zapnite „Náhodné hardvérové adresy“.</translation>
+    </message>
+    <message>
+        <source>Open Wi-Fi Settings</source>
+        <translation>Otvoriť nastavenia Wi-Fi</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>Zavrieť</translation>
+    </message>
+    <message>
+        <source>MAC spoofing is no longer available in Windscribe. To use a random MAC address on Wi-Fi, set Private Wi-Fi address to Rotating in System Settings &gt; Wi-Fi &gt; Details.</source>
+        <translation>Podvrhnutie MAC adresy už vo Windscribe nie je k dispozícii. Ak chcete v sieti Wi-Fi používať náhodnú MAC adresu, nastavte v časti Systémové nastavenia &gt; Wi-Fi &gt; Detaily položku „Privátna Wi-Fi adresa“ na „Otáčanie“.</translation>
+    </message>
+    <message>
+        <source>MAC spoofing is no longer available in Windscribe. To use a random MAC address on Wi-Fi, update to macOS 15 or later, then set Private Wi-Fi address to Rotating in System Settings &gt; Wi-Fi &gt; Details.</source>
+        <translation>Podvrhnutie MAC adresy už vo Windscribe nie je k dispozícii. Ak chcete v sieti Wi-Fi používať náhodnú MAC adresu, aktualizujte systém na macOS 15 alebo novší a potom nastavte v časti Systémové nastavenia &gt; Wi-Fi &gt; Detaily položku „Privátna Wi-Fi adresa“ na „Otáčanie“.</translation>
+    </message>
+    <message>
+        <source>MAC spoofing has been removed. Your network connection may still use the spoofed MAC address. To change it, set its cloned MAC address to Random, or clear it, in your network settings.</source>
+        <translation>Podvrhnutie MAC adresy bolo odstránené. Sieťové pripojenie môže stále používať podvrhnutú MAC adresu. Ak to chcete zmeniť, nastavte v nastaveniach siete klonovanú MAC adresu pripojenia na „Náhodná“ alebo ju vymažte.</translation>
     </message>
     <message>
         <source>Installation Incomplete</source>
@@ -797,18 +841,6 @@ Ak stratíte hash účtu, je navždy preč a podpora vám ho nemôže pomôcť o
     <message>
         <source>Service Error</source>
         <translation>Chyba služby</translation>
-    </message>
-    <message>
-        <source>MAC Spoofing Failed</source>
-        <translation>Podvrhnutie MAC adresy sa nepodarilo</translation>
-    </message>
-    <message>
-        <source>Your network adapter does not support MAC spoofing. Try a different adapter.</source>
-        <translation>Váš sieťový adaptér nepodporuje podvrhnutie MAC adresy. Skúste použiť iný adaptér.</translation>
-    </message>
-    <message>
-        <source>Could not spoof MAC address.  Please try a different network interface or contact support.</source>
-        <translation>Nepodarilo sa podvrhnúť MAC adresu.  Skúste použiť iné sieťové rozhranie alebo kontaktujte podporu.</translation>
     </message>
     <message>
         <source>Detection Error</source>
@@ -973,10 +1005,6 @@ Ak problém pretrváva aj po reštarte, pošlite nám denník ladenia, otvorte �
         <translation>Pripojenie IKEv2 nie je k dispozícii v režime blokovania MacOS. Vypnite režim blokovania v nastaveniach systému alebo zmeňte nastavenia pripojenia.</translation>
     </message>
     <message>
-        <source>Rotating MAC Address</source>
-        <translation>Rotácia MAC adries</translation>
-    </message>
-    <message>
         <source>Wi-Fi is off</source>
         <translation>Wi-Fi je vypnutá</translation>
     </message>
@@ -1119,10 +1147,6 @@ Ak problém pretrváva aj po reštarte, pošlite nám denník ladenia, otvorte �
     <message>
         <source>Creating your account...</source>
         <translation>Vytváram si účet...</translation>
-    </message>
-    <message>
-        <source>Cannot rotate MAC address while connected to VPN. Please disconnect first.</source>
-        <translation>Nemôžem otáčať MAC adresu, keď som pripojený na VPN. Prosím, najprv sa odpoj.</translation>
     </message>
 </context>
 <context>
@@ -1570,14 +1594,6 @@ Ak problém pretrváva aj po reštarte, pošlite nám denník ladenia, otvorte �
         <translation>Vyberte jednu z týchto lokalít na pripojenie cez váš server hydra.</translation>
     </message>
     <message>
-        <source>Spoof your device&apos;s physical address (MAC address).</source>
-        <translation>Podvrhnite fyzickú adresu zariadenia (MAC adresu).</translation>
-    </message>
-    <message>
-        <source>MAC spoofing requires NetworkManager to be installed and running.</source>
-        <translation>MAC spoofing vyžaduje inštaláciu a spustenie NetworkManagera.</translation>
-    </message>
-    <message>
         <source>Close all active TCP sockets when the VPN tunnel is established.</source>
         <translation>Uzavrie všetky aktívne spojenia TCP, keď je vytvorený VPN tunel.</translation>
     </message>
@@ -1963,45 +1979,6 @@ Ak problém pretrváva aj po reštarte, pošlite nám denník ladenia, otvorte �
     <message>
         <source>Tray Icon Colour</source>
         <translation>Farba ikony v systémovom paneli</translation>
-    </message>
-</context>
-<context>
-    <name>PreferencesWindow::MacSpoofingGroup</name>
-    <message>
-        <source>Cannot spoof on &apos;No Interface&apos;</source>
-        <translation>Nie je možné podvrhnúť pre &apos;Žiadne rozhranie&apos;</translation>
-    </message>
-    <message>
-        <source>You can only spoof an existing adapter.</source>
-        <translation>Podvrhnúť môžete iba existujúci adaptér.</translation>
-    </message>
-    <message>
-        <source>Cannot spoof the current interface</source>
-        <translation>Podvrhnutie nie je možné pre aktuálne rozhranie</translation>
-    </message>
-    <message>
-        <source>The current primary interface must match the selected interface to spoof.</source>
-        <translation>Aktuálne primárne rozhranie sa musí zhodovať s vybraným rozhraním na podvrhnutie.</translation>
-    </message>
-    <message>
-        <source>No Interface</source>
-        <translation>Žiadne rozhranie</translation>
-    </message>
-    <message>
-        <source>MAC Spoofing</source>
-        <translation>Podvrhnutie MAC</translation>
-    </message>
-    <message>
-        <source>MAC Address</source>
-        <translation>MAC adresa</translation>
-    </message>
-    <message>
-        <source>Interface</source>
-        <translation>Rozhranie</translation>
-    </message>
-    <message>
-        <source>Auto-Rotate MAC</source>
-        <translation>Automatické rotovanie MAC</translation>
     </message>
 </context>
 <context>

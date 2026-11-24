@@ -493,6 +493,22 @@
         <source>Your username should not be an email address. Please try again.</source>
         <translation>ユーザー名はメールアドレスであってはいけません。もう一度お試しください。</translation>
     </message>
+    <message>
+        <source>Username must be 3 to 255 characters</source>
+        <translation>ユーザー名は3～255文字である必要があります</translation>
+    </message>
+    <message>
+        <source>Use only A–Z, a–z, 0–9, _ and -</source>
+        <translation>A–Z, a–z, 0–9, _、- のみ使用できます</translation>
+    </message>
+    <message>
+        <source>Password must be 8 to 255 characters</source>
+        <translation>パスワードは8～255文字である必要があります</translation>
+    </message>
+    <message>
+        <source>An unknown error occurred.</source>
+        <translation>未知のエラーが発生しました。</translation>
+    </message>
 </context>
 <context>
     <name>LoginWindow::SignupWindowItem</name>
@@ -523,10 +539,6 @@
     <message>
         <source>Enter password</source>
         <translation>パスワードを入力してください</translation>
-    </message>
-    <message>
-        <source>8 or more characters with at least one uppercase and lowercase(ie. &quot;Hello1234&quot;, &quot;Solyanka&quot;).</source>
-        <translation>8文字以上、少なくとも1文字は大文字と小文字(例:「Hello1234」「Solyanka」)。</translation>
     </message>
     <message>
         <source>Email (Optional)</source>
@@ -579,10 +591,6 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
         <translation>すべてのファイル(*.*)</translation>
     </message>
     <message>
-        <source>Username must be at least 3 characters</source>
-        <translation>ユーザー名は最低3文字以上でなければなりません</translation>
-    </message>
-    <message>
         <source>Your username should not be an email address.</source>
         <translation>ユーザー名はメールアドレスであってはいけません。</translation>
     </message>
@@ -593,6 +601,18 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
     <message>
         <source>Invalid hash</source>
         <translation>無効ハッシュ</translation>
+    </message>
+    <message>
+        <source>Username must be 3 to 255 characters</source>
+        <translation>ユーザー名は3～255文字である必要があります</translation>
+    </message>
+    <message>
+        <source>Use only A–Z, a–z, 0–9, _ and -</source>
+        <translation>A–Z, a–z, 0–9, _、- のみ使用できます</translation>
+    </message>
+    <message>
+        <source>Password must be 8 to 255 characters</source>
+        <translation>パスワードは8～255文字である必要があります</translation>
     </message>
 </context>
 <context>
@@ -643,10 +663,6 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
     <message>
         <source>VPN is active</source>
         <translation>VPNがアクティブです</translation>
-    </message>
-    <message>
-        <source>Rotating your MAC address will result in a disconnect event from the current network. Are you sure?</source>
-        <translation>MACアドレスを交換すると、現在のネットワークから切断イベントが発生します。確かですか。</translation>
     </message>
     <message>
         <source>Cannot detect appropriate packet size while connected. Please disconnect first.</source>
@@ -711,6 +727,34 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
     <message>
         <source>The selected directory is writeable for other users. Custom configs in this directory may pose a potential security risk.</source>
         <translation>選択したディレクトリは他のユーザーのために書き込むことができます。このディレクトリ内のカスタム設定は潜在的なセキュリティリスクをもたらす可能性があります。</translation>
+    </message>
+    <message>
+        <source>MAC Spoofing Removed</source>
+        <translation>MACスプーフィングは削除されました</translation>
+    </message>
+    <message>
+        <source>MAC spoofing has been removed. Your spoofed MAC address stays active until you restart your computer or network adapter. To use a random address on Wi-Fi, turn on Random hardware addresses.</source>
+        <translation>MACスプーフィングは削除されました。スプーフィングされたMACアドレスは、コンピューターまたはネットワークアダプターを再起動するまで有効なままです。Wi-Fiでランダムなアドレスを使用するには、「ランダム ハードウェア アドレス」をオンにしてください。</translation>
+    </message>
+    <message>
+        <source>Open Wi-Fi Settings</source>
+        <translation>Wi-Fi設定を開く</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>閉じる</translation>
+    </message>
+    <message>
+        <source>MAC spoofing is no longer available in Windscribe. To use a random MAC address on Wi-Fi, set Private Wi-Fi address to Rotating in System Settings &gt; Wi-Fi &gt; Details.</source>
+        <translation>MACスプーフィングはWindscribeでは利用できなくなりました。Wi-FiでランダムなMACアドレスを使用するには、システム設定 &gt; Wi-Fi &gt; 詳細で「プライベートWi-Fiアドレス」を「ローテーション」に設定してください。</translation>
+    </message>
+    <message>
+        <source>MAC spoofing is no longer available in Windscribe. To use a random MAC address on Wi-Fi, update to macOS 15 or later, then set Private Wi-Fi address to Rotating in System Settings &gt; Wi-Fi &gt; Details.</source>
+        <translation>MACスプーフィングはWindscribeでは利用できなくなりました。Wi-FiでランダムなMACアドレスを使用するには、macOS 15以降にアップデートしてから、システム設定 &gt; Wi-Fi &gt; 詳細で「プライベートWi-Fiアドレス」を「ローテーション」に設定してください。</translation>
+    </message>
+    <message>
+        <source>MAC spoofing has been removed. Your network connection may still use the spoofed MAC address. To change it, set its cloned MAC address to Random, or clear it, in your network settings.</source>
+        <translation>MACスプーフィングは削除されました。ネットワーク接続では、スプーフィングされたMACアドレスが引き続き使用されている可能性があります。変更するには、ネットワーク設定で接続のクローンMACアドレスを「ランダム」に設定するか、クリアしてください。</translation>
     </message>
     <message>
         <source>Installation Incomplete</source>
@@ -797,18 +841,6 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
     <message>
         <source>Service Error</source>
         <translation>サービスエラー</translation>
-    </message>
-    <message>
-        <source>MAC Spoofing Failed</source>
-        <translation>MAC スプーフィングに失敗しました</translation>
-    </message>
-    <message>
-        <source>Your network adapter does not support MAC spoofing. Try a different adapter.</source>
-        <translation>ネットワーク アダプターが MAC スプーフィングをサポートしていません。別のアダプターを試してください。</translation>
-    </message>
-    <message>
-        <source>Could not spoof MAC address.  Please try a different network interface or contact support.</source>
-        <translation>MAC アドレスをスプーフィングできませんでした。 別のネットワーク インターフェイスを試すか、サポートにお問い合わせください。</translation>
     </message>
     <message>
         <source>Detection Error</source>
@@ -973,10 +1005,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>IKEv2 接続は、MacOS ロックダウン モードでは使用できません。システム設定でロックダウンモードを無効にするか、接続設定を変更してください。</translation>
     </message>
     <message>
-        <source>Rotating MAC Address</source>
-        <translation>ローテーション MAC アドレス</translation>
-    </message>
-    <message>
         <source>Wi-Fi is off</source>
         <translation>Wi-Fiがオフになっています</translation>
     </message>
@@ -1119,10 +1147,6 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Creating your account...</source>
         <translation>アカウント作成中...</translation>
-    </message>
-    <message>
-        <source>Cannot rotate MAC address while connected to VPN. Please disconnect first.</source>
-        <translation>VPNに接続している間はMACアドレスをローテーションできません。まずは切断してください。</translation>
     </message>
 </context>
 <context>
@@ -1570,14 +1594,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>hydra サーバー経由で接続するには、これらのロケーションのいずれかを選択してください。</translation>
     </message>
     <message>
-        <source>Spoof your device&apos;s physical address (MAC address).</source>
-        <translation>デバイスの物理アドレス(MACアドレス)をスプーフィングします。</translation>
-    </message>
-    <message>
-        <source>MAC spoofing requires NetworkManager to be installed and running.</source>
-        <translation>MACスプーフィングにはNetworkManagerのインストールと実行が必要です。</translation>
-    </message>
-    <message>
         <source>Close all active TCP sockets when the VPN tunnel is established.</source>
         <translation>VPN トンネルが確立されたら、すべてのアクティブな TCP ソケットを閉じます。</translation>
     </message>
@@ -1963,45 +1979,6 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Tray Icon Colour</source>
         <translation>トレイアイコンの色</translation>
-    </message>
-</context>
-<context>
-    <name>PreferencesWindow::MacSpoofingGroup</name>
-    <message>
-        <source>Cannot spoof on &apos;No Interface&apos;</source>
-        <translation>「インターフェイスなし」でスプーフィングできません</translation>
-    </message>
-    <message>
-        <source>You can only spoof an existing adapter.</source>
-        <translation>スプーフィングできるのは、既存のアダプターのみです。</translation>
-    </message>
-    <message>
-        <source>Cannot spoof the current interface</source>
-        <translation>現在のインターフェイスをスプーフィングできません</translation>
-    </message>
-    <message>
-        <source>The current primary interface must match the selected interface to spoof.</source>
-        <translation>現在のプライマリ インターフェイスは、選択したインターフェイスと一致する必要があります。</translation>
-    </message>
-    <message>
-        <source>No Interface</source>
-        <translation>インターフェイスなし</translation>
-    </message>
-    <message>
-        <source>MAC Spoofing</source>
-        <translation>MAC スプーフィング</translation>
-    </message>
-    <message>
-        <source>MAC Address</source>
-        <translation>MAC アドレス</translation>
-    </message>
-    <message>
-        <source>Interface</source>
-        <translation>インターフェイス</translation>
-    </message>
-    <message>
-        <source>Auto-Rotate MAC</source>
-        <translation>MAC の自動回転</translation>
     </message>
 </context>
 <context>

@@ -95,7 +95,6 @@ private:
 
     // return true if everything ok
     bool verifyInputs();
-    bool isPasswordValid(const QString &password);
     bool isEmailValid(const QString &email);
 
 };

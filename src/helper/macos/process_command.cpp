@@ -6,30 +6,30 @@
 #include <filesystem>
 #include <limits.h>
 #include <mutex>
+#include <spdlog/spdlog.h>
 #include <stdint.h>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <vector>
-#include <spdlog/spdlog.h>
 
+#include "../common/io_posix.h"
+#include "../common/ovpn_mgmt_posix.h"
+#include "../common/ovpn_posix.h"
+#include "../common/spawn_posix.h"
+#include "../common/validation_posix.h"
+#include "clear_wifi_history/clear_wifi_history.h"
 #include "files_manager.h"
 #include "firewallcontroller.h"
 #include "firewallonboot.h"
 #include "installer/staging.h"
 #include "ipc/helper_security.h"
 #include "macutils.h"
-#include "ovpn.h"
 #include "routes_manager/routes_manager.h"
 #include "utils.h"
 #include "utils/executable_signature/executable_signature.h"
+#include "utils/log/debug_trace.h"
 #include "utils/wsscopeguard.h"
 #include "wireguard/wireguardcontroller.h"
-#include "../common/io_posix.h"
-#include "../common/ovpn_mgmt_posix.h"
-#include "../common/process_kill_posix.h"
-#include "../common/spawn_posix.h"
-#include "../common/validation_posix.h"
-#include "clear_wifi_history/clear_wifi_history.h"
 
 std::string processCommand(HelperCommand cmdId, const std::string &pars, uid_t clientUid)
 {
@@ -60,6 +60,7 @@ std::string getHelperVersion(const std::string &pars)
 
 std::string setSplitTunnelingSettings(const std::string &pars)
 {
+    WS_DEBUG_TRACE_SCOPE("setSplitTunnelingSettings");
     bool isActive, isExclude, isAllowLanTraffic;
     std::vector<std::string> files, ips, hosts;
     deserializePars(pars, isActive, isExclude, isAllowLanTraffic, files, ips, hosts);
@@ -69,6 +70,7 @@ std::string setSplitTunnelingSettings(const std::string &pars)
 
 std::string sendConnectStatus(const std::string &pars)
 {
+    WS_DEBUG_TRACE_SCOPE("sendConnectStatus");
     ConnectStatus cs;
     deserializePars(pars, cs.isConnected, cs.protocol, cs.defaultAdapter, cs.vpnAdapter, cs.connectedIp, cs.remoteIp, cs.dnsWhitelistIps);
 
@@ -114,6 +116,7 @@ std::string sendConnectStatus(const std::string &pars)
 
 std::string changeMtu(const std::string &pars)
 {
+    WS_DEBUG_TRACE_SCOPE("changeMtu");
     std::string adapterName;
     int mtu;
     deserializePars(pars, adapterName, mtu);
@@ -130,6 +133,7 @@ std::string changeMtu(const std::string &pars)
 
 std::string executeOpenVPN(const std::string &pars, uid_t clientUid)
 {
+    WS_DEBUG_TRACE_SCOPE("executeOpenVPN");
     std::string config, httpProxy, socksProxy;
     unsigned int httpPort, socksPort;
     CmdDnsManager dnsManager;
@@ -169,11 +173,9 @@ std::string executeOpenVPN(const std::string &pars, uid_t clientUid)
         return serializeResult(false, std::string());
     }
 
-    const std::string ovpnPath = Utils::getExePath() + "/" WS_PRODUCT_NAME_LOWER "openvpn";
-
-    ExecutableSignature sigCheck;
-    if (!sigCheck.verify(ovpnPath)) {
-        spdlog::error("OpenVPN executable signature incorrect: {}", sigCheck.lastError());
+    WS_DEBUG_TRACE_EVENT("executeOpenVPN signature check start");
+    std::string ovpnPath;
+    if (!Utils::locateHelperExecutable(WS_PRODUCT_NAME_LOWER "openvpn", ovpnPath)) {
         return serializeResult(false, std::string());
     }
 
@@ -188,6 +190,7 @@ std::string executeOpenVPN(const std::string &pars, uid_t clientUid)
                                      "--config", WS_POSIX_CONFIG_DIR "/config.ovpn"};
     args.insert(args.end(), extraArgs.begin(), extraArgs.end());
     pid_t ovpnPid = 0;
+    WS_DEBUG_TRACE_EVENT("executeOpenVPN spawn");
     if (!Spawn::spawnDetached(ovpnPath, args, opts, &ovpnPid)) {
         return serializeResult(false, std::string());
     }
@@ -204,48 +207,9 @@ std::string executeOpenVPN(const std::string &pars, uid_t clientUid)
     return serializeResult(true, std::string());
 }
 
-std::string executeTaskKill(const std::string &pars)
-{
-    CmdKillTarget target;
-    deserializePars(pars, target);
-
-    bool success = false;
-    if (target == kTargetApp) {
-        spdlog::info("Killing " WS_PRODUCT_NAME " processes");
-        Utils::executeCommand("pkill", {WS_APP_EXECUTABLE_NAME});
-#ifdef WS_IS_WINDSCRIBE
-        Utils::executeCommand("pkill", {WS_APP_IDENTIFIER "Engine"}); // For older 1.x clients
-#endif
-        success = true;
-    } else if (target == kTargetOpenVpn) {
-        spdlog::info("Killing OpenVPN processes");
-        OvpnMgmt::killOpenVPN();
-        success = true;
-    } else if (target == kTargetStunnel) {
-        spdlog::info("Killing Stunnel processes");
-        Utils::executeCommand("pkill", {"-f", WS_PRODUCT_NAME_LOWER "wstunnel"});
-        success = true;
-    } else if (target == kTargetWStunnel) {
-        spdlog::info("Killing WStunnel processes");
-        Utils::executeCommand("pkill", {"-f", WS_PRODUCT_NAME_LOWER "wstunnel"});
-        success = true;
-    } else if (target == kTargetWireGuard) {
-        spdlog::info("Killing WireGuard processes");
-        Utils::executeCommand("pkill", {"-f", WS_PRODUCT_NAME_LOWER "amneziawg"});
-        success = true;
-    } else if (target == kTargetCtrld) {
-        spdlog::info("Killing ctrld processes");
-        // The next ctrld binds the same 127.0.0.1:53 and exits if a dying instance still holds it.
-        success = ProcessKill::terminateAndWait(WS_PRODUCT_NAME_LOWER "ctrld");
-    } else {
-        spdlog::error("Did not kill processes for type {}", (int)target);
-        success = false;
-    }
-    return serializeResult(success);
-}
-
 std::string startWireGuard(const std::string &pars)
 {
+    WS_DEBUG_TRACE_SCOPE("startWireGuard");
     bool verboseLogging = false;
     deserializePars(pars, verboseLogging);
     bool success = WireGuardController::instance().start(verboseLogging);
@@ -254,12 +218,14 @@ std::string startWireGuard(const std::string &pars)
 
 std::string stopWireGuard(const std::string &pars)
 {
+    WS_DEBUG_TRACE_SCOPE("stopWireGuard");
     bool success = WireGuardController::instance().stop();
     return serializeResult(success);
 }
 
 std::string configureWireGuard(const std::string &pars)
 {
+    WS_DEBUG_TRACE_SCOPE("configureWireGuard");
     std::string clientPrivateKey, clientIpAddress, clientDnsAddressList, peerPublicKey,
                 peerPresharedKey, peerEndpoint, allowedIps, persistentKeepalive;
     uint16_t listenPort;
@@ -284,16 +250,17 @@ std::string configureWireGuard(const std::string &pars)
                 break;
             }
 
-            if (!WireGuardController::instance().configureAdapter(clientIpAddress,
-                                                                  clientDnsAddressList,
-                                                                  std::string(Utils::kHelperBinDir) + "/dns.sh",
-                                                                  allowed_ips_vector)) {
-                spdlog::error("WireGuard: configureAdapter() failed");
+            if (!WireGuardController::instance().configureDefaultRouteMonitor(peerEndpoint)) {
+                spdlog::error("WireGuard: configureDefaultRouteMonitor() failed");
                 break;
             }
 
-            if (!WireGuardController::instance().configureDefaultRouteMonitor(peerEndpoint)) {
-                spdlog::error("WireGuard: configureDefaultRouteMonitor() failed");
+            if (!WireGuardController::instance().configureAdapter(clientIpAddress,
+                                                                  clientDnsAddressList,
+                                                                  std::string(Utils::kHelperBinDir) + "/dns.sh",
+                                                                  allowed_ips_vector,
+                                                                  peerEndpoint)) {
+                spdlog::error("WireGuard: configureAdapter() failed");
                 break;
             }
             if (!WireGuardController::instance().configure(clientPrivateKey,
@@ -317,65 +284,15 @@ std::string getWireGuardStatus(const std::string &pars)
     return serializeResult(errorCode, state, bytesReceived, bytesTransmitted);
 }
 
-std::string startCtrld(const std::string &pars)
-{
-    std::string upstream1, upstream2;
-    std::vector<std::string> domains;
-    bool isCreateLog;
-    deserializePars(pars, upstream1, upstream2, domains, isCreateLog);
-
-    // Validate URLs, then pass the normalized (canonical) form to ctrld rather than the raw input.
-    const std::string normUpstream1 = Validation::normalizeAddress(upstream1);
-    const std::string normUpstream2 = Validation::normalizeAddress(upstream2);
-    if (normUpstream1.empty() || (!upstream2.empty() && normUpstream2.empty())) {
-        spdlog::error("Invalid upstream URL(s)");
-        return serializeResult(false);
-    }
-    for (const auto &domain: domains) {
-        if (!Validation::isValidDomain(domain)) {
-            spdlog::error("Invalid domain: {}", domain);
-            return serializeResult(false);
-        }
-    }
-
-    const std::string ctrldPath = Utils::getExePath() + "/" WS_PRODUCT_NAME_LOWER "ctrld";
-
-    ExecutableSignature sigCheck;
-    if (!sigCheck.verify(ctrldPath)) {
-        spdlog::error("ctrld executable signature incorrect: {}", sigCheck.lastError());
-        return serializeResult(false);
-    }
-
-    std::vector<std::string> args = {"run", "--daemon", "--listen=127.0.0.1:53",
-                                     "--primary_upstream=" + normUpstream1};
-    if (!upstream2.empty()) {
-        args.push_back("--secondary_upstream=" + normUpstream2);
-        if (!domains.empty()) {
-            std::string domainsStr;
-            for (size_t i = 0; i < domains.size(); ++i) {
-                if (i > 0) domainsStr += ",";
-                domainsStr += domains[i];
-            }
-            args.push_back("--domains=" + domainsStr);
-        }
-    }
-    if (isCreateLog) {
-        args.push_back("--log");
-        args.push_back("/Library/Logs/" WS_MAC_HELPER_BUNDLE_ID "/ctrld.log");
-        args.push_back("-vv");
-    }
-
-    bool executed = Utils::executeCommand(ctrldPath, args) == 0;
-    return serializeResult(executed);
-}
-
 std::string checkFirewallState(const std::string &pars)
 {
+    WS_DEBUG_TRACE_SCOPE("checkFirewallState");
     return serializeResult(FirewallController::instance().enabled());
 }
 
 std::string clearFirewallRules(const std::string &pars)
 {
+    WS_DEBUG_TRACE_SCOPE("clearFirewallRules");
     bool isKeepPfEnabled;
     deserializePars(pars, isKeepPfEnabled);
     spdlog::debug("Clear firewall rules");
@@ -384,6 +301,7 @@ std::string clearFirewallRules(const std::string &pars)
 
 std::string setFirewallRules(const std::string &pars)
 {
+    WS_DEBUG_TRACE_SCOPE("setFirewallRules");
     FirewallConfig config;
     deserializePars(pars, config);
 
@@ -400,6 +318,7 @@ std::string setFirewallRules(const std::string &pars)
 
 std::string getFirewallRules(const std::string &pars)
 {
+    WS_DEBUG_TRACE_SCOPE("getFirewallRules");
     CmdFirewallRulesQuery query;
     deserializePars(pars, query);
     std::string rules;
@@ -409,6 +328,7 @@ std::string getFirewallRules(const std::string &pars)
 
 std::string setFirewallOnBoot(const std::string &pars)
 {
+    WS_DEBUG_TRACE_SCOPE("setFirewallOnBoot");
     bool enabled, allowLanTraffic;
     std::vector<std::string> ipTable;
     deserializePars(pars, enabled, allowLanTraffic, ipTable);
@@ -420,6 +340,7 @@ std::string setFirewallOnBoot(const std::string &pars)
 
 std::string startStunnel(const std::string &pars)
 {
+    WS_DEBUG_TRACE_SCOPE("startStunnel");
     std::string hostname;
     unsigned int port, localPort;
     bool extraPadding;
@@ -432,11 +353,8 @@ std::string startStunnel(const std::string &pars)
         return serializeResult(false);
     }
 
-    const std::string wstunnelPath = Utils::getExePath() + "/" WS_PRODUCT_NAME_LOWER "wstunnel";
-
-    ExecutableSignature sigCheck;
-    if (!sigCheck.verify(wstunnelPath)) {
-        spdlog::error("stunnel executable signature incorrect: {}", sigCheck.lastError());
+    std::string wstunnelPath;
+    if (!Utils::locateHelperExecutable(WS_PRODUCT_NAME_LOWER "wstunnel", wstunnelPath)) {
         return serializeResult(false);
     }
 
@@ -471,6 +389,7 @@ std::string startStunnel(const std::string &pars)
 
 std::string startWstunnel(const std::string &pars)
 {
+    WS_DEBUG_TRACE_SCOPE("startWstunnel");
     std::string hostname;
     unsigned int port, localPort;
     std::string customSniDomain;
@@ -482,11 +401,8 @@ std::string startWstunnel(const std::string &pars)
         return serializeResult(false);
     }
 
-    const std::string wstunnelPath = Utils::getExePath() + "/" WS_PRODUCT_NAME_LOWER "wstunnel";
-
-    ExecutableSignature sigCheck;
-    if (!sigCheck.verify(wstunnelPath)) {
-        spdlog::error("wstunnel executable signature incorrect: {}", sigCheck.lastError());
+    std::string wstunnelPath;
+    if (!Utils::locateHelperExecutable(WS_PRODUCT_NAME_LOWER "wstunnel", wstunnelPath)) {
         return serializeResult(false);
     }
 
@@ -516,13 +432,14 @@ std::string startWstunnel(const std::string &pars)
 
 std::string setDnsScriptEnabled(const std::string &pars)
 {
+    WS_DEBUG_TRACE_SCOPE("setDnsScriptEnabled");
     bool enabled;
     deserializePars(pars, enabled);
 
     spdlog::info("Set DNS script: {}", enabled ? "enabled" : "disabled");
     std::string out;
     // We only handle the down case; the 'up' trigger happens elsewhere
-    if (!enabled) {
+    if (!enabled && MacUtils::hasSavedDnsState()) {
         Utils::executeCommand(std::string(Utils::kHelperBinDir) + "/dns.sh", {"-down"}, &out);
         spdlog::info("{}", out.c_str());
     }
@@ -531,6 +448,7 @@ std::string setDnsScriptEnabled(const std::string &pars)
 
 std::string setDnsOfDynamicStoreEntry(const std::string &pars)
 {
+    WS_DEBUG_TRACE_SCOPE("setDnsOfDynamicStoreEntry");
     std::string ipAddress, networkService;
     deserializePars(pars, ipAddress, networkService);
 
@@ -552,6 +470,7 @@ std::string setDnsOfDynamicStoreEntry(const std::string &pars)
 // hit "unknown command id" — we just no-op-and-log instead.
 std::string setIpv6Enabled(const std::string &pars)
 {
+    WS_DEBUG_TRACE_SCOPE("setIpv6Enabled");
     bool enabled;
     deserializePars(pars, enabled);
     spdlog::warn("setIpv6Enabled (enabled={}) is a no-op since the macOS IPv6 rewrite", enabled);
@@ -560,6 +479,7 @@ std::string setIpv6Enabled(const std::string &pars)
 
 std::string deleteRoute(const std::string &pars)
 {
+    WS_DEBUG_TRACE_SCOPE("deleteRoute");
     std::string range, gateway;
     int mask;
     deserializePars(pars, range, mask, gateway);
@@ -588,6 +508,7 @@ static std::mutex g_stageMutex;
 
 std::string removeOldInstall(const std::string &pars)
 {
+    WS_DEBUG_TRACE_SCOPE("removeOldInstall");
     std::lock_guard<std::mutex> stageLock(g_stageMutex);
 
     std::string installPath;
@@ -788,6 +709,7 @@ static bool stageArchiveFromCallerBundle(std::string &outTempPath)
 
 std::string setInstallerPaths(const std::string &pars)
 {
+    WS_DEBUG_TRACE_SCOPE("setInstallerPaths");
     std::lock_guard<std::mutex> stageLock(g_stageMutex);
 
     // Wire-format compat: deserialize and ignore. Both the install destination
@@ -807,6 +729,7 @@ std::string setInstallerPaths(const std::string &pars)
 
 std::string executeFilesStep(const std::string &pars)
 {
+    WS_DEBUG_TRACE_SCOPE("executeFilesStep");
     std::lock_guard<std::mutex> stageLock(g_stageMutex);
 
     Files *files = FilesManager::instance().files();
@@ -820,6 +743,7 @@ std::string executeFilesStep(const std::string &pars)
 
 std::string createCliSymlink(const std::string &pars)
 {
+    WS_DEBUG_TRACE_SCOPE("createCliSymlink");
     std::error_code err;
     if (!std::filesystem::is_directory("/usr/local/bin", err)) {
         spdlog::debug("Creating CLI symlink dir");
@@ -861,6 +785,7 @@ std::string createCliSymlink(const std::string &pars)
 
 std::string clearWifiHistoryData(const std::string &pars)
 {
+    WS_DEBUG_TRACE_SCOPE("clearWifiHistoryData");
     bool success = ClearWiFiHistory::clear();
     return serializeResult(success);
 }
@@ -870,6 +795,7 @@ static constexpr int kHdiutilDetachTimeoutSecs = 30;
 
 std::string installerStageAndVerify(const std::string &pars)
 {
+    WS_DEBUG_TRACE_SCOPE("installerStageAndVerify");
     std::lock_guard<std::mutex> stageLock(g_stageMutex);
 
     std::string dmgPath;
@@ -1045,11 +971,23 @@ std::string installerStageAndVerify(const std::string &pars)
 
 std::string installerCleanupStaged(const std::string &pars)
 {
+    WS_DEBUG_TRACE_SCOPE("installerCleanupStaged");
     std::lock_guard<std::mutex> stageLock(g_stageMutex);
     std::error_code ec;
     std::filesystem::remove_all(Utils::kInstallerStageDir, ec);
     if (ec) {
         spdlog::info("installerCleanupStaged: {}", ec.message());
+    }
+    return std::string();
+}
+
+std::string setDebugTrace(const std::string &pars)
+{
+    bool enabled;
+    deserializePars(pars, enabled);
+    log_utils::setDebugTraceEnabled(enabled);
+    if (enabled) {
+        spdlog::info("Debug trace enabled");
     }
     return std::string();
 }

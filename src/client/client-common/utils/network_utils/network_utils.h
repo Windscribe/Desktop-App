@@ -8,10 +8,6 @@
 
 namespace NetworkUtils
 {
-    QString generateRandomMacAddress();
-    QString formatMacAddress(QString macAddress);
-    QString normalizeMacAddress(const QString &macAddress);
-
     // Network
     // Returns a comma-separated string of interface names, optionally including the interface index after each name.
     QString networkInterfacesToString(const QVector<types::NetworkInterface> &networkInterfaces, bool includeIndex);

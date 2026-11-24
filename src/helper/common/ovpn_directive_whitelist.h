@@ -159,6 +159,7 @@ inline const std::unordered_set<std::string>& ignoredDirectives()
         "verb",
         "script-security",
         "up",
+        "route-up",
         "down",
         "down-pre",
         "management",

@@ -493,6 +493,22 @@
         <source>Your username should not be an email address. Please try again.</source>
         <translation>Twoja nazwa użytkownika nie powinna być adresem e-mail. Proszę, spróbuj ponownie.</translation>
     </message>
+    <message>
+        <source>Username must be 3 to 255 characters</source>
+        <translation>Nazwa użytkownika musi mieć od 3 do 255 znaków</translation>
+    </message>
+    <message>
+        <source>Use only A–Z, a–z, 0–9, _ and -</source>
+        <translation>Tylko A–Z, a–z, 0–9, _ i -</translation>
+    </message>
+    <message>
+        <source>Password must be 8 to 255 characters</source>
+        <translation>Hasło musi mieć od 8 do 255 znaków</translation>
+    </message>
+    <message>
+        <source>An unknown error occurred.</source>
+        <translation>Wystąpił nieznany błąd.</translation>
+    </message>
 </context>
 <context>
     <name>LoginWindow::SignupWindowItem</name>
@@ -523,10 +539,6 @@
     <message>
         <source>Enter password</source>
         <translation>Wprowadź hasło</translation>
-    </message>
-    <message>
-        <source>8 or more characters with at least one uppercase and lowercase(ie. &quot;Hello1234&quot;, &quot;Solyanka&quot;).</source>
-        <translation>8 lub więcej znaków z co najmniej jedną wielką i małą literą (np. &quot;Hello1234&quot;, &quot;Solyanka&quot;).</translation>
     </message>
     <message>
         <source>Email (Optional)</source>
@@ -579,10 +591,6 @@ Jeśli stracisz hash konta, znika na zawsze i wsparcie nie pomoże ci go odzyska
         <translation>Wszystkie pliki (*.*)</translation>
     </message>
     <message>
-        <source>Username must be at least 3 characters</source>
-        <translation>Nazwa użytkownika musi mieć co najmniej 3 znaki</translation>
-    </message>
-    <message>
         <source>Your username should not be an email address.</source>
         <translation>Twoja nazwa użytkownika nie powinna być adresem e-mail.</translation>
     </message>
@@ -593,6 +601,18 @@ Jeśli stracisz hash konta, znika na zawsze i wsparcie nie pomoże ci go odzyska
     <message>
         <source>Invalid hash</source>
         <translation>Nieprawidłowy skrót</translation>
+    </message>
+    <message>
+        <source>Username must be 3 to 255 characters</source>
+        <translation>Nazwa użytkownika musi mieć od 3 do 255 znaków</translation>
+    </message>
+    <message>
+        <source>Use only A–Z, a–z, 0–9, _ and -</source>
+        <translation>Tylko A–Z, a–z, 0–9, _ i -</translation>
+    </message>
+    <message>
+        <source>Password must be 8 to 255 characters</source>
+        <translation>Hasło musi mieć od 8 do 255 znaków</translation>
     </message>
 </context>
 <context>
@@ -643,10 +663,6 @@ Jeśli stracisz hash konta, znika na zawsze i wsparcie nie pomoże ci go odzyska
     <message>
         <source>VPN is active</source>
         <translation>VPN jest aktywny</translation>
-    </message>
-    <message>
-        <source>Rotating your MAC address will result in a disconnect event from the current network. Are you sure?</source>
-        <translation>Rotacja adresu MAC spowoduje zdarzenie rozłączenia z bieżącą siecią. Czy na pewno?</translation>
     </message>
     <message>
         <source>Cannot detect appropriate packet size while connected. Please disconnect first.</source>
@@ -711,6 +727,34 @@ Jeśli stracisz hash konta, znika na zawsze i wsparcie nie pomoże ci go odzyska
     <message>
         <source>The selected directory is writeable for other users. Custom configs in this directory may pose a potential security risk.</source>
         <translation>Wybrany katalog jest zapisywalny dla innych użytkowników. Niestandardowe konfiguracje w tym katalogu mogą stanowić potencjalne zagrożenie dla bezpieczeństwa.</translation>
+    </message>
+    <message>
+        <source>MAC Spoofing Removed</source>
+        <translation>Fałszowanie adresów MAC usunięte</translation>
+    </message>
+    <message>
+        <source>MAC spoofing has been removed. Your spoofed MAC address stays active until you restart your computer or network adapter. To use a random address on Wi-Fi, turn on Random hardware addresses.</source>
+        <translation>Fałszowanie adresów MAC zostało usunięte. Sfałszowany adres MAC pozostanie aktywny do czasu ponownego uruchomienia komputera lub karty sieciowej. Aby używać losowego adresu w sieci Wi-Fi, włącz „Losowe adresy sprzętowe”.</translation>
+    </message>
+    <message>
+        <source>Open Wi-Fi Settings</source>
+        <translation>Otwórz ustawienia Wi-Fi</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>Zamknij</translation>
+    </message>
+    <message>
+        <source>MAC spoofing is no longer available in Windscribe. To use a random MAC address on Wi-Fi, set Private Wi-Fi address to Rotating in System Settings &gt; Wi-Fi &gt; Details.</source>
+        <translation>Fałszowanie adresów MAC nie jest już dostępne w aplikacji Windscribe. Aby używać losowego adresu MAC w sieci Wi-Fi, ustaw „Prywatny adres Wi-Fi” na „Rotowanie” w lokalizacji Ustawienia systemowe &gt; Wi-Fi &gt; Szczegóły.</translation>
+    </message>
+    <message>
+        <source>MAC spoofing is no longer available in Windscribe. To use a random MAC address on Wi-Fi, update to macOS 15 or later, then set Private Wi-Fi address to Rotating in System Settings &gt; Wi-Fi &gt; Details.</source>
+        <translation>Fałszowanie adresów MAC nie jest już dostępne w aplikacji Windscribe. Aby używać losowego adresu MAC w sieci Wi-Fi, zaktualizuj system do macOS 15 lub nowszego, a następnie ustaw „Prywatny adres Wi-Fi” na „Rotowanie” w lokalizacji Ustawienia systemowe &gt; Wi-Fi &gt; Szczegóły.</translation>
+    </message>
+    <message>
+        <source>MAC spoofing has been removed. Your network connection may still use the spoofed MAC address. To change it, set its cloned MAC address to Random, or clear it, in your network settings.</source>
+        <translation>Fałszowanie adresów MAC zostało usunięte. Twoje połączenie sieciowe może nadal używać sfałszowanego adresu MAC. Aby to zmienić, ustaw sklonowany adres MAC połączenia na „Losowy” lub wyczyść go w ustawieniach sieci.</translation>
     </message>
     <message>
         <source>Installation Incomplete</source>
@@ -797,18 +841,6 @@ Jeśli stracisz hash konta, znika na zawsze i wsparcie nie pomoże ci go odzyska
     <message>
         <source>Service Error</source>
         <translation>Błąd usługi</translation>
-    </message>
-    <message>
-        <source>MAC Spoofing Failed</source>
-        <translation>Niepowodzenie fałszowania adresu MAC</translation>
-    </message>
-    <message>
-        <source>Your network adapter does not support MAC spoofing. Try a different adapter.</source>
-        <translation>Karta sieciowa nie obsługuje fałszowania adresów MAC. Spróbuj użyć innego adaptera.</translation>
-    </message>
-    <message>
-        <source>Could not spoof MAC address.  Please try a different network interface or contact support.</source>
-        <translation>Nie można sfałszować adresu MAC.  Spróbuj użyć innego interfejsu sieciowego lub skontaktuj się z pomocą techniczną.</translation>
     </message>
     <message>
         <source>Detection Error</source>
@@ -973,10 +1005,6 @@ Jeśli problem nadal występuje po ponownym uruchomieniu, wyślij dziennik debug
         <translation>Łączność IKEv2 nie jest dostępna w trybie blokady systemu MacOS. Wyłącz tryb blokady w Ustawieniach systemowych lub zmień ustawienia połączenia.</translation>
     </message>
     <message>
-        <source>Rotating MAC Address</source>
-        <translation>Obracanie adresu MAC</translation>
-    </message>
-    <message>
         <source>Wi-Fi is off</source>
         <translation>Wi-Fi jest wyłączone</translation>
     </message>
@@ -1119,10 +1147,6 @@ Jeśli problem nadal występuje po ponownym uruchomieniu, wyślij dziennik debug
     <message>
         <source>Creating your account...</source>
         <translation>Zakładanie konta...</translation>
-    </message>
-    <message>
-        <source>Cannot rotate MAC address while connected to VPN. Please disconnect first.</source>
-        <translation>Nie można obrócić adresu MAC podczas połączenia z VPN. Proszę najpierw się rozłączyć.</translation>
     </message>
 </context>
 <context>
@@ -1570,14 +1594,6 @@ Jeśli problem nadal występuje po ponownym uruchomieniu, wyślij dziennik debug
         <translation>Wybierz jedną z tych lokalizacji, aby połączyć się przez Twój serwer hydra.</translation>
     </message>
     <message>
-        <source>Spoof your device&apos;s physical address (MAC address).</source>
-        <translation>Sfałszuj adres fizyczny swojego urządzenia (MAC address).</translation>
-    </message>
-    <message>
-        <source>MAC spoofing requires NetworkManager to be installed and running.</source>
-        <translation>Podszywanie się pod MAC wymaga zainstalowania i uruchomienia NetworkManagera.</translation>
-    </message>
-    <message>
         <source>Close all active TCP sockets when the VPN tunnel is established.</source>
         <translation>Zamknij wszystkie aktywne gniazda TCP po ustanowieniu tunelu VPN.</translation>
     </message>
@@ -1963,45 +1979,6 @@ Jeśli problem nadal występuje po ponownym uruchomieniu, wyślij dziennik debug
     <message>
         <source>Tray Icon Colour</source>
         <translation>Kolor ikony zasobnika</translation>
-    </message>
-</context>
-<context>
-    <name>PreferencesWindow::MacSpoofingGroup</name>
-    <message>
-        <source>Cannot spoof on &apos;No Interface&apos;</source>
-        <translation>Niemożna sfałszować na &apos;No Interface&apos;</translation>
-    </message>
-    <message>
-        <source>You can only spoof an existing adapter.</source>
-        <translation>Można sfałszować tylko istniejący adapter.</translation>
-    </message>
-    <message>
-        <source>Cannot spoof the current interface</source>
-        <translation>Nie można sfałszować bieżącego interfejsu</translation>
-    </message>
-    <message>
-        <source>The current primary interface must match the selected interface to spoof.</source>
-        <translation>Bieżący interfejs podstawowy musi być zgodny z wybranym interfejsem fałszującym.</translation>
-    </message>
-    <message>
-        <source>No Interface</source>
-        <translation>Brak interfejsu</translation>
-    </message>
-    <message>
-        <source>MAC Spoofing</source>
-        <translation>Fałszowanie adresów MAC</translation>
-    </message>
-    <message>
-        <source>MAC Address</source>
-        <translation>Adres MAC</translation>
-    </message>
-    <message>
-        <source>Interface</source>
-        <translation>Interfejs</translation>
-    </message>
-    <message>
-        <source>Auto-Rotate MAC</source>
-        <translation>Automatyczne obracanie MAC</translation>
     </message>
 </context>
 <context>

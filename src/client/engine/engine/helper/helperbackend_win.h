@@ -34,4 +34,6 @@ private:
     bool readAllFromPipe(HANDLE hPipe, char *buf, DWORD len);
     bool writeAllToPipe(HANDLE hPipe, const char *buf, DWORD len);
     bool connectToHelper();
+    // Writes one command and reads its answer on the open pipe. The caller holds mutex_.
+    bool exchange(int cmdId, const std::string &data, std::string &answer);
 };

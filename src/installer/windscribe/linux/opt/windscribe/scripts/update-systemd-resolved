@@ -454,6 +454,7 @@ process_dnssec() {
 
 main() {
   local script_type="${1}"
+  [[ "$script_type" == "route-up" ]] && script_type=up
   shift
   local dev="${1:-$dev}"
   shift

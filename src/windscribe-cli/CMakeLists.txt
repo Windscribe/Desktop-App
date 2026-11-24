@@ -29,6 +29,7 @@ set(SOURCES
     main.cpp
     strings.cpp
     utils.cpp
+    ../client/client-common/utils/credentialsvalidation.cpp
     ../client/client-common/utils/networkingvalidation.cpp
     ../client/client-common/ipc/commandfactory.cpp
     ../client/client-common/ipc/connection.cpp

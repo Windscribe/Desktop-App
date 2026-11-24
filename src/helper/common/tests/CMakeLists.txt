@@ -57,10 +57,45 @@ if(IS_BUILD_TESTS)
         set_target_properties(spawn.test PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
         ws_add_test(spawn)
 
-        add_executable(process_kill.test process_kill.test.cpp ../process_kill_posix.cpp)
+        add_executable(run_command.test run_command.test.cpp ../spawn_posix.cpp ../io_posix.cpp)
+        target_link_libraries(run_command.test PRIVATE spdlog::spdlog)
+        set_target_properties(run_command.test PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
+        ws_add_test(run_command)
+
+        add_executable(process_kill.test
+            process_kill.test.cpp
+            ../process_kill_posix.cpp
+            ../../../client/client-common/utils/log/debug_trace.cpp
+        )
+        target_include_directories(process_kill.test PRIVATE ../../../client/client-common)
+        target_compile_definitions(process_kill.test PRIVATE DEBUG_TRACE_SPDLOG)
         target_link_libraries(process_kill.test PRIVATE spdlog::spdlog)
         set_target_properties(process_kill.test PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
         ws_add_test(process_kill)
+
+        add_executable(default_gateway.test
+            default_gateway.test.cpp
+            ../default_gateway_posix.cpp
+            ../../../client/client-common/types/ipaddress.cpp
+        )
+        target_include_directories(default_gateway.test PRIVATE ../../../client/client-common)
+        set_target_properties(default_gateway.test PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
+        ws_add_test(default_gateway)
+
+        add_executable(wg_dns_routes.test
+            wg_dns_routes.test.cpp
+            ../wg_dns_routes.cpp
+            ../../../client/client-common/types/ipaddress.cpp
+        )
+        target_include_directories(wg_dns_routes.test PRIVATE ../../../client/client-common)
+        set_target_properties(wg_dns_routes.test PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
+        ws_add_test(wg_dns_routes)
+
+        if(NOT APPLE)
+            add_executable(netlink_route.test netlink_route.test.cpp ../netlink_route_linux.cpp)
+            set_target_properties(netlink_route.test PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
+            ws_add_test(netlink_route)
+        endif()
 
         add_executable(validation.test
             validation.test.cpp

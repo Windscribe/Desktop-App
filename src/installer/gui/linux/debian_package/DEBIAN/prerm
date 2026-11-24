@@ -2,9 +2,6 @@
 
 systemctl stop windscribe-helper || true
 systemctl disable windscribe-helper || true
-if [ -x /opt/windscribe/helper ]; then
-    /opt/windscribe/helper --reset-mac-addresses || true
-fi
 
 if [ $1 != "upgrade" ]; then
     killall -q Windscribe || true

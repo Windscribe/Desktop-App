@@ -16,11 +16,10 @@ void handler_sigterm(int signum)
     exit(0);
 }
 
-int main(int argc, const char *argv[])
+int main()
 {
-    // Pin before anything can spawn a child: every command we run as root goes through a shell,
-    // and the packages invoke us outside systemd (--reset-mac-addresses from prerm/preun), where
-    // the unit's Environment=PATH does not apply and dpkg hands us /usr/local/{sbin,bin} first.
+    // Pin before anything can spawn a child: commands we run as root are found through PATH, and
+    // outside systemd the unit's Environment=PATH does not apply.
     setenv("PATH", "/usr/sbin:/usr/bin:/sbin:/bin", 1);
 
     // Initialize logger
@@ -59,11 +58,6 @@ int main(int argc, const char *argv[])
 #ifndef NDEBUG
     spdlog::info("Debug build");
 #endif
-
-    if (argc > 1 && strcmp(argv[1], "--reset-mac-addresses") == 0) {
-        Utils::resetMacAddresses();
-        return EXIT_SUCCESS;
-    }
 
     signal(SIGSEGV, handler_sigterm);
     signal(SIGFPE, handler_sigterm);

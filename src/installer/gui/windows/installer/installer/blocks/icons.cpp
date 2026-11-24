@@ -28,10 +28,13 @@ int Icons::executeStep()
     const wstring uninstallExe = Path::append(installPath, ApplicationInfo::uninstaller());
     const wstring appExe       = Path::append(installPath, ApplicationInfo::appExeName());
 
-    if (isCreateShortcut_) {
-        //C:\\Users\\Public\\Desktop\\Windscribe.lnk
-        wstring common_desktop = Utils::desktopFolder();
-        createShortcut(common_desktop + L"\\" + ApplicationInfo::name() + L".lnk", appExe, L"", installPath, L"", 0);
+    const wstring desktopLink = desktopShortcutPath();
+    if (!desktopLink.empty()) {
+        if (isCreateShortcut_) {
+            createShortcut(desktopLink, appExe, L"", installPath, L"", 0);
+        } else {
+            DeleteFile(desktopLink.c_str());
+        }
     }
 
     const wstring group = Utils::startMenuProgramsFolder();
@@ -45,6 +48,16 @@ int Icons::executeStep()
 
     CoUninitialize();
     return 100;
+}
+
+wstring Icons::desktopShortcutPath()
+{
+    //C:\\Users\\Public\\Desktop\\Windscribe.lnk
+    const wstring common_desktop = Utils::desktopFolder();
+    if (common_desktop.empty()) {
+        return wstring();
+    }
+    return common_desktop + L"\\" + ApplicationInfo::name() + L".lnk";
 }
 
 
@@ -65,7 +78,6 @@ void Icons::createShortcut(const wstring link, const wstring target, const wstri
         }
     });
 
-    DeleteFile(link.c_str());
     CreateDirectory(dir.c_str(), nullptr);
 
     HRESULT result = CoCreateInstance(CLSID_ShellLink, nullptr, CLSCTX_INPROC_SERVER,IID_IShellLink, reinterpret_cast<LPVOID*>(&psl));
@@ -73,6 +85,17 @@ void Icons::createShortcut(const wstring link, const wstring target, const wstri
         spdlog::error(L"Could not create shell link");
         return;
     }
+
+    result = psl->QueryInterface(IID_IPersistFile, reinterpret_cast<LPVOID*>(&ppf));
+    if (result != S_OK) {
+        spdlog::error(L"Could not get ppf");
+        return;
+    }
+
+    // Saved over rather than deleted first: Windows forgets a desktop icon's position once the file is gone.
+    const DWORD attrs = GetFileAttributes(link.c_str());
+    const bool exists = (attrs != INVALID_FILE_ATTRIBUTES) && !(attrs & FILE_ATTRIBUTE_DIRECTORY);
+
     result = psl->SetPath(target.c_str());
     if (result != S_OK) {
         spdlog::error(L"Could not set path");
@@ -96,23 +119,13 @@ void Icons::createShortcut(const wstring link, const wstring target, const wstri
         }
     }
 
-    result = psl->QueryInterface(IID_IPersistFile, reinterpret_cast<LPVOID*>(&ppf));
-    if (result != S_OK) {
-        spdlog::error(L"Could not get ppf");
-        psl->Release();
-        return;
-    }
-
-    WCHAR wsz[MAX_PATH];
-    wcscpy_s(wsz, link.length() + 1, link.c_str());
-
-    result = ppf->Save(wsz, true);
+    result = ppf->Save(link.c_str(), true);
 
     if (result != S_OK) {
         spdlog::error(L"Could not save shell link");
         return;
     }
 
-    SHChangeNotify(SHCNE_CREATE, SHCNF_PATH, link.c_str(), nullptr);
+    SHChangeNotify(exists ? SHCNE_UPDATEITEM : SHCNE_CREATE, SHCNF_PATH, link.c_str(), nullptr);
     SHChangeNotify(SHCNE_UPDATEDIR, SHCNF_PATH | SHCNF_FLUSH, dir.c_str(), nullptr);
 }

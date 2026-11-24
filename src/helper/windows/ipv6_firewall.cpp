@@ -5,7 +5,7 @@
 #include <spdlog/spdlog.h>
 
 #include "ipv6_firewall.h"
-#include "utils.h"
+#include "wfp_utils.h"
 #include "adapters_info.h"
 
 #define FIREWALL_SUBLAYER_IPV6_NAMEW WS_APP_IDENTIFIER_W L"IPV6FirewallSublayer"
@@ -25,9 +25,10 @@ void Ipv6Firewall::enableIPv6()
 {
     std::lock_guard<std::recursive_mutex> guard(mutex_);
 
-    if (!isDisabled_)
-        return;
-
+    // Always check BFE rather than trusting isDisabled_: the sublayer and its filters are
+    // persistent, so they can outlive the process that added them (helper crash or restart, reboot)
+    // and must still be removed, e.g. by the uninstaller's -firewall_off process, which starts with
+    // isDisabled_ false. When the sublayer is absent this costs one lookup.
     HANDLE hEngine = fwpmWrapper_.getHandleAndLock();
     fwpmWrapper_.beginTransaction();
 

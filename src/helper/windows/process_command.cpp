@@ -26,7 +26,6 @@
 #include "ikev2route.h"
 #include "network_validation.h"
 #include "ipv6_firewall.h"
-#include "macaddressspoof.h"
 #include "openvpn/openvpncontroller.h"
 #include "reinstall_wan_ikev2.h"
 #include "remove_app_network_profiles.h"
@@ -769,41 +768,6 @@ std::string enableWanIkev2(const std::string &pars)
     return std::string();
 }
 
-std::string setMacAddressSpoof(const std::string &pars)
-{
-    WS_DEBUG_TRACE_SCOPE("setMacAddressSpoof");
-    std::wstring interfaceName, value;
-    deserializePars(pars, interfaceName, value);
-    MacAddressSpoof::set(interfaceName, value);
-    return std::string();
-}
-
-std::string removeMacAddressSpoof(const std::string &pars)
-{
-    WS_DEBUG_TRACE_SCOPE("removeMacAddressSpoof");
-    std::wstring interfaceName;
-    deserializePars(pars, interfaceName);
-    MacAddressSpoof::remove(interfaceName);
-    return std::string();
-}
-
-std::string resetNetworkAdapter(const std::string &pars)
-{
-    WS_DEBUG_TRACE_SCOPE("resetNetworkAdapter");
-
-    ULONG ifIndex;
-    bool bringBackUp;
-    deserializePars(pars, ifIndex, bringBackUp);
-
-    spdlog::info("resetNetworkAdapter: ifIndex = {}, bringBackUp = {}", ifIndex, bringBackUp);
-    Utils::setNetworkAdapterState(ifIndex, false);
-
-    if (bringBackUp) {
-        Utils::setNetworkAdapterState(ifIndex, true);
-    }
-    return std::string();
-}
-
 std::string addIKEv2DefaultRoute(const std::string &pars)
 {
     WS_DEBUG_TRACE_SCOPE("addIKEv2DefaultRoute");
@@ -1122,6 +1086,20 @@ std::string installerCleanupStaged(const std::string &pars)
         if (ec) {
             spdlog::info("installerCleanupStaged: {}", ec.message());
         }
+    }
+    return std::string();
+}
+
+std::string setDebugTrace(const std::string &pars)
+{
+    bool enabled;
+    deserializePars(pars, enabled);
+    log_utils::setDebugTraceEnabled(enabled);
+    if (enabled) {
+        spdlog::set_level(spdlog::level::debug);
+        spdlog::info("Debug trace enabled");
+    } else {
+        spdlog::set_level(spdlog::level::info);
     }
     return std::string();
 }

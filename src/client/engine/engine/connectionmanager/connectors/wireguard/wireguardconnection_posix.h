@@ -2,6 +2,7 @@
 
 #include <atomic>
 #include <QMutex>
+#include <QSemaphore>
 #include <QTimer>
 #include "engine/connectionmanager/connectors/wireguard/wireguardconnectionbase.h"
 #include "engine/helper/helper.h"
@@ -49,6 +50,7 @@ private:
     ConnectionState current_state_;
     mutable QMutex current_state_mutex_;
     std::atomic<bool> do_stop_thread_;
+    QSemaphore stopSignal_;
     QTimer kill_process_timer_;
     AdapterGatewayInfo adapterGatewayInfo_;
 };

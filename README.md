@@ -12,7 +12,6 @@ The Windscribe VPN desktop application hides your physical location, blocks ads 
   - WSTunnel
 - Proactive firewall eliminates the chance of any kind of leak.
 - Network and per-app split tunneling.
-- Appear as a brand new user, every time you connect using MAC address spoofing.
 - Network rules allowing you to connect or disconnect automatically.
 - Custom config support for importing any VPN config into Windscribe.
 - Create a secure HTTP or SOCKS5 proxy server on your computer, allowing any device on your network to use this proxy server in order to make requests over the VPN tunnel.

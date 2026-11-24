@@ -4,8 +4,9 @@
 #include <string>
 #include <vector>
 
+#include "../../common/defaultroutemonitor_posix.h"
+#include "../tunnel_interface_names.h"
 #include "iwireguardcommunicator.h"
-#include "defaultroutemonitor.h"
 #include "wireguardadapter.h"
 
 class WireGuardController
@@ -26,7 +27,8 @@ public:
                    bool disconnectOnStaleHandshake);
     unsigned long getStatus(unsigned int *errorCode, unsigned long long *bytesReceived, unsigned long long *bytesTransmitted) const;
     bool configureAdapter(const std::string &ipAddress, const std::string &dnsAddressList, const std::string &dnsScriptName,
-                          const std::vector<std::string> &allowedIps, uint32_t fwmark, uint32_t routingTable);
+                          const std::vector<std::string> &allowedIps, uint32_t fwmark, uint32_t routingTable,
+                          const std::string &peerEndpoint);
     std::string getAdapterName() const;
     bool configureDefaultRouteMonitor(const std::string &peerEndpoint);
 
@@ -36,7 +38,7 @@ public:
     static uint32_t getRoutingTable();
 
 private:
-    inline static std::string kDeviceName = "utun420";
+    inline static std::string kDeviceName = TunnelInterfaceNames::kWireGuard;
 
     std::unique_ptr<WireGuardAdapter> adapter_;
     std::unique_ptr<DefaultRouteMonitor> drm_;

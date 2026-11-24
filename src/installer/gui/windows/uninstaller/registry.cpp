@@ -2,8 +2,6 @@
 
 using namespace std;
 
-#define MAX_KEY_LENGTH 255
-
 bool Registry::InternalRegQueryStringValue(HKEY H, const wchar_t *Name, wstring &ResultStr, DWORD Type1, DWORD Type2)
 {
     DWORD Typ, Size;
@@ -175,37 +173,6 @@ LSTATUS Registry::RegDeleteKeyIncludingSubkeys1(const HKEY Key, const wchar_t *N
     return Result;
 }
 
-std::vector<std::wstring> Registry::regGetSubkeyChildNames(HKEY h, const wchar_t * subkeyName)
-{
-    std::vector<std::wstring> registryInterfaces;
-    HKEY hKey;
-
-    if (RegOpenKeyEx(h, subkeyName, 0, KEY_READ, &hKey) == ERROR_SUCCESS)
-    {
-        TCHAR    achKey[MAX_KEY_LENGTH];   // buffer for subkey name
-        DWORD    cbName;                   // size of name string
-        DWORD    cSubKeys = 0;               // number of subkeys
-
-        if (RegQueryInfoKey(hKey, NULL, NULL, NULL, &cSubKeys, NULL, NULL, NULL, NULL, NULL, NULL, NULL) == ERROR_SUCCESS)
-        {
-            for (DWORD i = 0; i < cSubKeys; i++)
-            {
-                cbName = MAX_KEY_LENGTH; // magic -- dont try to initialize with this value
-                LONG error = RegEnumKeyEx(hKey, i, achKey, &cbName, NULL, NULL, NULL, NULL);
-
-                if (error == ERROR_SUCCESS)
-                {
-                    registryInterfaces.push_back(std::wstring(achKey));
-                }
-            }
-        }
-
-        RegCloseKey(hKey);
-    }
-
-    return registryInterfaces;
-}
-
 bool Registry::regDeleteProperty(HKEY h, const wchar_t * subkeyName, std::wstring valueName)
 {
     bool ret = false;
@@ -218,18 +185,4 @@ bool Registry::regDeleteProperty(HKEY h, const wchar_t * subkeyName, std::wstrin
     }
 
     return ret;
-}
-
-bool Registry::regHasSubkeyProperty(HKEY h, const wchar_t * subkeyName, std::wstring valueName)
-{
-    bool result = false;
-    HKEY hKey;
-
-    if (RegOpenKeyEx(h, subkeyName, NULL, KEY_READ, &hKey) == ERROR_SUCCESS)
-    {
-        result = RegQueryValueEx(hKey, valueName.c_str(), NULL, REG_NONE, NULL, NULL) == ERROR_SUCCESS; // contents not required
-        RegCloseKey(hKey);
-    }
-
-    return result;
 }

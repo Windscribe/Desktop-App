@@ -14,12 +14,14 @@ find_package(fmt CONFIG REQUIRED)
 set(SOURCES
     arguments_parser.cpp
     copy_and_run.cpp
+    delete_user_data.cpp
     main.cpp
     registry.cpp
     remove_directory.cpp
     uninstall.cpp
     ../../../../client/client-common/utils/servicecontrolmanager.cpp
     ../utils/applicationinfo.cpp
+    ../utils/interactive_user.cpp
     ../utils/path.cpp
     ../utils/persistent_log.cpp
     ../utils/secure_dir.cpp
@@ -54,6 +56,7 @@ target_include_directories(uninstall
 target_link_libraries(uninstall
                       PRIVATE
                       bcrypt
+                      comctl32
                       shlwapi
                       fmt::fmt-header-only
                       spdlog::spdlog_header_only

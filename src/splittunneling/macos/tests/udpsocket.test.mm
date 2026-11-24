@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <cerrno>
 #include <condition_variable>
 #include <memory>
@@ -18,7 +19,8 @@ struct Collector
     std::mutex mutex;
     std::vector<UdpSocket::Datagram> datagrams;
     std::vector<UdpSocket::ResumeReading> pendingResumes;
-    int batches = 0;
+    size_t largestBatch = 0;
+    bool batchWhilePaused = false;
     bool autoResume = true;
 
     size_t count()
@@ -33,7 +35,10 @@ struct Collector
             bool resumeNow = false;
             {
                 std::lock_guard<std::mutex> lock(self->mutex);
-                ++self->batches;
+                self->largestBatch = std::max(self->largestBatch, batch.size());
+                if (!self->pendingResumes.empty()) {
+                    self->batchWhilePaused = true;
+                }
                 for (auto &datagram : batch) {
                     self->datagrams.push_back(std::move(datagram));
                 }
@@ -214,26 +219,26 @@ void testReadingContinuesPastFullBatch()
     auto collector = std::make_shared<Collector>();
     collector->autoResume = false;
     relay->startReading(g_queue, collector->handler(collector));
-    VERIFY(waitUntil([&] { return collector->count() == 32; }));
-    std::this_thread::sleep_for(std::chrono::milliseconds(300));
-    VERIFY_EQUAL(static_cast<long>(collector->count()), 32);
-
-    UdpSocket::ResumeReading resume;
-    {
-        std::lock_guard<std::mutex> lock(collector->mutex);
-        if (!collector->pendingResumes.empty()) {
-            resume = collector->pendingResumes.back();
-            collector->pendingResumes.clear();
+    VERIFY(waitUntil([&] {
+        UdpSocket::ResumeReading resume;
+        {
+            std::lock_guard<std::mutex> lock(collector->mutex);
+            if (collector->datagrams.size() == 40) {
+                return true;
+            }
+            if (!collector->pendingResumes.empty()) {
+                resume = collector->pendingResumes.back();
+                collector->pendingResumes.clear();
+            }
         }
-        collector->autoResume = true;
-    }
-    VERIFY(static_cast<bool>(resume));
-    if (resume) {
-        resume();
-    }
-    VERIFY(waitUntil([&] { return collector->count() == 40; }));
+        if (resume) {
+            resume();
+        }
+        return false;
+    }));
     std::lock_guard<std::mutex> lock(collector->mutex);
-    VERIFY_EQUAL(collector->batches, 2);
+    VERIFY(!collector->batchWhilePaused);
+    VERIFY(collector->largestBatch <= 32);
     if (collector->datagrams.size() == 40) {
         for (int i = 0; i < 40; ++i) {
             VERIFY(payloadOf(collector->datagrams[i]) == std::to_string(i));
@@ -257,8 +262,6 @@ void testReadingPausesUntilResumed()
     VERIFY(peer.sendTo(relay->localPort(), "first"));
     VERIFY(waitUntil([&] { return collector->count() == 1; }));
     VERIFY(peer.sendTo(relay->localPort(), "second"));
-    std::this_thread::sleep_for(std::chrono::milliseconds(300));
-    VERIFY(collector->count() == 1);
 
     UdpSocket::ResumeReading resume;
     {
@@ -275,6 +278,7 @@ void testReadingPausesUntilResumed()
     }
     VERIFY(waitUntil([&] { return collector->count() == 2; }));
     std::lock_guard<std::mutex> lock(collector->mutex);
+    VERIFY(!collector->batchWhilePaused);
     if (collector->datagrams.size() == 2) {
         VERIFY(payloadOf(collector->datagrams[1]) == "second");
     }

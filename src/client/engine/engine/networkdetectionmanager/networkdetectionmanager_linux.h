@@ -21,10 +21,12 @@ signals:
 
 private slots:
     void onRoutesChanged();
+    void onTunnelRoutesChanged();
 
 private:
     bool isOnline_ = false;
     types::NetworkInterface networkInterface_;
+    DefaultRouteTracker_linux defaultRoute_;
 
     QThread *routeMonitorThread_ = nullptr;
     RouteMonitor_linux *routeMonitor_ = nullptr;

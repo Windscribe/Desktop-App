@@ -493,6 +493,22 @@
         <source>Your username should not be an email address. Please try again.</source>
         <translation>Kullanıcı adınız e-posta adresi olmamalıdır. Lütfen tekrar dene.</translation>
     </message>
+    <message>
+        <source>Username must be 3 to 255 characters</source>
+        <translation>Kullanıcı adı 3 ile 255 karakter arasında olmalı</translation>
+    </message>
+    <message>
+        <source>Use only A–Z, a–z, 0–9, _ and -</source>
+        <translation>Yalnızca A–Z, a–z, 0–9, _ ve -</translation>
+    </message>
+    <message>
+        <source>Password must be 8 to 255 characters</source>
+        <translation>Şifre 8 ile 255 karakter arasında olmalı</translation>
+    </message>
+    <message>
+        <source>An unknown error occurred.</source>
+        <translation>Bilinmeyen bir hata meydana geldi.</translation>
+    </message>
 </context>
 <context>
     <name>LoginWindow::SignupWindowItem</name>
@@ -523,10 +539,6 @@
     <message>
         <source>Enter password</source>
         <translation>Şifreyi gir</translation>
-    </message>
-    <message>
-        <source>8 or more characters with at least one uppercase and lowercase(ie. &quot;Hello1234&quot;, &quot;Solyanka&quot;).</source>
-        <translation>8 veya daha fazla karakter en az bir büyük ve küçük harf (örneğin, &quot;Hello1234&quot;, &quot;Solyanka&quot;).</translation>
     </message>
     <message>
         <source>Email (Optional)</source>
@@ -579,10 +591,6 @@ Hesabınızı kaybederseniz, sonsuza dek kaybolur ve destek size onu kurtarmaya 
         <translation>Tüm Dosyalar (*.*)</translation>
     </message>
     <message>
-        <source>Username must be at least 3 characters</source>
-        <translation>Kullanıcı adı en az 3 karakter olmalı</translation>
-    </message>
-    <message>
         <source>Your username should not be an email address.</source>
         <translation>Kullanıcı adınız e-posta adresi olmamalıdır.</translation>
     </message>
@@ -593,6 +601,18 @@ Hesabınızı kaybederseniz, sonsuza dek kaybolur ve destek size onu kurtarmaya 
     <message>
         <source>Invalid hash</source>
         <translation>Geçersiz hash</translation>
+    </message>
+    <message>
+        <source>Username must be 3 to 255 characters</source>
+        <translation>Kullanıcı adı 3 ile 255 karakter arasında olmalı</translation>
+    </message>
+    <message>
+        <source>Use only A–Z, a–z, 0–9, _ and -</source>
+        <translation>Yalnızca A–Z, a–z, 0–9, _ ve -</translation>
+    </message>
+    <message>
+        <source>Password must be 8 to 255 characters</source>
+        <translation>Şifre 8 ile 255 karakter arasında olmalı</translation>
     </message>
 </context>
 <context>
@@ -643,10 +663,6 @@ Hesabınızı kaybederseniz, sonsuza dek kaybolur ve destek size onu kurtarmaya 
     <message>
         <source>VPN is active</source>
         <translation>VPN etkin</translation>
-    </message>
-    <message>
-        <source>Rotating your MAC address will result in a disconnect event from the current network. Are you sure?</source>
-        <translation>MAC adresinizi döndürmek, mevcut ağdan bir bağlantı kesme olayına neden olur. Emin misiniz?</translation>
     </message>
     <message>
         <source>Cannot detect appropriate packet size while connected. Please disconnect first.</source>
@@ -711,6 +727,34 @@ Hesabınızı kaybederseniz, sonsuza dek kaybolur ve destek size onu kurtarmaya 
     <message>
         <source>The selected directory is writeable for other users. Custom configs in this directory may pose a potential security risk.</source>
         <translation>Seçilen dizin diğer kullanıcılar için yazılabilir. Bu dizindeki özel yapılandırmalar potansiyel bir güvenlik riski oluşturabilir.</translation>
+    </message>
+    <message>
+        <source>MAC Spoofing Removed</source>
+        <translation>MAC Adresi Taklidi Kaldırıldı</translation>
+    </message>
+    <message>
+        <source>MAC spoofing has been removed. Your spoofed MAC address stays active until you restart your computer or network adapter. To use a random address on Wi-Fi, turn on Random hardware addresses.</source>
+        <translation>MAC adresi taklidi kaldırıldı. Taklit edilen MAC adresi, bilgisayarınızı veya ağ bağdaştırıcınızı yeniden başlatana kadar etkin kalır. Wi-Fi&apos;da rastgele bir adres kullanmak için &quot;Rastgele donanım adresleri&quot; seçeneğini açın.</translation>
+    </message>
+    <message>
+        <source>Open Wi-Fi Settings</source>
+        <translation>Wi-Fi Ayarlarını Aç</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>Kapat</translation>
+    </message>
+    <message>
+        <source>MAC spoofing is no longer available in Windscribe. To use a random MAC address on Wi-Fi, set Private Wi-Fi address to Rotating in System Settings &gt; Wi-Fi &gt; Details.</source>
+        <translation>MAC adresi taklidi artık Windscribe&apos;da kullanılamıyor. Wi-Fi&apos;da rastgele bir MAC adresi kullanmak için Sistem Ayarları &gt; Wi-Fi &gt; Ayrıntılar bölümünde &quot;Özel Wi-Fi Adresi&quot; seçeneğini &quot;Dönüşümlü Kullanılan&quot; olarak ayarlayın.</translation>
+    </message>
+    <message>
+        <source>MAC spoofing is no longer available in Windscribe. To use a random MAC address on Wi-Fi, update to macOS 15 or later, then set Private Wi-Fi address to Rotating in System Settings &gt; Wi-Fi &gt; Details.</source>
+        <translation>MAC adresi taklidi artık Windscribe&apos;da kullanılamıyor. Wi-Fi&apos;da rastgele bir MAC adresi kullanmak için macOS 15 veya sonraki bir sürüme güncelleyin, ardından Sistem Ayarları &gt; Wi-Fi &gt; Ayrıntılar bölümünde &quot;Özel Wi-Fi Adresi&quot; seçeneğini &quot;Dönüşümlü Kullanılan&quot; olarak ayarlayın.</translation>
+    </message>
+    <message>
+        <source>MAC spoofing has been removed. Your network connection may still use the spoofed MAC address. To change it, set its cloned MAC address to Random, or clear it, in your network settings.</source>
+        <translation>MAC adresi taklidi kaldırıldı. Ağ bağlantınız taklit edilen MAC adresini kullanmaya devam ediyor olabilir. Bunu değiştirmek için ağ ayarlarınızda bağlantının kopyalanan MAC adresini &quot;Rastgele&quot; olarak ayarlayın veya temizleyin.</translation>
     </message>
     <message>
         <source>Installation Incomplete</source>
@@ -797,18 +841,6 @@ Hesabınızı kaybederseniz, sonsuza dek kaybolur ve destek size onu kurtarmaya 
     <message>
         <source>Service Error</source>
         <translation>Hizmet Hatası</translation>
-    </message>
-    <message>
-        <source>MAC Spoofing Failed</source>
-        <translation>MAC Sahtekarlığı Başarısız Oldu</translation>
-    </message>
-    <message>
-        <source>Your network adapter does not support MAC spoofing. Try a different adapter.</source>
-        <translation>Ağ bağdaştırıcınız MAC sahtekarlığını desteklemiyor. Farklı bir adaptör deneyin.</translation>
-    </message>
-    <message>
-        <source>Could not spoof MAC address.  Please try a different network interface or contact support.</source>
-        <translation>MAC adresi taklit edilemedi.  Lütfen farklı bir ağ arayüzü deneyin veya desteğe başvurun.</translation>
     </message>
     <message>
         <source>Detection Error</source>
@@ -973,10 +1005,6 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
         <translation>IKEv2 bağlantısı, MacOS Kilitleme Modu&apos;nda kullanılamaz. Lütfen Sistem Ayarları&apos;nda Kilitleme Modu&apos;nu devre dışı bırakın veya bağlantı ayarlarınızı değiştirin.</translation>
     </message>
     <message>
-        <source>Rotating MAC Address</source>
-        <translation>MAC Adresini Döndürme</translation>
-    </message>
-    <message>
         <source>Wi-Fi is off</source>
         <translation>Wi-Fi kapalı</translation>
     </message>
@@ -1119,10 +1147,6 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
     <message>
         <source>Creating your account...</source>
         <translation>Hesabınızı oluşturuyorum...</translation>
-    </message>
-    <message>
-        <source>Cannot rotate MAC address while connected to VPN. Please disconnect first.</source>
-        <translation>VPN&apos;ye bağlıyken MAC adresi döndüremiyor. Lütfen önce bağlantıyı kesin.</translation>
     </message>
 </context>
 <context>
@@ -1570,14 +1594,6 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
         <translation>hydra sunucunuz üzerinden bağlanmak için bu konumlardan birini seçin.</translation>
     </message>
     <message>
-        <source>Spoof your device&apos;s physical address (MAC address).</source>
-        <translation>Cihazınızın fiziksel adresini (MAC adresi) taklit edin.</translation>
-    </message>
-    <message>
-        <source>MAC spoofing requires NetworkManager to be installed and running.</source>
-        <translation>MAC sahteliği için NetworkManager kurulup çalıştırılır.</translation>
-    </message>
-    <message>
         <source>Close all active TCP sockets when the VPN tunnel is established.</source>
         <translation>VPN tüneli kurulduğunda tüm etkin TCP yuvalarını kapatın.</translation>
     </message>
@@ -1963,45 +1979,6 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
     <message>
         <source>Tray Icon Colour</source>
         <translation>Tepsi Simgesi Rengi</translation>
-    </message>
-</context>
-<context>
-    <name>PreferencesWindow::MacSpoofingGroup</name>
-    <message>
-        <source>Cannot spoof on &apos;No Interface&apos;</source>
-        <translation>&apos;Arayüz Yok&apos; üzerinde sahtekarlık yapılamıyor</translation>
-    </message>
-    <message>
-        <source>You can only spoof an existing adapter.</source>
-        <translation>Yalnızca mevcut bir bağdaştırıcıyı taklit edebilirsiniz.</translation>
-    </message>
-    <message>
-        <source>Cannot spoof the current interface</source>
-        <translation>Geçerli arabirim yanıltılamıyor</translation>
-    </message>
-    <message>
-        <source>The current primary interface must match the selected interface to spoof.</source>
-        <translation>Geçerli birincil arabirim, kimlik sahtekarlığı için seçilen arabirimle eşleşmelidir.</translation>
-    </message>
-    <message>
-        <source>No Interface</source>
-        <translation>Arayüz Yok</translation>
-    </message>
-    <message>
-        <source>MAC Spoofing</source>
-        <translation>MAC Sahtekarlığı</translation>
-    </message>
-    <message>
-        <source>MAC Address</source>
-        <translation>MAC Adresi</translation>
-    </message>
-    <message>
-        <source>Interface</source>
-        <translation>Arayüz</translation>
-    </message>
-    <message>
-        <source>Auto-Rotate MAC</source>
-        <translation>MAC&apos;i Otomatik Döndür</translation>
     </message>
 </context>
 <context>

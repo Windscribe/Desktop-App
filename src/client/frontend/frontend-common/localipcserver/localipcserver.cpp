@@ -181,6 +181,26 @@ void LocalIPCServer::onConnectionCommandCallback(IPC::Command *command, IPC::Con
         QString locationStr = cmd->location_;
         types::Protocol protocol = types::Protocol::fromString(cmd->protocol_);
         uint port = cmd->port_;
+
+        // Refuse a port the protocol doesn't offer, rather than let the connect quietly use the default port.
+        if (protocol.isValid() && port != 0) {
+            const QVector<uint> ports = backend_->getPreferencesHelper()->getAvailablePortsForProtocol(protocol);
+            if (!ports.isEmpty() && !ports.contains(port)) {
+                qCWarning(LOG_BASIC) << "CLI connect refused: port" << port << "is not available for" << protocol.toLongString();
+                QStringList portStrings;
+                for (uint p : ports) {
+                    portStrings << QString::number(p);
+                }
+                IPC::CliCommands::Acknowledge ack;
+                ack.code_ = 1;
+                ack.message_ = QString("Port %1 is not available for %2. Available ports: %3.")
+                                   .arg(port).arg(protocol.toLongString(), portStrings.join(", "));
+                // Only the asker: another CLI waiting on its own command would take this for its acknowledge.
+                reply(connection, ack);
+                return;
+            }
+        }
+
         LocationID lid;
 
         if (type == IPC::CliCommands::LocationType::kStaticIp) {
@@ -238,12 +258,14 @@ void LocalIPCServer::onConnectionCommandCallback(IPC::Command *command, IPC::Con
             backend_->firewallOff();
         }
     } else if (command->getStringId() == IPC::CliCommands::Login::getCommandStringId()) {
-        isCaptchaRequired_ = false;
-        asciiArt_.clear();
         IPC::CliCommands::Login *cmd = static_cast<IPC::CliCommands::Login *>(command);
+        // Clear the CAPTCHA only when this command moves the login on. A login already in progress ignores the
+        // command, and may be waiting on a CAPTCHA that the CLI has to know about.
         if (!cmd->captchaSolution_.isEmpty()) {
+            clearCaptchaRequired();
             backend_->continueWithCaptcha(cmd->captchaSolution_, std::vector<float>(), std::vector<float>());
         } else if (backend_->currentLoginState() == LOGIN_STATE_LOGGED_OUT || backend_->currentLoginState() == LOGIN_STATE_LOGIN_ERROR) {
+            clearCaptchaRequired();
             emit attemptLogin(cmd->username_, cmd->password_, cmd->code2fa_);
         }
     } else if (command->getStringId() == IPC::CliCommands::Logout::getCommandStringId()) {
@@ -376,6 +398,7 @@ void LocalIPCServer::onBackendLoginFinished()
 {
     loginState_ = LOGIN_STATE_LOGGED_IN;
     lastLoginError_ = wsnet::LoginResult::kSuccess;
+    clearCaptchaRequired();
 }
 
 void LocalIPCServer::onBackendCaptchaRequired(bool isAsciiCaptcha, const QString &asciiArt, const QString &background, const QString &slider, int top)
@@ -388,12 +411,21 @@ void LocalIPCServer::onBackendLoginError(wsnet::LoginResult code, const QString 
 {
     lastLoginError_ = code;
     lastLoginErrorMessage_ = msg;
+    clearCaptchaRequired();
 }
 
 void LocalIPCServer::onBackendLogoutFinished()
 {
     loginState_ = LOGIN_STATE_LOGGED_OUT;
     lastLoginError_ = wsnet::LoginResult::kSuccess;
+    // E.g. the user went back from the GUI's CAPTCHA.
+    clearCaptchaRequired();
+}
+
+void LocalIPCServer::clearCaptchaRequired()
+{
+    isCaptchaRequired_ = false;
+    asciiArt_.clear();
 }
 
 void LocalIPCServer::sendCommand(const IPC::Command &command)
@@ -444,6 +476,7 @@ void LocalIPCServer::sendState(IPC::Connection *connection)
     // show the VPN IP as public, the public IP as VPN, or the previous server's IP.
     cmd.myIp_ = isMyIpCurrent() ? myIp_ : QString();
     cmd.connectRequestCount_ = backend_->connectRequestCount();
+    cmd.isKeyLimitPromptPending_ = isKeyLimitPromptPending_;
     reply(connection, cmd);
 }
 
@@ -465,6 +498,8 @@ void LocalIPCServer::onBackendConnectStateChanged(const types::ConnectState &sta
     tunnelTestState_ = TUNNEL_TEST_STATE_UNKNOWN;
 
     if (connectState_.connectState == CONNECT_STATE_DISCONNECTED) {
+        // The GUI drops a key limit prompt that is still showing once the connection is gone.
+        isKeyLimitPromptPending_ = false;
         // Normally these look like a regular disconnect; override with a special reason
         if (disconnectedByKeyLimit_) {
             connectState_.disconnectReason = DISCONNECTED_BY_KEY_LIMIT;
@@ -529,6 +564,11 @@ void LocalIPCServer::onBackendUpdateDownloaded(const QString &path)
 void LocalIPCServer::setDisconnectedByKeyLimit()
 {
     disconnectedByKeyLimit_ = true;
+}
+
+void LocalIPCServer::setKeyLimitPromptPending(bool isPending)
+{
+    isKeyLimitPromptPending_ = isPending;
 }
 
 void LocalIPCServer::onBackendConnectionIdChanged(const QString &connId)

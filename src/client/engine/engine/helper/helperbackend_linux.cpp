@@ -70,6 +70,12 @@ void HelperBackend_linux::run()
         ec = boost::asio::error::not_connected;
     }
 
+    std::string answer;
+    if (!ec && connectCommand_ &&
+        (!sendCmdToHelper(connectCommand_->first, connectCommand_->second) || !readAnswer(answer))) {
+        ec = boost::asio::error::not_connected;
+    }
+
     QMutexLocker locker(&mutex_);
     if (!ec) {
         curState_ = State::kConnected;

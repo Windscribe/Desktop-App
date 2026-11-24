@@ -52,6 +52,9 @@ void HelperBackend_mac::startInstallHelper(bool bForceDeleteOld)
 
         xpc_connection_resume(connection_);
         curState_ = State::kConnected;
+        if (connectCommand_) {
+            sendCmd(connectCommand_->first, connectCommand_->second);
+        }
     } else {
         if (isUserCanceled){
             curState_ = State::kUserCanceled;

@@ -1,10 +1,12 @@
 #include "uninstall.h"
 
+#include <CommCtrl.h>
 #include <filesystem>
 #include <shlwapi.h>
 #include <Shobjidl.h>
 #include <spdlog/spdlog.h>
 
+#include "delete_user_data.h"
 #include "registry.h"
 #include "remove_directory.h"
 #include "resource.h"
@@ -17,10 +19,18 @@
 #include "ws_branding.h"
 
 
+// TaskDialogIndirect, used by the confirmation dialog, exists only in Common Controls v6, which
+// a process gets only when its manifest declares the dependency.  comctl32 is a static import,
+// so the loader maps it before the TLS callback in wsprocessmitigations.h applies the
+// MicrosoftSignedOnly and image-load policies; it and the DLLs it loads later are all
+// Microsoft-signed.
+#pragma comment(linker, "\"/manifestdependency:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
+
 using namespace std;
 
 wstring Uninstaller::UninstExeFile;
 bool Uninstaller::isSilent_ = false;
+bool Uninstaller::deleteAllData_ = false;
 
 static bool deleteFile(const wstring &fileName)
 {
@@ -43,6 +53,11 @@ void Uninstaller::setUninstExeFile(const wstring& exe_file, bool bFirstPhase)
 void Uninstaller::setSilent(bool isSilent)
 {
     isSilent_ = isSilent;
+}
+
+void Uninstaller::setDeleteAllData(bool deleteAllData)
+{
+    deleteAllData_ = deleteAllData;
 }
 
 bool Uninstaller::ProcessMsgs()
@@ -164,11 +179,22 @@ bool Uninstaller::PerformUninstall(const P_DeleteUninstallDataFilesProc DeleteUn
 bool Uninstaller::RunSecondPhase()
 {
     spdlog::info(L"Original Uninstall EXE: {}", UninstExeFile);
+    spdlog::info(L"Delete all user settings and data: {}", deleteAllData_);
 
     if (!InitializeUninstall()) {
         spdlog::info(L"return after InitializeUninstall()");
         PostQuitMessage(0);
         return false;
+    }
+
+    const auto taskkillExe = Path::append(Utils::getSystemDir(), L"taskkill.exe");
+
+    // An interactive uninstall has already made the user exit the app (InitializeUninstall).  A
+    // silent full removal has no one to ask, and a running app would keep its log files open and
+    // write its settings back to the registry when it exits.
+    if (isSilent_ && deleteAllData_) {
+        spdlog::info(L"kill the app");
+        Utils::instExec(taskkillExe, L"/f /im " + ApplicationInfo::appExeName(), INFINITE, SW_HIDE);
     }
 
     UninstallHelper();
@@ -181,15 +207,15 @@ bool Uninstaller::RunSecondPhase()
     Registry::regDeleteProperty(HKEY_CURRENT_USER, L"Software\\Windscribe\\Windscribe2", L"username");
     Registry::regDeleteProperty(HKEY_CURRENT_USER, L"Software\\Windscribe\\Windscribe2", L"password");
 
-    if (!isSilent_) {
+    // A silent uninstall is normally the installer upgrading the app, which keeps the firewall
+    // state across the upgrade.  With /DELETEALLDATA it is a full removal.
+    if (!isSilent_ || deleteAllData_) {
         spdlog::info(L"turn off firewall: {}", path_for_installation);
         Utils::instExec(Path::append(path_for_installation, L"WindscribeService.exe"), L"-firewall_off", INFINITE, SW_HIDE);
     }
 
     spdlog::info(L"uninstall WireGuard service");
     UninstallWireGuardService();
-
-    const auto taskkillExe = Path::append(Utils::getSystemDir(), L"taskkill.exe");
 
     spdlog::info(L"kill openvpn process");
     Utils::instExec(taskkillExe, L"/f /im windscribeopenvpn.exe", INFINITE, SW_HIDE);
@@ -237,19 +263,6 @@ bool Uninstaller::RunSecondPhase()
         }
     }
 
-    // remove any existing MAC spoofs from registry
-    wstring subkeyPath = L"SYSTEM\\CurrentControlSet\\Control\\Class\\{4D36E972-E325-11CE-BFC1-08002BE10318}\\";
-    vector<wstring> networkInterfaceNames = Registry::regGetSubkeyChildNames(HKEY_LOCAL_MACHINE, subkeyPath.c_str());
-
-    for (const auto &networkInterfaceName : networkInterfaceNames) {
-        wstring interfacePath = subkeyPath + networkInterfaceName;
-
-        if (Registry::regHasSubkeyProperty(HKEY_LOCAL_MACHINE, interfacePath.c_str(), WS_APP_IDENTIFIER_W L"MACSpoofed")) {
-            Registry::regDeleteProperty(HKEY_LOCAL_MACHINE, interfacePath.c_str(), L"NetworkAddress");
-            Registry::regDeleteProperty(HKEY_LOCAL_MACHINE, interfacePath.c_str(), WS_APP_IDENTIFIER_W L"MACSpoofed");
-        }
-    }
-
     spdlog::info(L"Removing directory {}", path_for_installation);
     ::RemoveDirectory(path_for_installation.c_str());
 
@@ -258,6 +271,16 @@ bool Uninstaller::RunSecondPhase()
     if (!Path::equivalent(wsPath, path_for_installation)) {
         spdlog::info(L"Removing directory in Program Files");
         RemoveDir::DelTree(wsPath.c_str(), true, true, true, false);
+    }
+
+    // Runs after the survey page above has read userId from the settings.  If the uninstall left
+    // leftovers, keep the user's data: the client logs help diagnose why.
+    if (deleteAllData_) {
+        if (uninstalledCleanly) {
+            DeleteUserData::run(path_for_installation);
+        } else {
+            spdlog::warn(L"The uninstall did not complete cleanly; keeping the user's settings and data");
+        }
     }
 
     if (!isSilent_) {
@@ -345,32 +368,80 @@ void Uninstaller::UninstallHelper()
     }
 }
 
+wstring Uninstaller::loadString(const UINT resourceID, const wchar_t *fallback)
+{
+    const int bufSize = 512;
+    wchar_t buffer[bufSize];
+    ::ZeroMemory(buffer, bufSize * sizeof(wchar_t));
+
+    if (::LoadString(::GetModuleHandle(NULL), resourceID, buffer, bufSize) == 0) {
+        spdlog::error(L"Loading of string resource {} failed ({}).", resourceID, ::GetLastError());
+        return fallback;
+    }
+
+    return buffer;
+}
+
 int Uninstaller::messageBox(const UINT resourceID, const UINT type, HWND ownerWindow)
 {
     // TODO: **JDRM** May need to add MB_RTLREADING flag to MessageBox call if the OS is set to a RTL language.
 
-    const int bufSize = 512;
-    wchar_t title[bufSize];
-    wchar_t message[bufSize];
-    ::ZeroMemory(title, bufSize * sizeof(wchar_t));
-    ::ZeroMemory(message, bufSize * sizeof(wchar_t));
+    const wstring title = loadString(IDS_MSGBOX_TITLE, L"Uninstall Windscribe");
+    const wstring message = loadString(resourceID, L"Windscribe uninstall encountered a technical failure.");
 
-    HMODULE hModule = ::GetModuleHandle(NULL);
-    int result = ::LoadString(hModule, IDS_MSGBOX_TITLE, title, bufSize);
-    if (result == 0) {
-        spdlog::error(L"Loading of the message box title string resource failed ({}).", ::GetLastError());
-        wcscpy_s(title, bufSize, L"Uninstall Windscribe");
+    return ::MessageBox(ownerWindow, message.c_str(), title.c_str(), type);
+}
+
+static HRESULT CALLBACK confirmDialogCallback(HWND hwnd, UINT notification, WPARAM, LPARAM, LONG_PTR)
+{
+    // The TaskDialog equivalent of the MB_SETFOREGROUND the MessageBox version used.
+    if (notification == TDN_CREATED) {
+        ::SetForegroundWindow(hwnd);
+    }
+    return S_OK;
+}
+
+bool Uninstaller::confirmUninstall(bool &deleteAllData)
+{
+    const wstring title = loadString(IDS_MSGBOX_TITLE, L"Uninstall Windscribe");
+    const wstring message = loadString(IDS_CONFIRM_UNINSTALL,
+        L"Are you sure you want to completely remove Windscribe and all of its components?");
+    const wstring deleteAllDataText = loadString(IDS_DELETE_ALL_DATA,
+        L"Also delete my settings and data (choose this if you will not reinstall Windscribe)");
+
+    TASKDIALOGCONFIG config = {};
+    config.cbSize = sizeof(config);
+    config.hInstance = ::GetModuleHandle(NULL);
+    config.dwFlags = TDF_USE_HICON_MAIN | TDF_ALLOW_DIALOG_CANCELLATION;
+    if (deleteAllData) {
+        config.dwFlags |= TDF_VERIFICATION_FLAG_CHECKED;
+    }
+    config.dwCommonButtons = TDCBF_YES_BUTTON | TDCBF_NO_BUTTON;
+    config.pszWindowTitle = title.c_str();
+    config.hMainIcon = ::LoadIcon(NULL, IDI_QUESTION);
+    config.pszContent = message.c_str();
+    config.nDefaultButton = IDYES;
+    config.pszVerificationText = deleteAllDataText.c_str();
+    config.pfCallback = confirmDialogCallback;
+
+    int button = 0;
+    BOOL verificationChecked = FALSE;
+    const HRESULT hr = ::TaskDialogIndirect(&config, &button, nullptr, &verificationChecked);
+    if (FAILED(hr)) {
+        // Fall back to the plain confirmation.  The user cannot change the delete-all-data choice
+        // here, so keep whatever the command line requested.
+        spdlog::error(L"TaskDialogIndirect failed ({:#x}); falling back to MessageBox", static_cast<unsigned long>(hr));
+        return messageBox(IDS_CONFIRM_UNINSTALL, MB_ICONQUESTION | MB_YESNO | MB_SETFOREGROUND) == IDYES;
     }
 
-    result = ::LoadString(hModule, resourceID, message, bufSize);
-    if (result == 0) {
-        spdlog::error(L"Loading of string resource {} failed ({}).", resourceID, ::GetLastError());
-        wcscpy_s(message, bufSize, L"Windscribe uninstall encountered a technical failure.");
+    // IDNO, or IDCANCEL if the user closed the dialog or pressed Esc.
+    if (button != IDYES) {
+        spdlog::info(L"The user cancelled the uninstall");
+        return false;
     }
 
-    result = ::MessageBox(ownerWindow, message, title, type);
-
-    return result;
+    deleteAllData = (verificationChecked != FALSE);
+    return true;
 }
 
 void Uninstaller::UninstallOpenVPNDCODriver(const wstring& installationPath)

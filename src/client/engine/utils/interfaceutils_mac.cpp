@@ -1,7 +1,15 @@
 #include "interfaceutils_mac.h"
 
+#include <cstring>
+#include <net/if.h>
+#include <net/if_media.h>
+#include <sys/ioctl.h>
+#include <sys/socket.h>
+#include <unistd.h>
+
 #include <QPermission>
 
+#include "utils/log/debug_trace.h"
 #include "utils/macutils.h"
 #include "utils/network_utils/network_utils_mac.h"
 #include "utils/utils.h"
@@ -38,9 +46,16 @@ QString ssidOfInterface(const QString &networkInterface)
 
 bool isAdapterActive(const QString &networkInterface)
 {
-    QString cmdInterfaceStatus = "ifconfig " + networkInterface + " | grep status | awk '{print $2}'";
-    QString statusResult = Utils::execCmd(cmdInterfaceStatus).trimmed();
-    return statusResult == "active";
+    const int sock = socket(AF_INET, SOCK_DGRAM, 0);
+    if (sock < 0) {
+        return false;
+    }
+    struct ifmediareq ifmr;
+    memset(&ifmr, 0, sizeof(ifmr));
+    strlcpy(ifmr.ifm_name, networkInterface.toUtf8().constData(), sizeof(ifmr.ifm_name));
+    const bool isActive = ioctl(sock, SIOCGIFMEDIA, &ifmr) == 0 && (ifmr.ifm_status & IFM_AVALID) && (ifmr.ifm_status & IFM_ACTIVE);
+    close(sock);
+    return isActive;
 }
 
 QList<QString> currentNetworkHwInterfaces()
@@ -63,30 +78,9 @@ QList<QString> currentNetworkHwInterfaces()
     return result;
 }
 
-QMap<QString, int> currentHardwareInterfaceIndexes()
-{
-    QMap<QString, int> result;
-    QString cmd = "networksetup -listallhardwareports | grep Device | awk '{print $2}'";
-    QString response = Utils::execCmd(cmd);
-
-    const QList<QString> lines = response.split("\n");
-
-    int index = 1;
-    for (const QString &line : lines)
-    {
-        const QString iName = line.trimmed();
-        if (iName != "")
-        {
-            result.insert(iName, index);
-        }
-        index++;
-    }
-
-    return result;
-}
-
 const types::NetworkInterface InterfaceUtils_mac::currentNetworkInterface()
 {
+    WS_DEBUG_TRACE_SCOPE("InterfaceUtils_mac::currentNetworkInterface");
     QVector<types::NetworkInterface> ni = currentNetworkInterfaces(false);
     if (ni.size() > 0) {
         return ni[0];
@@ -98,6 +92,7 @@ const types::NetworkInterface InterfaceUtils_mac::currentNetworkInterface()
 
 QVector<types::NetworkInterface> InterfaceUtils_mac::currentNetworkInterfaces(bool includeNoInterface)
 {
+    WS_DEBUG_TRACE_SCOPE("InterfaceUtils_mac::currentNetworkInterfaces");
     QVector<types::NetworkInterface> networkInterfaces;
 
     if (includeNoInterface) {
@@ -105,14 +100,11 @@ QVector<types::NetworkInterface> InterfaceUtils_mac::currentNetworkInterfaces(bo
     }
 
     const QList<QString> hwInterfaces = currentNetworkHwInterfaces();
-    const QMap<QString, int> interfaceIndexes = currentHardwareInterfaceIndexes();
 
     for (const QString &interfaceName : hwInterfaces) {
         types::NetworkInterface networkInterface;
 
-        int index = 0;
-        if (interfaceIndexes.contains(interfaceName)) index = interfaceIndexes[interfaceName];
-        networkInterface.interfaceIndex = index;
+        networkInterface.interfaceIndex = static_cast<int>(if_nametoindex(interfaceName.toUtf8().constData()));
         networkInterface.interfaceName = interfaceName;
 
         bool wifi = NetworkUtils_mac::isWifiAdapter(interfaceName);

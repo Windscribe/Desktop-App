@@ -34,6 +34,8 @@
 #include "multipleaccountdetection/multipleaccountdetectionfactory.h"
 #include "showingdialogstate.h"
 #include "themecontroller.h"
+#include "types/enginesettings.h"
+#include "utils/credentialsvalidation.h"
 #include "utils/directorypermissions.h"
 #include "utils/extraconfig.h"
 #include "utils/hardcodedsettings.h"
@@ -145,7 +147,6 @@ MainWindow::MainWindow() :
     connect(backend_, &Backend::sessionDeleted, this, &MainWindow::onBackendSessionDeleted);
     connect(backend_, &Backend::testTunnelResult, this, &MainWindow::onBackendTestTunnelResult);
     connect(backend_, &Backend::lostConnectionToHelper, this, &MainWindow::onBackendLostConnectionToHelper);
-    connect(backend_, &Backend::userWarning, this, &MainWindow::onBackendUserWarning);
     connect(backend_, &Backend::internetConnectivityChanged, this, &MainWindow::onBackendInternetConnectivityChanged);
     connect(backend_, &Backend::protocolPortChanged, this, &MainWindow::onBackendProtocolPortChanged);
     connect(backend_, &Backend::packetSizeDetectionStateChanged, this, &MainWindow::onBackendPacketSizeDetectionStateChanged);
@@ -292,7 +293,6 @@ MainWindow::MainWindow() :
     connect(mainWindowController_->getPreferencesWindow(), &PreferencesWindow::PreferencesWindowItem::addEmailButtonClick, this, &MainWindow::onPreferencesAddEmailButtonClick);
     connect(mainWindowController_->getPreferencesWindow(), &PreferencesWindow::PreferencesWindowItem::manageRobertRulesClick, this, &MainWindow::onPreferencesManageRobertRulesClick);
     connect(mainWindowController_->getPreferencesWindow(), &PreferencesWindow::PreferencesWindowItem::accountLoginClick, this, &MainWindow::onPreferencesAccountLoginClick);
-    connect(mainWindowController_->getPreferencesWindow(), &PreferencesWindow::PreferencesWindowItem::cycleMacAddressClick, this, &MainWindow::onPreferencesCycleMacAddressClick);
     connect(mainWindowController_->getPreferencesWindow(), &PreferencesWindow::PreferencesWindowItem::detectPacketSizeClick, this, &MainWindow::onPreferencesWindowDetectPacketSizeClick);
     connect(mainWindowController_->getPreferencesWindow(), &PreferencesWindow::PreferencesWindowItem::getRobertFilters, this, &MainWindow::onPreferencesGetRobertFilters);
     connect(mainWindowController_->getPreferencesWindow(), &PreferencesWindow::PreferencesWindowItem::setRobertFilter, this, &MainWindow::onPreferencesSetRobertFilter);
@@ -903,11 +903,30 @@ void MainWindow::onLoginClick(const QString &username, const QString &password, 
         return;
     }
 
-    if (username.contains("@")) {
-        mainWindowController_->getLoginWindow()->setErrorMessage(LoginWindow::ERR_MSG_USERNAME_IS_EMAIL, QString());
+    LoginWindow::ERROR_MESSAGE_TYPE credentialsError = LoginWindow::ERR_MSG_EMPTY;
+    switch (CredentialsValidation::checkUsername(username)) {
+    case CredentialsValidation::UsernameProblem::kNone:
+        break;
+    case CredentialsValidation::UsernameProblem::kTooShort:
+    case CredentialsValidation::UsernameProblem::kTooLong:
+        credentialsError = LoginWindow::ERR_MSG_USERNAME_LENGTH;
+        break;
+    case CredentialsValidation::UsernameProblem::kEmailAddress:
+        credentialsError = LoginWindow::ERR_MSG_USERNAME_IS_EMAIL;
+        break;
+    case CredentialsValidation::UsernameProblem::kDisallowedCharacter:
+        credentialsError = LoginWindow::ERR_MSG_USERNAME_CHARACTERS;
+        break;
+    }
+    if (credentialsError == LoginWindow::ERR_MSG_EMPTY
+        && CredentialsValidation::checkPassword(password) != CredentialsValidation::PasswordProblem::kNone) {
+        credentialsError = LoginWindow::ERR_MSG_PASSWORD_LENGTH;
+    }
+    if (credentialsError != LoginWindow::ERR_MSG_EMPTY) {
+        mainWindowController_->getLoginWindow()->setErrorMessage(credentialsError, QString());
         return;
     }
-    mainWindowController_->getTwoFactorAuthWindow()->setCurrentCredentials(username, password);
+    mainWindowController_->getTwoFactorAuthWindow()->setCurrentCredentials(username.trimmed(), password);
     mainWindowController_->getLoggingInWindow()->setMessage(tr("Logging you in..."));
     mainWindowController_->getLoggingInWindow()->setAdditionalMessage("");
     mainWindowController_->getLoggingInWindow()->startAnimation();
@@ -917,7 +936,7 @@ void MainWindow::onLoginClick(const QString &username, const QString &password, 
     mainWindowController_->getConnectWindow()->setCustomConfigMode(false);
 
     isLastCallWasSignup_ = false;
-    backend_->login(username, password, code2fa);
+    backend_->login(username.trimmed(), password, code2fa);
 }
 
 void MainWindow::onSignupClick(const QString &username, const QString &password, const QString &email, const QString &voucherCode, const QString &referringUsername)
@@ -1025,6 +1044,7 @@ void MainWindow::onCaptchaBackClicked()
 void MainWindow::onCaptchaResolved(const QString &captchaSolution, const std::vector<float> &captchaTrailX, const std::vector<float> &captchaTrailY)
 {
     mainWindowController_->getLoggingInWindow()->setMessage(tr("Logging you in..."));
+    localIpcServer_->clearCaptchaRequired();
     backend_->continueWithCaptcha(captchaSolution, captchaTrailX, captchaTrailY);
 }
 
@@ -1385,39 +1405,6 @@ void MainWindow::onPreferencesAccountLoginClick()
     gotoLoginWindow();
 }
 
-void MainWindow::onPreferencesCycleMacAddressClick()
-{
-    QString title = tr("Rotating MAC Address");
-    if (!backend_->isDisconnected()) {
-        QString desc = tr("Cannot rotate MAC address while connected to VPN. Please disconnect first.");
-        GeneralMessageController::instance().showMessage(
-            "WARNING_YELLOW",
-            title,
-            desc,
-            GeneralMessageController::tr(GeneralMessageController::kOk),
-            "",
-            "",
-            std::function<void(bool)>(nullptr),
-            std::function<void(bool)>(nullptr),
-            std::function<void(bool)>(nullptr),
-            GeneralMessage::kFromPreferences);
-    }
-    else if (internetConnected_) {
-        QString desc = tr("Rotating your MAC address will result in a disconnect event from the current network. Are you sure?");
-        GeneralMessageController::instance().showMessage(
-            "WARNING_WHITE",
-            title,
-            desc,
-            GeneralMessageController::tr(GeneralMessageController::kYes),
-            GeneralMessageController::tr(GeneralMessageController::kNo),
-            "",
-            [this](bool b) { backend_->cycleMacAddress(); },
-            std::function<void(bool)>(nullptr),
-            std::function<void(bool)>(nullptr),
-            GeneralMessage::kFromPreferences);
-    }
-}
-
 void MainWindow::onPreferencesWindowDetectPacketSizeClick()
 {
     if (!backend_->isDisconnected())
@@ -1711,6 +1698,34 @@ void MainWindow::checkCustomConfigPath(const QString &path)
     backend_->getPreferences()->setCustomOvpnConfigsPath(path);
 }
 
+void MainWindow::showMacSpoofingRemoved()
+{
+#if defined(Q_OS_WIN)
+    GeneralMessageController::instance().showMessage(
+        "WARNING_YELLOW",
+        tr("MAC Spoofing Removed"),
+        tr("MAC spoofing has been removed. Your spoofed MAC address stays active until you restart your computer or network adapter. "
+           "To use a random address on Wi-Fi, turn on Random hardware addresses."),
+        tr("Open Wi-Fi Settings"),
+        tr("Close"),
+        "",
+        [](bool) { WinUtils::openSettingsPage(L"ms-settings:network-wifi"); });
+#else
+#if defined(Q_OS_MACOS)
+    const QString description = MacUtils::isOsVersionAtLeast(15, 0)
+        ? tr("MAC spoofing is no longer available in Windscribe. To use a random MAC address on Wi-Fi, set Private Wi-Fi "
+             "address to Rotating in System Settings > Wi-Fi > Details.")
+        : tr("MAC spoofing is no longer available in Windscribe. To use a random MAC address on Wi-Fi, update to macOS 15 or "
+             "later, then set Private Wi-Fi address to Rotating in System Settings > Wi-Fi > Details.");
+#else
+    const QString description = tr("MAC spoofing has been removed. Your network connection may still use the spoofed MAC address. To "
+                                   "change it, set its cloned MAC address to Random, or clear it, in your network settings.");
+#endif
+    GeneralMessageController::instance().showMessage("WARNING_YELLOW", tr("MAC Spoofing Removed"), description,
+                                                     GeneralMessageController::tr(GeneralMessageController::kOk));
+#endif
+}
+
 void MainWindow::onBackendInitFinished(INIT_STATE initState)
 {
     setVariablesToInitState();
@@ -1736,6 +1751,11 @@ void MainWindow::onBackendInitFinished(INIT_STATE initState)
         }
         if (p->shareProxyGateway().isEnabled) {
             onPreferencesShareProxyGatewayChanged(p->shareProxyGateway());
+        }
+
+        if (types::EngineSettings::isMacSpoofingRemovedMarked()) {
+            types::EngineSettings::clearMacSpoofingRemoved();
+            showMacSpoofingRemoved();
         }
 
         QString autoLoginUsername;
@@ -1960,7 +1980,9 @@ void MainWindow::onBackendLoginError(wsnet::LoginResult loginError, const QStrin
     }
 
     if (loginError == wsnet::LoginResult::kBadUsername) {
-        if (backend_->isLastLoginWithAuthHash()) {
+        if (isLastCallWasSignup_) {
+            setLoginOrSignupWindowError(LoginWindow::ERR_MSG_USERNAME_CHARACTERS);
+        } else if (backend_->isLastLoginWithAuthHash()) {
             qCCritical(LOG_BASIC) << "Got 'bad username' with auth hash login";
             WS_ASSERT(false);
         } else {
@@ -2721,28 +2743,6 @@ void MainWindow::onBackendLostConnectionToHelper()
             doClose();
             qApp->quit();
         });
-}
-
-void MainWindow::showUserWarning(USER_WARNING_TYPE userWarningType)
-{
-    QString titleText;
-    QString descText;
-    if (userWarningType == USER_WARNING_MAC_SPOOFING_FAILURE_HARD) {
-        titleText = tr("MAC Spoofing Failed");
-        descText = tr("Your network adapter does not support MAC spoofing. Try a different adapter.");
-    } else if (userWarningType == USER_WARNING_MAC_SPOOFING_FAILURE_SOFT) {
-        titleText = tr("MAC Spoofing Failed");
-        descText = tr("Could not spoof MAC address.  Please try a different network interface or contact support.");
-    }
-
-    if (!titleText.isEmpty() && !descText.isEmpty()) {
-        GeneralMessageController::instance().showMessage("WARNING_YELLOW", titleText, descText, GeneralMessageController::tr(GeneralMessageController::kOk));
-    }
-}
-
-void MainWindow::onBackendUserWarning(USER_WARNING_TYPE userWarningType)
-{
-    showUserWarning(userWarningType);
 }
 
 void MainWindow::onBackendInternetConnectivityChanged(bool connectivity)
@@ -3839,8 +3839,17 @@ void MainWindow::onWireGuardAtKeyLimit()
         GeneralMessageController::tr(GeneralMessageController::kYes),
         GeneralMessageController::tr(GeneralMessageController::kNo),
         "",
-        [this](bool b) { wireGuardKeyLimitMessageId_ = 0; emit wireGuardKeyLimitUserResponse(true); },
-        [this](bool b) { wireGuardKeyLimitMessageId_ = 0; emit wireGuardKeyLimitUserResponse(false); });
+        [this](bool b) {
+            wireGuardKeyLimitMessageId_ = 0;
+            localIpcServer_->setKeyLimitPromptPending(false);
+            emit wireGuardKeyLimitUserResponse(true);
+        },
+        [this](bool b) {
+            wireGuardKeyLimitMessageId_ = 0;
+            localIpcServer_->setKeyLimitPromptPending(false);
+            emit wireGuardKeyLimitUserResponse(false);
+        });
+    localIpcServer_->setKeyLimitPromptPending(wireGuardKeyLimitMessageId_ != 0);
 }
 
 void MainWindow::onSelectedLocationChanged()
@@ -4057,7 +4066,7 @@ void MainWindow::checkNotificationEnabled()
         "",
         [this](bool b) {
             // User clicked "Ok", bring up the notification settings
-            WinUtils::openNotificationSettings();
+            WinUtils::openSettingsPage(L"ms-settings:notifications");
             // If user selected 'Ignore warnings', don't show the prompt again
             PersistentState::instance().setIgnoreNotificationDisabled(b);
         },

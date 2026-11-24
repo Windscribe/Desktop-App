@@ -4,6 +4,7 @@
 #include <set>
 #include <spdlog/spdlog.h>
 #include "macutils.h"
+#include "utils/log/debug_trace.h"
 #include "utils/wsscopeguard.h"
 
 namespace MacUtils
@@ -76,8 +77,28 @@ std::string bundleVersionFromPlist()
     return [buildNumber UTF8String];
 }
 
+bool hasSavedDnsState()
+{
+    SCDynamicStoreRef dynRef = SCDynamicStoreCreate(kCFAllocatorSystemDefault, CFSTR("" WS_APP_IDENTIFIER "DnsState"), NULL, NULL);
+    if (dynRef == NULL) {
+        spdlog::error("hasSavedDnsState - SCDynamicStoreCreate failed");
+        return true;
+    }
+    CFPropertyListRef value = SCDynamicStoreCopyValue(dynRef, CFSTR("State:/Network/" WS_APP_IDENTIFIER "/Original/Global/IPv4"));
+    if (value == NULL) {
+        value = SCDynamicStoreCopyValue(dynRef, CFSTR("State:/Network/Service/" WS_MAC_DNS_SERVICE_UUID));
+    }
+    const bool exists = value != NULL;
+    if (value) {
+        CFRelease(value);
+    }
+    CFRelease(dynRef);
+    return exists;
+}
+
 std::vector<std::string> getOsDnsServers()
 {
+    WS_DEBUG_TRACE_SCOPE("MacUtils::getOsDnsServers");
     std::vector<std::string> result;
     std::set<std::string> seen;
 

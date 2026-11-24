@@ -6,7 +6,6 @@
     #include "dns/ctrldmanager/ctrldmanager_win.h"
     #include "firewall/firewallcontroller_win.h"
     #include "helper/helperbackend_win.h"
-    #include "macaddresscontroller/macaddresscontroller_win.h"
     #include "networkdetectionmanager/networkdetectionmanager_win.h"
     #include "sleepevents/sleepevents_win.h"
 
@@ -22,7 +21,6 @@
     #include "dns/ctrldmanager/ctrldmanager_posix.h"
     #include "firewall/firewallcontroller_linux.h"
     #include "helper/helperbackend_linux.h"
-    #include "macaddresscontroller/macaddresscontroller_linux.h"
     #include "networkdetectionmanager/networkdetectionmanager_linux.h"
 #endif
 
@@ -65,17 +63,6 @@ INetworkDetectionManager *CrossPlatformObjectFactory::createNetworkDetectionMana
     return new NetworkDetectionManager_linux(parent, helper);
 #endif
 }
-
-#ifndef Q_OS_MACOS
-IMacAddressController *CrossPlatformObjectFactory::createMacAddressController(QObject *parent, INetworkDetectionManager *ndManager, Helper *helper)
-{
-#ifdef Q_OS_WIN
-    return new MacAddressController_win(parent, ndManager, helper);
-#elif defined Q_OS_LINUX
-    return new MacAddressController_linux(parent, static_cast<NetworkDetectionManager_linux*>(ndManager), helper);
-#endif
-}
-#endif
 
 ICtrldManager *CrossPlatformObjectFactory::createCtrldManager(QObject *parent, Helper *helper, bool isCreateLog)
 {

@@ -1,4 +1,4 @@
-// Pins the environment Utils::executeCommand hands to /bin/sh: system utilities must produce untranslated
+// Pins the environment Utils::executeCommand hands to the programs it runs: system utilities must produce untranslated
 // output for the callers that parse it, whatever locale the helper itself inherited.
 
 #include <cstdio>
@@ -45,7 +45,7 @@ void testPipelineFormPinsLocaleInEveryStage()
 {
     inheritTranslatedLocale();
     std::string out;
-    const int rc = Utils::executeCommand(std::string("true | sh -c '") + kProbe + "'", {}, &out, false);
+    const int rc = Utils::executeCommand("sh", {"-c", std::string("true | sh -c '") + kProbe + "'"}, &out, false);
     VERIFY(rc == 0);
     VERIFY(out == "C.UTF-8/unset\n");
 }

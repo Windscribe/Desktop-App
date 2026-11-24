@@ -15,8 +15,6 @@ namespace NetworkValidation
     // cannot slip through.
     bool isValidHostname(const std::wstring &hostname);
 
-    bool isMacAddress(const std::wstring &value);
-
     // Accepts a comma-separated list of TCP/UDP ports or port ranges (e.g.,
     // "80", "8000-8080", "80,443,1000-2000"). Each value must be in [1, 65535];
     // for ranges, the low end must not exceed the high end. No whitespace or

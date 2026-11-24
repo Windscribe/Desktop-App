@@ -269,66 +269,6 @@ QMap<QString, QString> WinUtils::enumerateInstalledProgramIconLocations()
     return programLocations;
 }
 
-QString WinUtils::regGetLocalMachineRegistryValueSz(QString keyPath, QString propertyName)
-{
-    QString result = "";
-
-    HKEY hKey;
-    LONG nError = RegOpenKeyEx(HKEY_LOCAL_MACHINE, keyPath.toStdWString().c_str(), NULL, KEY_READ, &hKey);
-    if (nError == ERROR_SUCCESS)
-    {
-        DWORD dwType = REG_SZ;
-        char value[1024];
-        DWORD value_length = 1024;
-        nError = RegQueryValueEx(hKey, propertyName.toStdWString().c_str(), NULL, &dwType, (LPBYTE) &value, &value_length);
-        if(nError == ERROR_SUCCESS)
-        {
-            // TODO: make this better!
-            for (DWORD i = 0; i < value_length; i++)
-            {
-                if (value[i] > 16)
-                {
-                    result += QString(value[i]);
-                }
-                else
-                {
-                    result += QString::fromUtf8(&value[i]);
-                }
-            }
-
-            RegCloseKey(hKey);
-        }
-        else
-        {
-            RegCloseKey(hKey);
-        }
-    }
-
-    return result;
-}
-
-bool WinUtils::regHasLocalMachineSubkeyProperty(QString keyPath, QString propertyName)
-{
-    bool result = false;
-
-    HKEY hKey;
-    LONG nError = RegOpenKeyEx(HKEY_LOCAL_MACHINE, keyPath.toStdWString().c_str(), NULL, KEY_READ, &hKey);
-
-    if (nError == ERROR_SUCCESS)
-    {
-        nError = RegQueryValueEx(hKey, propertyName.toStdWString().c_str(), nullptr, REG_NONE, nullptr, nullptr); // contents not required
-
-        if(nError == ERROR_SUCCESS)
-        {
-            result = true;
-        }
-
-        RegCloseKey(hKey);
-    }
-
-    return result;
-}
-
 bool WinUtils::regGetCurrentUserRegistryDword(QString keyPath, QString propertyName, int &dwordValue)
 {
     bool result = false;
@@ -762,7 +702,7 @@ bool WinUtils::isNotificationEnabled()
     return true; // Windows defaults to notifications enabled if this key does not exist
 }
 
-void WinUtils::openNotificationSettings()
+void WinUtils::openSettingsPage(const wchar_t *page)
 {
     SHELLEXECUTEINFO shExInfo;
     memset(&shExInfo, 0, sizeof(shExInfo));
@@ -770,10 +710,10 @@ void WinUtils::openNotificationSettings()
     shExInfo.cbSize = sizeof(shExInfo);
     shExInfo.hwnd = NULL;
     shExInfo.lpVerb = L"open";
-    shExInfo.lpFile = L"ms-settings:notifications";
+    shExInfo.lpFile = page;
     shExInfo.nShow = SW_SHOWNORMAL;
 
     if (!ShellExecuteEx(&shExInfo)) {
-        qCWarning(LOG_BASIC) << "WinUtils::openNotificationSettings ShellExecuteEx failed" << ::GetLastError();
+        qCWarning(LOG_BASIC) << "WinUtils::openSettingsPage ShellExecuteEx failed" << QString::fromWCharArray(page) << ::GetLastError();
     }
 }

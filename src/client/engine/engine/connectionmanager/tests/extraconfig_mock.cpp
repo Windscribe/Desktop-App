@@ -51,6 +51,7 @@ bool ExtraConfig::getUseICMPPings() { return false; }
 bool ExtraConfig::getStealthExtraTLSPadding() { return false; }
 bool ExtraConfig::getSuppressApiToken() { return false; }
 bool ExtraConfig::getNoPings() { return false; }
+bool ExtraConfig::getDebugTrace() { return false; }
 std::optional<QString> ExtraConfig::serverlistCountryOverride() { return std::nullopt; }
 bool ExtraConfig::serverListIgnoreCountryOverride() { return false; }
 bool ExtraConfig::haveServerListCountryOverride() { return false; }

@@ -1,5 +1,7 @@
 #include "wireguardconnection_posix.h"
 
+#include <QElapsedTimer>
+
 #include "engine/wireguardconfig/wireguardconfig.h"
 #include "types/enums.h"
 #include "types/wireguardtypes.h"
@@ -73,8 +75,7 @@ void WireGuardConnectionImpl::configure()
 
 void WireGuardConnectionImpl::disconnect()
 {
-    if(!stopWireGuard())
-        return;
+    stopWireGuard();
     host_->setCurrentStateAndEmitSignal(WireGuardConnection::ConnectionState::DISCONNECTED);
 }
 
@@ -85,19 +86,15 @@ bool WireGuardConnectionImpl::getStatus(types::WireGuardStatus *status)
 
 bool WireGuardConnectionImpl::stopWireGuard()
 {
-    if (isStarted_) {
-        int retry = 0;
-        while (!host_->helper_->stopWireGuard()) {
-            if (retry >= 4) {
-                qCCritical(LOG_WIREGUARD) << "Can't stop WireGuard daemon after" << retry << "retries";
-                return false;
-            }
-            ++retry;
-            QThread::msleep(500);
-        }
-        qCInfo(LOG_WIREGUARD) << "WireGuard daemon stopped after" << retry << "retries";
-        isStarted_ = false;
+    if (!isStarted_) {
+        return true;
     }
+    isStarted_ = false;
+    if (!host_->helper_->stopWireGuard()) {
+        qCCritical(LOG_WIREGUARD) << "Can't stop WireGuard daemon";
+        return false;
+    }
+    qCInfo(LOG_WIREGUARD) << "WireGuard daemon stopped";
     return true;
 }
 
@@ -126,8 +123,10 @@ void WireGuardConnection::startConnect()
     }
 
     do_stop_thread_ = true;
+    stopSignal_.release();
     wait();
     do_stop_thread_ = false;
+    stopSignal_.tryAcquire(stopSignal_.available());
 
     pimpl_->setConfig(dialConfig());
 
@@ -177,6 +176,7 @@ void WireGuardConnection::startDisconnect()
 
     adapterGatewayInfo_.clear();
     do_stop_thread_ = true;
+    stopSignal_.release();
 }
 
 bool WireGuardConnection::isDisconnected() const
@@ -205,13 +205,16 @@ void WireGuardConnection::run()
 
     BIND_CRASH_HANDLER_FOR_THREAD();
 
+    QElapsedTimer sinceConnect;
+    sinceConnect.start();
     for (pimpl_->connect();;) {
         if (do_stop_thread_) {
             pimpl_->disconnect();
             break;
         }
         const auto current_state = getCurrentState();
-        unsigned int next_status_check_ms = 100u;
+        const bool isFastPolling = sinceConnect.elapsed() < 1000;
+        unsigned int next_status_check_ms = isFastPolling ? 10u : 100u;
         if (current_state != ConnectionState::DISCONNECTED) {
             if (!pimpl_->getStatus(&status)) {
                 qCCritical(LOG_WIREGUARD) << "Failed to get WireGuard status";
@@ -236,12 +239,13 @@ void WireGuardConnection::run()
                     qCInfo(LOG_WIREGUARD) << "Configuring WireGuard...";
                     is_configured = true;
                     pimpl_->configure();
+                    sinceConnect.restart();
                     emit interfaceUpdated(pimpl_->getAdapterName());
                 }
                 break;
             case types::WireGuardState::CONNECTING:
                 // Connecting (waiting for a handshake).
-                next_status_check_ms = 250u;
+                next_status_check_ms = isFastPolling ? 10u : 250u;
                 break;
             case types::WireGuardState::ACTIVE:
             {
@@ -263,7 +267,7 @@ void WireGuardConnection::run()
             }
         }
 
-        QThread::msleep(next_status_check_ms);
+        stopSignal_.tryAcquire(1, static_cast<int>(next_status_check_ms));
     }
 }
 

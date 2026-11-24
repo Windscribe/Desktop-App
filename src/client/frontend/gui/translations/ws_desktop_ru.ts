@@ -493,6 +493,22 @@
         <source>Your username should not be an email address. Please try again.</source>
         <translation>Ваше имя пользователя не должно быть адресом электронной почты. Пожалуйста, попробуйте ещё раз.</translation>
     </message>
+    <message>
+        <source>Username must be 3 to 255 characters</source>
+        <translation>Имя пользователя должно содержать от 3 до 255 символов</translation>
+    </message>
+    <message>
+        <source>Use only A–Z, a–z, 0–9, _ and -</source>
+        <translation>Только A–Z, a–z, 0–9, _ и -</translation>
+    </message>
+    <message>
+        <source>Password must be 8 to 255 characters</source>
+        <translation>Пароль должен содержать от 8 до 255 символов</translation>
+    </message>
+    <message>
+        <source>An unknown error occurred.</source>
+        <translation>Произошла неизвестная ошибка.</translation>
+    </message>
 </context>
 <context>
     <name>LoginWindow::SignupWindowItem</name>
@@ -523,10 +539,6 @@
     <message>
         <source>Enter password</source>
         <translation>Введите пароль</translation>
-    </message>
-    <message>
-        <source>8 or more characters with at least one uppercase and lowercase(ie. &quot;Hello1234&quot;, &quot;Solyanka&quot;).</source>
-        <translation>8 и более символов с хотя бы одним заглавным и стричным (то есть «Hello1234», «Солянка»).</translation>
     </message>
     <message>
         <source>Email (Optional)</source>
@@ -579,10 +591,6 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
         <translation>Все файлы (*.*)</translation>
     </message>
     <message>
-        <source>Username must be at least 3 characters</source>
-        <translation>Имя пользователя должно быть не менее трёх символов</translation>
-    </message>
-    <message>
         <source>Your username should not be an email address.</source>
         <translation>Ваше имя пользователя не должно быть адресом электронной почты.</translation>
     </message>
@@ -593,6 +601,18 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
     <message>
         <source>Invalid hash</source>
         <translation>Некорректный хэш</translation>
+    </message>
+    <message>
+        <source>Username must be 3 to 255 characters</source>
+        <translation>Имя пользователя должно содержать от 3 до 255 символов</translation>
+    </message>
+    <message>
+        <source>Use only A–Z, a–z, 0–9, _ and -</source>
+        <translation>Только A–Z, a–z, 0–9, _ и -</translation>
+    </message>
+    <message>
+        <source>Password must be 8 to 255 characters</source>
+        <translation>Пароль должен содержать от 8 до 255 символов</translation>
     </message>
 </context>
 <context>
@@ -645,10 +665,6 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
         <translation>VPN активен</translation>
     </message>
     <message>
-        <source>Rotating your MAC address will result in a disconnect event from the current network. Are you sure?</source>
-        <translation>Смена MAC-адреса приведет к отключению от текущей сети. Продолжить?</translation>
-    </message>
-    <message>
         <source>Cannot detect appropriate packet size while connected. Please disconnect first.</source>
         <translation>Невозможно определить оптимальный размер пакета в подключённом состоянии. Пожалуйста, отключитесь сначала.</translation>
     </message>
@@ -671,10 +687,6 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
     <message>
         <source>We&apos;ve detected that your network settings may interfere with Windscribe.  Please send us a debug log to troubleshoot.</source>
         <translation>Мы обнаружили, что настройки вашей сети могут мешать работе Windscribe.  Пожалуйста, пришлите нам журнал отладки для устранения неполадок.</translation>
-    </message>
-    <message>
-        <source>Could not spoof MAC address.  Please try a different network interface or contact support.</source>
-        <translation>Не удалось подделать MAC-адрес.  Попробуйте другой сетевой интерфейс или обратитесь в службу поддержки.</translation>
     </message>
     <message>
         <source>Could not download update.  Please try again or use a different network.</source>
@@ -765,6 +777,34 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
         <translation>Выбранный каталог можно писать для других пользователей. Пользовательские конфигурации в этом каталоге могут представлять потенциальную угрозу безопасности.</translation>
     </message>
     <message>
+        <source>MAC Spoofing Removed</source>
+        <translation>Подмена MAC удалена</translation>
+    </message>
+    <message>
+        <source>MAC spoofing has been removed. Your spoofed MAC address stays active until you restart your computer or network adapter. To use a random address on Wi-Fi, turn on Random hardware addresses.</source>
+        <translation>Функция подмены MAC удалена. Подмененный MAC-адрес остается активным до перезапуска компьютера или сетевого адаптера. Чтобы использовать случайный адрес в сети Wi-Fi, включите параметр «Случайные аппаратные адреса».</translation>
+    </message>
+    <message>
+        <source>Open Wi-Fi Settings</source>
+        <translation>Открыть настройки Wi-Fi</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>Закрыть</translation>
+    </message>
+    <message>
+        <source>MAC spoofing is no longer available in Windscribe. To use a random MAC address on Wi-Fi, set Private Wi-Fi address to Rotating in System Settings &gt; Wi-Fi &gt; Details.</source>
+        <translation>Подмена MAC больше не доступна в Windscribe. Чтобы использовать случайный MAC-адрес в сети Wi-Fi, установите для параметра «Частный адрес Wi-Fi» значение «Ротация адреса» в разделе «Системные настройки &gt; Wi-Fi &gt; Сведения».</translation>
+    </message>
+    <message>
+        <source>MAC spoofing is no longer available in Windscribe. To use a random MAC address on Wi-Fi, update to macOS 15 or later, then set Private Wi-Fi address to Rotating in System Settings &gt; Wi-Fi &gt; Details.</source>
+        <translation>Подмена MAC больше не доступна в Windscribe. Чтобы использовать случайный MAC-адрес в сети Wi-Fi, обновите систему до macOS 15 или более поздней версии, затем установите для параметра «Частный адрес Wi-Fi» значение «Ротация адреса» в разделе «Системные настройки &gt; Wi-Fi &gt; Сведения».</translation>
+    </message>
+    <message>
+        <source>MAC spoofing has been removed. Your network connection may still use the spoofed MAC address. To change it, set its cloned MAC address to Random, or clear it, in your network settings.</source>
+        <translation>Функция подмены MAC удалена. Сетевое подключение может по-прежнему использовать подмененный MAC-адрес. Чтобы изменить это, задайте для клонированного MAC-адреса подключения значение «Случайный» или очистите его в настройках сети.</translation>
+    </message>
+    <message>
         <source>Installation Incomplete</source>
         <translation>Установка незавершена</translation>
     </message>
@@ -841,14 +881,6 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
     <message>
         <source>Service Error</source>
         <translation>Ошибка службы</translation>
-    </message>
-    <message>
-        <source>MAC Spoofing Failed</source>
-        <translation>Подделка MAC-адреса неуспешна</translation>
-    </message>
-    <message>
-        <source>Your network adapter does not support MAC spoofing. Try a different adapter.</source>
-        <translation>Сетевой адаптер не поддерживает подделку MAC-адресов. Попробуйте выбрать другой адаптер.</translation>
     </message>
     <message>
         <source>Detection Error</source>
@@ -971,10 +1003,6 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>IKEv2 connectivity is not available in MacOS Lockdown Mode. Please disable Lockdown Mode in System Settings or change your connection settings.</source>
         <translation>Подключение IKEv2 недоступно в режиме блокировки MacOS. Пожалуйста, отключите режим блокировки в системных настройках или измените настройки подключения.</translation>
-    </message>
-    <message>
-        <source>Rotating MAC Address</source>
-        <translation>Смена MAC-адреса</translation>
     </message>
     <message>
         <source>Wi-Fi is off</source>
@@ -1119,10 +1147,6 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Creating your account...</source>
         <translation>Создание аккаунта...</translation>
-    </message>
-    <message>
-        <source>Cannot rotate MAC address while connected to VPN. Please disconnect first.</source>
-        <translation>Нельзя вращать MAC-адрес при подключении к VPN. Пожалуйста, сначала отключитесь.</translation>
     </message>
 </context>
 <context>
@@ -1566,14 +1590,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Выберите одну из этих локаций, чтобы подключиться через ваш сервер hydra.</translation>
     </message>
     <message>
-        <source>Spoof your device&apos;s physical address (MAC address).</source>
-        <translation>Подделка физичесого адреса (MAC-адреса) устройства.</translation>
-    </message>
-    <message>
-        <source>MAC spoofing requires NetworkManager to be installed and running.</source>
-        <translation>Подделка MAC требует установки и запуска NetworkManager.</translation>
-    </message>
-    <message>
         <source>Close all active TCP sockets when the VPN tunnel is established.</source>
         <translation>Закрытие всех активных TCP-соединений при установке VPN-туннеля.</translation>
     </message>
@@ -1963,45 +1979,6 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Tray Icon Colour</source>
         <translation>Цвет значка в трее</translation>
-    </message>
-</context>
-<context>
-    <name>PreferencesWindow::MacSpoofingGroup</name>
-    <message>
-        <source>You can only spoof an existing adapter.</source>
-        <translation>Подделать можно только существующий адаптер.</translation>
-    </message>
-    <message>
-        <source>Cannot spoof on &apos;No Interface&apos;</source>
-        <translation>Не удается подделать &quot;Без интерфейса&quot;</translation>
-    </message>
-    <message>
-        <source>Cannot spoof the current interface</source>
-        <translation>Не удается подделать текущий интерфейс</translation>
-    </message>
-    <message>
-        <source>The current primary interface must match the selected interface to spoof.</source>
-        <translation>Текущий основной интерфейс должен соответствовать выбранному подделываемому интерфейсу.</translation>
-    </message>
-    <message>
-        <source>No Interface</source>
-        <translation>Нет интерфейса</translation>
-    </message>
-    <message>
-        <source>MAC Spoofing</source>
-        <translation>Подделка MAC</translation>
-    </message>
-    <message>
-        <source>MAC Address</source>
-        <translation>MAC-адрес</translation>
-    </message>
-    <message>
-        <source>Interface</source>
-        <translation>Интерфейс</translation>
-    </message>
-    <message>
-        <source>Auto-Rotate MAC</source>
-        <translation>Автосмена MAC</translation>
     </message>
 </context>
 <context>

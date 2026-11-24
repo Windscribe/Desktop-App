@@ -20,12 +20,15 @@ AuthToken::AuthToken(const std::string &json)
         // We have been rate limited by the server
         if (errorCode == 707) {
             isRateLimitError_ = true;
-            isValid_ = true;
+        } else if (errorCode == 502) {
+            qCInfo(LOG_BASIC) << "AuthToken: the server rejected the username (error 502)";
+            isBadUsernameError_ = true;
         } else {
-            // For now only error 707 is possible, anything else is an error that requires attention
             qCWarning(LOG_BASIC) << "Unknown error code in AuthToken:" << errorCode;
-            return;
+            isUnknownError_ = true;
         }
+        isValid_ = true;
+        return;
     }
 
     if (!jsonObject.contains("data")) {

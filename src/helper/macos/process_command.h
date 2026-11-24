@@ -3,19 +3,19 @@
 #include <map>
 #include <string>
 #include <sys/types.h>
+
 #include "../common/helper_commands.h"
+#include "../common/process_command_posix.h"
 
 std::string getHelperVersion(const std::string &pars);
 std::string setSplitTunnelingSettings(const std::string &pars);
 std::string sendConnectStatus(const std::string &pars);
 std::string changeMtu(const std::string &pars);
 std::string executeOpenVPN(const std::string &pars, uid_t clientUid);
-std::string executeTaskKill(const std::string &pars);
 std::string startWireGuard(const std::string &pars);
 std::string stopWireGuard(const std::string &pars);
 std::string configureWireGuard(const std::string &pars);
 std::string getWireGuardStatus(const std::string &pars);
-std::string startCtrld(const std::string &pars);
 std::string checkFirewallState(const std::string &pars);
 std::string clearFirewallRules(const std::string &pars);
 std::string setFirewallRules(const std::string &pars);
@@ -36,6 +36,7 @@ std::string executeFilesStep(const std::string &pars);
 std::string createCliSymlink(const std::string &pars);
 std::string installerStageAndVerify(const std::string &pars);
 std::string installerCleanupStaged(const std::string &pars);
+std::string setDebugTrace(const std::string &pars);
 
 static const std::map<const HelperCommand, std::function<std::string(const std::string &)>> kCommands = {
     { HelperCommand::getHelperVersion, getHelperVersion },
@@ -66,7 +67,8 @@ static const std::map<const HelperCommand, std::function<std::string(const std::
     { HelperCommand::createCliSymlink, createCliSymlink },
     { HelperCommand::clearWifiHistoryData, clearWifiHistoryData },
     { HelperCommand::installerStageAndVerify, installerStageAndVerify },
-    { HelperCommand::installerCleanupStaged, installerCleanupStaged }
+    { HelperCommand::installerCleanupStaged, installerCleanupStaged },
+    { HelperCommand::setDebugTrace, setDebugTrace }
 };
 
 std::string processCommand(HelperCommand cmdId, const std::string &pars, uid_t clientUid);

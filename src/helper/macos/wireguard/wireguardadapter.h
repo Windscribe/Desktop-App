@@ -4,6 +4,8 @@
 #include <string>
 #include <vector>
 
+#include "types/ipaddress.h"
+
 class WireGuardAdapter final
 {
 public:
@@ -15,6 +17,9 @@ public:
     // is mandatory (WireGuard control traffic and IpValidation::validateWireGuardConfig
     // both require it); IPv6 is optional and skipped when not present.
     bool setIpAddress(const std::string &address);
+    void addDnsServerRoutes(const std::string &addressList, const std::vector<std::string> &allowedIps,
+                            const std::string &peerEndpoint);
+    void removeDnsServerRoutes();
     bool setDnsServers(const std::string &addressList, const std::string &scriptName);
     bool enableRouting(const std::vector<std::string> &allowedIps);
     const std::string getName() const { return name_; }
@@ -38,4 +43,6 @@ private:
     // address. Stored canonicalised (via types::IpAddressRange::toString()).
     std::string ipv4Cidr_;
     std::string ipv6Cidr_;
+
+    std::vector<types::IpAddress> dnsServerRoutes_;
 };

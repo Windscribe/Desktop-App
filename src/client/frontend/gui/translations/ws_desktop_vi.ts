@@ -493,6 +493,22 @@
         <source>Your username should not be an email address. Please try again.</source>
         <translation>Tên người dùng của bạn không được là địa chỉ email. Vui lòng thử lại.</translation>
     </message>
+    <message>
+        <source>Username must be 3 to 255 characters</source>
+        <translation>Tên người dùng phải có từ 3 đến 255 ký tự</translation>
+    </message>
+    <message>
+        <source>Use only A–Z, a–z, 0–9, _ and -</source>
+        <translation>Chỉ dùng A–Z, a–z, 0–9, _ và -</translation>
+    </message>
+    <message>
+        <source>Password must be 8 to 255 characters</source>
+        <translation>Mật khẩu phải có từ 8 đến 255 ký tự</translation>
+    </message>
+    <message>
+        <source>An unknown error occurred.</source>
+        <translation>Đã xảy ra lỗi không xác định.</translation>
+    </message>
 </context>
 <context>
     <name>LoginWindow::SignupWindowItem</name>
@@ -523,10 +539,6 @@
     <message>
         <source>Enter password</source>
         <translation>Nhập mật khẩu</translation>
-    </message>
-    <message>
-        <source>8 or more characters with at least one uppercase and lowercase(ie. &quot;Hello1234&quot;, &quot;Solyanka&quot;).</source>
-        <translation>8 ký tự trở lên với ít nhất một chữ hoa và chữ thường (tức là. &quot;Hello1234&quot;, &quot;Solyanka&quot;).</translation>
     </message>
     <message>
         <source>Email (Optional)</source>
@@ -579,10 +591,6 @@ Nếu bạn mất hàm băm tài khoản của mình, nó sẽ biến mất vĩn
         <translation>Tất cả các tệp (*.*)</translation>
     </message>
     <message>
-        <source>Username must be at least 3 characters</source>
-        <translation>Tên người dùng phải có ít nhất 3 ký tự</translation>
-    </message>
-    <message>
         <source>Your username should not be an email address.</source>
         <translation>Tên người dùng của bạn không được là địa chỉ email.</translation>
     </message>
@@ -593,6 +601,18 @@ Nếu bạn mất hàm băm tài khoản của mình, nó sẽ biến mất vĩn
     <message>
         <source>Invalid hash</source>
         <translation>Hàm băm không hợp lệ</translation>
+    </message>
+    <message>
+        <source>Username must be 3 to 255 characters</source>
+        <translation>Tên người dùng phải có từ 3 đến 255 ký tự</translation>
+    </message>
+    <message>
+        <source>Use only A–Z, a–z, 0–9, _ and -</source>
+        <translation>Chỉ dùng A–Z, a–z, 0–9, _ và -</translation>
+    </message>
+    <message>
+        <source>Password must be 8 to 255 characters</source>
+        <translation>Mật khẩu phải có từ 8 đến 255 ký tự</translation>
     </message>
 </context>
 <context>
@@ -643,10 +663,6 @@ Nếu bạn mất hàm băm tài khoản của mình, nó sẽ biến mất vĩn
     <message>
         <source>VPN is active</source>
         <translation>VPN đang hoạt động</translation>
-    </message>
-    <message>
-        <source>Rotating your MAC address will result in a disconnect event from the current network. Are you sure?</source>
-        <translation>Xoay địa chỉ MAC của bạn sẽ dẫn đến sự kiện ngắt kết nối khỏi mạng hiện tại. Bạn có chắc không?</translation>
     </message>
     <message>
         <source>Cannot detect appropriate packet size while connected. Please disconnect first.</source>
@@ -711,6 +727,34 @@ Nếu bạn mất hàm băm tài khoản của mình, nó sẽ biến mất vĩn
     <message>
         <source>The selected directory is writeable for other users. Custom configs in this directory may pose a potential security risk.</source>
         <translation>Thư mục đã chọn có thể ghi được cho những người dùng khác. Cấu hình tùy chỉnh trong thư mục này có thể gây ra rủi ro bảo mật tiềm ẩn.</translation>
+    </message>
+    <message>
+        <source>MAC Spoofing Removed</source>
+        <translation>Đã gỡ bỏ giả mạo MAC</translation>
+    </message>
+    <message>
+        <source>MAC spoofing has been removed. Your spoofed MAC address stays active until you restart your computer or network adapter. To use a random address on Wi-Fi, turn on Random hardware addresses.</source>
+        <translation>Đã gỡ bỏ tính năng giả mạo MAC. Địa chỉ MAC giả mạo vẫn hoạt động cho đến khi bạn khởi động lại máy tính hoặc bộ điều hợp mạng. Để dùng địa chỉ ngẫu nhiên trên Wi-Fi, hãy bật &quot;Địa chỉ phần cứng ngẫu nhiên&quot;.</translation>
+    </message>
+    <message>
+        <source>Open Wi-Fi Settings</source>
+        <translation>Mở cài đặt Wi-Fi</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>Đóng</translation>
+    </message>
+    <message>
+        <source>MAC spoofing is no longer available in Windscribe. To use a random MAC address on Wi-Fi, set Private Wi-Fi address to Rotating in System Settings &gt; Wi-Fi &gt; Details.</source>
+        <translation>Giả mạo MAC không còn khả dụng trong Windscribe. Để dùng địa chỉ MAC ngẫu nhiên trên Wi-Fi, hãy đặt &quot;Địa chỉ Wi-Fi bảo mật&quot; thành &quot;Luân chuyển&quot; trong Cài đặt hệ thống &gt; Wi-Fi &gt; Chi tiết.</translation>
+    </message>
+    <message>
+        <source>MAC spoofing is no longer available in Windscribe. To use a random MAC address on Wi-Fi, update to macOS 15 or later, then set Private Wi-Fi address to Rotating in System Settings &gt; Wi-Fi &gt; Details.</source>
+        <translation>Giả mạo MAC không còn khả dụng trong Windscribe. Để dùng địa chỉ MAC ngẫu nhiên trên Wi-Fi, hãy cập nhật lên macOS 15 trở lên, sau đó đặt &quot;Địa chỉ Wi-Fi bảo mật&quot; thành &quot;Luân chuyển&quot; trong Cài đặt hệ thống &gt; Wi-Fi &gt; Chi tiết.</translation>
+    </message>
+    <message>
+        <source>MAC spoofing has been removed. Your network connection may still use the spoofed MAC address. To change it, set its cloned MAC address to Random, or clear it, in your network settings.</source>
+        <translation>Đã gỡ bỏ tính năng giả mạo MAC. Kết nối mạng của bạn có thể vẫn dùng địa chỉ MAC giả mạo. Để thay đổi, hãy đặt địa chỉ MAC nhân bản của kết nối thành &quot;Ngẫu nhiên&quot; hoặc xóa địa chỉ đó trong cài đặt mạng.</translation>
     </message>
     <message>
         <source>Installation Incomplete</source>
@@ -797,18 +841,6 @@ Nếu bạn mất hàm băm tài khoản của mình, nó sẽ biến mất vĩn
     <message>
         <source>Service Error</source>
         <translation>Lỗi dịch vụ</translation>
-    </message>
-    <message>
-        <source>MAC Spoofing Failed</source>
-        <translation>Giả mạo MAC không thành công</translation>
-    </message>
-    <message>
-        <source>Your network adapter does not support MAC spoofing. Try a different adapter.</source>
-        <translation>Bộ điều hợp mạng của bạn không hỗ trợ giả mạo MAC. Hãy thử một bộ điều hợp khác.</translation>
-    </message>
-    <message>
-        <source>Could not spoof MAC address.  Please try a different network interface or contact support.</source>
-        <translation>Không thể giả mạo địa chỉ MAC.  Vui lòng thử giao diện mạng khác hoặc liên hệ với bộ phận hỗ trợ.</translation>
     </message>
     <message>
         <source>Detection Error</source>
@@ -973,10 +1005,6 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
         <translation>Kết nối IKEv2 không khả dụng trong Chế độ khóa MacOS. Vui lòng tắt Chế độ khóa trong Cài đặt hệ thống hoặc thay đổi cài đặt kết nối của bạn.</translation>
     </message>
     <message>
-        <source>Rotating MAC Address</source>
-        <translation>Địa chỉ MAC xoay</translation>
-    </message>
-    <message>
         <source>Wi-Fi is off</source>
         <translation>Wi-Fi bị tắt</translation>
     </message>
@@ -1119,10 +1147,6 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
     <message>
         <source>Creating your account...</source>
         <translation>Tạo tài khoản của bạn...</translation>
-    </message>
-    <message>
-        <source>Cannot rotate MAC address while connected to VPN. Please disconnect first.</source>
-        <translation>Không thể xoay địa chỉ MAC khi kết nối với VPN. Vui lòng ngắt kết nối trước.</translation>
     </message>
 </context>
 <context>
@@ -1570,14 +1594,6 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
         <translation>Chọn một trong các vị trí này để kết nối qua máy chủ hydra của bạn.</translation>
     </message>
     <message>
-        <source>Spoof your device&apos;s physical address (MAC address).</source>
-        <translation>Giả mạo địa chỉ thực của thiết bị (địa chỉ MAC).</translation>
-    </message>
-    <message>
-        <source>MAC spoofing requires NetworkManager to be installed and running.</source>
-        <translation>Giả mạo MAC yêu cầu cài đặt và chạy NetworkManager.</translation>
-    </message>
-    <message>
         <source>Close all active TCP sockets when the VPN tunnel is established.</source>
         <translation>Đóng tất cả các khe cắm TCP đang hoạt động khi đường hầm VPN được thiết lập.</translation>
     </message>
@@ -1963,45 +1979,6 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
     <message>
         <source>Tray Icon Colour</source>
         <translation>Màu biểu tượng khay</translation>
-    </message>
-</context>
-<context>
-    <name>PreferencesWindow::MacSpoofingGroup</name>
-    <message>
-        <source>Cannot spoof on &apos;No Interface&apos;</source>
-        <translation>Không thể giả mạo trên &apos;Không có giao diện&apos;</translation>
-    </message>
-    <message>
-        <source>You can only spoof an existing adapter.</source>
-        <translation>Bạn chỉ có thể giả mạo bộ điều hợp hiện có.</translation>
-    </message>
-    <message>
-        <source>Cannot spoof the current interface</source>
-        <translation>Không thể giả mạo giao diện hiện tại</translation>
-    </message>
-    <message>
-        <source>The current primary interface must match the selected interface to spoof.</source>
-        <translation>Giao diện chính hiện tại phải khớp với giao diện đã chọn để giả mạo.</translation>
-    </message>
-    <message>
-        <source>No Interface</source>
-        <translation>Không có giao diện</translation>
-    </message>
-    <message>
-        <source>MAC Spoofing</source>
-        <translation>Giả mạo MAC</translation>
-    </message>
-    <message>
-        <source>MAC Address</source>
-        <translation>Địa chỉ MAC</translation>
-    </message>
-    <message>
-        <source>Interface</source>
-        <translation>Giao diện</translation>
-    </message>
-    <message>
-        <source>Auto-Rotate MAC</source>
-        <translation>Tự động xoay MAC</translation>
     </message>
 </context>
 <context>

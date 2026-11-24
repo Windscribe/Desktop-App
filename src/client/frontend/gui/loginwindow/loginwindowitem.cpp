@@ -280,24 +280,7 @@ void LoginWindowItem::attemptLogin()
         usernameEntry_->setError(false);
         passwordEntry_->setError(false);
 
-        bool userOrPassError = false;
-        if (username.length() < 3)
-        {
-            userOrPassError = true;
-        }
-        else if (password.length() < 4) // activate with text
-        {
-            userOrPassError = true;
-        }
-
-        if (userOrPassError)
-        {
-            setErrorMessage(LoginWindow::ERR_MSG_INCORRECT_LOGIN1, QString());
-        }
-        else
-        {
-            emit loginClick(username, password, current2FACode_);
-        }
+        emit loginClick(username, password, current2FACode_);
     } else {
         QString hash = hashEntry_->getText().trimmed();
         if (HashUtil::isValidTruncatedSHA256(hash)) {

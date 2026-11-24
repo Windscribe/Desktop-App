@@ -493,6 +493,22 @@
         <source>Your username should not be an email address. Please try again.</source>
         <translation>आपका उपयोगकर्ता नाम ईमेल पता नहीं होना चाहिए। कृपया पुन: प्रयास करें.</translation>
     </message>
+    <message>
+        <source>Username must be 3 to 255 characters</source>
+        <translation>उपयोगकर्ता नाम 3 से 255 वर्णों का होना चाहिए</translation>
+    </message>
+    <message>
+        <source>Use only A–Z, a–z, 0–9, _ and -</source>
+        <translation>केवल A–Z, a–z, 0–9, _ और -</translation>
+    </message>
+    <message>
+        <source>Password must be 8 to 255 characters</source>
+        <translation>पासवर्ड 8 से 255 वर्णों का होना चाहिए</translation>
+    </message>
+    <message>
+        <source>An unknown error occurred.</source>
+        <translation>कोई अज्ञात त्रुटि उत्पन्न हुई।</translation>
+    </message>
 </context>
 <context>
     <name>LoginWindow::SignupWindowItem</name>
@@ -523,10 +539,6 @@
     <message>
         <source>Enter password</source>
         <translation>पासवर्ड दर्ज करें</translation>
-    </message>
-    <message>
-        <source>8 or more characters with at least one uppercase and lowercase(ie. &quot;Hello1234&quot;, &quot;Solyanka&quot;).</source>
-        <translation>कम से कम एक अपरकेस और लोअरकेस के साथ 8 या अधिक वर्ण (यानी। &quot;हैलो1234&quot;, &quot;सोल्यंका&quot;)।</translation>
     </message>
     <message>
         <source>Email (Optional)</source>
@@ -579,10 +591,6 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
         <translation>सभी फ़ाइलें (*.*)</translation>
     </message>
     <message>
-        <source>Username must be at least 3 characters</source>
-        <translation>उपयोगकर्ता नाम कम से कम 3 वर्णों का होना चाहिए</translation>
-    </message>
-    <message>
         <source>Your username should not be an email address.</source>
         <translation>आपका उपयोगकर्ता नाम ईमेल पता नहीं होना चाहिए।</translation>
     </message>
@@ -593,6 +601,18 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
     <message>
         <source>Invalid hash</source>
         <translation>अमान्य हैश</translation>
+    </message>
+    <message>
+        <source>Username must be 3 to 255 characters</source>
+        <translation>उपयोगकर्ता नाम 3 से 255 वर्णों का होना चाहिए</translation>
+    </message>
+    <message>
+        <source>Use only A–Z, a–z, 0–9, _ and -</source>
+        <translation>केवल A–Z, a–z, 0–9, _ और -</translation>
+    </message>
+    <message>
+        <source>Password must be 8 to 255 characters</source>
+        <translation>पासवर्ड 8 से 255 वर्णों का होना चाहिए</translation>
     </message>
 </context>
 <context>
@@ -645,10 +665,6 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
         <translation>VPN सक्रिय है</translation>
     </message>
     <message>
-        <source>Rotating your MAC address will result in a disconnect event from the current network. Are you sure?</source>
-        <translation>अपने मैक पते को घुमाने से वर्तमान नेटवर्क से डिस्कनेक्ट ईवेंट होगा। क्या आपको यकीन है?</translation>
-    </message>
-    <message>
         <source>Cannot detect appropriate packet size while connected. Please disconnect first.</source>
         <translation>कनेक्ट करते समय उपयुक्त पैकेट आकार का पता नहीं लगा सकता. कृपया पहले डिस्कनेक्ट करें।</translation>
     </message>
@@ -671,10 +687,6 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
     <message>
         <source>We&apos;ve detected that your network settings may interfere with Windscribe.  Please send us a debug log to troubleshoot.</source>
         <translation>हमने पाया है कि आपकी नेटवर्क सेटिंग्स विंडस्क्राइब में हस्तक्षेप कर सकती हैं।  कृपया समस्या निवारण के लिए हमें एक डीबग लॉग भेजें.</translation>
-    </message>
-    <message>
-        <source>Could not spoof MAC address.  Please try a different network interface or contact support.</source>
-        <translation>MAC पते को स्पूफ नहीं कर सका.  कृपया किसी भिन्न नेटवर्क इंटरफ़ेस का प्रयास करें या समर्थन से संपर्क करें.</translation>
     </message>
     <message>
         <source>Could not download update.  Please try again or use a different network.</source>
@@ -765,6 +777,34 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
         <translation>चयनित निर्देशिका अन्य उपयोगकर्ताओं के लिए लिखने योग्य है। इस निर्देशिका में कस्टम कॉन्फ़िगरेशन एक संभावित सुरक्षा जोखिम पैदा कर सकता है।</translation>
     </message>
     <message>
+        <source>MAC Spoofing Removed</source>
+        <translation>MAC स्पूफिंग हटा दी गई</translation>
+    </message>
+    <message>
+        <source>MAC spoofing has been removed. Your spoofed MAC address stays active until you restart your computer or network adapter. To use a random address on Wi-Fi, turn on Random hardware addresses.</source>
+        <translation>MAC स्पूफिंग हटा दी गई है। स्पूफ किया गया MAC पता तब तक सक्रिय रहता है जब तक आप अपने कंप्यूटर या नेटवर्क एडाप्टर को पुनः आरंभ नहीं करते। वाई-फ़ाई पर यादृच्छिक पते का उपयोग करने के लिए, &quot;यादृच्छिक हार्डवेयर पते&quot; चालू करें।</translation>
+    </message>
+    <message>
+        <source>Open Wi-Fi Settings</source>
+        <translation>वाई-फ़ाई सेटिंग्स खोलें</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>बंद करें</translation>
+    </message>
+    <message>
+        <source>MAC spoofing is no longer available in Windscribe. To use a random MAC address on Wi-Fi, set Private Wi-Fi address to Rotating in System Settings &gt; Wi-Fi &gt; Details.</source>
+        <translation>Windscribe में MAC स्पूफिंग अब उपलब्ध नहीं है। वाई-फ़ाई पर यादृच्छिक MAC पते का उपयोग करने के लिए, सिस्टम सेटिंग्ज़ &gt; वाई-फ़ाई &gt; विवरण में &quot;निजी वाई-फ़ाई पता&quot; को &quot;लगातार बदलने वाला&quot; पर सेट करें।</translation>
+    </message>
+    <message>
+        <source>MAC spoofing is no longer available in Windscribe. To use a random MAC address on Wi-Fi, update to macOS 15 or later, then set Private Wi-Fi address to Rotating in System Settings &gt; Wi-Fi &gt; Details.</source>
+        <translation>Windscribe में MAC स्पूफिंग अब उपलब्ध नहीं है। वाई-फ़ाई पर यादृच्छिक MAC पते का उपयोग करने के लिए, macOS 15 या उसके बाद के संस्करण में अपडेट करें, फिर सिस्टम सेटिंग्ज़ &gt; वाई-फ़ाई &gt; विवरण में &quot;निजी वाई-फ़ाई पता&quot; को &quot;लगातार बदलने वाला&quot; पर सेट करें।</translation>
+    </message>
+    <message>
+        <source>MAC spoofing has been removed. Your network connection may still use the spoofed MAC address. To change it, set its cloned MAC address to Random, or clear it, in your network settings.</source>
+        <translation>MAC स्पूफिंग हटा दी गई है। हो सकता है आपका नेटवर्क कनेक्शन अभी भी स्पूफ किए गए MAC पते का उपयोग कर रहा हो। इसे बदलने के लिए, अपनी नेटवर्क सेटिंग्स में कनेक्शन के क्लोन किए गए MAC पते को &quot;यादृच्छिक&quot; पर सेट करें या उसे साफ़ करें।</translation>
+    </message>
+    <message>
         <source>Installation Incomplete</source>
         <translation>स्थापना अपूर्ण</translation>
     </message>
@@ -841,14 +881,6 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
     <message>
         <source>Service Error</source>
         <translation>सेवा त्रुटि</translation>
-    </message>
-    <message>
-        <source>MAC Spoofing Failed</source>
-        <translation>मैक स्पूफिंग विफल</translation>
-    </message>
-    <message>
-        <source>Your network adapter does not support MAC spoofing. Try a different adapter.</source>
-        <translation>आपका नेटवर्क एडाप्टर MAC स्पूफिंग का समर्थन नहीं करता. किसी भिन्न एडाप्टर का प्रयास करें.</translation>
     </message>
     <message>
         <source>Detection Error</source>
@@ -971,10 +1003,6 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>IKEv2 connectivity is not available in MacOS Lockdown Mode. Please disable Lockdown Mode in System Settings or change your connection settings.</source>
         <translation>IKEv2 कनेक्टिविटी MacOS लॉकडाउन मोड में उपलब्ध नहीं है। कृपया सिस्टम सेटिंग्स में लॉकडाउन मोड अक्षम करें या अपनी कनेक्शन सेटिंग्स परिवर्तित करें.</translation>
-    </message>
-    <message>
-        <source>Rotating MAC Address</source>
-        <translation>घूर्णन मैक पता</translation>
     </message>
     <message>
         <source>Wi-Fi is off</source>
@@ -1119,10 +1147,6 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Creating your account...</source>
         <translation>अपना खाता बनाना...</translation>
-    </message>
-    <message>
-        <source>Cannot rotate MAC address while connected to VPN. Please disconnect first.</source>
-        <translation>वीपीएन से कनेक्ट होने के दौरान मैक पते को घुमा नहीं सकता। कृपया पहले डिस्कनेक्ट करें।</translation>
     </message>
 </context>
 <context>
@@ -1566,14 +1590,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>अपने hydra सर्वर के ज़रिए कनेक्ट करने के लिए इनमें से कोई एक लोकेशन चुनें।</translation>
     </message>
     <message>
-        <source>Spoof your device&apos;s physical address (MAC address).</source>
-        <translation>अपने डिवाइस के भौतिक पते (MAC पता) को स्पूफ करें।</translation>
-    </message>
-    <message>
-        <source>MAC spoofing requires NetworkManager to be installed and running.</source>
-        <translation>मैक स्पूफिंग को स्थापित करने और चलाने के लिए NetworkManager की आवश्यकता होती है।</translation>
-    </message>
-    <message>
         <source>Close all active TCP sockets when the VPN tunnel is established.</source>
         <translation>वीपीएन सुरंग स्थापित होने पर सभी सक्रिय टीसीपी सॉकेट बंद करें।</translation>
     </message>
@@ -1963,45 +1979,6 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Tray Icon Colour</source>
         <translation>ट्रे आइकन रंग</translation>
-    </message>
-</context>
-<context>
-    <name>PreferencesWindow::MacSpoofingGroup</name>
-    <message>
-        <source>You can only spoof an existing adapter.</source>
-        <translation>आप केवल मौजूदा एडाप्टर को स्पूफ कर सकते हैं।</translation>
-    </message>
-    <message>
-        <source>Cannot spoof on &apos;No Interface&apos;</source>
-        <translation>&apos;नो इंटरफेस&apos; पर स्पूफ नहीं कर सकता</translation>
-    </message>
-    <message>
-        <source>Cannot spoof the current interface</source>
-        <translation>वर्तमान इंटरफ़ेस को स्पूफ नहीं कर सकता</translation>
-    </message>
-    <message>
-        <source>The current primary interface must match the selected interface to spoof.</source>
-        <translation>वर्तमान प्राथमिक इंटरफ़ेस चयनित इंटरफ़ेस को स्पूफ से मेल खाना चाहिए।</translation>
-    </message>
-    <message>
-        <source>No Interface</source>
-        <translation>कोई इंटरफ़ेस नहीं</translation>
-    </message>
-    <message>
-        <source>MAC Spoofing</source>
-        <translation>मैक स्पूफिंग</translation>
-    </message>
-    <message>
-        <source>MAC Address</source>
-        <translation>मैक का पता</translation>
-    </message>
-    <message>
-        <source>Interface</source>
-        <translation>इंटरफ़ेस</translation>
-    </message>
-    <message>
-        <source>Auto-Rotate MAC</source>
-        <translation>ऑटो-रोटेट मैक</translation>
     </message>
 </context>
 <context>

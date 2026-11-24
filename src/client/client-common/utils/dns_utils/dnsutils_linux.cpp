@@ -6,6 +6,7 @@
 #include "types/ipaddress.h"
 #include "utils/linuxutils.h"
 #include "utils/log/categories.h"
+#include "utils/log/debug_trace.h"
 
 namespace DnsUtils
 {
@@ -163,6 +164,7 @@ static void getOSDefaultDnsServers_ResolvConf(const QStringList &excludeDnsServe
 
 std::vector<std::wstring> getOSDefaultDnsServers()
 {
+    WS_DEBUG_TRACE_SCOPE("DnsUtils::getOSDefaultDnsServers");
     QString vpnInterfaceName;
     QStringList tunnelDnsServers;
     getVpnContext(vpnInterfaceName, tunnelDnsServers);

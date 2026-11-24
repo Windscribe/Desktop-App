@@ -18,7 +18,5 @@ class Registry
     static LSTATUS RegDeleteKeyView(const HKEY Key,  const wchar_t *Name);
 
     // non-legacy
-    static std::vector<std::wstring> regGetSubkeyChildNames(HKEY h, const wchar_t *subkeyName);
     static bool regDeleteProperty(HKEY h, const wchar_t *subkeyName, std::wstring valueName);
-    static bool regHasSubkeyProperty(HKEY h, const wchar_t *subkeyName, std::wstring valueName);
 };

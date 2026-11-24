@@ -14,6 +14,7 @@
 #include "../common/validation_posix.h"
 #include "macutils.h"
 #include "utils.h"
+#include "utils/log/debug_trace.h"
 
 namespace {
 
@@ -49,6 +50,7 @@ FirewallController::~FirewallController()
 
 bool FirewallController::enable(const FirewallConfig &config)
 {
+    WS_DEBUG_TRACE_SCOPE("FirewallController::enable");
     // Off->on transition does a full load (state flush is expected/acceptable there). Once we're
     // enabled, every change is applied with targeted table/anchor loads that leave the pf state
     // table untouched, so live connections aren't reset on an allowed-IP / LAN / ports / interface
@@ -92,6 +94,7 @@ bool FirewallController::enable(const FirewallConfig &config)
 
 bool FirewallController::applyTargeted(const FirewallConfig &config, bool force)
 {
+    WS_DEBUG_TRACE_SCOPE("FirewallController::applyTargeted");
     // allowedIps originates from an unordered QSet on the engine, so its vector order can vary
     // between calls — compare as a set to avoid a spurious table reload. staticPorts arrives in a
     // deterministic order, so a plain vector compare below is sufficient there.
@@ -172,6 +175,7 @@ bool FirewallController::applyTargeted(const FirewallConfig &config, bool force)
 
 bool FirewallController::fullApply(const FirewallConfig &config)
 {
+    WS_DEBUG_TRACE_SCOPE("FirewallController::fullApply");
     // Read the OS-resolver set once and cache it so applyTargeted's diff-gate has a baseline (and
     // doesn't redundantly reload <disallowed_dns> on the first steady-state push after this apply).
     lastDisallowedDnsDef_ = disallowedDnsTableDef();
@@ -275,6 +279,7 @@ void FirewallController::getRules(CmdFirewallRulesQuery query, std::string *outR
 
 bool FirewallController::disable(bool keepPfEnabled)
 {
+    WS_DEBUG_TRACE_SCOPE("FirewallController::disable");
     bool ok = Utils::executeCommand("/sbin/pfctl", {"-v", "-F", "all", "-f", "/etc/pf.conf"}) == 0;
     if (!keepPfEnabled) {
         ok = (Utils::executeCommand("/sbin/pfctl", {"-d"}) == 0) && ok;
@@ -328,6 +333,7 @@ void FirewallController::setVpnDns(const std::vector<types::IpAddress> &dnsList)
 
 void FirewallController::updateDns()
 {
+    WS_DEBUG_TRACE_SCOPE("FirewallController::updateDns");
     if (enabled_ && !vpnDns_.empty()) {
         loadDnsTable();
     } else {
@@ -397,6 +403,7 @@ std::string FirewallController::buildPfConf(const FirewallConfig &config, const 
 
     // general options
     pf += "set block-policy drop\n";
+    pf += "set limit states 100000\n";
     pf += "set fingerprints '/etc/pf.os'\n";
     pf += "set skip on lo0\n";
 

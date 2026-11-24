@@ -47,7 +47,6 @@ private:
 
     void firewallOffImpl();
     void getFirewallStateFromPfctl(FirewallState &outState);
-    bool checkInternalVsPfctlState(FirewallState *outFirewallState = nullptr);
 
     // Assembles the validated firewall intent from the cached state. The helper is the sole author
     // of the pf rules; rule construction and local-machine introspection that used to live here now

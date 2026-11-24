@@ -9,6 +9,7 @@
 #include "types/enginesettings.h"
 #include "types/guisettings.h"
 #include "types/locationid.h"
+#include "types/networkinterface.h"
 
 // all preferences with the ability to receive signals when certain preferences are changed
 class Preferences : public QObject
@@ -89,8 +90,6 @@ public:
     const types::PacketSize &packetSize() const;
     void setPacketSize(const types::PacketSize &ps);
 
-    const types::MacAddrSpoofing &macAddrSpoofing() const;
-    void setMacAddrSpoofing(const types::MacAddrSpoofing &mas);
 
 #if defined(Q_OS_WIN)
     bool isTerminateSockets() const;
@@ -169,6 +168,9 @@ public:
     void validateAndUpdateIfNeeded();
 
     bool isReceivingEngineSettings() const;
+    // False until setEngineSettings() first delivers the engine's settings. Until then engineSettings_ holds
+    // defaults, so nothing may be sent to the engine or written out from it.
+    bool isEngineSettingsReceived() const;
 
     bool isShowLocationLoad() const;
     void setShowLocationLoad(bool b);
@@ -198,7 +200,6 @@ signals:
     void firewallSettingsChanged(const types::FirewallSettings &fs);
     void connectionSettingsChanged(const types::ConnectionSettings &cm);
     void packetSizeChanged(const types::PacketSize &ps);
-    void macAddrSpoofingChanged(const types::MacAddrSpoofing &mas);
     void customConfigsPathChanged(QString path);
     void customConfigNeedsUpdate(const QString &path);
     void showLocationLoadChanged(bool b);
@@ -238,11 +239,15 @@ signals:
     void amneziawgPresetChanged(const QString &preset);
     void customSniDomainChanged(const QString &domain);
 
+    // Emitted once, when setEngineSettings() first delivers the engine's settings.
+    void engineSettingsReceived();
+
 private:
     types::EngineSettings engineSettings_;
     types::GuiSettings guiSettings_;
 
     bool isSettingEngineSettings_;
+    bool isEngineSettingsReceived_ = false;
 
     void emitEngineSettingsChanged();
 

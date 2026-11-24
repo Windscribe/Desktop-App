@@ -86,7 +86,6 @@ signals:
     void clearWifiHistoryClick();
 
     void currentNetworkUpdated(types::NetworkInterface);
-    void cycleMacAddressClick();
     void splitTunnelingAppsAddButtonClick();
     void detectPacketSizeClick();
     void fetchControldDevices(const QString &apiKey);

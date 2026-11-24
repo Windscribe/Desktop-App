@@ -13,6 +13,7 @@
 #include "io_posix.h"
 #include "ovpn_early_exit_log.h"
 #include "process_kill_posix.h"
+#include "utils/log/debug_trace.h"
 #include "validation_posix.h"
 
 namespace Utils {
@@ -26,11 +27,12 @@ namespace OvpnMgmt {
 
 bool waitAndRelaxPerms(uid_t clientUid, pid_t ovpnPid, const std::string &logPath, std::string &outDetail)
 {
+    WS_DEBUG_TRACE_SCOPE("OvpnMgmt::waitAndRelaxPerms");
     outDetail.clear();
     // ~10s window: the socket binds in milliseconds, but on a slow/busy machine the OpenVPN process
     // can take seconds just to start. The engine blocks on this IPC reply with no timeout, so a
     // longer wait is safe and is far better than failing a connect that would otherwise succeed.
-    for (int i = 0; i < 200; ++i) {   // ~10s
+    for (int i = 0; i < 1000; ++i) {   // ~10s
         struct stat st;
         if (stat(WS_OVPN_MGMT_SOCKET, &st) == 0 && S_ISSOCK(st.st_mode)) {
             // chown before chmod: narrowing to 0600 first would briefly lock the client out while the
@@ -56,7 +58,7 @@ bool waitAndRelaxPerms(uid_t clientUid, pid_t ovpnPid, const std::string &logPat
             }
             return false;
         }
-        usleep(50 * 1000);
+        usleep(10 * 1000);
     }
     spdlog::error("OpenVPN management socket did not appear within timeout");
     return false;
@@ -64,6 +66,7 @@ bool waitAndRelaxPerms(uid_t clientUid, pid_t ovpnPid, const std::string &logPat
 
 void killOpenVPN()
 {
+    WS_DEBUG_TRACE_SCOPE("OvpnMgmt::killOpenVPN");
     // OpenVPN unlinks its management socket by name during shutdown, so a still-dying instance can
     // delete the socket a freshly spawned instance just bound at the same fixed path.
     for (const auto &exe : Utils::getOpenVpnExeNames()) {

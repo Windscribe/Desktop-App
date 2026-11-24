@@ -5,12 +5,13 @@
 #include <boost/algorithm/string/split.hpp>
 #include <spdlog/spdlog.h>
 
-#include "wireguardadapter.h"
-#include "userspace/wireguardgocommunicator.h"
-#include "kernelmodule/kernelmodulecommunicator.h"
-#include "defaultroutemonitor.h"
+#include "../../common/defaultroutemonitor_posix.h"
 #include "../network_marks.h"
 #include "../utils.h"
+#include "kernelmodule/kernelmodulecommunicator.h"
+#include "userspace/wireguardgocommunicator.h"
+#include "utils/log/debug_trace.h"
+#include "wireguardadapter.h"
 
 WireGuardController::WireGuardController()
 {
@@ -61,22 +62,32 @@ bool WireGuardController::stop()
         // Use the same logic as start() to determine which communicator to use
         // TODO: JDRM isAmneziaWG_ won't be set here so method may make the wrong decision.
         if (isUsingKernelModule()) {
-            KernelModuleCommunicator::forceStop(kDeviceName);
-        } else {
-            WireGuardGoCommunicator::forceStop(kDeviceName);
+            return KernelModuleCommunicator::forceStop(kDeviceName);
         }
-        return true;
+        return WireGuardGoCommunicator::forceStop(kDeviceName);
     }
 
-    comm_->stop();
-    comm_.reset();
-
-    adapter_->disableRouting();
-    adapter_.reset();
-    drm_.reset();
+    bool stopped = false;
+    {
+        WS_DEBUG_TRACE_SCOPE("WireGuardController::stop comm");
+        stopped = comm_->stop();
+        comm_.reset();
+    }
+    {
+        WS_DEBUG_TRACE_SCOPE("WireGuardController::stop disableRouting");
+        adapter_->disableRouting();
+    }
+    {
+        WS_DEBUG_TRACE_SCOPE("WireGuardController::stop adapter reset");
+        adapter_.reset();
+    }
+    {
+        WS_DEBUG_TRACE_SCOPE("WireGuardController::stop drm reset");
+        drm_.reset();
+    }
     is_initialized_ = false;
 
-    return true;
+    return stopped;
 }
 
 bool WireGuardController::configure(const std::string &clientPrivateKey, const std::string &peerPublicKey, const std::string &peerPresharedKey,
@@ -107,7 +118,8 @@ unsigned long WireGuardController::getStatus(
 
 
 bool WireGuardController::configureAdapter(const std::string &ipAddress, const std::string &dnsAddressList, const std::string &dnsScriptName,
-                                           const std::vector<std::string> &allowedIps, uint32_t fwmark, uint32_t routingTable)
+                                           const std::vector<std::string> &allowedIps, uint32_t fwmark, uint32_t routingTable,
+                                           const std::string &peerEndpoint)
 {
     UNUSED(dnsScriptName);
     UNUSED(dnsAddressList);
@@ -116,9 +128,14 @@ bool WireGuardController::configureAdapter(const std::string &ipAddress, const s
 
     if (!is_initialized_ || !adapter_.get())
         return false;
-    return adapter_->setIpAddress(ipAddress)
-           && adapter_->setDnsServers(dnsAddressList, dnsScriptName)
+    if (!adapter_->setIpAddress(ipAddress)) {
+        return false;
+    }
+    adapter_->addDnsServerRoutes(dnsAddressList, allowedIps, peerEndpoint);
+    const bool success = adapter_->setDnsServers(dnsAddressList, dnsScriptName)
            && adapter_->enableRouting(allowedIps, fwmark, routingTable);
+    adapter_->removeDnsServerRoutes();
+    return success;
 }
 
 std::string WireGuardController::getAdapterName() const
@@ -133,7 +150,7 @@ bool WireGuardController::configureDefaultRouteMonitor(const std::string &peerEn
     if (!is_initialized_ || !adapter_.get())
         return false;
     if (!drm_)
-        drm_.reset(new DefaultRouteMonitor(adapter_->getName()));
+        drm_.reset(new DefaultRouteMonitor());
     return drm_->start(peerEndpoint);
 }
 

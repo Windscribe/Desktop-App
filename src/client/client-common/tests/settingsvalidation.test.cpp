@@ -12,6 +12,7 @@
 #include "types/enginesettings.h"
 #include "types/firewallsettings.h"
 #include "types/guipersistentstate.h"
+#include "types/global_consts.h"
 #include "types/guisettings.h"
 #include "types/macaddrspoofing.h"
 #include "types/networkinterface.h"
@@ -21,6 +22,7 @@
 #include "types/soundsettings.h"
 #include "types/splittunneling.h"
 #include "utils/languagesutil.h"
+#include "utils/simplecrypt.h"
 
 void TestSettingsValidation::initTestCase()
 {
@@ -112,6 +114,36 @@ void TestSettingsValidation::testEngineSettings_outOfRangeDnsPolicy()
     data.dnsPolicy = static_cast<DNS_POLICY_TYPE>(999);
     data.validate();
     QCOMPARE(data.dnsPolicy, DNS_TYPE_CLOUDFLARE);
+}
+
+void TestSettingsValidation::testEngineSettings_reportsMacSpoofingThatWasOnOnce()
+{
+    types::EngineSettings::clearMacSpoofingRemoved();
+
+    types::MacAddrSpoofing macAddrSpoofing;
+    macAddrSpoofing.isEnabled = true;
+    QByteArray arr;
+    {
+        QDataStream ds(&arr, QIODevice::WriteOnly);
+        ds << quint32(0x7745C2AE) << quint32(1) << QString("en") << UPDATE_CHANNEL_RELEASE << false << true << false
+           << types::FirewallSettings() << types::ConnectionSettings() << types::ApiResolutionSettings() << types::ProxySettings()
+           << types::PacketSize() << macAddrSpoofing << DNS_TYPE_CLOUDFLARE << TAP_ADAPTER << QString() << false
+           << types::ConnectedDnsInfo() << DNS_MANAGER_AUTOMATIC;
+    }
+    {
+        QSettings settings;
+        settings.setValue("engineSettings", SimpleCrypt(SIMPLE_CRYPT_KEY).encryptToString(arr));
+    }
+
+    types::EngineSettings loaded;
+    QVERIFY(loaded.loadFromSettings());
+    QVERIFY(types::EngineSettings::isMacSpoofingRemovedMarked());
+
+    types::EngineSettings::clearMacSpoofingRemoved();
+    loaded.saveToSettings();
+    types::EngineSettings reloaded;
+    QVERIFY(reloaded.loadFromSettings());
+    QVERIFY(!types::EngineSettings::isMacSpoofingRemovedMarked());
 }
 
 #ifdef CLI_ONLY
@@ -217,7 +249,6 @@ void TestSettingsValidation::testEngineSettings_iniMissingKeysUseDefaults()
     data.connectedDnsInfo.type = CONNECTED_DNS_TYPE_CUSTOM;
     data.connectedDnsInfo.upStream1 = "9.9.9.9";
     data.decoyTrafficSettings.setEnabled(true);
-    data.macAddrSpoofing.isAutoRotate = true;
 
     QSettings ini(path, QSettings::IniFormat);
     data.fromIni(ini);
@@ -242,7 +273,6 @@ void TestSettingsValidation::testEngineSettings_iniMissingKeysUseDefaults()
     QVERIFY(data.packetSize == defaults.packetSize);
     QVERIFY(data.connectedDnsInfo == defaults.connectedDnsInfo);
     QVERIFY(data.decoyTrafficSettings == defaults.decoyTrafficSettings);
-    QCOMPARE(data.macAddrSpoofing.isAutoRotate, defaults.macAddrSpoofing.isAutoRotate);
 }
 
 void TestSettingsValidation::testGuiSettings_iniMissingKeysUseDefaults()
@@ -591,26 +621,6 @@ void TestSettingsValidation::testPacketSize_readsFromIni()
     QCOMPARE(ps.mtu, 1400);
 }
 #endif
-
-void TestSettingsValidation::testMacAddrSpoofing_badMacDisables()
-{
-    types::MacAddrSpoofing mac;
-    mac.isEnabled = true;
-    mac.macAddress = "not-a-mac";
-    mac.validate();
-    QVERIFY(mac.macAddress.isEmpty());
-    QVERIFY(!mac.isEnabled);
-}
-
-void TestSettingsValidation::testMacAddrSpoofing_badInterfaceDisables()
-{
-    types::MacAddrSpoofing mac;
-    mac.isEnabled = true;
-    mac.selectedNetworkInterface.interfaceName = "bad\tiface\tname";
-    mac.validate();
-    QVERIFY(mac.selectedNetworkInterface.interfaceName.isEmpty());
-    QVERIFY(!mac.isEnabled);
-}
 
 void TestSettingsValidation::testConnectedDnsInfo_badUpstream1()
 {

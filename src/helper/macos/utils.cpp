@@ -4,18 +4,22 @@
 #include <chrono>
 #include <cstring>
 #include <filesystem>
+#include <ifaddrs.h>
+#include <net/if.h>
+#include <set>
 #include <spdlog/spdlog.h>
-#include <sstream>
 #include <sys/stat.h>
 #include <sys/wait.h>
 #include <thread>
 #include <unistd.h>
 
 #include "../common/io_posix.h"
+#include "../common/process_kill_posix.h"
+#include "../common/spawn_posix.h"
 #include "../common/validation_posix.h"
-#include "3rdparty/pstream.h"
 #include "directory_mac.h"
 #include "firewallonboot.h"
+#include "utils/executable_signature/executable_signature.h"
 
 namespace Utils
 {
@@ -23,12 +27,20 @@ namespace Utils
 std::vector<std::string> getAwdlP2pInterfaces()
 {
     std::vector<std::string> ret;
-    std::string output;
-    executeCommand("ifconfig", {"-l", "-u"}, &output);
+    std::set<std::string> upInterfaces;
+    struct ifaddrs *interfaces = nullptr;
+    if (getifaddrs(&interfaces) == 0) {
+        for (struct ifaddrs *ifa = interfaces; ifa != nullptr; ifa = ifa->ifa_next) {
+            if (ifa->ifa_name != nullptr && (ifa->ifa_flags & IFF_UP)) {
+                upInterfaces.insert(ifa->ifa_name);
+            }
+        }
+        freeifaddrs(interfaces);
+    } else {
+        spdlog::error("getAwdlP2pInterfaces: getifaddrs failed: {}", IO::strerror(errno));
+    }
 
-    std::istringstream stream(output);
-    std::string name;
-    while (stream >> name) {
+    for (const std::string &name : upInterfaces) {
         if (name.rfind("p2p", 0) == 0 || name.rfind("awdl", 0) == 0 || name.rfind("llw", 0) == 0) {
             // Validate before interpolating into pf rule text ("pass quick on <iface>"), same as the
             // client-supplied vpnInterfaceName and the Linux getHotspotAdapter path: a name carrying
@@ -43,74 +55,21 @@ std::vector<std::string> getAwdlP2pInterfaces()
     return ret;
 }
 
-// based on 3rd party lib (http://pstreams.sourceforge.net/)
 int executeCommand(const std::string &cmd, const std::vector<std::string> &args,
                    std::string *pOutputStr, bool appendFromStdErr)
 {
-    // Single-quote the program too, not just the args — helper binaries live under
-    // "Application Support" and an unquoted path word-splits in the shell.
-    auto quote = [](const std::string &s) {
-        std::string out = "'";
-        for (char c : s) {
-            if (c == '\'') {
-                out += "'\\''";
-            } else {
-                out += c;
-            }
-        }
-        out += "'";
-        return out;
-    };
+    return Spawn::runCommand(cmd, args, pOutputStr, appendFromStdErr);
+}
 
-    std::string cmdLine = quote(cmd);
-    for (auto it = args.begin(); it != args.end(); ++it) {
-        cmdLine += " " + quote(*it);
+bool locateHelperExecutable(const std::string &name, std::string &outPath)
+{
+    outPath = getExePath() + "/" + name;
+    ExecutableSignature sigCheck;
+    if (!sigCheck.verify(outPath)) {
+        spdlog::error("{} executable signature incorrect: {}", name, sigCheck.lastError());
+        return false;
     }
-
-    if (pOutputStr)
-    {
-        pOutputStr->clear();
-    }
-
-    // Merge stderr into stdout via a subshell and read only that one pipe: draining two pipes
-    // separately can deadlock if the child fills the one we aren't reading. The ( ) wrapper makes
-    // the redirect cover every stage of a pipeline, not just the last, and leaves the exit status
-    // unchanged.
-    if (appendFromStdErr) {
-        cmdLine = "( " + cmdLine + " ) 2>&1";
-    } else {
-        cmdLine = "( " + cmdLine + " ) 2>/dev/null";
-    }
-
-    redi::ipstream proc(cmdLine, redi::pstreams::pstdout);
-    std::string line;
-    // read child's stdout (with stderr merged in when requested)
-    while (std::getline(proc.out(), line)) {
-        if (pOutputStr) {
-            *pOutputStr += line + "\n";
-        }
-    }
-    // if reading stdout stopped at EOF then reset the state:
-    if (proc.eof() && proc.fail()) {
-        proc.clear();
-    }
-
-    proc.close();
-    if (proc.rdbuf()->exited())
-    {
-        const int status = proc.rdbuf()->status();
-        // status() is the raw waitpid() value; return the decoded exit code so callers that log the
-        // result see the real code (e.g. 1) rather than the encoded status (e.g. 256).
-        if (WIFEXITED(status)) {
-            return WEXITSTATUS(status);
-        }
-        // Terminated by a signal, so report abnormal rather than a status callers might read as an
-        // exit code.
-        return -1;
-    }
-    // The child did not exit normally (signal, stop, etc.). Callers compare the return
-    // value to 0 to decide success, so a 0 here would falsely report success.
-    return -1;
+    return true;
 }
 
 
@@ -158,8 +117,7 @@ bool ensureVendorDir()
 
 std::vector<std::string> getOpenVpnExeNames()
 {
-    // A fixed name, not a directory listing. killOpenVPN turns these into a `pkill -f` pattern,
-    // i.e. a regex, so enumerating a directory made the pattern depend on filenames on disk.
+    // A fixed name, not a directory listing, so which processes killOpenVPN stops never depends on the files on disk.
     return { WS_PRODUCT_NAME_LOWER "openvpn" };
 }
 
@@ -169,7 +127,7 @@ bool isAppUninstalled()
     // App is uninstalled if the application path is no longer valid AND the installer app is not running
     std::error_code ec;
     return !std::filesystem::exists(WS_MAC_APP_DIR, ec) &&
-           Utils::executeCommand("pgrep", {"-f", WS_MAC_INSTALLER_BUNDLE_NAME});
+           !ProcessKill::isAnyExecutablePathContaining(WS_MAC_INSTALLER_BUNDLE_NAME);
 }
 
 void deleteSelf()

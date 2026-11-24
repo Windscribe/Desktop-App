@@ -7,6 +7,8 @@
 #include "installer_base.h"
 #include "iinstall_block.h"
 
+class UninstallPrev;
+
 class Installer : public InstallerBase
 {
 public:
@@ -32,6 +34,8 @@ protected:
     int progress_;
 
 private:
+    UninstallPrev *uninstallPrev_ = nullptr;
+
     void executeBlocks();
     void deleteBlocks();
 };

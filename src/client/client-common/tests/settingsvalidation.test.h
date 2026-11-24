@@ -20,6 +20,7 @@ private slots:
     void testEngineSettings_resetOnWindowsRelativeCustomOvpnPath();
     void testEngineSettings_oversizeNetworkPreferred();
     void testEngineSettings_outOfRangeDnsPolicy();
+    void testEngineSettings_reportsMacSpoofingThatWasOnOnce();
 #ifdef CLI_ONLY
     void testEngineSettings_readsPerNetworkProtocolsFromIni();
     void testEngineSettings_iniWithoutNetworksClearsPerNetworkProtocols();
@@ -62,10 +63,6 @@ private slots:
 #ifdef CLI_ONLY
     void testPacketSize_readsFromIni();
 #endif
-
-    // MacAddrSpoofing
-    void testMacAddrSpoofing_badMacDisables();
-    void testMacAddrSpoofing_badInterfaceDisables();
 
     // ConnectedDnsInfo
     void testConnectedDnsInfo_badUpstream1();

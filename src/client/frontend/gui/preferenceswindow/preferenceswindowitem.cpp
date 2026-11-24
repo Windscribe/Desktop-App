@@ -59,7 +59,6 @@ PreferencesWindowItem::PreferencesWindowItem(QGraphicsObject *parent, Preference
     connect(connectionWindowItem_, &ConnectionWindowItem::splitTunnelingPageClick, this, &PreferencesWindowItem::onSplitTunnelingPageClick);
     connect(connectionWindowItem_, &ConnectionWindowItem::antiCensorshipPageClick, this, &PreferencesWindowItem::onAntiCensorshipSettingsPageClick);
     connect(connectionWindowItem_, &ConnectionWindowItem::proxySettingsPageClick, this, &PreferencesWindowItem::onProxySettingsPageClick);
-    connect(connectionWindowItem_, &ConnectionWindowItem::cycleMacAddressClick, this, &PreferencesWindowItem::cycleMacAddressClick);
     connect(connectionWindowItem_, &ConnectionWindowItem::detectPacketSize, this, &PreferencesWindowItem::detectPacketSizeClick);
     connect(connectionWindowItem_, &ConnectionWindowItem::connectedDnsDomainsClick, this, &PreferencesWindowItem::onConnectedDnsDomainsClick);
     connect(connectionWindowItem_, &ConnectionWindowItem::fetchControldDevices, this, &PreferencesWindowItem::fetchControldDevices);
@@ -245,7 +244,6 @@ void PreferencesWindowItem::updateNetworkState(types::NetworkInterface network)
 {
     networkOptionsWindowItem_->setCurrentNetwork(network);
     networkOptionsNetworkWindowItem_->setCurrentNetwork(network);
-    connectionWindowItem_->setCurrentNetwork(network);
 }
 
 void PreferencesWindowItem::changeTab(PREFERENCES_TAB_TYPE tab)

@@ -148,12 +148,6 @@ enum DNS_MANAGER_TYPE {
     DNS_MANAGER_NETWORK_MANAGER = 3
 };
 
-enum USER_WARNING_TYPE {
-    USER_WARNING_MAC_SPOOFING_FAILURE_HARD = 0,
-    USER_WARNING_MAC_SPOOFING_FAILURE_SOFT = 1,
-    USER_WARNING_CHECK_UPDATE_INVALID_PLATFORM = 4
-};
-
 enum SPLIT_TUNNEL_START_FAIL_REASON {
     // Generic start failure: the privileged service/helper, or the macOS extension session, could not
     // start split tunneling.  Shows the generic "could not be started" message on every platform.

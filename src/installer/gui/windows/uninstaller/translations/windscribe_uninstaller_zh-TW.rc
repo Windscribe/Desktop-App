@@ -7,4 +7,5 @@ BEGIN
     IDS_CONFIRM_UNINSTALL "您確定要完全移除 Windscribe 及其所有元件?"
     IDS_UNINSTALL_SUCCESS "已成功從電腦中移除 Windscribe。"
     IDS_CLOSE_APP "請退出 Windscribe 應用程式以繼續解除安裝。請注意，退出應用程式後，您的連線將不受保護。"
+    IDS_DELETE_ALL_DATA "同時刪除我的設定和資料（如果您不打算重新安裝 Windscribe，請選擇此項）"
 END

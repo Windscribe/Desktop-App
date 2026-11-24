@@ -2,7 +2,7 @@
 
 // Timing traces for pinpointing runtime stalls. Off unless the ws-debug-trace advanced parameter
 // is set. The client checks it once, on first use, so changing the parameter takes effect on the
-// next app launch. The helper re-reads it each time a client connects.
+// next app launch. The client sends its setting to the helper on each connection.
 //
 // Client builds log through Qt (qCDebug). The helper has no Qt and defines DEBUG_TRACE_SPDLOG
 // to log through spdlog instead. Both sinks land in the logs the customer already sends.
@@ -23,11 +23,8 @@ bool debugTraceEnabled();
 std::string debugTraceThreadId();
 
 #ifdef DEBUG_TRACE_SPDLOG
-// Helper only: the service runs as SYSTEM and cannot resolve the customer's app data folder
-// until a client connects. Reads the advanced parameters file in folder, resolved from the pipe
-// client's token, and replaces the current setting. An empty folder turns tracing off. The
-// folder is user-writable, so the caller must be impersonating the client.
-void loadDebugTraceSetting(const std::wstring &folder);
+// Helper only: applies the setting the client sent.
+void setDebugTraceEnabled(bool enabled);
 
 inline void debugTraceLog(const std::string &message)
 {

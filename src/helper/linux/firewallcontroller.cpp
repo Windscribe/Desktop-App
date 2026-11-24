@@ -15,6 +15,7 @@
 #include "nftables/nftablescontroller.h"
 #include "split_tunneling/cgroups.h"
 #include "utils.h"
+#include "utils/log/debug_trace.h"
 
 FirewallController::FirewallController() : connected_(false), splitTunnelEnabled_(false), splitTunnelExclude_(true)
 {
@@ -188,6 +189,7 @@ std::string FirewallController::buildFirewallRules(const FirewallConfig &config,
 
 bool FirewallController::enable(const FirewallConfig &config)
 {
+    WS_DEBUG_TRACE_SCOPE("FirewallController::enable");
     // Locked: enable() reads the split-tunnel state (buildSplitTunnelRules) that the resolver-thread
     // applySplitTunnel() can be mutating concurrently.
     std::lock_guard<std::recursive_mutex> lock(stateMutex_);
@@ -230,28 +232,17 @@ bool FirewallController::enable(const FirewallConfig &config)
 
 bool FirewallController::disable()
 {
-    // Tear down all of our firewall and split-tunnel chains, leaving only the dnsleaks / wg_* / boot
-    // chains and the table itself intact. The split-tunnel routing/NAT/connmark base chains
-    // (st_route_out, st_nat_post, st_pre_cm) are removed too: leaving them behind made the table linger
-    // after disconnect (so the UI still read the firewall as on) and meant the next apply tried to
-    // re-add already-installed hooked base chains, which the kernel rejects with EOPNOTSUPP. Removing
-    // them here lets each split-tunnel activation re-create them cleanly. nft::deleteChain (add-then-
-    // delete, no hook spec) makes each removal idempotent.
+    WS_DEBUG_TRACE_SCOPE("FirewallController::disable");
+    // Tear down our firewall chains, leaving the dnsleaks / wg_* / boot chains and the table intact. The split-tunnel
+    // routing/NAT/connmark chains are kept while split tunneling is running: turning the firewall off must not stop it.
+    // nft::deleteChain (add-then-delete, no hook spec) makes each removal idempotent.
     //
-    // This MUST be two transactions, not one. st_in/st_out are jump targets of the `jump st_in` /
-    // `jump st_out` rules in the input/output base chains. The kernel refuses to delete a chain while
-    // anything still references it (EBUSY) and counts that reference for the whole transaction — even
-    // when the referencing chain is itself being deleted in the same batch. Folding the jump-target
-    // deletes into the same transaction would fail as a unit, leaving the policy-drop input/output
-    // chains installed: the firewall never turns off on disconnect. So first delete input/output (which
-    // removes the jump rules and releases the references) along with the non-referenced route/NAT/
-    // connmark chains, then delete the now-unreferenced st_in/st_out.
+    // Two transactions: the kernel refuses (EBUSY) to delete st_in/st_out while input/output jump to them, even in a batch that
+    // deletes input/output too, and the failed batch would leave the policy-drop chains installed. So input/output (and the
+    // route/NAT/connmark chains when split tunneling is not running) go first, then the now-unreferenced st_in/st_out.
     std::string buf = nft::addTable();
     buf += nft::deleteChain("input");
     buf += nft::deleteChain("output");
-    buf += nft::deleteChain("st_route_out");
-    buf += nft::deleteChain("st_nat_post");
-    buf += nft::deleteChain("st_pre_cm");
     // The dnsleaks chain is owned by the DNS-leak path and normally torn down on disconnect. When the
     // firewall is turned off while not connected, that chain has no reason to persist; remove it here as
     // a safety net so its port-53 drops can't be left blocking the OS resolvers if a disconnect teardown
@@ -261,6 +252,11 @@ bool FirewallController::disable()
         std::lock_guard<std::recursive_mutex> lock(stateMutex_);
         if (!connected_) {
             buf += nft::deleteChain("dnsleaks");
+        }
+        if (!(connected_ && splitTunnelEnabled_)) {
+            buf += nft::deleteChain("st_route_out");
+            buf += nft::deleteChain("st_nat_post");
+            buf += nft::deleteChain("st_pre_cm");
         }
     }
     // A failed run means the policy-drop chains may still be installed, so report the firewall as still
@@ -285,16 +281,13 @@ bool FirewallController::enabled()
     // firewallActualState() gates whether the engine re-applies the kill switch, so a spurious "off"
     // could suppress a needed re-apply or mask a still-installed policy-drop chain. On such an error we
     // retry the probe once; only a definitive "chain absent" result is reported as off.
-    const std::string query = "list chain " + kNftTable + " output";
     for (int attempt = 0; attempt < 2; ++attempt) {
         std::string err;
-        if (NftablesController::instance().run(query, /*dryRun=*/false, &err, /*logOnError=*/false)) {
-            return true;
+        const int state = NftablesController::instance().chainExists("output", &err);
+        if (state >= 0) {
+            return state == 1;
         }
-        if (err.empty() || err.find("No such") != std::string::npos) {
-            return false;
-        }
-        spdlog::warn("FirewallController::enabled: unexpected nft error querying firewall state (attempt {}): {}", attempt + 1, err);
+        spdlog::warn("FirewallController::enabled: unexpected error querying firewall state (attempt {}): {}", attempt + 1, err);
     }
     // Two consecutive unexpected errors: we cannot confirm the chain is gone, and nft itself appears
     // broken (so enabling would fail too). Report the firewall as still on rather than risk tearing
@@ -315,14 +308,9 @@ std::string FirewallController::buildSplitTunnelRules()
     buf += nft::ensureChain("st_out");
 
     if (connected_ && splitTunnelEnabled_) {
-        // The routing/NAT/connmark base chains are only needed while split tunneling is active, so
-        // create them HERE rather than on every firewall apply. Re-issuing `add chain { type … hook … }`
-        // for an already-installed *hooked* base chain is rejected by the kernel (EOPNOTSUPP) — and if a
-        // prior build created it at a different priority, the conflicting redefinition fails the same
-        // way — which would otherwise fail every enable()/apply once these chains existed. disable()
-        // tears them down so each activation re-creates them cleanly. st_pre_cm sits at prerouting
-        // priority -140, deterministically AFTER WireGuardAdapter's wg_mangle_pre (-150), so the two
-        // connmark chains never run in kernel-undefined order on the same packets.
+        // The routing/NAT/connmark base chains exist only while split tunneling is active. Re-adding an existing hooked chain
+        // with the same spec is a no-op. st_pre_cm sits at prerouting priority -140, after WireGuardAdapter's wg_mangle_pre
+        // (-150), so the two connmark chains never run in kernel-undefined order on the same packets.
         buf += nft::ensureChain("st_route_out", "type route hook output priority -150;");
         buf += nft::ensureChain("st_nat_post", "type nat hook postrouting priority 100;");
         buf += nft::ensureChain("st_pre_cm", "type filter hook prerouting priority -140;");
@@ -379,6 +367,12 @@ std::string FirewallController::buildSplitTunnelRules()
             add("st_in",  "accept");
             add("st_out", "accept");
         }
+    } else {
+        // Removed here, not only in disable(): left behind with the firewall on, their marks override the WireGuard
+        // socket mark and send the handshake into the tunnel.
+        buf += nft::deleteChain("st_route_out");
+        buf += nft::deleteChain("st_nat_post");
+        buf += nft::deleteChain("st_pre_cm");
     }
 
     return buf;
@@ -386,6 +380,7 @@ std::string FirewallController::buildSplitTunnelRules()
 
 bool FirewallController::applySplitTunnel()
 {
+    WS_DEBUG_TRACE_SCOPE("FirewallController::applySplitTunnel");
     std::lock_guard<std::recursive_mutex> lock(stateMutex_);
     if (!NftablesController::instance().run(nft::addTable() + buildSplitTunnelRules())) {
         spdlog::error("FirewallController::applySplitTunnel: nft apply failed; split-tunnel exceptions may not be installed");

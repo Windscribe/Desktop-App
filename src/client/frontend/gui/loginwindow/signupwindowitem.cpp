@@ -1,28 +1,30 @@
 #include "signupwindowitem.h"
 
-#include <QPainter>
-#include <QTextCursor>
-#include <QTimer>
+#include <QCryptographicHash>
+#include <QDebug>
+#include <QDesktopServices>
+#include <QEvent>
+#include <QFileDialog>
 #include <QGraphicsScene>
 #include <QGraphicsView>
-#include <QEvent>
 #include <QKeyEvent>
-#include <QDesktopServices>
-#include <QUrl>
-#include <QDebug>
+#include <QPainter>
 #include <QRegularExpression>
-#include <QCryptographicHash>
-#include <QFileDialog>
+#include <QTextCursor>
+#include <QTimer>
+#include <QUrl>
+
+#include "dpiscalemanager.h"
 #include "graphicresources/fontmanager.h"
 #include "graphicresources/imageresourcessvg.h"
-#include "languagecontroller.h"
-#include "utils/ws_assert.h"
-#include "utils/hardcodedsettings.h"
-#include "dpiscalemanager.h"
-#include "tooltips/tooltiptypes.h"
-#include "tooltips/tooltipcontroller.h"
-#include "showingdialogstate.h"
 #include "hashutil.h"
+#include "languagecontroller.h"
+#include "showingdialogstate.h"
+#include "tooltips/tooltipcontroller.h"
+#include "tooltips/tooltiptypes.h"
+#include "utils/credentialsvalidation.h"
+#include "utils/hardcodedsettings.h"
+#include "utils/ws_assert.h"
 
 extern QWidget *g_mainWindow;
 
@@ -269,7 +271,7 @@ void SignupWindowItem::onContinueClick()
 {
     if (verifyInputs()) {
         if (!isHashedMode_) {
-            emit signupClick(usernameEntry_->getText(), passwordEntry_->getText(), emailEntry_->getText(),
+            emit signupClick(usernameEntry_->getText().trimmed(), passwordEntry_->getText(), emailEntry_->getText(),
                              voucherEntry_->getText(), referredEntry_->getText());
         } else {
             emit signupClick(hashEntry_->getText(), hashEntry_->getText(), QString(),
@@ -492,18 +494,24 @@ bool SignupWindowItem::verifyInputs()
         QString username = usernameEntry_->getText();
         QString password = passwordEntry_->getText();
         QString email = emailEntry_->getText();
-        if (username.length() < 3) {
+        const CredentialsValidation::UsernameProblem usernameProblem = CredentialsValidation::checkUsername(username);
+        if (usernameProblem == CredentialsValidation::UsernameProblem::kTooShort
+            || usernameProblem == CredentialsValidation::UsernameProblem::kTooLong) {
             isError_ = true;
             usernameEntry_->setError(true);
-            errorHint_->setText(tr("Username must be at least 3 characters"));
-        } else if (isEmailValid(username)) {
+            errorHint_->setText(tr("Username must be 3 to 255 characters"));
+        } else if (usernameProblem == CredentialsValidation::UsernameProblem::kEmailAddress) {
             isError_ = true;
             usernameEntry_->setError(true);
             errorHint_->setText(tr("Your username should not be an email address."));
-        } else if (!isPasswordValid(password)) {
+        } else if (usernameProblem == CredentialsValidation::UsernameProblem::kDisallowedCharacter) {
+            isError_ = true;
+            usernameEntry_->setError(true);
+            errorHint_->setText(tr("Use only A–Z, a–z, 0–9, _ and -"));
+        } else if (CredentialsValidation::checkPassword(password) != CredentialsValidation::PasswordProblem::kNone) {
             isError_ = true;
             passwordEntry_->setError(true);
-            errorHint_->setText(tr("8 or more characters with at least one uppercase and lowercase(ie. \"Hello1234\", \"Solyanka\")."));
+            errorHint_->setText(tr("Password must be 8 to 255 characters"));
         } else if (!isEmailValid(email)) {
             isError_ = true;
             emailEntry_->setError(true);
@@ -525,23 +533,6 @@ bool SignupWindowItem::verifyInputs()
 
     updatePositions();
     return !isError_;
-}
-
-bool SignupWindowItem::isPasswordValid(const QString &password)
-{
-    if (password.length() < 8)
-        return false;
-    bool hasUpper = false;
-    bool hasLower = false;
-    for (const QChar &c : password) {
-        if (c.isUpper())
-            hasUpper = true;
-        if (c.isLower())
-            hasLower = true;
-        if (hasUpper && hasLower)
-            return true;
-    }
-    return hasUpper && hasLower;
 }
 
 bool SignupWindowItem::isEmailValid(const QString &email)

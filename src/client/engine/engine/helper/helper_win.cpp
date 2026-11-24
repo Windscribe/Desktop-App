@@ -363,21 +363,6 @@ void Helper_win::enableWanIkev2()
     sendCommand(HelperCommand::enableWanIkev2);
 }
 
-void Helper_win::setMacAddressRegistryValueSz(const QString &subkeyInterfaceName, const QString &value)
-{
-    sendCommand(HelperCommand::setMacAddressRegistryValueSz, subkeyInterfaceName.toStdWString(), value.toStdWString());
-}
-
-void Helper_win::removeMacAddressRegistryProperty(const QString &subkeyInterfaceName)
-{
-    sendCommand(HelperCommand::removeMacAddressRegistryProperty, subkeyInterfaceName.toStdWString());
-}
-
-void Helper_win::resetNetworkAdapter(int ifIndex, bool bringAdapterBackUp)
-{
-    sendCommand(HelperCommand::resetNetworkAdapter, static_cast<ULONG>(ifIndex), bringAdapterBackUp);
-}
-
 void Helper_win::addIKEv2DefaultRoute()
 {
     sendCommand(HelperCommand::addIKEv2DefaultRoute);

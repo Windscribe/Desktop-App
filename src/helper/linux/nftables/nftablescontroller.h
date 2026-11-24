@@ -3,6 +3,8 @@
 #include <mutex>
 #include <string>
 
+struct nft_ctx;
+
 // The single nftables table the helper owns (e.g. "inet windscribe"). All firewall, DNS-leak, boot,
 // and WireGuard chains live in this one table, so this name is the single source for every subsystem.
 inline const std::string kNftTable = "inet " WS_PRODUCT_NAME_LOWER;
@@ -96,11 +98,20 @@ public:
     // WireGuardAdapter and the DNS-leak path all funnel through here.
     bool run(const std::string &cmds, bool dryRun = false, std::string *errOut = nullptr, bool logOnError = true);
 
+    int chainExists(const char *chain, std::string *errOut = nullptr);
+
 private:
     NftablesController();
     ~NftablesController();
     NftablesController(const NftablesController &) = delete;
     NftablesController &operator=(const NftablesController &) = delete;
 
+    bool runOnce(const std::string &cmds, bool dryRun, std::string &err, int &rc);
+    void discardContext();
+    void closeQuerySocket();
+
     std::mutex mutex_;
+    nft_ctx *ctx_ = nullptr;
+    int querySocket_ = -1;
+    unsigned int querySeq_ = 0;
 };

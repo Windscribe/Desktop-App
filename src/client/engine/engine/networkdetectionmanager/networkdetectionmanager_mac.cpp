@@ -5,6 +5,7 @@
 #include "../networkdetectionmanager/reachabilityevents.h"
 #include "utils/interfaceutils_mac.h"
 #include "utils/log/categories.h"
+#include "utils/log/debug_trace.h"
 #include "utils/macutils.h"
 #include "utils/network_utils/network_utils.h"
 #include "utils/utils.h"
@@ -13,6 +14,7 @@ const int typeIdNetworkInterface = qRegisterMetaType<types::NetworkInterface>("t
 
 NetworkDetectionManager_mac::NetworkDetectionManager_mac(QObject *parent, Helper *helper) : INetworkDetectionManager (parent)
 {
+    WS_DEBUG_TRACE_SCOPE("NetworkDetectionManager_mac::ctor");
     connect(&ReachAbilityEvents::instance(), &ReachAbilityEvents::networkStateChanged, this, &NetworkDetectionManager_mac::onNetworkStateChanged);
     connect(&pathMonitor_, &PathMonitor::connectivityStateChanged, this, &NetworkDetectionManager_mac::onOnlineStateChanged);
     lastNetworkInterface_ = currentNetworkInterfaceFromNetworkList(InterfaceUtils_mac::instance().currentNetworkInterfaces(true));
@@ -30,6 +32,7 @@ bool NetworkDetectionManager_mac::isOnline()
 
 void NetworkDetectionManager_mac::onNetworkStateChanged()
 {
+    WS_DEBUG_TRACE_SCOPE("NetworkDetectionManager_mac::onNetworkStateChanged");
     onOnlineStateChanged(pathMonitor_.isOnline());
 
     const QVector<types::NetworkInterface> &networkList = InterfaceUtils_mac::instance().currentNetworkInterfaces(true);

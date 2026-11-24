@@ -17,18 +17,29 @@ public:
 
     IHelperBackend *backend() { return backend_.get(); }
 
+    void setDebugTraceOnConnect(bool enabled)
+    {
+        backend_->setConnectCommand((int)HelperCommand::setDebugTrace, serializeArgs(enabled));
+    }
+
 protected:
 
     // Serialize all args with boost and send a command
     template<typename... Args>
     std::string sendCommand(HelperCommand cmdId, const Args&... args)
     {
+        return backend_->sendCmd((int)cmdId, serializeArgs(args...));
+    }
+
+    template<typename... Args>
+    static std::string serializeArgs(const Args&... args)
+    {
         std::ostringstream oss(std::ios::binary);
         boost::archive::binary_oarchive archive(oss, boost::archive::no_header);
         if constexpr (sizeof...(Args) > 0) {
             (archive << ... << args);
         }
-        return backend_->sendCmd((int)cmdId, oss.str());
+        return oss.str();
     }
 
     // Deserialize returned parameters

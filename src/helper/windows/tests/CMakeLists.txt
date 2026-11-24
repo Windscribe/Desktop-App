@@ -69,4 +69,36 @@ if(IS_BUILD_TESTS)
     )
     set_target_properties(wireguardconfigwriter.test PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
     ws_add_test(wireguardconfigwriter)
+
+    # Runs against the real Base Filtering Engine in a dynamic session, so it self-skips without
+    # elevation instead of failing.
+    add_executable(wfputils.test
+        wfputils.test.cpp
+        ../wfp_utils.cpp
+        ../apps_ids.cpp
+        ../../../client/client-common/types/ipaddress.cpp
+        ../../../client/client-common/utils/log/debug_trace.cpp
+    )
+    target_link_libraries(wfputils.test PRIVATE
+        Fwpuclnt
+        Rpcrt4
+        Ws2_32
+        spdlog::spdlog
+    )
+    target_include_directories(wfputils.test PRIVATE
+        ..
+        ../../../client/client-common
+    )
+    set_target_properties(wfputils.test PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
+    ws_add_test(wfputils)
+    set_tests_properties(wfputils PROPERTIES SKIP_RETURN_CODE 77)
+
+    add_executable(firewallincremental.test
+        firewallincremental.test.cpp
+    )
+    target_include_directories(firewallincremental.test PRIVATE
+        ..
+    )
+    set_target_properties(firewallincremental.test PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
+    ws_add_test(firewallincremental)
 endif(IS_BUILD_TESTS)

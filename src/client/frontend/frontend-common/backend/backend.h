@@ -113,7 +113,6 @@ public:
     void handleNetworkChange(types::NetworkInterface networkInterface, bool manual=false);
     types::NetworkInterface getCurrentNetworkInterface();
 
-    virtual void cycleMacAddress();
     void sendDetectPacketSize();
     void sendSplitTunneling(const types::SplitTunneling &st);
 
@@ -202,8 +201,6 @@ private slots:
     void onEngineLocationsModelCustomConfigItemsUpdated(QSharedPointer<types::Location> item);
     void onEngineLocationsModelPingChangedChanged(const LocationID &id, PingTime timeMs);
 
-    void onEngineMacAddrSpoofingChanged(const types::EngineSettings &engineSettings);
-    void onEngineSendUserWarning(USER_WARNING_TYPE userWarningType);
     void onEnginePacketSizeChanged(const types::EngineSettings &engineSettings);
     void onEnginePacketSizeDetectionStateChanged(bool on, bool isError);
     void onEngineConnectingHostnameChanged(const QString &hostname);
@@ -259,7 +256,6 @@ signals:
     void sessionDeleted();
     void testTunnelResult(bool success);
     void lostConnectionToHelper();
-    void userWarning(USER_WARNING_TYPE userWarningType);
     void internetConnectivityChanged(bool connectivity);
     void protocolPortChanged(const types::Protocol &protocol, const uint port);
     void packetSizeDetectionStateChanged(bool on, bool isError);

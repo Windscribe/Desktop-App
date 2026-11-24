@@ -29,6 +29,8 @@ post_install() {
         update-desktop-database || true
         chgrp windscribe /opt/windscribe/Windscribe && chmod 2755 /opt/windscribe/Windscribe
         mkdir -p /etc/windscribe
+        # Apply usr/lib/NetworkManager/conf.d/90-windscribe.conf (tunnel interfaces unmanaged) without restarting NetworkManager.
+        if systemctl is-active --quiet NetworkManager; then nmcli general reload conf >/dev/null 2>&1 || true; fi
         echo linux_zst_x64 > /etc/windscribe/platform
 }
 
@@ -47,9 +49,6 @@ pre_remove() {
         killall -q Windscribe || true
         systemctl stop windscribe-helper || true
         systemctl disable windscribe-helper || true
-        if [ -x /opt/windscribe/helper ]; then
-            /opt/windscribe/helper --reset-mac-addresses || true
-        fi
         userdel -f windscribe || true
         groupdel -f windscribe || true
         rm -rf /etc/windscribe

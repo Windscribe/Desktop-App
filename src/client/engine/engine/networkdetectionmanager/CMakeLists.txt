@@ -25,7 +25,10 @@ elseif(UNIX)
     target_sources(engine PRIVATE
         networkdetectionmanager_linux.cpp
         networkdetectionmanager_linux.h
+        routeeventfilter_linux.cpp
+        routeeventfilter_linux.h
         routemonitor_linux.cpp
         routemonitor_linux.h
     )
+    add_subdirectory(tests)
 endif()

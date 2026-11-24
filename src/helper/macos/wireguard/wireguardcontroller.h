@@ -4,9 +4,9 @@
 #include <string>
 #include <vector>
 
-#include "defaultroutemonitor.h"
+#include "../../common/defaultroutemonitor_posix.h"
+#include "../../common/wireguardcommunicator_posix.h"
 #include "wireguardadapter.h"
-#include "wireguardcommunicator.h"
 
 
 class WireGuardController
@@ -22,7 +22,8 @@ public:
     bool stop();
 
     bool configureAdapter(const std::string &ipAddress, const std::string &dnsAddressList,
-                          const std::string &dnsScriptName, const std::vector<std::string> &allowedIps);
+                          const std::string &dnsScriptName, const std::vector<std::string> &allowedIps,
+                          const std::string &peerEndpoint);
     bool configureDefaultRouteMonitor(const std::string &peerEndpoint);
     bool configure(const std::string &clientPrivateKey, const std::string &peerPublicKey,
                    const std::string &peerPresharedKey, const std::string &peerEndpoint,

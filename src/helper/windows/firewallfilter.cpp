@@ -5,7 +5,9 @@
 
 #include "firewallfilter.h"
 #include "utils.h"
+#include "wfp_utils.h"
 #include "adapters_info.h"
+#include "utils/log/debug_trace.h"
 
 
 FirewallFilter::FirewallFilter(FwpmWrapper &fwpmWrapper) :
@@ -25,7 +27,43 @@ void FirewallFilter::on(const wchar_t *connectingIp, const std::vector<std::wstr
 
     HANDLE hEngine = fwpmWrapper_.getHandleAndLock();
 
-    fwpmWrapper_.beginTransaction();
+    firewall_incremental::Inputs in;
+    in.connectingIp = connectingIp;
+    in.ips.insert(ips.begin(), ips.end());
+    in.allowLocalTraffic = bAllowLocalTraffic;
+    in.isCustomConfig = bIsCustomConfig;
+    AdaptersInfo ai;
+    in.taps = captureTapSnapshot(ai);
+
+    // A rebuild deletes and re-adds every filter (~430 with the server list), most of them
+    // persistent. A connect usually changes only the connecting IP and a few whitelisted IPs, so
+    // replace just those filters when nothing else changed.
+    firewall_incremental::Plan plan = currentStatusImpl(hEngine) ? firewall_incremental::planIncremental(built_, in)
+                                                                 : firewall_incremental::fullRebuild("the firewall is off");
+    if (!plan.fullRebuild) {
+        if (plan.isNoOp()) {
+            spdlog::info("FirewallFilter::on(), filters unchanged");
+            fwpmWrapper_.unlock();
+            return;
+        }
+        if (applyIncremental(hEngine, in, plan)) {
+            fwpmWrapper_.unlock();
+            return;
+        }
+        plan.reason = "the incremental update failed";
+    }
+
+    spdlog::info("FirewallFilter::on(), full rebuild: {}", plan.reason);
+    rebuild(hEngine, in);
+    fwpmWrapper_.unlock();
+}
+
+void FirewallFilter::rebuild(HANDLE hEngine, const firewall_incremental::Inputs &in)
+{
+    WS_DEBUG_TRACE_SCOPE("FirewallFilter::rebuild");
+
+    built_.reset();
+    const bool inTransaction = fwpmWrapper_.beginTransaction();
 
     if (currentStatusImpl(hEngine) == true) {
         offImpl(hEngine);
@@ -38,15 +76,118 @@ void FirewallFilter::on(const wchar_t *connectingIp, const std::vector<std::wstr
     subLayer.flags = FWPM_SUBLAYER_FLAG_PERSISTENT;
     subLayer.weight = 0xFFFF;
 
+    firewall_incremental::BuiltState state;
+    bool allAdded = false;
     DWORD dwRet = FwpmSubLayerAdd0(hEngine, &subLayer, NULL );
     if (dwRet == ERROR_SUCCESS) {
-        addFilters(hEngine, connectingIp, ips, bAllowLocalTraffic, bIsCustomConfig);
+        allAdded = addFilters(hEngine, in, state);
     } else {
         spdlog::error("FirewallFilter::on(), FwpmSubLayerAdd0 failed: {}", dwRet);
     }
 
-    fwpmWrapper_.endTransaction();
-    fwpmWrapper_.unlock();
+    const bool committed = fwpmWrapper_.endTransaction();
+
+    // Only a complete, committed build may be updated in place later. Otherwise the next call
+    // rebuilds again.
+    if (inTransaction && allAdded && committed) {
+        built_ = std::move(state);
+    }
+}
+
+bool FirewallFilter::applyIncremental(HANDLE hEngine, const firewall_incremental::Inputs &in, const firewall_incremental::Plan &plan)
+{
+    WS_DEBUG_TRACE_SCOPE("FirewallFilter::applyIncremental");
+
+    // Everything happens in one transaction: until it commits, the old filters stay in force, and if
+    // any step fails it is aborted, so the firewall is never open nor left half-updated.
+    if (!fwpmWrapper_.beginTransaction()) {
+        built_.reset();
+        return false;
+    }
+
+    firewall_incremental::BuiltState next = *built_;
+    bool ok = true;
+
+    std::vector<UINT64> connectingIpIds;
+    if (plan.replaceConnectingIp) {
+        ok = addConnectingIpFilter(hEngine, in.connectingIp, connectingIpIds);
+    }
+    for (const std::wstring &ip : plan.ipsToAdd) {
+        if (!ok) {
+            break;
+        }
+        std::vector<UINT64> ids;
+        ok = addIpPermitFilter(hEngine, ip, ids);
+        next.ipFilterIds[ip] = std::move(ids);
+    }
+
+    // A failed delete means the cache no longer matches what is installed.
+    if (ok && plan.replaceConnectingIp) {
+        ok = deleteFilters(hEngine, next.connectingIpFilterIds);
+    }
+    for (const std::wstring &ip : plan.ipsToRemove) {
+        if (!ok) {
+            break;
+        }
+        ok = deleteFilters(hEngine, next.ipFilterIds[ip]);
+        next.ipFilterIds.erase(ip);
+    }
+
+    if (!ok) {
+        spdlog::error("FirewallFilter::applyIncremental(), a filter update failed; aborting it");
+        fwpmWrapper_.abortTransaction();
+        built_.reset();
+        return false;
+    }
+    if (!fwpmWrapper_.endTransaction()) {
+        // Make sure no transaction is left open for the full rebuild that follows.
+        fwpmWrapper_.abortTransaction();
+        built_.reset();
+        return false;
+    }
+
+    if (plan.replaceConnectingIp) {
+        next.connectingIp = in.connectingIp;
+        next.connectingIpFilterIds = std::move(connectingIpIds);
+        next.connectingIpFilterStale = false;
+    }
+    built_ = std::move(next);
+
+    spdlog::info("FirewallFilter::on(), incremental update: connecting IP {}, {} IPs added, {} removed",
+                 plan.replaceConnectingIp ? "replaced" : "unchanged", plan.ipsToAdd.size(), plan.ipsToRemove.size());
+    return true;
+}
+
+bool FirewallFilter::deleteFilters(HANDLE hEngine, const std::vector<UINT64> &ids)
+{
+    bool ok = true;
+    for (UINT64 id : ids) {
+        const DWORD ret = FwpmFilterDeleteById0(hEngine, id);
+        if (ret != ERROR_SUCCESS) {
+            spdlog::error("FirewallFilter::deleteFilters(), FwpmFilterDeleteById0 failed for filter {}: {}", id, ret);
+            ok = false;
+        }
+    }
+    return ok;
+}
+
+std::vector<firewall_incremental::TapSnapshot> FirewallFilter::captureTapSnapshot(AdaptersInfo &ai)
+{
+    std::vector<firewall_incremental::TapSnapshot> taps;
+    for (NET_IFINDEX ifIndex : ai.getTAPAdapters()) {
+        firewall_incremental::TapSnapshot tap;
+        tap.ifIndex = ifIndex;
+        NET_LUID luid = {};
+        NETIO_STATUS luidRet = ConvertInterfaceIndexToLuid(ifIndex, &luid);
+        if (luidRet != NO_ERROR) {
+            spdlog::error("FirewallFilter::captureTapSnapshot(), ConvertInterfaceIndexToLuid failed for ifIndex {}: {}", ifIndex, luidRet);
+        }
+        tap.luid = luid.Value;
+        tap.localAddrs = ai.getAdapterAddresses(ifIndex);
+        tap.hasNonLinkLocalV6 = ai.hasNonLinkLocalV6(ifIndex);
+        taps.push_back(std::move(tap));
+    }
+    return taps;
 }
 
 void FirewallFilter::off()
@@ -92,6 +233,7 @@ void FirewallFilter::offImpl(HANDLE engineHandle)
     }
     filterIdsApps_.clear();
     filterIdsSplitRoutingIps_.clear();
+    built_.reset();
 }
 
 void FirewallFilter::setSplitTunnelingEnabled(bool isExclusiveMode)
@@ -134,6 +276,11 @@ void FirewallFilter::setVpnAppsIds(const AppsIds &appsIds)
         return;
     }
     vpnAppsIds_ = appsIds;
+    // The connecting-IP filter is scoped to these apps; replace it on the next update even if the
+    // connecting IP is unchanged, as a full rebuild would.
+    if (built_) {
+        built_->connectingIpFilterStale = true;
+    }
 
     HANDLE hEngine = fwpmWrapper_.getHandleAndLock();
 
@@ -189,19 +336,26 @@ void FirewallFilter::setSplitTunnelingWhitelistIps(const std::vector<types::IpAd
     fwpmWrapper_.unlock();
 }
 
-void FirewallFilter::addFilters(HANDLE engineHandle, const wchar_t *connectingIp, const std::vector<std::wstring> &ips, bool bAllowLocalTraffic, bool bIsCustomConfig)
+bool FirewallFilter::addFilters(HANDLE engineHandle, const firewall_incremental::Inputs &in, firewall_incremental::BuiltState &state)
 {
-    AdaptersInfo ai;
-    std::vector<NET_IFINDEX> taps = ai.getTAPAdapters();
+    const bool bAllowLocalTraffic = in.allowLocalTraffic;
+    const bool bIsCustomConfig = in.isCustomConfig;
+    bool allAdded = true;
+
+    state.allowLocalTraffic = in.allowLocalTraffic;
+    state.isCustomConfig = in.isCustomConfig;
+    state.taps = in.taps;
 
     // add block filter for all IPs, for all adapters, IPv4.
-    bool ret = Utils::addFilterV4(engineHandle, nullptr, FWP_ACTION_BLOCK, 0, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW);
+    bool ret =Utils::addFilterV4(engineHandle, nullptr, FWP_ACTION_BLOCK, 0, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW);
     if (!ret) {
+        allAdded = false;
         spdlog::error("Could not add IPv4 block filter");
     }
     // add block filter for all IPs, for all adapters, IPv6.
     ret = Utils::addFilterV6(engineHandle, nullptr, FWP_ACTION_BLOCK, 0, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW);
     if (!ret) {
+        allAdded = false;
         spdlog::error("Could not add IPv6 block filter");
     }
 
@@ -210,28 +364,27 @@ void FirewallFilter::addFilters(HANDLE engineHandle, const wchar_t *connectingIp
     // be the curated minimal set (default block + server IPs + DHCP + loopback + link-local + NDP/MLD
     // + LAN carve-outs + the reserved-DNS block, all left persistent). The connecting-IP and
     // split-tunnel permits below are non-persistent for the same reason.
-    // add permit filter for TAP-adapters
-    for (std::vector<NET_IFINDEX>::iterator it = taps.begin(); it != taps.end(); ++it) {
+    // add permit filter for TAP-adapters, from the same snapshot the incremental update compares
+    for (const firewall_incremental::TapSnapshot &tap : in.taps) {
         NET_LUID luid;
-        NETIO_STATUS luidRet = ConvertInterfaceIndexToLuid(*it, &luid);
-        if (luidRet != NO_ERROR) {
-            spdlog::error("FirewallFilter::addFilters(), ConvertInterfaceIndexToLuid failed for ifIndex {}: {}", *it, luidRet);
-        }
+        luid.Value = tap.luid;
 
         // Always allow 10.255.255.0/24 (Windscribe reserved) regardless of custom config,
         // because the Allow LAN flag later blocks the entire 10/8 range
         const std::vector<types::IpAddressRange> reserved = { types::IpAddressRange("10.255.255.0/24") };
         ret = Utils::addFilterV4(engineHandle, nullptr, FWP_ACTION_PERMIT, 8, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, &luid, &reserved, 0, 0, nullptr, false);
         if (!ret) {
+            allAdded = false;
             spdlog::error(L"Could not add reserved allow filter on VPN interface");
         }
 
         if (!bIsCustomConfig) {
             // We want to allow access to local VPN interface addresses regardless of which interface the packet will go through, not just a VPN interface
-            const std::vector<types::IpAddressRange> localAddrs = types::IpAddressRange::fromStrings(ai.getAdapterAddresses(*it));
+            const std::vector<types::IpAddressRange> localAddrs = types::IpAddressRange::fromStrings(tap.localAddrs);
             if (!localAddrs.empty()) {
                 ret = Utils::addFilterV4(engineHandle, nullptr, FWP_ACTION_PERMIT, 8, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, nullptr, &localAddrs, 0, 0, nullptr, false);
                 if (!ret) {
+                    allAdded = false;
                     spdlog::error("Could not add reserved allow filter on private address for VPN interface");
                 }
             }
@@ -245,6 +398,7 @@ void FirewallFilter::addFilters(HANDLE engineHandle, const wchar_t *connectingIp
                     {"10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16", "169.254.0.0/16", "224.0.0.0/4"});
                 ret = Utils::addFilterV4(engineHandle, nullptr, FWP_ACTION_BLOCK, 6, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, &luid, &priv, 0, 0, nullptr, false);
                 if (!ret) {
+                    allAdded = false;
                     spdlog::error("Could not add private network block filter on VPN interface");
                 }
 
@@ -254,6 +408,7 @@ void FirewallFilter::addFilters(HANDLE engineHandle, const wchar_t *connectingIp
                 const std::vector<types::IpAddressRange> privV6 = { types::IpAddressRange("fc00::/7"), types::IpAddressRange("ff00::/8") };
                 ret = Utils::addFilterV6(engineHandle, nullptr, FWP_ACTION_BLOCK, 6, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, &luid, &privV6, 0, 0, nullptr, false);
                 if (!ret) {
+                    allAdded = false;
                     spdlog::error("Could not add private network IPv6 block filter on VPN interface");
                 }
             }
@@ -262,14 +417,16 @@ void FirewallFilter::addFilters(HANDLE engineHandle, const wchar_t *connectingIp
         // Allow other IPv4 traffic on this interface
         ret = Utils::addFilterV4(engineHandle, nullptr, FWP_ACTION_PERMIT, 1, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, &luid, nullptr, 0, 0, nullptr, false);
         if (!ret) {
+            allAdded = false;
             spdlog::error("Could not add IPv4 allow filter on VPN interface");
         }
         // Allow IPv6 traffic on this interface, but only when the tunnel actually carries a routable
         // (non-link-local) v6 address — mirrors the macOS/Linux hasV6Addr gate (probeInterfaceAddresses)
         // so v6 isn't blanket-permitted on a v4-only tunnel.
-        if (ai.hasNonLinkLocalV6(*it)) {
+        if (tap.hasNonLinkLocalV6) {
             ret = Utils::addFilterV6(engineHandle, nullptr, FWP_ACTION_PERMIT, 1, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, &luid, nullptr, 0, 0, nullptr, false);
             if (!ret) {
+                allAdded = false;
                 spdlog::error("Could not add IPv6 allow filter on VPN interface");
             }
         }
@@ -281,14 +438,16 @@ void FirewallFilter::addFilters(HANDLE engineHandle, const wchar_t *connectingIp
         addPermitFilterForSplitRoutingWhitelistIps(engineHandle);
     }
 
-    addPermitFilterForVpnAndSystemServices(engineHandle, connectingIp);
+    state.connectingIp = in.connectingIp;
+    if (!addConnectingIpFilter(engineHandle, in.connectingIp, state.connectingIpFilterIds)) {
+        allAdded = false;
+    }
 
     // add permit filter for specific IPs
-    for (size_t i = 0; i < ips.size(); ++i) {
-        const std::vector<types::IpAddressRange> ipAddr = { types::IpAddressRange(ips[i]) };
-        ret = Utils::addFilterV4(engineHandle, nullptr, FWP_ACTION_PERMIT, 2, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, nullptr, &ipAddr);
-        if (!ret) {
-            spdlog::error("Could not add " WS_PRODUCT_NAME " IPs allow filter");
+    for (const std::wstring &ip : in.ips) {
+        std::vector<UINT64> &ids = state.ipFilterIds[ip];
+        if (!addIpPermitFilter(engineHandle, ip, ids)) {
+            allAdded = false;
         }
     }
 
@@ -298,21 +457,25 @@ void FirewallFilter::addFilters(HANDLE engineHandle, const wchar_t *connectingIp
     // block would override this permit when "Allow LAN" is off, breaking renewal and dropping Wi-Fi.
     ret = Utils::addFilterV4(engineHandle, nullptr, FWP_ACTION_PERMIT, 5, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, nullptr, nullptr, 68);
     if (!ret) {
+        allAdded = false;
         spdlog::error("Could not add DHCP allow filter (68)");
     }
     // add permit filter for DHCP
     ret = Utils::addFilterV4(engineHandle, nullptr, FWP_ACTION_PERMIT, 5, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, nullptr, nullptr, 67);
     if (!ret) {
+        allAdded = false;
         spdlog::error("Could not add DHCP allow filter (67)");
     }
 
     // DHCPv6 (client port 546, server port 547)
     ret = Utils::addFilterV6(engineHandle, nullptr, FWP_ACTION_PERMIT, 5, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, nullptr, nullptr, 546);
     if (!ret) {
+        allAdded = false;
         spdlog::error("Could not add DHCPv6 allow filter (546)");
     }
     ret = Utils::addFilterV6(engineHandle, nullptr, FWP_ACTION_PERMIT, 5, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, nullptr, nullptr, 547);
     if (!ret) {
+        allAdded = false;
         spdlog::error("Could not add DHCPv6 allow filter (547)");
     }
 
@@ -320,11 +483,13 @@ void FirewallFilter::addFilters(HANDLE engineHandle, const wchar_t *connectingIp
     const std::vector<types::IpAddressRange> localhostV4 = { types::IpAddressRange("127.0.0.0/8") };
     ret = Utils::addFilterV4(engineHandle, nullptr, FWP_ACTION_PERMIT, 8, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, nullptr, &localhostV4);
     if (!ret) {
+        allAdded = false;
         spdlog::error("Could not add localhost v4 allow filter");
     }
     const std::vector<types::IpAddressRange> localhostV6 = { types::IpAddressRange("::1/128") };
     ret = Utils::addFilterV6(engineHandle, nullptr, FWP_ACTION_PERMIT, 8, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, nullptr, &localhostV6);
     if (!ret) {
+        allAdded = false;
         spdlog::error("Could not add localhost v6 allow filter.");
     }
 
@@ -332,6 +497,7 @@ void FirewallFilter::addFilters(HANDLE engineHandle, const wchar_t *connectingIp
     const std::vector<types::IpAddressRange> linkLocalV6 = { types::IpAddressRange("fe80::/10") };
     ret = Utils::addFilterV6(engineHandle, nullptr, FWP_ACTION_PERMIT, 8, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, nullptr, &linkLocalV6);
     if (!ret) {
+        allAdded = false;
         spdlog::error("Could not add IPv6 link-local allow filter.");
     }
 
@@ -342,10 +508,12 @@ void FirewallFilter::addFilters(HANDLE engineHandle, const wchar_t *connectingIp
     // like the other always-on essentials. Mirrors the Linux/macOS rulesets.
     ret = Utils::addPermitFilterV6IcmpTypeRange(engineHandle, 130, 137, 8, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW);
     if (!ret) {
+        allAdded = false;
         spdlog::error("Could not add ICMPv6 NDP/MLD (130-137) allow filter.");
     }
     ret = Utils::addPermitFilterV6IcmpTypeRange(engineHandle, 143, 143, 8, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW);
     if (!ret) {
+        allAdded = false;
         spdlog::error("Could not add ICMPv6 MLDv2 (143) allow filter.");
     }
 
@@ -357,6 +525,7 @@ void FirewallFilter::addFilters(HANDLE engineHandle, const wchar_t *connectingIp
         {"10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16", "169.254.0.0/16"});
     ret = Utils::addFilterV4(engineHandle, nullptr, bAllowLan ? FWP_ACTION_PERMIT : FWP_ACTION_BLOCK, 4, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, nullptr, &privV4);
     if (!ret) {
+        allAdded = false;
         spdlog::error("Could not add IPv4 LAN traffic allow/block filter.");
     }
 
@@ -367,6 +536,7 @@ void FirewallFilter::addFilters(HANDLE engineHandle, const wchar_t *connectingIp
     const std::vector<types::IpAddressRange> reservedDns = { types::IpAddressRange("10.255.255.0/24") };
     ret = Utils::addFilterV4(engineHandle, nullptr, FWP_ACTION_BLOCK, 5, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, nullptr, &reservedDns);
     if (!ret) {
+        allAdded = false;
         spdlog::error("Could not add reserved in-tunnel DNS block filter.");
     }
 
@@ -374,12 +544,14 @@ void FirewallFilter::addFilters(HANDLE engineHandle, const wchar_t *connectingIp
     const std::vector<types::IpAddressRange> multicastV4 = { types::IpAddressRange("224.0.0.0/4") };
     ret = Utils::addFilterV4(engineHandle, nullptr, bAllowLan ? FWP_ACTION_PERMIT : FWP_ACTION_BLOCK, 4, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, nullptr, &multicastV4);
     if (!ret) {
+        allAdded = false;
         spdlog::error("Could not add IPv4 multicast allow/block filter.");
     }
 
     const std::vector<types::IpAddressRange> multicastV6 = { types::IpAddressRange("ff00::/8") };
     ret = Utils::addFilterV6(engineHandle, nullptr, bAllowLan ? FWP_ACTION_PERMIT : FWP_ACTION_BLOCK, 4, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, nullptr, &multicastV6);
     if (!ret) {
+        allAdded = false;
         spdlog::error("Could not add IPv6 multicast allow/block filter.");
     }
 
@@ -389,26 +561,40 @@ void FirewallFilter::addFilters(HANDLE engineHandle, const wchar_t *connectingIp
     const std::vector<types::IpAddressRange> ulaV6 = { types::IpAddressRange("fc00::/7") };
     ret = Utils::addFilterV6(engineHandle, nullptr, bAllowLan ? FWP_ACTION_PERMIT : FWP_ACTION_BLOCK, 4, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, nullptr, &ulaV6);
     if (!ret) {
+        allAdded = false;
         spdlog::error("Could not add IPv6 ULA LAN traffic allow/block filter.");
     }
+
+    return allAdded;
 }
 
-void FirewallFilter::addPermitFilterForVpnAndSystemServices(HANDLE engineHandle, const wchar_t *connectingIp)
+bool FirewallFilter::addConnectingIpFilter(HANDLE engineHandle, const std::wstring &connectingIp, std::vector<UINT64> &ids)
 {
-    int ret = 0;
-
     AppsIds allowedIds;
     std::wstring svchost = Utils::getSystemDir() + L"\\svchost.exe";
 
     allowedIds.setFromList({svchost, L"System"});
     allowedIds.addFrom(vpnAppsIds_);
 
-    // add allow filter for connecting IP (IPv4-only — connectingIp is always IPv4)
+    // add allow filter for connecting IP (IPv4-only — connectingIp is always IPv4). An empty
+    // connectingIp (firewall on before any connection) adds no filter.
     const std::vector<types::IpAddressRange> connectingIpAddr = { types::IpAddressRange(connectingIp) };
-    ret = Utils::addFilterV4(engineHandle, nullptr, FWP_ACTION_PERMIT, 2, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, nullptr, &connectingIpAddr, 0, 0, &allowedIds, false);
+    const bool ret = Utils::addFilterV4(engineHandle, &ids, FWP_ACTION_PERMIT, 2, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, nullptr, &connectingIpAddr, 0, 0, &allowedIds, false);
     if (!ret) {
         spdlog::error("Could not add connecting IP allow filter");
     }
+    return ret;
+}
+
+bool FirewallFilter::addIpPermitFilter(HANDLE engineHandle, const std::wstring &ip, std::vector<UINT64> &ids)
+{
+    // Persistent (the default): the server IPs are part of the firewall-on-boot ruleset.
+    const std::vector<types::IpAddressRange> ipAddr = { types::IpAddressRange(ip) };
+    const bool ret = Utils::addFilterV4(engineHandle, &ids, FWP_ACTION_PERMIT, 2, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, nullptr, &ipAddr);
+    if (!ret) {
+        spdlog::error("Could not add " WS_PRODUCT_NAME " IPs allow filter");
+    }
+    return ret;
 }
 
 void FirewallFilter::addPermitFilterForAppsIds(HANDLE engineHandle)

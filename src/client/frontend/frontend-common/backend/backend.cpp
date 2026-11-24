@@ -13,7 +13,6 @@
 #include "types/ipaddress.h"
 #include "utils/dns_utils/dnsutils.h"
 #include "utils/log/categories.h"
-#include "utils/network_utils/network_utils.h"
 
 #ifdef Q_OS_WIN
 #include "utils/wincryptutils.h"
@@ -114,8 +113,6 @@ void Backend::init()
     connect(engine_, &Engine::confirmEmailFinished, this, &Backend::onEngineConfirmEmailFinished);
     connect(engine_, &Engine::sendDebugLogFinished, this, &Backend::onEngineSendDebugLogFinished);
     connect(engine_, &Engine::webSessionToken, this, &Backend::onEngineWebSessionToken);
-    connect(engine_, &Engine::macAddrSpoofingChanged, this, &Backend::onEngineMacAddrSpoofingChanged);
-    connect(engine_, &Engine::sendUserWarning, this, &Backend::onEngineSendUserWarning);
     connect(engine_, &Engine::internetConnectivityChanged, this, &Backend::onEngineInternetConnectivityChanged);
     connect(engine_, &Engine::packetSizeChanged, this, &Backend::onEnginePacketSizeChanged);
     connect(engine_, &Engine::packetSizeDetectionStateChanged, this, &Backend::onEnginePacketSizeDetectionStateChanged);
@@ -784,16 +781,6 @@ void Backend::onEngineLocationsModelPingChangedChanged(const LocationID &id, Pin
     locationsModelManager_->changeConnectionSpeed(id, timeMs);
 }
 
-void Backend::onEngineMacAddrSpoofingChanged(const types::EngineSettings &engineSettings)
-{
-    preferences_.setEngineSettings(engineSettings);
-}
-
-void Backend::onEngineSendUserWarning(USER_WARNING_TYPE userWarningType)
-{
-    emit userWarning(userWarningType);
-}
-
 void Backend::onEnginePacketSizeChanged(const types::EngineSettings &engineSettings)
 {
     preferences_.setEngineSettings(engineSettings);
@@ -919,15 +906,6 @@ void Backend::triggerAutoConnect(const types::NetworkInterface &interface)
 types::NetworkInterface Backend::getCurrentNetworkInterface()
 {
     return currentNetworkInterface_;
-}
-
-void Backend::cycleMacAddress()
-{
-    QString macAddress = NetworkUtils::generateRandomMacAddress(); // TODO: move generation into Engine (BEWARE: mac change only occurs on preferences closing and when manual MAC cycled)
-
-    types::MacAddrSpoofing mas = preferences_.macAddrSpoofing();
-    mas.macAddress = macAddress;
-    preferences_.setMacAddrSpoofing(mas);
 }
 
 void Backend::sendDetectPacketSize()

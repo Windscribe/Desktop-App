@@ -493,6 +493,22 @@
         <source>Your username should not be an email address. Please try again.</source>
         <translation>Su nombre de usuario no debería ser una dirección de correo electrónico. Por favor, inténtelo de nuevo.</translation>
     </message>
+    <message>
+        <source>Username must be 3 to 255 characters</source>
+        <translation>El nombre de usuario debe tener entre 3 y 255 caracteres</translation>
+    </message>
+    <message>
+        <source>Use only A–Z, a–z, 0–9, _ and -</source>
+        <translation>Solo A–Z, a–z, 0–9, _ y -</translation>
+    </message>
+    <message>
+        <source>Password must be 8 to 255 characters</source>
+        <translation>La contraseña debe tener entre 8 y 255 caracteres</translation>
+    </message>
+    <message>
+        <source>An unknown error occurred.</source>
+        <translation>Se produjo un error desconocido.</translation>
+    </message>
 </context>
 <context>
     <name>LoginWindow::SignupWindowItem</name>
@@ -523,10 +539,6 @@
     <message>
         <source>Enter password</source>
         <translation>Introduzca la contraseña</translation>
-    </message>
-    <message>
-        <source>8 or more characters with at least one uppercase and lowercase(ie. &quot;Hello1234&quot;, &quot;Solyanka&quot;).</source>
-        <translation>8 o más caracteres con al menos una mayúscula y una minúscula (es decir, &quot;Hola1234&quot;, &quot;Solyanka&quot;).</translation>
     </message>
     <message>
         <source>Email (Optional)</source>
@@ -579,10 +591,6 @@ Si pierde el hash de su cuenta, desaparece para siempre y el soporte no puede ay
         <translation>Todos los archivos (*.*)</translation>
     </message>
     <message>
-        <source>Username must be at least 3 characters</source>
-        <translation>El nombre de usuario debe tener al menos 3 caracteres</translation>
-    </message>
-    <message>
         <source>Your username should not be an email address.</source>
         <translation>Su nombre de usuario no debería ser una dirección de correo electrónico.</translation>
     </message>
@@ -593,6 +601,18 @@ Si pierde el hash de su cuenta, desaparece para siempre y el soporte no puede ay
     <message>
         <source>Invalid hash</source>
         <translation>Hash inválido</translation>
+    </message>
+    <message>
+        <source>Username must be 3 to 255 characters</source>
+        <translation>El nombre de usuario debe tener entre 3 y 255 caracteres</translation>
+    </message>
+    <message>
+        <source>Use only A–Z, a–z, 0–9, _ and -</source>
+        <translation>Solo A–Z, a–z, 0–9, _ y -</translation>
+    </message>
+    <message>
+        <source>Password must be 8 to 255 characters</source>
+        <translation>La contraseña debe tener entre 8 y 255 caracteres</translation>
     </message>
 </context>
 <context>
@@ -645,10 +665,6 @@ Si pierde el hash de su cuenta, desaparece para siempre y el soporte no puede ay
         <translation>La VPN está activa</translation>
     </message>
     <message>
-        <source>Rotating your MAC address will result in a disconnect event from the current network. Are you sure?</source>
-        <translation>La rotación de su dirección MAC resultará en una desconexión de la red actual. ¿Está seguro?</translation>
-    </message>
-    <message>
         <source>Cannot detect appropriate packet size while connected. Please disconnect first.</source>
         <translation>No se puede detectar el tamaño de paquete adecuado mientras está conectado. Desconéctese primero.</translation>
     </message>
@@ -671,10 +687,6 @@ Si pierde el hash de su cuenta, desaparece para siempre y el soporte no puede ay
     <message>
         <source>We&apos;ve detected that your network settings may interfere with Windscribe.  Please send us a debug log to troubleshoot.</source>
         <translation>Hemos detectado que la configuración de red puede interferir con Windscribe.  Por favor, envíanos un registro de depuración para solucionar problemas.</translation>
-    </message>
-    <message>
-        <source>Could not spoof MAC address.  Please try a different network interface or contact support.</source>
-        <translation>No se pudo suplantar la dirección MAC.  Pruebe con una interfaz de red diferente o póngase en contacto con el servicio de asistencia técnica.</translation>
     </message>
     <message>
         <source>Could not download update.  Please try again or use a different network.</source>
@@ -765,6 +777,34 @@ Si pierde el hash de su cuenta, desaparece para siempre y el soporte no puede ay
         <translation>El directorio seleccionado es escribible para otros usuarios. Las configuraciones personalizadas en este directorio pueden suponer un riesgo de seguridad potencial.</translation>
     </message>
     <message>
+        <source>MAC Spoofing Removed</source>
+        <translation>Suplantación de MAC eliminada</translation>
+    </message>
+    <message>
+        <source>MAC spoofing has been removed. Your spoofed MAC address stays active until you restart your computer or network adapter. To use a random address on Wi-Fi, turn on Random hardware addresses.</source>
+        <translation>Se ha eliminado la suplantación de MAC. La dirección MAC suplantada seguirá activa hasta que reinicies el equipo o el adaptador de red. Para usar una dirección aleatoria en Wi-Fi, activa &quot;Direcciones de hardware aleatorias&quot;.</translation>
+    </message>
+    <message>
+        <source>Open Wi-Fi Settings</source>
+        <translation>Abrir configuración de Wi-Fi</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>Cerrar</translation>
+    </message>
+    <message>
+        <source>MAC spoofing is no longer available in Windscribe. To use a random MAC address on Wi-Fi, set Private Wi-Fi address to Rotating in System Settings &gt; Wi-Fi &gt; Details.</source>
+        <translation>La suplantación de MAC ya no está disponible en Windscribe. Para usar una dirección MAC aleatoria en Wi-Fi, establece &quot;Dirección Wi-Fi privada&quot; en &quot;Rotatoria&quot; en Ajustes del Sistema &gt; Wi-Fi &gt; Detalles.</translation>
+    </message>
+    <message>
+        <source>MAC spoofing is no longer available in Windscribe. To use a random MAC address on Wi-Fi, update to macOS 15 or later, then set Private Wi-Fi address to Rotating in System Settings &gt; Wi-Fi &gt; Details.</source>
+        <translation>La suplantación de MAC ya no está disponible en Windscribe. Para usar una dirección MAC aleatoria en Wi-Fi, actualiza a macOS 15 o posterior y, a continuación, establece &quot;Dirección Wi-Fi privada&quot; en &quot;Rotatoria&quot; en Ajustes del Sistema &gt; Wi-Fi &gt; Detalles.</translation>
+    </message>
+    <message>
+        <source>MAC spoofing has been removed. Your network connection may still use the spoofed MAC address. To change it, set its cloned MAC address to Random, or clear it, in your network settings.</source>
+        <translation>Se ha eliminado la suplantación de MAC. Es posible que tu conexión de red siga usando la dirección MAC suplantada. Para cambiarla, establece su dirección MAC clonada en &quot;Aleatoria&quot; o bórrala en la configuración de red.</translation>
+    </message>
+    <message>
         <source>Installation Incomplete</source>
         <translation>Instalación incompleta</translation>
     </message>
@@ -841,14 +881,6 @@ Si pierde el hash de su cuenta, desaparece para siempre y el soporte no puede ay
     <message>
         <source>Service Error</source>
         <translation>Error de servicio</translation>
-    </message>
-    <message>
-        <source>MAC Spoofing Failed</source>
-        <translation>Error de suplantación de MAC</translation>
-    </message>
-    <message>
-        <source>Your network adapter does not support MAC spoofing. Try a different adapter.</source>
-        <translation>El adaptador de red no admite la suplantación de MAC. Pruebe con otro adaptador.</translation>
     </message>
     <message>
         <source>Detection Error</source>
@@ -971,10 +1003,6 @@ Si el problema persiste después de un reinicio, envíe un registro de depuraci�
     <message>
         <source>IKEv2 connectivity is not available in MacOS Lockdown Mode. Please disable Lockdown Mode in System Settings or change your connection settings.</source>
         <translation>La conectividad IKEv2 no está disponible en el modo de bloqueo de MacOS. Deshabilite el modo de bloqueo en la configuración del sistema o cambie la configuración de conexión.</translation>
-    </message>
-    <message>
-        <source>Rotating MAC Address</source>
-        <translation>Rotando la dirección MAC</translation>
     </message>
     <message>
         <source>Wi-Fi is off</source>
@@ -1119,10 +1147,6 @@ Si el problema persiste después de un reinicio, envíe un registro de depuraci�
     <message>
         <source>Creating your account...</source>
         <translation>Creando su cuenta...</translation>
-    </message>
-    <message>
-        <source>Cannot rotate MAC address while connected to VPN. Please disconnect first.</source>
-        <translation>No se puede rotar la dirección MAC mientras está conectado a la VPN. Por favor, desconecta primero.</translation>
     </message>
 </context>
 <context>
@@ -1566,14 +1590,6 @@ Si el problema persiste después de un reinicio, envíe un registro de depuraci�
         <translation>Selecciona una de estas ubicaciones para conectarte a través de tu servidor hydra.</translation>
     </message>
     <message>
-        <source>Spoof your device&apos;s physical address (MAC address).</source>
-        <translation>Suplante la dirección física de su dispositivo (dirección MAC).</translation>
-    </message>
-    <message>
-        <source>MAC spoofing requires NetworkManager to be installed and running.</source>
-        <translation>La suplantación MAC requiere que NetworkManager esté instalado y en funcionamiento.</translation>
-    </message>
-    <message>
         <source>Close all active TCP sockets when the VPN tunnel is established.</source>
         <translation>Cierre todos los sockets TCP activos cuando se establezca el túnel VPN.</translation>
     </message>
@@ -1963,45 +1979,6 @@ Si el problema persiste después de un reinicio, envíe un registro de depuraci�
     <message>
         <source>Tray Icon Colour</source>
         <translation>Color del icono de la bandeja</translation>
-    </message>
-</context>
-<context>
-    <name>PreferencesWindow::MacSpoofingGroup</name>
-    <message>
-        <source>You can only spoof an existing adapter.</source>
-        <translation>Solo puede suplantar un adaptador existente.</translation>
-    </message>
-    <message>
-        <source>Cannot spoof on &apos;No Interface&apos;</source>
-        <translation>No se puede suplantar en &apos;Sin interfaz&apos;</translation>
-    </message>
-    <message>
-        <source>Cannot spoof the current interface</source>
-        <translation>No se puede suplantar la interfaz actual</translation>
-    </message>
-    <message>
-        <source>The current primary interface must match the selected interface to spoof.</source>
-        <translation>La interfaz principal actual debe coincidir con la interfaz seleccionada para suplantar.</translation>
-    </message>
-    <message>
-        <source>No Interface</source>
-        <translation>Sin interfaz</translation>
-    </message>
-    <message>
-        <source>MAC Spoofing</source>
-        <translation>Suplantación de MAC</translation>
-    </message>
-    <message>
-        <source>MAC Address</source>
-        <translation>Dirección MAC</translation>
-    </message>
-    <message>
-        <source>Interface</source>
-        <translation>Interfaz</translation>
-    </message>
-    <message>
-        <source>Auto-Rotate MAC</source>
-        <translation>Rotación automática de MAC</translation>
     </message>
 </context>
 <context>

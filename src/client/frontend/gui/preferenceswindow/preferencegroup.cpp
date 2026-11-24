@@ -259,7 +259,7 @@ void PreferenceGroup::updatePositions()
     update();
 
     // set description icon location
-    if (!error_ && !descUrl_.isEmpty()) {
+    if (!error_ && !descUrl_.isEmpty() && descHeight_ > 0) {
         icon_->setVisible(true);
         icon_->setPos(boundingRect().width() + PREFERENCES_MARGIN_X*G_SCALE - descRightMargin_,
                       boundingRect().height() - descHeight_/2 - descVMargin - ICON_HEIGHT/2*G_SCALE);

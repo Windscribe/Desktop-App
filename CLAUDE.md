@@ -20,7 +20,7 @@ This application provides secure, private internet access by routing your traffi
 ### Key Features
 
 - **Multiple VPN Protocols**: WireGuard (with Post-Quantum encryption), OpenVPN (UDP/TCP), IKEv2, Stealth, WSTunnel - over 20 connection ports
-- **Privacy & Security**: Always-on firewall eliminates leaks, MAC address spoofing, DNS-based content filtering (R.O.B.E.R.T.), custom DNS support
+- **Privacy & Security**: Always-on firewall eliminates leaks, DNS-based content filtering (R.O.B.E.R.T.), custom DNS support
 - **Advanced Networking**: Network-wide and per-app split tunneling, create HTTP/SOCKS5 proxy servers, WiFi sharing (ICS/NAT)
 - **Interfaces**: Full-featured Qt Widgets GUI and comprehensive CLI (pure CLI mode available on Linux)
 - **Anti-Censorship**: Built-in failover with 16+ strategies including DoH, ECH, CDN fronting for bypassing censorship
@@ -85,7 +85,6 @@ client-desktop/
     - `customconfigs/` - Custom VPN config import
     - `emergencycontroller/` - Fallback emergency connection
     - `networkdetectionmanager/` - Network change detection
-    - `macaddresscontroller/` - MAC spoofing
     - `splittunnelextension/` - Split tunneling coordination
 
 #### Helper Process (`src/helper/`)
@@ -417,7 +416,6 @@ The application follows a **layered architecture with privilege separation**. Th
 │  • VpnShare: WiFi sharing (ICS/NAT)                      │
 │  • SplitTunneling: Per-app/network routing               │
 │  • EmergencyController: Hardcoded fallback endpoints     │
-│  • MacAddressController: MAC spoofing                    │
 └────────────────┬─────────────────────────────────────────┘
                  │ Binary serialization via Boost.Archive
 ┌────────────────┴─────────────────────────────────────────┐

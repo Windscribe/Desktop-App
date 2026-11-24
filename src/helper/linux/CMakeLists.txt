@@ -17,12 +17,20 @@ find_path(NFTABLES_INCLUDE_DIR nftables/libnftables.h REQUIRED)
 set(SOURCES
     ../../client/client-common/types/ipaddress.cpp
     ../../client/client-common/utils/dns_utils/dnsleakparse.cpp
+    ../../client/client-common/utils/log/debug_trace.cpp
+    ../common/default_gateway_posix.cpp
+    ../common/defaultroutemonitor_posix.cpp
     ../common/io_posix.cpp
+    ../common/netlink_route_linux.cpp
     ../common/ovpn_early_exit_log.cpp
     ../common/ovpn_mgmt_posix.cpp
+    ../common/ovpn_posix.cpp
+    ../common/process_command_posix.cpp
     ../common/process_kill_posix.cpp
     ../common/spawn_posix.cpp
     ../common/validation_posix.cpp
+    ../common/wg_dns_routes.cpp
+    ../common/wireguardcommunicator_posix.cpp
     clear_wifi_history/clear_wifi_history.cpp
     dnsleakprotect.cpp
     firewallcontroller.cpp
@@ -30,7 +38,6 @@ set(SOURCES
     installer_verifier.cpp
     main.cpp
     nftables/nftablescontroller.cpp
-    ovpn.cpp
     process_command.cpp
     server.cpp
     utils.cpp
@@ -45,7 +52,6 @@ set(SOURCES
     split_tunneling/hostnames_manager/ip_routes.cpp
     split_tunneling/hostnames_manager/main_route_table.cpp
     split_tunneling/hostnames_manager/route_change_monitor.cpp
-    wireguard/defaultroutemonitor.cpp
     wireguard/wireguardadapter.cpp
     wireguard/userspace/wireguardgocommunicator.cpp
     wireguard/kernelmodule/kernelmodulecommunicator.cpp
@@ -55,6 +61,7 @@ set(SOURCES
 
 add_executable(helper ${SOURCES})
 set_property(TARGET helper PROPERTY COMPILE_WARNING_AS_ERROR ON)
+target_compile_definitions(helper PRIVATE DEBUG_TRACE_SPDLOG)
 
 target_link_libraries(helper
                       PRIVATE

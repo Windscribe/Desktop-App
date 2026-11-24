@@ -21,6 +21,10 @@ public:
 
     void start();
     void setDisconnectedByKeyLimit();
+    // The GUI shows or takes down its WireGuard key limit prompt, so a CLI waiting on the connection can say so.
+    void setKeyLimitPromptPending(bool isPending);
+    // The GUI took the CAPTCHA solution; the login goes on without it.
+    void clearCaptchaRequired();
 
 signals:
     void connectToLocation(const LocationID &id, const types::Protocol &protocol, uint port);
@@ -65,6 +69,7 @@ private:
 
     bool isCaptchaRequired_ = false;
     QString asciiArt_;
+    bool isKeyLimitPromptPending_ = false;
 
     UPDATE_VERSION_STATE updateState_;
     UPDATE_VERSION_ERROR updateError_;

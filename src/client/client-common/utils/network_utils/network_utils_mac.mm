@@ -2,6 +2,7 @@
 
 #import <CoreLocation/CoreLocation.h>
 #import <CoreWLAN/CoreWLAN.h>
+#import <SystemConfiguration/SystemConfiguration.h>
 
 #include <QCoreApplication>
 #include <QDir>
@@ -14,6 +15,7 @@
 #include <ifaddrs.h>
 #include <libproc.h>
 #include <net/if.h>
+#include <net/if_dl.h>
 #include <netinet/in.h>
 #include <semaphore.h>
 #include <unistd.h>
@@ -22,11 +24,55 @@
 #include "../macutils.h"
 #include "../utils.h"
 
+namespace {
+
+CFPropertyListRef copyInterfaceState(const QString &interfaceName, const char *entity)
+{
+    SCDynamicStoreRef store = SCDynamicStoreCreate(kCFAllocatorDefault, CFSTR("" WS_APP_IDENTIFIER "InterfaceState"), NULL, NULL);
+    if (store == NULL) {
+        return NULL;
+    }
+    const QString key = "State:/Network/Interface/" + interfaceName + "/" + entity;
+    CFStringRef keyRef = key.toCFString();
+    CFPropertyListRef value = SCDynamicStoreCopyValue(store, keyRef);
+    CFRelease(keyRef);
+    CFRelease(store);
+    return value;
+}
+
+bool hasInterfaceState(const QString &interfaceName, const char *entity)
+{
+    CFPropertyListRef value = copyInterfaceState(interfaceName, entity);
+    if (value == NULL) {
+        return false;
+    }
+    CFRelease(value);
+    return true;
+}
+
+}  // namespace
+
 QString NetworkUtils_mac::macAddressFromInterfaceName(const QString &interfaceName)
 {
-    QString command = "ifconfig " + interfaceName + " | grep 'ether' | awk '{print $2}'";
-    QString strIP = Utils::execCmd(command).trimmed();
-    return strIP;
+    QString result;
+    struct ifaddrs *interfaces = NULL;
+    if (getifaddrs(&interfaces) != 0) {
+        return result;
+    }
+    const QByteArray name = interfaceName.toUtf8();
+    for (struct ifaddrs *ifa = interfaces; ifa != NULL; ifa = ifa->ifa_next) {
+        if (ifa->ifa_addr == NULL || ifa->ifa_addr->sa_family != AF_LINK || strcmp(ifa->ifa_name, name.constData()) != 0) {
+            continue;
+        }
+        const struct sockaddr_dl *sdl = reinterpret_cast<const struct sockaddr_dl *>(ifa->ifa_addr);
+        if (sdl->sdl_alen == 6) {
+            const unsigned char *mac = reinterpret_cast<const unsigned char *>(LLADDR(sdl));
+            result = QString::asprintf("%02x:%02x:%02x:%02x:%02x:%02x", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+        }
+        break;
+    }
+    freeifaddrs(interfaces);
+    return result;
 }
 
 QString NetworkUtils_mac::lastConnectedNetworkInterfaceName()
@@ -63,25 +109,24 @@ QString NetworkUtils_mac::lastConnectedNetworkInterfaceName()
 
 bool NetworkUtils_mac::isWifiAdapter(const QString &networkInterface)
 {
-    QString command = "echo 'list' | scutil | grep State:/Network/Interface/" + networkInterface + "/AirPort";
-    QString statusResult = Utils::execCmd(command).trimmed();
-    return statusResult != "";
+    return hasInterfaceState(networkInterface, "AirPort");
 }
 
 bool NetworkUtils_mac::isAdapterUp(const QString &networkInterfaceName)
 {
-    if (isWifiAdapter(networkInterfaceName))
-    {
-        QString command = "echo 'show State:/Network/Interface/" + networkInterfaceName + "/AirPort' | scutil | grep 'Power Status' | awk '{print $4}'";
-        QString result = Utils::execCmd(command).trimmed();
-        return result == "TRUE";
+    CFPropertyListRef airPort = copyInterfaceState(networkInterfaceName, "AirPort");
+    if (airPort == NULL) {
+        return hasInterfaceState(networkInterfaceName, "IPv4");
     }
-    else
-    {
-        QString command = "echo 'list' | scutil | grep State:/Network/Interface/" + networkInterfaceName + "/IPv4";
-        QString result = Utils::execCmd(command).trimmed();
-        return result != "";
+    bool isPowered = false;
+    if (CFGetTypeID(airPort) == CFDictionaryGetTypeID()) {
+        CFTypeRef power = CFDictionaryGetValue(static_cast<CFDictionaryRef>(airPort), CFSTR("Power Status"));
+        if (power != NULL && CFGetTypeID(power) == CFBooleanGetTypeID()) {
+            isPowered = CFBooleanGetValue(static_cast<CFBooleanRef>(power));
+        }
     }
+    CFRelease(airPort);
+    return isPowered;
 }
 
 bool NetworkUtils_mac::pingWithMtu(const QString &url, int mtu)

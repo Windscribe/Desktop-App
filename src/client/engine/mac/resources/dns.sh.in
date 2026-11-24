@@ -5,7 +5,7 @@ PATH=/usr/bin:/bin:/usr/sbin:/sbin
 export PATH
 
 # Arbitrary UUID
-SERVICE_UUID="019566B0-ECE7-707F-9A54-EED796210EB0"
+SERVICE_UUID="@WS_MAC_DNS_SERVICE_UUID@"
 
 if [ "$1" = "-up" ] ; then
     DOMAIN_NAME="@WS_PRODUCT_NAME_LOWER@-client"

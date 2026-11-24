@@ -1,9 +1,5 @@
 #include "network_utils.h"
 
-#include <QRegularExpression>
-
-#include "../utils.h"
-
 #if defined Q_OS_WIN
 #include "network_utils_win.h"
 #elif defined Q_OS_MACOS
@@ -11,51 +7,6 @@
 #elif defined Q_OS_LINUX
 #include "network_utils_linux.h"
 #endif
-
-QString NetworkUtils::generateRandomMacAddress()
-{
-    QString s;
-
-    for (int i = 0; i < 6; i++) {
-        char buf[256];
-        int tp = Utils::generateIntegerRandom(0, 255);
-
-        // Lowest bit in first byte must not be 1 ( 0 - Unicast, 1 - multicast )
-        // 2nd lowest bit in first byte must be 1 ( 0 - device, 1 - locally administered mac address )
-        if ( i == 0) {
-            tp |= 0x02;
-            tp &= 0xFE;
-        }
-
-        snprintf(buf, 256, "%s%X", tp < 16 ? "0" : "", tp);
-        s += QString::fromStdString(buf);
-    }
-    return s;
-}
-
-QString NetworkUtils::formatMacAddress(QString macAddress)
-{
-    // WS_ASSERT(macAddress.length() == 12);
-
-    QString formattedMac = QString("%1:%2:%3:%4:%5:%6")
-        .arg(macAddress.mid(0,2))
-        .arg(macAddress.mid(2,2))
-        .arg(macAddress.mid(4,2))
-        .arg(macAddress.mid(6,2))
-        .arg(macAddress.mid(8,2))
-        .arg(macAddress.mid(10,2));
-
-    return formattedMac;
-}
-
-QString NetworkUtils::normalizeMacAddress(const QString &str)
-{
-    QString macAddr = str;
-    // Strip all standard MAC separators (colon, hyphen, and Cisco-style dot) so that
-    // addresses imported in any valid notation normalize to the canonical 12-char hex form.
-    macAddr.remove(QRegularExpression("[:.-]"));
-    return macAddr.toUpper();
-}
 
 bool NetworkUtils::pingWithMtu(const QString &url, int mtu)
 {

@@ -21,7 +21,7 @@ CACHE_NAMESERVER_FILE="$CACHE_NAMESERVER_DIR/$DEV.nameserver"
 RESOLV_TMP_FILE="/var/lib/windscribe/resolv.conf"
 
 case "$script_type" in
-  up)
+  up|route-up)
     if [ ! -d "$CACHE_NAMESERVER_DIR" ]; then
         mkdir "$CACHE_NAMESERVER_DIR"
     fi

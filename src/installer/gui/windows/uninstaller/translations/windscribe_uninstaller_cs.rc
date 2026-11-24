@@ -7,4 +7,5 @@ BEGIN
     IDS_CONFIRM_UNINSTALL "Jste si jisti, že chcete kompletně odstranit Windscribe a všechny její součásti?"
     IDS_UNINSTALL_SUCCESS "Windscribe byla úspěšně odstraněna z vašeho zařízení."
     IDS_CLOSE_APP "Vypněte aplikaci Windscribe, aby bylo možné pokračovat v odinstalaci. Upozorňujeme, že po vypnutí VPN aplikace nebude vaše připojení chráněno."
+    IDS_DELETE_ALL_DATA "Odstranit také moje nastavení a data (zvolte, pokud Windscribe nebudete znovu instalovat)"
 END

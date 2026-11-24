@@ -493,6 +493,22 @@
         <source>Your username should not be an email address. Please try again.</source>
         <translation>Το όνομα χρήστη σας δεν πρέπει να είναι διεύθυνση email. Παρακαλώ προσπαθήστε ξανά.</translation>
     </message>
+    <message>
+        <source>Username must be 3 to 255 characters</source>
+        <translation>Το όνομα χρήστη πρέπει να αποτελείται από 3 έως 255 χαρακτήρες</translation>
+    </message>
+    <message>
+        <source>Use only A–Z, a–z, 0–9, _ and -</source>
+        <translation>Μόνο A–Z, a–z, 0–9, _ και -</translation>
+    </message>
+    <message>
+        <source>Password must be 8 to 255 characters</source>
+        <translation>Ο κωδικός πρόσβασης πρέπει να αποτελείται από 8 έως 255 χαρακτήρες</translation>
+    </message>
+    <message>
+        <source>An unknown error occurred.</source>
+        <translation>Παρουσιάστηκε άγνωστο σφάλμα.</translation>
+    </message>
 </context>
 <context>
     <name>LoginWindow::SignupWindowItem</name>
@@ -523,10 +539,6 @@
     <message>
         <source>Enter password</source>
         <translation>Εισάγετε τον κωδικό πρόσβασης</translation>
-    </message>
-    <message>
-        <source>8 or more characters with at least one uppercase and lowercase(ie. &quot;Hello1234&quot;, &quot;Solyanka&quot;).</source>
-        <translation>8 ή περισσότεροι χαρακτήρες με τουλάχιστον ένα κεφαλαίο και πεζό (δηλ. &quot;Hello1234&quot;, &quot;Solyanka&quot;).</translation>
     </message>
     <message>
         <source>Email (Optional)</source>
@@ -579,10 +591,6 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
         <translation>Όλα τα αρχεία (*.*)</translation>
     </message>
     <message>
-        <source>Username must be at least 3 characters</source>
-        <translation>Το όνομα χρήστη πρέπει να αποτελείται από τουλάχιστον 3 χαρακτήρες</translation>
-    </message>
-    <message>
         <source>Your username should not be an email address.</source>
         <translation>Το όνομα χρήστη σας δεν πρέπει να είναι διεύθυνση email.</translation>
     </message>
@@ -593,6 +601,18 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
     <message>
         <source>Invalid hash</source>
         <translation>Μη έγκυρος κατακερματισμός</translation>
+    </message>
+    <message>
+        <source>Username must be 3 to 255 characters</source>
+        <translation>Το όνομα χρήστη πρέπει να αποτελείται από 3 έως 255 χαρακτήρες</translation>
+    </message>
+    <message>
+        <source>Use only A–Z, a–z, 0–9, _ and -</source>
+        <translation>Μόνο A–Z, a–z, 0–9, _ και -</translation>
+    </message>
+    <message>
+        <source>Password must be 8 to 255 characters</source>
+        <translation>Ο κωδικός πρόσβασης πρέπει να αποτελείται από 8 έως 255 χαρακτήρες</translation>
     </message>
 </context>
 <context>
@@ -677,14 +697,6 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
         <translation>Η μορφή του επιλεγμένου αρχείου είναι λανθασμένη.</translation>
     </message>
     <message>
-        <source>Rotating MAC Address</source>
-        <translation>Περιστρεφόμενη διεύθυνση MAC</translation>
-    </message>
-    <message>
-        <source>Rotating your MAC address will result in a disconnect event from the current network. Are you sure?</source>
-        <translation>Η περιστροφή της διεύθυνσης MAC θα έχει ως αποτέλεσμα ένα συμβάν αποσύνδεσης από το τρέχον δίκτυο. Είσαι σίγουρος?</translation>
-    </message>
-    <message>
         <source>VPN is active</source>
         <translation>Το VPN είναι ενεργό</translation>
     </message>
@@ -763,6 +775,34 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
     <message>
         <source>The selected directory is writeable for other users. Custom configs in this directory may pose a potential security risk.</source>
         <translation>Ο επιλεγμένος κατάλογος είναι εγγράψιμος για άλλους χρήστες. Οι προσαρμοσμένες ρυθμίσεις παραμέτρων σε αυτόν τον κατάλογο ενδέχεται να αποτελούν πιθανό κίνδυνο για την ασφάλεια.</translation>
+    </message>
+    <message>
+        <source>MAC Spoofing Removed</source>
+        <translation>Η πλαστογράφηση MAC καταργήθηκε</translation>
+    </message>
+    <message>
+        <source>MAC spoofing has been removed. Your spoofed MAC address stays active until you restart your computer or network adapter. To use a random address on Wi-Fi, turn on Random hardware addresses.</source>
+        <translation>Η πλαστογράφηση MAC καταργήθηκε. Η πλαστογραφημένη διεύθυνση MAC παραμένει ενεργή έως ότου επανεκκινήσετε τον υπολογιστή ή τον προσαρμογέα δικτύου σας. Για να χρησιμοποιήσετε τυχαία διεύθυνση σε Wi-Fi, ενεργοποιήστε την επιλογή «Τυχαίες διευθύνσεις υλικού».</translation>
+    </message>
+    <message>
+        <source>Open Wi-Fi Settings</source>
+        <translation>Άνοιγμα ρυθμίσεων Wi-Fi</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>Κλείσιμο</translation>
+    </message>
+    <message>
+        <source>MAC spoofing is no longer available in Windscribe. To use a random MAC address on Wi-Fi, set Private Wi-Fi address to Rotating in System Settings &gt; Wi-Fi &gt; Details.</source>
+        <translation>Η πλαστογράφηση MAC δεν είναι πλέον διαθέσιμη στο Windscribe. Για να χρησιμοποιήσετε τυχαία διεύθυνση MAC σε Wi-Fi, ορίστε την επιλογή «Ιδιωτική διεύθυνση Wi-Fi» σε «Εναλλασσόμενη» στη διαδρομή Ρυθμίσεις συστήματος &gt; Wi-Fi &gt; Λεπτομέρειες.</translation>
+    </message>
+    <message>
+        <source>MAC spoofing is no longer available in Windscribe. To use a random MAC address on Wi-Fi, update to macOS 15 or later, then set Private Wi-Fi address to Rotating in System Settings &gt; Wi-Fi &gt; Details.</source>
+        <translation>Η πλαστογράφηση MAC δεν είναι πλέον διαθέσιμη στο Windscribe. Για να χρησιμοποιήσετε τυχαία διεύθυνση MAC σε Wi-Fi, ενημερώστε σε macOS 15 ή νεότερη έκδοση και, στη συνέχεια, ορίστε την επιλογή «Ιδιωτική διεύθυνση Wi-Fi» σε «Εναλλασσόμενη» στη διαδρομή Ρυθμίσεις συστήματος &gt; Wi-Fi &gt; Λεπτομέρειες.</translation>
+    </message>
+    <message>
+        <source>MAC spoofing has been removed. Your network connection may still use the spoofed MAC address. To change it, set its cloned MAC address to Random, or clear it, in your network settings.</source>
+        <translation>Η πλαστογράφηση MAC καταργήθηκε. Η σύνδεση δικτύου σας ενδέχεται να εξακολουθεί να χρησιμοποιεί την πλαστογραφημένη διεύθυνση MAC. Για να την αλλάξετε, ορίστε την κλωνοποιημένη διεύθυνση MAC της σύνδεσης σε «Τυχαία» ή διαγράψτε την στις ρυθμίσεις δικτύου.</translation>
     </message>
     <message>
         <source>Installation Incomplete</source>
@@ -901,18 +941,6 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
     <message>
         <source>Contact Support</source>
         <translation>Επικοινωνήστε με την Υποστήριξη</translation>
-    </message>
-    <message>
-        <source>MAC Spoofing Failed</source>
-        <translation>Η πλαστογράφηση MAC απέτυχε</translation>
-    </message>
-    <message>
-        <source>Your network adapter does not support MAC spoofing. Try a different adapter.</source>
-        <translation>Ο προσαρμογέας δικτύου σας δεν υποστηρίζει πλαστογράφηση MAC. Δοκιμάστε έναν διαφορετικό προσαρμογέα.</translation>
-    </message>
-    <message>
-        <source>Could not spoof MAC address.  Please try a different network interface or contact support.</source>
-        <translation>Δεν ήταν δυνατή η πλαστογράφηση της διεύθυνσης MAC.  Δοκιμάστε μια διαφορετική διεπαφή δικτύου ή επικοινωνήστε με την υποστήριξη.</translation>
     </message>
     <message>
         <source>Detection Error</source>
@@ -1119,10 +1147,6 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Creating your account...</source>
         <translation>Δημιουργία λογαριασμού...</translation>
-    </message>
-    <message>
-        <source>Cannot rotate MAC address while connected to VPN. Please disconnect first.</source>
-        <translation>Δεν είναι δυνατή η περιστροφή της διεύθυνσης MAC κατά τη σύνδεση σε VPN. Αποσυνδεθείτε πρώτα.</translation>
     </message>
 </context>
 <context>
@@ -1582,14 +1606,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Επιλέξτε μία από αυτές τις τοποθεσίες για σύνδεση μέσω του διακομιστή hydra σας.</translation>
     </message>
     <message>
-        <source>Spoof your device&apos;s physical address (MAC address).</source>
-        <translation>Πλαστογραφήστε τη φυσική διεύθυνση της συσκευής σας (διεύθυνση MAC).</translation>
-    </message>
-    <message>
-        <source>MAC spoofing requires NetworkManager to be installed and running.</source>
-        <translation>Η πλαστογράφηση MAC απαιτεί την εγκατάσταση και εκτέλεση του NetworkManager.</translation>
-    </message>
-    <message>
         <source>Close all active TCP sockets when the VPN tunnel is established.</source>
         <translation>Κλείστε όλες τις ενεργές υποδοχές TCP όταν δημιουργηθεί η διοχέτευση VPN.</translation>
     </message>
@@ -1963,45 +1979,6 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Reset</source>
         <translation>Επαναφορά</translation>
-    </message>
-</context>
-<context>
-    <name>PreferencesWindow::MacSpoofingGroup</name>
-    <message>
-        <source>Cannot spoof on &apos;No Interface&apos;</source>
-        <translation>Δεν είναι δυνατή η πλαστογράφηση στο &quot;No Interface&quot;</translation>
-    </message>
-    <message>
-        <source>You can only spoof an existing adapter.</source>
-        <translation>Μπορείτε να πλαστογραφήσετε μόνο έναν υπάρχοντα προσαρμογέα.</translation>
-    </message>
-    <message>
-        <source>Cannot spoof the current interface</source>
-        <translation>Δεν είναι δυνατή η πλαστογράφηση της τρέχουσας διεπαφής</translation>
-    </message>
-    <message>
-        <source>The current primary interface must match the selected interface to spoof.</source>
-        <translation>Η τρέχουσα κύρια διεπαφή πρέπει να ταιριάζει με την επιλεγμένη διεπαφή για πλαστογράφηση.</translation>
-    </message>
-    <message>
-        <source>No Interface</source>
-        <translation>Χωρίς διεπαφή</translation>
-    </message>
-    <message>
-        <source>MAC Spoofing</source>
-        <translation>Πλαστογράφηση MAC</translation>
-    </message>
-    <message>
-        <source>MAC Address</source>
-        <translation>Διεύθυνση MAC</translation>
-    </message>
-    <message>
-        <source>Interface</source>
-        <translation>Διεπαφή</translation>
-    </message>
-    <message>
-        <source>Auto-Rotate MAC</source>
-        <translation>Αυτόματη περιστροφή MAC</translation>
     </message>
 </context>
 <context>

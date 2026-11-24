@@ -86,10 +86,6 @@ public:
     void reinstallWanIkev2();
     void enableWanIkev2();
 
-    void setMacAddressRegistryValueSz(const QString &subkeyInterfaceName, const QString &value);
-    void removeMacAddressRegistryProperty(const QString &subkeyInterfaceName);
-    void resetNetworkAdapter(int ifIndex, bool bringAdapterBackUp);
-
     void addIKEv2DefaultRoute();
     void removeAppNetworkProfiles();
     void disableIKEv2MODP2048Support();

@@ -493,6 +493,22 @@
         <source>Your username should not be an email address. Please try again.</source>
         <translation>你的用户名不应该是电子邮件地址。请再试一次。</translation>
     </message>
+    <message>
+        <source>Username must be 3 to 255 characters</source>
+        <translation>用户名必须为 3 到 255 个字符</translation>
+    </message>
+    <message>
+        <source>Use only A–Z, a–z, 0–9, _ and -</source>
+        <translation>只能使用 A–Z, a–z, 0–9, _ 和 -</translation>
+    </message>
+    <message>
+        <source>Password must be 8 to 255 characters</source>
+        <translation>密码必须为 8 到 255 个字符</translation>
+    </message>
+    <message>
+        <source>An unknown error occurred.</source>
+        <translation>发生了一个未知的错误。</translation>
+    </message>
 </context>
 <context>
     <name>LoginWindow::SignupWindowItem</name>
@@ -523,10 +539,6 @@
     <message>
         <source>Enter password</source>
         <translation>输入密码</translation>
-    </message>
-    <message>
-        <source>8 or more characters with at least one uppercase and lowercase(ie. &quot;Hello1234&quot;, &quot;Solyanka&quot;).</source>
-        <translation>8个或以上字符，至少包含一个大写和一个小写字母（例如：“你好1234”、“索良卡”）。</translation>
     </message>
     <message>
         <source>Email (Optional)</source>
@@ -579,10 +591,6 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
         <translation>所有文件（*.*）</translation>
     </message>
     <message>
-        <source>Username must be at least 3 characters</source>
-        <translation>用户名必须至少3个字符</translation>
-    </message>
-    <message>
         <source>Your username should not be an email address.</source>
         <translation>你的用户名不应该是电子邮件地址。</translation>
     </message>
@@ -593,6 +601,18 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
     <message>
         <source>Invalid hash</source>
         <translation>无效哈希</translation>
+    </message>
+    <message>
+        <source>Username must be 3 to 255 characters</source>
+        <translation>用户名必须为 3 到 255 个字符</translation>
+    </message>
+    <message>
+        <source>Use only A–Z, a–z, 0–9, _ and -</source>
+        <translation>只能使用 A–Z, a–z, 0–9, _ 和 -</translation>
+    </message>
+    <message>
+        <source>Password must be 8 to 255 characters</source>
+        <translation>密码必须为 8 到 255 个字符</translation>
     </message>
 </context>
 <context>
@@ -643,10 +663,6 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
     <message>
         <source>VPN is active</source>
         <translation>VPN 处于活动状态</translation>
-    </message>
-    <message>
-        <source>Rotating your MAC address will result in a disconnect event from the current network. Are you sure?</source>
-        <translation>旋转 MAC 地址将导致与当前网络断开连接的事件，是否确定？</translation>
     </message>
     <message>
         <source>Cannot detect appropriate packet size while connected. Please disconnect first.</source>
@@ -711,6 +727,34 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
     <message>
         <source>The selected directory is writeable for other users. Custom configs in this directory may pose a potential security risk.</source>
         <translation>所选目录可写入其他用户。该目录中的自定义配置可能构成潜在的安全风险。</translation>
+    </message>
+    <message>
+        <source>MAC Spoofing Removed</source>
+        <translation>MAC 欺骗已移除</translation>
+    </message>
+    <message>
+        <source>MAC spoofing has been removed. Your spoofed MAC address stays active until you restart your computer or network adapter. To use a random address on Wi-Fi, turn on Random hardware addresses.</source>
+        <translation>MAC 欺骗已移除。在你重启电脑或网络适配器之前，欺骗的 MAC 地址仍会生效。要在 Wi-Fi 上使用随机地址，请打开“随机硬件地址”。</translation>
+    </message>
+    <message>
+        <source>Open Wi-Fi Settings</source>
+        <translation>打开 Wi-Fi 设置</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>关闭</translation>
+    </message>
+    <message>
+        <source>MAC spoofing is no longer available in Windscribe. To use a random MAC address on Wi-Fi, set Private Wi-Fi address to Rotating in System Settings &gt; Wi-Fi &gt; Details.</source>
+        <translation>Windscribe 不再提供 MAC 欺骗。要在 Wi-Fi 上使用随机 MAC 地址，请在“系统设置 &gt; Wi-Fi &gt; 详细信息”中将“私有 Wi-Fi 地址”设为“轮替”。</translation>
+    </message>
+    <message>
+        <source>MAC spoofing is no longer available in Windscribe. To use a random MAC address on Wi-Fi, update to macOS 15 or later, then set Private Wi-Fi address to Rotating in System Settings &gt; Wi-Fi &gt; Details.</source>
+        <translation>Windscribe 不再提供 MAC 欺骗。要在 Wi-Fi 上使用随机 MAC 地址，请更新到 macOS 15 或更高版本，然后在“系统设置 &gt; Wi-Fi &gt; 详细信息”中将“私有 Wi-Fi 地址”设为“轮替”。</translation>
+    </message>
+    <message>
+        <source>MAC spoofing has been removed. Your network connection may still use the spoofed MAC address. To change it, set its cloned MAC address to Random, or clear it, in your network settings.</source>
+        <translation>MAC 欺骗已移除。你的网络连接可能仍在使用欺骗的 MAC 地址。要更改，请在网络设置中将该连接的克隆 MAC 地址设为“随机”，或将其清除。</translation>
     </message>
     <message>
         <source>Installation Incomplete</source>
@@ -797,18 +841,6 @@ If you lose your account hash, it&apos;s gone forever and support cannot help yo
     <message>
         <source>Service Error</source>
         <translation>服务错误</translation>
-    </message>
-    <message>
-        <source>MAC Spoofing Failed</source>
-        <translation>MAC 欺骗失败</translation>
-    </message>
-    <message>
-        <source>Your network adapter does not support MAC spoofing. Try a different adapter.</source>
-        <translation>您的网络适配器不支持 MAC 欺骗。尝试使用其他适配器。</translation>
-    </message>
-    <message>
-        <source>Could not spoof MAC address.  Please try a different network interface or contact support.</source>
-        <translation>无法欺骗 MAC 地址。请尝试其他网络接口或联系支持人员。</translation>
     </message>
     <message>
         <source>Detection Error</source>
@@ -973,10 +1005,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>IKEv2 连接在 MacOS 锁定模式下不可用。请在系统设置中禁用锁定模式或更改连接设置。</translation>
     </message>
     <message>
-        <source>Rotating MAC Address</source>
-        <translation>轮换 MAC 地址</translation>
-    </message>
-    <message>
         <source>Wi-Fi is off</source>
         <translation>Wi-Fi 已关闭</translation>
     </message>
@@ -1119,10 +1147,6 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Creating your account...</source>
         <translation>创建您的账户......</translation>
-    </message>
-    <message>
-        <source>Cannot rotate MAC address while connected to VPN. Please disconnect first.</source>
-        <translation>连接VPN时无法更换MAC地址。请先断开连接。</translation>
     </message>
 </context>
 <context>
@@ -1566,14 +1590,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>选择以下任一位置以通过您的 hydra 服务器连接。</translation>
     </message>
     <message>
-        <source>Spoof your device&apos;s physical address (MAC address).</source>
-        <translation>欺骗设备的物理地址（MAC 地址）。</translation>
-    </message>
-    <message>
-        <source>MAC spoofing requires NetworkManager to be installed and running.</source>
-        <translation>MAC伪装需要安装并运行NetworkManager。</translation>
-    </message>
-    <message>
         <source>Close all active TCP sockets when the VPN tunnel is established.</source>
         <translation>建立 VPN 隧道后关闭所有活动的 TCP 连接。</translation>
     </message>
@@ -1963,45 +1979,6 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Tray Icon Colour</source>
         <translation>托盘图标颜色</translation>
-    </message>
-</context>
-<context>
-    <name>PreferencesWindow::MacSpoofingGroup</name>
-    <message>
-        <source>Cannot spoof on &apos;No Interface&apos;</source>
-        <translation>无法欺骗“无接口”</translation>
-    </message>
-    <message>
-        <source>You can only spoof an existing adapter.</source>
-        <translation>您只能欺骗现有适配器。</translation>
-    </message>
-    <message>
-        <source>Cannot spoof the current interface</source>
-        <translation>无法欺骗当前接口</translation>
-    </message>
-    <message>
-        <source>The current primary interface must match the selected interface to spoof.</source>
-        <translation>当前主接口必须与所选接口匹配以进行欺骗。</translation>
-    </message>
-    <message>
-        <source>No Interface</source>
-        <translation>无接口</translation>
-    </message>
-    <message>
-        <source>MAC Spoofing</source>
-        <translation>MAC 欺骗</translation>
-    </message>
-    <message>
-        <source>MAC Address</source>
-        <translation>MAC地址</translation>
-    </message>
-    <message>
-        <source>Interface</source>
-        <translation>接口</translation>
-    </message>
-    <message>
-        <source>Auto-Rotate MAC</source>
-        <translation>自动旋转 MAC</translation>
     </message>
 </context>
 <context>

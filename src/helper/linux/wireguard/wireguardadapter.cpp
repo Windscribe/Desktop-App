@@ -1,19 +1,23 @@
 #include "wireguardadapter.h"
-#include "../../common/helper_commands.h"
-#include "../../common/io_posix.h"
-#include "../nftables/nftablescontroller.h"
-#include "../utils.h"
-#include "types/ipaddress.h"
+
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/algorithm/string/split.hpp>
 #include <fcntl.h>
 #include <filesystem>
+#include <spdlog/spdlog.h>
 #include <sstream>
 #include <sys/stat.h>
 #include <unistd.h>
-#include <spdlog/spdlog.h>
+
+#include "../../common/helper_commands.h"
+#include "../../common/io_posix.h"
+#include "../../common/wg_dns_routes.h"
+#include "../nftables/nftablescontroller.h"
+#include "../utils.h"
+#include "types/ipaddress.h"
+#include "utils/log/debug_trace.h"
 
 namespace
 {
@@ -142,6 +146,33 @@ bool WireGuardAdapter::setIpAddress(const std::string &address)
     return RunBlockingCommands(cmdlist);
 }
 
+void WireGuardAdapter::addDnsServerRoutes(const std::string &addressList, const std::vector<std::string> &allowedIps,
+                                          const std::string &peerEndpoint)
+{
+    for (const auto &server : WgDnsRoutes::serversNeedingTunnelRoute(addressList, allowedIps, peerEndpoint)) {
+        const char *family = server.isV6() ? "-6" : "-4";
+        std::string lookup;
+        if (Utils::executeCommand("ip", {family, "route", "show", "table", "main", "match", server.toString()}, &lookup, false) != 0 ||
+            !WgDnsRoutes::isDefaultOnlyInLinuxRouteMatch(lookup)) {
+            continue;
+        }
+        const std::string host = server.toString() + (server.isV6() ? "/128" : "/32");
+        if (!RunBlockingCommands({{"ip", {family, "route", "add", host, "dev", getName()}}})) {
+            continue;
+        }
+        dnsServerRoutes_.push_back(server);
+    }
+}
+
+void WireGuardAdapter::removeDnsServerRoutes()
+{
+    for (const auto &server : dnsServerRoutes_) {
+        const std::string host = server.toString() + (server.isV6() ? "/128" : "/32");
+        Utils::executeCommand("ip", {server.isV6() ? "-6" : "-4", "route", "del", host, "dev", getName()});
+    }
+    dnsServerRoutes_.clear();
+}
+
 bool WireGuardAdapter::setDnsServers(const std::string &addressList, const std::string &scriptName)
 {
     dns_script_name_ = scriptName;
@@ -263,13 +294,18 @@ bool WireGuardAdapter::disableRouting()
     }
 
     if (has_default_route_v4_) {
+        WS_DEBUG_TRACE_SCOPE("WireGuardAdapter::disableRouting v4 rules");
         deleteFwmarkRulesForFamily("-4", routingTable_);
     }
     if (has_default_route_v6_) {
+        WS_DEBUG_TRACE_SCOPE("WireGuardAdapter::disableRouting v6 rules");
         deleteFwmarkRulesForFamily("-6", routingTable_);
     }
 
-    removeFirewallRules();
+    {
+        WS_DEBUG_TRACE_SCOPE("WireGuardAdapter::removeFirewallRules");
+        removeFirewallRules();
+    }
 
     return true;
 }

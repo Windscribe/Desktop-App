@@ -41,9 +41,6 @@ std::string enableDnsLeaksProtection(const std::string &pars);
 std::string disableDnsLeaksProtection(const std::string &pars);
 std::string reinstallWanIkev2(const std::string &pars);
 std::string enableWanIkev2(const std::string &pars);
-std::string setMacAddressSpoof(const std::string &pars);
-std::string removeMacAddressSpoof(const std::string &pars);
-std::string resetNetworkAdapter(const std::string &pars);
 std::string addIKEv2DefaultRoute(const std::string &pars);
 std::string removeAppNetworkProfiles(const std::string &pars);
 std::string disableIKEv2MODP2048Support(const std::string &pars);
@@ -54,6 +51,7 @@ std::string enableDohSettings(const std::string &pars);
 std::string ssidFromInterfaceGUID(const std::string &pars);
 std::string installerStageAndVerify(const std::string &pars);
 std::string installerCleanupStaged(const std::string &pars);
+std::string setDebugTrace(const std::string &pars);
 
 static const std::map<const HelperCommand, std::function<std::string(const std::string &)>> kCommands = {
     { HelperCommand::setSplitTunnelingSettings, setSplitTunnelingSettings },
@@ -91,9 +89,6 @@ static const std::map<const HelperCommand, std::function<std::string(const std::
     { HelperCommand::disableDnsLeaksProtection, disableDnsLeaksProtection },
     { HelperCommand::reinstallWanIkev2, reinstallWanIkev2 },
     { HelperCommand::enableWanIkev2, enableWanIkev2 },
-    { HelperCommand::setMacAddressRegistryValueSz, setMacAddressSpoof },
-    { HelperCommand::removeMacAddressRegistryProperty, removeMacAddressSpoof },
-    { HelperCommand::resetNetworkAdapter, resetNetworkAdapter },
     { HelperCommand::addIKEv2DefaultRoute, addIKEv2DefaultRoute },
     { HelperCommand::removeAppNetworkProfiles, removeAppNetworkProfiles },
     { HelperCommand::disableIKEv2MODP2048Support, disableIKEv2MODP2048Support },
@@ -104,6 +99,7 @@ static const std::map<const HelperCommand, std::function<std::string(const std::
     { HelperCommand::ssidFromInterfaceGUID, ssidFromInterfaceGUID },
     { HelperCommand::installerStageAndVerify, installerStageAndVerify },
     { HelperCommand::installerCleanupStaged, installerCleanupStaged },
+    { HelperCommand::setDebugTrace, setDebugTrace },
 };
 
 std::string processCommand(HelperCommand cmdId, const std::string &pars, HANDLE clientPipe);

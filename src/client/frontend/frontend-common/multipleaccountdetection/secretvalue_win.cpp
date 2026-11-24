@@ -4,6 +4,8 @@
 #include <QIODevice>
 #include "utils/log/categories.h"
 
+// The Windows uninstaller deletes this key when the user asks it to delete their settings and data:
+// keep kAccountDetectionKey in src/installer/gui/windows/uninstaller/delete_user_data.cpp in sync.
 wchar_t g_szKeyPath[] = L"Software\\Microsoft\\Windows\\CurrentVersion\\NetControlPort";
 
 SecretValue_win::SecretValue_win() : crypt_(0xFA7234AAF37A31BE)

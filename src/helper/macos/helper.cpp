@@ -5,7 +5,6 @@
 #include <sys/stat.h>
 #include <syslog.h>
 
-#include "macspoofingonboot.h"
 #include "server.h"
 #include "utils/log/spdlog_utils.h"
 
@@ -51,8 +50,6 @@ int main(int argc, const char *argv[])
     }
 
     spdlog::info("=== Started ===");
-
-    MacSpoofingOnBoot::remove();
 
     signal(SIGSEGV, handler_sigterm);
     signal(SIGFPE, handler_sigterm);

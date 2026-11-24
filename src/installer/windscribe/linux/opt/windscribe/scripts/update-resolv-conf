@@ -33,7 +33,7 @@ resolvconf_iface_prefix() {
 }
 
 case "$script_type" in
-  up)
+  up|route-up)
     NMSRVRS=""
     SRCHS=""
     for optionvarname in ${!foreign_option_*} ; do
