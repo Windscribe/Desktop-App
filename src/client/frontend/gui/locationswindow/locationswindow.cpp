@@ -199,6 +199,9 @@ void LocationsWindow::mouseReleaseEvent(QMouseEvent *event)
         setViewportHeight(height, true); // Make sure to get final size
         setViewportHeight(height, false);
         PersistentState::instance().setLocationsViewportHeight(height);
+#ifdef Q_OS_LINUX
+        emit resizeFinished();
+#endif
     }
 }
 

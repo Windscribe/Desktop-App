@@ -8,6 +8,9 @@
 #include <QGuiApplication>
 #include <QJsonDocument>
 #include <QMouseEvent>
+#ifdef Q_OS_LINUX
+#include <QResizeEvent>
+#endif
 #include <QScreen>
 #include <QStyleHints>
 #include <QThread>
@@ -456,6 +459,10 @@ void MainWindow::showAfterLaunch()
     }
 #endif
 
+#ifdef Q_OS_LINUX
+    mainWindowController_->updateMainAndViewGeometry(false, true);
+#endif
+
     if (backend_ && backend_->getPreferences()->isStartMinimized()) {
         // Set active state to false; this affects the first click of the dock icon after launch if the app is docked.
         // This state is 'true' by default, and if left as is, the first click of the dock icon will not activate the app.
@@ -684,6 +691,16 @@ void MainWindow::closeEvent(QCloseEvent *event)
         }
     }
 }
+
+#ifdef Q_OS_LINUX
+void MainWindow::resizeEvent(QResizeEvent *event)
+{
+    QWidget::resizeEvent(event);
+    if (mainWindowController_) {
+        mainWindowController_->onMainWindowExternalResize(event->size());
+    }
+}
+#endif
 
 void MainWindow::mousePressEvent(QMouseEvent *event)
 {

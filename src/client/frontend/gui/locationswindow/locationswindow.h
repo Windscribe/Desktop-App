@@ -36,6 +36,9 @@ public slots:
 
 signals:
     void heightChanged();
+#ifdef Q_OS_LINUX
+    void resizeFinished();
+#endif
     void selected(const LocationID &lid);
     void clickedOnPremiumStarCity();
     void addStaticIpClicked();
